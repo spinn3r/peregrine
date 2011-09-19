@@ -39,16 +39,11 @@ public class ExtractWriter {
 
             List<Host> membership = shardMembership.get( key );
 
-            List<ChunkWriter> output = new ArrayList();
+            List<PartitionWriter> output = new ArrayList();
             
             for ( Host member : membership ) {
 
-                String chunk_path = Config.getDFSPath( member, path );
-                String chunk = String.format( "%s/chunk0.dat" , chunk_path );
-                
-                output.add( new ChunkWriter( chunk ) );
-                
-                System.out.printf( "member path: %s\n", chunk_path );
+                output.add( new PartitionWriter( Config.getDFSPath( member, path ) ) );
                 
             }
 
@@ -85,9 +80,9 @@ public class ExtractWriter {
     private void write( int shard, byte[] key_bytes, byte[] value_bytes )
         throws IOException {
 
-        List<ChunkWriter> output = (List<ChunkWriter>) SHARD_OUTPUT[shard];
+        List<PartitionWriter> output = (List<PartitionWriter>) SHARD_OUTPUT[shard];
 
-        for( ChunkWriter out : output ) {
+        for( PartitionWriter out : output ) {
             out.write( key_bytes, value_bytes );
         }
         
@@ -96,9 +91,9 @@ public class ExtractWriter {
     public void close() throws IOException {
 
         for (int i = 0; i < SHARD_OUTPUT.length; ++i ) {
-            List<ChunkWriter> output = (List<ChunkWriter>) SHARD_OUTPUT[i];
+            List<PartitionWriter> output = (List<PartitionWriter>) SHARD_OUTPUT[i];
             
-            for( ChunkWriter out : output ) {
+            for( PartitionWriter out : output ) {
                 out.close();
             }
         }

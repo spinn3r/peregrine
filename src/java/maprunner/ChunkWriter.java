@@ -21,6 +21,8 @@ public class ChunkWriter {
     private VarintWriter varintWriter = new VarintWriter();
 
     private FileOutputStream out = null;
+
+    protected int size = 0;
     
     public ChunkWriter( String path ) throws IOException {
         this.path = path;
@@ -33,14 +35,19 @@ public class ChunkWriter {
     public void write( byte[] key_bytes, byte[] value_bytes )
         throws IOException {
 
-        out.write( varintWriter.write( key_bytes.length ) );
-        out.write( key_bytes );
+        write( varintWriter.write( key_bytes.length ) );
+        write( key_bytes );
 
-        out.write( varintWriter.write( value_bytes.length ) );
-        out.write( value_bytes );
+        write( varintWriter.write( value_bytes.length ) );
+        write( value_bytes );
 
     }
 
+    private void write( byte[] data ) throws IOException {
+        out.write( data );
+        size += data.length;
+    }
+    
     public void close() throws IOException {
         out.close();        
     }
