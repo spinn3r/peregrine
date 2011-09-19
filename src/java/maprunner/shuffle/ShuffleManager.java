@@ -3,6 +3,7 @@ package maprunner.shuffle;
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.*;
 
 import maprunner.*;
 import maprunner.keys.*;
@@ -47,8 +48,10 @@ public class ShuffleManager {
 
 class PartitionShuffleBuffer {
 
-    List<Tuple> tuples = new ArrayList();
+    //List<Tuple> tuples = new ArrayList();
 
+    BulkArray tuples = new BulkArray();
+    
     private int partition = 0;
 
     public PartitionShuffleBuffer( int partition ) {
@@ -65,34 +68,10 @@ class PartitionShuffleBuffer {
     public void cleanup() {
 
         System.out.printf( "shuffle buffer cleanup of %,d entries from partition %,d.\n", tuples.size(), partition );
+
+        Tuple[] data = tuples.toArray();
         
-        Collections.sort( tuples );
-    }
-    
-}
-
-class Tuple implements Comparable {
-
-    protected byte[] key = null;
-    protected byte[] value = null;
-
-    private long keycmp = -1;
-
-    public Tuple( byte[] key, byte[] value ) {
-        keycmp = Hashcode.toLong( key );
-    }
-
-    public int compareTo( Object o ) {
-
-        long result = keycmp - ((Tuple)o).keycmp;
-
-        // TODO: is there a faster way to do this?
-        if ( result < 0 )
-            return -1;
-        else if ( result > 0 )
-            return 1;
-
-        return 0;
+        Arrays.sort( data );
         
     }
     

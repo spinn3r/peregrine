@@ -26,7 +26,7 @@ public abstract class Mapper {
     public void emit( byte[] key, byte[] value ) {
 
         // FIXME: the emit logic shouldn't go here ideally and should be moved to
-        // a dedicated system.
+        // a dedicated class 
 
         int shard = Config.route( key, nr_shards, true );
         
@@ -35,6 +35,7 @@ public abstract class Mapper {
     }
 
     public void onChunkStart( long chunk_id ) {
+
     }
 
     public void onChunkEnd( long chunk_id ) {
