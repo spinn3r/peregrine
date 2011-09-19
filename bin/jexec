@@ -1,0 +1,104 @@
+#!/bin/bash
+
+LIB_ROOT=lib
+
+NEW_CLASSPATH=$(find $LIB_ROOT -name "*.jar" -exec echo -n "{}": ";")
+
+ulimit -n 1000000 2> /dev/null
+
+CLASSNAME=$1
+
+if [ "$JAVA_HOME" = "" ]; then
+
+    if [ -d "/usr/local/java/jdk-LATEST" ]; then
+        export JAVA_HOME=/usr/local/java/jdk-LATEST
+    elif [ -d "/usr/local/jdk" ]; then
+        export JAVA_HOME=/opt/jdk
+    elif [ -d "/opt/jdk" ]; then
+        export JAVA_HOME=/opt/jdk
+    fi
+
+fi
+
+NEW_CLASSPATH="$JAVA_HOME/lib/tools.jar:./compile:./compile/classes:$NEW_CLASSPATH:"
+
+if [ -o "$BE_QUIET" ]; then
+  set -bx
+fi
+
+export CLASSPATH=$NEW_CLASSPATH
+
+if [ "$MIN_MEMORY" = "" ]; then
+    export MIN_MEMORY=32M
+fi
+
+if [ "$MAX_MEMORY" = "" ]; then
+    export MAX_MEMORY=1500M
+fi
+
+#ssh -L 8849:ssd0006.wdc.sl.spinn3r.com:8849 root@ssd0006.wdc.sl.spinn3r.com
+
+export PROFILER_ENABLED=false
+
+export PROFILER_PATH="/opt/jprofiler"
+export PROFILER_OPTS="-agentlib:jprofilerti=port=8849 \
+                      -Xint \
+                      -Xbootclasspath/a:$PROFILER_PATH/bin/agent.jar"
+
+if [ "$PROFILER_ENABLED" = "true" ]; then
+
+    # FIXME: make sure the profiler is installed correctly.
+
+    export JAVA_OPTS="$JAVA_OPTS $PROFILER_OPTS"
+    export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$PROFILER_PATH/bin/linux-x64/"
+
+fi
+
+# FIXME: Fri Jun 09 2006 10:22 PM (burton@tailrank.com): for some reason bash
+# has problem passing arguments with spaces.  I've never really been able to
+# figure this out.  Is it possible to roll these up into an array and then pass
+# the array?
+
+if [ "$JAVA" = "" ]; then
+    #use the default Java VM.
+    JAVA=java
+fi
+
+if [ "$2" != "" ]; then
+
+#     $JAVA -Djava.awt.headless=true \
+#         -Xms$MIN_MEMORY \
+#         -Xmx$MAX_MEMORY \
+#         $JAVA_OPTS \
+#         $CLASSNAME "$2" "$3" "$4" "$5" "$6" "$7" "$8" "$9" "${10}" "${11}" "${12}" "${13}" "${14}" "${15}" "${16}" "${17}" "${18}" "${19}" "${20}"
+
+    shift
+
+    $JAVA -Djava.awt.headless=true \
+      -Xms$MIN_MEMORY \
+      -Xmx$MAX_MEMORY \
+      $JAVA_OPTS \
+      $CLASSNAME "$@"
+
+else
+    $JAVA -Djava.awt.headless=true \
+        -Xms$MIN_MEMORY \
+        -Xmx$MAX_MEMORY \
+        $JAVA_OPTS \
+        $CLASSNAME 
+
+fi
+
+result=$?
+
+set +bx
+
+if [ "$JEXEC_REPORT" != "" ]; then
+
+    echo Sending report via email to $JEXEC_REPORT...
+    echo | mail $JEXEC_REPORT -s "Java command finished on $(date) on $(cat /etc/rolename)" -a 'From: jexec-noreply@tailrank.com'
+    echo Sending report via email... $JEXEC_REPORT done
+    
+fi
+
+exit $result

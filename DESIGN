@@ -1,0 +1,113 @@
+
+
+- next
+
+    - Create a mapper thread for EACH input...
+    -     
+
+
+
+- step1...
+
+    - benchmark the performance of taking a graph adjacency list / sparse matrix
+      in the form of source, targets... and then invert it into target:
+      sources... so that I can count the number of sources.
+
+        the first map job should emit:
+            (T1, S1)
+            (T2, S1)
+            (T3, S1)
+            (T1, S2)
+
+      And then I should group them like:
+
+        (T1, (S1,S2))
+        (T2, (S1))
+        (T3, (S1))
+
+      Then the reduce function should return:
+
+        T1, 2
+        T2, 1
+        T3, 1
+
+- we should fallocate chunks , especially chunks that are being written to by
+  reducers, so they are on disk contibuous.
+        
+
+- I could compute my own minimum spanning tree so that I can route chunks from
+  the controller directly and have machines distribute the data FOR me... The
+  ideal design will be complicated and involve reading a few more research
+  papers on the subject.
+  
+- compute hashcodes when reading and writing files... then compare the hashcode
+  at the end to verify that I have the correct output.
+        
+- ExtractMap
+
+- ReduceMap, MergeMap
+
+- ReduceMerge (when one of the merge inputs comes from the reduce phase)
+    - pagerank would require this...
+
+- ReduceMergeMap ... 
+
+
+- ReduceLoad
+- MergeLoad
+- instead of storing the output locally, just load it back into the remote
+  storage system.
+
+- The reduce phase should basically be a tiled mere join...
+
+    - each chunk source in the reduce phase is a tile.
+
+    - if the chunk does not have entries that are sorted, first sort each one, 
+
+    - if we do NOT need to
+
+    - the map output might in theory MUCH larger than the map input.
+    
+- Ability to hint the reduce phase to denote that the mapper emitted keys
+  sorted.
+        
+- Allow the programmer to work with bytes directly for performance reasons.
+        
+- Make the system so that the Extract phase can actually be the begging of the
+  first map/reduce phase. Instead of FIRST writing to the DFS and THEN importing
+  the data, if it is already ready to be mapped just read it and stream into the
+  map system.
+
+  
+        
+- The system is modeled after ETL jobs in the form of Extract, Transform, Load:
+
+    http://en.wikipedia.org/wiki/Extract,_transform,_load
+
+    Data is first written into maprunner by using an ExtractWriter and sending
+    data to a given path in the system.  Input data is in the form of (K,V) and
+    routed to the correct shard based on hash(K).
+
+- The system was designed to be INSANELY small and easy to understand.  The
+  original Map Reduce paper makes a great argument that all applications using
+  the framework willr realize any performance optimization in the core.
+
+  However, if your core is 100-200k lines of code, this is difficult to
+  optimize.
+  
+- Data should naturally partition without much skew based on the same hash
+  function between iterations.
+
+   - Data based on fetching URLs would be a good example.
+
+- Optimized for short running ETL jobs.  Data is designed to be stored within
+  exported within maprunner on the local DFS points but isn't meant to be used
+  to serve operational reads.  At the end of your map jobs you should export the
+  data to your cluster in a system like Cassandra, MySQL, HBase, etc.
+
+- The major optimization is for tasks that join against previously executed map
+  reduce jobs.  This optimization is present because we shard the data and store
+  the data in a given key on the same machine.  This way it's possible to do a
+  map-side join of the data reading from the local host.
+
+ - 

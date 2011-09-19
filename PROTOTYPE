@@ -1,0 +1,33 @@
+
+- write a splitter which takes input in the form of (K,V) and writes the data to
+  filesystem points in the form of
+
+    /tmp/dfs/shard-0/path/to/file/name.txt/chunk0.dat
+    /tmp/dfs/shard-0/path/to/file/name.txt/chunk1.dat
+    /tmp/dfs/shard-1/path/to/file/name.txt/chunk0.dat
+    /tmp/dfs/shard-1/path/to/file/name.txt/chunk1.dat
+
+    where /tmp/dfs/shard-0/ is the root of shard-0 and path/to/file/name.txt is
+    the name of the file and chunk0.dat is the first 100MB chunk of the input
+    file.
+
+- Before the map jobs are started, we create a another reducer job which starts
+  to read the input from mappers that are shuffling data to us and write them
+  out to disk.
+
+- The reducers write to ONE file in the form of:
+
+    chunk_id,key,value
+
+    where chunk_id is the hash of shard:chunk0.dat ... this allows us to
+    identify the key,value pairs and their source so that we can make sure that
+    the reduction includes it...
+
+- FIXME: when should I kick off the reduction phase... ? if results are
+  trickling in the time to start the reduction is 'interesting' ...     
+
+
+  - how many passes will it take to sort the file correctly?
+
+    - it's only ONE pass... so I might as well wait for the last block to come
+      back.
