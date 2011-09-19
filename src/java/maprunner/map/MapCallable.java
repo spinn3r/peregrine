@@ -55,11 +55,19 @@ public class MapCallable implements Callable {
             if ( ! file.getName().startsWith( "chunk" ) )
                 continue;
 
-            long chunk_id = host_chunk_prefix | local_chunk_id;
-            
-            handleChunk( file, chunk_id );
+            // all hosts in this partition have the same chunks but we only
+            // index the ones we are responsible for.
 
             ++local_chunk_id;
+
+            if ( local_chunk_id % (host.getPartitionMemberId() + 1) == 0 ) {
+
+                long chunk_id = host_chunk_prefix | local_chunk_id;
+                
+                handleChunk( file, chunk_id );
+                
+            }
+
         }
 
         mapper.cleanup( partition );

@@ -18,7 +18,7 @@ public class Config {
         List<Host> list = new ArrayList();
 
         for( int i = 0; i < hosts.length; ++i ) {
-            list.add( new Host( hosts[i] ) );
+            list.add( new Host( hosts[i], i ) );
         }
 
         SHARD_MEMBERSHIP.put( new Partition( partition ), list );

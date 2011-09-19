@@ -10,10 +10,13 @@ public class Host {
 
     protected int id = 0;
     protected String name = null;
+
+    protected int partitionMemberId = 0;
     
-    public Host( String name ) {
+    public Host( String name, int partitionMemberId ) {
         this.name = name;
         this.id = sequence++;
+        this.partitionMemberId = partitionMemberId;
     }
 
     public boolean equals( Object obj ) {
@@ -32,6 +35,10 @@ public class Host {
         return id;
     }
 
+    public int getPartitionMemberId() {
+        return partitionMemberId;
+    }
+    
     public String toString() {
         return String.format( "%s:%s", name, id );
     }
