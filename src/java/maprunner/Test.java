@@ -31,7 +31,9 @@ public class Test {
         
         for( int i = 0; i < nr_tuples; ++i ) {
 
-            byte[] key = toKey( i );
+            String str = String.format( "%08d", i );
+            
+            byte[] key = new StringKey( str ).toBytes();
             byte[] value = key;
             
             writer.write( key, value );
