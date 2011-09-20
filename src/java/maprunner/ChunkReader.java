@@ -10,6 +10,8 @@ import maprunner.values.*;
 
 public class ChunkReader {
 
+    public static int BUFFER_SIZE = 16384;
+    
     private File file = null;
 
     private TrackedInputStream is = null;
@@ -31,7 +33,8 @@ public class ChunkReader {
 
         FileInputStream fis = new FileInputStream( file );
 
-        is = new TrackedInputStream( fis );
+        // keep track of reads but also buffer the IO ...
+        is = new TrackedInputStream( fis, BUFFER_SIZE );
         
         while( is.getPosition() < file.length() ) {
             
@@ -40,11 +43,11 @@ public class ChunkReader {
             
             int value_length = readEntryLength();
             byte[] value_data = readBytes( value_length );
-
+            
             listener.onEntry( key_data, value_data );
-                
+
         }
-        
+
     }
 
     private byte[] readBytes( int len ) throws IOException {
@@ -59,6 +62,7 @@ public class ChunkReader {
 
         byte[] buff = new byte[4];
 
+        //the length of the varint we are using...
         int varint_len = 0;;
 
         for( int i = 0; i < buff.length; ++i ) {
@@ -74,8 +78,10 @@ public class ChunkReader {
 
         byte[] vbuff = new byte[ varint_len ];
         System.arraycopy( buff, 0, vbuff, 0, varint_len );
-        
-        return varintReader.read( vbuff );
+
+        int result = varintReader.read( vbuff );
+
+        return result;
         
     }
     

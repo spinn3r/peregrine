@@ -27,14 +27,14 @@ public class Test {
 
         PartitionWriter.CHUNK_SIZE = 1000000;
 
-        int nr_tuples = 10;
+        int nr_tuples = 15;
         
         for( int i = 0; i < nr_tuples; ++i ) {
 
             String str = String.format( "%08d", i );
             
             byte[] key = new StringKey( str ).toBytes();
-            byte[] value = key;
+            byte[] value = new String( "xxxxxxxx" ).getBytes() ;
             
             writer.write( key, value );
 
@@ -64,6 +64,10 @@ public class Test {
         }
 
         System.out.printf( "nr_written_tuples: %,d\n", nr_written_tuples );
+
+        if ( nr_written_tuples != nr_tuples * 2 ) {
+            throw new RuntimeException( "Wrong number of tuples written" );
+        }
         
     }
 
