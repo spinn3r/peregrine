@@ -7,6 +7,11 @@
 
 
 
+
+
+    
+    
+
 - step1...
 
     - benchmark the performance of taking a graph adjacency list / sparse matrix
@@ -32,6 +37,30 @@
         T3, 1
 
 
+- partition setup... start with the number of machines.  The algorithm for
+  determining the number of partitions is:
+
+    nr_partitions = nr_hosts - 1
+
+
+- Using LARGER numbers of partitions means that when a machine fails that I can
+  restore to TWO machines and NOT just one...   TWO machines as the source and
+  TWO as the target.  CLEARLY there is a sweet spot.
+
+
+    - 1000 paritions + 100MB buffer == 100k per chunk written to disk.
+
+    - potentially store all files to disk. how long would it take to read 100k
+      at 100MB/s 1ms ... so this is 50% or the original performance... 
+
+
+
+        
+
+- One reason that the Pregel API is really cool is that you could implement the
+  SAME framework on a single machine instance without a massive amount of wasted
+  CPU time due to map reduce.  It COULD even be parallelized somewhat... 
+        
 - FIXME: I need to now create some unit tests that verify the correct design:
 
     - writes to muliple chunk files
@@ -105,8 +134,6 @@
 
     - the map output might in theory MUCH larger than the map input.
     
-- Ability to hint the reduce phase to denote that the mapper emitted keys
-  sorted.
         
 - Allow the programmer to work with bytes directly for performance reasons.
         

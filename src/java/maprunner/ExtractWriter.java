@@ -55,15 +55,28 @@ public class ExtractWriter {
         
     }
 
-    /**
-     * If the Key is already a hashcode and we can route over it specify
-     * keyIsHashcode=true.
-     */
-    public void write( Key key, Value value, boolean keyIsHashcode )
+    public void write( byte[] key, byte[] value )
+        throws IOException {
+
+        write( key, value, false );
+        
+    }
+
+    public void write( Key key, Value value, boolean keyIsHashcode ) 
         throws IOException {
 
         byte[] key_bytes   = key.toBytes();
         byte[] value_bytes = value.toBytes();
+
+        write( key_bytes, value_bytes, keyIsHashcode );
+        
+    }
+    
+    /**
+     * If the Key is already a hashcode and we can route over it specify keyIsHashcode=true.
+     */
+    public void write( byte[] key_bytes, byte[] value_bytes, boolean keyIsHashcode )
+        throws IOException {
 
         Partition partition = Config.route( key_bytes, nr_partitions, keyIsHashcode );
         
