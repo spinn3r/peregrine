@@ -22,9 +22,9 @@ public class MapOutputIndex {
     }
     
     public void accept( long chunk_id, 
-                               byte[] key,
-                               byte[] value ) {
-
+                        byte[] key,
+                        byte[] value ) {
+        
         MapOutputBuffer buffer = getBuffer( chunk_id );
 
         buffer.accept( key, value );
