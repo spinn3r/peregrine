@@ -13,9 +13,9 @@ public class Host {
 
     protected int partitionMemberId = 0;
     
-    public Host( String name, int partitionMemberId ) {
+    public Host( String name, int id , int partitionMemberId ) {
         this.name = name;
-        this.id = sequence++;
+        this.id = id;
         this.partitionMemberId = partitionMemberId;
     }
 
@@ -40,7 +40,7 @@ public class Host {
     }
     
     public String toString() {
-        return String.format( "%s:%s", name, id );
+        return String.format( "name=%s,id=%s", name, id );
     }
     
 }

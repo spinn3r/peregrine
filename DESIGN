@@ -32,6 +32,12 @@
         T3, 1
 
 
+- FIXME: I need to now create some unit tests that verify the correct design:
+
+    - writes to muliple chunk files
+    - make sure chunk files get schedule for execution on the correct CPU/thread
+    - verify that algorithm execution is correct
+        
 - If the config is :
 
     - partition0: host0, host1, host2

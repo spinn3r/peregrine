@@ -11,9 +11,6 @@ public class Partition {
     protected int id = 0;
     
     public Partition( int id ) {
-
-        //if ( id == -1 )
-        //    throw new RuntimeException();
         
         this.id = id;
         

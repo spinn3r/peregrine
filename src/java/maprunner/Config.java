@@ -13,12 +13,35 @@ public class Config {
 
     private static Map<Partition,List<Host>> PARTITION_MEMBERSHIP = new HashMap();
 
+    private static Map<String,Integer> HOST_ID_LOOKUP = new HashMap();
+
+    private static int lookupHostId( String name ) {
+
+        int id = -1;
+        
+        if ( HOST_ID_LOOKUP.containsKey( name ) ) {
+            id = HOST_ID_LOOKUP.get( name );
+        } else {
+            id = HOST_ID_LOOKUP.size();
+            HOST_ID_LOOKUP.put( name, id );
+        } 
+
+        return id;
+        
+    }
+    
     public static void addPartitionMembership( int partition, String... hosts ) {
 
         List<Host> list = new ArrayList();
 
         for( int i = 0; i < hosts.length; ++i ) {
-            list.add( new Host( hosts[i], i ) );
+
+            String host = hosts[i];
+            
+            int id = lookupHostId( host );
+            
+            list.add( new Host( host, id, i ) );
+            
         }
 
         PARTITION_MEMBERSHIP.put( new Partition( partition ), list );
@@ -44,14 +67,19 @@ public class Config {
                                    int nr_partitions,
                                    boolean keyIsHashcode ) {
 
+        //TODO: we only need a FEW bytes to route a key , not the WHOLE thing if
+        //it is a hashcode.  For example... we can route to 255 partitions with
+        //just one byte... that IS if it is a hashode.  with just TWO bytes we
+        //can route to 65536 partitions which is probably fine for all users for
+        //a LONG time.
+        
         int partition = -1;
 
         if ( keyIsHashcode ) {
 
             long value = Math.abs( Hashcode.toLong( key_bytes ) );
-            
             partition = (int)(value % nr_partitions);
-
+            
         } else { 
 
             long value = Math.abs( Hashcode.toLong( Hashcode.getHashcode( key_bytes ) ) );

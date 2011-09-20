@@ -12,8 +12,8 @@ import maprunner.values.*;
  */
 public class PartitionWriter {
 
-    //public static long CHUNK_SIZE = 1000000;
-    public static long CHUNK_SIZE = 1000000000;
+    public static long CHUNK_SIZE = 1000000;
+    //public static long CHUNK_SIZE = 1000000000;
     
     private String path = null;
 
@@ -62,6 +62,10 @@ public class PartitionWriter {
     public void close() throws IOException {
         //close the last opened partition...
         out.close();        
+    }
+
+    public String toString() {
+        return path;
     }
     
 }

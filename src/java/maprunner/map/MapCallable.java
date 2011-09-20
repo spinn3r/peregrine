@@ -43,7 +43,7 @@ public class MapCallable implements Callable {
 
         File[] files = chunk_dir.listFiles();
 
-        long host_chunk_prefix = (long)host.getId() << 32;
+        long host_chunk_prefix = (long)host.getId() * 1000000000;
         
         int local_chunk_id = 0;
 
@@ -58,8 +58,11 @@ public class MapCallable implements Callable {
             // all hosts in this partition have the same chunks but we only
             // index the ones we are responsible for.
 
-            ++local_chunk_id;
+            System.out.printf( "local_chunk_id: %s, nr_hosts_in_partition: %s, host partition member ID: %s\n",
+                               local_chunk_id, nr_hosts_in_partition, host.getPartitionMemberId() );
 
+            // cpu0 
+            
             if ( ( local_chunk_id % nr_hosts_in_partition ) == host.getPartitionMemberId() ) {
 
                 long chunk_id = host_chunk_prefix | local_chunk_id;
@@ -67,6 +70,8 @@ public class MapCallable implements Callable {
                 handleChunk( file, chunk_id );
                 
             }
+
+            ++local_chunk_id;
 
         }
 
@@ -78,6 +83,8 @@ public class MapCallable implements Callable {
 
     private void handleChunk( File file, long chunk_id ) throws Exception {
 
+        System.out.printf( "Handling chunk: %s\n", file.getPath() );
+        
         ChunkListener listener = new ChunkListener() {
 
                 public void onEntry( byte[] key, byte[] value ) {

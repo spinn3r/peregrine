@@ -87,12 +87,12 @@ public class ChunkReader {
 
         String path = args[0];
 
-        final AtomicInteger counter = new AtomicInteger();
+        final AtomicInteger tuples = new AtomicInteger();
         
         ChunkListener listener = new ChunkListener() {
 
                 public void onEntry( byte[] key, byte[] value ) {
-                    counter.getAndIncrement();
+                    tuples.getAndIncrement();
                 }
 
             };
@@ -100,7 +100,7 @@ public class ChunkReader {
         ChunkReader reader = new ChunkReader( path, listener );
         reader.read();
         
-        System.out.printf( "%s has %,d entries.\n", path, counter.get() );
+        System.out.printf( "%s has %,d tuples.\n", path, tuples.get() );
         
     }
     

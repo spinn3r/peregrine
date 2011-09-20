@@ -12,8 +12,6 @@ public class Main {
 
     public static void main( String[] args ) throws Exception {
 
-        //configure the system
-
         // TRY with three partitions... 
         Config.addPartitionMembership( 0, "cpu0", "cpu1" );
         Config.addPartitionMembership( 1, "cpu0", "cpu1" );
@@ -22,8 +20,8 @@ public class Main {
         
         ExtractWriter writer = new ExtractWriter( path );
 
-        //buildRandomGraph( writer, 10000, 200 );
-        buildRandomGraph( writer, 100, 10 );
+        buildRandomGraph( writer, 10000, 200 );
+        //buildRandomGraph( writer, 100, 10 );
         
         writer.close();
 
@@ -34,8 +32,6 @@ public class Main {
                 
                 public void map( byte[] key_data, byte[] value_data ) {
 
-                    System.out.printf( "." );
-                    
                     HashSetValue value = new HashSetValue();
                     value.fromBytes( value_data );
                     
@@ -105,7 +101,7 @@ public class Main {
 
         }
 
-        System.out.printf( " done (Wrote %,d edges over %,d nodes \n", edges, nr_nodes );
+        System.out.printf( " done (Wrote %,d edges over %,d nodes)\n", edges, nr_nodes );
 
     }
 

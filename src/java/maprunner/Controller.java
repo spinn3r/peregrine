@@ -33,6 +33,7 @@ public class Controller {
             int nr_hosts = hosts.size();
 
             for( Host host : hosts ) {
+
                 Callable callable = new MapCallable( part, host, path, nr_hosts, mapper );
 
                 Future future = es.submit( callable );

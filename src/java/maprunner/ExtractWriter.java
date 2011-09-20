@@ -12,7 +12,6 @@ import maprunner.util.*;
  */
 public class ExtractWriter {
 
-    private Object[] PARTITIONS = null;
     private Object[] PARTITION_OUTPUT = null;
 
     private String path = null;
@@ -27,29 +26,24 @@ public class ExtractWriter {
 
         Map<Partition,List<Host>> partitionMembership = Config.getPartitionMembership();
         
-        int nr_partitions = partitionMembership.size();
+        nr_partitions = partitionMembership.size();
 
-        PARTITIONS       = new Object[nr_partitions];
         PARTITION_OUTPUT = new Object[nr_partitions];
 
-        int i = 0; 
         for( Partition partition : partitionMembership.keySet() ) {
 
-            System.out.printf( "part: %s\n", partition );
-
             List<Host> membership = partitionMembership.get( partition );
+
+            System.out.printf( "Creating writer for partition: %s (%s)\n", partition, membership );
 
             List<PartitionWriter> output = new ArrayList();
             
             for ( Host member : membership ) {
-
                 output.add( new PartitionWriter( Config.getDFSPath( partition, member, path ) ) );
-                
             }
 
-            PARTITION_OUTPUT[i] = output;
-            PARTITIONS[i]       = membership;
-
+            PARTITION_OUTPUT[partition.id] = output;
+            
         }
         
     }
@@ -72,7 +66,7 @@ public class ExtractWriter {
         byte[] value_bytes = value.toBytes();
 
         Partition partition = Config.route( key_bytes, nr_partitions, keyIsHashcode );
-
+        
         write( partition, key_bytes, value_bytes );
         
     }
@@ -81,6 +75,9 @@ public class ExtractWriter {
         throws IOException {
 
         List<PartitionWriter> output = (List<PartitionWriter>) PARTITION_OUTPUT[partition.id];
+
+        //FIXME: the distributed version should parallel dispatch these and
+        //write to the partitions directly.
 
         for( PartitionWriter out : output ) {
             out.write( key_bytes, value_bytes );
@@ -93,11 +90,9 @@ public class ExtractWriter {
         for (int i = 0; i < PARTITION_OUTPUT.length; ++i ) {
 
             List<PartitionWriter> output = (List<PartitionWriter>) PARTITION_OUTPUT[i];
-
-            if ( output == null )
-                continue;
             
             for( PartitionWriter out : output ) {
+                System.out.printf( "Closing: %s\n", out );
                 out.close();
             }
 
