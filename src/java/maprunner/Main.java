@@ -13,8 +13,9 @@ public class Main {
     public static void main( String[] args ) throws Exception {
 
         //configure the system
+
+        // TRY with three partitions... 
         Config.addShardMembership( 0, "cpu0", "cpu1" );
-        //Config.addShardMembership( 0, "cpu0" );
 
         String path = "/pr/test.graph";
         
@@ -51,6 +52,7 @@ public class Main {
         mapper.init( nr_shards );
         
         Controller.map( path, mapper );
+        Controller.sortMapOutput();
         
     }
 

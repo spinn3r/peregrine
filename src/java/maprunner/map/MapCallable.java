@@ -16,19 +16,19 @@ public class MapCallable implements Callable {
     private Partition partition;
     private Host host;
     private String path;
-    private int nr_shards;
+    private int nr_hosts_in_partition;
     final private Mapper mapper;
     
     public MapCallable( Partition partition,
                         Host host ,
                         String path,
-                        int nr_shards,
+                        int nr_hosts_in_partition,
                         Mapper mapper ) {
 
         this.partition = partition;
         this.host = host;
         this.path = path;
-        this.nr_shards = nr_shards;
+        this.nr_hosts_in_partition = nr_hosts_in_partition;
         this.mapper = mapper;
         
     }
@@ -60,9 +60,11 @@ public class MapCallable implements Callable {
 
             ++local_chunk_id;
 
-            if ( local_chunk_id % (host.getPartitionMemberId() + 1) == 0 ) {
+            if ( ( local_chunk_id % nr_hosts_in_partition ) == host.getPartitionMemberId() ) {
 
                 long chunk_id = host_chunk_prefix | local_chunk_id;
+
+                System.out.printf( "chunk_id: %d \n", chunk_id );
                 
                 handleChunk( file, chunk_id );
                 

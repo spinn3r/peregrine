@@ -12,8 +12,8 @@ import maprunner.util.*;
 
 public class MapOutputBuffer {
 
-    //FIXME: What is a reasonable buffer size? 
-    List<Tuple> tuples = new ArrayList();
+    //FIXME: this should not be synchronized.
+    private List<Tuple> tuples = Collections.synchronizedList( new ArrayList() ); 
     
     private long chunk_id = 0;
 
@@ -28,8 +28,15 @@ public class MapOutputBuffer {
         
     }
 
-    public void cleanup() {
+    public int size() {
+        return tuples.size();
+    }
+
+    public Tuple[] toArray() {
+
+        Tuple[] result = new Tuple[ tuples.size() ];
         
+        return tuples.toArray( result );
     }
     
 }

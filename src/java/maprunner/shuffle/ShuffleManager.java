@@ -31,4 +31,8 @@ public class ShuffleManager {
         
     }
 
+    public static Collection<MapOutputIndex> getMapOutput() {
+        return bufferMap.values();
+    }
+    
 }

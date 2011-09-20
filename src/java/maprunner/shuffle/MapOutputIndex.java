@@ -12,7 +12,8 @@ import maprunner.util.*;
 
 public class MapOutputIndex {
 
-    public static ConcurrentHashMap<Long,MapOutputBuffer> bufferMap = new ConcurrentHashMap();
+    public static ConcurrentHashMap<Long,MapOutputBuffer> bufferMap
+        = new ConcurrentHashMap();
 
     private int partition = -1;
     

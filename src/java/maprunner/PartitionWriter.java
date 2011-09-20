@@ -12,7 +12,7 @@ import maprunner.values.*;
  */
 public class PartitionWriter {
 
-    public static long CHUNK_SIZE = 100000;
+    public static long CHUNK_SIZE = 1000000;
     
     private String path = null;
 
