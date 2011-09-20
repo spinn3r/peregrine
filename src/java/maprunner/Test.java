@@ -27,7 +27,7 @@ public class Test {
 
         PartitionWriter.CHUNK_SIZE = 1000000;
 
-        int nr_tuples = 100;
+        int nr_tuples = 10;
         
         for( int i = 0; i < nr_tuples; ++i ) {
 
@@ -72,6 +72,11 @@ public class Test {
         ChunkListener listener = new ChunkListener() {
 
                 public void onEntry( byte[] key, byte[] value ) {
+
+                    //int kv = toInt( key );
+
+                    System.out.printf( "kv: %s\n", new String( key ) );
+                    
                     tuples.getAndIncrement();
                 }
 
@@ -79,7 +84,6 @@ public class Test {
 
         ChunkReader reader = new ChunkReader( path, listener );
         reader.read();
-
 
         return tuples.get();
     }
@@ -198,5 +202,9 @@ public class Test {
         return result;
         
     }
-    
+
+    public static int toInt( byte[] data ) {
+        return Integer.parseInt( new String( data ) );
+    }
+
 }
