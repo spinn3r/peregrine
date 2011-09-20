@@ -12,7 +12,7 @@ import maprunner.util.*;
 
 public class MapOutputIndex {
 
-    public static ConcurrentHashMap<Long,MapOutputBuffer> bufferMap
+    public ConcurrentHashMap<Long,MapOutputBuffer> bufferMap
         = new ConcurrentHashMap();
 
     protected Partition partition;
@@ -21,7 +21,7 @@ public class MapOutputIndex {
         this.partition = partition;
     }
     
-    public static void accept( long chunk_id, 
+    public void accept( long chunk_id, 
                                byte[] key,
                                byte[] value ) {
 
@@ -31,7 +31,7 @@ public class MapOutputIndex {
 
     }
 
-    private static MapOutputBuffer getBuffer( long chunk_id ) {
+    private MapOutputBuffer getBuffer( long chunk_id ) {
 
         MapOutputBuffer buffer = bufferMap.get( chunk_id );
 
