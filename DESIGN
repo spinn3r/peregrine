@@ -37,7 +37,14 @@
     - partition0: host0, host1, host2
     - partition1: host0, host1, host2
     
-        
+
+
+- AHHH!!! I put THREE partitions on EACH node... then I can run one reduce on
+  EACH for each partition.  Since these boxes replicate these blocks, I can run
+  ONE reduce per partition across all three hosts for VERY even CPU
+  utilization.  If one of the boxes fails, the controller runs the job on one of
+  the backup hosts.
+    
 
 
 - I need to think more about how I want to handle the shuffle stage... I think

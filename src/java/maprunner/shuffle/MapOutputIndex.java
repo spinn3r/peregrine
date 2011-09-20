@@ -15,7 +15,7 @@ public class MapOutputIndex {
     public static ConcurrentHashMap<Long,MapOutputBuffer> bufferMap
         = new ConcurrentHashMap();
 
-    private int partition = -1;
+    protected int partition = -1;
     
     public MapOutputIndex( int partition ) {
         this.partition = partition;

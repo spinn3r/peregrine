@@ -15,8 +15,8 @@ public class Main {
         //configure the system
 
         // TRY with three partitions... 
-        Config.addShardMembership( 0, "cpu0" );
-        Config.addShardMembership( 1, "cpu1" );
+        Config.addShardMembership( 0, "cpu0", "cpu1" );
+        Config.addShardMembership( 1, "cpu0", "cpu1" );
 
         String path = "/pr/test.graph";
         

@@ -49,7 +49,7 @@ public class MapOutputMergeCallable implements Callable {
             
         }
 
-        System.out.printf( "Sorting %,d entries\n", data.length );
+        System.out.printf( "Sorted %,d entries for partition %,d \n", data.length , mapOutputIndex.partition );
         
         Arrays.sort( data );
         
