@@ -58,8 +58,8 @@ public class MapCallable implements Callable {
             // all hosts in this partition have the same chunks but we only
             // index the ones we are responsible for.
 
-            System.out.printf( "local_chunk_id: %s, nr_hosts_in_partition: %s, host partition member ID: %s\n",
-                               local_chunk_id, nr_hosts_in_partition, host.getPartitionMemberId() );
+            //System.out.printf( "local_chunk_id: %s, nr_hosts_in_partition: %s, host partition member ID: %s\n",
+            //                   local_chunk_id, nr_hosts_in_partition, host.getPartitionMemberId() );
 
             // cpu0 
             
