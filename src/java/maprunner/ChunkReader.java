@@ -2,6 +2,7 @@ package maprunner;
 
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.atomic.*;
 
 import maprunner.util.*;
 import maprunner.keys.*;
@@ -86,7 +87,20 @@ public class ChunkReader {
 
         String path = args[0];
 
-        //new ExtractChunkReader( path ).read();
+        final AtomicInteger counter = new AtomicInteger();
+        
+        ChunkListener listener = new ChunkListener() {
+
+                public void onEntry( byte[] key, byte[] value ) {
+                    System.out.printf( ".\n" );
+                    counter.getAndIncrement();
+                }
+
+            };
+
+        ChunkReader reader = new ChunkReader( path, listener );
+
+        System.out.printf( "%s has %,d entries.\n", path, counter.get() );
         
     }
     
