@@ -32,6 +32,13 @@
         T3, 1
 
 
+- If the config is :
+
+    - partition0: host0, host1, host2
+    - partition1: host0, host1, host2
+    
+        
+
 
 - I need to think more about how I want to handle the shuffle stage... I think
   the Mapper should keep a handle on communications channels to shards and that

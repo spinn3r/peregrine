@@ -33,17 +33,17 @@ public class ExtractWriter {
         SHARD_OUTPUT = new Object[nr_shards];
 
         int i = 0; 
-        for( Partition key : shardMembership.keySet() ) {
+        for( Partition partition : shardMembership.keySet() ) {
 
-            System.out.printf( "key: %s\n", key );
+            System.out.printf( "part: %s\n", partition );
 
-            List<Host> membership = shardMembership.get( key );
+            List<Host> membership = shardMembership.get( partition );
 
             List<PartitionWriter> output = new ArrayList();
             
             for ( Host member : membership ) {
 
-                output.add( new PartitionWriter( Config.getDFSPath( member, path ) ) );
+                output.add( new PartitionWriter( Config.getDFSPath( partition, member, path ) ) );
                 
             }
 
@@ -91,11 +91,16 @@ public class ExtractWriter {
     public void close() throws IOException {
 
         for (int i = 0; i < SHARD_OUTPUT.length; ++i ) {
+
             List<PartitionWriter> output = (List<PartitionWriter>) SHARD_OUTPUT[i];
+
+            if ( output == null )
+                continue;
             
             for( PartitionWriter out : output ) {
                 out.close();
             }
+
         }
 
     }

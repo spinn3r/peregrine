@@ -37,7 +37,7 @@ public class MapCallable implements Callable {
 
         System.out.printf( "Running map jobs on host: %s\n", host );
 
-        String chunk_path = Config.getDFSPath( host, path );
+        String chunk_path = Config.getDFSPath( partition, host, path );
 
         File chunk_dir = new File( chunk_path ) ;
 
@@ -64,8 +64,6 @@ public class MapCallable implements Callable {
 
                 long chunk_id = host_chunk_prefix | local_chunk_id;
 
-                System.out.printf( "chunk_id: %d \n", chunk_id );
-                
                 handleChunk( file, chunk_id );
                 
             }

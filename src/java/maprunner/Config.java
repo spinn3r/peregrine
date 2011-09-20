@@ -29,12 +29,12 @@ public class Config {
         return SHARD_MEMBERSHIP;
     }
 
-    public static String getDFSRoot( Host host ) {
-        return String.format( "%s/%s" , Config.DFS_ROOT , host.getName() );
+    public static String getDFSRoot( Partition partition, Host host ) {
+        return String.format( "%s/%s/%s" , Config.DFS_ROOT , host.getName(), partition.getId() );
     }
         
-    public static String getDFSPath( Host host, String path ) {
-        return String.format( "%s%s" , getDFSRoot( host ), path );
+    public static String getDFSPath( Partition partition, Host host, String path ) {
+        return String.format( "%s%s" , getDFSRoot( partition, host ), path );
     }
 
     /**

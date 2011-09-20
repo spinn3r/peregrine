@@ -25,5 +25,9 @@ public class Partition {
     public int getId() {
         return id;
     }
+
+    public String toString() {
+        return "partition:" + id ;
+    }
     
 }

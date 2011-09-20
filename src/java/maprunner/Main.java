@@ -15,7 +15,8 @@ public class Main {
         //configure the system
 
         // TRY with three partitions... 
-        Config.addShardMembership( 0, "cpu0", "cpu1" );
+        Config.addShardMembership( 0, "cpu0" );
+        Config.addShardMembership( 1, "cpu1" );
 
         String path = "/pr/test.graph";
         
@@ -65,6 +66,8 @@ public class Main {
         int last = -1;
 
         Random r = new Random();
+
+        int edges = 0;
         
         for( int i = 0; i < nr_nodes; ++i ) {
 
@@ -83,9 +86,10 @@ public class Main {
             for( int j = 0; j < max_edges_per_node && j < i ; ++j ) {
                 targets.add( target );
                 target = target + gap;
-
             }
 
+            edges += targets.size();
+            
             addRecord( writer, source, targets );
             
             // now output our progress... 
@@ -99,7 +103,7 @@ public class Main {
 
         }
 
-        System.out.printf( " done\n" );
+        System.out.printf( " done (Wrote %,d edges over %,d nodes \n", edges, nr_nodes );
 
     }
 
