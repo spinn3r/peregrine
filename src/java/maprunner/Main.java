@@ -22,7 +22,8 @@ public class Main {
         
         ExtractWriter writer = new ExtractWriter( path );
 
-        buildRandomGraph( writer, 10000, 200 );
+        //buildRandomGraph( writer, 10000, 200 );
+        buildRandomGraph( writer, 100, 10 );
         
         writer.close();
 
@@ -89,8 +90,9 @@ public class Main {
             }
 
             edges += targets.size();
-            
-            addRecord( writer, source, targets );
+
+            if ( targets.size() > 0 )
+                addRecord( writer, source, targets );
             
             // now output our progress... 
             int perc = (int)((i / (float)nr_nodes) * 100);

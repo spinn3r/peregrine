@@ -48,17 +48,19 @@ public class Config {
 
         if ( keyIsHashcode ) {
 
-            long value = Hashcode.toLong( key_bytes );
+            long value = Math.abs( Hashcode.toLong( key_bytes ) );
             
-            partition = Math.abs( (int)(value % nr_partitions) );
+            partition = (int)(value % nr_partitions);
 
         } else { 
 
-            long value = Hashcode.toLong( Hashcode.getHashcode( key_bytes ) );
-            partition = Math.abs( (int)( value % nr_partitions) );
+            long value = Math.abs( Hashcode.toLong( Hashcode.getHashcode( key_bytes ) ) );
+            partition = (int)( value % nr_partitions);
 
         }
-
+        
+        //FIXME: read these from a cached list by lookup for performance reasons
+        //(GC and new object creation)
         return new Partition( partition );
         
     }

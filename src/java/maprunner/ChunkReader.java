@@ -32,9 +32,9 @@ public class ChunkReader {
         FileInputStream fis = new FileInputStream( file );
 
         is = new TrackedInputStream( fis );
-
+        
         while( is.getPosition() < file.length() ) {
-
+            
             int key_length = readEntryLength();
             byte[] key_data = readBytes( key_length );
             
@@ -92,14 +92,14 @@ public class ChunkReader {
         ChunkListener listener = new ChunkListener() {
 
                 public void onEntry( byte[] key, byte[] value ) {
-                    System.out.printf( ".\n" );
                     counter.getAndIncrement();
                 }
 
             };
 
         ChunkReader reader = new ChunkReader( path, listener );
-
+        reader.read();
+        
         System.out.printf( "%s has %,d entries.\n", path, counter.get() );
         
     }

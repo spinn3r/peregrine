@@ -36,6 +36,10 @@
 
     - partition0: host0, host1, host2
     - partition1: host0, host1, host2
+
+- The route() partition logic should be done via dependency injection so that we
+  can make it faster by not having to do an isHashcode comparison for each
+  route() usage.  This is a tight loop
     
 
 - how do we store input text so that cat() works efficiently... with a custom
