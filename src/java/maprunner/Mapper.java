@@ -25,17 +25,19 @@ public abstract class Mapper {
     
     public void emit( byte[] key, byte[] value ) {
 
-        // FIXME: the emit logic shouldn't go here ideally and should be moved to
-        // a dedicated class 
+        // TODO: the emit logic shouldn't go here ideally and should be moved to
+        // a dedicated class
 
-        int shard = Config.route( key, nr_shards, true );
-        
-        ShuffleManager.accept( shard, key, value );
-        
+        int partition = Config.route( key, nr_shards, true );
+
+        MapOutputIndex index = ShuffleManager.getMapOutputIndex( partition );
+
+        index.accept( chunk_id, key, value );
+
     }
 
     public void onChunkStart( long chunk_id ) {
-
+        this.chunk_id = chunk_id;
     }
 
     public void onChunkEnd( long chunk_id ) {
@@ -48,8 +50,8 @@ public abstract class Mapper {
 
         //TODO: we should probably keep track of the shards that have seen this
         //data before we send them the close() message.
-
-        ShuffleManager.cleanup( partition );
+        
+        //ShuffleManager.cleanup( partition );
 
     }
     

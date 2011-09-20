@@ -75,6 +75,9 @@ public class BulkArray {
 
         int offset = 0;
         int remaining = size;
+
+        System.out.printf( "NR chunks: %,d size: %,d\n" , chunks.size() , size );
+
         for( Tuple[] chunk : chunks ) {
 
             int length = chunk.length;
@@ -83,7 +86,7 @@ public class BulkArray {
                 length = remaining;
             }
 
-            //System.out.printf( "offset: %,d length: %,d\n", offset, length );
+            System.out.printf( "offset: %,d length: %,d\n", offset, length );
             
             System.arraycopy( chunk, 0, result, offset, length );
 
@@ -91,7 +94,6 @@ public class BulkArray {
 
             remaining -= chunk.length;
 
-            
         }
 
         return result;

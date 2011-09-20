@@ -31,6 +31,15 @@
         T2, 1
         T3, 1
 
+
+
+- I need to think more about how I want to handle the shuffle stage... I think
+  the Mapper should keep a handle on communications channels to shards and that
+  ShuffleManager should JUST keep track of chunk job output ... this way if
+  they're sorted it can just do a merge joing of the output on disk.
+
+        
+        
 - we should fallocate chunks , especially chunks that are being written to by
   reducers, so they are on disk contibuous.
         
