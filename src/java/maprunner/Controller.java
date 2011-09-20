@@ -44,7 +44,8 @@ public class Controller {
         }
 
         for( Future future : futures ) {
-            //FIXME: if they fail, we should see what their status is... 
+            //FIXME: if they fail, we should see what their status is...  They
+            //throw an Execution exception and we might need to bubble this up.
             future.get();
         }
 
@@ -72,7 +73,8 @@ public class Controller {
         }
 
         for( Future future : futures ) {
-            //FIXME: if they fail, we should see what their status is... 
+            //FIXME: if they fail, we should see what their status is...  They
+            //throw an Execution exception and we might need to bubble this up.
             future.get();
         }
 
@@ -82,9 +84,9 @@ public class Controller {
 
     private static ExecutorService getExecutorService() {
 
-        //ExecutorService es = Executors.newCachedThreadPool() ;
+        ExecutorService es = Executors.newCachedThreadPool() ;
         
-        ExecutorService es = Executors.newSingleThreadExecutor() ;
+        //ExecutorService es = Executors.newSingleThreadExecutor() ;
 
         return es;
         

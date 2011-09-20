@@ -13,6 +13,7 @@ import maprunner.util.*;
 public class MapOutputBuffer {
 
     //FIXME: this should not be synchronized.
+    //private List<Tuple> tuples = new ArrayList(); 
     private List<Tuple> tuples = Collections.synchronizedList( new ArrayList() ); 
     
     private long chunk_id = 0;
