@@ -61,12 +61,6 @@
   SAME framework on a single machine instance without a massive amount of wasted
   CPU time due to map reduce.  It COULD even be parallelized somewhat... 
         
-- FIXME: I need to now create some unit tests that verify the correct design:
-
-    - writes to muliple chunk files
-    - make sure chunk files get schedule for execution on the correct CPU/thread
-    - verify that algorithm execution is correct
-        
 - If the config is :
 
     - partition0: host0, host1, host2

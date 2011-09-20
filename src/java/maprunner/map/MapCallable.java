@@ -43,6 +43,12 @@ public class MapCallable implements Callable {
 
         File[] files = chunk_dir.listFiles();
 
+        // NOTE: there are two ways to compute the host_chunk_prefix ... we
+        // could simply shift host ID 32 bits but then the printed form of the
+        // int isn't usable for debug purposes.  If we just use some padding of
+        // zeros then we still have plenty of hosts and plenty of chunks but
+        // it's a bit more readable.
+
         long host_chunk_prefix = (long)host.getId() * 1000000000;
         
         int local_chunk_id = 0;

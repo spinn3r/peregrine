@@ -1,2 +1,9 @@
-- support multiple chunks on 10MB -> 100MB boundaries
+
+
+- FIXME: I need to now create some unit tests that verify the correct design:
+
+    - writes to muliple chunk files
+    - make sure chunk files get schedule for execution on the correct CPU/thread
+    - verify that algorithm execution is correct
+        
 - 
