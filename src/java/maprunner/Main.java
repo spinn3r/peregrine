@@ -15,8 +15,8 @@ public class Main {
         //configure the system
 
         // TRY with three partitions... 
-        Config.addShardMembership( 0, "cpu0", "cpu1" );
-        Config.addShardMembership( 1, "cpu0", "cpu1" );
+        Config.addPartitionMembership( 0, "cpu0", "cpu1" );
+        Config.addPartitionMembership( 1, "cpu0", "cpu1" );
 
         String path = "/pr/test.graph";
         
@@ -48,9 +48,9 @@ public class Main {
 
             };
 
-        int nr_shards = Config.getShardMembership().size();
+        int nr_partitions = Config.getPartitionMembership().size();
 
-        mapper.init( nr_shards );
+        mapper.init( nr_partitions );
         
         Controller.map( path, mapper );
         Controller.sortMapOutput();

@@ -11,11 +11,16 @@ public class Partition {
     protected int id = 0;
     
     public Partition( int id ) {
+
+        //if ( id == -1 )
+        //    throw new RuntimeException();
+        
         this.id = id;
+        
     }
 
     public boolean equals( Object obj ) {
-        return id == ((Host)obj).id;
+        return id == ((Partition)obj).id;
     }
 
     public int hashCode() {
@@ -27,7 +32,7 @@ public class Partition {
     }
 
     public String toString() {
-        return "partition:" + id ;
+        return String.format( "partition:%08d", id  );
     }
     
 }

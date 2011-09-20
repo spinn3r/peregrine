@@ -11,15 +11,15 @@ import maprunner.shuffle.*;
 
 public abstract class Mapper {
 
-    private int nr_shards = 0;
+    private int nr_partitions = 0;
 
     private long chunk_id = -1;
     
     public abstract void map( byte[] key, byte[] value );
 
-    public void init( int nr_shards ) {
+    public void init( int nr_partitions ) {
 
-        this.nr_shards = nr_shards;
+        this.nr_partitions = nr_partitions;
 
     }
     
@@ -28,7 +28,7 @@ public abstract class Mapper {
         // TODO: the emit logic shouldn't go here ideally and should be moved to
         // a dedicated class
 
-        int partition = Config.route( key, nr_shards, true );
+        Partition partition = Config.route( key, nr_partitions, true );
 
         MapOutputIndex index = ShuffleManager.getMapOutputIndex( partition );
 
@@ -48,8 +48,8 @@ public abstract class Mapper {
      */
     public void cleanup( Partition partition ) {
 
-        //TODO: we should probably keep track of the shards that have seen this
-        //data before we send them the close() message.
+        //TODO: we should probably keep track of the partitions that have seen
+        //this data before we send them the close() message.
         
         //ShuffleManager.cleanup( partition );
 

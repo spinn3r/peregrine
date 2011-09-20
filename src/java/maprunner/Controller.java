@@ -20,15 +20,15 @@ public class Controller {
 
         ExecutorService es = getExecutorService();
         
-        //read the shards and create jobs to be executed on given chunks
+        //read the partitions and create jobs to be executed on given chunks
 
-        Map<Partition,List<Host>> shardMembership = Config.getShardMembership();
+        Map<Partition,List<Host>> partitionMembership = Config.getPartitionMembership();
 
         List<Future> futures = new ArrayList();
         
-        for ( Partition part : shardMembership.keySet() ) {
+        for ( Partition part : partitionMembership.keySet() ) {
 
-            List<Host> hosts = shardMembership.get( part );
+            List<Host> hosts = partitionMembership.get( part );
 
             int nr_hosts = hosts.size();
 
@@ -52,7 +52,7 @@ public class Controller {
     }
 
     /**
-     * Merge the output from all the mappers for each shard...
+     * Merge the output from all the mappers for each partition...
      */
     public static void sortMapOutput() throws Exception {
 

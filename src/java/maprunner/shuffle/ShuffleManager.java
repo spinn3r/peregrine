@@ -12,10 +12,10 @@ import maprunner.util.*;
 
 public class ShuffleManager {
 
-    public static ConcurrentHashMap<Integer,MapOutputIndex> bufferMap
+    public static ConcurrentHashMap<Partition,MapOutputIndex> bufferMap
         = new ConcurrentHashMap();
 
-    public static MapOutputIndex getMapOutputIndex( int partition ) {
+    public static MapOutputIndex getMapOutputIndex( Partition partition ) {
 
         MapOutputIndex buffer = bufferMap.get( partition );
 

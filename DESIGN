@@ -38,6 +38,10 @@
     - partition1: host0, host1, host2
     
 
+- how do we store input text so that cat() works efficiently... with a custom
+  partition handler.  Make it so tat lines 1-1000 show up on partition 0,
+  1001-2000 on parittion 2, etc.
+    
 
 - AHHH!!! I put THREE partitions on EACH node... then I can run one reduce on
   EACH for each partition.  Since these boxes replicate these blocks, I can run

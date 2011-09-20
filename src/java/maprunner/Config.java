@@ -11,9 +11,9 @@ public class Config {
     
     public static String DFS_ROOT = "/tmp/maprunner-dfs";
 
-    private static Map<Partition,List<Host>> SHARD_MEMBERSHIP = new HashMap();
+    private static Map<Partition,List<Host>> PARTITION_MEMBERSHIP = new HashMap();
 
-    public static void addShardMembership( int partition, String... hosts ) {
+    public static void addPartitionMembership( int partition, String... hosts ) {
 
         List<Host> list = new ArrayList();
 
@@ -21,12 +21,12 @@ public class Config {
             list.add( new Host( hosts[i], i ) );
         }
 
-        SHARD_MEMBERSHIP.put( new Partition( partition ), list );
+        PARTITION_MEMBERSHIP.put( new Partition( partition ), list );
 
     }
 
-    public static Map<Partition,List<Host>> getShardMembership() {
-        return SHARD_MEMBERSHIP;
+    public static Map<Partition,List<Host>> getPartitionMembership() {
+        return PARTITION_MEMBERSHIP;
     }
 
     public static String getDFSRoot( Partition partition, Host host ) {
@@ -38,21 +38,28 @@ public class Config {
     }
 
     /**
-     * For a given key, in bytes, route it to the correct partition/shard.
+     * For a given key, in bytes, route it to the correct partition/partition.
      */
-    public static int route( byte[] key_bytes,
-                             int nr_shards,
-                             boolean keyIsHashcode ) {
+    public static Partition route( byte[] key_bytes,
+                                   int nr_partitions,
+                                   boolean keyIsHashcode ) {
 
-        int shard = -1;
+        int partition = -1;
 
         if ( keyIsHashcode ) {
-            shard = (int)(Hashcode.toLong( key_bytes ) % nr_shards);
+
+            long value = Hashcode.toLong( key_bytes );
+            
+            partition = Math.abs( (int)(value % nr_partitions) );
+
         } else { 
-            shard = (int)(Hashcode.toLong( Hashcode.getHashcode( key_bytes ) ) % nr_shards);
+
+            long value = Hashcode.toLong( Hashcode.getHashcode( key_bytes ) );
+            partition = Math.abs( (int)( value % nr_partitions) );
+
         }
 
-        return shard;
+        return new Partition( partition );
         
     }
 

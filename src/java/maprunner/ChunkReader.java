@@ -7,7 +7,7 @@ import maprunner.util.*;
 import maprunner.keys.*;
 import maprunner.values.*;
 
-public class ExtractChunkReader {
+public class ChunkReader {
 
     private File file = null;
 
@@ -17,11 +17,11 @@ public class ExtractChunkReader {
 
     private ChunkListener listener = null;
     
-    public ExtractChunkReader( String path, ChunkListener listener ) {
+    public ChunkReader( String path, ChunkListener listener ) {
         this( new File( path ), listener );
     }
 
-    public ExtractChunkReader( File file, ChunkListener listener  ) {
+    public ChunkReader( File file, ChunkListener listener  ) {
         this.file = file;
         this.listener = listener;
     }

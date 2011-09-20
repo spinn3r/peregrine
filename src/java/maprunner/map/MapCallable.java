@@ -88,7 +88,7 @@ public class MapCallable implements Callable {
 
         mapper.onChunkStart( chunk_id );
         
-        ExtractChunkReader reader = new ExtractChunkReader( file, listener );
+        ChunkReader reader = new ChunkReader( file, listener );
         reader.read();
 
         mapper.onChunkEnd( chunk_id );
