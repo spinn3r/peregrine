@@ -58,12 +58,17 @@ public class StrippedReaderPerf {
         long before = System.currentTimeMillis();
         
         long offset = 0;
+
+        long bytes_read = 0;
+        
         for ( int i = 0; i < nr_regions; ++i ) {
 
             offset = i * buffer;
             raf.seek( offset );
             byte[] data = new byte[ read_size ];
             raf.read();
+
+            bytes_read += data.length;
             
         }
 
@@ -71,6 +76,7 @@ public class StrippedReaderPerf {
 
         long duration = (after - before);
         
+        System.out.printf( "bytes read: %,d bytes\n", bytes_read );
         System.out.printf( "duration: %,d ms\n", duration );
 
     }
