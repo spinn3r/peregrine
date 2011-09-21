@@ -12,9 +12,7 @@ import maprunner.util.*;
 
 public class MapOutputBuffer {
 
-    //FIXME: this should not be synchronized.
-    //private List<Tuple> tuples = new ArrayList(); 
-    private List<Tuple> tuples = Collections.synchronizedList( new ArrayList() ); 
+    private List<Tuple> tuples = new ArrayList(); 
     
     private long chunk_id = 0;
 
@@ -25,6 +23,8 @@ public class MapOutputBuffer {
     public void accept( byte[] key,
                         byte[] value ) {
 
+        //TODO: I wonder if it woule be faster to append to two arrays or to
+        //store these in one byte array.
         tuples.add( new Tuple( key, value ) );
         
     }

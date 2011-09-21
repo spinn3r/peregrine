@@ -30,7 +30,9 @@ public class Main {
 
         Mapper mapper = new Mapper() {
                 
-                public void map( byte[] key_data, byte[] value_data ) {
+                public void map( long global_chunk_id,
+                                 byte[] key_data,
+                                 byte[] value_data ) {
 
                     HashSetValue value = new HashSetValue();
                     value.fromBytes( value_data );
@@ -38,7 +40,7 @@ public class Main {
                     byte[] source = key_data;
 
                     for( byte[] target : value.getValues() ) {
-                        emit( target, source );
+                        emit( global_chunk_id, target, source );
                     }
                     
                 }

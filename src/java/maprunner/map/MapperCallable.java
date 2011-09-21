@@ -71,7 +71,7 @@ public class MapperCallable implements Callable {
 
                 long global_chunk_id = partition_chunk_prefix + local_chunk_id;
 
-                handleChunk( file, global_chunk_id, local_chunk_id );
+                callMapperOnChunk( file, global_chunk_id, local_chunk_id );
                 
             }
 
@@ -85,7 +85,9 @@ public class MapperCallable implements Callable {
         
     }
 
-    private void handleChunk( File file, long global_chunk_id, int local_chunk_id ) throws Exception {
+    private void callMapperOnChunk( File file,
+                                    final long global_chunk_id,
+                                    final int local_chunk_id ) throws Exception {
 
         System.out.printf( "Handling chunk: %s on partition: %s with global_chunk_id: %016d, local_chunk_id: %s\n",
                            file.getPath(), partition, global_chunk_id, local_chunk_id );
@@ -93,17 +95,13 @@ public class MapperCallable implements Callable {
         ChunkListener listener = new ChunkListener() {
 
                 public void onEntry( byte[] key, byte[] value ) {
-                    mapper.map( key, value );
+                    mapper.map( global_chunk_id, key, value );
                 }
 
             };
-
-        mapper.onChunkStart( global_chunk_id );
         
         ChunkReader reader = new ChunkReader( file, listener );
         reader.read();
-
-        mapper.onChunkEnd( global_chunk_id );
 
     }
     

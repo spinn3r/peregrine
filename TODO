@@ -1,4 +1,7 @@
 
+- It COULD be that MapOutputIndex is being corrupted... try to make THAT
+  synchronous ... 
+
 - TODO:
 
     - MapOutputBuffer needs to be synchronized becuase for SOME reason it ends
@@ -13,4 +16,4 @@
     - make sure chunk files get schedule for execution on the correct CPU/thread
     - verify that algorithm execution is correct
         
-- 
+- The current sort doesn't place things under the same key which is wrong.
