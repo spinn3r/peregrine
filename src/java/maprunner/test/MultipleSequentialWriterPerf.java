@@ -35,6 +35,8 @@ public class MultipleSequentialWriterPerf {
                 future.get();
             }
 
+            es.shutdown();
+            
             long after = System.currentTimeMillis();
 
             long duration = (after - before);
