@@ -1,4 +1,11 @@
 
+- TODO:
+
+    - MapOutputBuffer needs to be synchronized becuase for SOME reason it ends
+      up corupted.  This defeats the whole point of being parallel.
+
+    - Unit test to run full map and reduce phase... 
+
 
 - FIXME: I need to now create some unit tests that verify the correct design:
 

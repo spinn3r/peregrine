@@ -11,9 +11,7 @@ public class Partition {
     protected int id = 0;
     
     public Partition( int id ) {
-        
         this.id = id;
-        
     }
 
     public boolean equals( Object obj ) {

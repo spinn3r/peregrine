@@ -43,13 +43,13 @@ public class MapCallable implements Callable {
 
         File[] files = chunk_dir.listFiles();
 
-        // NOTE: there are two ways to compute the host_chunk_prefix ... we
+        // NOTE: there are two ways to compute the partition_chunk_prefix ... we
         // could simply shift host ID 32 bits but then the printed form of the
         // int isn't usable for debug purposes.  If we just use some padding of
         // zeros then we still have plenty of hosts and plenty of chunks but
         // it's a bit more readable.
 
-        long host_chunk_prefix = (long)host.getId() * 1000000000;
+        long partition_chunk_prefix = (long)partition.getId() * 1000000000;
         
         int local_chunk_id = 0;
 
@@ -66,14 +66,12 @@ public class MapCallable implements Callable {
 
             //System.out.printf( "local_chunk_id: %s, nr_hosts_in_partition: %s, host partition member ID: %s\n",
             //                   local_chunk_id, nr_hosts_in_partition, host.getPartitionMemberId() );
-
-            // cpu0 
             
             if ( ( local_chunk_id % nr_hosts_in_partition ) == host.getPartitionMemberId() ) {
 
-                long chunk_id = host_chunk_prefix | local_chunk_id;
+                long global_chunk_id = partition_chunk_prefix + local_chunk_id;
 
-                handleChunk( file, chunk_id );
+                handleChunk( file, global_chunk_id, local_chunk_id );
                 
             }
 
@@ -87,9 +85,10 @@ public class MapCallable implements Callable {
         
     }
 
-    private void handleChunk( File file, long chunk_id ) throws Exception {
+    private void handleChunk( File file, long global_chunk_id, int local_chunk_id ) throws Exception {
 
-        System.out.printf( "Handling chunk: %s\n", file.getPath() );
+        System.out.printf( "Handling chunk: %s on partition: %s with global_chunk_id: %016d, local_chunk_id: %s\n",
+                           file.getPath(), partition, global_chunk_id, local_chunk_id );
         
         ChunkListener listener = new ChunkListener() {
 
@@ -99,12 +98,12 @@ public class MapCallable implements Callable {
 
             };
 
-        mapper.onChunkStart( chunk_id );
+        mapper.onChunkStart( global_chunk_id );
         
         ChunkReader reader = new ChunkReader( file, listener );
         reader.read();
 
-        mapper.onChunkEnd( chunk_id );
+        mapper.onChunkEnd( global_chunk_id );
 
     }
     

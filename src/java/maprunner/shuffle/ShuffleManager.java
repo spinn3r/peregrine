@@ -15,15 +15,15 @@ public class ShuffleManager {
     public static ConcurrentHashMap<Partition,MapOutputIndex> bufferMap
         = new ConcurrentHashMap();
 
-    public static MapOutputIndex getMapOutputIndex( Partition partition ) {
+    public static MapOutputIndex getMapOutputIndex( Partition target_partition ) {
 
-        MapOutputIndex buffer = bufferMap.get( partition );
+        MapOutputIndex buffer = bufferMap.get( target_partition );
 
         if ( buffer == null ) {
             
-            buffer = new MapOutputIndex( partition );
-            bufferMap.putIfAbsent( partition, buffer );
-            buffer = bufferMap.get( partition );
+            buffer = new MapOutputIndex( target_partition );
+            bufferMap.putIfAbsent( target_partition, buffer );
+            buffer = bufferMap.get( target_partition );
             
         }
         

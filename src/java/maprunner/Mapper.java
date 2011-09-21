@@ -28,11 +28,11 @@ public abstract class Mapper {
         // TODO: the emit logic shouldn't go here ideally and should be moved to
         // a dedicated class
 
-        Partition partition = Config.route( key, nr_partitions, true );
+        Partition target_partition = Config.route( key, nr_partitions, true );
 
-        MapOutputIndex index = ShuffleManager.getMapOutputIndex( partition );
-
-        index.accept( chunk_id, key, value );
+        MapOutputIndex mapOutputIndex = ShuffleManager.getMapOutputIndex( target_partition );
+        
+        mapOutputIndex.accept( chunk_id, key, value );
 
     }
 
