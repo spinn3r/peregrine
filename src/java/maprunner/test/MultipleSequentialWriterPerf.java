@@ -2,6 +2,7 @@ package maprunner.test;
 
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.*;
 
 /**
  * 
@@ -10,16 +11,31 @@ public class MultipleSequentialWriterPerf {
 
     public static void main( String[] args ) throws Exception {
 
-        int max = 200;
-
-        if ( args.length == 1 )
-            max = Integer.parseInt( args[0] );
-
-        System.out.printf( "Writing to max files: %d\n", max );
+        int max = 1;
         
-        for (int i = 0; i < max; ++i ) {
+        for ( int i = 0; i <= 7; ++i ) {
 
-            new WriterClass( i ).start();
+            max = max * 2;
+
+            System.out.printf( "Writing to max files: %d\n", max );
+
+            long before = System.currentTimeMillis();
+            
+            ExecutorService es = Executors.newCachedThreadPool() ;
+
+            List<Future> futures = new ArrayList( max );
+            
+            for (int j = 0; j < max; ++j ) {
+                futures.add( es.submit( new WriterClass( j ) ) );
+            }
+
+            for ( Future future : futures ) {
+                future.get();
+            }
+
+            long after = System.currentTimeMillis();
+
+            long duration = (after - before);
             
         }
         
@@ -27,7 +43,7 @@ public class MultipleSequentialWriterPerf {
 
 }
 
-class WriterClass extends Thread {
+class WriterClass implements Callable {
 
     public static long MAX = 100000000000L;
 
@@ -41,23 +57,19 @@ class WriterClass extends Thread {
         this.index = index;
     }
     
-    public void run() {
+    public Object call() throws Exception {
 
-        try {
-            
-            BufferedOutputStream out =
-                new BufferedOutputStream( new FileOutputStream( "./maprunner-test-" + index ) );
+        BufferedOutputStream out =
+            new BufferedOutputStream( new FileOutputStream( "./maprunner-test-" + index ) );
 
-            for ( int i = 0 ; i < MAX / CHUNK_SIZE; ++i ) {
-                out.write( CHUNK );
-            }
-
-            out.close();
-
-        } catch ( Exception e ) {
-            e.printStackTrace();
+        for ( int i = 0 ; i < MAX / CHUNK_SIZE; ++i ) {
+            out.write( CHUNK );
         }
-            
+
+        out.close();
+
+        return null;
+        
     }
 
 }
