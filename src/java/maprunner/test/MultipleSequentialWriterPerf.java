@@ -51,12 +51,16 @@ public class MultipleSequentialWriterPerf {
 
             long seconds = duration / 1000;
 
-            long throughput = size / seconds;
-            long throughput_mb = (size / 1000000) / seconds;
+            if ( seconds != 0 ) {
             
-            System.out.printf( "throughput: %,d B/s \n", throughput );
-            System.out.printf( "throughput: %,d MB/s \n", throughput_mb );
-            
+                long throughput = size / seconds;
+                long throughput_mb = (size / 1000000) / seconds;
+                
+                System.out.printf( "throughput: %,d B/s \n", throughput );
+                System.out.printf( "throughput: %,d MB/s \n", throughput_mb );
+
+            }
+                
             max = (int)Math.ceil( max * 1.5 );
 
         }
