@@ -32,8 +32,12 @@ public class StrippedReaderPerf {
         System.out.printf( "Using buffer of %,d bytes.\n", buffer );
         System.out.printf( "Using partitions of %,d.\n", partitions );
 
+        long before, after, duration;
+        
         // ****************** WRITE our test file.
 
+        before = System.currentTimeMillis();
+        
         File file = new File( path );
 
         if ( file.exists() == false || file.length() != size ) {
@@ -58,7 +62,12 @@ public class StrippedReaderPerf {
             
         DiskPerf.sync();
         DiskPerf.dropCaches();
+
+        after = System.currentTimeMillis();
+        duration = (after - before);
         
+        System.out.printf( "duration: %,d ms\n", duration );
+
         // ******************
 
         long nr_regions = size / buffer;
@@ -69,7 +78,7 @@ public class StrippedReaderPerf {
         
         RandomAccessFile raf = new RandomAccessFile( path, "r" );
 
-        long before = System.currentTimeMillis();
+        before = System.currentTimeMillis();
         
         long offset = 0;
 
@@ -86,9 +95,9 @@ public class StrippedReaderPerf {
             
         }
 
-        long after = System.currentTimeMillis();
+        after = System.currentTimeMillis();
 
-        long duration = (after - before);
+        duration = (after - before);
         
         System.out.printf( "bytes read: %,d bytes\n", bytes_read );
         System.out.printf( "duration: %,d ms\n", duration );
