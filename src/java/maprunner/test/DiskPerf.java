@@ -19,5 +19,14 @@ public class DiskPerf {
         
     }
 
-    
+    public static void dropCaches() throws Exception {
+
+        System.out.printf( "Dropping caches..." );
+        FileOutputStream fos = new FileOutputStream( "/proc/sys/vm/drop_caches" );
+        fos.write( (byte)'3' );
+        fos.close();
+        System.out.printf( "done\n" );
+
+    }
+
 }

@@ -48,9 +48,10 @@ public class StrippedReaderPerf {
 
         out.close();
 
-        DiskPerf.sync();
-
         System.out.printf( "done\n" );
+
+        DiskPerf.sync();
+        DiskPerf.dropCaches();
         
         // ******************
 
