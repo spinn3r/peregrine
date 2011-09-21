@@ -34,7 +34,7 @@ public class Controller {
 
             for( Host host : hosts ) {
 
-                Callable callable = new MapCallable( part, host, path, nr_hosts, mapper );
+                Callable callable = new MapperCallable( part, host, path, nr_hosts, mapper );
 
                 Future future = es.submit( callable );
                 futures.add( future );

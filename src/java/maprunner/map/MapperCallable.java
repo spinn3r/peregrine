@@ -11,7 +11,7 @@ import maprunner.values.*;
 import maprunner.util.*;
 import maprunner.map.*;
 
-public class MapCallable implements Callable {
+public class MapperCallable implements Callable {
 
     private Partition partition;
     private Host host;
@@ -19,7 +19,7 @@ public class MapCallable implements Callable {
     private int nr_hosts_in_partition;
     final private Mapper mapper;
     
-    public MapCallable( Partition partition,
+    public MapperCallable( Partition partition,
                         Host host ,
                         String path,
                         int nr_hosts_in_partition,
