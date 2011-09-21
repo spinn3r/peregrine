@@ -50,14 +50,14 @@ public class StrippedReaderPerf {
             
             BufferedOutputStream out = new BufferedOutputStream( new FileOutputStream( path ), BLOCK_SIZE );
 
-            for ( int i = 0; i < size / BLOCK_SIZE; ++i ) {
+            int nr_blocks = (int)(size / BLOCK_SIZE);
+            
+            for ( int i = 0; i < nr_blocks; ++i ) {
                 out.write( BLOCK );
             }
 
-            out.flush();
-            
             // finish out the file so that it has the right number of blocks
-            int padding = BLOCK_SIZE - (int)(size % BLOCK_SIZE);
+            int padding = (int)(size - (nr_blocks * BLOCK_SIZE));
 
             BLOCK = new byte[ padding ];
             out.write( BLOCK );
@@ -106,14 +106,20 @@ public class StrippedReaderPerf {
         after = System.currentTimeMillis();
 
         duration = (after - before);
+        long duration_seconds = (duration / 1000);
 
-        long bytes_per_sec = bytes_read / (duration / 1000);
-        long MB_per_sec = (bytes_read / 100000000) / (duration / 1000);
-        
         System.out.printf( "bytes read: %,d bytes\n", bytes_read );
-        System.out.printf( "throughput: %,d B/s\n", bytes_per_sec );
-        System.out.printf( "throughput: %,d MB/s\n", MB_per_sec );
         System.out.printf( "duration: %,d ms\n", duration );
+
+        if ( duration_seconds > 0 ) {
+        
+            long bytes_per_sec = bytes_read / duration_seconds;
+            long MB_per_sec = (bytes_read / 100000000) / duration_seconds;
+            
+            System.out.printf( "throughput: %,d B/s\n", bytes_per_sec );
+            System.out.printf( "throughput: %,d MB/s\n", MB_per_sec );
+
+        }
 
     }
 
