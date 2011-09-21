@@ -83,6 +83,8 @@ public class StrippedReaderPerf {
 
         System.out.printf( "nr_regions: %,d\n", nr_regions );
         System.out.printf( "read_size: %,d\n", read_size );
+
+        System.out.printf( "Starting read...\n" );
         
         RandomAccessFile raf = new RandomAccessFile( path, "r" );
 
@@ -95,7 +97,9 @@ public class StrippedReaderPerf {
         for ( int i = 0; i < nr_regions; ++i ) {
 
             offset = i * buffer;
+
             raf.seek( offset );
+
             byte[] data = new byte[ read_size ];
             raf.read();
 
@@ -104,6 +108,8 @@ public class StrippedReaderPerf {
         }
 
         after = System.currentTimeMillis();
+
+        System.out.printf( "done\n" );
 
         duration = (after - before);
         long duration_seconds = (duration / 1000);
