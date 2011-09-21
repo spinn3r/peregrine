@@ -5,7 +5,14 @@
 
   Test these scenarios:
 
-    
+    - As writes come in , write them to individual files directly.
+        - also test with fallocate() or say 500k-5MB extents
+        
+    - Buffered writes so that we lay them down as individual files but then
+      reads have to jump over regions within the file.  This would yield a
+      sequential file BUT I would have to seek over large portions of it...
+
+        - 1000 partitions... writing to us in chunks
 
     
 
