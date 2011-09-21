@@ -102,7 +102,10 @@ public class StrippedReaderPerf {
             raf.seek( offset );
 
             byte[] data = new byte[ read_size ];
-            raf.read();
+            int read_result = raf.read( data );
+
+            if ( read_result != data.length )
+                throw new Exception( String.format( "NR bytes read (%,d) doesn't equal bytes requested (%,d)", read_result, data.length ) );
 
             bytes_read += data.length;
             
