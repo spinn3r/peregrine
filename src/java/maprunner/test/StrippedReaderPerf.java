@@ -132,9 +132,9 @@ public class StrippedReaderPerf {
             System.out.printf( "throughput: %,d B/s\n", bytes_per_sec );
             System.out.printf( "throughput: %,d MB/s\n", MB_per_sec );
 
-        }
+            System.out.printf( "result: %s,%s,%s\n", buffer, partitions, MB_per_sec );
 
-        System.out.printf( "result: %s,%s\n", buffer, partitions );
+        }
 
     }
     
