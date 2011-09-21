@@ -98,6 +98,7 @@ public class StrippedReaderPerf {
 
             offset = i * buffer;
 
+            System.out.printf( "seek: %,d\n", offset );
             raf.seek( offset );
 
             byte[] data = new byte[ read_size ];
