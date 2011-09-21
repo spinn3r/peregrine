@@ -13,14 +13,12 @@ public class Mapper {
 
     private int nr_partitions = 0;
 
-    private long global_chunk_id = -1;
-
     public void init( int nr_partitions ) {
-
         this.nr_partitions = nr_partitions;
-
     }
 
+    //TODO: global_chunk_id should NOT be exposed in map but we had to include
+    //it for now for technical reasons.
     public void map( long global_chunk_id,
                      byte[] key,
                      byte[] value ) {}
@@ -30,7 +28,7 @@ public class Mapper {
                       byte[] value ) {
 
         // TODO: the emit logic shouldn't go here ideally and should be moved to
-        // a dedicated class
+        // a dedicated class and the Mapper should be clean.
 
         Partition target_partition = Config.route( key, nr_partitions, true );
 

@@ -37,9 +37,6 @@ public class MapOutputIndex {
 
         if ( buffer == null ) {
 
-            System.out.printf( "Creating MapOutputBuffer for chunk : %016d on thread: %s for partition %s\n",
-                               chunk_id, Thread.currentThread(), partition );
-            
             buffer = new MapOutputBuffer( chunk_id );
             bufferMap.putIfAbsent( chunk_id, buffer );
             buffer = bufferMap.get( chunk_id );

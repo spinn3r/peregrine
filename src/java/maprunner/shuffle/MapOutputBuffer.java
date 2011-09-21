@@ -23,7 +23,7 @@ public class MapOutputBuffer {
     public void accept( byte[] key,
                         byte[] value ) {
 
-        //TODO: I wonder if it woule be faster to append to two arrays or to
+        //TODO: I wonder if it would be faster to append to two arrays or to
         //store these in one byte array.
         tuples.add( new Tuple( key, value ) );
         
