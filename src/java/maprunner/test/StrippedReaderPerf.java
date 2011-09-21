@@ -134,7 +134,7 @@ public class StrippedReaderPerf {
 
         }
 
-        System.out.printf( "result: buffer: %s, nr_partitions: %s\n", buffer, partitions );
+        System.out.printf( "result: %s,%s\n", buffer, partitions );
 
     }
     
