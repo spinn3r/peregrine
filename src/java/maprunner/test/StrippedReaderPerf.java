@@ -45,11 +45,13 @@ public class StrippedReaderPerf {
             System.out.printf( "Creating input file..." );
 
             int BLOCK_SIZE = 16384;
+
+            byte[] BLOCK = new byte[ BLOCK_SIZE ];
             
             OutputStream out = new BufferedOutputStream( new FileOutputStream( path ), BLOCK_SIZE );
 
-            for ( int i = 0; i < size; ++i ) {
-                out.write( (byte)'x' );
+            for ( int i = 0; i < size / BLOCK_SIZE; ++i ) {
+                out.write( BLOCK );
             }
 
             out.close();
