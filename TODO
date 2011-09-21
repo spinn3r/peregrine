@@ -1,4 +1,23 @@
 
+- write a few tests of sequential pseudo sequential read and write IO
+  performance.  This involved running two writers to two files on a single HDD
+  ...
+
+  Test these scenarios:
+
+    
+
+    
+
+
+
+
+
+
+
+
+
+
 - It COULD be that MapOutputIndex is being corrupted... try to make THAT
   synchronous ... 
 
