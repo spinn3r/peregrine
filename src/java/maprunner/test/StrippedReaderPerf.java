@@ -34,22 +34,28 @@ public class StrippedReaderPerf {
 
         // ****************** WRITE our test file.
 
-        System.out.printf( "Creating input file..." );
+        File file = new File( path );
 
-        int BLOCK_SIZE = 16384;
+        if ( file.exists() && file.length() == size ) {
+            
+            System.out.printf( "Creating input file..." );
 
-        byte[] BLOCK = new byte[ BLOCK_SIZE ];
-        
-        OutputStream out = new BufferedOutputStream( new FileOutputStream( path ) );
+            int BLOCK_SIZE = 16384;
 
-        for ( int i = 0; i < size / BLOCK_SIZE; ++i ) {
-            out.write( BLOCK );
+            byte[] BLOCK = new byte[ BLOCK_SIZE ];
+            
+            OutputStream out = new BufferedOutputStream( new FileOutputStream( path ) );
+
+            for ( int i = 0; i < size / BLOCK_SIZE; ++i ) {
+                out.write( BLOCK );
+            }
+
+            out.close();
+
+            System.out.printf( "done\n" );
+
         }
-
-        out.close();
-
-        System.out.printf( "done\n" );
-
+            
         DiskPerf.sync();
         DiskPerf.dropCaches();
         
