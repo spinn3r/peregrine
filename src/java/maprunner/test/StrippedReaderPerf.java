@@ -54,6 +54,12 @@ public class StrippedReaderPerf {
                 out.write( BLOCK );
             }
 
+            // finish out the file so that it has the right number of blocks
+            int padding = BLOCK_SIZE - (int)(size % BLOCK_SIZE);
+
+            BLOCK = new byte[ padding ];
+            out.write( BLOCK );
+            
             out.close();
 
             System.out.printf( "done\n" );
