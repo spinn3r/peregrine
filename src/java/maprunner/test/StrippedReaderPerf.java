@@ -113,8 +113,8 @@ public class StrippedReaderPerf {
 
         if ( duration_seconds > 0 ) {
         
-            long bytes_per_sec = bytes_read / duration_seconds;
-            long MB_per_sec = (bytes_read / 100000000) / duration_seconds;
+            long bytes_per_sec = (bytes_read / duration) / 1000;
+            long MB_per_sec = bytes_per_sec / 1000000;
             
             System.out.printf( "throughput: %,d B/s\n", bytes_per_sec );
             System.out.printf( "throughput: %,d MB/s\n", MB_per_sec );
@@ -122,7 +122,5 @@ public class StrippedReaderPerf {
         }
 
     }
-
-    //public 
     
 }
