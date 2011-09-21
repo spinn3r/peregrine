@@ -54,6 +54,8 @@
             <fileset dir="compile">
 
                 <include name="com/**"/>
+                <include name="org/**"/>
+                <include name="maprunner/**"/>
             
             </fileset>
 
