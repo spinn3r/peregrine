@@ -36,6 +36,8 @@ public class MultipleSequentialWriterPerf {
             long after = System.currentTimeMillis();
 
             long duration = (after - before);
+
+            System.out.printf( "duration: %,d ms\n", duration );
             
         }
         
