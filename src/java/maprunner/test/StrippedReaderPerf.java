@@ -84,7 +84,7 @@ public class StrippedReaderPerf {
         System.out.printf( "nr_regions: %,d\n", nr_regions );
         System.out.printf( "read_size: %,d\n", read_size );
 
-        System.out.printf( "Starting read...\n" );
+        System.out.printf( "Starting read..." );
         
         RandomAccessFile raf = new RandomAccessFile( path, "r" );
 
