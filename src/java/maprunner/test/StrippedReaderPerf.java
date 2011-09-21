@@ -106,8 +106,13 @@ public class StrippedReaderPerf {
         after = System.currentTimeMillis();
 
         duration = (after - before);
+
+        long bytes_per_sec = bytes_read / (duration / 1000);
+        long MB_per_sec = (bytes_read / 100000000) / (duration / 1000);
         
         System.out.printf( "bytes read: %,d bytes\n", bytes_read );
+        System.out.printf( "throughput: %,d B/s\n", bytes_per_sec );
+        System.out.printf( "throughput: %,d MB/s\n", MB_per_sec );
         System.out.printf( "duration: %,d ms\n", duration );
 
     }
