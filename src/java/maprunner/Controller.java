@@ -66,7 +66,7 @@ public class Controller {
 
         for( MapOutputIndex mapOutputIndex : mapOutputIndexes ) {
 
-            Callable callable = new MapOutputMergeCallable( mapOutputIndex );
+            Callable callable = new MapOutputSortCallable( mapOutputIndex );
             Future future = es.submit( callable );
             futures.add( future );
             

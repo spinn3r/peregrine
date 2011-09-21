@@ -11,14 +11,11 @@ import maprunner.values.*;
 import maprunner.util.*;
 import maprunner.map.*;
 
-
-// FIXME: change to MapOutputSortCallable...
-
-public class MapOutputMergeCallable implements Callable {
+public class MapOutputSortCallable implements Callable {
 
     private MapOutputIndex mapOutputIndex = null;
     
-    public MapOutputMergeCallable( MapOutputIndex mapOutputIndex ) {
+    public MapOutputSortCallable( MapOutputIndex mapOutputIndex ) {
         this.mapOutputIndex = mapOutputIndex;
     }
 
