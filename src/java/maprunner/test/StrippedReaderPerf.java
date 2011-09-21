@@ -80,6 +80,7 @@ public class StrippedReaderPerf {
 
         long nr_regions = size / buffer;
         int read_size = (int)(buffer / partitions);
+        long max_read_bytes = 10 * buffer; //would be nice to pass this into the command line.
 
         System.out.printf( "nr_regions: %,d\n", nr_regions );
         System.out.printf( "read_size: %,d\n", read_size );
@@ -98,7 +99,6 @@ public class StrippedReaderPerf {
 
             offset = i * buffer;
 
-            System.out.printf( "seek: %,d\n", offset );
             raf.seek( offset );
 
             byte[] data = new byte[ read_size ];
@@ -108,6 +108,9 @@ public class StrippedReaderPerf {
                 throw new Exception( String.format( "NR bytes read (%,d) doesn't equal bytes requested (%,d)", read_result, data.length ) );
 
             bytes_read += data.length;
+
+            if ( bytes_read > max_read_bytes )
+                break;
             
         }
 
