@@ -57,7 +57,7 @@ public class MultipleSequentialWriterPerf {
             System.out.printf( "throughput: %,d B/s \n", throughput );
             System.out.printf( "throughput: %,d MB/s \n", throughput_mb );
             
-            max = max * 2;
+            max = (int)Math.ceil( max * 1.5 );
 
         }
         
