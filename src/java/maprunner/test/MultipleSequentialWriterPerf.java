@@ -12,6 +12,8 @@ public class MultipleSequentialWriterPerf {
     public static void main( String[] args ) throws Exception {
 
         long size = Long.parseLong( args[0] );
+
+        System.out.printf( "Using size of %,d bytes.\n", size );
         
         int max = 1;
         
@@ -43,6 +45,14 @@ public class MultipleSequentialWriterPerf {
 
             System.out.printf( "duration: %,d ms\n", duration );
 
+            long seconds = duration / 1000;
+
+            long throughput = size / seconds;
+            long throughput_mb = (size / 1000000) / seconds;
+            
+            System.out.printf( "throughput: %,d B/s \n", throughput );
+            System.out.printf( "throughput: %,d MB/s \n", throughput_mb );
+            
             max = max * 2;
 
         }
