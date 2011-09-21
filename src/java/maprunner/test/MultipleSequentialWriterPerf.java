@@ -19,6 +19,8 @@ public class MultipleSequentialWriterPerf {
         
         for ( int i = 0; i <= 8; ++i ) {
 
+            sync();
+            
             System.out.printf( "Writing to %s files.\n", max );
 
             long before = System.currentTimeMillis();
@@ -38,6 +40,8 @@ public class MultipleSequentialWriterPerf {
             }
 
             es.shutdown();
+
+            sync();
             
             long after = System.currentTimeMillis();
 
@@ -59,6 +63,19 @@ public class MultipleSequentialWriterPerf {
         
     }
 
+    public static void sync() throws Exception {
+
+        System.out.printf( "sync..." );
+        
+        int result = Runtime.getRuntime().exec( "sync") .waitFor();
+
+        if ( result != 0 )
+            throw new Exception( "sync failed" );
+
+        System.out.printf( "done\n" );
+        
+    }
+    
 }
 
 class WriterClass implements Callable {
