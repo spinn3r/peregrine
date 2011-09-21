@@ -17,7 +17,7 @@ public class MultipleSequentialWriterPerf {
         
         for ( int i = 0; i <= 7; ++i ) {
 
-            System.out.printf( "Writing to %s files: %d\n", max );
+            System.out.printf( "Writing to %s files.\n", max );
 
             long before = System.currentTimeMillis();
             
