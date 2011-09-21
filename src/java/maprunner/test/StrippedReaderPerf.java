@@ -27,12 +27,14 @@ public class StrippedReaderPerf {
         long partitions = Long.parseLong( args[2] );
 
         String path = "stripped-reader.test";
-        
-        // ****************** WRITE our test file.
-        
+
         System.out.printf( "Using size of %,d bytes.\n", size );
         System.out.printf( "Using buffer of %,d bytes.\n", buffer );
         System.out.printf( "Using partitions of %,d.\n", partitions );
+
+        // ****************** WRITE our test file.
+
+        System.out.printf( "Creating input file..." );
 
         int BLOCK_SIZE = 16384;
 
@@ -48,11 +50,16 @@ public class StrippedReaderPerf {
 
         DiskPerf.sync();
 
+        System.out.printf( "done\n" );
+        
         // ******************
 
         long nr_regions = size / buffer;
         int read_size = (int)(buffer / partitions);
 
+        System.out.printf( "nr_regions: %,d\n", nr_regions );
+        System.out.printf( "read_size: %,d\n", read_size );
+        
         RandomAccessFile raf = new RandomAccessFile( path, "r" );
 
         long before = System.currentTimeMillis();
