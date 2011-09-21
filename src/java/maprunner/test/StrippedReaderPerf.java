@@ -119,22 +119,17 @@ public class StrippedReaderPerf {
         System.out.printf( "done\n" );
 
         duration = (after - before);
-        long duration_seconds = (duration / 1000);
 
         System.out.printf( "bytes read: %,d bytes\n", bytes_read );
         System.out.printf( "duration: %,d ms\n", duration );
-
-        if ( duration_seconds > 0 ) {
         
-            long bytes_per_sec = (long)((bytes_read / (double)duration) * 1000);
-            long MB_per_sec = bytes_per_sec / 1000000;
-            
-            System.out.printf( "throughput: %,d B/s\n", bytes_per_sec );
-            System.out.printf( "throughput: %,d MB/s\n", MB_per_sec );
+        long bytes_per_sec = (long)((bytes_read / (double)duration) * 1000);
+        long MB_per_sec = bytes_per_sec / 1000000;
+        
+        System.out.printf( "throughput: %,d B/s\n", bytes_per_sec );
+        System.out.printf( "throughput: %,d MB/s\n", MB_per_sec );
 
-            System.out.printf( "result: %s,%s,%s\n", buffer, partitions, MB_per_sec );
-
-        }
+        System.out.printf( "result: %s,%s,%s\n", buffer, partitions, MB_per_sec );
 
     }
     
