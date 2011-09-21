@@ -11,22 +11,24 @@ public class MultipleSequentialWriterPerf {
 
     public static void main( String[] args ) throws Exception {
 
+        long size = Long.parseLong( args[0] );
+        
         int max = 1;
         
         for ( int i = 0; i <= 7; ++i ) {
 
-            max = max * 2;
-
-            System.out.printf( "Writing to max files: %d\n", max );
+            System.out.printf( "Writing to %s files: %d\n", max );
 
             long before = System.currentTimeMillis();
             
             ExecutorService es = Executors.newCachedThreadPool() ;
 
             List<Future> futures = new ArrayList( max );
+
+            long writer_size = size / max;
             
             for (int j = 0; j < max; ++j ) {
-                futures.add( es.submit( new WriterClass( j ) ) );
+                futures.add( es.submit( new WriterClass( j, writer_size ) ) );
             }
 
             for ( Future future : futures ) {
@@ -38,7 +40,9 @@ public class MultipleSequentialWriterPerf {
             long duration = (after - before);
 
             System.out.printf( "duration: %,d ms\n", duration );
-            
+
+            max = max * 2;
+
         }
         
     }
@@ -47,16 +51,16 @@ public class MultipleSequentialWriterPerf {
 
 class WriterClass implements Callable {
 
-    public static long MAX = 100000000000L;
+    public static int BLOCK_SIZE = 16384;
 
-    public static int CHUNK_SIZE = 16384;
-
-    public static byte[] CHUNK = new byte[ CHUNK_SIZE ];
+    public static byte[] BLOCK = new byte[ BLOCK_SIZE ];
     
     private int index;
+    private long size;
     
-    public WriterClass( int index ) {
+    public WriterClass( int index, long size ) {
         this.index = index;
+        this.size = size;
     }
     
     public Object call() throws Exception {
@@ -64,8 +68,8 @@ class WriterClass implements Callable {
         BufferedOutputStream out =
             new BufferedOutputStream( new FileOutputStream( "./maprunner-test-" + index ) );
 
-        for ( int i = 0 ; i < MAX / CHUNK_SIZE; ++i ) {
-            out.write( CHUNK );
+        for ( int i = 0 ; i < size / BLOCK_SIZE; ++i ) {
+            out.write( BLOCK );
         }
 
         out.close();
