@@ -36,7 +36,7 @@ public class StrippedReaderPerf {
 
         File file = new File( path );
 
-        if ( file.exists() && file.length() == size ) {
+        if ( file.exists() == false || file.length() != size ) {
             
             System.out.printf( "Creating input file..." );
 
