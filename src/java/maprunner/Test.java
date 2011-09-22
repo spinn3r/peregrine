@@ -137,13 +137,86 @@ public class Test {
         }
 
         return result;
-        
+
     }
 
+    public static void sort( int[] vect_left, int[] vect_right ) {
+
+        SortInput left = new SortInput( vect_left );
+        SortInput right = new SortInput( vect_right );
+
+        //result index... 
+        int index = 0;
+        int[] result = new int[vect_left.length + vect_right.length];
+        
+        while( true ) {
+
+            SortInput hit = null;
+            SortInput miss = null;
+            
+            if ( left.value <= right.value ) {
+
+                hit = left;
+                miss = right;
+                
+                System.out.printf( "%d\n", hit.value );
+
+            } else {
+
+                hit = right;
+                miss = left;
+                
+                System.out.printf( "%d\n", hit.value );
+
+            }
+
+            ++hit.idx;
+
+            if ( hit.idx == hit.vect.length ) {
+                //drain the data from the 'miss' so that there are no more
+                //entries in it.
+
+                for( int i = miss.idx; i < miss.vect.length; ++i ) {
+                    System.out.printf( "%d\n", miss.vect[i] );
+                }
+                
+                break;
+            }
+
+            hit.value = hit.vect[ hit.idx ];
+            
+        }
+
+    }
+
+    static final class SortInput {
+
+        public int value;
+        public int idx = 0;
+        public int[] vect;
+        
+        public SortInput( int[] vect ) {
+            this.vect = vect;
+            this.value = vect[0];
+        }
+
+    }
+    
     public static void main( String[] args ) throws Exception {
 
-        Test test = new Test();
-        test.test1();
+        //Test test = new Test();
+        //test.test1();
+
+        // implementation of a merge sort algorithm
+
+        // http://en.wikipedia.org/wiki/Merge_sort
+
+        //FIXME: test with arrays of different lengths;
+        
+        int[] vect_left = new int[] { 1, 3, 5, 7, 9 };
+        int[] vect_right = new int[] { 0, 2, 4, 6, 8 };
+
+        sort( vect_left, vect_right );
         
         /*
         VarintWriter writer = new VarintWriter();
