@@ -12,6 +12,8 @@ import maprunner.util.*;
 
 public class MapOutputBuffer {
 
+    //TODO: implementing our own ArrayList which has expand capabilities but
+    //which allows you to access the underlying array directly would be nice.
     private List<Tuple> tuples = new ArrayList(); 
     
     private long chunk_id = 0;
