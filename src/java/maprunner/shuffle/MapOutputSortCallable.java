@@ -32,29 +32,28 @@ public class MapOutputSortCallable implements Callable {
             size += mapOutputBuffer.size();
         }
 
-        Tuple[] data = new Tuple[size];
+        List<Tuple[]> arrays = new ArrayList();
 
-        int offset = 0;
-        
+        int nr_tuples = 0;
         for ( MapOutputBuffer mapOutputBuffer : mapOutput ) {
 
             Tuple[] copy = mapOutputBuffer.toArray();
 
-            System.arraycopy( copy, 0, data, offset, copy.length );
+            //TODO: shortcut this if the map output is already sorted.
+            Arrays.sort( copy );
+            nr_tuples += copy.length;
 
-            offset += copy.length;
+            arrays.add( copy );
             
         }
 
-        System.out.printf( "Sorted %,d entries for partition %s \n", data.length , mapOutputIndex.partition );
-        
-        Arrays.sort( data );
+        System.out.printf( "Sorted %,d entries for partition %s \n", nr_tuples , mapOutputIndex.partition );
         
         return null;
 
     }
 
-    protected SortResult sort( int[] vect_left, int[] vect_right ) {
+    public SortResult sort( int[] vect_left, int[] vect_right ) {
 
         SortInput left = new SortInput( vect_left );
         SortInput right = new SortInput( vect_right );
