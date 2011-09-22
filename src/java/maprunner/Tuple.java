@@ -1,16 +1,30 @@
 package maprunner;
 
 import maprunner.util.*;
+import maprunner.keys.*;
 
 public class Tuple implements Comparable {
 
-    protected byte[] key = null;
-    protected byte[] value = null;
+    public byte[] key = null;
+    public byte[] value = null;
 
     private long keycmp = -1;
 
     public Tuple( byte[] key, byte[] value ) {
-        keycmp = Hashcode.toLong( key );
+
+        this.key = key;
+        this.value = value;
+        this.keycmp = Hashcode.toLong( key );
+        
+    }
+
+    public Tuple( Key key, Value value ) {
+        this.key = key.toBytes();
+        this.value = value.toBytes();
+
+        if ( key instanceof IntKey )
+            this.keycmp = ((IntKey)key).value;
+        
     }
 
     public int compareTo( Object o ) {

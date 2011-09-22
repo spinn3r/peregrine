@@ -6,5 +6,5 @@ import java.util.*;
 public interface Key {
 
     public byte[] toBytes();
-    
+
 }

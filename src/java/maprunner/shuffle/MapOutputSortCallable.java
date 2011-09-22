@@ -53,7 +53,8 @@ public class MapOutputSortCallable implements Callable {
 
     }
 
-    public SortResult sort( int[] vect_left, int[] vect_right ) {
+    public static SortResult sort( Tuple[] vect_left,
+                                   Tuple[] vect_right ) {
 
         SortInput left = new SortInput( vect_left );
         SortInput right = new SortInput( vect_right );
@@ -65,7 +66,7 @@ public class MapOutputSortCallable implements Callable {
             SortInput hit = null;
             SortInput miss = null;
             
-            if ( left.value <= right.value ) {
+            if ( left.value.compareTo( right.value ) <= 0 ) {
 
                 hit = left;
                 miss = right;
@@ -77,8 +78,7 @@ public class MapOutputSortCallable implements Callable {
 
             }
 
-            System.out.printf( "%d\n", hit.value );
-            result.accept( hit.value , hit.value );
+            result.accept( hit.value );
             
             ++hit.idx;
 
@@ -87,7 +87,7 @@ public class MapOutputSortCallable implements Callable {
                 //entries in it.
 
                 for( int i = miss.idx; i < miss.vect.length; ++i ) {
-                    System.out.printf( "%d\n", miss.vect[i] );
+                    result.accept( hit.value );
                 }
                 
                 break;
@@ -97,6 +97,8 @@ public class MapOutputSortCallable implements Callable {
             
         }
 
+        result.dump();
+        
         return result;
 
     }
@@ -105,11 +107,11 @@ public class MapOutputSortCallable implements Callable {
 
 final class SortInput {
 
-    public int value;
+    public Tuple value;
     public int idx = 0;
-    public int[] vect;
+    public Tuple[] vect;
     
-    public SortInput( int[] vect ) {
+    public SortInput( Tuple[] vect ) {
         this.vect = vect;
         this.value = vect[0];
     }
@@ -128,33 +130,33 @@ final class SortResult {
         entries = new SortEntry[ size ];
     }
 
-    public void accept( int key, int value ) {
+    public void accept( Tuple tuple ) {
 
-        if ( last == null || last.key != key ) {
-            last = new SortEntry( key );
+        if ( last == null || last.tuple.compareTo( tuple ) != 0 ) {
+            last = new SortEntry( tuple );
             entries[idx++] = last;
         } 
 
-        last.add( value );
+        last.add( tuple.value );
 
     }
 
     public void dump() {
 
         for( int i = 0; i < idx; ++i ) {
-            System.out.printf( "key=%d, value=%s\n", entries[i].key, entries[i] );
+            System.out.printf( "value=%s\n", entries[i].tuple );
         }
         
     }
     
 }
 
-final class SortEntry extends ArrayList<Integer> {
+final class SortEntry extends ArrayList<byte[]> {
 
-    public int key;
+    public Tuple tuple;
 
-    public SortEntry( int key ) {
-        this.key = key;
+    public SortEntry( Tuple tuple ) {
+        this.tuple = tuple;
     }
     
 }

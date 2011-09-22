@@ -8,6 +8,7 @@ import java.util.concurrent.atomic.*;
 import maprunner.keys.*;
 import maprunner.values.*;
 import maprunner.util.*;
+import maprunner.shuffle.*;
 
 public class Test {
 
@@ -139,6 +140,20 @@ public class Test {
         return result;
 
     }
+
+    public static Tuple[] makeTestTupleArray( int[] input ) {
+
+        Tuple[] result = new Tuple[ input.length ];
+
+        for( int i = 0; i < input.length; ++i ) {
+
+            result[i] = new Tuple( new IntKey( input[i] ), new IntValue( input[i]  ) );
+            
+        }
+
+        return result;
+        
+    }
     
     public static void main( String[] args ) throws Exception {
 
@@ -157,10 +172,11 @@ public class Test {
         int[] vect_left  = new int[] { 1, 2, 3, 7 };
         int[] vect_right = new int[] { 1, 2, 4, 6, 8 };
 
-        //SortResult result = sort( vect_left, vect_right );
+        MapOutputSortCallable.sort( makeTestTupleArray( vect_left ),
+                                    makeTestTupleArray( vect_right ) );
         
         //result.dump();
-        
+
         /*
         VarintWriter writer = new VarintWriter();
 
