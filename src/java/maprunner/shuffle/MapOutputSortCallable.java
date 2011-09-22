@@ -87,7 +87,7 @@ public class MapOutputSortCallable implements Callable {
                 //entries in it.
 
                 for( int i = miss.idx; i < miss.vect.length; ++i ) {
-                    result.accept( hit.value );
+                    result.accept( miss.value );
                 }
                 
                 break;
