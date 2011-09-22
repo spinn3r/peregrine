@@ -140,14 +140,12 @@ public class Test {
 
     }
 
-    public static void sort( int[] vect_left, int[] vect_right ) {
+    public static SortResult sort( int[] vect_left, int[] vect_right ) {
 
         SortInput left = new SortInput( vect_left );
         SortInput right = new SortInput( vect_right );
 
-        //result index... 
-        int index = 0;
-        int[] result = new int[vect_left.length + vect_right.length];
+        SortResult result = new SortResult( vect_left.length + vect_right.length );
         
         while( true ) {
 
@@ -158,18 +156,17 @@ public class Test {
 
                 hit = left;
                 miss = right;
-                
-                System.out.printf( "%d\n", hit.value );
-
+                                
             } else {
 
                 hit = right;
                 miss = left;
-                
-                System.out.printf( "%d\n", hit.value );
 
             }
 
+            System.out.printf( "%d\n", hit.value );
+            result.accept( hit.value , hit.value );
+            
             ++hit.idx;
 
             if ( hit.idx == hit.vect.length ) {
@@ -187,6 +184,8 @@ public class Test {
             
         }
 
+        return result;
+
     }
 
     static final class SortInput {
@@ -201,6 +200,49 @@ public class Test {
         }
 
     }
+
+    static final class SortResult {
+
+        public int idx = 0;
+
+        public SortEntry[] entries = null;
+
+        public SortEntry last = null;
+        
+        public SortResult( int size ){
+            entries = new SortEntry[ size ];
+        }
+
+        public void accept( int key, int value ) {
+
+            if ( last == null || last.key != key ) {
+                last = new SortEntry( key );
+                entries[idx++] = last;
+            } 
+
+            last.add( value );
+
+        }
+
+        public void dump() {
+
+            for( int i = 0; i < idx; ++i ) {
+                System.out.printf( "key=%d, value=%s\n", entries[i].key, entries[i] );
+            }
+            
+        }
+        
+    }
+
+    static final class SortEntry extends ArrayList<Integer> {
+
+        public int key;
+
+        public SortEntry( int key ) {
+            this.key = key;
+        }
+        
+    }
     
     public static void main( String[] args ) throws Exception {
 
@@ -213,10 +255,15 @@ public class Test {
 
         //FIXME: test with arrays of different lengths;
         
-        int[] vect_left = new int[] { 1, 3, 5, 7, 9 };
-        int[] vect_right = new int[] { 0, 2, 4, 6, 8 };
+        //int[] vect_left = new int[] { 1, 3, 5, 7, 9 };
+        //int[] vect_right = new int[] { 0, 2, 4, 6, 8 };
 
-        sort( vect_left, vect_right );
+        int[] vect_left  = new int[] { 1, 2, 3, 7 };
+        int[] vect_right = new int[] { 1, 2, 4, 6, 8 };
+
+        SortResult result = sort( vect_left, vect_right );
+
+        result.dump();
         
         /*
         VarintWriter writer = new VarintWriter();
