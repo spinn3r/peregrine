@@ -15,4 +15,9 @@ public class IntKey extends BaseKey {
         this.value = value;
     }
 
+    public IntKey( byte[] value ) {
+        super( value );
+        this.value = IntBytes.toInt( value );
+    }
+    
 }

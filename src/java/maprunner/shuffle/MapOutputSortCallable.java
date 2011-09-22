@@ -118,39 +118,6 @@ final class SortInput {
 
 }
 
-final class SortResult {
-
-    public int idx = 0;
-
-    public SortEntry[] entries = null;
-
-    public SortEntry last = null;
-    
-    public SortResult( int size ){
-        entries = new SortEntry[ size ];
-    }
-
-    public void accept( Tuple tuple ) {
-
-        if ( last == null || last.tuple.compareTo( tuple ) != 0 ) {
-            last = new SortEntry( tuple );
-            entries[idx++] = last;
-        } 
-
-        last.add( tuple.value );
-
-    }
-
-    public void dump() {
-
-        for( int i = 0; i < idx; ++i ) {
-            System.out.printf( "value=%s\n", entries[i].tuple );
-        }
-        
-    }
-    
-}
-
 final class SortEntry extends ArrayList<byte[]> {
 
     public Tuple tuple;

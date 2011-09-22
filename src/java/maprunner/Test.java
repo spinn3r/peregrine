@@ -80,8 +80,6 @@ public class Test {
 
                 public void onEntry( byte[] key, byte[] value ) {
 
-                    //int kv = toInt( key );
-
                     System.out.printf( "kv: %s\n", new String( key ) );
                     
                     tuples.getAndIncrement();
