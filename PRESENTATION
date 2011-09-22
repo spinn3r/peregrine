@@ -1,5 +1,10 @@
 
 
+- The block replication scheme in Hadoop means that there are MORE 3 machine
+  pairs which means that you have a HIGHER probabilityy that a small amount of
+  data will die vs a low probability that a high amount of data will vanish in
+  this system.
+
 - SSD vs HDD
 
     - SSD drives are starting to really become commodity but are still too

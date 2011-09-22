@@ -18,13 +18,11 @@ public class Controller {
      */
     public static void map( String path, Mapper mapper ) throws Exception {
 
-        ExecutorService es = getExecutorService();
-        
         //read the partitions and create jobs to be executed on given chunks
 
         Map<Partition,List<Host>> partitionMembership = Config.getPartitionMembership();
 
-        List<Future> futures = new ArrayList();
+        List<Callable> callables = new ArrayList( partitionMembership.size() );
         
         for ( Partition part : partitionMembership.keySet() ) {
 
@@ -35,53 +33,64 @@ public class Controller {
             for( Host host : hosts ) {
 
                 Callable callable = new MapperCallable( part, host, path, nr_hosts, mapper );
+                callables.add( callable );
 
-                Future future = es.submit( callable );
-                futures.add( future );
-                
             }
             
         }
 
-        for( Future future : futures ) {
-            //FIXME: if they fail, we should see what their status is...  They
-            //throw an Execution exception and we might need to bubble this up.
-            future.get();
-        }
-
-        es.shutdown();
+        waitFor( callables );
         
     }
 
+    public static void reduce( Reducer reducer ) {
+
+    }
+    
     /**
      * Merge the output from all the mappers for each partition...
      */
-    public static void sortMapOutput() throws Exception {
-
-        ExecutorService es = getExecutorService();
+    public static void sortMapOutput() 
+        throws InterruptedException, ExecutionException {
 
         Collection<MapOutputIndex> mapOutputIndexes = ShuffleManager.getMapOutput();
 
-        List<Future> futures = new ArrayList();
+        List<Callable> callables = new ArrayList();
 
         for( MapOutputIndex mapOutputIndex : mapOutputIndexes ) {
+            callables.add( new MapOutputSortCallable( mapOutputIndex ) );
+        }
 
-            Callable callable = new MapOutputSortCallable( mapOutputIndex );
+        waitFor( callables );
+        
+    }
+
+    private static void waitFor( List<Callable> callables )
+        throws InterruptedException, ExecutionException {
+
+        List<Future> futures = new ArrayList( callables.size() );
+
+        ExecutorService es = getExecutorService();
+
+        for( Callable callable : callables ) {
+
             Future future = es.submit( callable );
             futures.add( future );
             
         }
 
-        for( Future future : futures ) {
-            //FIXME: if they fail, we should see what their status is...  They
-            //throw an Execution exception and we might need to bubble this up.
-            future.get();
+        try {
+
+            for( Future future : futures ) {
+                future.get();
+            }
+
+        } finally {
+            es.shutdown();
         }
 
-        es.shutdown();
-
     }
-
+    
     private static ExecutorService getExecutorService() {
         
         ExecutorService es = Executors.newCachedThreadPool() ;
