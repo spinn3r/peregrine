@@ -53,5 +53,109 @@ public class MapOutputSortCallable implements Callable {
         return null;
 
     }
+
+    protected SortResult sort( int[] vect_left, int[] vect_right ) {
+
+        SortInput left = new SortInput( vect_left );
+        SortInput right = new SortInput( vect_right );
+
+        SortResult result = new SortResult( vect_left.length + vect_right.length );
+        
+        while( true ) {
+
+            SortInput hit = null;
+            SortInput miss = null;
+            
+            if ( left.value <= right.value ) {
+
+                hit = left;
+                miss = right;
+                                
+            } else {
+
+                hit = right;
+                miss = left;
+
+            }
+
+            System.out.printf( "%d\n", hit.value );
+            result.accept( hit.value , hit.value );
+            
+            ++hit.idx;
+
+            if ( hit.idx == hit.vect.length ) {
+                //drain the data from the 'miss' so that there are no more
+                //entries in it.
+
+                for( int i = miss.idx; i < miss.vect.length; ++i ) {
+                    System.out.printf( "%d\n", miss.vect[i] );
+                }
+                
+                break;
+            }
+
+            hit.value = hit.vect[ hit.idx ];
+            
+        }
+
+        return result;
+
+    }
+
+}
+
+final class SortInput {
+
+    public int value;
+    public int idx = 0;
+    public int[] vect;
+    
+    public SortInput( int[] vect ) {
+        this.vect = vect;
+        this.value = vect[0];
+    }
+
+}
+
+final class SortResult {
+
+    public int idx = 0;
+
+    public SortEntry[] entries = null;
+
+    public SortEntry last = null;
+    
+    public SortResult( int size ){
+        entries = new SortEntry[ size ];
+    }
+
+    public void accept( int key, int value ) {
+
+        if ( last == null || last.key != key ) {
+            last = new SortEntry( key );
+            entries[idx++] = last;
+        } 
+
+        last.add( value );
+
+    }
+
+    public void dump() {
+
+        for( int i = 0; i < idx; ++i ) {
+            System.out.printf( "key=%d, value=%s\n", entries[i].key, entries[i] );
+        }
+        
+    }
+    
+}
+
+final class SortEntry extends ArrayList<Integer> {
+
+    public int key;
+
+    public SortEntry( int key ) {
+        this.key = key;
+    }
     
 }
