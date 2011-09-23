@@ -11,6 +11,12 @@ import maprunner.shuffle.*;
 
 public class Reducer {
 
+    // tell the reducer which partition its running on as well as the host.
+
+    public void init( Partition partition ) {
+
+    }
+    
     public List<byte[]> reduce( byte[] key, List<byte[]> values ) {
 
         //identity by default...

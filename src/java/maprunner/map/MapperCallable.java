@@ -27,7 +27,8 @@ public class MapperCallable implements Callable {
                            String path,
                            int nr_partitions,
                            int nr_replicas,
-                           Class mapper_clazz ) throws Exception {
+                           Class mapper_clazz )
+        throws ExecutionException {
 
         this.partition = partition;
         this.host = host;
@@ -35,7 +36,11 @@ public class MapperCallable implements Callable {
         this.nr_partitions = nr_partitions;
         this.nr_replicas = nr_replicas;
 
-        this.mapper = (Mapper)mapper_clazz.newInstance();
+        try {
+            this.mapper = (Mapper)mapper_clazz.newInstance();
+        } catch ( Exception e ) {
+            throw new ExecutionException( e );
+        }
         
     }
 

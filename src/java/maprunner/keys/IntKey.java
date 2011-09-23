@@ -19,5 +19,9 @@ public class IntKey extends BaseKey {
         super( value );
         this.value = IntBytes.toInt( value );
     }
+
+    public String toString() {
+        return Integer.toString( value );
+    }
     
 }

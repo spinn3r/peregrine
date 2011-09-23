@@ -34,7 +34,13 @@ public class Controller {
 
             for( Host host : hosts ) {
 
-                Callable callable = new MapperCallable( part, host, path, nr_partitions, nr_replicas, mapper );
+                Callable callable = new MapperCallable( part,
+                                                        host,
+                                                        path,
+                                                        nr_partitions,
+                                                        nr_replicas,
+                                                        mapper );
+
                 callables.add( callable );
 
             }
@@ -45,15 +51,21 @@ public class Controller {
         
     }
 
-    public static void reduce( Reducer reducer ) 
+    public static void reduce( Class reducer ) 
         throws InterruptedException, ExecutionException {
+
+        Map<Partition,List<Host>> partitionMembership = Config.getPartitionMembership();
 
         Collection<MapOutputIndex> mapOutputIndexes = ShuffleManager.getMapOutput();
 
         List<Callable> callables = new ArrayList();
 
         for( MapOutputIndex mapOutputIndex : mapOutputIndexes ) {
+
+            //Partition partition = mapOutputIndex.partition;
+                                                       
             callables.add( new MapOutputSortCallable( mapOutputIndex, reducer ) );
+
         }
 
         waitFor( callables );

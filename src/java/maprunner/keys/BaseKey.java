@@ -7,7 +7,7 @@ import maprunner.*;
 
 public class BaseKey implements Key {
 
-    private byte[] data;
+    protected byte[] data;
     
     public BaseKey( byte[] data ) {
         this.data = data;

@@ -11,6 +11,7 @@ import maprunner.values.*;
 import maprunner.util.*;
 import maprunner.map.*;
 
+//FIXME: rename this to ShuffleSortCallable
 public class MapOutputSortCallable implements Callable {
 
     private MapOutputIndex mapOutputIndex = null;
@@ -19,17 +20,25 @@ public class MapOutputSortCallable implements Callable {
     private boolean triggerReducer = false;
     
     public MapOutputSortCallable( MapOutputIndex mapOutputIndex,
-                                  Reducer reducer ) {
+                                  Class reducer_class )
+        throws ExecutionException {
         
         this.mapOutputIndex = mapOutputIndex;
-        this.reducer = reducer;
-        
+
+        try { 
+            this.reducer = (Reducer)reducer_class.newInstance();
+        } catch ( Exception e ) {
+            throw new ExecutionException( e );
+        }
+
     }
 
     public Object call() throws Exception {
 
         //FIXME: this implements the DEFAULT sort everything approach not the
         //hinted pre-sorted approach.
+
+        //this.reducer.init( mapOutputIndex.partition );
         
         Collection<MapOutputBuffer> mapOutput = mapOutputIndex.getMapOutput();
 
