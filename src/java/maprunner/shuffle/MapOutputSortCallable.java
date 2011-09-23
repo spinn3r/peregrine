@@ -54,19 +54,19 @@ public class MapOutputSortCallable implements Callable {
 
     }
 
-    public static SortResult sort( List<Tuple[]> input ) {
+    public static SortResult sort( List<SortRecord[]> input ) {
         return null;        
     }
 
-    public static SortResult sort( Tuple[] vect_left,
-                                   Tuple[] vect_right ) {
+    public static SortResult sort( SortRecord[] vect_left,
+                                   SortRecord[] vect_right ) {
 
         return sort( vect_left, vect_right, new SortMerger() );
         
     }
     
-    public static SortResult sort( Tuple[] vect_left,
-                                   Tuple[] vect_right,
+    public static SortResult sort( SortRecord[] vect_left,
+                                   SortRecord[] vect_right,
                                    SortMerger merger ) {
 
         SortInput left = new SortInput( vect_left );
@@ -120,27 +120,31 @@ public class MapOutputSortCallable implements Callable {
 
 final class SortInput {
 
-    public Tuple value;
+    public SortRecord value;
     public int idx = 0;
-    public Tuple[] vect;
+    public SortRecord[] vect;
     
-    public SortInput( Tuple[] vect ) {
+    public SortInput( SortRecord[] vect ) {
         this.vect = vect;
         this.value = vect[0];
     }
 
 }
 
-final class SortEntry {
+final class SortEntry implements SortRecord {
 
-    public Tuple tuple;
+    public SortRecord record;
 
     public List<byte[]> values = new ArrayList();
     
-    public SortEntry( Tuple tuple ) {
-        this.tuple = tuple;
+    public SortEntry( SortRecord record ) {
+        this.record = record;
     }
 
+    public int compareTo( Object obj ) {
+        return record.compareTo( obj );
+    }
+    
 }
 
 /**
@@ -150,8 +154,8 @@ final class SortEntry {
  */
 class SortMerger {
 
-    public void merge( SortEntry entry, Comparable cmp ) {
-        entry.values.add( ((Tuple)cmp).value );
+    public void merge( SortEntry entry, SortRecord record ) {
+        entry.values.add( ((Tuple)record).value );
     }
     
 }

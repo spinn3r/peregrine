@@ -2,8 +2,9 @@ package maprunner;
 
 import maprunner.util.*;
 import maprunner.keys.*;
+import maprunner.shuffle.SortRecord;
 
-public class Tuple implements Comparable {
+public class Tuple implements Comparable, SortRecord {
 
     public byte[] key = null;
     public byte[] value = null;
