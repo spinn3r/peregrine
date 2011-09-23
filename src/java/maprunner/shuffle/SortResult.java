@@ -35,14 +35,16 @@ public class SortResult {
         if ( last == null || last.longValue() - record.longValue() != 0 ) {
 
             System.out.printf( "Creating new record for: %s\n", record );
-            
-            last = new SortEntry( record );
 
             //FIXME: would be nice to just change this function
-            //if ( raw ) {
-            //} else {
-            //    last = (SortEntry) record;
-            //}
+            if ( raw ) {
+                last = new SortEntry( record );
+            } else {
+                SortEntry template = (SortEntry) record;
+                last = new SortEntry();
+                last.keycmp = template.keycmp;
+                last.key = template.key;
+            }
 
             entries[idx++] = last;
         } 
@@ -53,29 +55,19 @@ public class SortResult {
 
     public SortRecord[] getRecords() {
 
-        SortRecord[] result = new SortRecord[ idx + 1 ];
+        SortRecord[] result = new SortRecord[ idx ];
         System.arraycopy( entries, 0, result, 0, result.length );
 
         return result;
                          
     }
     
-    public void dump() {
+    public void dump( SortRecord[] records ) {
 
-        for( int i = 0; i < idx; ++i ) {
-
-            //System.out.printf( "key=%s, size=%,d ", new IntKey( entries[i].record.key ).value, entries[i].values.size() );
-            //System.out.printf( "key=%s, size=%,d ", entries[i].record, entries[i].values.size() );
-            System.out.printf( "{" );
-
-            for( byte[] value : entries[i].values ) {
-                System.out.printf( "%,d, ", new IntValue( value ).value );
-            }
-
-            System.out.printf( "}\n" );
-
+        for( SortRecord record : records  ) {
+            System.out.printf( "    %s\n" , record );
         }
-        
+
     }
     
 }

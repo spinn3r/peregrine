@@ -179,13 +179,18 @@ public class Test {
                                                            makeTestTupleArray( vect_right ) );
 
         System.out.printf( "---\n" );
+        System.out.printf( "dumping result1\n" );
+
+        System.out.printf( "---\n" );
 
         MapOutputSortCallable.sort( result1, result2, new SortMerger() { 
                 public void merge( SortEntry entry, SortRecord record ) {
+
+                    System.out.printf( "Going to merge: %s with %s\n", entry, record );
                     entry.values.addAll( ((SortEntry)record).values );
+
                 }
             } );
-
 
         /*
         List<SortRecord[]> chunks = new ArrayList();

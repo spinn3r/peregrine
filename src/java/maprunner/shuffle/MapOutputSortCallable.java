@@ -77,7 +77,6 @@ public class MapOutputSortCallable implements Callable {
         boolean raw = false;
 
         if ( left.value instanceof Tuple ) {
-            System.out.printf( "FIXME: We're in RAW mode right now.\n" );
             raw = true;
         }
 
@@ -90,8 +89,6 @@ public class MapOutputSortCallable implements Callable {
 
             long cmp = left.value.longValue() - right.value.longValue();
 
-            System.out.printf( "left: %s , right: %s , cmp=%s\n", left.value, right.value, cmp );
-            
             if ( cmp <= 0 ) {
                 hit = left;
                 miss = right;
@@ -119,9 +116,10 @@ public class MapOutputSortCallable implements Callable {
             
         }
 
-        result.dump();
+        SortRecord[] records = result.getRecords();
+        result.dump( records );
         
-        return result.getRecords();
+        return records;
 
     }
 
