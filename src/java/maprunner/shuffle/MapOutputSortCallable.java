@@ -54,20 +54,22 @@ public class MapOutputSortCallable implements Callable {
 
     }
 
-    public static SortResult sort( List<SortRecord[]> input ) {
+    public static SortRecord[] sort( List<SortRecord[]> input ) {
+
         return null;        
+
     }
-
-    public static SortResult sort( SortRecord[] vect_left,
-                                   SortRecord[] vect_right ) {
-
+    
+    public static SortRecord[] sort( SortRecord[] vect_left,
+                                     SortRecord[] vect_right ) {
+        
         return sort( vect_left, vect_right, new SortMerger() );
         
     }
     
-    public static SortResult sort( SortRecord[] vect_left,
-                                   SortRecord[] vect_right,
-                                   SortMerger merger ) {
+    public static SortRecord[] sort( SortRecord[] vect_left,
+                                     SortRecord[] vect_right,
+                                     SortMerger merger ) {
 
         SortInput left = new SortInput( vect_left );
         SortInput right = new SortInput( vect_right );
@@ -112,7 +114,7 @@ public class MapOutputSortCallable implements Callable {
 
         result.dump();
         
-        return result;
+        return result.getRecords();
 
     }
 
@@ -131,31 +133,3 @@ final class SortInput {
 
 }
 
-final class SortEntry implements SortRecord {
-
-    public SortRecord record;
-
-    public List<byte[]> values = new ArrayList();
-    
-    public SortEntry( SortRecord record ) {
-        this.record = record;
-    }
-
-    public int compareTo( Object obj ) {
-        return record.compareTo( obj );
-    }
-    
-}
-
-/**
- * Handles taking an input value and merging it with an existing value.  We need
- * two functions.  One for original (K,V) pairs and one for intermediate
- * (K,V...) pairs.
- */
-class SortMerger {
-
-    public void merge( SortEntry entry, SortRecord record ) {
-        entry.values.add( ((Tuple)record).value );
-    }
-    
-}

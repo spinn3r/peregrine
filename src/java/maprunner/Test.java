@@ -170,8 +170,28 @@ public class Test {
         int[] vect_left  = new int[] { 1, 2, 3, 7 };
         int[] vect_right = new int[] { 1, 2, 4, 6, 8 };
 
-        MapOutputSortCallable.sort( makeTestTupleArray( vect_left ),
-                                    makeTestTupleArray( vect_right ) );
+        SortRecord[] result1 = MapOutputSortCallable.sort( makeTestTupleArray( vect_left ),
+                                                           makeTestTupleArray( vect_right ) );
+
+        System.out.printf( "---\n" );
+        
+        SortRecord[] result2 = MapOutputSortCallable.sort( makeTestTupleArray( vect_left ),
+                                                           makeTestTupleArray( vect_right ) );
+
+        System.out.printf( "---\n" );
+
+        MapOutputSortCallable.sort( result1, result2, new SortMerger() { 
+                public void merge( SortEntry entry, SortRecord record ) {
+                    entry.values.addAll( ((SortEntry)record).values );
+                }
+            } );
+
+
+        /*
+        List<SortRecord[]> chunks = new ArrayList();
+        chunks.add( result1 );
+        chunks.add( result2 );
+        */
         
         //result.dump();
 
