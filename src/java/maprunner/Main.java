@@ -20,7 +20,7 @@ public class Main {
         
         ExtractWriter writer = new ExtractWriter( path );
 
-        buildRandomGraph( writer, 10000, 200 );
+        buildRandomGraph( writer, 100, 10 );
         //buildRandomGraph( writer, 100, 10 );
         
         writer.close();

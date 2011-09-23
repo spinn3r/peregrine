@@ -167,29 +167,29 @@ public class Test {
         //int[] vect_left = new int[] { 1, 3, 5, 7, 9 };
         //int[] vect_right = new int[] { 0, 2, 4, 6, 8 };
 
-        int[] vect_left  = new int[] { 1, 2, 3, 7 };
-        int[] vect_right = new int[] { 1, 2, 4, 6, 8 };
+//         int[] vect_left  = new int[] { 1, 2, 3, 7 };
+//         int[] vect_right = new int[] { 1, 2, 4, 6, 8 };
 
-        SortRecord[] result1 = MapOutputSortCallable.sort( makeTestTupleArray( vect_left ),
-                                                           makeTestTupleArray( vect_right ) );
+//         SortRecord[] result1 = MapOutputSortCallable.sort( makeTestTupleArray( vect_left ),
+//                                                            makeTestTupleArray( vect_right ) );
 
-        System.out.printf( "---\n" );
+//         System.out.printf( "---\n" );
         
-        SortRecord[] result2 = MapOutputSortCallable.sort( makeTestTupleArray( vect_left ),
-                                                           makeTestTupleArray( vect_right ) );
+//         SortRecord[] result2 = MapOutputSortCallable.sort( makeTestTupleArray( vect_left ),
+//                                                            makeTestTupleArray( vect_right ) );
 
-        System.out.printf( "---\n" );
-        System.out.printf( "dumping result1\n" );
+//         System.out.printf( "---\n" );
+//         System.out.printf( "dumping result1\n" );
 
-        System.out.printf( "---\n" );
+//         System.out.printf( "---\n" );
 
-        List<SortRecord[]> list = new ArrayList();
-        list.add( result1 );
-        list.add( result2 );
-        list.add( result1 );
-        list.add( result2 );
+//         List<SortRecord[]> list = new ArrayList();
+//         list.add( result1 );
+//         list.add( result2 );
+//         list.add( result1 );
+//         list.add( result2 );
         
-        MapOutputSortCallable.sort( list );
+//         MapOutputSortCallable.sort( list );
 
         /*
         List<SortRecord[]> chunks = new ArrayList();

@@ -20,15 +20,15 @@ public class SortResult {
 
     private SortMerger merger = null;
 
-    private Reducer reducer = null;
+    private SortListener listener = null;
     
     public SortResult( int size,
                        SortMerger merger,
-                       Reducer reducer )
+                       SortListener listener )
     {
         this.entries = new SortEntry[ size ];
         this.merger = merger;
-        this.reducer = reducer;
+        this.listener = listener;
     }
 
     public void accept( long cmp, SortRecord record ) {
@@ -39,10 +39,10 @@ public class SortResult {
         
         if ( last == null || last.longValue() - record.longValue() != 0 ) {
 
-            if ( last != null && reducer != null ) {
+            if ( last != null && listener != null ) {
 
-                SortEntry entry = (SortEntry) record;
-                reducer.reduce( entry.key , entry.values );
+                SortEntry entry = (SortEntry) last;
+                listener.onFinalValue( entry.key , entry.values );
 
             }
 
@@ -71,4 +71,23 @@ public class SortResult {
 
     }
     
+}
+
+class IntermediateMerger extends SortMerger {
+    
+    public void merge( SortEntry entry, SortRecord record ) {
+        entry.values.addAll( ((SortEntry)record).values );
+    }
+
+    public SortEntry newSortEntry( SortRecord record ) {
+
+        SortEntry template = (SortEntry) record;
+        SortEntry result = new SortEntry();
+        result.keycmp = template.keycmp;
+        result.key = template.key;
+
+        return result;
+        
+    }
+
 }

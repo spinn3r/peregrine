@@ -14,13 +14,16 @@ import maprunner.map.*;
 public class MapOutputSortCallable implements Callable {
 
     private MapOutputIndex mapOutputIndex = null;
-    private Reducer reducer = null;
+    private final Reducer reducer;
 
     private boolean triggerReducer = false;
     
-    public MapOutputSortCallable( MapOutputIndex mapOutputIndex, Reducer reducer ) {
+    public MapOutputSortCallable( MapOutputIndex mapOutputIndex,
+                                  Reducer reducer ) {
+        
         this.mapOutputIndex = mapOutputIndex;
         this.reducer = reducer;
+        
     }
 
     public Object call() throws Exception {
@@ -56,135 +59,20 @@ public class MapOutputSortCallable implements Callable {
             
         }
 
-        SortRecord[] sorted = sort( arrays );
+        Sorter sorter = new Sorter( new SortListener() {
+
+                public void onFinalValue( byte[] key, List<byte[]> values ) {
+                    reducer.reduce( key, values );
+                }
+                
+            } );
+        
+        SortRecord[] sorted = sorter.sort( arrays );
         
         System.out.printf( "Sorted %,d entries for partition %s \n", nr_tuples , mapOutputIndex.partition );
         
         return null;
 
-    }
-
-    public SortRecord[] sort( List<SortRecord[]> input ) {
-
-        // we're done.
-        if ( input.size() == 1 )
-            return input.get( 0 );
-
-        List<SortRecord[]> result = new ArrayList();
-
-        if ( input.size() == 2 ) {
-            triggerReducer = true;
-        }
-        
-        for( int i = 0; i < input.size() / 2; ++i ) {
-
-            int offset = i * 2;
-            
-            SortRecord[] left  = input.get( offset );
-            SortRecord[] right = input.get( offset + 1 );
-
-            result.add( sort( left, right ) );
-            
-        }
-
-        //FIXME: include the odd man out in this set.
-
-        return sort( result );
-            
-    }
-    
-    public SortRecord[] sort( SortRecord[] vect_left,
-                              SortRecord[] vect_right ) {
-
-        SortInput left = new SortInput( vect_left );
-        SortInput right = new SortInput( vect_right );
-
-        SortMerger merger = null;
-
-        if ( left.value instanceof Tuple ) {
-            merger = new SortMerger();
-        } else {
-            merger = new IntermediateMerger();
-        }
-
-        Reducer passedReducer = null;
-
-        if ( triggerReducer ) 
-            passedReducer = reducer;
-            
-        SortResult result = new SortResult( vect_left.length + vect_right.length, merger, passedReducer );
-
-        while( true ) {
-
-            SortInput hit = null;
-            SortInput miss = null;
-
-            long cmp = left.value.longValue() - right.value.longValue();
-
-            if ( cmp <= 0 ) {
-                hit = left;
-                miss = right;
-            } else {
-                hit = right;
-                miss = left;
-            }
-
-            result.accept( cmp, hit.value );
-            
-            ++hit.idx;
-
-            if ( hit.idx == hit.vect.length ) {
-                //drain the data from the 'miss' so that there are no more
-                //entries in it.
-
-                for( int i = miss.idx; i < miss.vect.length; ++i ) {
-                    result.accept( -1 , miss.value );
-                }
-                
-                break;
-            }
-
-            hit.value = hit.vect[ hit.idx ];
-            
-        }
-
-        SortRecord[] records = result.getRecords();
-        //result.dump( records );
-        
-        return records;
-
-    }
-
-}
-
-final class SortInput {
-
-    public SortRecord value;
-    public int idx = 0;
-    public SortRecord[] vect;
-    
-    public SortInput( SortRecord[] vect ) {
-        this.vect = vect;
-        this.value = vect[0];
-    }
-
-}
-
-class IntermediateMerger extends SortMerger {
-    
-    public void merge( SortEntry entry, SortRecord record ) {
-        entry.values.addAll( ((SortEntry)record).values );
-    }
-
-    public SortEntry newSortEntry( SortRecord record ) {
-
-        SortEntry template = (SortEntry) record;
-        SortEntry result = new SortEntry();
-        result.keycmp = template.keycmp;
-        result.key = template.key;
-
-        return result;
-        
     }
 
 }
