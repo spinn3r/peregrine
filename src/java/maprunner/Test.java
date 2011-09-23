@@ -186,6 +186,8 @@ public class Test {
         List<SortRecord[]> list = new ArrayList();
         list.add( result1 );
         list.add( result2 );
+        list.add( result1 );
+        list.add( result2 );
         
         MapOutputSortCallable.sort( list );
 
