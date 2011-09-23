@@ -11,9 +11,7 @@ import maprunner.shuffle.*;
 
 public class Reducer {
 
-    public List<byte[]> reduce( long global_chunk_id,
-                                byte[] key,
-                                List<byte[]> values ) {
+    public List<byte[]> reduce( byte[] key, List<byte[]> values ) {
 
         //identity by default...
         return values;

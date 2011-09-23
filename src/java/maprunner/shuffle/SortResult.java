@@ -29,9 +29,7 @@ public class SortResult {
     public void accept( long cmp, SortRecord record ) {
 
         if ( last == null || last.longValue() - record.longValue() != 0 ) {
-
             last = merger.newSortEntry( record );
-            
             entries[idx++] = last;
         } 
 
