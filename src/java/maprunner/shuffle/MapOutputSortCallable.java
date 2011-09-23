@@ -15,6 +15,8 @@ public class MapOutputSortCallable implements Callable {
 
     private MapOutputIndex mapOutputIndex = null;
     private Reducer reducer = null;
+
+    private boolean triggerReducer = false;
     
     public MapOutputSortCallable( MapOutputIndex mapOutputIndex, Reducer reducer ) {
         this.mapOutputIndex = mapOutputIndex;
@@ -71,7 +73,7 @@ public class MapOutputSortCallable implements Callable {
         List<SortRecord[]> result = new ArrayList();
 
         if ( input.size() == 2 ) {
-            System.out.printf( "Going to trigger reduce... \n" );
+            triggerReducer = true;
         }
         
         for( int i = 0; i < input.size() / 2; ++i ) {
@@ -105,7 +107,12 @@ public class MapOutputSortCallable implements Callable {
             merger = new IntermediateMerger();
         }
 
-        SortResult result = new SortResult( vect_left.length + vect_right.length, merger );
+        Reducer passedReducer = null;
+
+        if ( triggerReducer ) 
+            passedReducer = reducer;
+            
+        SortResult result = new SortResult( vect_left.length + vect_right.length, merger, passedReducer );
 
         while( true ) {
 

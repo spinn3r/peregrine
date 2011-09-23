@@ -53,8 +53,12 @@ public class Main {
         Reducer reducer = new Reducer() {
         
                 public List<byte[]> reduce( byte[] key, List<byte[]> values ) {
-                    //identity by default...
-                    return values;
+
+                    //we want count of indegree.. 
+                    List<byte[]> result = new ArrayList();
+                    result.add( key );
+                    result.add( new IntValue( values.size() ).toBytes() );
+                    return result;
                     
                 }
 
