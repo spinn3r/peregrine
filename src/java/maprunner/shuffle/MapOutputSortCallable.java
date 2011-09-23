@@ -55,18 +55,6 @@ public class MapOutputSortCallable implements Callable {
     }
 
     public static SortRecord[] sort( List<SortRecord[]> input ) {
-        
-        return sort( input, new SortMerger() {
-
-                public void merge( SortEntry entry, SortRecord record ) {
-                    entry.values.addAll( ((SortEntry)record).values );
-                }
-                
-            } );
-
-    }
-
-    public static SortRecord[] sort( List<SortRecord[]> input, SortMerger merger ) {
 
         // we're done.
         if ( input.size() == 1 )
@@ -79,34 +67,30 @@ public class MapOutputSortCallable implements Callable {
             SortRecord[] left  = input.get( i );
             SortRecord[] right = input.get( ++i );
 
-            result.add( sort( left, right, merger ) );
+            result.add( sort( left, right ) );
             
         }
 
         //FIXME: include the odd man out in this set.
 
-        return sort( result, merger );
+        return sort( result );
             
     }
     
     public static SortRecord[] sort( SortRecord[] vect_left,
                                      SortRecord[] vect_right ) {
-        
-        return sort( vect_left, vect_right, new SortMerger() );
-        
-    }
-    
-    public static SortRecord[] sort( SortRecord[] vect_left,
-                                     SortRecord[] vect_right,
-                                     SortMerger merger ) {
 
         SortInput left = new SortInput( vect_left );
         SortInput right = new SortInput( vect_right );
 
+        SortMerger merger = null;
         boolean raw = false;
 
         if ( left.value instanceof Tuple ) {
             raw = true;
+            merger = new SortMerger();
+        } else {
+            merger = new IntermediateMerger();
         }
 
         SortResult result = new SortResult( vect_left.length + vect_right.length, merger, raw );
@@ -167,3 +151,10 @@ final class SortInput {
 
 }
 
+class IntermediateMerger extends SortMerger {
+    
+    public void merge( SortEntry entry, SortRecord record ) {
+        entry.values.addAll( ((SortEntry)record).values );
+    }
+    
+}
