@@ -20,14 +20,10 @@ public class SortResult {
 
     private SortMerger merger = null;
 
-    private boolean raw;
-    
     public SortResult( int size,
-                       SortMerger merger,
-                       boolean raw ){
+                       SortMerger merger ){
         this.entries = new SortEntry[ size ];
         this.merger = merger;
-        this.raw = raw;
     }
 
     public void accept( long cmp, SortRecord record ) {
