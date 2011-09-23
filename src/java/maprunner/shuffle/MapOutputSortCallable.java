@@ -74,26 +74,30 @@ public class MapOutputSortCallable implements Callable {
         SortInput left = new SortInput( vect_left );
         SortInput right = new SortInput( vect_right );
 
-        SortResult result = new SortResult( vect_left.length + vect_right.length, merger );
-        
+        boolean raw = false;
+
+        if ( left.value instanceof Tuple ) {
+            System.out.printf( "FIXME: We're in RAW mode right now.\n" );
+            raw = true;
+        }
+
+        SortResult result = new SortResult( vect_left.length + vect_right.length, merger, raw );
+
         while( true ) {
 
             SortInput hit = null;
             SortInput miss = null;
 
-            //long cmp = left.value.compareTo( right.value );
-            long cmp = left.value.longValue() -  right.value.longValue();
+            long cmp = left.value.longValue() - right.value.longValue();
+
+            System.out.printf( "left: %s , right: %s , cmp=%s\n", left.value, right.value, cmp );
             
             if ( cmp <= 0 ) {
-
                 hit = left;
                 miss = right;
-                                
             } else {
-
                 hit = right;
                 miss = left;
-
             }
 
             result.accept( cmp, hit.value );

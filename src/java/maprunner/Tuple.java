@@ -33,4 +33,8 @@ public class Tuple implements SortRecord {
         return keycmp;
     }
 
+    public String toString() {
+        return String.format( "%s" , new IntKey( key ).value );
+    }
+
 }

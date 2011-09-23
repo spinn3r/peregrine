@@ -19,17 +19,31 @@ public class SortResult {
     public SortEntry last = null;
 
     private SortMerger merger = null;
+
+    private boolean raw;
     
-    public SortResult( int size, SortMerger merger ){
+    public SortResult( int size,
+                       SortMerger merger,
+                       boolean raw ){
         this.entries = new SortEntry[ size ];
         this.merger = merger;
+        this.raw = raw;
     }
 
     public void accept( long cmp, SortRecord record ) {
 
-        //FIXME: aren't we doing this comparison TWICE? 
-        if ( last == null || cmp != 0 ) {
+        if ( last == null || last.longValue() - record.longValue() != 0 ) {
+
+            System.out.printf( "Creating new record for: %s\n", record );
+            
             last = new SortEntry( record );
+
+            //FIXME: would be nice to just change this function
+            //if ( raw ) {
+            //} else {
+            //    last = (SortEntry) record;
+            //}
+
             entries[idx++] = last;
         } 
 
