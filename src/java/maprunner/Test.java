@@ -183,14 +183,11 @@ public class Test {
 
         System.out.printf( "---\n" );
 
-        MapOutputSortCallable.sort( result1, result2, new SortMerger() { 
-                public void merge( SortEntry entry, SortRecord record ) {
-
-                    System.out.printf( "Going to merge: %s with %s\n", entry, record );
-                    entry.values.addAll( ((SortEntry)record).values );
-
-                }
-            } );
+        List<SortRecord[]> list = new ArrayList();
+        list.add( result1 );
+        list.add( result2 );
+        
+        MapOutputSortCallable.sort( list );
 
         /*
         List<SortRecord[]> chunks = new ArrayList();

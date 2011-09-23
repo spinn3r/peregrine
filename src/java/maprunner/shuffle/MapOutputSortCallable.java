@@ -55,9 +55,38 @@ public class MapOutputSortCallable implements Callable {
     }
 
     public static SortRecord[] sort( List<SortRecord[]> input ) {
+        
+        return sort( input, new SortMerger() {
 
-        return null;        
+                public void merge( SortEntry entry, SortRecord record ) {
+                    entry.values.addAll( ((SortEntry)record).values );
+                }
+                
+            } );
 
+    }
+
+    public static SortRecord[] sort( List<SortRecord[]> input, SortMerger merger ) {
+
+        // we're done.
+        if ( input.size() == 1 )
+            return input.get( 0 );
+
+        List<SortRecord[]> result = new ArrayList();
+        
+        for( int i = 0; i < input.size(); ++i ) {
+
+            SortRecord[] left  = input.get( i );
+            SortRecord[] right = input.get( ++i );
+
+            result.add( sort( left, right, merger ) );
+            
+        }
+
+        //FIXME: include the odd man out in this set.
+
+        return sort( result, merger );
+            
     }
     
     public static SortRecord[] sort( SortRecord[] vect_left,
