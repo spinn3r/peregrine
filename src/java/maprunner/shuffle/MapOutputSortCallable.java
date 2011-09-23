@@ -80,8 +80,11 @@ public class MapOutputSortCallable implements Callable {
 
             SortInput hit = null;
             SortInput miss = null;
+
+            //long cmp = left.value.compareTo( right.value );
+            long cmp = left.value.longValue() -  right.value.longValue();
             
-            if ( left.value.compareTo( right.value ) <= 0 ) {
+            if ( cmp <= 0 ) {
 
                 hit = left;
                 miss = right;
@@ -93,7 +96,7 @@ public class MapOutputSortCallable implements Callable {
 
             }
 
-            result.accept( hit.value );
+            result.accept( cmp, hit.value );
             
             ++hit.idx;
 
@@ -102,7 +105,7 @@ public class MapOutputSortCallable implements Callable {
                 //entries in it.
 
                 for( int i = miss.idx; i < miss.vect.length; ++i ) {
-                    result.accept( miss.value );
+                    result.accept( -1 , miss.value );
                 }
                 
                 break;

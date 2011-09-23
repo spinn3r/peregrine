@@ -25,9 +25,10 @@ public class SortResult {
         this.merger = merger;
     }
 
-    public void accept( SortRecord record ) {
+    public void accept( long cmp, SortRecord record ) {
 
-        if ( last == null || last.record.compareTo( record ) != 0 ) {
+        //FIXME: aren't we doing this comparison TWICE? 
+        if ( last == null || cmp != 0 ) {
             last = new SortEntry( record );
             entries[idx++] = last;
         } 
@@ -50,7 +51,7 @@ public class SortResult {
         for( int i = 0; i < idx; ++i ) {
 
             //System.out.printf( "key=%s, size=%,d ", new IntKey( entries[i].record.key ).value, entries[i].values.size() );
-            System.out.printf( "key=%s, size=%,d ", entries[i].record, entries[i].values.size() );
+            //System.out.printf( "key=%s, size=%,d ", entries[i].record, entries[i].values.size() );
             System.out.printf( "{" );
 
             for( byte[] value : entries[i].values ) {

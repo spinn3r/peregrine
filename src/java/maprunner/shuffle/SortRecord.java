@@ -12,6 +12,6 @@ import maprunner.map.*;
 
 public interface SortRecord {
 
-    public int compareTo( Object o );
+    public long longValue();
 
 }

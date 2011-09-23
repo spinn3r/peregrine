@@ -13,16 +13,22 @@ import maprunner.map.*;
 
 public final class SortEntry implements SortRecord {
 
-    public SortRecord record;
+    private SortRecord record;
 
     public List<byte[]> values = new ArrayList();
+
+    private long keycmp;
     
     public SortEntry( SortRecord record ) {
-        this.record = record;
+        keycmp = ((Tuple)record).keycmp;
     }
 
-    public int compareTo( Object obj ) {
-        return record.compareTo( obj );
+    public long longValue() {
+        return keycmp;
+    }
+
+    public long compareTo( SortRecord record ) {
+        return longValue() - record.longValue();
     }
     
 }
