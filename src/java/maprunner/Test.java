@@ -173,18 +173,18 @@ public class Test {
         SortRecord[] result1 = MapOutputSortCallable.sort( makeTestTupleArray( vect_left ),
                                                            makeTestTupleArray( vect_right ) );
 
-//         System.out.printf( "---\n" );
+        System.out.printf( "---\n" );
         
-//         SortRecord[] result2 = MapOutputSortCallable.sort( makeTestTupleArray( vect_left ),
-//                                                            makeTestTupleArray( vect_right ) );
+        SortRecord[] result2 = MapOutputSortCallable.sort( makeTestTupleArray( vect_left ),
+                                                           makeTestTupleArray( vect_right ) );
 
-//         System.out.printf( "---\n" );
+        System.out.printf( "---\n" );
 
-//         MapOutputSortCallable.sort( result1, result2, new SortMerger() { 
-//                 public void merge( SortEntry entry, SortRecord record ) {
-//                     entry.values.addAll( ((SortEntry)record).values );
-//                 }
-//             } );
+        MapOutputSortCallable.sort( result1, result2, new SortMerger() { 
+                public void merge( SortEntry entry, SortRecord record ) {
+                    entry.values.addAll( ((SortEntry)record).values );
+                }
+            } );
 
 
         /*
