@@ -72,22 +72,3 @@ public class SortResult {
     }
     
 }
-
-class IntermediateMerger extends SortMerger {
-    
-    public void merge( SortEntry entry, SortRecord record ) {
-        entry.values.addAll( ((SortEntry)record).values );
-    }
-
-    public SortEntry newSortEntry( SortRecord record ) {
-
-        SortEntry template = (SortEntry) record;
-        SortEntry result = new SortEntry();
-        result.keycmp = template.keycmp;
-        result.key = template.key;
-
-        return result;
-        
-    }
-
-}
