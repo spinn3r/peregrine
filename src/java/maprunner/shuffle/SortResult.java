@@ -36,16 +36,8 @@ public class SortResult {
 
             System.out.printf( "Creating new record for: %s\n", record );
 
-            //FIXME: would be nice to just change this function
-            if ( raw ) {
-                last = new SortEntry( record );
-            } else {
-                SortEntry template = (SortEntry) record;
-                last = new SortEntry();
-                last.keycmp = template.keycmp;
-                last.key = template.key;
-            }
-
+            last = merger.newSortEntry( record );
+            
             entries[idx++] = last;
         } 
 
