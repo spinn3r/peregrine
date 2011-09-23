@@ -106,7 +106,6 @@ public class Sorter {
         }
 
         SortRecord[] records = result.getRecords();
-        //result.dump( records );
         
         return records;
 

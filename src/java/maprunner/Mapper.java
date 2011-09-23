@@ -11,20 +11,20 @@ import maprunner.shuffle.*;
 
 public class Mapper {
 
-    private int nr_partitions = 0;
+    public int nr_partitions = 0;
 
+    private long global_chunk_id = -1;
+    
     public void init( int nr_partitions ) {
         this.nr_partitions = nr_partitions;
     }
 
     //TODO: global_chunk_id should NOT be exposed in map but we had to include
     //it for now for technical reasons.
-    public void map( long global_chunk_id,
-                     byte[] key,
+    public void map( byte[] key,
                      byte[] value ) {}
 
-    public void emit( long global_chunk_id,
-                      byte[] key,
+    public void emit( byte[] key,
                       byte[] value ) {
 
         // TODO: the emit logic shouldn't go here ideally and should be moved to
@@ -38,10 +38,15 @@ public class Mapper {
         
     }
 
+    public void setGlobalChunkId( long global_chunk_id ) {
+        this.global_chunk_id = global_chunk_id;
+    }
+    
     /**
      * Perform mapper cleanup.  close open files, etc.
      */
     public void cleanup( Partition partition ) {
+
     }
     
 }

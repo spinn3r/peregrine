@@ -10,6 +10,24 @@ import maprunner.util.*;
 
 public class Main {
 
+    public static class Map extends Mapper {
+
+        public void map( byte[] key_data,
+                         byte[] value_data ) {
+
+            HashSetValue value = new HashSetValue();
+            value.fromBytes( value_data );
+            
+            byte[] source = key_data;
+
+            for( byte[] target : value.getValues() ) {
+                emit( target, source );
+            }
+            
+        }
+
+    }
+    
     public static void main( String[] args ) throws Exception {
 
         // TRY with three partitions... 
@@ -30,26 +48,6 @@ public class Main {
 
         int nr_partitions = Config.getPartitionMembership().size();
 
-        Mapper mapper = new Mapper() {
-                
-                public void map( long global_chunk_id,
-                                 byte[] key_data,
-                                 byte[] value_data ) {
-
-                    HashSetValue value = new HashSetValue();
-                    value.fromBytes( value_data );
-                    
-                    byte[] source = key_data;
-
-                    for( byte[] target : value.getValues() ) {
-                        emit( global_chunk_id, target, source );
-                    }
-                    
-                }
-
-            };
-
-
         Reducer reducer = new Reducer() {
         
                 public List<byte[]> reduce( byte[] key, List<byte[]> values ) {
@@ -64,10 +62,7 @@ public class Main {
 
             };
 
-        
-        mapper.init( nr_partitions );
-        
-        Controller.map( path, mapper );
+        Controller.map( path, Map.class );
         Controller.reduce( reducer );
         
     }

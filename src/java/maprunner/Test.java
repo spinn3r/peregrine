@@ -155,6 +155,12 @@ public class Test {
     
     public static void main( String[] args ) throws Exception {
 
+        SortListener listener = new SortListener() {
+
+            };
+
+        listener.getClass().newInstance();
+        
         //Test test = new Test();
         //test.test1();
 

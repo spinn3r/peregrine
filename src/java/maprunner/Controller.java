@@ -16,23 +16,25 @@ public class Controller {
     /**
      * Run map jobs on all chunks on the given path.
      */
-    public static void map( String path, Mapper mapper ) throws Exception {
+    public static void map( String path, Class mapper ) throws Exception {
 
         //read the partitions and create jobs to be executed on given chunks
 
         Map<Partition,List<Host>> partitionMembership = Config.getPartitionMembership();
 
         List<Callable> callables = new ArrayList( partitionMembership.size() );
+
+        int nr_partitions = partitionMembership.size();
         
         for ( Partition part : partitionMembership.keySet() ) {
 
             List<Host> hosts = partitionMembership.get( part );
 
-            int nr_hosts = hosts.size();
+            int nr_replicas = hosts.size();
 
             for( Host host : hosts ) {
 
-                Callable callable = new MapperCallable( part, host, path, nr_hosts, mapper );
+                Callable callable = new MapperCallable( part, host, path, nr_partitions, nr_replicas, mapper );
                 callables.add( callable );
 
             }

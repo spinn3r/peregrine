@@ -4,6 +4,7 @@ package maprunner.map;
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.*;
+import java.lang.reflect.*;
 
 import maprunner.*;
 import maprunner.keys.*;
@@ -16,24 +17,31 @@ public class MapperCallable implements Callable {
     private Partition partition;
     private Host host;
     private String path;
-    private int nr_hosts_in_partition;
+    private int nr_partitions;
+    private int nr_replicas;
+    
     final private Mapper mapper;
     
     public MapperCallable( Partition partition,
-                        Host host ,
-                        String path,
-                        int nr_hosts_in_partition,
-                        Mapper mapper ) {
+                           Host host ,
+                           String path,
+                           int nr_partitions,
+                           int nr_replicas,
+                           Class mapper_clazz ) throws Exception {
 
         this.partition = partition;
         this.host = host;
         this.path = path;
-        this.nr_hosts_in_partition = nr_hosts_in_partition;
-        this.mapper = mapper;
+        this.nr_partitions = nr_partitions;
+        this.nr_replicas = nr_replicas;
+
+        this.mapper = (Mapper)mapper_clazz.newInstance();
         
     }
 
     public Object call() throws Exception {
+
+        mapper.init( nr_partitions );
 
         System.out.printf( "Running map jobs on host: %s\n", host );
 
@@ -64,7 +72,7 @@ public class MapperCallable implements Callable {
             // all hosts in this partition have the same chunks but we only
             // index the ones we are responsible for.
             
-            if ( ( local_chunk_id % nr_hosts_in_partition ) == host.getPartitionMemberId() ) {
+            if ( ( local_chunk_id % nr_replicas ) == host.getPartitionMemberId() ) {
 
                 long global_chunk_id = partition_chunk_prefix + local_chunk_id;
 
@@ -86,16 +94,18 @@ public class MapperCallable implements Callable {
                                     final long global_chunk_id,
                                     final int local_chunk_id ) throws Exception {
 
-        System.out.printf( "Handling chunk: %s on partition: %s with global_chunk_id: %016d, local_chunk_id: %s\n",
-                           file.getPath(), partition, global_chunk_id, local_chunk_id );
-        
         ChunkListener listener = new ChunkListener() {
 
                 public void onEntry( byte[] key, byte[] value ) {
-                    mapper.map( global_chunk_id, key, value );
+                    mapper.map( key, value );
                 }
 
             };
+
+        System.out.printf( "Handling chunk: %s on partition: %s with global_chunk_id: %016d, local_chunk_id: %s\n",
+                           file.getPath(), partition, global_chunk_id, local_chunk_id );
+
+        mapper.setGlobalChunkId( global_chunk_id );
         
         ChunkReader reader = new ChunkReader( file, listener );
         reader.read();
