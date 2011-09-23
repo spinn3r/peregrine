@@ -4,7 +4,7 @@ import maprunner.util.*;
 import maprunner.keys.*;
 import maprunner.shuffle.SortRecord;
 
-public class Tuple implements SortRecord {
+public class Tuple implements SortRecord, Comparable {
 
     public byte[] key = null;
     public byte[] value = null;
@@ -28,7 +28,21 @@ public class Tuple implements SortRecord {
         
     }
 
-    //SortRecord API 
+    public int compareTo( Object obj ) {
+
+        //FIXME: remove this once I stop using Arrays.sort()
+        
+        long result = longValue() - ((Tuple)obj).longValue();
+
+        if ( result < 0 )
+            return -1;
+        else if ( result > 0 )
+            return 1;
+
+        return 0;
+
+    }
+
     public long longValue() {
         return keycmp;
     }

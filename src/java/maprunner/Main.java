@@ -28,6 +28,8 @@ public class Main {
         // now we've written our partition data... time to run the mapper on
         // every single partition.
 
+        int nr_partitions = Config.getPartitionMembership().size();
+
         Mapper mapper = new Mapper() {
                 
                 public void map( long global_chunk_id,
@@ -47,12 +49,25 @@ public class Main {
 
             };
 
-        int nr_partitions = Config.getPartitionMembership().size();
 
+        Reducer reducer = new Reducer() {
+        
+                public List<byte[]> reduce( long global_chunk_id,
+                                            byte[] key,
+                                            List<byte[]> values ) {
+                    
+                    //identity by default...
+                    return values;
+                    
+                }
+
+            };
+
+        
         mapper.init( nr_partitions );
         
         Controller.map( path, mapper );
-        Controller.sortMapOutput();
+        Controller.reduce( reducer );
         
     }
 

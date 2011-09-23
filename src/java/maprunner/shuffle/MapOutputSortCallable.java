@@ -14,9 +14,11 @@ import maprunner.map.*;
 public class MapOutputSortCallable implements Callable {
 
     private MapOutputIndex mapOutputIndex = null;
+    private Reducer reducer = null;
     
-    public MapOutputSortCallable( MapOutputIndex mapOutputIndex ) {
+    public MapOutputSortCallable( MapOutputIndex mapOutputIndex, Reducer reducer ) {
         this.mapOutputIndex = mapOutputIndex;
+        this.reducer = reducer;
     }
 
     public Object call() throws Exception {
@@ -32,7 +34,7 @@ public class MapOutputSortCallable implements Callable {
             size += mapOutputBuffer.size();
         }
 
-        List<Tuple[]> arrays = new ArrayList();
+        List<SortRecord[]> arrays = new ArrayList();
 
         int nr_tuples = 0;
         for ( MapOutputBuffer mapOutputBuffer : mapOutput ) {
@@ -41,13 +43,18 @@ public class MapOutputSortCallable implements Callable {
             Tuple[] copy = mapOutputBuffer.toArray();
 
             //TODO: shortcut this if the map output is already sorted.
+
+            //FIXME: we should sort this by OUR function IMO.
             Arrays.sort( copy );
+
             nr_tuples += copy.length;
 
-            arrays.add( copy );
+            arrays.add( (SortRecord[])copy );
             
         }
 
+        SortRecord[] sorted = sort( arrays );
+        
         System.out.printf( "Sorted %,d entries for partition %s \n", nr_tuples , mapOutputIndex.partition );
         
         return null;
@@ -62,10 +69,12 @@ public class MapOutputSortCallable implements Callable {
 
         List<SortRecord[]> result = new ArrayList();
         
-        for( int i = 0; i < input.size(); ++i ) {
+        for( int i = 0; i < input.size() / 2; ++i ) {
 
-            SortRecord[] left  = input.get( i );
-            SortRecord[] right = input.get( ++i );
+            int offset = i * 2;
+            
+            SortRecord[] left  = input.get( offset );
+            SortRecord[] right = input.get( offset + 1 );
 
             result.add( sort( left, right ) );
             
@@ -130,7 +139,7 @@ public class MapOutputSortCallable implements Callable {
         }
 
         SortRecord[] records = result.getRecords();
-        result.dump( records );
+        //result.dump( records );
         
         return records;
 

@@ -43,14 +43,7 @@ public class Controller {
         
     }
 
-    public static void reduce( Reducer reducer ) {
-
-    }
-    
-    /**
-     * Merge the output from all the mappers for each partition...
-     */
-    public static void sortMapOutput() 
+    public static void reduce( Reducer reducer ) 
         throws InterruptedException, ExecutionException {
 
         Collection<MapOutputIndex> mapOutputIndexes = ShuffleManager.getMapOutput();
@@ -58,7 +51,7 @@ public class Controller {
         List<Callable> callables = new ArrayList();
 
         for( MapOutputIndex mapOutputIndex : mapOutputIndexes ) {
-            callables.add( new MapOutputSortCallable( mapOutputIndex ) );
+            callables.add( new MapOutputSortCallable( mapOutputIndex, reducer ) );
         }
 
         waitFor( callables );

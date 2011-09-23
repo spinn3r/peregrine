@@ -34,8 +34,6 @@ public class SortResult {
 
         if ( last == null || last.longValue() - record.longValue() != 0 ) {
 
-            System.out.printf( "Creating new record for: %s\n", record );
-
             last = merger.newSortEntry( record );
             
             entries[idx++] = last;
