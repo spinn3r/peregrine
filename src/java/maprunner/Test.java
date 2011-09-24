@@ -5,6 +5,8 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.*;
 
+import java.security.*;
+
 import maprunner.keys.*;
 import maprunner.values.*;
 import maprunner.util.*;
@@ -152,15 +154,45 @@ public class Test {
         return result;
         
     }
-    
+
+    private static ThreadLocal local = new ThreadLocalMessageDigest( "SHA1" );
+
     public static void main( String[] args ) throws Exception {
 
+        MessageDigest md = (MessageDigest)local.get();        
+
+        long before = System.currentTimeMillis();
+
+        byte[] block = new byte[ 1000 ];
+        
+        for( int i = 0; i < 100000; ++i ) {
+            md.update( block );
+            
+        }
+
+        byte[] result = md.digest();
+
+        long last = System.currentTimeMillis();
+
+        System.out.printf( "duration: %,d ms\n", (last-before) );
+        
+//         List<SortRecord[]> list = new ArrayList();
+
+//         list.add( makeTestTupleArray( new int[] { 0 } ) );
+//         list.add( makeTestTupleArray( new int[] { 1 } ) );
+//         list.add( makeTestTupleArray( new int[] { 2 } ) );
+
+//         SortRecord[] records = new Sorter().sort( list );
+
+//         System.out.printf( "length: %s\n", records.length );
+
+        /*
         SortListener listener = new SortListener() {
 
             };
 
         listener.getClass().newInstance();
-        
+        */
         //Test test = new Test();
         //test.test1();
 

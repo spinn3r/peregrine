@@ -16,7 +16,11 @@ public class Sorter {
     private boolean finalPass = false;
 
     private SortListener listener = null;
-    
+
+    public Sorter() {
+        this.listener = new SortListener(); // we don't care to listen.
+    }
+
     public Sorter( SortListener listener ) {
         this.listener = listener;
     }
@@ -32,19 +36,33 @@ public class Sorter {
         if ( input.size() == 2 ) {
             finalPass = true;
         }
+
+        int offset = 0;
+
+        //odd sized input.  First merge the last two.
+        if ( input.size() > 2 && input.size() % 2 != 0) {
+
+            //FIXME: include the odd man out in this set.
+
+            System.out.printf( "FIXMEL \n" );
+            
+            SortRecord[] left  = input.remove( input.size() - 2 );
+            SortRecord[] right = input.remove( input.size() - 1 );
+
+            input.add( sort( left, right ) );
+            
+        }
         
         for( int i = 0; i < input.size() / 2; ++i ) {
 
-            int offset = i * 2;
+            offset = i * 2;
             
             SortRecord[] left  = input.get( offset );
-            SortRecord[] right = input.get( offset + 1 );
+            SortRecord[] right = input.get( ++offset );
 
             result.add( sort( left, right ) );
             
         }
-
-        //FIXME: include the odd man out in this set.
 
         return sort( result );
             

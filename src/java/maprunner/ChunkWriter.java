@@ -16,7 +16,7 @@ import maprunner.values.*;
  */
 public class ChunkWriter {
 
-    public static final int BUFFER_SIZE = 16384;
+    public static int BUFFER_SIZE = 16384;
     
     private String path = null;
 
@@ -46,11 +46,13 @@ public class ChunkWriter {
     }
 
     private void write( byte[] data ) throws IOException {
+        // FIXME: update the checksum here
         out.write( data );
         size += data.length;
     }
     
     public void close() throws IOException {
+        //FIXME: write out the checksum here ... in a .sha1 file
         out.close();        
     }
     
