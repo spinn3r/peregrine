@@ -5,16 +5,22 @@ import java.util.*;
 
 import maprunner.*;
 
-public class BaseKey implements Key {
+public abstract class BaseKey implements Key {
 
     protected byte[] data;
+
+    public BaseKey() {}
     
     public BaseKey( byte[] data ) {
-        this.data = data;
+        this.fromBytes( data );
     }
     
     public byte[] toBytes() {
         return data;
     }
-    
+
+    public void fromBytes( byte[] data ) {
+        this.data = data;
+    }
+
 }

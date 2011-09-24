@@ -10,6 +10,8 @@ import maprunner.*;
 public class StringKey extends BaseKey {
 
     private static Charset UTF8 = null;
+
+    public StringKey() {}
     
     public StringKey( String data ) {
         super( data.getBytes( UTF8 ) );

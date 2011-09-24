@@ -9,6 +9,8 @@ import maprunner.util.*;
 public class IntValue extends BaseValue {
 
     public int value;
+
+    public IntValue() {}
     
     public IntValue( int value ) {
         super( IntBytes.toByteArray( value ) );
@@ -20,4 +22,13 @@ public class IntValue extends BaseValue {
         this.value = IntBytes.toInt( value );
     }
 
+    public void fromBytes( byte[] data ) {
+        this.data = data;
+        this.value = IntBytes.toInt( data );
+    }
+
+    public String toString() {
+        return Integer.toString( value );
+    }
+    
 }

@@ -10,6 +10,9 @@ import maprunner.util.*;
 
 public class ByteArrayKey extends BaseKey {
 
+    public ByteArrayKey() {
+    } 
+    
     public ByteArrayKey( byte[] data ) {
         super( data );
     }
@@ -17,5 +20,5 @@ public class ByteArrayKey extends BaseKey {
     public String toString() {
         return Base64.encode( data );
     }
-    
+
 }

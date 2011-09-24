@@ -51,7 +51,9 @@ public class Filesystem {
         
     }
 
-    private static void cat( final String path ) throws Exception {
+    private static void cat( final String path,
+                             final String key_class,
+                             final String value_class ) throws Exception {
 
         forChunks( path, new FileChunkListener() {
 
@@ -61,10 +63,20 @@ public class Filesystem {
 
                             public void onEntry( byte[] key_bytes, byte[] value_bytes ) {
 
-                                ByteArrayKey key = new ByteArrayKey( key_bytes );
-                                HashSetValue value = new HashSetValue( value_bytes );
+                                try {
+                                
+                                    Key key = (Key)Class.forName( key_class ).newInstance();
+                                    Value value = (Value)Class.forName( value_class ).newInstance();
 
-                                System.out.printf( "%s: %s\n", key, value );
+                                    key.fromBytes( key_bytes );
+                                    value.fromBytes( value_bytes );
+
+                                    System.out.printf( "%s: %s\n", key, value );
+
+                                } catch ( Exception e ) {
+                                    throw new RuntimeException( e );
+                                }
+                                    
                             }
 
                         } );
@@ -186,7 +198,7 @@ public class Filesystem {
             info( args[1] );
             return;
         } else if ( "cat".equals( cmd ) ) {
-            cat( args[1] );
+            cat( args[1], args[2], args[3] );
             return;
         } else {
             syntax();

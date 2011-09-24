@@ -5,16 +5,22 @@ import java.util.*;
 
 import maprunner.*;
 
-public class BaseValue implements Value {
+public abstract class BaseValue implements Value {
 
-    private byte[] data;
+    protected byte[] data;
+
+    public BaseValue() {}
     
     public BaseValue( byte[] data ) {
-        this.data = data;
+        fromBytes( data );
     }
     
     public byte[] toBytes() {
         return data;
     }
-    
+
+    public void fromBytes( byte[] data ) {
+        this.data = data;
+    }
+
 }
