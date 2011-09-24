@@ -16,11 +16,13 @@ import maprunner.values.*;
  */
 public class ChunkWriter {
 
+    public static final int BUFFER_SIZE = 16384;
+    
     private String path = null;
 
     private VarintWriter varintWriter = new VarintWriter();
 
-    private FileOutputStream out = null;
+    private OutputStream out = null;
 
     protected int size = 0;
     
@@ -29,7 +31,7 @@ public class ChunkWriter {
 
         new File( new File( this.path ).getParent() ).mkdirs();
 
-        this.out = new FileOutputStream( this.path );
+        this.out = new BufferedOutputStream( new FileOutputStream( this.path ), BUFFER_SIZE );
     }
 
     public void write( byte[] key_bytes, byte[] value_bytes )

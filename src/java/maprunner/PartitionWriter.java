@@ -12,55 +12,45 @@ import maprunner.values.*;
  */
 public class PartitionWriter {
 
-    public static long CHUNK_SIZE = 1000000;
-    
     private String path = null;
 
-    private int chunk_id = 0;
-
-    private ChunkWriter out = null;
+    private LocalPartitionWriter[] writers;
     
-    public PartitionWriter( String path ) throws IOException {
+    public PartitionWriter( Partition partition,
+                            String path ) throws IOException {
 
         this.path = path;
 
-        //create the first chunk...
-        rollover();
-        
+        Map<Partition,List<Host>> partitionMembership = Config.getPartitionMembership();
+
+        List<Host> membership = partitionMembership.get( partition );
+
+        writers = new LocalPartitionWriter[ membership.size() ];
+
+        for( int i = 0; i < writers.length; ++i ) {
+
+            Host member = membership.get( i );
+
+            writers[ i ] = new LocalPartitionWriter( Config.getDFSPath( partition, member, path ) );
+        }
+
     }
 
-    public void write( byte[] key_bytes, byte[] value_bytes )
+    public void write( byte[] key, byte[] value )
         throws IOException {
 
-        out.write( key_bytes, value_bytes );
-
-        rolloverWhenNecessary();
-        
-    }
-
-    private void rolloverWhenNecessary() throws IOException {
-
-        if ( out.size > CHUNK_SIZE )
-            rollover();
-        
-    }
-    
-    private void rollover() throws IOException {
-
-        if ( out != null )
-            out.close();
-        
-        String chunk_path = String.format( "%s/chunk%06d.dat" , this.path, this.chunk_id );
-
-        out = new ChunkWriter( chunk_path );
-        
-        ++chunk_id; // change the chunk ID now for the next file.
+        for( LocalPartitionWriter writer : writers ) {
+            writer.write( key, value );
+        }
         
     }
 
     public void close() throws IOException {
-        //close the last opened partition...
-        out.close();        
+
+        for( LocalPartitionWriter writer : writers ) {
+            writer.close();
+        }
+
     }
 
     public String toString() {

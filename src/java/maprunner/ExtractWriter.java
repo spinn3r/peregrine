@@ -36,10 +36,10 @@ public class ExtractWriter {
 
             System.out.printf( "Creating writer for partition: %s (%s)\n", partition, membership );
 
-            List<PartitionWriter> output = new ArrayList();
+            List<LocalPartitionWriter> output = new ArrayList();
             
             for ( Host member : membership ) {
-                output.add( new PartitionWriter( Config.getDFSPath( partition, member, path ) ) );
+                output.add( new LocalPartitionWriter( Config.getDFSPath( partition, member, path ) ) );
             }
 
             PARTITION_OUTPUT[partition.id] = output;
@@ -84,15 +84,17 @@ public class ExtractWriter {
         
     }
 
-    private void write( Partition partition, byte[] key_bytes, byte[] value_bytes )
+    private void write( Partition partition,
+                        byte[] key_bytes,
+                        byte[] value_bytes )
         throws IOException {
 
-        List<PartitionWriter> output = (List<PartitionWriter>) PARTITION_OUTPUT[partition.id];
+        List<LocalPartitionWriter> output = (List<LocalPartitionWriter>) PARTITION_OUTPUT[partition.id];
 
         //FIXME: the distributed version should parallel dispatch these and
         //write to the partitions directly.
 
-        for( PartitionWriter out : output ) {
+        for( LocalPartitionWriter out : output ) {
             out.write( key_bytes, value_bytes );
         }
         
@@ -102,9 +104,9 @@ public class ExtractWriter {
 
         for (int i = 0; i < PARTITION_OUTPUT.length; ++i ) {
 
-            List<PartitionWriter> output = (List<PartitionWriter>) PARTITION_OUTPUT[i];
+            List<LocalPartitionWriter> output = (List<LocalPartitionWriter>) PARTITION_OUTPUT[i];
             
-            for( PartitionWriter out : output ) {
+            for( LocalPartitionWriter out : output ) {
                 System.out.printf( "Closing: %s\n", out );
                 out.close();
             }
