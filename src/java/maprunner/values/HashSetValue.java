@@ -18,6 +18,10 @@ public class HashSetValue implements Value {
     
     public HashSetValue() {}
 
+    public HashSetValue( byte[] data ) {
+        fromBytes( data );
+    }
+
     public void add( byte[] value ) {
         values.add( value );
     }
@@ -48,7 +52,7 @@ public class HashSetValue implements Value {
     public void fromBytes( byte[] data ) {
 
         int nr_entries = data.length / Hashcode.HASH_WIDTH;
-        
+
         for ( int i = 0; i < nr_entries; ++i ) {
 
             int offset = i * Hashcode.HASH_WIDTH;
@@ -59,6 +63,20 @@ public class HashSetValue implements Value {
             values.add( entry );
             
         }
+        
+    }
+
+    public String toString() {
+
+        StringBuffer buff = new StringBuffer();
+        
+        for ( byte[] val : getValues() ) {
+
+            buff.append( String.format( "%s ", Base64.encode( val ) ) );
+            
+        }
+
+        return buff.toString();
         
     }
     

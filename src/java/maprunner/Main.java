@@ -49,7 +49,7 @@ public class Main {
         
         ExtractWriter writer = new ExtractWriter( path );
 
-        buildRandomGraph( writer, 10, 10 );
+        buildRandomGraph( writer, 50, 10 );
         
         writer.close();
 
@@ -125,7 +125,7 @@ public class Main {
         byte[] hash = Hashcode.getHashcode( ""+source );
 
         ByteArrayKey key = new ByteArrayKey( hash );
-
+        
         HashSetValue value = new HashSetValue();
         for ( int target : targets ) {
             byte[] data = Hashcode.getHashcode( Integer.toString( target ) );

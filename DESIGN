@@ -6,7 +6,8 @@
 
 
 
-
+- range routing has the advantage that I can keep things globally sorted AND
+  group sorted... I just have to emit a different key based on position.
 
 
 

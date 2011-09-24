@@ -22,6 +22,10 @@
 
         - 1000 partitions... writing to us in chunks
 
+
+- support for doing a 'cat' of a file and factoring in the toString() methods of
+  the underlying type... this will be used for debug purposes.
+
     
 
 

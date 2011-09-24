@@ -25,8 +25,8 @@ public class Test {
         String path = "/test1";
         
         ExtractWriter writer = new ExtractWriter( path );
-
-        PartitionWriter.CHUNK_SIZE = 1000000;
+        
+        LocalPartitionWriter.CHUNK_SIZE = 1000000;
 
         int nr_tuples = 15;
         

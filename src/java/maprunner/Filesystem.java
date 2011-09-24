@@ -50,7 +50,34 @@ public class Filesystem {
         System.out.printf( "%,d bytes across %,d chunks\n", size.get(), nr_chunks.get() );
         
     }
-    
+
+    private static void cat( final String path ) throws Exception {
+
+        forChunks( path, new FileChunkListener() {
+
+                public boolean onChunk( File file ) throws Exception {
+
+                    ChunkReader reader = new ChunkReader( file, new ChunkListener() {
+
+                            public void onEntry( byte[] key_bytes, byte[] value_bytes ) {
+
+                                ByteArrayKey key = new ByteArrayKey( key_bytes );
+                                HashSetValue value = new HashSetValue( value_bytes );
+
+                                System.out.printf( "%s: %s\n", key, value );
+                            }
+
+                        } );
+
+                    reader.read();
+
+                    return true;
+                }
+
+            } );
+
+    }
+
     public static void info( final String path ) throws Exception {
 
         //TODO using posix symbols and then using perror() would be nice instead
@@ -88,7 +115,39 @@ public class Filesystem {
             
     }
 
-    public static void forPartitions( PartitionListener listener ) throws Exception {
+    public static void forChunks( final String path, final FileChunkListener listener )
+        throws Exception {
+
+        forPartitions( new PartitionListener() {
+
+                public boolean onPartition( Partition part, Host host ) throws Exception {
+
+                    for( int i = 0; i < Integer.MAX_VALUE; ++i ) {
+
+                        String name = LocalPartitionWriter.getFilenameForChunk( i );
+                        String dir = Config.getDFSPath( part, host, path );
+                        File chunk = new File( dir, name );
+
+                        if ( chunk.exists() ) {
+                            
+                            if ( listener.onChunk( chunk ) == false )
+                                break;
+                            
+                        } else {
+                            break;
+                        }
+                            
+                    }
+                    
+                    return true;
+                }
+
+            } );
+
+    }
+    
+    public static void forPartitions( PartitionListener listener )
+        throws Exception {
 
         Map<Partition,List<Host>> partitionMembership = Config.getPartitionMembership();
 
@@ -126,6 +185,9 @@ public class Filesystem {
         if ( "info".equals( cmd ) ) {
             info( args[1] );
             return;
+        } else if ( "cat".equals( cmd ) ) {
+            cat( args[1] );
+            return;
         } else {
             syntax();
             System.exit( 1 );
@@ -138,6 +200,15 @@ public class Filesystem {
 class PartitionListener {
 
     public boolean onPartition( Partition part, Host host ) throws Exception {
+        return true;
+    }
+    
+}
+
+class FileChunkListener {
+
+    public boolean onChunk( File file ) throws Exception {
+
         return true;
     }
     
