@@ -30,18 +30,10 @@ public class Main {
 
     public static class Reduce extends Reducer {
         
-        public List<byte[]> reduce( byte[] key, List<byte[]> values ) {
+        public void reduce( byte[] key, List<byte[]> values ) {
 
-            //we want count of indegree.. 
-            List<byte[]> result = new ArrayList();
-            result.add( key );
-            result.add( new IntValue( values.size() ).toBytes() );
-
-            //FIXME: remove this ... just for debug right now:
-
-            System.out.printf( "reduce key=%s, value=%,d\n", Base64.encode( key ), values.size() );
-            
-            return result;
+            int indegree = values.size();
+            emit( key, new IntValue( indegree ).toBytes() );
             
         }
         
@@ -58,7 +50,6 @@ public class Main {
         ExtractWriter writer = new ExtractWriter( path );
 
         buildRandomGraph( writer, 10, 10 );
-        //buildRandomGraph( writer, 100, 10 );
         
         writer.close();
 
@@ -67,20 +58,8 @@ public class Main {
 
         int nr_partitions = Config.getPartitionMembership().size();
 
-        Reducer reducer = new Reducer() {
+        // I think a more ideal API would be Controller.exec( path, mapper, reducer );
         
-                public List<byte[]> reduce( byte[] key, List<byte[]> values ) {
-
-                    //we want count of indegree.. 
-                    List<byte[]> result = new ArrayList();
-                    result.add( key );
-                    result.add( new IntValue( values.size() ).toBytes() );
-                    return result;
-                    
-                }
-
-            };
-
         Controller.map( path, Map.class );
         Controller.reduce( Reduce.class );
         

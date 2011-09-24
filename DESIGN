@@ -8,8 +8,15 @@
 
 
 
-    
-   
+
+
+- cluster membership should be defined via gossip protocol
+    - maybe with confirmation
+- clusters should get a cluster identifier so that we can bring up multiple
+  versions
+
+- heartbeat protocol should be used to verify that the machines are actually
+  there.
    
    
 

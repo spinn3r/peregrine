@@ -17,11 +17,12 @@ public class Reducer {
 
     }
     
-    public List<byte[]> reduce( byte[] key, List<byte[]> values ) {
-
-        //identity by default...
-        return values;
+    public void reduce( byte[] key, List<byte[]> values ) {
+    }
         
+    public void emit( byte[] key,
+                      byte[] value ) {
+
     }
 
 }

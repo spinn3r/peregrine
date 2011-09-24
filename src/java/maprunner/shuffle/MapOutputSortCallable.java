@@ -38,13 +38,13 @@ public class MapOutputSortCallable implements Callable {
         //FIXME: this implements the DEFAULT sort everything approach not the
         //hinted pre-sorted approach.
 
-        //this.reducer.init( mapOutputIndex.partition );
+        this.reducer.init( mapOutputIndex.partition );
         
-        Collection<MapOutputBuffer> mapOutput = mapOutputIndex.getMapOutput();
+        Collection<MapOutputBuffer> mapOutputBuffers = mapOutputIndex.getMapOutput();
 
         int size = 0;
         
-        for ( MapOutputBuffer mapOutputBuffer : mapOutput ) {
+        for ( MapOutputBuffer mapOutputBuffer : mapOutputBuffers ) {
             size += mapOutputBuffer.size();
         }
 
@@ -52,7 +52,7 @@ public class MapOutputSortCallable implements Callable {
 
         int nr_tuples = 0;
 
-        for ( MapOutputBuffer mapOutputBuffer : mapOutput ) {
+        for ( MapOutputBuffer mapOutputBuffer : mapOutputBuffers ) {
 
             //TODO: I'm not sure copying is the right solution.
             Tuple[] copy = mapOutputBuffer.toArray();
@@ -75,7 +75,7 @@ public class MapOutputSortCallable implements Callable {
                 }
                 
             } );
-        
+
         SortRecord[] sorted = sorter.sort( arrays );
         
         System.out.printf( "Sorted %,d entries for partition %s \n", nr_tuples , mapOutputIndex.partition );
