@@ -29,11 +29,15 @@ public class Sorter {
         this.listener = listener;
     }
 
-    public void sort( List<ChunkReader> input ) throws IOException {
-        sort( input, 0 );
+    public void sort( ChunkReader input ) {
+
     }
     
-    private void sort( List<ChunkReader> input, int depth ) throws IOException {
+    public void merge( List<ChunkReader> input ) throws IOException {
+        merge( input, 0 );
+    }
+    
+    private void merge( List<ChunkReader> input, int depth ) throws IOException {
 
         // we're done... no more work to do because the number of chunks is one
         // and we can't merge anymore.
@@ -58,7 +62,7 @@ public class Sorter {
             
             ChunkWriter writer = intermediateChunkHelper.getChunkWriter();
 
-            sort( input.remove( 0 ), input.remove( 1 ), sortEntryFactory, sortEntryFactory, writer );
+            merge( input.remove( 0 ), input.remove( 1 ), sortEntryFactory, sortEntryFactory, writer );
 
             input.add( intermediateChunkHelper.getChunkReader() );
 
@@ -88,21 +92,21 @@ public class Sorter {
                 rightSortEntryFactory = new DefaultSortEntryFactory();
             }
             
-            sort( left, right, leftSortEntryFactory, rightSortEntryFactory, writer );
+            merge( left, right, leftSortEntryFactory, rightSortEntryFactory, writer );
 
             result.add( intermediateChunkHelper.getChunkReader() );
 
         }
 
-        sort( result, ++depth );
+        merge( result, ++depth );
             
     }
     
-    private void sort( ChunkReader chunk_left,
-                       ChunkReader chunk_right,
-                       SortEntryFactory leftSortEntryFactory,
-                       SortEntryFactory rightSortEntryFactory,
-                       ChunkWriter writer ) throws IOException {
+    private void merge( ChunkReader chunk_left,
+                        ChunkReader chunk_right,
+                        SortEntryFactory leftSortEntryFactory,
+                        SortEntryFactory rightSortEntryFactory,
+                        ChunkWriter writer ) throws IOException {
 
         SortInput left  = new SortInput( chunk_left , leftSortEntryFactory );
         

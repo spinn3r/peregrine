@@ -121,6 +121,18 @@ public class TestSorter {
 
     }
 
+    public void test7() throws Exception {
+
+        System.out.printf( "------------ test4\n" );
+
+        List<ChunkReader> work = new ArrayList();
+        work.add( makeTestSortChunk( new int[] { 0 } ) );
+        work.add( makeTestSortChunk( new int[] { 1 } ) );
+
+        _test( work );
+
+    }
+
     /**
      * 
      */
@@ -144,7 +156,7 @@ public class TestSorter {
                     System.out.printf( "sorted value: key=%s, value=%s\n", Hex.encode( key ), pp );
                 }
 
-            } ).sort( work );
+            } ).merge( work );
 
     }
 
@@ -192,6 +204,7 @@ public class TestSorter {
         t.test3();
         t.test4();
         t.test6();
+        t.test7();
         
     }
 
