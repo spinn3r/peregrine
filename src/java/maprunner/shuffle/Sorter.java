@@ -38,7 +38,7 @@ public class Sorter {
         // we're done... no more work to do because the number of chunks is one
         // and we can't merge anymore.
 
-        if ( input.size() == 1 )
+        if ( input.size() <= 1 )
             return;
 
         SortEntryFactory sortEntryFactory = new DefaultSortEntryFactory();
