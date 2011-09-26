@@ -168,6 +168,9 @@ class DefaultSortEntryFactory implements SortEntryFactory {
     public SortEntry newSortEntry( KeyValuePair keyValuePair ) {
 
         SortEntry entry = new SortEntry( keyValuePair.key );
+
+        //deserialize the intermediate value.
+        
         entry.values.add( keyValuePair.value );
 
         return entry;

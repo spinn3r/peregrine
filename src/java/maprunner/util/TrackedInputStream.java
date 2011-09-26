@@ -2,7 +2,7 @@ package maprunner.util;
 
 import java.io.*;
 
-public class TrackedInputStream {
+public class TrackedInputStream extends InputStream {
 
     private InputStream delegate = null;
     
@@ -14,6 +14,18 @@ public class TrackedInputStream {
 
     }
 
+    public int available() throws IOException {
+        return delegate.available();
+    }
+
+    public void mark( int readlimit ) {
+        delegate.mark( readlimit );
+    }
+
+    public void reset() throws IOException {
+        delegate.reset();
+    }
+    
     public int read() throws IOException {
 
         ++position;

@@ -15,10 +15,10 @@ public final class SortEntry {
 
     public List<byte[]> values = new ArrayList();
 
-    public long keycmp;
-
     public byte[] key;
     
+    private long keycmp;
+
     public SortEntry( byte[] key ) {
 
         this.keycmp = LongBytes.toLong( key );
@@ -27,10 +27,6 @@ public final class SortEntry {
     }
 
     public SortEntry() {}
-    
-    public long longValue() {
-        return keycmp;
-    }
 
     public long cmp( SortEntry entry ) {
         return keycmp - entry.keycmp;
