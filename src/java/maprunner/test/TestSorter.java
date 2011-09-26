@@ -15,13 +15,12 @@ import maprunner.shuffle.*;
 
 public class TestSorter {
 
+    /**
+     * test running with two lists which each have different values.
+     */
     public void test1() throws Exception {
 
         System.out.printf( "------------ test1\n" );
-        
-        //test running with two lists which each have different values.
-
-        byte[] d =  new byte[2];
         
         ChunkReader left  = makeTestSortChunk( new int[] { 0, 1, 2 } );
         ChunkReader right = makeTestSortChunk( new int[] { 3, 4, 5 } );
@@ -34,14 +33,13 @@ public class TestSorter {
 
     }
 
+    /**
+     * test running with two lists which each have different values.
+     */
     public void test2() throws Exception {
 
         System.out.printf( "------------ test2\n" );
-        
-        //test running with two lists which each have different values.
 
-        byte[] d =  new byte[2];
-        
         ChunkReader left  = makeTestSortChunk( new int[] { 0, 1, 2 } );
         ChunkReader right = makeTestSortChunk( new int[] { 0, 1, 2 } );
 
@@ -53,21 +51,31 @@ public class TestSorter {
 
     }
 
+    /**
+     * test running with three lists
+     */
+    public void test3() throws Exception {
+
+        System.out.printf( "------------ test3\n" );
+
+        List<ChunkReader> work = new ArrayList();
+        work.add( makeTestSortChunk( new int[] { 0, 1, 2 } ) );
+        work.add( makeTestSortChunk( new int[] { 3, 4, 5 } ) );
+        work.add( makeTestSortChunk( new int[] { 6, 7, 8 } ) );
+
+        _test( work );
+
+    }
+
+    /**
+     * 
+     */
     private void _test( List<ChunkReader> work ) throws Exception {
 
         new Sorter( new SortListener() {
 
                 public void onFinalValue( byte[] key, List<byte[]> values ) {
-
-                    /*
-                    ByteArrayListValue lv = new ByteArrayListValue();
-                    lv.fromBytes( values );
-                    
-                    List<byte[]> list = lv.getValues();
-                    */
-                    
                     System.out.printf( "sorted value: key=%s, value=%s\n", Hex.encode( key ), values );
-
                 }
 
             } ).sort( work );
@@ -80,6 +88,7 @@ public class TestSorter {
 
         t.test1();
         t.test2();
+        t.test3();
         
     }
 

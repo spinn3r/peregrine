@@ -37,28 +37,27 @@ public class Sorter {
         if ( input.size() == 1 )
             return;
 
-        if ( input.size() == 2 ) {
-            finalPass = true;
-        }
-
-//         //odd sized input.  First merge the last two.
-
-//         if ( input.size() > 2 && input.size() % 2 != 0) {
-
-//             //FIXME: include the odd man out in this set.
-
-//             SortRecord[] left  = input.remove( input.size() - 2 );
-//             SortRecord[] right = input.remove( input.size() - 1 );
-
-//             input.add( sort( left, right ) );
-            
-//         }
-
         SortEntryFactory sortEntryFactory = new DefaultSortEntryFactory();
 
         if ( depth == 0 )
             sortEntryFactory = new TopLevelSortEntryFactory();
-        
+
+        //odd sized input.  First merge the last two.
+
+        if ( input.size() > 2 && input.size() % 2 != 0) {
+
+            ChunkWriter writer = intermediateChunkHelper.getChunkWriter();
+
+            sort( input.remove( 0 ), input.remove( 1 ), writer, sortEntryFactory );
+
+            input.add( intermediateChunkHelper.getChunkReader() );
+            
+        }
+
+        if ( input.size() == 2 ) {
+            finalPass = true;
+        }
+
         List<ChunkReader> intermediate = new ArrayList();
         
         for( int i = 0; i < input.size() / 2; ++i ) {
