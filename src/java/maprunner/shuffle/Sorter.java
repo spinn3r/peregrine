@@ -35,7 +35,9 @@ public class Sorter {
     
     private void sort( List<ChunkReader> input, int depth ) throws IOException {
 
-        // we're done.
+        // we're done... no more work to do because the number of chunks is one
+        // and we can't merge anymore.
+
         if ( input.size() == 1 )
             return;
 
@@ -46,48 +48,65 @@ public class Sorter {
 
         //odd sized input.  First merge the last two.
 
+        List<ChunkReader> result = new ArrayList();
+
+        boolean odd = false;
+        
         if ( input.size() > 2 && input.size() % 2 != 0) {
 
+            odd = true;
+            
             ChunkWriter writer = intermediateChunkHelper.getChunkWriter();
 
-            sort( input.remove( 0 ), input.remove( 1 ), writer, sortEntryFactory );
+            sort( input.remove( 0 ), input.remove( 1 ), sortEntryFactory, sortEntryFactory, writer );
 
             input.add( intermediateChunkHelper.getChunkReader() );
-            
+
         }
 
         if ( input.size() == 2 ) {
             finalPass = true;
         }
 
-        List<ChunkReader> intermediate = new ArrayList();
-        
         for( int i = 0; i < input.size() / 2; ++i ) {
 
             int offset = i * 2;
+
+            int left_idx  = offset;
+            int right_idx = left_idx + 1;
             
-            ChunkReader left  = input.get( offset );
-            ChunkReader right = input.get( ++offset );
+            ChunkReader left  = input.get( left_idx );
+            ChunkReader right = input.get( right_idx );
 
             ChunkWriter writer = intermediateChunkHelper.getChunkWriter();
-            
-            sort( left, right, writer, sortEntryFactory );
 
-            intermediate.add( intermediateChunkHelper.getChunkReader() );
+            SortEntryFactory leftSortEntryFactory = sortEntryFactory;
+            SortEntryFactory rightSortEntryFactory = sortEntryFactory;
+
+            // the is the last chunk ... 
+            if ( odd && right_idx == input.size() - 1 ) {
+                rightSortEntryFactory = new DefaultSortEntryFactory();
+            }
+            
+            sort( left, right, leftSortEntryFactory, rightSortEntryFactory, writer );
+
+            result.add( intermediateChunkHelper.getChunkReader() );
 
         }
 
-        sort( intermediate, ++depth );
+        sort( result, ++depth );
             
     }
     
     private void sort( ChunkReader chunk_left,
                        ChunkReader chunk_right,
-                       ChunkWriter writer,
-                       SortEntryFactory sortEntryFactory ) throws IOException {
+                       SortEntryFactory leftSortEntryFactory,
+                       SortEntryFactory rightSortEntryFactory,
+                       ChunkWriter writer ) throws IOException {
 
-        SortInput left  = new SortInput( chunk_left , sortEntryFactory );
-        SortInput right = new SortInput( chunk_right, sortEntryFactory );
+        SortInput left  = new SortInput( chunk_left , leftSortEntryFactory );
+        
+        SortInput right = new SortInput( chunk_right, rightSortEntryFactory );
 
         SortListener sortListener = null;
 

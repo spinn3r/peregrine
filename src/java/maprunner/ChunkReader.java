@@ -102,6 +102,28 @@ public class ChunkReader {
 
     }
 
+    /**
+     * Dump this chunk to stdout.
+     */
+    public void dump() throws IOException {
+
+        System.out.printf( "==== BEGIN ChunkReader DUMP ==== \n" );
+        
+        while( true ) {
+            
+            KeyValuePair pair = readKeyValuePair();
+
+            if ( pair == null )
+                break;
+
+            System.out.printf( "key=%s, value=%s\n", Hex.encode( pair.key ), Hex.encode( pair.value ) );
+
+        }
+
+        System.out.printf( "==== END ChunkReader DUMP ==== \n" );
+
+    }
+    
     private byte[] readBytes( int len ) throws IOException {
 
         byte[] data = new byte[len];

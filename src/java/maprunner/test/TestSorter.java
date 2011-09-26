@@ -113,11 +113,46 @@ public class TestSorter {
             } ).sort( work );
 
     }
+
+    public static void test5() throws IOException {
+
+        int max = 10;
+
+        ByteArrayListValue lv = new ByteArrayListValue();
+        
+        for( int i = 0; i < max; ++i ) {
+
+            lv.addValue( new IntKey( i ).toBytes() );
+        }
+
+        byte[] inter = lv.toBytes();
+
+        lv = new ByteArrayListValue();
+        lv.fromBytes( inter );
+
+        List<byte[]> values = lv.getValues();
+        
+        for( int i = 0; i < max; ++i ) {
+
+            byte[] v = values.get( i );
+
+            IntValue iv = new IntValue();
+            iv.fromBytes( v );
+
+            if ( iv.value != i )
+                throw new RuntimeException();
+            
+            System.out.printf( "iv: %s\n", iv );
+            
+        }
+
+    }
     
     public static void main( String[] args ) throws Exception {
 
         TestSorter t = new TestSorter();
 
+        t.test5();
         t.test1();
         t.test2();
         t.test3();
@@ -130,9 +165,7 @@ public class TestSorter {
         Tuple[] result = new Tuple[ input.length ];
 
         for( int i = 0; i < input.length; ++i ) {
-
             result[i] = new Tuple( new IntKey( input[i] ), new IntValue( input[i]  ) );
-            
         }
 
         return result;

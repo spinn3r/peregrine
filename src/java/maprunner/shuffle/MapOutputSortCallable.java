@@ -52,10 +52,8 @@ public class MapOutputSortCallable implements Callable {
 
         for ( MapOutputBuffer mapOutputBuffer : mapOutputBuffers ) {
 
-            //TODO: shortcut this if the map output is already sorted.
-
-            nr_tuples += copy.length;
-
+            
+            
         }
 
         Sorter sorter = new Sorter( new SortListener() {
@@ -66,7 +64,9 @@ public class MapOutputSortCallable implements Callable {
                 
             } );
 
-        //FIXME refactor: this needs to back in...
+        //FIXME refactor: this needs to back in but using the new ChunkReader /
+        //ChunkWriter sort mechanism
+
         //SortRecord[] sorted = sorter.sort( arrays );
 
         System.out.printf( "Sorted %,d entries for partition %s \n", nr_tuples , mapOutputIndex.partition );
