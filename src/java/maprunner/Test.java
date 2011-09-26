@@ -155,27 +155,66 @@ public class Test {
         
     }
 
+    public static ChunkReader makeTestSortChunk( int[] input ) throws IOException {
+
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        ChunkWriter writer = new ChunkWriter( out );
+
+        for( int i = 0; i < input.length; ++i ) {
+
+            byte[] hash = Hashcode.getHashcode( ""+i );
+            
+            ByteArrayKey key = new ByteArrayKey( hash );
+
+            writer.write( key.toBytes(), new IntValue( input[i] ).toBytes() );
+            
+        }
+
+        writer.close();
+
+        return new ChunkReader( out.toByteArray() );
+        
+    }
+
     private static ThreadLocal local = new ThreadLocalMessageDigest( "SHA1" );
 
     public static void main( String[] args ) throws Exception {
 
-        MessageDigest md = (MessageDigest)local.get();        
+        ChunkReader left  = makeTestSortChunk( new int[] { 0, 1, 2 } );
+        ChunkReader right = makeTestSortChunk( new int[] { 3, 4, 5 } );
 
-        long before = System.currentTimeMillis();
-
-        byte[] block = new byte[ 1000 ];
+        List<ChunkReader> work = new ArrayList();
+        work.add( left );
+        work.add( right );
         
-        for( int i = 0; i < 100000; ++i ) {
-            md.update( block );
+        new Sorter( new SortListener() {
+
+                public void onFinalValue( byte[] key, List<byte[]> values ) {
+                    System.out.printf( "here.\n" );
+                    
+                }
+
+            } ).sort( work );
+        
+//         list.add( makeTestTupleArray( new int[] { 0 } ) );
+
+//         MessageDigest md = (MessageDigest)local.get();        
+
+//         long before = System.currentTimeMillis();
+
+//         byte[] block = new byte[ 1000 ];
+        
+//         for( int i = 0; i < 100000; ++i ) {
+//             md.update( block );
             
-        }
+//         }
 
-        byte[] result = md.digest();
+//         byte[] result = md.digest();
 
-        long last = System.currentTimeMillis();
+//         long last = System.currentTimeMillis();
 
-        System.out.printf( "duration: %,d ms\n", (last-before) );
-        
+//         System.out.printf( "duration: %,d ms\n", (last-before) );
+
 //         List<SortRecord[]> list = new ArrayList();
 
 //         list.add( makeTestTupleArray( new int[] { 0 } ) );

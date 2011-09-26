@@ -14,29 +14,63 @@ public class ChunkReader {
     
     private File file = null;
 
-    private TrackedInputStream is = null;
+    private TrackedInputStream input = null;
 
     private VarintReader varintReader = new VarintReader();
 
     private ChunkListener listener = null;
+
+    private long length = -1;
     
-    public ChunkReader( String path, ChunkListener listener ) {
+    public ChunkReader( String path, ChunkListener listener )
+        throws IOException {
+
         this( new File( path ), listener );
+
     }
 
-    public ChunkReader( File file, ChunkListener listener  ) {
+    public ChunkReader( File file, ChunkListener listener  )
+        throws IOException {
+        
         this.file = file;
         this.listener = listener;
+
+        //read from the given file.
+        InputStream is = new FileInputStream( file );
+
+        //and also buffer it
+        is = new BufferedInputStream( is, BUFFER_SIZE );
+
+        // and keep track of reads but also buffer the IO ...
+        this.input = new TrackedInputStream( is );
+        this.length = file.length();
+
     }
-    
+
+    public ChunkReader( byte[] data,
+                        ChunkListener listener ) 
+        throws IOException {
+
+        this( data );
+        this.listener = listener;
+        
+    }
+
+    public ChunkReader( byte[] data )
+        throws IOException {
+
+        this.length = data.length;
+        
+        this.input = new TrackedInputStream( new ByteArrayInputStream( data ) );
+        
+    }
+
+    /**
+     * deprecated ... see readKeyValuePair
+     */
     public void read() throws IOException {
 
-        FileInputStream fis = new FileInputStream( file );
-
-        // keep track of reads but also buffer the IO ...
-        is = new TrackedInputStream( fis, BUFFER_SIZE );
-        
-        while( is.getPosition() < file.length() ) {
+        while( this.input.getPosition() < this.length ) {
             
             int key_length = readEntryLength();
             byte[] key_data = readBytes( key_length );
@@ -50,10 +84,28 @@ public class ChunkReader {
 
     }
 
+    public KeyValuePair readKeyValuePair() throws IOException {
+
+        if( this.input.getPosition() < this.length ) {
+            
+            int key_length = readEntryLength();
+            byte[] key_data = readBytes( key_length );
+            
+            int value_length = readEntryLength();
+            byte[] value_data = readBytes( value_length );
+
+            return new KeyValuePair( key_data, value_data );
+            
+        } else {
+            return null;
+        }
+
+    }
+
     private byte[] readBytes( int len ) throws IOException {
 
         byte[] data = new byte[len];
-        is.read( data );
+        input.read( data );
         return data;
         
     }
@@ -66,7 +118,7 @@ public class ChunkReader {
         int varint_len = 0;;
 
         for( int i = 0; i < buff.length; ++i ) {
-            byte b = (byte)is.read();
+            byte b = (byte)this.input.read();
             buff[i] = b;
 
             if ( isLastVarintByte( b ) ) {

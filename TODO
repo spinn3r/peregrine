@@ -55,3 +55,6 @@
     - verify that algorithm execution is correct
         
 - The current sort doesn't place things under the same key which is wrong.
+
+
+- What is the timeframe for checksums?  SHA1 ? MD5 ?

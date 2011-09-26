@@ -29,9 +29,14 @@ public class ChunkWriter {
     public ChunkWriter( String path ) throws IOException {
         this.path = path;
 
+        // make sure the parent directories exist.
         new File( new File( this.path ).getParent() ).mkdirs();
-
+        
         this.out = new BufferedOutputStream( new FileOutputStream( this.path ), BUFFER_SIZE );
+    }
+
+    public ChunkWriter( OutputStream out ) throws IOException {
+        this.out = out;
     }
 
     public void write( byte[] key_bytes, byte[] value_bytes )
@@ -46,13 +51,11 @@ public class ChunkWriter {
     }
 
     private void write( byte[] data ) throws IOException {
-        // FIXME: update the checksum here
         out.write( data );
         size += data.length;
     }
     
     public void close() throws IOException {
-        //FIXME: write out the checksum here ... in a .sha1 file
         out.close();        
     }
     

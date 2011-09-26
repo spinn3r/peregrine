@@ -11,7 +11,7 @@ import maprunner.values.*;
 import maprunner.util.*;
 import maprunner.map.*;
 
-public final class SortEntry implements SortRecord {
+public final class SortEntry {
 
     public List<byte[]> values = new ArrayList();
 
@@ -19,11 +19,10 @@ public final class SortEntry implements SortRecord {
 
     public byte[] key;
     
-    public SortEntry( SortRecord record ) {
+    public SortEntry( byte[] key ) {
 
-        Tuple t = (Tuple)record;
-        this.keycmp = t.keycmp;
-        this.key = t.key;
+        this.keycmp = Hashcode.toLong( key );
+        this.key = key;
         
     }
 
@@ -33,8 +32,8 @@ public final class SortEntry implements SortRecord {
         return keycmp;
     }
 
-    public long compareTo( SortRecord record ) {
-        return longValue() - record.longValue();
+    public long cmp( SortEntry entry ) {
+        return keycmp - entry.keycmp;
     }
 
     public String toString() {

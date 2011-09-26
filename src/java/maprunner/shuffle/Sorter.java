@@ -17,6 +17,9 @@ public class Sorter {
 
     private SortListener listener = null;
 
+    private IntermediateChunkHelper intermediateChunkHelper
+        = new IntermediateChunkHelper();
+    
     public Sorter() {
         this.listener = new SortListener(); // we don't care to listen.
     }
@@ -24,78 +27,79 @@ public class Sorter {
     public Sorter( SortListener listener ) {
         this.listener = listener;
     }
-    
-    public SortRecord[] sort( List<SortRecord[]> input ) {
+
+    public void sort( List<ChunkReader> input ) throws IOException {
 
         // we're done.
         if ( input.size() == 1 )
-            return input.get( 0 );
-
-        List<SortRecord[]> result = new ArrayList();
+            return;
 
         if ( input.size() == 2 ) {
             finalPass = true;
         }
 
-        int offset = 0;
+//         //odd sized input.  First merge the last two.
 
-        //odd sized input.  First merge the last two.
-        if ( input.size() > 2 && input.size() % 2 != 0) {
+//         if ( input.size() > 2 && input.size() % 2 != 0) {
 
-            //FIXME: include the odd man out in this set.
+//             //FIXME: include the odd man out in this set.
 
-            System.out.printf( "FIXMEL \n" );
+//             SortRecord[] left  = input.remove( input.size() - 2 );
+//             SortRecord[] right = input.remove( input.size() - 1 );
+
+//             input.add( sort( left, right ) );
             
-            SortRecord[] left  = input.remove( input.size() - 2 );
-            SortRecord[] right = input.remove( input.size() - 1 );
+//         }
 
-            input.add( sort( left, right ) );
-            
-        }
+        List<ChunkReader> intermediate = new ArrayList();
         
         for( int i = 0; i < input.size() / 2; ++i ) {
 
-            offset = i * 2;
+            int offset = i * 2;
             
-            SortRecord[] left  = input.get( offset );
-            SortRecord[] right = input.get( ++offset );
+            ChunkReader left  = input.get( offset );
+            ChunkReader right = input.get( ++offset );
 
-            result.add( sort( left, right ) );
+            ChunkWriter writer = intermediateChunkHelper.getChunkWriter();
+            
+            sort( left, right, writer );
+
+            intermediate.add( intermediateChunkHelper.getChunkReader() );
+            
             
         }
 
-        return sort( result );
+        //FIXME: no recursion just yet because we need to find a way to keep
+        //intermediate files.
+        //sort( result );
             
     }
     
-    public SortRecord[] sort( SortRecord[] vect_left,
-                              SortRecord[] vect_right ) {
+    private void sort( ChunkReader vect_left,
+                       ChunkReader vect_right,
+                       ChunkWriter writer ) throws IOException {
 
         SortInput left = new SortInput( vect_left );
         SortInput right = new SortInput( vect_right );
 
-        SortMerger merger = null;
-
-        if ( left.value instanceof Tuple ) {
-            merger = new SortMerger();
-        } else {
-            merger = new IntermediateMerger();
-        }
+        SortMerger merger = new IntermediateMerger();
 
         SortListener sortListener = null;
 
         if ( finalPass ) 
             sortListener = listener;
             
-        SortResult result = new SortResult( vect_left.length + vect_right.length, merger, sortListener );
+        SortResult result = new SortResult( merger, sortListener );
 
         while( true ) {
+            
+            //FIXME: this won't work if one of the inputs is empty.
 
             SortInput hit = null;
             SortInput miss = null;
 
-            long cmp = left.value.longValue() - right.value.longValue();
-
+            long cmp = left.entry.cmp( right.entry );
+            
             if ( cmp <= 0 ) {
                 hit = left;
                 miss = right;
@@ -104,48 +108,43 @@ public class Sorter {
                 miss = left;
             }
 
-            result.accept( cmp, hit.value );
-            
-            ++hit.idx;
+            result.accept( cmp, hit.entry, writer );
 
-            if ( hit.idx == hit.vect.length ) {
+            // make sure to page in the next value.
+            hit.next();
+
+            if ( hit.isExhausted() ) {
+
                 //drain the data from the 'miss' so that there are no more
-                //entries in it.
+                //entries in it... because we are now done.
 
-                for( int i = miss.idx; i < miss.vect.length; ++i ) {
-                    result.accept( -1 , miss.value );
+                while( ! miss.isExhausted() ) {
+                    result.accept( -1 , miss.entry, writer );
+                    miss.next();
                 }
                 
                 break;
             }
 
-            hit.value = hit.vect[ hit.idx ];
-            
         }
-
-        SortRecord[] records = result.getRecords();
-        
-        return records;
 
     }
 
 }
 
-class IntermediateMerger extends SortMerger {
-    
-    public void merge( SortEntry entry, SortRecord record ) {
-        entry.values.addAll( ((SortEntry)record).values );
-    }
+class IntermediateChunkHelper {
 
-    public SortEntry newSortEntry( SortRecord record ) {
+    ByteArrayOutputStream out;
 
-        SortEntry template = (SortEntry) record;
-        SortEntry result = new SortEntry();
-        result.keycmp = template.keycmp;
-        result.key = template.key;
+    public ChunkWriter getChunkWriter() throws IOException {
 
-        return result;
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        return new ChunkWriter( out );
         
     }
 
+    public ChunkReader getChunkReader() throws IOException {
+        return new ChunkReader( out.toByteArray() );
+    }
+    
 }

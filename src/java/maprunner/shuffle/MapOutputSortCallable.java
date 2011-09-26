@@ -76,7 +76,8 @@ public class MapOutputSortCallable implements Callable {
                 
             } );
 
-        SortRecord[] sorted = sorter.sort( arrays );
+        //FIXME refactor: this needs to back in...
+        //SortRecord[] sorted = sorter.sort( arrays );
 
         System.out.printf( "Sorted %,d entries for partition %s \n", nr_tuples , mapOutputIndex.partition );
 
