@@ -187,31 +187,31 @@ public class Test {
 
     public static void main( String[] args ) throws Exception {
 
-        byte[] d =  new byte[2];
+//         byte[] d =  new byte[2];
         
-        ChunkReader left  = makeTestSortChunk( new int[] { 0, 1, 2 } );
-        ChunkReader right = makeTestSortChunk( new int[] { 3, 4, 5 } );
+//         ChunkReader left  = makeTestSortChunk( new int[] { 0, 1, 2 } );
+//         ChunkReader right = makeTestSortChunk( new int[] { 3, 4, 5 } );
 
-        List<ChunkReader> work = new ArrayList();
-        work.add( left );
-        work.add( right );
+//         List<ChunkReader> work = new ArrayList();
+//         work.add( left );
+//         work.add( right );
         
-        new Sorter( new SortListener() {
+//         new Sorter( new SortListener() {
 
-                public void onFinalValue( byte[] key, List<byte[]> values ) {
+//                 public void onFinalValue( byte[] key, List<byte[]> values ) {
 
-                    /*
-                    ByteArrayListValue lv = new ByteArrayListValue();
-                    lv.fromBytes( values );
+//                     /*
+//                     ByteArrayListValue lv = new ByteArrayListValue();
+//                     lv.fromBytes( values );
                     
-                    List<byte[]> list = lv.getValues();
-                    */
+//                     List<byte[]> list = lv.getValues();
+//                     */
                     
-                    System.out.printf( "sorted value: key=%s, value=%s\n", Base64.encode( key ), values );
+//                     System.out.printf( "sorted value: key=%s, value=%s\n", Base64.encode( key ), values );
 
-                }
+//                 }
 
-            } ).sort( work );
+//             } ).sort( work );
 
 //         list.add( makeTestTupleArray( new int[] { 0 } ) );
 
