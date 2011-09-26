@@ -16,37 +16,48 @@ public class SortResult {
 
     public SortEntry last = null;
 
-    private SortMerger merger = null;
-
     private SortListener listener = null;
+
+    private ChunkWriter writer = null;
     
-    public SortResult( SortMerger merger,
+    public SortResult( ChunkWriter writer,
                        SortListener listener )
     {
-        this.merger = merger;
         this.listener = listener;
+        this.writer = writer;
     }
 
-    public void accept( long cmp, SortEntry entry, ChunkWriter writer ) {
+    public void accept( long cmp, SortEntry entry ) throws IOException {
 
-        //FIXME: change the handler for this (or something) so taht we're not
-        //constantly checking for if last==null as we really on need to do this
-        //this first pass and it's a waste of CPU.
-        
         if ( last == null || last.cmp( entry ) != 0 ) {
 
-            if ( last != null && listener != null ) {
-                listener.onFinalValue( entry.key , entry.values );
-            }
+            if ( last != null ) 
+                emit( last );
 
             last = entry;
 
-            writer.write( entry.key, entry.values );
-            
-        } 
-
-        //merger.merge( last, entry );
+        } else {
+            // merge the values together... 
+            last.values.addAll( entry.values );
+        }
         
     }
 
+    public void close() {
+        // we have to emit the last one... 
+        listener.onFinalValue( last.key , last.values );
+    }
+
+    private void emit( SortEntry entry ) throws IOException {
+
+        if ( listener != null ) {
+            listener.onFinalValue( entry.key , entry.values );
+        }
+        
+        //FIXME: 
+        //writer.write( entry.key, entry.values );
+        writer.write( entry.key, new byte[0] );
+
+    }
+    
 }

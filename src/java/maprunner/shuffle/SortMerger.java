@@ -18,12 +18,12 @@ import maprunner.map.*;
  */
 public class SortMerger {
 
-    public void merge( SortEntry entry, SortRecord record ) {
-        entry.values.add( ((Tuple)record).value );
-    }
+//     public void merge( SortEntry entry, SortRecord record ) {
+//         entry.values.add( ((Tuple)record).value );
+//     }
 
-    public SortEntry newSortEntry( SortRecord record ) {
-        return new SortEntry( record );
-    }
+//     public SortEntry newSortEntry( SortRecord record ) {
+//         //return new SortEntry( record );
+//     }
 
 }

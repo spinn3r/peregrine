@@ -21,7 +21,7 @@ public final class SortEntry {
     
     public SortEntry( byte[] key ) {
 
-        this.keycmp = Hashcode.toLong( key );
+        this.keycmp = LongBytes.toLong( key );
         this.key = key;
         
     }

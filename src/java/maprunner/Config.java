@@ -77,12 +77,12 @@ public class Config {
 
         if ( keyIsHashcode ) {
 
-            long value = Math.abs( Hashcode.toLong( key_bytes ) );
+            long value = Math.abs( LongBytes.toLong( key_bytes ) );
             partition = (int)(value % nr_partitions);
             
         } else { 
 
-            long value = Math.abs( Hashcode.toLong( Hashcode.getHashcode( key_bytes ) ) );
+            long value = Math.abs( LongBytes.toLong( Hashcode.getHashcode( key_bytes ) ) );
             partition = (int)( value % nr_partitions);
 
         }

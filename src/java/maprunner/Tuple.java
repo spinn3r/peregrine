@@ -15,7 +15,7 @@ public class Tuple implements SortRecord, Comparable {
 
         this.key = key;
         this.value = value;
-        this.keycmp = Hashcode.toLong( key );
+        this.keycmp = LongBytes.toLong( key );
         
     }
 

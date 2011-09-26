@@ -162,7 +162,14 @@ public class Test {
 
         for( int i = 0; i < input.length; ++i ) {
 
-            byte[] hash = Hashcode.getHashcode( ""+i );
+            //byte[] hash = Hashcode.getHashcode( ""+i );
+            
+            //byte[] hash = new byte[8];
+            //hash[7] = (byte)(i + 32);
+
+            byte[] hash = LongBytes.toByteArray( (long)i );
+            
+            System.out.printf( "%d encodes as: %s\n", i, Base64.encode( hash ) );
             
             ByteArrayKey key = new ByteArrayKey( hash );
 
@@ -190,8 +197,7 @@ public class Test {
         new Sorter( new SortListener() {
 
                 public void onFinalValue( byte[] key, List<byte[]> values ) {
-                    System.out.printf( "here.\n" );
-                    
+                    System.out.printf( "sorted value: %s\n", Base64.encode( key ) );
                 }
 
             } ).sort( work );

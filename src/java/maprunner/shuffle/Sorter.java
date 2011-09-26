@@ -82,14 +82,12 @@ public class Sorter {
         SortInput left = new SortInput( vect_left );
         SortInput right = new SortInput( vect_right );
 
-        SortMerger merger = new IntermediateMerger();
-
         SortListener sortListener = null;
 
         if ( finalPass ) 
             sortListener = listener;
             
-        SortResult result = new SortResult( merger, sortListener );
+        SortResult result = new SortResult( writer, sortListener );
 
         while( true ) {
             
@@ -99,6 +97,8 @@ public class Sorter {
             SortInput miss = null;
 
             long cmp = left.entry.cmp( right.entry );
+
+            System.out.printf( "FIXME: left(%s) vs right(%s) = %d\n", Base64.encode( left.entry.key ), Base64.encode( right.entry.key ), cmp );
             
             if ( cmp <= 0 ) {
                 hit = left;
@@ -108,7 +108,7 @@ public class Sorter {
                 miss = left;
             }
 
-            result.accept( cmp, hit.entry, writer );
+            result.accept( cmp, hit.entry );
 
             // make sure to page in the next value.
             hit.next();
@@ -119,7 +119,7 @@ public class Sorter {
                 //entries in it... because we are now done.
 
                 while( ! miss.isExhausted() ) {
-                    result.accept( -1 , miss.entry, writer );
+                    result.accept( -1 , miss.entry );
                     miss.next();
                 }
                 
@@ -127,6 +127,8 @@ public class Sorter {
             }
 
         }
+
+        result.close();
 
     }
 
@@ -138,7 +140,7 @@ class IntermediateChunkHelper {
 
     public ChunkWriter getChunkWriter() throws IOException {
 
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        this.out = new ByteArrayOutputStream();
         return new ChunkWriter( out );
         
     }
