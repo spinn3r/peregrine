@@ -68,6 +68,26 @@ public class TestSorter {
     }
 
     /**
+     * test running with three lists
+     */
+    public void test4() throws Exception {
+
+        System.out.printf( "------------ test4\n" );
+
+        List<ChunkReader> work = new ArrayList();
+        work.add( makeTestSortChunk( new int[] { 0, 1, 2 } ) );
+        work.add( makeTestSortChunk( new int[] { 3, 4, 5 } ) );
+        work.add( makeTestSortChunk( new int[] { 6, 7, 8 } ) );
+        work.add( makeTestSortChunk( new int[] { 9, 10, 11 } ) );
+        work.add( makeTestSortChunk( new int[] { 12, 13, 14 } ) );
+        work.add( makeTestSortChunk( new int[] { 15, 16, 17 } ) );
+        work.add( makeTestSortChunk( new int[] { 18, 19, 20 } ) );
+
+        _test( work );
+
+    }
+
+    /**
      * 
      */
     private void _test( List<ChunkReader> work ) throws Exception {
@@ -89,6 +109,7 @@ public class TestSorter {
         t.test1();
         t.test2();
         t.test3();
+        t.test4();
         
     }
 
