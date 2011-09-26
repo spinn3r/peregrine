@@ -21,7 +21,6 @@ public class Sorter {
         = new IntermediateChunkHelper();
     
     public Sorter() {
-        this.listener = new SortListener(); // we don't care to listen.
     }
 
     public Sorter( SortListener listener ) {
@@ -170,7 +169,8 @@ class DefaultSortEntryFactory implements SortEntryFactory {
         SortEntry entry = new SortEntry( keyValuePair.key );
 
         //after this we're merging arrays of values which are length prefixed.
-        entry.write( keyValuePair.value );
+        //FIXME: deserialzie these first.
+        //entry.write( keyValuePair.value );
 
         return entry;
 
@@ -186,9 +186,8 @@ class TopLevelSortEntryFactory implements SortEntryFactory {
 
         // the first value is a literal... 
         SortEntry entry = new SortEntry( keyValuePair.key );
-        entry.write( writer.write( keyValuePair.value.length ) );
-        entry.write( keyValuePair.value );
-
+        entry.addValue( keyValuePair.value );
+        
         return entry;
 
     }

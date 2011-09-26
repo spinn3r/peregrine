@@ -72,10 +72,10 @@ public class ChunkReader {
 
         while( this.input.getPosition() < this.length ) {
             
-            int key_length = varintReader.readEntryLength( this.input );
+            int key_length = varintReader.read( this.input );
             byte[] key_data = readBytes( key_length );
             
-            int value_length = varintReader.readEntryLength( this.input );
+            int value_length = varintReader.read( this.input );
             byte[] value_data = readBytes( value_length );
             
             listener.onEntry( key_data, value_data );
@@ -88,10 +88,10 @@ public class ChunkReader {
 
         if( this.input.getPosition() < this.length ) {
             
-            int key_length = varintReader.readEntryLength( this.input );
+            int key_length = varintReader.read( this.input );
             byte[] key_data = readBytes( key_length );
             
-            int value_length = varintReader.readEntryLength( this.input );
+            int value_length = varintReader.read( this.input );
             byte[] value_data = readBytes( value_length );
 
             return new KeyValuePair( key_data, value_data );

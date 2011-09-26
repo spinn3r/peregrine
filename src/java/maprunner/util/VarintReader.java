@@ -82,7 +82,7 @@ public class VarintReader {
         return index;
     }
 
-    public int readEntryLength( InputStream input ) throws IOException {
+    public int read( InputStream input ) throws IOException {
 
         byte[] buff = new byte[4];
 

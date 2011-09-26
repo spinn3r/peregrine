@@ -37,8 +37,8 @@ public class SortResult {
             last = entry;
 
         } else {
-            // merge the values together... 
-            last.write( entry.getValue() );
+            // merge the values together ... 
+            last.addValues( entry.getValues() );
         }
         
     }
@@ -49,13 +49,13 @@ public class SortResult {
 
     private void emit( SortEntry entry ) throws IOException {
 
-        byte[] value = entry.getValue();
-        
         if ( listener != null ) {
-            listener.onFinalValue( entry.key , value );
+            listener.onFinalValue( entry.key , entry.getValues() );
         }
 
-        writer.write( entry.key, value );
+        ByteArrayListValue intervalue = new ByteArrayListValue();
+        intervalue.addValues( entry.getValues() );
+        writer.write( entry.key, intervalue.toBytes() );
 
     }
     
