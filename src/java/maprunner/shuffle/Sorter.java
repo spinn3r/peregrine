@@ -29,6 +29,10 @@ public class Sorter {
     }
 
     public void sort( List<ChunkReader> input ) throws IOException {
+        sort( input, 0 );
+    }
+    
+    private void sort( List<ChunkReader> input, int depth ) throws IOException {
 
         // we're done.
         if ( input.size() == 1 )
@@ -51,6 +55,11 @@ public class Sorter {
             
 //         }
 
+        SortEntryFactory sortEntryFactory = new DefaultSortEntryFactory();
+
+        if ( depth == 0 )
+            sortEntryFactory = new TopLevelSortEntryFactory();
+        
         List<ChunkReader> intermediate = new ArrayList();
         
         for( int i = 0; i < input.size() / 2; ++i ) {
@@ -62,25 +71,23 @@ public class Sorter {
 
             ChunkWriter writer = intermediateChunkHelper.getChunkWriter();
             
-            sort( left, right, writer );
+            sort( left, right, writer, sortEntryFactory );
 
             intermediate.add( intermediateChunkHelper.getChunkReader() );
-            
-            
+
         }
 
-        //FIXME: no recursion just yet because we need to find a way to keep
-        //intermediate files.
-        //sort( result );
+        sort( intermediate, ++depth );
             
     }
     
-    private void sort( ChunkReader vect_left,
-                       ChunkReader vect_right,
-                       ChunkWriter writer ) throws IOException {
+    private void sort( ChunkReader chunk_left,
+                       ChunkReader chunk_right,
+                       ChunkWriter writer,
+                       SortEntryFactory sortEntryFactory ) throws IOException {
 
-        SortInput left = new SortInput( vect_left );
-        SortInput right = new SortInput( vect_right );
+        SortInput left  = new SortInput( chunk_left , sortEntryFactory );
+        SortInput right = new SortInput( chunk_right, sortEntryFactory );
 
         SortListener sortListener = null;
 
@@ -98,8 +105,6 @@ public class Sorter {
 
             long cmp = left.entry.cmp( right.entry );
 
-            System.out.printf( "FIXME: left(%s) vs right(%s) = %d\n", Base64.encode( left.entry.key ), Base64.encode( right.entry.key ), cmp );
-            
             if ( cmp <= 0 ) {
                 hit = left;
                 miss = right;
@@ -129,7 +134,8 @@ public class Sorter {
         }
 
         result.close();
-
+        writer.close();
+        
     }
 
 }
@@ -149,4 +155,36 @@ class IntermediateChunkHelper {
         return new ChunkReader( out.toByteArray() );
     }
     
+}
+
+interface SortEntryFactory  {
+    
+    public SortEntry newSortEntry( KeyValuePair keyValuePair );
+
+}
+
+class DefaultSortEntryFactory implements SortEntryFactory {
+    
+    public SortEntry newSortEntry( KeyValuePair keyValuePair ) {
+
+        SortEntry entry = new SortEntry( keyValuePair.key );
+        entry.values.add( keyValuePair.value );
+
+        return entry;
+
+    }
+
+}
+
+class TopLevelSortEntryFactory implements SortEntryFactory {
+    
+    public SortEntry newSortEntry( KeyValuePair keyValuePair ) {
+
+        SortEntry entry = new SortEntry( keyValuePair.key );
+        entry.values.add( keyValuePair.value );
+
+        return entry;
+
+    }
+
 }

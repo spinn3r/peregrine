@@ -43,9 +43,8 @@ public class SortResult {
         
     }
 
-    public void close() {
-        // we have to emit the last one... 
-        listener.onFinalValue( last.key , last.values );
+    public void close() throws IOException {
+        emit( last );
     }
 
     private void emit( SortEntry entry ) throws IOException {
@@ -53,7 +52,7 @@ public class SortResult {
         if ( listener != null ) {
             listener.onFinalValue( entry.key , entry.values );
         }
-        
+
         //FIXME: 
         //writer.write( entry.key, entry.values );
         writer.write( entry.key, new byte[0] );

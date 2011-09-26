@@ -197,7 +197,9 @@ public class Test {
         new Sorter( new SortListener() {
 
                 public void onFinalValue( byte[] key, List<byte[]> values ) {
-                    System.out.printf( "sorted value: %s\n", Base64.encode( key ) );
+
+                    System.out.printf( "sorted value: key=%s, value=%s\n", Base64.encode( key ), values );
+
                 }
 
             } ).sort( work );
