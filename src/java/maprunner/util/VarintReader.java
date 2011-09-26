@@ -81,5 +81,37 @@ public class VarintReader {
     public int getIndex() {
         return index;
     }
+
+    public int readEntryLength( InputStream input ) throws IOException {
+
+        byte[] buff = new byte[4];
+
+        //the length of the varint we are using...
+        int varint_len = 0;;
+
+        for( int i = 0; i < buff.length; ++i ) {
+            byte b = (byte)input.read();
+            buff[i] = b;
+
+            if ( isLastVarintByte( b ) ) {
+                varint_len = i + 1;
+                break;
+            }
+            
+        }
+
+        byte[] vbuff = new byte[ varint_len ];
+        System.arraycopy( buff, 0, vbuff, 0, varint_len );
+
+        int result = read( vbuff );
+
+        return result;
+        
+    }
+    
+    private boolean isLastVarintByte( byte b ) {
+        return (b >> 7) == 0;
+    }
+
     
 }

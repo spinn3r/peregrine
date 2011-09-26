@@ -72,10 +72,10 @@ public class ChunkReader {
 
         while( this.input.getPosition() < this.length ) {
             
-            int key_length = readEntryLength();
+            int key_length = varintReader.readEntryLength( this.input );
             byte[] key_data = readBytes( key_length );
             
-            int value_length = readEntryLength();
+            int value_length = varintReader.readEntryLength( this.input );
             byte[] value_data = readBytes( value_length );
             
             listener.onEntry( key_data, value_data );
@@ -88,10 +88,10 @@ public class ChunkReader {
 
         if( this.input.getPosition() < this.length ) {
             
-            int key_length = readEntryLength();
+            int key_length = varintReader.readEntryLength( this.input );
             byte[] key_data = readBytes( key_length );
             
-            int value_length = readEntryLength();
+            int value_length = varintReader.readEntryLength( this.input );
             byte[] value_data = readBytes( value_length );
 
             return new KeyValuePair( key_data, value_data );
@@ -108,37 +108,6 @@ public class ChunkReader {
         input.read( data );
         return data;
         
-    }
-    
-    private int readEntryLength() throws IOException {
-
-        byte[] buff = new byte[4];
-
-        //the length of the varint we are using...
-        int varint_len = 0;;
-
-        for( int i = 0; i < buff.length; ++i ) {
-            byte b = (byte)this.input.read();
-            buff[i] = b;
-
-            if ( isLastVarintByte( b ) ) {
-                varint_len = i + 1;
-                break;
-            }
-            
-        }
-
-        byte[] vbuff = new byte[ varint_len ];
-        System.arraycopy( buff, 0, vbuff, 0, varint_len );
-
-        int result = varintReader.read( vbuff );
-
-        return result;
-        
-    }
-    
-    private boolean isLastVarintByte( byte b ) {
-        return (b >> 7) == 0;
     }
 
     public static void main( String[] args ) throws IOException {

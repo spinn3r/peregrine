@@ -9,23 +9,9 @@ public class TrackedInputStream extends InputStream {
     private int position = 0;
 
     public TrackedInputStream( InputStream is ) {
-
         delegate = new BufferedInputStream( is );
-
     }
 
-    public int available() throws IOException {
-        return delegate.available();
-    }
-
-    public void mark( int readlimit ) {
-        delegate.mark( readlimit );
-    }
-
-    public void reset() throws IOException {
-        delegate.reset();
-    }
-    
     public int read() throws IOException {
 
         ++position;
@@ -54,5 +40,17 @@ public class TrackedInputStream extends InputStream {
     public void close() throws IOException {
         delegate.close();
     }
-    
+
+    public int available() throws IOException {
+        return delegate.available();
+    }
+
+    public void mark( int readlimit ) {
+        delegate.mark( readlimit );
+    }
+
+    public void reset() throws IOException {
+        delegate.reset();
+    }
+
 }
