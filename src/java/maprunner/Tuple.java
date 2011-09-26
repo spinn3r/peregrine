@@ -2,7 +2,6 @@ package maprunner;
 
 import maprunner.util.*;
 import maprunner.keys.*;
-import maprunner.shuffle.SortRecord;
 
 public class Tuple {
 

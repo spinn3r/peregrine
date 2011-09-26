@@ -48,24 +48,14 @@ public class MapOutputSortCallable implements Callable {
             size += mapOutputBuffer.size();
         }
 
-        List<SortRecord[]> arrays = new ArrayList();
-
         int nr_tuples = 0;
 
         for ( MapOutputBuffer mapOutputBuffer : mapOutputBuffers ) {
 
-            //TODO: I'm not sure copying is the right solution.
-            Tuple[] copy = mapOutputBuffer.toArray();
-
             //TODO: shortcut this if the map output is already sorted.
-
-            //FIXME: we should sort this by OUR function IMO.
-            Arrays.sort( copy );
 
             nr_tuples += copy.length;
 
-            arrays.add( (SortRecord[])copy );
-            
         }
 
         Sorter sorter = new Sorter( new SortListener() {
