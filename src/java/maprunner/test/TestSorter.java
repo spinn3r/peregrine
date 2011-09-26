@@ -95,7 +95,19 @@ public class TestSorter {
         new Sorter( new SortListener() {
 
                 public void onFinalValue( byte[] key, List<byte[]> values ) {
-                    System.out.printf( "sorted value: key=%s, value=%s\n", Hex.encode( key ), values );
+
+                    List<String> pp = new ArrayList();
+
+                    for( byte[] value : values ) {
+
+                        IntValue v = new IntValue();
+                        v.fromBytes( value );
+                            
+                        pp.add( v.toString() );
+                        
+                    }
+                    
+                    System.out.printf( "sorted value: key=%s, value=%s\n", Hex.encode( key ), pp );
                 }
 
             } ).sort( work );

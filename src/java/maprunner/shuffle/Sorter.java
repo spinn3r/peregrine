@@ -171,6 +171,11 @@ class DefaultSortEntryFactory implements SortEntryFactory {
         //FIXME: deserialzie these first.
         //entry.write( keyValuePair.value );
 
+        ByteArrayListValue intervalue = new ByteArrayListValue();
+        intervalue.fromBytes( keyValuePair.value );
+
+        entry.addValues( intervalue.getValues() );
+        
         return entry;
 
     }
