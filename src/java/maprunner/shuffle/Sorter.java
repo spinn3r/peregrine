@@ -188,10 +188,6 @@ class DefaultSortEntryFactory implements SortEntryFactory {
 
         SortEntry entry = new SortEntry( keyValuePair.key );
 
-        //after this we're merging arrays of values which are length prefixed.
-        //FIXME: deserialzie these first.
-        //entry.write( keyValuePair.value );
-
         ByteArrayListValue intervalue = new ByteArrayListValue();
         intervalue.fromBytes( keyValuePair.value );
 

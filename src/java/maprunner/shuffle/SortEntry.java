@@ -45,34 +45,6 @@ public final class SortEntry {
     public List<byte[]> getValues() {
         return this.values;
     }
-
-//     public void write(byte[] d ) {
-
-//         len += d.length;
-//         data.add( d );
-//     }
-    
-//     public byte[] getValue() {
-
-//         if ( data.size() == 1 )
-//             return data.get( 0 );
-        
-//         byte[] result = new byte[len];
-
-//         System.out.printf( "FIXME: len: %d\n" , len );
-//         int offset = 0;
-//         for( byte[] d : data ) {
-//             System.out.printf( "FIXME: before: %s\n", Hex.encode( d ) );
-            
-//             System.arraycopy( d, 0, result, offset, d.length );
-//             offset = d.length;
-//         }
-
-//         System.out.printf( "FIXME: after: %s\n", Hex.encode( result ) );
-
-//         return result;
-
-//     }
     
 }
 

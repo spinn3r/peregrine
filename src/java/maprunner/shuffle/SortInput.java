@@ -32,13 +32,7 @@ public final class SortInput {
         KeyValuePair pair = this.reader.readKeyValuePair();
 
         if ( pair != null ) {
-
-            //FIXME: what about the value / values ? At depth 0 we have to read
-            //it as a byte[] and at depth > 0 we have to read it as a list of
-            //bytes[]
-
             this.entry = sortEntryFactory.newSortEntry( pair );
-
         } else {
             entry = null;
         }
