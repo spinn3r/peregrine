@@ -19,6 +19,8 @@ public class Sorter {
 
     private IntermediateChunkHelper intermediateChunkHelper
         = new IntermediateChunkHelper();
+
+    private void debug = false;
     
     public Sorter() {
     }
