@@ -169,9 +169,8 @@ class DefaultSortEntryFactory implements SortEntryFactory {
 
         SortEntry entry = new SortEntry( keyValuePair.key );
 
-        //deserialize the intermediate value.
-        
-        entry.values.add( keyValuePair.value );
+        //after this we're merging arrays of values which are length prefixed.
+        entry.write( keyValuePair.value );
 
         return entry;
 
@@ -183,8 +182,12 @@ class TopLevelSortEntryFactory implements SortEntryFactory {
     
     public SortEntry newSortEntry( KeyValuePair keyValuePair ) {
 
+        VarintWriter writer = new VarintWriter();
+
+        // the first value is a literal... 
         SortEntry entry = new SortEntry( keyValuePair.key );
-        entry.values.add( keyValuePair.value );
+        entry.write( writer.write( keyValuePair.value.length ) );
+        entry.write( keyValuePair.value );
 
         return entry;
 

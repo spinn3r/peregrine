@@ -4,7 +4,7 @@ import java.util.*;
 
 public class SortListener {
 
-    public void onFinalValue( byte[] key, List<byte[]> values ) {
+    public void onFinalValue( byte[] key, byte[] values ) {
 
     }
     

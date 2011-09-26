@@ -13,11 +13,15 @@ import maprunner.map.*;
 
 public final class SortEntry {
 
-    public List<byte[]> values = new ArrayList();
-
     public byte[] key;
     
     private long keycmp;
+
+    private int len = 0;
+
+    private List<byte[]> data = new ArrayList();
+
+    public SortEntry() {}
 
     public SortEntry( byte[] key ) {
 
@@ -26,20 +30,28 @@ public final class SortEntry {
         
     }
 
-    public SortEntry() {}
-
     public long cmp( SortEntry entry ) {
         return keycmp - entry.keycmp;
     }
 
-    public String toString() {
+    public void write(byte[] data ) {
+        len += data.length;
+    }
+    
+    public byte[] getValue() {
 
-        List<Integer> list = new ArrayList();
-        for( byte[] value : values ) {
-            list.add( new IntValue( value ).value );
+        if ( data.size() == 1 )
+            return data.get( 0 );
+        
+        byte[] result = new byte[len];
+
+        int offset = 0;
+        for( byte[] d : data ) {
+            System.arraycopy( d, 0, result, offset, d.length );
+            offset = d.length;
         }
         
-        return String.format( "%s=%s", new IntKey( key ).value, list );
+        return result;
 
     }
     

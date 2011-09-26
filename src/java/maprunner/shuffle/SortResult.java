@@ -38,7 +38,7 @@ public class SortResult {
 
         } else {
             // merge the values together... 
-            last.values.addAll( entry.values );
+            last.write( entry.getValue() );
         }
         
     }
@@ -49,13 +49,13 @@ public class SortResult {
 
     private void emit( SortEntry entry ) throws IOException {
 
+        byte[] value = entry.getValue();
+        
         if ( listener != null ) {
-            listener.onFinalValue( entry.key , entry.values );
+            listener.onFinalValue( entry.key , value );
         }
 
-        //FIXME: 
-        //writer.write( entry.key, entry.values );
-        writer.write( entry.key, new byte[0] );
+        writer.write( entry.key, value );
 
     }
     
