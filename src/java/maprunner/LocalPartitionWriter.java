@@ -40,7 +40,7 @@ public class LocalPartitionWriter {
 
     private void rolloverWhenNecessary() throws IOException {
 
-        if ( out.size > CHUNK_SIZE )
+        if ( out.length > CHUNK_SIZE )
             rollover();
         
     }

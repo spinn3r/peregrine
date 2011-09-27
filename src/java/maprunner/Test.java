@@ -78,20 +78,18 @@ public class Test {
     private static int readTupleCount( String path ) throws IOException {
 
         final AtomicInteger tuples = new AtomicInteger();
-        
-        ChunkListener listener = new ChunkListener() {
 
-                public void onEntry( byte[] key, byte[] value ) {
+        ChunkReader reader = new DefaultChunkReader( path );
 
-                    System.out.printf( "kv: %s\n", new String( key ) );
-                    
-                    tuples.getAndIncrement();
-                }
+        while( true ) {
+            Tuple t = reader.read();
 
-            };
+            if ( t == null )
+                break;
 
-        ChunkReader reader = new DefaultChunkReader( path, listener );
-        reader.read();
+            tuples.getAndIncrement();
+            
+        }
 
         return tuples.get();
     }
@@ -188,6 +186,11 @@ public class Test {
 
     public static void main( String[] args ) throws Exception {
 
+        //byte[][] foo = new byte[5][];
+
+        //byte[0] = new byte[5];
+        //byte[1] = new byte[4];
+        
 //         byte[] d =  new byte[2];
         
 //         ChunkReader left  = makeTestSortChunk( new int[] { 0, 1, 2 } );

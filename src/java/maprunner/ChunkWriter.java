@@ -24,7 +24,9 @@ public class ChunkWriter {
 
     private OutputStream out = null;
 
-    protected int size = 0;
+    private int size = 0;
+
+    protected long length = 0;
     
     public ChunkWriter( String path ) throws IOException {
         this.path = path;
@@ -48,14 +50,21 @@ public class ChunkWriter {
         write( varintWriter.write( value.length ) );
         write( value );
 
+        ++size;
+
     }
 
     private void write( byte[] data ) throws IOException {
         out.write( data );
-        size += data.length;
+        length += data.length;
     }
     
     public void close() throws IOException {
+        // last four bytes store the number of items.
+
+        System.out.printf( "FIXME: wrote : %s\n", Hex.encode( IntBytes.toByteArray( size ) ) );
+
+        out.write( IntBytes.toByteArray( size ) );
         out.close();        
     }
     

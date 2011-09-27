@@ -60,33 +60,28 @@ public class Filesystem {
 
                 public boolean onChunk( File file ) throws Exception {
 
-                    ChunkReader reader = new DefaultChunkReader( file, new ChunkListener() {
+                    ChunkReader reader = new DefaultChunkReader( file );
 
-                            public void onEntry( byte[] key_bytes, byte[] value_bytes ) {
+                    while( true ) {
 
-                                try {
-                                
-                                    Key key = (Key)Class.forName( key_class ).newInstance();
-                                    Value value = (Value)Class.forName( value_class ).newInstance();
+                        Tuple t = reader.read();
 
-                                    key.fromBytes( key_bytes );
-                                    value.fromBytes( value_bytes );
+                        if ( t == null )
+                            break;
+                        
+                        Key key = (Key)Class.forName( key_class ).newInstance();
+                        Value value = (Value)Class.forName( value_class ).newInstance();
 
-                                    System.out.printf( "%s: %s\n", key, value );
+                        key.fromBytes( t.key );
+                        value.fromBytes( t.value );
 
-                                } catch ( Exception e ) {
-                                    throw new RuntimeException( e );
-                                }
-                                    
-                            }
-
-                        } );
-
-                    reader.read();
+                        System.out.printf( "%s: %s\n", key, value );
+                        
+                    }
 
                     return true;
                 }
-
+                
             } );
 
     }

@@ -100,20 +100,24 @@ public class MapperCallable implements Callable {
                                     final long global_chunk_id,
                                     final int local_chunk_id ) throws Exception {
 
-        ChunkListener listener = new ChunkListener() {
-
-                public void onEntry( byte[] key, byte[] value ) {
-                    mapper.map( key, value );
-                }
-
-            };
-
         System.out.printf( "Handling chunk: %s on partition: %s with global_chunk_id: %016d, local_chunk_id: %s\n",
                            file.getPath(), partition, global_chunk_id, local_chunk_id );
 
         mapper.setGlobalChunkId( global_chunk_id );
         
-        ChunkReader reader = new DefaultChunkReader( file, listener );
+        ChunkReader reader = new DefaultChunkReader( file );
+
+        while( true ) {
+
+            Tuple t = reader.read();
+
+            if ( t == null )
+                break;
+
+            mapper.map( t.key, t.value );
+
+        }
+
         reader.read();
 
     }

@@ -11,6 +11,8 @@ import maprunner.values.*;
 
 public class DefaultChunkReader implements ChunkReader {
 
+    private static int SIZE_BYTE_ARRAY_LENGTH = 4;
+    
     public static int BUFFER_SIZE = 16384;
     
     private File file = null;
@@ -19,22 +21,24 @@ public class DefaultChunkReader implements ChunkReader {
 
     private VarintReader varintReader = new VarintReader();
 
-    private ChunkListener listener = null;
-
     private long length = -1;
+
+    /**
+     * number of key value pairs to deal with.
+     */
+    private int size = 0;
     
-    public DefaultChunkReader( String path, ChunkListener listener )
+    public DefaultChunkReader( String path )
         throws IOException {
 
-        this( new File( path ), listener );
+        this( new File( path ) );
 
     }
 
-    public DefaultChunkReader( File file, ChunkListener listener  )
+    public DefaultChunkReader( File file )
         throws IOException {
         
         this.file = file;
-        this.listener = listener;
 
         //read from the given file.
         InputStream is = new FileInputStream( file );
@@ -46,14 +50,17 @@ public class DefaultChunkReader implements ChunkReader {
         this.input = new TrackedInputStream( is );
         this.length = file.length();
 
-    }
-    
-    public DefaultChunkReader( byte[] data,
-                               ChunkListener listener ) 
-        throws IOException {
+        RandomAccessFile raf = new RandomAccessFile( file , "r" );
+        raf.seek( file.length() - SIZE_BYTE_ARRAY_LENGTH );
 
-        this( data );
-        this.listener = listener;
+        byte[] size_bytes = new byte[ SIZE_BYTE_ARRAY_LENGTH ];
+        raf.read( size_bytes );
+
+        System.out.printf( "FIXME: read from : %s\n", Hex.encode( size_bytes ) );
+
+        this.size = IntBytes.toInt( size_bytes );
+
+        raf.close();
         
     }
 
@@ -61,22 +68,24 @@ public class DefaultChunkReader implements ChunkReader {
         throws IOException {
 
         this.length = data.length;
-        
+
+        byte[] size_bytes = new byte[ SIZE_BYTE_ARRAY_LENGTH ];
+        System.arraycopy( data, data.length - SIZE_BYTE_ARRAY_LENGTH, size_bytes, 0, SIZE_BYTE_ARRAY_LENGTH );
+
+        this.size = IntBytes.toInt( size_bytes );
+
         this.input = new TrackedInputStream( new ByteArrayInputStream( data ) );
         
     }
 
     public Tuple read() throws IOException {
 
-        if( this.input.getPosition() < this.length ) {
+        if( this.input.getPosition() < this.length - SIZE_BYTE_ARRAY_LENGTH ) {
             
-            int key_length = varintReader.read( this.input );
-            byte[] key_data = readBytes( key_length );
-            
-            int value_length = varintReader.read( this.input );
-            byte[] value_data = readBytes( value_length );
+            byte[] key     = readBytes( varintReader.read( this.input ) );
+            byte[] value   = readBytes( varintReader.read( this.input ) );
 
-            return new Tuple( key_data, value_data );
+            return new Tuple( key, value );
             
         } else {
             return null;
@@ -86,6 +95,10 @@ public class DefaultChunkReader implements ChunkReader {
 
     public void close() throws IOException {
         this.input.close();
+    }
+
+    public int size() throws IOException {
+        return this.size;
     }
     
     /**
@@ -120,23 +133,6 @@ public class DefaultChunkReader implements ChunkReader {
 
     public static void main( String[] args ) throws IOException {
 
-        String path = args[0];
-
-        final AtomicInteger tuples = new AtomicInteger();
-        
-        ChunkListener listener = new ChunkListener() {
-
-                public void onEntry( byte[] key, byte[] value ) {
-                    tuples.getAndIncrement();
-                }
-
-            };
-
-        DefaultChunkReader reader = new DefaultChunkReader( path, listener );
-        reader.read();
-        
-        System.out.printf( "%s has %,d tuples.\n", path, tuples.get() );
-        
     }
     
 }

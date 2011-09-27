@@ -13,4 +13,6 @@ public interface ChunkReader {
 
     public Tuple read() throws IOException;
 
+    public int size() throws IOException;
+
 }

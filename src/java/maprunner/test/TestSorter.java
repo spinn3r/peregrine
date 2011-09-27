@@ -93,7 +93,7 @@ public class TestSorter {
      */
     public void test6() throws Exception {
 
-        System.out.printf( "------------ test4\n" );
+        System.out.printf( "------------ test6\n" );
 
         List<ChunkReader> work = new ArrayList();
         work.add( makeTestSortChunk( new int[] { 0, 1, 2 } ) );
@@ -124,11 +124,23 @@ public class TestSorter {
 
     public void test7() throws Exception {
 
-        System.out.printf( "------------ test4\n" );
+        System.out.printf( "------------ test7\n" );
 
         List<ChunkReader> work = new ArrayList();
         work.add( makeTestSortChunk( new int[] { 0 } ) );
         work.add( makeTestSortChunk( new int[] { 1 } ) );
+
+        _test( work );
+
+    }
+
+    public void test8() throws Exception {
+
+        System.out.printf( "------------ test4\n" );
+
+        List<ChunkReader> work = new ArrayList();
+        work.add( makeTestSortChunk( new int[] {} ) );
+        work.add( makeTestSortChunk( new int[] {} ) );
 
         _test( work );
 
@@ -157,7 +169,7 @@ public class TestSorter {
                     System.out.printf( "sorted value: key=%s, value=%s\n", Hex.encode( key ), pp );
                 }
 
-            } ).merge( work );
+            } ).sort( work );
 
     }
 
@@ -194,7 +206,47 @@ public class TestSorter {
         }
 
     }
-    
+
+    public static void test9() throws IOException {
+
+        System.out.printf( "test9 --------------\n" );
+        
+        String path = "/tmp/test.chunk";
+        
+        ChunkWriter writer = new ChunkWriter( path );
+
+        writer.write( new byte[0], new byte[0] );
+        writer.write( new byte[0], new byte[0] );
+        writer.write( new byte[0], new byte[0] );
+        writer.write( new byte[0], new byte[0] );
+        writer.write( new byte[0], new byte[0] );
+
+        writer.close();
+
+        ChunkReader reader = new DefaultChunkReader( path );
+
+        if ( reader.size() != 5 )
+            throw new RuntimeException( String.format( "%s != %s", reader.size() , 5 ) );
+
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+
+        writer = new ChunkWriter( out );
+        
+        writer.write( new byte[0], new byte[0] );
+        writer.write( new byte[0], new byte[0] );
+        writer.write( new byte[0], new byte[0] );
+        writer.write( new byte[0], new byte[0] );
+        writer.write( new byte[0], new byte[0] );
+
+        writer.close();
+
+        reader = new DefaultChunkReader( out.toByteArray() );
+
+        if ( reader.size() != 5 )
+            throw new RuntimeException( String.format( "%s != %s", reader.size() , 5 ) );
+
+    }
+
     public static void main( String[] args ) throws Exception {
 
         TestSorter t = new TestSorter();
@@ -206,6 +258,8 @@ public class TestSorter {
         t.test4();
         t.test6();
         t.test7();
+        //t.test8();
+        t.test9();
         
     }
 

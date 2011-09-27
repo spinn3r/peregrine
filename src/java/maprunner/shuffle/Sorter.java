@@ -70,6 +70,10 @@ public class Sorter {
     private IntermediateChunkHelper intermediateChunkHelper
         = new IntermediateChunkHelper();
 
+    private SortEntryFactory defaultSortEntryFactory = new DefaultSortEntryFactory();
+
+    private SortEntryFactory topLevelSortEntryFactory = new TopLevelSortEntryFactory();
+
     private boolean debug = false;
     
     public Sorter() {
@@ -79,35 +83,48 @@ public class Sorter {
         this.listener = listener;
     }
 
-    public void sort( ChunkReader input ) throws IOException {
+    /*
+    public ChunkReader sort( ChunkReader input ) throws IOException {
 
-        while( true ) {
+        // what we could do here to minimize memory ... and not use too many
+        // objects is to 
 
+        int size = input.size();
+
+        ChunkWriter writer = intermediateChunkHelper.getChunkWriter();
+
+        if ( size == 0 )
+            return intermediateChunkHelper.getChunkReader();
+
+        if ( size == 1 ) {
             Tuple t = input.read();
-
-            if ( t == null )
-                break;
-
+            writer.write( t.key, t.value );
+            return intermediateChunkHelper.getChunkReader();
         }
+
+        SortEntryFactory sortEntryFactory = defaultSortEntryFactory;
+        
+        if ( size == 2 ) {
+            sortEntryFactory = topLevelSortEntryFactory;
+        }
+
+        
         
     }
+    */
     
-    public void merge( List<ChunkReader> input ) throws IOException {
-        merge( input, 0 );
+    public void sort( List<ChunkReader> input ) throws IOException {
+        sort( input, topLevelSortEntryFactory );
     }
     
-    private void merge( List<ChunkReader> input, int depth ) throws IOException {
+    private void sort( List<ChunkReader> input,
+                       SortEntryFactory sortEntryFactory ) throws IOException {
 
         // we're done... no more work to do because the number of chunks is one
         // and we can't merge anymore.
 
         if ( input.size() <= 1 )
             return;
-
-        SortEntryFactory sortEntryFactory = new DefaultSortEntryFactory();
-
-        if ( depth == 0 )
-            sortEntryFactory = new TopLevelSortEntryFactory();
 
         //odd sized input.  First merge the last two.
 
@@ -121,7 +138,7 @@ public class Sorter {
             
             ChunkWriter writer = intermediateChunkHelper.getChunkWriter();
 
-            merge( input.remove( 0 ), input.remove( 1 ), sortEntryFactory, sortEntryFactory, writer );
+            sort( input.remove( 0 ), input.remove( 1 ), sortEntryFactory, sortEntryFactory, writer );
 
             input.add( intermediateChunkHelper.getChunkReader() );
 
@@ -148,27 +165,26 @@ public class Sorter {
 
             // the is the last chunk ... 
             if ( odd && right_idx == input.size() - 1 ) {
-                rightSortEntryFactory = new DefaultSortEntryFactory();
+                rightSortEntryFactory = defaultSortEntryFactory;
             }
             
-            merge( left, right, leftSortEntryFactory, rightSortEntryFactory, writer );
+            sort( left, right, leftSortEntryFactory, rightSortEntryFactory, writer );
 
             result.add( intermediateChunkHelper.getChunkReader() );
 
         }
 
-        merge( result, ++depth );
+        sort( result, defaultSortEntryFactory );
             
     }
     
-    private void merge( ChunkReader chunk_left,
-                        ChunkReader chunk_right,
-                        SortEntryFactory leftSortEntryFactory,
-                        SortEntryFactory rightSortEntryFactory,
-                        ChunkWriter writer ) throws IOException {
+    private void sort( ChunkReader chunk_left,
+                       ChunkReader chunk_right,
+                       SortEntryFactory leftSortEntryFactory,
+                       SortEntryFactory rightSortEntryFactory,
+                       ChunkWriter writer ) throws IOException {
 
         SortInput left  = new SortInput( chunk_left , leftSortEntryFactory );
-        
         SortInput right = new SortInput( chunk_right, rightSortEntryFactory );
 
         SortListener sortListener = null;
@@ -180,7 +196,8 @@ public class Sorter {
 
         while( true ) {
             
-            //FIXME: this won't work if one of the inputs is empty.
+            //NOTE: this won't work if one of the inputs is empty.  However, in
+            //the next implementation this bug may go away.
 
             SortInput hit = null;
             SortInput miss = null;
