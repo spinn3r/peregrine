@@ -68,12 +68,16 @@ public class ExternalStorageSortPerf {
 
         }
 
+        long before = System.currentTimeMillis();
+        
         DiskPerf.sync();
         DiskPerf.dropCaches();
         
         PartitionReader partitionReader = new PartitionReader( part, host, path );
 
         List<ChunkReader> readers = partitionReader.getChunkReaders();
+
+        System.out.printf( "Working with %,d chunks.\n" , readers.size() );
 
         List<ChunkReader> sortedReaders = new ArrayList();
         
@@ -96,6 +100,8 @@ public class ExternalStorageSortPerf {
 
         DiskPerf.sync();
         DiskPerf.dropCaches();
+
+        System.out.printf( "Working with %,d sorted chunks.\n" , sortedReaders.size() );
 
         final AtomicInteger nr_tuples = new AtomicInteger();
         
