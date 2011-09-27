@@ -12,6 +12,7 @@ import maprunner.keys.*;
 import maprunner.values.*;
 import maprunner.util.*;
 import maprunner.shuffle.*;
+import maprunner.io.*;
 
 public class TestSorter {
 
@@ -241,7 +242,7 @@ public class TestSorter {
 
         writer.close();
 
-        return new ChunkReader( out.toByteArray() );
+        return new DefaultChunkReader( out.toByteArray() );
         
     }
 

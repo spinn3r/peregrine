@@ -39,14 +39,14 @@ public class ChunkWriter {
         this.out = out;
     }
 
-    public void write( byte[] key_bytes, byte[] value_bytes )
+    public void write( byte[] key, byte[] value )
         throws IOException {
 
-        write( varintWriter.write( key_bytes.length ) );
-        write( key_bytes );
+        write( varintWriter.write( key.length ) );
+        write( key );
 
-        write( varintWriter.write( value_bytes.length ) );
-        write( value_bytes );
+        write( varintWriter.write( value.length ) );
+        write( value );
 
     }
 

@@ -8,6 +8,7 @@ import java.util.concurrent.atomic.*;
 import maprunner.keys.*;
 import maprunner.values.*;
 import maprunner.util.*;
+import maprunner.io.*;
 
 public class Filesystem {
 
@@ -59,7 +60,7 @@ public class Filesystem {
 
                 public boolean onChunk( File file ) throws Exception {
 
-                    ChunkReader reader = new ChunkReader( file, new ChunkListener() {
+                    ChunkReader reader = new DefaultChunkReader( file, new ChunkListener() {
 
                             public void onEntry( byte[] key_bytes, byte[] value_bytes ) {
 

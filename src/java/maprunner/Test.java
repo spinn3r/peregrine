@@ -11,6 +11,7 @@ import maprunner.keys.*;
 import maprunner.values.*;
 import maprunner.util.*;
 import maprunner.shuffle.*;
+import maprunner.io.*;
 
 public class Test {
 
@@ -89,7 +90,7 @@ public class Test {
 
             };
 
-        ChunkReader reader = new ChunkReader( path, listener );
+        ChunkReader reader = new DefaultChunkReader( path, listener );
         reader.read();
 
         return tuples.get();
@@ -179,7 +180,7 @@ public class Test {
 
         writer.close();
 
-        return new ChunkReader( out.toByteArray() );
+        return new DefaultChunkReader( out.toByteArray() );
         
     }
 

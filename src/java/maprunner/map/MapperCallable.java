@@ -11,6 +11,7 @@ import maprunner.keys.*;
 import maprunner.values.*;
 import maprunner.util.*;
 import maprunner.map.*;
+import maprunner.io.*;
 
 public class MapperCallable implements Callable {
 
@@ -112,7 +113,7 @@ public class MapperCallable implements Callable {
 
         mapper.setGlobalChunkId( global_chunk_id );
         
-        ChunkReader reader = new ChunkReader( file, listener );
+        ChunkReader reader = new DefaultChunkReader( file, listener );
         reader.read();
 
     }

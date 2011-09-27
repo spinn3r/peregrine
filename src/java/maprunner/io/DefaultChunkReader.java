@@ -1,14 +1,15 @@
-package maprunner;
+package maprunner.io;
 
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.atomic.*;
 
+import maprunner.*;
 import maprunner.util.*;
 import maprunner.keys.*;
 import maprunner.values.*;
 
-public class ChunkReader {
+public class DefaultChunkReader implements ChunkReader {
 
     public static int BUFFER_SIZE = 16384;
     
@@ -22,14 +23,14 @@ public class ChunkReader {
 
     private long length = -1;
     
-    public ChunkReader( String path, ChunkListener listener )
+    public DefaultChunkReader( String path, ChunkListener listener )
         throws IOException {
 
         this( new File( path ), listener );
 
     }
 
-    public ChunkReader( File file, ChunkListener listener  )
+    public DefaultChunkReader( File file, ChunkListener listener  )
         throws IOException {
         
         this.file = file;
@@ -46,9 +47,9 @@ public class ChunkReader {
         this.length = file.length();
 
     }
-
-    public ChunkReader( byte[] data,
-                        ChunkListener listener ) 
+    
+    public DefaultChunkReader( byte[] data,
+                               ChunkListener listener ) 
         throws IOException {
 
         this( data );
@@ -56,7 +57,7 @@ public class ChunkReader {
         
     }
 
-    public ChunkReader( byte[] data )
+    public DefaultChunkReader( byte[] data )
         throws IOException {
 
         this.length = data.length;
@@ -65,26 +66,7 @@ public class ChunkReader {
         
     }
 
-    /**
-     * deprecated ... see readKeyValuePair
-     */
-    public void read() throws IOException {
-
-        while( this.input.getPosition() < this.length ) {
-            
-            int key_length = varintReader.read( this.input );
-            byte[] key_data = readBytes( key_length );
-            
-            int value_length = varintReader.read( this.input );
-            byte[] value_data = readBytes( value_length );
-            
-            listener.onEntry( key_data, value_data );
-
-        }
-
-    }
-
-    public KeyValuePair readKeyValuePair() throws IOException {
+    public Tuple read() throws IOException {
 
         if( this.input.getPosition() < this.length ) {
             
@@ -94,7 +76,7 @@ public class ChunkReader {
             int value_length = varintReader.read( this.input );
             byte[] value_data = readBytes( value_length );
 
-            return new KeyValuePair( key_data, value_data );
+            return new Tuple( key_data, value_data );
             
         } else {
             return null;
@@ -102,25 +84,29 @@ public class ChunkReader {
 
     }
 
+    public void close() throws IOException {
+        this.input.close();
+    }
+    
     /**
      * Dump this chunk to stdout.
      */
     public void dump() throws IOException {
 
-        System.out.printf( "==== BEGIN ChunkReader DUMP ==== \n" );
+        System.out.printf( "==== BEGIN DefaultChunkReader DUMP ==== \n" );
         
         while( true ) {
             
-            KeyValuePair pair = readKeyValuePair();
+            Tuple tuple = read();
 
-            if ( pair == null )
+            if ( tuple == null )
                 break;
 
-            System.out.printf( "key=%s, value=%s\n", Hex.encode( pair.key ), Hex.encode( pair.value ) );
+            System.out.printf( "key=%s, value=%s\n", Hex.encode( tuple.key ), Hex.encode( tuple.value ) );
 
         }
 
-        System.out.printf( "==== END ChunkReader DUMP ==== \n" );
+        System.out.printf( "==== END DefaultChunkReader DUMP ==== \n" );
 
     }
     
@@ -146,7 +132,7 @@ public class ChunkReader {
 
             };
 
-        ChunkReader reader = new ChunkReader( path, listener );
+        DefaultChunkReader reader = new DefaultChunkReader( path, listener );
         reader.read();
         
         System.out.printf( "%s has %,d tuples.\n", path, tuples.get() );

@@ -10,6 +10,7 @@ import maprunner.keys.*;
 import maprunner.values.*;
 import maprunner.util.*;
 import maprunner.map.*;
+import maprunner.io.*;
 
 public final class SortInput {
 
@@ -29,10 +30,10 @@ public final class SortInput {
 
     public void next() throws IOException {
 
-        KeyValuePair pair = this.reader.readKeyValuePair();
+        Tuple tuple = this.reader.read();
 
-        if ( pair != null ) {
-            this.entry = sortEntryFactory.newSortEntry( pair );
+        if ( tuple != null ) {
+            this.entry = sortEntryFactory.newSortEntry( tuple );
         } else {
             entry = null;
         }

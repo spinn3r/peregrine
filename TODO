@@ -1,5 +1,15 @@
 
 
+
+
+
+- Change the ChunkReader interface to use:
+
+    if ( reader.read() ) {
+        key = reader.getKey();
+        value = reader.getValue();
+    }
+
 - Consider an implementation of this sorting algorithm that uses an in-place
   sort on disk with sequential IO which would allow us to use less disk space...
 
