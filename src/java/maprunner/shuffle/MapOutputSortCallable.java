@@ -4,12 +4,14 @@ package maprunner.shuffle;
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.*;
 
 import maprunner.*;
 import maprunner.keys.*;
 import maprunner.values.*;
 import maprunner.util.*;
 import maprunner.map.*;
+import maprunner.io.*;
 
 //FIXME: rename this to ShuffleSortCallable
 public class MapOutputSortCallable implements Callable {
@@ -42,26 +44,33 @@ public class MapOutputSortCallable implements Callable {
         
         Collection<MapOutputBuffer> mapOutputBuffers = mapOutputIndex.getMapOutput();
 
-        int nr_tuples = 0;
-
+        List<ChunkReader> sorted = new ArrayList();
+        
         for ( MapOutputBuffer mapOutputBuffer : mapOutputBuffers ) {
 
+            sorted.add( new Sorter().sort( mapOutputBuffer.getChunkReader() ) );
+            
         }
 
-        Sorter sorter = new Sorter( new SortListener() {
+        final AtomicInteger nr_tuples = new AtomicInteger();
+
+        ChunkMerger merger = new ChunkMerger( new SortListener() {
 
                 public void onFinalValue( byte[] key, List<byte[]> values ) {
                     reducer.reduce( key, values );
+                    nr_tuples.getAndIncrement();
                 }
                 
             } );
 
+        merger.merge( sorted );
+        
         //FIXME refactor: this needs to back in but using the new ChunkReader /
         //ChunkWriter sort mechanism
 
         //SortRecord[] sorted = sorter.sort( arrays );
 
-        System.out.printf( "Sorted %,d entries for partition %s \n", nr_tuples , mapOutputIndex.partition );
+        System.out.printf( "Sorted %,d entries for partition %s \n", nr_tuples.get() , mapOutputIndex.partition );
 
         this.reducer.cleanup();
 

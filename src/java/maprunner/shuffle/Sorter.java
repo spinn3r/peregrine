@@ -91,7 +91,8 @@ public class Sorter {
 
         int size = input.size();
 
-        List<Tuple> list = new ArrayList( size );
+        //List<Tuple> list = new ArrayList( size ); //FIXME: add this back in... it's broken for now.
+        List<Tuple> list = new ArrayList();
 
         // copy the values into the list...
         while ( true ) {

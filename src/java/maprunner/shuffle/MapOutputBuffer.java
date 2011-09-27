@@ -29,7 +29,7 @@ public class MapOutputBuffer {
         writer.write( key, value );
     }
 
-    public ChunkReader getChunkWriter() throws IOException {
+    public ChunkReader getChunkReader() throws IOException {
         return new DefaultChunkReader( out.toByteArray() );
     }
     

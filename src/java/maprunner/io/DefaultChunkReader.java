@@ -56,8 +56,6 @@ public class DefaultChunkReader implements ChunkReader {
         byte[] size_bytes = new byte[ SIZE_BYTE_ARRAY_LENGTH ];
         raf.read( size_bytes );
 
-        System.out.printf( "FIXME: read from : %s\n", Hex.encode( size_bytes ) );
-
         this.size = IntBytes.toInt( size_bytes );
 
         raf.close();

@@ -20,6 +20,10 @@ public class TupleListChunkReader implements ChunkReader {
     }
 
     public Tuple read() throws IOException {
+
+        if ( list.size() == idx )
+            return null;
+        
         return list.get( idx++ );
     }
 
