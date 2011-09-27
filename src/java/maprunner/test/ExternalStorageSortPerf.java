@@ -94,6 +94,9 @@ public class ExternalStorageSortPerf {
 
         }
 
+        DiskPerf.sync();
+        DiskPerf.dropCaches();
+
         final AtomicInteger nr_tuples = new AtomicInteger();
         
         ChunkMerger merger = new ChunkMerger( new SortListener() {
