@@ -61,9 +61,6 @@ public class ChunkWriter {
     
     public void close() throws IOException {
         // last four bytes store the number of items.
-
-        System.out.printf( "FIXME: wrote : %s\n", Hex.encode( IntBytes.toByteArray( size ) ) );
-
         out.write( IntBytes.toByteArray( size ) );
         out.close();        
     }

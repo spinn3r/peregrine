@@ -28,12 +28,9 @@ public class SortResult {
     }
 
     public void accept( long cmp, SortEntry entry ) throws IOException {
-
+        
         if ( last == null || last.cmp( entry ) != 0 ) {
-
-            if ( last != null ) 
-                emit( last );
-
+            emit( last );
             last = entry;
 
         } else {
@@ -44,16 +41,22 @@ public class SortResult {
     }
 
     public void close() throws IOException {
+
         emit( last );
+            
     }
 
     private void emit( SortEntry entry ) throws IOException {
 
+        if ( entry == null )
+            return;
+        
         if ( listener != null ) {
             listener.onFinalValue( entry.key , entry.getValues() );
         }
 
         ByteArrayListValue intervalue = new ByteArrayListValue();
+
         intervalue.addValues( entry.getValues() );
         writer.write( entry.key, intervalue.toBytes() );
 

@@ -63,6 +63,8 @@ import maprunner.io.*;
  */
 public class Sorter {
 
+    public static int DEFAULT_PARTITION_WIDTH = 25;
+    
     private boolean finalPass = false;
 
     private SortListener listener = null;
@@ -82,34 +84,6 @@ public class Sorter {
     public Sorter( SortListener listener ) {
         this.listener = listener;
     }
-
-    /*
-    public ChunkReader sort( ChunkReader input ) throws IOException {
-
-        // what we could do here to minimize memory ... and not use too many
-        // objects is to 
-
-        int size = input.size();
-
-        ChunkWriter writer = intermediateChunkHelper.getChunkWriter();
-
-        if ( size == 0 )
-            return intermediateChunkHelper.getChunkReader();
-
-        if ( size == 1 ) {
-            Tuple t = input.read();
-            writer.write( t.key, t.value );
-            return intermediateChunkHelper.getChunkReader();
-        }
-
-        SortEntryFactory sortEntryFactory = defaultSortEntryFactory;
-        
-        if ( size == 2 ) {
-            sortEntryFactory = topLevelSortEntryFactory;
-        }
-
-    }
-    */
 
     public ChunkReader sort( ChunkReader input ) throws IOException {
 

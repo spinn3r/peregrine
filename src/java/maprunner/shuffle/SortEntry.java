@@ -25,6 +25,7 @@ public final class SortEntry {
 
     public SortEntry( byte[] key ) {
 
+        //FIXME: this must be removed because it is not efficient.
         this.keycmp = LongBytes.toLong( key );
         this.key = key;
         
