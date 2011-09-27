@@ -72,6 +72,8 @@ public class ChunkMerger {
 
     private SortEntryFactory defaultSortEntryFactory = new DefaultSortEntryFactory();
 
+    public int tuples = 0;
+        
     private SortEntryFactory topLevelSortEntryFactory = new TopLevelSortEntryFactory();
     
     public ChunkMerger() {
@@ -104,6 +106,8 @@ public class ChunkMerger {
 
             if ( entry == null )
                 break;
+
+            ++tuples;
             
             result.accept( entry.cmp, topLevelSortEntryFactory.newSortEntry( entry.t ) );
 

@@ -90,7 +90,7 @@ public class ExternalStorageSortPerf {
             
             ChunkSorter sorter = new ChunkSorter();
 
-            String chunk_path = "/tmp/sort-chunk-" + chunknr;
+            String chunk_path = "/d2/sort-chunk-" + chunknr;
             
             ChunkWriter writer = new ChunkWriter( chunk_path );
             
@@ -102,12 +102,13 @@ public class ExternalStorageSortPerf {
 
         }
 
+        System.out.printf( "done\n" );
+
         DiskPerf.sync();
         DiskPerf.dropCaches();
 
-        System.out.printf( "done\n" );
-
         after = System.currentTimeMillis();
+        
         System.out.printf( "duration: %,d ms\n", (after-before) );
 
         before = System.currentTimeMillis();
@@ -129,7 +130,8 @@ public class ExternalStorageSortPerf {
         DiskPerf.sync();
         DiskPerf.dropCaches();
 
-        System.out.printf( "Sorted %,d tuples.\n", nr_tuples.get() );
+        System.out.printf( "Sorted %,d tuples.\n", merger.tuples );
+        System.out.printf( "Merged into %,d tuples.\n", nr_tuples.get() );
 
         System.out.printf( "duration: %,d ms\n", (after-before) );
 
