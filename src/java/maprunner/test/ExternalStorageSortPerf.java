@@ -130,6 +130,8 @@ public class ExternalStorageSortPerf {
         DiskPerf.sync();
         DiskPerf.dropCaches();
 
+        after = System.currentTimeMillis();
+
         System.out.printf( "Sorted %,d tuples.\n", merger.tuples );
         System.out.printf( "Merged into %,d tuples.\n", nr_tuples.get() );
 
