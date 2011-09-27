@@ -18,7 +18,9 @@ public class Reducer {
     public void init( Partition partition ) {
 
         try {
+
             writer = new PartitionWriter( partition, "/tmp/reduce.out" );
+
         } catch ( IOException e ) {
             throw new RuntimeException( "FIXME:" , e );
         }
@@ -40,9 +42,9 @@ public class Reducer {
     public void cleanup() {
 
         try {
-            System.out.printf( "Closing...\n" );
             
             writer.close();
+
         } catch ( IOException e ) {
             throw new RuntimeException( "FIXME:" , e );
         }

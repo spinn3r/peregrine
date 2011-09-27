@@ -81,13 +81,12 @@ public class ChunkMerger {
         this.listener = listener;
     }
 
-    public ChunkReader merge( List<ChunkReader> input ) throws IOException {
+    public void merge( List<ChunkReader> input ) throws IOException {
+        merge( input, null );
+    }
+    
+    public void merge( List<ChunkReader> input, ChunkWriter writer ) throws IOException {
 
-        //FIXME: this won't work on partitions that are too large right now and
-        //won't fit in memory.
-        
-        ChunkWriter writer = intermediateChunkHelper.getChunkWriter();
-        
         //FIXME: if the input length is zero or one then we are done.
 
         PartitionPriorityQueue queue = new PartitionPriorityQueue( input );
@@ -111,9 +110,9 @@ public class ChunkMerger {
         }
 
         result.close();
-        writer.close();
 
-        return intermediateChunkHelper.getChunkReader();
+        if ( writer != null )         
+            writer.close();
         
     }
 

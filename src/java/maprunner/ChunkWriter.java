@@ -35,6 +35,7 @@ public class ChunkWriter {
         new File( new File( this.path ).getParent() ).mkdirs();
         
         this.out = new BufferedOutputStream( new FileOutputStream( this.path ), BUFFER_SIZE );
+        
     }
 
     public ChunkWriter( OutputStream out ) throws IOException {
@@ -60,9 +61,11 @@ public class ChunkWriter {
     }
     
     public void close() throws IOException {
+        
         // last four bytes store the number of items.
         out.write( IntBytes.toByteArray( size ) );
-        out.close();        
+        out.close();
+        
     }
     
 }

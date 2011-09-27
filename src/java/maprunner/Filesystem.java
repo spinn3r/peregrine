@@ -128,6 +128,8 @@ public class Filesystem {
 
         forPartitions( new PartitionListener() {
 
+                //FIXME: migrate this to PartitionReader I think... 
+                
                 public boolean onPartition( Partition part, Host host ) throws Exception {
 
                     for( int i = 0; i < Integer.MAX_VALUE; ++i ) {

@@ -15,4 +15,6 @@ public interface ChunkReader {
 
     public int size() throws IOException;
 
+    public void close() throws IOException;
+    
 }

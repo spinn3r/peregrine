@@ -25,7 +25,7 @@ public class Host {
 
     public int hashCode() {
         return id;
-    }
+    } 
 
     public String getName() {
         return name;

@@ -19,8 +19,6 @@ public class Mapper {
         this.nr_partitions = nr_partitions;
     }
 
-    //TODO: global_chunk_id should NOT be exposed in map but we had to include
-    //it for now for technical reasons.
     public void map( byte[] key,
                      byte[] value ) {}
 

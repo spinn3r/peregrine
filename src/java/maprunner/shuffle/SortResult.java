@@ -58,7 +58,9 @@ public class SortResult {
         ByteArrayListValue intervalue = new ByteArrayListValue();
 
         intervalue.addValues( entry.getValues() );
-        writer.write( entry.key, intervalue.toBytes() );
+
+        if ( writer != null )
+            writer.write( entry.key, intervalue.toBytes() );
 
     }
     

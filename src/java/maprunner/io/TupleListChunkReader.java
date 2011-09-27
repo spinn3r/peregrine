@@ -31,5 +31,9 @@ public class TupleListChunkReader implements ChunkReader {
         return list.size();
     }
 
+    public void close() throws IOException {
+        // noop...
+    }
+
 }
 

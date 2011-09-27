@@ -1,10 +1,40 @@
 
+The mapper API should probably be like:
+
+
+    Controller.map( SequenceReader() , mapper );
+    Controller.reducer( reducer, SequenceWriter() );
+
+    - BUT.. how do we figure otu whether it's something that is distributed and
+      writes EVERYWHERE like the ExtractWriter or something that writes just to
+      the local box and is replicated... Prefix things that are local Partition
+      maybe?
+
+      ReduceMapWriter writer = new ReduceMapWriter();
+
+    - Controller.reducer( reducer, writer )
+      
+    - Conroller.map( writer.getReader(), mapper )
+
+    - I think it's string the output of what we can avoid.
 
 
 
 
 
 
+
+
+    - At 25 parallel readers I could read at about 80MB/s or so... this means
+      40MB/s write throughput to disk (or 40MB/s total input read throughput)
+      ... so for 500GB this would mean. 208 minutes or 3.4 hours JUST for the
+      reduce phase ... hm.... should I replicate this data to the other machines
+      hosting that partition so that I can just quickly resume?  This is a tough
+      decision.  I can see why compressing the output of mappers is important so
+      that you can make the sort go faster by wrting more data... I have to see
+      how CPU bound our reduce phase is going to be.
+
+      
 
 - range routing has the advantage that I can keep things globally sorted AND
   group sorted... I just have to emit a different key based on position.
