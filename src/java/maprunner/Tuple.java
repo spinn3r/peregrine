@@ -3,7 +3,7 @@ package maprunner;
 import maprunner.util.*;
 import maprunner.keys.*;
 
-public class Tuple {
+public final class Tuple {
 
     public byte[] key = null;
     public byte[] value = null;

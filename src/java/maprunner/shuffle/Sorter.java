@@ -108,10 +108,56 @@ public class Sorter {
             sortEntryFactory = topLevelSortEntryFactory;
         }
 
-        
-        
     }
     */
+
+    public ChunkReader sort( ChunkReader input ) throws IOException {
+
+        ChunkWriter writer = intermediateChunkHelper.getChunkWriter();
+
+        int size = input.size();
+
+        List<Tuple> list = new ArrayList( size );
+
+        // copy the values into the list...
+        while ( true ) {
+
+            Tuple t = input.read();
+
+            if ( t == null )
+                break;
+            
+            list.add( t );
+
+        }
+
+        Collections.sort( list , new Comparator<Tuple>() {
+
+                public int compare( Tuple t0, Tuple t1 ) {
+
+                    int len = t0.key.length;
+
+                    for( int offset = 0; offset < len; ++offset ) {
+
+                        int diff = t0.key[offset] - t1.key[offset];
+
+                        if ( diff != 0 )
+                            return diff;
+                        
+                    }
+
+                    //we go to the end and there were no differences ....
+                    return 0;
+
+                }
+                
+            } );
+
+        TupleListChunkReader result = new TupleListChunkReader( list );
+        
+        return result;
+        
+    }
     
     public void sort( List<ChunkReader> input ) throws IOException {
         sort( input, topLevelSortEntryFactory );
