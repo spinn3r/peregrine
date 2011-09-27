@@ -24,6 +24,8 @@ public class ExternalStorageSortPerf {
 
         //now merge it all back to disk.
 
+        Config.DFS_ROOT = "/d2/maprunner-dfs";
+
         Config.addPartitionMembership( 0, "cpu0" );
 
         Partition part = new Partition( 0 );
@@ -49,7 +51,10 @@ public class ExternalStorageSortPerf {
             partitionWriter.close();
 
         }
-            
+
+        DiskPerf.sync();
+        DiskPerf.dropCaches();
+        
         PartitionReader partitionReader = new PartitionReader( part, host, path );
 
         List<ChunkReader> readers = partitionReader.getChunkReaders();
