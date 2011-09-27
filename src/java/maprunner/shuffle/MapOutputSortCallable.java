@@ -42,18 +42,10 @@ public class MapOutputSortCallable implements Callable {
         
         Collection<MapOutputBuffer> mapOutputBuffers = mapOutputIndex.getMapOutput();
 
-        int size = 0;
-        
-        for ( MapOutputBuffer mapOutputBuffer : mapOutputBuffers ) {
-            size += mapOutputBuffer.size();
-        }
-
         int nr_tuples = 0;
 
         for ( MapOutputBuffer mapOutputBuffer : mapOutputBuffers ) {
 
-            
-            
         }
 
         Sorter sorter = new Sorter( new SortListener() {

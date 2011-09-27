@@ -24,14 +24,18 @@ public class MapOutputIndex {
     public void accept( long chunk_id, 
                         byte[] key,
                         byte[] value ) {
-        
-        MapOutputBuffer buffer = getBuffer( chunk_id );
 
-        buffer.accept( key, value );
+        try {
+            MapOutputBuffer buffer = getBuffer( chunk_id );
+            
+            buffer.accept( key, value );
+        } catch ( IOException e ) {
+            throw new RuntimeException( "FIXME: while I just try to get this shit working" );
+        }
 
     }
     
-    private MapOutputBuffer getBuffer( long chunk_id ) {
+    private MapOutputBuffer getBuffer( long chunk_id ) throws IOException {
 
         MapOutputBuffer buffer = bufferMap.get( chunk_id );
 
