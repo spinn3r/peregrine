@@ -38,14 +38,30 @@ public class ExternalStorageSortPerf {
                 
             int max = Integer.parseInt( args[0] );
 
-            DiskPerf.remove( path );
+            Random r = new Random();
+
+            int nr_random = 1000;
+
+            List<byte[]> random = new ArrayList();
+
+            for( int i = 0; i < nr_random; ++i ) {
+                random.add( LongBytes.toByteArray( r.nextLong() ) );
+            }
             
             PartitionWriter partitionWriter = new PartitionWriter( part, path );
 
+            Iterator<byte[]> it = random.iterator();
+            
             for( int i = 0; i < max; ++i ) {
 
-                byte[] hash = Hashcode.getHashcode( ""+i );
-                partitionWriter.write( hash, hash );
+                if ( ! it.hasNext() ) {
+                    it = random.iterator();
+                }
+
+                byte[] key = it.next();
+                
+                partitionWriter.write( key, key );
+                
             }
 
             partitionWriter.close();
