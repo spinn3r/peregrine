@@ -68,7 +68,9 @@ public class ExternalStorageSortPerf {
 
         }
 
-        long before = System.currentTimeMillis();
+        long before, after;
+        
+        before = System.currentTimeMillis();
         
         DiskPerf.sync();
         DiskPerf.dropCaches();
@@ -77,12 +79,14 @@ public class ExternalStorageSortPerf {
 
         List<ChunkReader> readers = partitionReader.getChunkReaders();
 
-        System.out.printf( "Working with %,d chunks.\n" , readers.size() );
+        System.out.printf( "Working with %,d chunks." , readers.size() );
 
         List<ChunkReader> sortedReaders = new ArrayList();
         
         int chunknr = 0;
         for( ChunkReader reader : readers ) {
+
+            System.out.printf( "." );
             
             ChunkSorter sorter = new ChunkSorter();
 
@@ -101,6 +105,13 @@ public class ExternalStorageSortPerf {
         DiskPerf.sync();
         DiskPerf.dropCaches();
 
+        System.out.printf( "done\n" );
+
+        after = System.currentTimeMillis();
+        System.out.printf( "duration: %,d ms\n", (after-before) );
+
+        before = System.currentTimeMillis();
+
         System.out.printf( "Working with %,d sorted chunks.\n" , sortedReaders.size() );
 
         final AtomicInteger nr_tuples = new AtomicInteger();
@@ -115,8 +126,13 @@ public class ExternalStorageSortPerf {
 
         merger.merge( sortedReaders );
 
+        DiskPerf.sync();
+        DiskPerf.dropCaches();
+
         System.out.printf( "Sorted %,d tuples.\n", nr_tuples.get() );
-        
+
+        System.out.printf( "duration: %,d ms\n", (after-before) );
+
     }
     
 }
