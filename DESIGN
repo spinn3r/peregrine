@@ -1,4 +1,7 @@
 
+- Extract jobs should probably be written to disk FIRST (or buffered in memory)
+  so that I can compute the checksums.
+
 - Add checksums to chunk files:
 
     http://www.cryptopp.com/benchmarks.html
@@ -137,7 +140,7 @@
 
 
 - Using LARGER numbers of partitions means that when a machine fails that I can
-  restore to TWO machines and NOT just one...   TWO machines as the source and
+1  restore to TWO machines and NOT just one...   TWO machines as the source and
   TWO as the target.  CLEARLY there is a sweet spot.
 
 
@@ -195,21 +198,23 @@
   
 - compute hashcodes when reading and writing files... then compare the hashcode
   at the end to verify that I have the correct output.
-        
-- ExtractMap
 
-- ReduceMap, MergeMap
+- We have distinct phases that need to be documented: 
+      
+    - ExtractMap
 
-- ReduceMerge (when one of the merge inputs comes from the reduce phase)
-    - pagerank would require this...
+    - ReduceMap, MergeMap
 
-- ReduceMergeMap ... 
+    - ReduceMerge (when one of the merge inputs comes from the reduce phase)
+        - pagerank would require this...
+
+    - ReduceMergeMap ... 
 
 
-- ReduceLoad
-- MergeLoad
-- instead of storing the output locally, just load it back into the remote
-  storage system.
+    - ReduceLoad
+    - MergeLoad
+    - instead of storing the output locally, just load it back into the remote
+      storage system.
 
 - The reduce phase should basically be a tiled mere join...
 
