@@ -1,0 +1,2 @@
+Logs can be moved to /var or some other directory by either using a symlink off 
+of this directory or changing the log4j.xml config.
