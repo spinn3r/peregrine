@@ -6,6 +6,7 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.*;
 
 import java.security.*;
+import java.lang.reflect.*;
 
 import maprunner.keys.*;
 import maprunner.values.*;
@@ -186,6 +187,23 @@ public class Test {
 
     public static void main( String[] args ) throws Exception {
 
+        Field field = sun.misc.Unsafe.class.getDeclaredField( "theUnsafe" );
+        
+        System.out.printf( "FIXME: %s\n", field );
+        field.setAccessible( true );
+
+        sun.misc.Unsafe unsafe = (sun.misc.Unsafe)field.get( null );
+
+        long ptr = unsafe.allocateMemory( 8 );
+
+        unsafe.setMemory( ptr, 8L , (byte)0 );
+        
+        //System.out.printf( "ptr: %,d\n", ptr );
+        
+        unsafe.putLong( (long)100, ptr );
+        
+        //sun.misc.Unsafe.getUnsafe();
+        
         //byte[][] foo = new byte[5][];
 
         //byte[0] = new byte[5];

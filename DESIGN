@@ -1,28 +1,69 @@
 
-The mapper API should probably be like:
+- Add checksums to chunk files:
+
+    http://www.cryptopp.com/benchmarks.html
+
+    http://en.wikipedia.org/wiki/ZFS
+
+    ZFS supports Fletcher and SHA2:
+
+        http://en.wikipedia.org/wiki/Fletcher%27s_checksum
+        http://en.wikipedia.org/wiki/SHA-2
 
 
-    Controller.map( SequenceReader() , mapper );
-    Controller.reducer( reducer, SequenceWriter() );
+    http://www.strchr.com/hash_functions
 
-    - BUT.. how do we figure otu whether it's something that is distributed and
-      writes EVERYWHERE like the ExtractWriter or something that writes just to
-      the local box and is replicated... Prefix things that are local Partition
-      maybe?
+    Adler32 vs CRC32 vs Fletcher
 
-      ReduceMapWriter writer = new ReduceMapWriter();
+    ... 
+    
 
-    - Controller.reducer( reducer, writer )
-      
-    - Conroller.map( writer.getReader(), mapper )
+- Make all IO async and have a dedicated reader that reads disk chunks INTO
+  memory.  Then I need a consumer which listens to the queue and performs work.
+  This way IO is decoupled from CPU and I won't have to wait for disk to do CPU
+  work.  This should be about a 10% performance gain.
 
-    - I think it's string the output of what we can avoid.
+- I think that all APIs should be cluster aware by default and that the Local
+  version writes to the local disk and isn't meant to be used eternally.
+
+  For example:
+
+        PartitionWriter ... writes to all nr_replica machines that host that
+        partition.
+
+        LocalPartitionWriter does the writing on each partition on the other
+        side of the network.
+
+  For debug and engineering purposes (and testing) using LocalPartitionWriters
+  should be easy since this would also make it easy to test.
+
+
+- If I were to take an ENTIRE chunk, and read it into memory as 1 100MB byte
+  array.  Then I could in theory keep a map of the position of a key, and the
+  offset into the byte array.
+
+  This way a read of a key would be:
+
+    for( int i = chunk.offsets[0]; i < 8; ++i ) {
+    }
+
+  where offsets would contain the position of the key
+
+  This would allow more efficient reading of keys as I could avoid having to do
+  an arraycopy for each one.
+
+  I should benchmark this though because the performance boost MIGHT not be
+  worth the complexity.
+
+    
 
 
 
+- The mapper API should probably be like:
 
 
-
+    Controller.map( InputReference() , mapper );
+    Controller.reducer( reducer, OutputReference() );
 
 
     - At 25 parallel readers I could read at about 80MB/s or so... this means
@@ -34,41 +75,27 @@ The mapper API should probably be like:
       that you can make the sort go faster by wrting more data... I have to see
       how CPU bound our reduce phase is going to be.
 
-      
 
-- range routing has the advantage that I can keep things globally sorted AND
-  group sorted... I just have to emit a different key based on position.
+- Range routing has the advantage that I can keep things globally sorted AND
+  group sorted... I just have to emit a different key based on position (or line
+  number) in a document if I'm grepping.
 
 
+- Cluster membership should be defined via gossip protocol in the future but for
+  now the controller keeps track of everything.  
 
-- cluster membership should be defined via gossip protocol
-    - maybe with confirmation
-- clusters should get a cluster identifier so that we can bring up multiple
-  versions
+    - clusters should get a cluster identifier so that we can bring up multiple
+      versions
 
-- heartbeat protocol should be used to verify that the machines are actually
+- Heartbeat protocol should be used to verify that the machines are actually
   there.
    
    
 
 
-
-
-
-
-
-- using a LARGE number of partitions for SOME situations can be valuable.
-
-
 - The architecture should be easy to understand and comprehend.  This means that
   optimizations in the framework can be easily implemented for new and external
   developers.
-
-
-- next
-
-    - Create a mapper thread for EACH input...
-    -     
 
 
 
