@@ -1,4 +1,24 @@
 
+
+- the controller should be able to send these messages:
+
+
+- controllerd:
+    - Inbound messages
+    
+       - CHUNK_WRITTEN partition:path:chunk_id
+       - MAP_COMPLETE partition:path:chunk_id
+       - REDUCE_COMPLETE partition
+
+    - Outbound messages
+
+        - MAP_EXECUTE partition:path:chunk_id
+        - REDUCE partition
+
+- mapd:
+    - OUTBOUND MESSAGES
+        - APPEND partition:path
+       
 - Extract jobs should probably be written to disk FIRST (or buffered in memory)
   so that I can compute the checksums.
 

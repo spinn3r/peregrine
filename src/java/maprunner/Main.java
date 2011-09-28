@@ -7,43 +7,15 @@ import java.util.concurrent.*;
 import maprunner.keys.*;
 import maprunner.values.*;
 import maprunner.util.*;
+import maprunner.pagerank.*;
 
 public class Main {
-
-    public static class Map extends Mapper {
-
-        public void map( byte[] key_data,
-                         byte[] value_data ) {
-
-            HashSetValue value = new HashSetValue();
-            value.fromBytes( value_data );
-            
-            byte[] source = key_data;
-
-            for( byte[] target : value.getValues() ) {
-                emit( target, source );
-            }
-            
-        }
-
-    }
-
-    public static class Reduce extends Reducer {
-        
-        public void reduce( byte[] key, List<byte[]> values ) {
-
-            int indegree = values.size();
-            emit( key, new IntValue( indegree ).toBytes() );
-            
-        }
-        
-    }
 
     public static void main( String[] args ) throws Exception {
 
         // TRY with three partitions... 
-        Config.addPartitionMembership( 0, "cpu0", "cpu1" );
-        Config.addPartitionMembership( 1, "cpu0", "cpu1" );
+        Config.addPartitionMembership( 0, "cpu0" );
+        Config.addPartitionMembership( 1, "cpu1" );
 
         String path = "/pr/test.graph";
         
@@ -53,15 +25,10 @@ public class Main {
         
         writer.close();
 
-        // now we've written our partition data... time to run the mapper on
-        // every single partition.
-
-        int nr_partitions = Config.getPartitionMembership().size();
-
         // I think a more ideal API would be Controller.exec( path, mapper, reducer );
         
-        Controller.map( path, Map.class );
-        Controller.reduce( Reduce.class );
+        Controller.map( path, NodeIndegreeJob.Map.class );
+        Controller.reduce( NodeIndegreeJob.Reduce.class );
         
     }
 

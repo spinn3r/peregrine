@@ -62,18 +62,13 @@ public class ChunkSorter2 {
             SortEntryFactory leftSortEntryFactory = sortEntryFactory;
             SortEntryFactory rightSortEntryFactory = sortEntryFactory;
 
-            // the is the last chunk ... 
-            if ( odd && right_idx == input.size() - 1 ) {
-                rightSortEntryFactory = defaultSortEntryFactory;
-            }
-            
             sort( left, right, leftSortEntryFactory, rightSortEntryFactory, writer );
 
-            result.add( intermediateChunkHelper.getChunkReader() );
+            //FIXME result.add( intermediateChunkHelper.getChunkReader() );
 
         }
-
-        sort( result, defaultSortEntryFactory );
+        
+        //FIXME sort( result, defaultSortEntryFactory );
             
     }
     
