@@ -16,10 +16,10 @@ public class FullOuterJoinMapperCallable implements Callable {
 
     private Partition partition;
     private Host host;
-    private String path;
+    private String[] paths;
     private int nr_partitions;
     
-    final private Mapper mapper;
+    final private JoinMapper mapper;
     
     public FullOuterJoinMapperCallable( Map<Partition,List<Host>> partitionMembership,
                                         Partition partition,
@@ -27,14 +27,14 @@ public class FullOuterJoinMapperCallable implements Callable {
                                         Class mapper_clazz,
                                         String... paths ) {
 
-        this.partition      = partition;
-        this.host           = host;
-        this.path           = path;
-        this.nr_partitions  = partitionMembership.size();
+        this.partition       = partition;
+        this.host            = host;
+        this.paths           = paths;
+        this.nr_partitions   = partitionMembership.size();
 
         try {
 
-            this.mapper = (Mapper)mapper_clazz.newInstance();
+            this.mapper = (JoinMapper)mapper_clazz.newInstance();
 
         } catch ( Exception e ) {
 
@@ -53,12 +53,23 @@ public class FullOuterJoinMapperCallable implements Callable {
 
         System.out.printf( "Running map jobs on host: %s\n", host );
 
-        LocalPartitionReader reader = new LocalPartitionReader( partition, host, path );
+        List<LocalPartitionReader> readers = new ArrayList();
+        
+        for( String path : paths ) {
+            readers.add( new LocalPartitionReader( partition, host, path ) );
+        }
 
-        for( Tuple t = reader.read(); t != null ; ) {
+        Joiner joiner = new Joiner( readers );
+
+        while( true ) {
+
+            byte[][] value = joiner.next();
+
+            if ( value == null )
+                break;
 
         }
-        
+
         return null;
         
     }

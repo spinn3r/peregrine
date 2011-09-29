@@ -11,6 +11,6 @@ import maprunner.shuffle.*;
 
 public class JoinMapper extends BaseMapper {
 
-    public void map( byte[] key, byte[]... value ) {}
+    public void map( byte[] key, byte[]... join_values ) {}
 
 }

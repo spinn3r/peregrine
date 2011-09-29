@@ -16,9 +16,20 @@ import maprunner.keys.*;
  */
 public class Joiner {
 
-    public void join( List<LocalPartitionReader> readers ) throws Exception {
+    private FilePriorityQueue queue;
 
-        FilePriorityQueue queue = new FilePriorityQueue();
+    private FileReference last = null;
+
+    private FileComparator comparator = new FileComparator();
+
+    private List<LocalPartitionReader> readers;
+    
+    public Joiner( List<LocalPartitionReader> readers )
+        throws IOException {
+
+        this.readers = readers;
+        
+        this.queue = new FilePriorityQueue();
         
         int id = 0;
         for( LocalPartitionReader reader : readers ) {
@@ -28,9 +39,13 @@ public class Joiner {
             
         }
 
-        FileReference last = null;
-        FileComparator comparator = new FileComparator();
-        byte[][] joined = new byte[readers.size()][];
+    }
+    
+    public byte[][] next() throws IOException {
+
+        int nr_readers = readers.size();
+        
+        byte[][] joined = new byte[nr_readers][];
         
         while( true ) {
 
@@ -40,15 +55,15 @@ public class Joiner {
 
             if ( changed ) {
 
-                // FIXME: run the map job against this value.
-                System.out.printf( "0=%s, 1=%s\n", Hex.encode( joined[0] ), Hex.encode( joined[1] ) );
+                byte[][] result = joined;
+                joined = new byte[nr_readers][];
 
-                joined = new byte[readers.size()][];
-
+                return result;
+                
             }
 
             if ( ref == null )
-                break;
+                return null;
 
             joined[ref.id] = ref.key;
 
