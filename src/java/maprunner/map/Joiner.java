@@ -41,7 +41,7 @@ public class Joiner {
 
     }
     
-    public byte[][] next() throws IOException {
+    public JoinedTuple next() throws IOException {
 
         int nr_readers = readers.size();
         
@@ -55,7 +55,7 @@ public class Joiner {
 
             if ( changed ) {
 
-                byte[][] result = joined;
+                JoinedTuple result = new JoinedTuple( last.key, joined );
                 joined = new byte[nr_readers][];
 
                 return result;

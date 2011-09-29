@@ -68,6 +68,8 @@ public class FullOuterJoinMapperCallable implements Callable {
             if ( value == null )
                 break;
 
+            mapper.map( new byte[0], value );
+            
         }
 
         return null;
