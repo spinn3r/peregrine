@@ -1,4 +1,4 @@
-package maprunner;
+package maprunner.io;
 
 import java.io.*;
 import java.util.*;
@@ -12,7 +12,7 @@ import maprunner.io.*;
 /**
  * Read data from a partition from local storage.
  */
-public class PartitionReader {
+public class LocalPartitionReader {
 
     private String path = null;
 
@@ -27,9 +27,9 @@ public class PartitionReader {
 
     private Tuple t = null;
     
-    public PartitionReader( Partition partition,
-                            Host host, 
-                            String path ) throws IOException {
+    public LocalPartitionReader( Partition partition,
+                                 Host host, 
+                                 String path ) throws IOException {
 
         List<File> chunks = LocalPartition.getChunkFiles( partition, host, path );
 
