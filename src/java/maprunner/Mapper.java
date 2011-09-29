@@ -11,40 +11,6 @@ import maprunner.shuffle.*;
 
 public class Mapper extends BaseMapper {
 
-    public int nr_partitions = 0;
+    public void map( byte[] key, byte[] value ) {}
 
-    private long global_chunk_id = -1;
-    
-    public void init( int nr_partitions ) {
-        this.nr_partitions = nr_partitions;
-    }
-
-    public void map( byte[] key,
-                     byte[] value ) {}
-
-    public final void emit( byte[] key,
-                            byte[] value ) {
-
-        // TODO: the emit logic shouldn't go here ideally and should be moved to
-        // a dedicated class and the Mapper should be clean.
-
-        Partition target_partition = Config.route( key, nr_partitions, true );
-
-        MapOutputIndex mapOutputIndex = ShuffleManager.getMapOutputIndex( target_partition );
-        
-        mapOutputIndex.accept( global_chunk_id, key, value );
-        
-    }
-
-    public void setGlobalChunkId( long global_chunk_id ) {
-        this.global_chunk_id = global_chunk_id;
-    }
-    
-    /**
-     * Perform mapper cleanup.  close open files, etc.
-     */
-    public void cleanup( Partition partition ) {
-
-    }
-    
 }
