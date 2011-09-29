@@ -25,10 +25,10 @@ public class MapperCallable implements Callable {
     
     public MapperCallable( Partition partition,
                            Host host ,
-                           String path,
                            int nr_partitions,
                            int nr_replicas,
-                           Class mapper_clazz )
+                           Class mapper_clazz,
+                           String path )
         throws ExecutionException {
 
         this.partition = partition;

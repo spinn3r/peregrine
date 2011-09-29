@@ -1,23 +1,41 @@
 
 
+    mapOuterJoin( mapper, file0, file1, ... , fileN )
+    mapInnerJoin( mapper, file0, file1, ... , fileN )
+    mapFullOuterJoin( mapper, file0, file1, ... , fileN )
+
+    JoinMapper
+    
+- The mapGroup and mapOuterJoin are a bit more complicated to handle with
+  recovery but not the end of the world.
+    
+- we probably need to support some sort of inner and outer join syntax for
+  previous pagerank iterations:
+
+    http://en.wikipedia.org/wiki/Sort-merge_join
+
+    
+    
+
+
 - the controller should be able to send these messages:
 
 
-- controllerd:
-    - Inbound messages
-    
-       - CHUNK_WRITTEN partition:path:chunk_id
-       - MAP_COMPLETE partition:path:chunk_id
-       - REDUCE_COMPLETE partition
+    - controllerd:
+        - Inbound messages
+        
+           - CHUNK_WRITTEN partition:path:chunk_id
+           - MAP_COMPLETE partition:path:chunk_id
+           - REDUCE_COMPLETE partition
 
-    - Outbound messages
+        - Outbound messages
 
-        - MAP_EXECUTE partition:path:chunk_id
-        - REDUCE partition
+            - MAP_EXECUTE partition:path:chunk_id
+            - REDUCE partition
 
-- mapd:
-    - OUTBOUND MESSAGES
-        - APPEND partition:path
+    - mapd:
+        - OUTBOUND MESSAGES
+            - APPEND partition:path
        
 - Extract jobs should probably be written to disk FIRST (or buffered in memory)
   so that I can compute the checksums.

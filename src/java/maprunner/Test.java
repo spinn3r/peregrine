@@ -185,22 +185,39 @@ public class Test {
 
     private static ThreadLocal local = new ThreadLocalMessageDigest( "SHA1" );
 
+    public static void foo( byte[] value ) {
+        System.out.printf( "foo: reg\n" );
+    }
+
+    public static void foo( byte[]... values ) {
+        System.out.printf( "foo: varargs\n" );        
+
+        for( byte[] value : values ) {
+            System.out.printf( "value found\n" );
+        }
+
+    }
+
     public static void main( String[] args ) throws Exception {
 
-        Field field = sun.misc.Unsafe.class.getDeclaredField( "theUnsafe" );
-        
-        System.out.printf( "FIXME: %s\n", field );
-        field.setAccessible( true );
+        foo( new byte[0], new byte[0] , null , new byte[0] );
 
-        sun.misc.Unsafe unsafe = (sun.misc.Unsafe)field.get( null );
-
-        long ptr = unsafe.allocateMemory( 8 );
-
-        unsafe.setMemory( ptr, 8L , (byte)0 );
+        foo( new byte[0] );
         
-        //System.out.printf( "ptr: %,d\n", ptr );
+//         Field field = sun.misc.Unsafe.class.getDeclaredField( "theUnsafe" );
         
-        unsafe.putLong( (long)100, ptr );
+//         System.out.printf( "FIXME: %s\n", field );
+//         field.setAccessible( true );
+
+//         sun.misc.Unsafe unsafe = (sun.misc.Unsafe)field.get( null );
+
+//         long ptr = unsafe.allocateMemory( 8 );
+
+//         unsafe.setMemory( ptr, 8L , (byte)0 );
+        
+//         //System.out.printf( "ptr: %,d\n", ptr );
+        
+//         unsafe.putLong( (long)100, ptr );
         
         //sun.misc.Unsafe.getUnsafe();
         

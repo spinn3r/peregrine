@@ -27,7 +27,7 @@ public class Main {
 
         // I think a more ideal API would be Controller.exec( path, mapper, reducer );
         
-        Controller.map( path, NodeIndegreeJob.Map.class );
+        Controller.map( NodeIndegreeJob.Map.class, path );
         Controller.reduce( NodeIndegreeJob.Reduce.class );
         
     }

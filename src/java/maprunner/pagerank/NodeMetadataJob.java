@@ -25,16 +25,22 @@ public class NodeMetadataJob {
             // including a value to the 'dangling' graph and 'nonlinked_nodes'
             // using PartitionWriter so that we have data on ALL partitions and
             // it is backed up.
-            
-            HashSetValue value = new HashSetValue();
-            value.fromBytes( value_data );
-            
-            byte[] source = key_data;
 
-            for( byte[] target : value.getValues() ) {
-                emit( target, source );
-            }
-            
+            /*
+
+              int outdegree = count( value_data );
+
+              Tuple indegree_tuple = merge( "/pr/tmp/node_indegree", key_data );
+
+              int indegree = 0;
+              
+              if ( indegree_tuple != null )
+                  indegree = indegree_tuple.value;
+              
+              emit( key, {indegree, outdegree} );
+
+             */
+
         }
 
     }
@@ -43,8 +49,7 @@ public class NodeMetadataJob {
         
         public void reduce( byte[] key, List<byte[]> values ) {
 
-            int indegree = values.size();
-            emit( key, new IntValue( indegree ).toBytes() );
+            //emit( key, values );
             
         }
         

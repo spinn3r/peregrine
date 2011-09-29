@@ -16,7 +16,7 @@ public class Controller {
     /**
      * Run map jobs on all chunks on the given path.
      */
-    public static void map( String path, Class mapper ) throws Exception {
+    public static void map( Class mapper, String path ) throws Exception {
 
         //read the partitions and create jobs to be executed on given chunks
 
@@ -36,10 +36,10 @@ public class Controller {
 
                 Callable callable = new MapperCallable( part,
                                                         host,
-                                                        path,
                                                         nr_partitions,
                                                         nr_replicas,
-                                                        mapper );
+                                                        mapper,
+                                                        path );
 
                 callables.add( callable );
 
