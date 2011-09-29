@@ -195,11 +195,15 @@ class PartitionPriorityQueueEntry implements Comparable<PartitionPriorityQueueEn
 
     public int compareTo( PartitionPriorityQueueEntry p ) {
 
+        //FIXME: merge this with FileComparator so that they use the SAME code
+        //...  It's essentially the SAME algorithm.... this will remove bugs and
+        //limit the amount of code.
+        
         while( queue.key_offset < t.key.length ) {
 
             this.cmp = t.key[queue.key_offset] - p.t.key[queue.key_offset];
 
-            if ( this.cmp != 0 ) {
+            if ( this.cmp != 0 || queue.key_offset == t.key.length - 1 ) {
                 return this.cmp;
             }
 

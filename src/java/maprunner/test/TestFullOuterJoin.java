@@ -81,6 +81,9 @@ public class TestFullOuterJoin {
 
             boolean changed = ref == null || ( last != null && comparator.compare( last, ref ) != 0 );
 
+            if ( ref != null )
+                System.out.printf( "ref=%s cmp=%d\n", Hex.encode( ref.key ), comparator.cmp );
+            
             if ( changed ) {
 
                 // run the map job against this value.
@@ -167,26 +170,23 @@ class FileReference {
 class FileComparator implements Comparator<FileReference> {
 
     private int offset = 0;
+    public  int cmp;
 
-    public int cmp;
-    
-    public int compare( FileReference r1, FileReference r2) {
+    public int compare( FileReference r1, FileReference r2 ) {
 
         int key_length = r1.key.length;
         
-        while( offset < key_length ) {
+        for( ; offset < key_length ; ++offset ) {
 
-            this.cmp = r1.key[offset] - r2.key[offset];
+            cmp = r1.key[offset] - r2.key[offset];
 
-            if ( this.cmp != 0 || offset == key_length - 1 ) {
-                return this.cmp;
+            if ( cmp != 0 || offset == key_length - 1 ) {
+                return cmp;
             }
-
-            ++offset;
 
         }
         
-        return this.cmp;
+        return cmp;
 
     }
 
