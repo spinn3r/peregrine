@@ -16,10 +16,16 @@ import maprunner.io.*;
 
 public class Test3 {
 
-}
+    public static void main( String... args ) throws Exception {
 
-interface Foo {
+        PriorityQueue<Integer> queue = new PriorityQueue();
 
-    public void foo( byte[]... values );
-    
+        queue.add( 1 );
+        queue.add( 1 );
+
+        System.out.printf( "%s \n", queue.poll() );
+        System.out.printf( "%s \n", queue.poll() );
+        
+    }
+
 }

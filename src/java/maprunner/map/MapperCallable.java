@@ -65,16 +65,9 @@ public class MapperCallable implements Callable {
 
         for ( File file : chunks ) {
 
-            // all hosts in this partition have the same chunks but we only
-            // index the ones we are responsible for.
+            long global_chunk_id = partition_chunk_prefix + local_chunk_id;
             
-            if ( ( local_chunk_id % nr_replicas ) == host.getPartitionMemberId() ) {
-
-                long global_chunk_id = partition_chunk_prefix + local_chunk_id;
-
-                callMapperOnChunk( file, global_chunk_id, local_chunk_id );
-                
-            }
+            callMapperOnChunk( file, global_chunk_id, local_chunk_id );
 
             ++local_chunk_id;
 
