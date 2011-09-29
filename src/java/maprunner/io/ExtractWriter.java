@@ -1,8 +1,9 @@
-package maprunner;
+package maprunner.io;
 
 import java.io.*;
 import java.util.*;
 
+import maprunner.*;
 import maprunner.util.*;
 
 /**
@@ -42,7 +43,7 @@ public class ExtractWriter {
                 output.add( new LocalPartitionWriter( Config.getDFSPath( partition, member, path ) ) );
             }
 
-            PARTITION_OUTPUT[partition.id] = output;
+            PARTITION_OUTPUT[partition.getId()] = output;
             
         }
         
@@ -89,7 +90,7 @@ public class ExtractWriter {
                         byte[] value_bytes )
         throws IOException {
 
-        List<LocalPartitionWriter> output = (List<LocalPartitionWriter>) PARTITION_OUTPUT[partition.id];
+        List<LocalPartitionWriter> output = (List<LocalPartitionWriter>) PARTITION_OUTPUT[partition.getId()];
 
         //FIXME: the distributed version should parallel dispatch these and
         //write to the partitions directly.

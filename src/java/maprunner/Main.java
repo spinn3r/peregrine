@@ -4,6 +4,7 @@ import java.io.*;
 import java.util.*;
 import java.util.concurrent.*;
 
+import maprunner.io.*;
 import maprunner.keys.*;
 import maprunner.values.*;
 import maprunner.util.*;

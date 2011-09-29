@@ -1,8 +1,9 @@
-package maprunner;
+package maprunner.io;
 
 import java.io.*;
 import java.util.*;
 
+import maprunner.*;
 import maprunner.util.*;
 import maprunner.keys.*;
 import maprunner.values.*;

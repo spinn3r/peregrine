@@ -40,4 +40,21 @@ public class LocalPartition {
 
     }
 
+    public static List<ChunkReader> getChunkReaders( Partition part,
+                                                     Host host,
+                                                     String path )
+        throws IOException {
+    
+        List<File> chunks = LocalPartition.getChunkFiles( part, host, path );
+
+        List<ChunkReader> chunkReaders = new ArrayList();
+        
+        for( File chunk : chunks ) {
+            chunkReaders.add( new DefaultChunkReader( chunk ) );
+        }
+
+        return chunkReaders;
+        
+    }
+    
 }
