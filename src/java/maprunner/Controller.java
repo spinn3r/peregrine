@@ -18,32 +18,26 @@ public class Controller {
      */
     public static void map( Class mapper, String path ) throws Exception {
 
-        //read the partitions and create jobs to be executed on given chunks
-
         Map<Partition,List<Host>> partitionMembership = Config.getPartitionMembership();
-
-        List<Callable> callables = new ArrayList( partitionMembership.size() );
-
-        for ( Partition part : partitionMembership.keySet() ) {
-
-            List<Host> hosts = partitionMembership.get( part );
-
-            for( Host host : hosts ) {
-
-                Callable callable = new MapperCallable( partitionMembership,
-                                                        part,
-                                                        host,
-                                                        mapper,
-                                                        path );
-
-                callables.add( callable );
-
-            }
-            
-        }
-
-        waitFor( callables );
         
+        runCallables( new CallableFactory() {
+
+                public Callable newCallable( Map<Partition,List<Host>> partitionMembership,
+                                             Partition part,
+                                             Host host,
+                                             Class mapper,
+                                             String... path ) {
+
+                    return new MapperCallable( partitionMembership,
+                                               part,
+                                               host,
+                                               mapper,
+                                               path[0] );
+                    
+                }
+                
+            }, partitionMembership, mapper, path );
+
     }
 
     /**
@@ -79,7 +73,8 @@ public class Controller {
         
     }
 
-    private static void runCallables( Map<Partition,List<Host>> partitionMembership,
+    private static void runCallables( CallableFactory callableFactory,
+                                      Map<Partition,List<Host>> partitionMembership,
                                       Class mapper,
                                       String... path ) 
         throws InterruptedException, ExecutionException {
@@ -94,11 +89,11 @@ public class Controller {
 
             for( Host host : hosts ) {
 
-                Callable callable = new MapperCallable( partitionMembership,
-                                                        part,
-                                                        host,
-                                                        mapper,
-                                                        path[0] );
+                Callable callable = callableFactory.newCallable( partitionMembership,
+                                                                 part,
+                                                                 host,
+                                                                 mapper,
+                                                                 path );
 
                 callables.add( callable );
 
@@ -148,3 +143,12 @@ public class Controller {
     
 }
 
+interface CallableFactory {
+
+    public Callable newCallable( Map<Partition,List<Host>> partitionMembership,
+                                 Partition part,
+                                 Host host,
+                                 Class mapper,
+                                 String... path );
+
+}

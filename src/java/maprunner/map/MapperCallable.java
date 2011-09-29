@@ -26,8 +26,7 @@ public class MapperCallable implements Callable {
                            Partition partition,
                            Host host ,
                            Class mapper_clazz,
-                           String path )
-        throws ExecutionException {
+                           String path ) {
 
         this.partition      = partition;
         this.host           = host;
@@ -35,9 +34,16 @@ public class MapperCallable implements Callable {
         this.nr_partitions  = partitionMembership.size();
 
         try {
+
             this.mapper = (Mapper)mapper_clazz.newInstance();
+
         } catch ( Exception e ) {
-            throw new ExecutionException( e );
+
+            // this IS a runtime exeption because we have actually already
+            // instantiated the class, we just need another instance to use.
+
+            throw new RuntimeException( e );
+            
         }
         
     }
