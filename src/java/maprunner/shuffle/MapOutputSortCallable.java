@@ -44,16 +44,18 @@ public class MapOutputSortCallable implements Callable {
         //hinted pre-sorted approach which in some applications would be MUCH
         //faster for the reduce operation.
 
+        //FIXME: make this WHOLE thing testable externally ... 
+        
         this.reducer.init( mapOutputIndex.partition, this.path );
         
         Collection<MapOutputBuffer> mapOutputBuffers = mapOutputIndex.getMapOutput();
 
         List<ChunkReader> sorted = new ArrayList();
+
+        ChunkSorter sorter = new ChunkSorter();
         
         for ( MapOutputBuffer mapOutputBuffer : mapOutputBuffers ) {
-
-            sorted.add( new ChunkSorter().sort( mapOutputBuffer.getChunkReader() ) );
-            
+            sorted.add( sorter.sort( mapOutputBuffer.getChunkReader() ) );
         }
 
         final AtomicInteger nr_tuples = new AtomicInteger();

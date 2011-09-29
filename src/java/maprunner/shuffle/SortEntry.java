@@ -21,8 +21,6 @@ public final class SortEntry {
 
     private List<byte[]> values = new ArrayList();
 
-    public SortEntry() {}
-
     public SortEntry( byte[] key ) {
 
         //FIXME: this must be removed because it is not efficient.

@@ -233,7 +233,7 @@ public class Sorter {
                 miss = left;
             }
 
-            result.accept( cmp, hit.entry );
+            result.accept( hit.entry );
 
             // make sure to page in the next value.
             hit.next();
@@ -244,7 +244,7 @@ public class Sorter {
                 //entries in it... because we are now done.
 
                 while( ! miss.isExhausted() ) {
-                    result.accept( -1 , miss.entry );
+                    result.accept( miss.entry );
                     miss.next();
                 }
                 

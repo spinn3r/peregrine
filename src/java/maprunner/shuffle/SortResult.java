@@ -28,10 +28,22 @@ public class SortResult {
         this.writer = writer;
     }
 
-    public void accept( long cmp, SortEntry entry ) throws IOException {
+    public void accept( SortEntry entry ) throws IOException {
+
+        System.out.printf( "FIXME: emit accept thread=%s key=%s\n", Thread.currentThread().getId(), Hex.encode( entry.key ) );
+
+        FullKeyComparator comparator = new FullKeyComparator();
         
-        if ( last == null || last.cmp( entry ) != 0 ) {
+        if ( last == null || comparator.compare( last.key, entry.key ) != 0 ) {
+
+            if ( last != null )
+                System.out.printf( "FIXME: emit thread=%s last=%s vs entry=%s\n",
+                                   Thread.currentThread().getId(),
+                                   Hex.encode( last.key ),
+                                   Hex.encode( entry.key ) );
+
             emit( last );
+
             last = entry;
 
         } else {
@@ -53,6 +65,9 @@ public class SortResult {
             return;
         
         if ( listener != null ) {
+
+            System.out.printf( "FIXME: onFinalValue %s key=%s\n", Thread.currentThread().getId(), Hex.encode( entry.key ) );
+
             listener.onFinalValue( entry.key , entry.getValues() );
         }
 

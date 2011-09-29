@@ -109,7 +109,7 @@ public class ChunkMerger {
 
             ++tuples;
             
-            result.accept( entry.cmp, topLevelSortEntryFactory.newSortEntry( entry.t ) );
+            result.accept( topLevelSortEntryFactory.newSortEntry( entry.t ) );
 
         }
 
@@ -162,13 +162,15 @@ class PartitionPriorityQueue {
         if ( entry == null )
             return null;
 
+        System.out.printf( "FIXME: ChunkMerger %s key=%s\n", Thread.currentThread().getId(), Hex.encode( entry.t.key ) );
+
         this.result.t = entry.t;
         this.result.cmp = entry.cmp;
         
         Tuple t = entry.reader.read();
 
         if ( t != null ) {
-            // add this back in with the next value.. 
+            // add this back in with the next value.
             entry.t = t;
             add( entry );
         }

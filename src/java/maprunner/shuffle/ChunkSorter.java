@@ -26,8 +26,13 @@ public class ChunkSorter {
 
     private SortEntryFactory topLevelSortEntryFactory = new TopLevelSortEntryFactory();
 
+    //keeps track of the current input we're sorting.
+    private int id = -1;
+    
     public ChunkReader sort( ChunkReader input ) throws IOException {
 
+        ++id;
+        
         int size = input.size();
 
         Tuple[] data = new Tuple[size];
@@ -48,36 +53,17 @@ public class ChunkSorter {
             
         }
 
-        sort( data, dest , new Comparator<Tuple>() {
-
-                public int compare( Tuple t0, Tuple t1 ) {
-
-                    int len = t0.key.length;
-
-                    for( int offset = 0; offset < len; ++offset ) {
-
-                        int diff = t0.key[offset] - t1.key[offset];
-
-                        if ( diff != 0 )
-                            return diff;
-                        
-                    }
-
-                    //we go to the end and there were no differences ....
-                    return 0;
-                    
-                }
-                
-            } );
+        sort( data, dest , new FullTupleComparator() );
 
         TupleArrayChunkReader result = new TupleArrayChunkReader( dest );
 
         // TODO: this seems to add about 15-30% more CPU time to the job based
         // on my benchmarks.
 
-        //for( Tuple t : data ) {
-        //   writer.write( t.key, t.value );
-        //}
+        for( Tuple t : dest ) {
+            System.out.printf( "FIXME: ChunkSorter thread=%s id=%d key=%s\n",
+                               Thread.currentThread().getId(), id, Hex.encode( t.key ) );
+        }
 
         //writer.close();
         
@@ -107,8 +93,13 @@ public class ChunkSorter {
 
         int length = high - low;
 
-        if ( length <= 1 )
-            return;
+    	// Insertion sort on smallest arrays
+    	if (length < INSERTIONSORT_THRESHOLD) {
+    	    for (int i=low; i<high; i++)
+                for (int j=i; j>low && c.compare(dest[j-1], dest[j])>0; j--)
+                    swap(dest, j, j-1);
+    	    return;
+    	}
 
         // Recursively sort halves of dest into src
         int destLow  = low;
@@ -146,4 +137,3 @@ public class ChunkSorter {
     }
 
 }
-
