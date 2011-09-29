@@ -17,7 +17,7 @@ public class Main {
         // TRY with three partitions... 
         Config.addPartitionMembership( 0, "cpu0" );
         Config.addPartitionMembership( 1, "cpu1" );
-
+        
         String path = "/pr/test.graph";
         
         ExtractWriter writer = new ExtractWriter( path );
@@ -28,14 +28,19 @@ public class Main {
 
         // I think a more ideal API would be Controller.exec( path, mapper, reducer );
 
+        //FIXME: /pr/test.graph will NOT be sorted on input even though the
+        //values are unique.... on stage two we won't be able to join against
+        //it.
+        
         Controller.map( NodeIndegreeJob.Map.class, path );
         Controller.reduce( NodeIndegreeJob.Reduce.class, "/pr/tmp/node_indegree" );
 
         //now create node metadata...
 
-        Controller.mapWithFullOuterJoin( NodeMetadataJob.Map.class, "/pr/tmp/node_indegree", "/pr/test.graph" );
+//         Controller.mapWithFullOuterJoin( NodeMetadataJob.Map.class, "/pr/tmp/node_indegree", "/pr/test.graph" );
 
-        Controller.reduce( NodeMetadataJob.Reduce.class, "/pr/out/node_metadata" );
+//         //FIXME: hint about the fact that these keys are pre-sorted
+//         Controller.reduce( NodeMetadataJob.Reduce.class, "/pr/out/node_metadata" );
 
     }
 

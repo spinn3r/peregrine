@@ -26,8 +26,7 @@ public class ChunkSorter {
 
     private SortEntryFactory topLevelSortEntryFactory = new TopLevelSortEntryFactory();
 
-    public ChunkReader sort( ChunkReader input,
-                             ChunkWriter writer ) throws IOException {
+    public ChunkReader sort( ChunkReader input ) throws IOException {
 
         int size = input.size();
 
@@ -63,59 +62,21 @@ public class ChunkSorter {
 
                     //we go to the end and there were no differences ....
                     return 0;
-
-                    /*
-                    int diff;
-                    int offset =-1;
-
-                    ++offset;
-                    diff = t0.key[offset] - t1.key[offset];
-                    if ( diff != 0 ) return diff;
-
-                    ++offset;
-                    diff = t0.key[offset] - t1.key[offset];
-                    if ( diff != 0 ) return diff;
-
-                    ++offset;
-                    diff = t0.key[offset] - t1.key[offset];
-                    if ( diff != 0 ) return diff;
-
-                    ++offset;
-                    diff = t0.key[offset] - t1.key[offset];
-                    if ( diff != 0 ) return diff;
-
-                    ++offset;
-                    diff = t0.key[offset] - t1.key[offset];
-                    if ( diff != 0 ) return diff;
-
-                    ++offset;
-                    diff = t0.key[offset] - t1.key[offset];
-                    if ( diff != 0 ) return diff;
-
-                    ++offset;
-                    diff = t0.key[offset] - t1.key[offset];
-                    if ( diff != 0 ) return diff;
-
-                    ++offset;
-                    diff = t0.key[offset] - t1.key[offset];
-                    return diff;
-                    */
                     
                 }
                 
             } );
 
-        //TupleListChunkReader result = new TupleListChunkReader( list );
-        TupleListChunkReader result = null;
+        TupleArrayChunkReader result = new TupleArrayChunkReader( dest );
 
-        // FIXME: this seems to add about 15-30% more CPU time to the job based
+        // TODO: this seems to add about 15-30% more CPU time to the job based
         // on my benchmarks.
 
-        for( Tuple t : data ) {
-           writer.write( t.key, t.value );
-        }
+        //for( Tuple t : data ) {
+        //   writer.write( t.key, t.value );
+        //}
 
-        writer.close();
+        //writer.close();
         
         return result;
         

@@ -33,6 +33,8 @@ public class NodeIndegreeJob {
         
         public void reduce( byte[] key, List<byte[]> values ) {
 
+            System.out.printf( "FIXME: %s\n", Hex.encode( key ) );
+            
             int indegree = values.size();
             emit( key, new IntValue( indegree ).toBytes() );
             

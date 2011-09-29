@@ -41,7 +41,8 @@ public class MapOutputSortCallable implements Callable {
     public Object call() throws Exception {
 
         //FIXME: this implements the DEFAULT sort everything approach not the
-        //hinted pre-sorted approach.
+        //hinted pre-sorted approach which in some applications would be MUCH
+        //faster for the reduce operation.
 
         this.reducer.init( mapOutputIndex.partition, this.path );
         
@@ -51,7 +52,7 @@ public class MapOutputSortCallable implements Callable {
         
         for ( MapOutputBuffer mapOutputBuffer : mapOutputBuffers ) {
 
-            sorted.add( new Sorter().sort( mapOutputBuffer.getChunkReader() ) );
+            sorted.add( new ChunkSorter().sort( mapOutputBuffer.getChunkReader() ) );
             
         }
 
@@ -67,11 +68,6 @@ public class MapOutputSortCallable implements Callable {
             } );
 
         merger.merge( sorted );
-        
-        //FIXME refactor: this needs to back in but using the new ChunkReader /
-        //ChunkWriter sort mechanism
-
-        //SortRecord[] sorted = sorter.sort( arrays );
 
         System.out.printf( "Sorted %,d entries for partition %s \n", nr_tuples.get() , mapOutputIndex.partition );
 
