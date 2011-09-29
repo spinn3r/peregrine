@@ -74,10 +74,8 @@ public class ExternalStorageSortPerf {
         
         DiskPerf.sync();
         DiskPerf.dropCaches();
-        
-        LocalPartitionReader partitionReader = new LocalPartitionReader( part, host, path );
 
-        List<ChunkReader> readers = partitionReader.getChunkReaders();
+        List<ChunkReader> readers = LocalPartition.getChunkReaders( part, host, path );
 
         System.out.printf( "Working with %,d chunks." , readers.size() );
 

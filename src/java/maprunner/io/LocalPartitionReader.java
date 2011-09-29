@@ -31,23 +31,11 @@ public class LocalPartitionReader {
                                  Host host, 
                                  String path ) throws IOException {
 
-        List<File> chunks = LocalPartition.getChunkFiles( partition, host, path );
-
-        for( File chunk : chunks ) {
-            chunkReaders.add( new DefaultChunkReader( chunk ) );
-        }
-
-        iterator = chunkReaders.iterator();
+        this.chunkReaders = LocalPartition.getChunkReaders( partition, host, path );
+        this.iterator = chunkReaders.iterator();
         
     }
 
-    /**
-     * Used for clients that want to read from chunks directly.
-     */
-    public List<ChunkReader> getChunkReaders() {
-        return chunkReaders;
-    }
-    
     public Tuple read() throws IOException {
 
         if ( chunkReader != null )

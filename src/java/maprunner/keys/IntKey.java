@@ -13,13 +13,13 @@ public class IntKey extends BaseKey {
     public IntKey() {}
     
     public IntKey( int value ) {
-        super( IntBytes.toByteArray( value ) );
+        super( LongBytes.toByteArray( value ) );
         this.value = value;
     }
 
     public IntKey( byte[] value ) {
         super( value );
-        this.value = IntBytes.toInt( value );
+        this.value = (int)LongBytes.toLong( value );
     }
 
     public String toString() {
