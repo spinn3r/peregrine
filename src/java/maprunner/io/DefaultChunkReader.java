@@ -56,7 +56,7 @@ public class DefaultChunkReader implements ChunkReader {
         byte[] size_bytes = new byte[ SIZE_BYTE_ARRAY_LENGTH ];
         raf.read( size_bytes );
 
-        this.size = IntBytes.toInt( size_bytes );
+        setSize( IntBytes.toInt( size_bytes ) );
 
         raf.close();
         
@@ -70,10 +70,19 @@ public class DefaultChunkReader implements ChunkReader {
         byte[] size_bytes = new byte[ SIZE_BYTE_ARRAY_LENGTH ];
         System.arraycopy( data, data.length - SIZE_BYTE_ARRAY_LENGTH, size_bytes, 0, SIZE_BYTE_ARRAY_LENGTH );
 
-        this.size = IntBytes.toInt( size_bytes );
+        setSize( IntBytes.toInt( size_bytes ) );
 
         this.input = new TrackedInputStream( new ByteArrayInputStream( data ) );
         
+    }
+
+    private void setSize( int size ) throws IOException {
+
+        if ( size < 0 ) {
+            throw new IOException( "Invalid size: " + size );
+        }
+        
+        this.size = size;
     }
 
     public Tuple read() throws IOException {

@@ -92,7 +92,7 @@ public class ExternalStorageSortPerf {
             
             ChunkWriter writer = new ChunkWriter( chunk_path );
             
-            sorter.sort( reader, writer );
+            sorter.sort( reader );
 
             sortedReaders.add( new DefaultChunkReader( chunk_path ) );
             

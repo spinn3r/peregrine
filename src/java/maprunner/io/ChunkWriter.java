@@ -28,6 +28,8 @@ public class ChunkWriter {
     private int size = 0;
 
     protected long length = 0;
+
+    private boolean closed = false;
     
     public ChunkWriter( String path ) throws IOException {
         this.path = path;
@@ -62,10 +64,15 @@ public class ChunkWriter {
     }
     
     public void close() throws IOException {
-        
+
+        if ( closed )
+            return;
+
         // last four bytes store the number of items.
         out.write( IntBytes.toByteArray( size ) );
         out.close();
+
+        closed = true;
         
     }
     

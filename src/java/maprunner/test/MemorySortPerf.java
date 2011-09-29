@@ -59,7 +59,7 @@ public class MemorySortPerf {
         
         before = System.currentTimeMillis();
 
-        sorter.sort( reader, writer );
+        sorter.sort( reader );
 
         System.gc();
 
