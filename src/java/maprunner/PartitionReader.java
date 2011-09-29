@@ -31,14 +31,9 @@ public class PartitionReader {
                             Host host, 
                             String path ) throws IOException {
 
-        String dir = Config.getDFSPath( partition, host, path );
+        List<File> chunks = LocalPartition.getChunkFiles( partition, host, path );
 
-        // FIXME: unify chunk iteration...
-
-        for( int i = 0; i < Integer.MAX_VALUE; ++i ) {
-
-            String name = LocalPartitionWriter.getFilenameForChunk( i );
-            File chunk = new File( dir, name );
+        for( File chunk : chunks ) {
 
             if ( chunk.exists() ) {
                 chunkReaders.add( new DefaultChunkReader( chunk ) );

@@ -32,7 +32,7 @@ public class Filesystem {
                     
                     for( int i = 0; i < Integer.MAX_VALUE; ++i ) {
 
-                        String name = LocalPartitionWriter.getFilenameForChunk( i );
+                        String name = LocalPartition.getFilenameForChunkID( i );
                         String dir = Config.getDFSPath( part, host, path );
                         File chunk = new File( dir, name );
 
@@ -103,7 +103,7 @@ public class Filesystem {
 
                     if ( file.exists() ) {
                         
-                        File chunk = new File( file, LocalPartitionWriter.getFilenameForChunk( 0 ) );
+                        File chunk = new File( file, LocalPartition.getFilenameForChunkID( 0 ) );
                         
                         if ( chunk.exists() ) {
                             System.out.printf( " is file\n" );
@@ -137,7 +137,7 @@ public class Filesystem {
 
                     for( int i = 0; i < Integer.MAX_VALUE; ++i ) {
 
-                        String name = LocalPartitionWriter.getFilenameForChunk( i );
+                        String name = LocalPartition.getFilenameForChunkID( i );
                         String dir = Config.getDFSPath( part, host, path );
                         File chunk = new File( dir, name );
 

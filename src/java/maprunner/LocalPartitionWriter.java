@@ -6,6 +6,7 @@ import java.util.*;
 import maprunner.util.*;
 import maprunner.keys.*;
 import maprunner.values.*;
+import maprunner.io.*;
 
 /**
  * Write to a logical partition which is a stream of chunk files.... 
@@ -50,7 +51,7 @@ public class LocalPartitionWriter {
         if ( out != null )
             out.close();
         
-        String chunk_path = String.format( "%s/%s" , this.path, getFilenameForChunk( this.chunk_id ) );
+        String chunk_path = String.format( "%s/%s" , this.path, LocalPartition.getFilenameForChunkID( this.chunk_id ) );
 
         out = new ChunkWriter( chunk_path );
         
@@ -65,10 +66,6 @@ public class LocalPartitionWriter {
 
     public String toString() {
         return path;
-    }
-
-    public static String getFilenameForChunk( int local_chunk_id ) {
-        return String.format( "chunk%06d.dat" , local_chunk_id );
     }
     
 }
