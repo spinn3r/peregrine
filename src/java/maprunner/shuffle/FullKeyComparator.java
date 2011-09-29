@@ -14,6 +14,13 @@ import maprunner.io.*;
 
 public class FullKeyComparator implements Comparator<byte[]> {
 
+
+    /**
+     * Compares its two arguments for order. Returns a negative integer, zero,
+     * or a positive integer as the first argument is less than, equal to, or
+     * greater than the second.
+     * 
+     */
     public int compare( byte[] k0, byte[] k1 ) {
 
         int len = k0.length;

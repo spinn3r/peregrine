@@ -200,9 +200,24 @@ public class Test {
 
     public static void main( String[] args ) throws Exception {
 
-        foo( new byte[0], new byte[0] , null , new byte[0] );
+        byte t = -1;
 
-        foo( new byte[0] );
+        int t2 = (int)t + 128;
+
+        System.out.printf( "FIXME: %d\n", t2 );
+
+        for ( int i = -128; i <= 127; ++i ) {
+            byte[] test = new byte[1];
+            
+            test[0] = (byte)i;
+
+            System.out.printf( "%03d=%s\n", i , Hex.encode( test ) );
+
+        }
+
+//         foo( new byte[0], new byte[0] , null , new byte[0] );
+
+//         foo( new byte[0] );
         
 //         Field field = sun.misc.Unsafe.class.getDeclaredField( "theUnsafe" );
         

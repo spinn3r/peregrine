@@ -13,7 +13,9 @@ public class Hex {
         
         for( byte b : input ) {
 
-            buff.append( String.format( "%02x ", b ) );
+            int i = b + 128;
+
+            buff.append( String.format( "%02x ", i ) );
 
         }
 

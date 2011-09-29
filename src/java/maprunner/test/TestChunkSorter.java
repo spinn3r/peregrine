@@ -34,7 +34,7 @@ public class TestChunkSorter {
             if ( t == null )
                 break;
 
-            System.out.printf( "." );
+            System.out.printf( "READ: %s\n", Hex.encode( t.key ) );
             
             if ( last != null && comparator.compare( last, t ) > 0 )
                 throw new RuntimeException();
@@ -88,7 +88,7 @@ public class TestChunkSorter {
 
             long val = input[i];
             
-            byte[] hash = LongBytes.toByteArray( (long) val );
+            byte[] hash = Hashcode.getHashcode( "" + val );
             
             System.out.printf( "%d encodes as: %s\n", val, Hex.encode( hash ) );
             
