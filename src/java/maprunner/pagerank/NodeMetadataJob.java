@@ -11,36 +11,37 @@ import maprunner.util.*;
 
 public class NodeMetadataJob {
 
-    public static class Map extends Mapper {
+    public static class Map extends JoinMapper {
 
-        public void map( byte[] key_data,
-                         byte[] value_data ) {
+        public void map( byte[] key,
+                         byte[]... values ) {
 
-            // the node_indegree table should be written at this point and we
-            // will need to join against it and then emit
-            //
-            // key, indegree, outdegree
-            //
-            // the reducer will need to also write some values ot the local disk
-            // including a value to the 'dangling' graph and 'nonlinked_nodes'
-            // using PartitionWriter so that we have data on ALL partitions and
-            // it is backed up.
+            // left should be node_indegree , right should be the graph... 
 
-            /*
+            int indegree  = 0;
+            int outdegree = 0;
+            
+            if ( values[0] != null ) {
+                indegree = new IntValue( values[0] ).value;
+            }
 
-              int outdegree = count( value_data );
+            if ( values[1] != null ) {
 
-              Tuple indegree_tuple = merge( "/pr/tmp/node_indegree", key_data );
+                HashSetValue set = new HashSetValue();
+                set.fromBytes( values[1] );
 
-              int indegree = 0;
-              
-              if ( indegree_tuple != null )
-                  indegree = indegree_tuple.value;
-              
-              emit( key, {indegree, outdegree} );
+                outdegree = set.size();
 
-             */
+            }
 
+            // now emit key, [indegree, outdegree]
+
+            ByteArrayListValue result = new ByteArrayListValue();
+            result.addValue( new IntValue( indegree ) );
+            result.addValue( new IntValue( outdegree ) );
+            
+            emit( key, result.toBytes() );
+            
         }
 
     }
@@ -49,7 +50,8 @@ public class NodeMetadataJob {
         
         public void reduce( byte[] key, List<byte[]> values ) {
 
-            //emit( key, values );
+            // not much to do here...
+            emit( key, values.get( 0 ) );
             
         }
         

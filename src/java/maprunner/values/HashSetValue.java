@@ -30,6 +30,10 @@ public class HashSetValue implements Value {
         return values;
     }
 
+    public int size() {
+        return values.size();
+    }
+    
     public byte[] toBytes() {
 
         try {

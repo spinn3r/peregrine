@@ -1,4 +1,10 @@
 
+- IntValue should be efficient and maybe even use a VarInt ... right now it
+  always uses 4 bytes which is hella lame.
+
+- MapOutputSortCallable should become MapOutputReducer or something ... not
+  EVERYTHING needs to be called *Callable.
+
 
 - What happens if a priority queue has TWO of the same item in it?
 

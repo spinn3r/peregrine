@@ -29,8 +29,14 @@ public class Main {
         // I think a more ideal API would be Controller.exec( path, mapper, reducer );
         
         Controller.map( NodeIndegreeJob.Map.class, path );
-        Controller.reduce( NodeIndegreeJob.Reduce.class );
-        
+        Controller.reduce( NodeIndegreeJob.Reduce.class, "/pr/tmp/node_indegree" );
+
+        //now create node metadata...
+
+        Controller.mapWithFullOuterJoin( NodeMetadataJob.Map.class, "/pr/tmp/node_indegree", "/pr/test.graph" );
+
+        Controller.reduce( NodeMetadataJob.Reduce.class, "/pr/out/node_metadata" );
+
     }
 
     public static void buildRandomGraph( ExtractWriter writer,

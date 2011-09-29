@@ -74,7 +74,7 @@ public class Controller {
 
     }
         
-    public static void reduce( Class reducer ) 
+    public static void reduce( Class reducer, String path ) 
         throws InterruptedException, ExecutionException {
 
         Map<Partition,List<Host>> partitionMembership = Config.getPartitionMembership();
@@ -85,7 +85,7 @@ public class Controller {
 
         for( MapOutputIndex mapOutputIndex : mapOutputIndexes ) {
                                                        
-            callables.add( new MapOutputSortCallable( mapOutputIndex, reducer ) );
+            callables.add( new MapOutputSortCallable( mapOutputIndex, reducer, path ) );
 
         }
 

@@ -22,6 +22,10 @@ public class ByteArrayListValue implements Value {
         fromBytes( data );
     }
 
+    public void addValue( Value value ) {
+        addValue( value.toBytes() );
+    }
+
     public void addValue( byte[] value ) {
         values.add( value );
     }
