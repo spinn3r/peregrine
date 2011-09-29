@@ -41,8 +41,11 @@ public class ChunkSorter {
             if ( t == null )
                 break;
 
-            data[idx++] = t;
+            data[idx] = t;
+            dest[idx] = t;
 
+            ++idx;
+            
         }
 
         sort( data, dest , new Comparator<Tuple>() {
