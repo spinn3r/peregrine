@@ -16,7 +16,7 @@ import maprunner.keys.*;
  */
 public class TestFullOuterJoin {
 
-    public static void test( String[] args ) throws Exception {
+    public static void main( String[] args ) throws Exception {
 
         //write keys to two files but where there isn't a 100%
         //intersection... then try to join against these files. 
@@ -57,14 +57,28 @@ public class TestFullOuterJoin {
         files.add( "/tmp/left" );
         files.add( "/tmp/right" );
 
+        FilePriorityQueue queue = new FilePriorityQueue();
+        
         int id = 0;
         for( String file : files ) {
 
             LocalPartitionReader reader = new LocalPartitionReader( part, host, file );
             
             FileReference ref = new FileReference( id, reader );
+            queue.add( ref );
             
             ++id;
+            
+        }
+
+        while( true ) {
+
+            FileReference ref = queue.poll();
+
+            if ( ref == null )
+                break;
+
+            System.out.printf( "%s\n", Hex.encode( ref.key ) );
             
         }
         
@@ -83,7 +97,7 @@ public class TestFullOuterJoin {
 
 class FilePriorityQueue {
 
-    private PriorityQueue<FileReference> delegate = new PriorityQueue();
+    private PriorityQueue<FileReference> delegate = new PriorityQueue( 10, new FileComparator() );
     
     public void add( FileReference ref ) throws IOException {
 
@@ -102,6 +116,9 @@ class FilePriorityQueue {
 
         FileReference poll = delegate.poll();
 
+        if ( poll == null )
+            return null;
+        
         FileReference result = new FileReference( poll.id, poll.key );
         
         add( poll );
@@ -143,6 +160,8 @@ class FileComparator implements Comparator<FileReference> {
             if ( cmp != 0 ) {
                 return cmp;
             }
+
+            ++offset;
 
         }
 
