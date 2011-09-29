@@ -33,21 +33,21 @@ public class TestFullOuterJoin {
 
         writer = new PartitionWriter( part, "/tmp/left" );
 
-        write( writer, 0 );
         write( writer, 1 );
         write( writer, 2 );
         write( writer, 3 );
         write( writer, 4 );
+        write( writer, 5 );
 
         writer.close();
 
         writer = new PartitionWriter( part, "/tmp/right" );
 
-        write( writer, 3 );
         write( writer, 4 );
         write( writer, 5 );
         write( writer, 6 );
         write( writer, 7 );
+        write( writer, 8 );
 
         writer.close();
 
@@ -71,14 +71,31 @@ public class TestFullOuterJoin {
             
         }
 
+        FileReference last = null;
+        FileComparator comparator = new FileComparator();
+        byte[][] joined = new byte[2][];
+        
         while( true ) {
 
             FileReference ref = queue.poll();
 
+            boolean changed = ref == null || ( last != null && comparator.compare( last, ref ) != 0 );
+
+            if ( changed ) {
+
+                // run the map job against this value.
+                System.out.printf( "0=%s, 1=%s\n", Hex.encode( joined[0] ), Hex.encode( joined[1] ) );
+
+                joined = new byte[2][];
+
+            }
+
             if ( ref == null )
                 break;
 
-            System.out.printf( "%s\n", Hex.encode( ref.key ) );
+            joined[ref.id] = ref.key;
+
+            last = ref;
             
         }
         
@@ -150,22 +167,26 @@ class FileReference {
 class FileComparator implements Comparator<FileReference> {
 
     private int offset = 0;
+
+    public int cmp;
     
     public int compare( FileReference r1, FileReference r2) {
 
-        while( offset < r1.key.length ) {
+        int key_length = r1.key.length;
+        
+        while( offset < key_length ) {
 
-            int cmp = r1.key[offset] - r2.key[offset];
+            this.cmp = r1.key[offset] - r2.key[offset];
 
-            if ( cmp != 0 ) {
-                return cmp;
+            if ( this.cmp != 0 || offset == key_length - 1 ) {
+                return this.cmp;
             }
 
             ++offset;
 
         }
-
-        return 0;
+        
+        return this.cmp;
 
     }
 
