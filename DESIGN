@@ -36,7 +36,9 @@
     - mapd:
         - OUTBOUND MESSAGES
             - APPEND partition:path
-       
+
+    - we're going to need filesystem commands like stat() which then report back chunk stats.
+            
 - Extract jobs should probably be written to disk FIRST (or buffered in memory)
   so that I can compute the checksums.
 

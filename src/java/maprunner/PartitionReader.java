@@ -33,7 +33,8 @@ public class PartitionReader {
 
         String dir = Config.getDFSPath( partition, host, path );
 
-        // discover all chunks...  
+        // FIXME: unify chunk iteration...
+
         for( int i = 0; i < Integer.MAX_VALUE; ++i ) {
 
             String name = LocalPartitionWriter.getFilenameForChunk( i );

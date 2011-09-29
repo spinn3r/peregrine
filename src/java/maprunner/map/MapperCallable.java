@@ -51,11 +51,7 @@ public class MapperCallable implements Callable {
 
         System.out.printf( "Running map jobs on host: %s\n", host );
 
-        String chunk_path = Config.getDFSPath( partition, host, path );
-
-        File chunk_dir = new File( chunk_path ) ;
-
-        File[] files = chunk_dir.listFiles();
+        List<File> chunks = LocalPartition.getChunkFiles( partition, host, path );
 
         // NOTE: there are two ways to compute the partition_chunk_prefix ... we
         // could simply shift host ID 32 bits but then the printed form of the
@@ -67,13 +63,7 @@ public class MapperCallable implements Callable {
         
         int local_chunk_id = 0;
 
-        for ( File file : files ) {
-
-            if ( file.isDirectory() )
-                continue;
-
-            if ( ! file.getName().startsWith( "chunk" ) )
-                continue;
+        for ( File file : chunks ) {
 
             // all hosts in this partition have the same chunks but we only
             // index the ones we are responsible for.

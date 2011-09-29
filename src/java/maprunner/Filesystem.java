@@ -28,6 +28,8 @@ public class Filesystem {
 
                 public boolean onPartition( Partition part, Host host ) throws Exception {
 
+                    // FIXME: unify chunk iteration...
+                    
                     for( int i = 0; i < Integer.MAX_VALUE; ++i ) {
 
                         String name = LocalPartitionWriter.getFilenameForChunk( i );
@@ -129,7 +131,8 @@ public class Filesystem {
         forPartitions( new PartitionListener() {
 
                 //FIXME: migrate this to PartitionReader I think... 
-                
+                // FIXME: unify chunk iteration...
+            
                 public boolean onPartition( Partition part, Host host ) throws Exception {
 
                     for( int i = 0; i < Integer.MAX_VALUE; ++i ) {
