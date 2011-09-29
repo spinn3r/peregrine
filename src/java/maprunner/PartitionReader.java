@@ -34,13 +34,7 @@ public class PartitionReader {
         List<File> chunks = LocalPartition.getChunkFiles( partition, host, path );
 
         for( File chunk : chunks ) {
-
-            if ( chunk.exists() ) {
-                chunkReaders.add( new DefaultChunkReader( chunk ) );
-            } else {
-                break;
-            }
-                
+            chunkReaders.add( new DefaultChunkReader( chunk ) );
         }
 
         iterator = chunkReaders.iterator();
