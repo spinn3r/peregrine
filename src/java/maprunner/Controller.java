@@ -52,6 +52,28 @@ public class Controller {
      */
     public static void mapWithFullOuterJoin( Class mapper, String... path ) throws Exception {
 
+        Map<Partition,List<Host>> partitionMembership = Config.getPartitionMembership();
+        
+        runCallables( new CallableFactory() {
+
+                public Callable newCallable( Map<Partition,List<Host>> partitionMembership,
+                                             Partition part,
+                                             Host host,
+                                             Class mapper,
+                                             String... path ) {
+
+                    return new MapperCallable( partitionMembership,
+                                               part,
+                                               host,
+                                               mapper,
+                                               path[0] );
+                    
+                }
+                
+            }, partitionMembership, mapper, path );
+
+    }
+        
     }
         
     public static void reduce( Class reducer ) 
