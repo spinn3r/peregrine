@@ -63,12 +63,12 @@ public class FullOuterJoinMapperCallable implements Callable {
 
         while( true ) {
 
-            byte[][] value = joiner.next();
+            JoinedTuple joined = joiner.next();
 
-            if ( value == null )
+            if ( joined == null )
                 break;
 
-            mapper.map( new byte[0], value );
+            mapper.map( joined.key, joined.values );
             
         }
 
