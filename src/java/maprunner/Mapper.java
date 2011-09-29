@@ -22,8 +22,8 @@ public class Mapper {
     public void map( byte[] key,
                      byte[] value ) {}
 
-    public void emit( byte[] key,
-                      byte[] value ) {
+    public final void emit( byte[] key,
+                            byte[] value ) {
 
         // TODO: the emit logic shouldn't go here ideally and should be moved to
         // a dedicated class and the Mapper should be clean.

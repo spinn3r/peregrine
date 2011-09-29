@@ -81,9 +81,6 @@ public class TestFullOuterJoin {
 
             boolean changed = ref == null || ( last != null && comparator.compare( last, ref ) != 0 );
 
-            if ( ref != null )
-                System.out.printf( "ref=%s cmp=%d\n", Hex.encode( ref.key ), comparator.cmp );
-            
             if ( changed ) {
 
                 // run the map job against this value.

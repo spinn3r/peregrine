@@ -24,20 +24,15 @@ public class Controller {
 
         List<Callable> callables = new ArrayList( partitionMembership.size() );
 
-        int nr_partitions = partitionMembership.size();
-        
         for ( Partition part : partitionMembership.keySet() ) {
 
             List<Host> hosts = partitionMembership.get( part );
 
-            int nr_replicas = hosts.size();
-
             for( Host host : hosts ) {
 
-                Callable callable = new MapperCallable( part,
+                Callable callable = new MapperCallable( partitionMembership,
+                                                        part,
                                                         host,
-                                                        nr_partitions,
-                                                        nr_replicas,
                                                         mapper,
                                                         path );
 
@@ -51,6 +46,20 @@ public class Controller {
         
     }
 
+    /**
+     * http://en.wikipedia.org/wiki/Join_(SQL)#Full_outer_join
+     * 
+     * Conceptually, a full outer join combines the effect of applying both left
+     * and right outer joins. Where records in the FULL OUTER JOINed tables do not
+     * match, the result set will have NULL values for every column of the table
+     * that lacks a matching row. For those records that do match, a single row
+     * will be produced in the result set (containing fields populated from both
+     * tables)
+     */
+    public static void mapWithFullOuterJoin( Class mapper, String... path ) throws Exception {
+
+    }
+        
     public static void reduce( Class reducer ) 
         throws InterruptedException, ExecutionException {
 
@@ -70,6 +79,37 @@ public class Controller {
         
     }
 
+    private static void runCallables( Map<Partition,List<Host>> partitionMembership,
+                                      Class mapper,
+                                      String... path ) 
+        throws InterruptedException, ExecutionException {
+
+        List<Callable> callables = new ArrayList( partitionMembership.size() );
+
+        int nr_partitions = partitionMembership.size();
+        
+        for ( Partition part : partitionMembership.keySet() ) {
+
+            List<Host> hosts = partitionMembership.get( part );
+
+            for( Host host : hosts ) {
+
+                Callable callable = new MapperCallable( partitionMembership,
+                                                        part,
+                                                        host,
+                                                        mapper,
+                                                        path[0] );
+
+                callables.add( callable );
+
+            }
+            
+        }
+
+        waitFor( callables );
+
+    }
+                                 
     private static void waitFor( List<Callable> callables )
         throws InterruptedException, ExecutionException {
 

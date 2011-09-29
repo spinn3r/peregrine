@@ -19,23 +19,20 @@ public class MapperCallable implements Callable {
     private Host host;
     private String path;
     private int nr_partitions;
-    private int nr_replicas;
     
     final private Mapper mapper;
     
-    public MapperCallable( Partition partition,
+    public MapperCallable( Map<Partition,List<Host>> partitionMembership,
+                           Partition partition,
                            Host host ,
-                           int nr_partitions,
-                           int nr_replicas,
                            Class mapper_clazz,
                            String path )
         throws ExecutionException {
 
-        this.partition = partition;
-        this.host = host;
-        this.path = path;
-        this.nr_partitions = nr_partitions;
-        this.nr_replicas = nr_replicas;
+        this.partition      = partition;
+        this.host           = host;
+        this.path           = path;
+        this.nr_partitions  = partitionMembership.size();
 
         try {
             this.mapper = (Mapper)mapper_clazz.newInstance();
