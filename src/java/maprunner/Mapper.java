@@ -9,7 +9,7 @@ import maprunner.values.*;
 import maprunner.util.*;
 import maprunner.shuffle.*;
 
-public class Mapper {
+public class Mapper extends BaseMapper {
 
     public int nr_partitions = 0;
 

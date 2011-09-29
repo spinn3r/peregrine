@@ -62,18 +62,16 @@ public class Controller {
                                              Class mapper,
                                              String... path ) {
 
-                    return new MapperCallable( partitionMembership,
-                                               part,
-                                               host,
-                                               mapper,
-                                               path[0] );
+                    return new FullOuterJoinMapperCallable( partitionMembership,
+                                                            part,
+                                                            host,
+                                                            mapper,
+                                                            path );
                     
                 }
                 
             }, partitionMembership, mapper, path );
 
-    }
-        
     }
         
     public static void reduce( Class reducer ) 
