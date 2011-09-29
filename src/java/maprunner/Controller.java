@@ -18,6 +18,8 @@ public class Controller {
      */
     public static void map( Class mapper, String path ) throws Exception {
 
+        System.out.printf( "Starting mapper: %s\n", mapper.getName() );
+
         Map<Partition,List<Host>> partitionMembership = Config.getPartitionMembership();
         
         runCallables( new CallableFactory() {
@@ -38,6 +40,8 @@ public class Controller {
                 
             }, partitionMembership, mapper, path );
 
+        System.out.printf( "Finished mapper: %s\n", mapper.getName() );
+
     }
 
     /**
@@ -51,6 +55,8 @@ public class Controller {
      * tables)
      */
     public static void mapWithFullOuterJoin( Class mapper, String... path ) throws Exception {
+
+        System.out.printf( "Starting mapper: %s\n", mapper.getName() );
 
         Map<Partition,List<Host>> partitionMembership = Config.getPartitionMembership();
         
@@ -72,10 +78,14 @@ public class Controller {
                 
             }, partitionMembership, mapper, path );
 
+        System.out.printf( "Finished mapper: %s\n", mapper.getName() );
+
     }
         
     public static void reduce( Class reducer, String path ) 
         throws InterruptedException, ExecutionException {
+
+        System.out.printf( "Starting reducer: %s\n", reducer.getName() );
 
         Map<Partition,List<Host>> partitionMembership = Config.getPartitionMembership();
 
@@ -90,6 +100,8 @@ public class Controller {
         }
 
         waitFor( callables );
+
+        System.out.printf( "Finished reducer: %s\n", reducer.getName() );
         
     }
 

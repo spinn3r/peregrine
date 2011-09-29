@@ -17,7 +17,7 @@ public class Hex {
 
         }
 
-        return buff.toString();
+        return buff.toString().trim();
         
     }
     

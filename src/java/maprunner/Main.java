@@ -27,7 +27,7 @@ public class Main {
         writer.close();
 
         // I think a more ideal API would be Controller.exec( path, mapper, reducer );
-        
+
         Controller.map( NodeIndegreeJob.Map.class, path );
         Controller.reduce( NodeIndegreeJob.Reduce.class, "/pr/tmp/node_indegree" );
 

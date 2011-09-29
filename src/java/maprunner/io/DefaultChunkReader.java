@@ -131,6 +131,19 @@ public class DefaultChunkReader implements ChunkReader {
 
     public static void main( String[] args ) throws IOException {
 
+        ChunkReader reader = new DefaultChunkReader( args[0] );
+
+        while( true ) {
+
+            Tuple t = reader.read();
+
+            if ( t == null )
+                break;
+
+            System.out.printf( "%s = %s\n", Hex.encode( t.key ), Hex.encode( t.value ) );
+
+        }
+        
     }
     
 }
