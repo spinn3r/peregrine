@@ -21,7 +21,7 @@ public class TestChunkSorter {
      */
     public void test1() throws Exception {
 
-        ChunkReader reader = _test( makeRandomSortChunk( 200 ) );
+        ChunkReader reader = _test( makeRandomSortChunk( 500 ) );
 
         Tuple last = null;
 

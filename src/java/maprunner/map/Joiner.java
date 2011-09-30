@@ -138,24 +138,11 @@ class FileReference {
 
 class FileComparator implements Comparator<FileReference> {
 
-    private int offset = 0;
-    public  int cmp;
-
+    DepthBasedKeyComparator delegate = new DepthBasedKeyComparator();
+    
     public int compare( FileReference r1, FileReference r2 ) {
 
-        int key_length = r1.key.length;
-        
-        for( ; offset < key_length ; ++offset ) {
-
-            cmp = r1.key[offset] - r2.key[offset];
-
-            if ( cmp != 0 || offset == key_length - 1 ) {
-                return cmp;
-            }
-
-        }
-        
-        return cmp;
+        return delegate.compare( r1.key , r2.key );
 
     }
 

@@ -106,27 +106,7 @@ public class Sorter {
 
         }
 
-        Collections.sort( list , new Comparator<Tuple>() {
-
-                public int compare( Tuple t0, Tuple t1 ) {
-
-                    int len = t0.key.length;
-
-                    for( int offset = 0; offset < len; ++offset ) {
-
-                        int diff = t0.key[offset] - t1.key[offset];
-
-                        if ( diff != 0 )
-                            return diff;
-                        
-                    }
-
-                    //we go to the end and there were no differences ....
-                    return 0;
-
-                }
-                
-            } );
+        Collections.sort( list , new FullTupleComparator() );
 
         TupleListChunkReader result = new TupleListChunkReader( list );
         

@@ -129,10 +129,12 @@ class PartitionPriorityQueue {
     protected int key_offset = 0;
 
     protected PartitionPriorityQueueEntry result = new PartitionPriorityQueueEntry();
+
+    protected ChunkMergeComparator comparator = new ChunkMergeComparator();
     
     public PartitionPriorityQueue( List<ChunkReader> readers ) throws IOException {
 
-        this.queue = new PriorityQueue( readers.size() );
+        this.queue = new PriorityQueue( readers.size(), comparator );
         
         for( ChunkReader reader : readers ) {
 
@@ -165,7 +167,7 @@ class PartitionPriorityQueue {
         System.out.printf( "FIXME: ChunkMerger %s key=%s\n", Thread.currentThread().getId(), Hex.encode( entry.t.key ) );
 
         this.result.t = entry.t;
-        this.result.cmp = entry.cmp;
+        //this.result.cmp = comparator.cmp;
         
         Tuple t = entry.reader.read();
 
@@ -185,36 +187,24 @@ class PartitionPriorityQueue {
 
 }
 
-class PartitionPriorityQueueEntry implements Comparable<PartitionPriorityQueueEntry> {
+class PartitionPriorityQueueEntry {
 
     public Tuple t = null;
-
-    public int cmp;
     
     protected PartitionPriorityQueue queue = null;
 
     protected ChunkReader reader = null;
 
-    public int compareTo( PartitionPriorityQueueEntry p ) {
-
-        //FIXME: merge this with FileComparator so that they use the SAME code
-        //...  It's essentially the SAME algorithm.... this will remove bugs and
-        //limit the amount of code.
-        
-        while( queue.key_offset < t.key.length ) {
-
-            this.cmp = t.key[queue.key_offset] - p.t.key[queue.key_offset];
-
-            if ( this.cmp != 0 || queue.key_offset == t.key.length - 1 ) {
-                return this.cmp;
-            }
-
-            ++queue.key_offset;
-
-        }
-
-        return this.cmp;
-        
-    }
-    
 }
+
+class ChunkMergeComparator implements Comparator<PartitionPriorityQueueEntry> {
+
+    //private DepthBasedKeyComparator delegate = new DepthBasedKeyComparator();
+    private FullKeyComparator delegate = new FullKeyComparator();
+    
+    public int compare( PartitionPriorityQueueEntry k0, PartitionPriorityQueueEntry k1 ) {
+        return delegate.compare( k0.t.key, k1.t.key );
+    }
+
+}
+
