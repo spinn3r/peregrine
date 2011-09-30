@@ -56,7 +56,7 @@ public class Controller {
      * will be produced in the result set (containing fields populated from both
      * tables)
      */
-    public static void mapWithFullOuterJoin( Class mapper, String... path ) throws Exception {
+    public static void mergeMapWithFullOuterJoin( Class mapper, String... path ) throws Exception {
 
         ShuffleManager.reset();
         
@@ -72,11 +72,11 @@ public class Controller {
                                              Class mapper,
                                              String... path ) {
 
-                    return new FullOuterJoinMapperCallable( partitionMembership,
-                                                            part,
-                                                            host,
-                                                            mapper,
-                                                            path );
+                    return new MergeWithFullOuterJoinTask( partitionMembership,
+                                                           part,
+                                                           host,
+                                                           mapper,
+                                                           path );
                     
                 }
                 

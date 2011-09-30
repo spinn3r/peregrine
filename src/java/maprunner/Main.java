@@ -39,7 +39,7 @@ public class Main {
         Controller.reduce( Reducer.class, "/pr/test.graph.sorted" );
 
         //now create node metadata...
-        Controller.mapWithFullOuterJoin( NodeMetadataJob.Map.class, "/pr/tmp/node_indegree", "/pr/test.graph.sorted" );
+        Controller.mergeMapWithFullOuterJoin( NodeMetadataJob.Map.class, "/pr/tmp/node_indegree", "/pr/test.graph.sorted" );
 
         //FIXME: hint about the fact that these keys are pre-sorted
         Controller.reduce( NodeMetadataJob.Reduce.class, "/pr/out/node_metadata" );

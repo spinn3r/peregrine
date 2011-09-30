@@ -12,7 +12,7 @@ import maprunner.util.*;
 import maprunner.map.*;
 import maprunner.io.*;
 
-public class FullOuterJoinMapperCallable implements Callable {
+public class MergeWithFullOuterJoinTask implements Callable {
 
     private Partition partition;
     private Host host;
@@ -21,11 +21,11 @@ public class FullOuterJoinMapperCallable implements Callable {
     
     final private Merger mapper;
     
-    public FullOuterJoinMapperCallable( Map<Partition,List<Host>> partitionMembership,
-                                        Partition partition,
-                                        Host host ,
-                                        Class mapper_clazz,
-                                        String... paths ) {
+    public MergeWithFullOuterJoinTask( Map<Partition,List<Host>> partitionMembership,
+                                       Partition partition,
+                                       Host host ,
+                                       Class mapper_clazz,
+                                       String... paths ) {
 
         this.partition       = partition;
         this.host            = host;
