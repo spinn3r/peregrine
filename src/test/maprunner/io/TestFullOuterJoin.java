@@ -55,6 +55,7 @@ public class TestFullOuterJoin extends junit.framework.TestCase {
         int nr_files = 2;
 
         List<LocalPartitionReader> readers = new ArrayList();
+        
         readers.add( new LocalPartitionReader( part, host, "/tmp/left" ) );
         readers.add( new LocalPartitionReader( part, host, "/tmp/right" ) );
         

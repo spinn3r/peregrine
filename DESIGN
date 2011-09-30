@@ -1,4 +1,7 @@
 
+- we need the ability to split() a map job ... so that it can emit to multiple
+  ...  Then we can reduce over these locations.
+
 
     mapOuterJoin( mapper, file0, file1, ... , fileN )
     mapInnerJoin( mapper, file0, file1, ... , fileN )
@@ -21,7 +24,7 @@
 - the controller should be able to send these messages:
 
 
-    - controllerd:
+    - controld:
         - Inbound messages
         
            - CHUNK_WRITTEN partition:path:chunk_id
@@ -37,6 +40,10 @@
         - OUTBOUND MESSAGES
             - APPEND partition:path
 
+    - reduced:
+        - 
+        
+            
     - we're going to need filesystem commands like stat() which then report back chunk stats.
             
 - Extract jobs should probably be written to disk FIRST (or buffered in memory)
