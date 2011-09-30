@@ -67,8 +67,8 @@ public class LocalMerger {
                     return result;
                     
                 }
-                
-                joined[ref.id] = ref.key;
+
+                joined[ref.id] = ref.value;
 
             } finally {
                 last = ref;
@@ -76,15 +76,6 @@ public class LocalMerger {
             
         }
         
-    }
-
-    public static void write( PartitionWriter writer,
-                              int v ) throws IOException {
-
-        byte[] key = new IntKey( v ).toBytes();
-        byte[] value = key;
-        
-        writer.write( key, value );
     }
 
 }
@@ -100,7 +91,8 @@ class FilePriorityQueue {
         if ( t == null )
             return;
 
-        ref.key = t.key;
+        ref.key   = t.key;
+        ref.value = t.value;
 
         delegate.add( ref );
 
@@ -113,7 +105,7 @@ class FilePriorityQueue {
         if ( poll == null )
             return null;
 
-        FileReference result = new FileReference( poll.id, poll.key );
+        FileReference result = new FileReference( poll.id, poll.key, poll.value );
         
         add( poll );
 
@@ -126,6 +118,9 @@ class FilePriorityQueue {
 class FileReference {
 
     public byte[] key;
+
+    public byte[] value;
+    
     public int id = -1;
     protected LocalPartitionReader reader;
     
@@ -134,9 +129,10 @@ class FileReference {
         this.reader = reader;
     }
 
-    public FileReference( int id, byte[] key ) {
+    public FileReference( int id, byte[] key, byte[] value ) {
         this.id = id;
         this.key = key;
+        this.value = value;
     }
 
 }
