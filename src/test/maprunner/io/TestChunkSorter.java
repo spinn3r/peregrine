@@ -1,4 +1,4 @@
-package maprunner.test;
+package maprunner.io;
 
 import java.io.*;
 import java.util.*;
@@ -14,7 +14,9 @@ import maprunner.util.*;
 import maprunner.shuffle.*;
 import maprunner.io.*;
 
-public class TestChunkSorter {
+import junit.framework.*;
+
+public class TestChunkSorter extends TestCase {
 
     /**
      * test running with two lists which each have different values.
