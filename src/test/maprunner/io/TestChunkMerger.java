@@ -1,4 +1,4 @@
-package maprunner.test;
+package maprunner.io;
 
 import java.io.*;
 import java.util.*;
@@ -14,8 +14,13 @@ import maprunner.util.*;
 import maprunner.shuffle.*;
 import maprunner.io.*;
 
-public class TestChunkMerger {
+import junit.framework.*;
 
+public class TestChunkMerger extends TestCase {
+    
+    public TestChunkMerger( String name ) throws Exception {
+        super( name );
+    }
 
     /**
      * test running with two lists which each have different values.
@@ -59,8 +64,7 @@ public class TestChunkMerger {
 
     public static void main( String[] args ) throws Exception {
 
-        TestChunkMerger t = new TestChunkMerger();
-
+        TestChunkMerger t = new TestChunkMerger( null );
         t.test1();
         
     }

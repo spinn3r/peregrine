@@ -128,37 +128,6 @@
         </junit>
     </target>
 
-    <target name="test-single" 
-            depends="jar,compile.test" 
-            description="Run junit tests.">
-
-        <taskdef name="junit"
-                 classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask">
-            <classpath refid="project.classpath"/>
-        </taskdef>	
-
-        <junit printsummary="on"
-               fork="true"
-               filtertrace="false"
-               haltonfailure="true"
-               showoutput="true"
-               haltonerror="false">
-
-            <classpath>
-                <path refid="project.classpath"/>
-            </classpath>
-
-            <batchtest todir="target/test-reports"> 
-
-                <fileset dir="src/test">
-                    <include name="**/TestOffsetStorageParser.java"/>
-                </fileset>
-
-            </batchtest>
-
-        </junit>
-    </target>
-
   <target name="javadoc" description="Generate javadoc" depends="compile">
 
     <mkdir dir="${javadocdir}">
