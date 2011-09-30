@@ -8,6 +8,7 @@ import java.util.concurrent.atomic.*;
 import maprunner.*;
 import maprunner.io.*;
 import maprunner.util.*;
+import maprunner.map.*;
 import maprunner.shuffle.*;
 import maprunner.keys.*;
 
@@ -53,49 +54,20 @@ public class TestFullOuterJoin {
 
         int nr_files = 2;
 
-        List<String> files = new ArrayList();
-        files.add( "/tmp/left" );
-        files.add( "/tmp/right" );
-
-        FilePriorityQueue queue = new FilePriorityQueue();
+        List<LocalPartitionReader> readers = new ArrayList();
+        readers.add( new LocalPartitionReader( part, host, "/tmp/left" ) );
+        readers.add( new LocalPartitionReader( part, host, "/tmp/right" ) );
         
-        int id = 0;
-        for( String file : files ) {
+        Joiner joiner = new Joiner( readers );
 
-            LocalPartitionReader reader = new LocalPartitionReader( part, host, file );
-            
-            FileReference ref = new FileReference( id, reader );
-            queue.add( ref );
-            
-            ++id;
-            
-        }
-
-        FileReference last = null;
-        FileComparator comparator = new FileComparator();
-        byte[][] joined = new byte[2][];
-        
         while( true ) {
 
-            FileReference ref = queue.poll();
+            JoinedTuple joined = joiner.next();
 
-            boolean changed = ref == null || ( last != null && comparator.compare( last, ref ) != 0 );
-
-            if ( changed ) {
-
-                // run the map job against this value.
-                System.out.printf( "0=%s, 1=%s\n", Hex.encode( joined[0] ), Hex.encode( joined[1] ) );
-
-                joined = new byte[2][];
-
-            }
-
-            if ( ref == null )
+            if ( joined == null )
                 break;
 
-            joined[ref.id] = ref.key;
-
-            last = ref;
+            System.out.printf( "FIXME: %s\n", Hex.encode( joined.key ) );
             
         }
         
@@ -112,79 +84,3 @@ public class TestFullOuterJoin {
 
 }
 
-class FilePriorityQueue {
-
-    private PriorityQueue<FileReference> delegate = new PriorityQueue( 10, new FileComparator() );
-    
-    public void add( FileReference ref ) throws IOException {
-
-        Tuple t = ref.reader.read();
-
-        if ( t == null )
-            return;
-
-        ref.key = t.key;
-
-        delegate.add( ref );
-
-    }
-
-    public FileReference poll() throws IOException {
-
-        FileReference poll = delegate.poll();
-
-        if ( poll == null )
-            return null;
-        
-        FileReference result = new FileReference( poll.id, poll.key );
-        
-        add( poll );
-
-        return result;
-        
-    }
-    
-}
-
-class FileReference {
-
-    public byte[] key;
-    public int id = -1;
-    protected LocalPartitionReader reader;
-    
-    public FileReference( int id, LocalPartitionReader reader ) {
-        this.id = id;
-        this.reader = reader;
-    }
-
-    public FileReference( int id, byte[] key ) {
-        this.id = id;
-        this.key = key;
-    }
-
-}
-
-class FileComparator implements Comparator<FileReference> {
-
-    private int offset = 0;
-    public  int cmp;
-
-    public int compare( FileReference r1, FileReference r2 ) {
-
-        int key_length = r1.key.length;
-        
-        for( ; offset < key_length ; ++offset ) {
-
-            cmp = r1.key[offset] - r2.key[offset];
-
-            if ( cmp != 0 || offset == key_length - 1 ) {
-                return cmp;
-            }
-
-        }
-        
-        return cmp;
-
-    }
-
-}

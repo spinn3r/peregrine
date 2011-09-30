@@ -26,9 +26,11 @@ public class MapOutputIndex {
                         byte[] value ) {
 
         try {
+            
             MapOutputBuffer buffer = getBuffer( chunk_id );
             
             buffer.accept( key, value );
+            
         } catch ( IOException e ) {
             throw new RuntimeException( "FIXME: while I just try to get this shit working" );
         }

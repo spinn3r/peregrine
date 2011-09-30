@@ -94,9 +94,7 @@ public class Controller {
         List<Callable> callables = new ArrayList();
 
         for( MapOutputIndex mapOutputIndex : mapOutputIndexes ) {
-                                                       
             callables.add( new MapOutputSortCallable( mapOutputIndex, reducer, path ) );
-
         }
 
         waitFor( callables );

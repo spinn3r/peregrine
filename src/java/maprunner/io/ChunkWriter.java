@@ -48,6 +48,9 @@ public class ChunkWriter {
     public void write( byte[] key, byte[] value )
         throws IOException {
 
+        if ( closed )
+            throw new IOException( "ChunkWriter is closed" );
+        
         write( varintWriter.write( key.length ) );
         write( key );
 

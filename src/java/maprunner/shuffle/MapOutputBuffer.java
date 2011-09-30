@@ -32,9 +32,10 @@ public class MapOutputBuffer {
     public ChunkReader getChunkReader() throws IOException {
 
         // make sure we are closed
-        writer.close();        
+        this.writer.close();        
 
         return new DefaultChunkReader( out.toByteArray() );
+        
     }
     
 }
