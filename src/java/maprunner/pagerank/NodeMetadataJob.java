@@ -13,6 +13,12 @@ public class NodeMetadataJob {
 
     public static class Map extends Merger {
 
+        @Override
+        public void init() {
+
+        }
+        
+        @Override
         public void map( byte[] key,
                          byte[]... values ) {
 
@@ -46,7 +52,41 @@ public class NodeMetadataJob {
 
     }
 
-    // not much to do here... identity is fine.
-    public static class Reduce extends Reducer { }
+    public static class Reduce extends Reducer {
+
+        @Override
+        public void reduce( byte[] key, List<byte[]> values ) {
+
+            if ( values.size() != 1 )
+                throw new RuntimeException( "Too many values.  Error in computation: " + values.size() );
+            
+            //FIXME: ok this is god damn retarded.
+
+            //ListPackedValue
+            ByteArrayListValue list = new ByteArrayListValue( values.get( 0 ) );
+
+            List<byte[]> split = list.getValues();
+            
+            int indegree  = new IntValue( split.get( 0 ) ).value;
+            int outdegree = new IntValue( split.get( 1 ) ).value;
+
+            System.out.printf( "indegree=%,d outdegree=%,d\n", indegree, outdegree );
+            
+            if ( indegree == 0 ) {
+                //emit to dangling ...
+                System.out.printf( "dangling\n" );
+            }
+
+            if ( outdegree == 0 ) {
+                //emit to nonlinking ...
+                System.out.printf( "nonlinking\n" );
+            }
+
+            //FIXME: this is retarded tooo..... 
+            emit( key, values.get( 0 ) );
+            
+        }
+        
+    }
 
 }
