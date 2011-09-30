@@ -35,8 +35,6 @@ public class NodeMetadataJob {
 
             }
 
-            System.out.printf( "map: indegree: %s outdegree=%s\n", indegree, outdegree );
-            
             // now emit key, [indegree, outdegree]
 
             ByteArrayListValue result = new ByteArrayListValue();

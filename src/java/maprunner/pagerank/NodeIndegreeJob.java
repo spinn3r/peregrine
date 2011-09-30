@@ -35,8 +35,6 @@ public class NodeIndegreeJob {
             
             int indegree = values.size();
 
-            System.out.printf( "FIXME: NodeIndegreeJob indegree=%s\n", indegree );
-            
             emit( key, new IntValue( indegree ).toBytes() );
             
         }
