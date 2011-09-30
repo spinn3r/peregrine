@@ -38,11 +38,10 @@ public class NodeMetadataJob {
 
             // now emit key, [indegree, outdegree]
 
-            Struct struct = new Struct();
-            struct.write( indegree );
-            struct.write( outdegree );
-
-            emit( key, struct.toBytes() );
+            emit( key, new Struct()
+                           .write( indegree )
+                           .write( outdegree )
+                           .toBytes() );
             
         }
 
@@ -57,7 +56,8 @@ public class NodeMetadataJob {
             
             super.init( partition, path );
 
-            //TODO: setup output streams ... node_metadata, dangling , and nonlinking
+            //setup output streams ... node_metadata, dangling , and nonlinkin
+            //so that we can write to each one directly.
 
             Output output = getOutput();
 

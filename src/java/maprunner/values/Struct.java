@@ -26,22 +26,28 @@ public class Struct implements Value {
 
     //WRITERS
 
-    public void write( List<byte[]> values ) {
+    public Struct write( List<byte[]> values ) {
         for( byte[] val : values ) {
             this.values.add( val );
         }
+
+        return this;
+
     }
     
-    public void write( String value ) {
+    public Struct write( String value ) {
         write( new StringValue( value ).toBytes() );
+        return this;
     }
 
-    public void write( int value ) {
+    public Struct write( int value ) {
         write( new IntValue( value ).toBytes() );
+        return this;
     }
 
-    public void write( byte[] value ) {
+    public Struct write( byte[] value ) {
         values.add( value );
+        return this;
     }
 
     // READERS
