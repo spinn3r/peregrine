@@ -59,13 +59,13 @@ public class TestFullOuterJoin extends junit.framework.TestCase {
         readers.add( new LocalPartitionReader( part, host, "/tmp/left" ) );
         readers.add( new LocalPartitionReader( part, host, "/tmp/right" ) );
         
-        Joiner joiner = new Joiner( readers );
+        LocalMerger merger = new LocalMerger( readers );
 
         //FIXME: make sure the results come back ordered correctly... 
         
         while( true ) {
 
-            JoinedTuple joined = joiner.next();
+            JoinedTuple joined = merger.next();
 
             if ( joined == null )
                 break;

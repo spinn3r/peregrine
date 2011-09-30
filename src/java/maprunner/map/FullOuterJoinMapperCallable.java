@@ -59,11 +59,11 @@ public class FullOuterJoinMapperCallable implements Callable {
             readers.add( new LocalPartitionReader( partition, host, path ) );
         }
 
-        Joiner joiner = new Joiner( readers );
+        LocalMerger merger = new LocalMerger( readers );
 
         while( true ) {
 
-            JoinedTuple joined = joiner.next();
+            JoinedTuple joined = merger.next();
 
             if ( joined == null )
                 break;
