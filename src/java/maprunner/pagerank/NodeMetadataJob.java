@@ -46,15 +46,7 @@ public class NodeMetadataJob {
 
     }
 
-    public static class Reduce extends Reducer {
-        
-        public void reduce( byte[] key, List<byte[]> values ) {
-
-            // not much to do here...
-            emit( key, values.get( 0 ) );
-            
-        }
-        
-    }
+    // not much to do here... identity is fine.
+    public static class Reduce extends Reducer { }
 
 }
