@@ -16,6 +16,8 @@ public class NodeMetadataJob {
         @Override
         public void init() {
 
+            //TODO: setup output streams ... node_metadata, dangling , and nonlinking
+            
         }
         
         @Override
@@ -71,6 +73,13 @@ public class NodeMetadataJob {
             int outdegree = new IntValue( split.get( 1 ) ).value;
 
             System.out.printf( "indegree=%,d outdegree=%,d\n", indegree, outdegree );
+
+            // NOTE that since this is being done in the reduce phase we don't
+            // need to actually sort the output so we can write to local files
+            // directly (sweet). We still have to use PartitionWriter though
+            // because even though the files are able to be written to that
+            // partition they need to be replicated.  I also need to find a way
+            // to swap them in once the task is correctly executed.
             
             if ( indegree == 0 ) {
                 //emit to dangling ...
@@ -82,6 +91,8 @@ public class NodeMetadataJob {
                 System.out.printf( "nonlinking\n" );
             }
 
+            //emit to node_metadata
+            
             //FIXME: this is retarded tooo..... 
             emit( key, values.get( 0 ) );
             

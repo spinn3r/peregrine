@@ -4,7 +4,7 @@ import maprunner.*;
 import maprunner.util.*;
 import maprunner.keys.*;
 
-public final class FileOutputReference implements InputReference {
+public final class FileOutputReference implements OutputReference {
 
     private String path;
     

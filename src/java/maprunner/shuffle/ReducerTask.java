@@ -16,26 +16,31 @@ import maprunner.io.*;
 public class ReducerTask implements Callable {
 
     private MapOutputIndex mapOutputIndex = null;
+
     private final Reducer reducer;
 
     private boolean triggerReducer = false;
 
-    private String path;
+    private Output output;
     
     public ReducerTask( MapOutputIndex mapOutputIndex,
                         Class reducer_class,
-                        String path )
+                        Output output )
         throws ExecutionException {
         
         this.mapOutputIndex = mapOutputIndex;
-        this.path = path;
 
+        this.output = output;
+
+        //FIXME: unify this with the BaseMapperTask
         try { 
             this.reducer = (Reducer)reducer_class.newInstance();
         } catch ( Exception e ) {
             throw new ExecutionException( e );
         }
 
+        this.reducer.setOutput( output );
+        
     }
 
     public Object call() throws Exception {
@@ -45,8 +50,12 @@ public class ReducerTask implements Callable {
         //faster for the reduce operation.
 
         //FIXME: make this WHOLE thing testable externally ... 
-        
-        this.reducer.init( mapOutputIndex.partition, this.path );
+
+
+        // the first output path will always be required.
+        String path = ((FileOutputReference)output.getReferences().get( 0 )).getPath();
+
+        this.reducer.init( mapOutputIndex.partition, path );
 
         final AtomicInteger nr_tuples = new AtomicInteger();
 

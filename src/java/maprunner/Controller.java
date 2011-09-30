@@ -90,8 +90,15 @@ public class Controller {
         System.out.printf( "Finished mapper: %s\n", mapper.getName() );
 
     }
+
+    public static void reduce( Class reducer, String... paths ) 
+        throws InterruptedException, ExecutionException {
+
+        reduce( reducer, new Output( paths ) );
         
-    public static void reduce( Class reducer, String path ) 
+    }
+    
+    public static void reduce( Class reducer, Output output ) 
         throws InterruptedException, ExecutionException {
 
         System.out.printf( "Starting reducer: %s\n", reducer.getName() );
@@ -103,7 +110,7 @@ public class Controller {
         List<Callable> callables = new ArrayList();
 
         for( MapOutputIndex mapOutputIndex : mapOutputIndexes ) {
-            callables.add( new ReducerTask( mapOutputIndex, reducer, path ) );
+            callables.add( new ReducerTask( mapOutputIndex, reducer, output ) );
         }
 
         waitFor( callables );

@@ -11,6 +11,8 @@ import maprunner.shuffle.*;
 import maprunner.io.*;
 
 public class Reducer {
+    
+    private Output output = null;
 
     private PartitionWriter writer = null;
     
@@ -34,7 +36,7 @@ public class Reducer {
         try {
             writer.write( key, value );
         } catch ( IOException e ) {
-            throw new RuntimeException( "FIXME:" , e );
+            throw new RuntimeException( "emit failed:" , e );
         }
         
     }
@@ -46,9 +48,17 @@ public class Reducer {
             writer.close();
 
         } catch ( IOException e ) {
-            throw new RuntimeException( "FIXME:" , e );
+            throw new RuntimeException( "cleanup failed:" , e );
         }
 
+    }
+
+    public void setOutput( Output output ) { 
+        this.output = output;
+    }
+
+    public Output getOutput() { 
+        return this.output;
     }
 
 }
