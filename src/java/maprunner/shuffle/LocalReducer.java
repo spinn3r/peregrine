@@ -13,13 +13,13 @@ import maprunner.util.*;
 import maprunner.map.*;
 import maprunner.io.*;
 
-public class MapOutputSorter {
+public class LocalReducer {
 
     private List<ChunkReader> input = new ArrayList();
 
     private SortListener listener = null;
 
-    public MapOutputSorter( SortListener listener ) {
+    public LocalReducer( SortListener listener ) {
         this.listener = listener;
     }
 

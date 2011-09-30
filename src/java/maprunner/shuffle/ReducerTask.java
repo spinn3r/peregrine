@@ -13,7 +13,7 @@ import maprunner.util.*;
 import maprunner.map.*;
 import maprunner.io.*;
 
-public class MapOutputSortCallable implements Callable {
+public class ReducerTask implements Callable {
 
     private MapOutputIndex mapOutputIndex = null;
     private final Reducer reducer;
@@ -22,9 +22,9 @@ public class MapOutputSortCallable implements Callable {
 
     private String path;
     
-    public MapOutputSortCallable( MapOutputIndex mapOutputIndex,
-                                  Class reducer_class,
-                                  String path )
+    public ReducerTask( MapOutputIndex mapOutputIndex,
+                        Class reducer_class,
+                        String path )
         throws ExecutionException {
         
         this.mapOutputIndex = mapOutputIndex;
@@ -59,15 +59,15 @@ public class MapOutputSortCallable implements Callable {
                 
             };
         
-        MapOutputSorter sorter = new MapOutputSorter( listener );
+        LocalReducer reducer = new LocalReducer( listener );
         
         Collection<MapOutputBuffer> mapOutputBuffers = mapOutputIndex.getMapOutput();
         
         for ( MapOutputBuffer mapOutputBuffer : mapOutputBuffers ) {
-            sorter.add( mapOutputBuffer.getChunkReader() );
+            reducer.add( mapOutputBuffer.getChunkReader() );
         }
 
-        sorter.sort();
+        reducer.sort();
 
         System.out.printf( "Sorted %,d entries for partition %s \n", nr_tuples.get() , mapOutputIndex.partition );
 
