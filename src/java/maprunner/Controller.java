@@ -10,13 +10,18 @@ import maprunner.values.*;
 import maprunner.util.*;
 import maprunner.map.*;
 import maprunner.shuffle.*;
+import maprunner.io.*;
 
 public class Controller {
+
+    public static void map( Class mapper, String... paths ) throws Exception {
+        map( mapper, Input.fromPaths( paths ) );
+    }
 
     /**
      * Run map jobs on all chunks on the given path.
      */
-    public static void map( Class mapper, String path ) throws Exception {
+    public static void map( Class mapper, Input input ) throws Exception {
 
         ShuffleManager.reset();
         
@@ -30,20 +35,29 @@ public class Controller {
                                              Partition part,
                                              Host host,
                                              Class mapper,
-                                             String... path ) {
+                                             Input input ) {
 
-                    return new MapperTask( partitionMembership,
-                                           part,
-                                           host,
-                                           mapper,
-                                           path[0] );
+                    MapperTask task = new MapperTask();
+
+                    task.init(  partitionMembership,
+                                part,
+                                host,
+                                mapper );
+
+                    task.setInput( input );
+
+                    return task;
                     
                 }
                 
-            }, partitionMembership, mapper, path );
+            }, partitionMembership, mapper, input );
 
         System.out.printf( "Finished mapper: %s\n", mapper.getName() );
 
+    }
+
+    public static void mergeMapWithFullOuterJoin( Class mapper, String... paths ) throws Exception {
+        mergeMapWithFullOuterJoin( mapper, Input.fromPaths( paths ) );
     }
 
     /**
@@ -56,7 +70,7 @@ public class Controller {
      * will be produced in the result set (containing fields populated from both
      * tables)
      */
-    public static void mergeMapWithFullOuterJoin( Class mapper, String... path ) throws Exception {
+    public static void mergeMapWithFullOuterJoin( Class mapper, Input input ) throws Exception {
 
         ShuffleManager.reset();
         
@@ -70,17 +84,22 @@ public class Controller {
                                              Partition part,
                                              Host host,
                                              Class mapper,
-                                             String... path ) {
+                                             Input input ) {
 
-                    return new MergeWithFullOuterJoinTask( partitionMembership,
-                                                           part,
-                                                           host,
-                                                           mapper,
-                                                           path );
+                    MergeWithFullOuterJoinTask task = new MergeWithFullOuterJoinTask();
+
+                    task.init( partitionMembership,
+                               part,
+                               host,
+                               mapper );
+
+                    task.setInput( input );
+
+                    return task;
                     
                 }
                 
-            }, partitionMembership, mapper, path );
+            }, partitionMembership, mapper, input );
 
         System.out.printf( "Finished mapper: %s\n", mapper.getName() );
 
@@ -110,7 +129,7 @@ public class Controller {
     private static void runCallables( CallableFactory callableFactory,
                                       Map<Partition,List<Host>> partitionMembership,
                                       Class mapper,
-                                      String... path ) 
+                                      Input input ) 
         throws InterruptedException, ExecutionException {
 
         List<Callable> callables = new ArrayList( partitionMembership.size() );
@@ -127,7 +146,7 @@ public class Controller {
                                                                  part,
                                                                  host,
                                                                  mapper,
-                                                                 path );
+                                                                 input );
 
                 callables.add( callable );
 
@@ -183,6 +202,6 @@ interface CallableFactory {
                                  Partition part,
                                  Host host,
                                  Class mapper,
-                                 String... path );
+                                 Input input );
 
 }

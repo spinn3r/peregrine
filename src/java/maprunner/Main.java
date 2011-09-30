@@ -46,6 +46,10 @@ public class Main {
 
     }
 
+    public static void buildGraph1( ExtractWriter writer ) throws Exception {
+
+    }
+
     public static void buildRandomGraph( ExtractWriter writer,
                                          int nr_nodes,
                                          int max_edges_per_node ) throws Exception {
@@ -104,9 +108,9 @@ public class Main {
         boolean keyIsHashcode = true;
 
         byte[] hash = Hashcode.getHashcode( ""+source );
-
+            
         ByteArrayKey key = new ByteArrayKey( hash );
-        
+
         HashSetValue value = new HashSetValue();
         for ( int target : targets ) {
             byte[] data = Hashcode.getHashcode( Integer.toString( target ) );

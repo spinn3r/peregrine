@@ -12,5 +12,13 @@ public final class FileOutputReference implements InputReference {
         this.path = path;
     }
 
+    public String getPath() {
+        return this.path;
+    }
+
+    public String toString() {
+        return getPath();
+    }
+
 }
     

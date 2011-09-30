@@ -12,51 +12,25 @@ import maprunner.util.*;
 import maprunner.map.*;
 import maprunner.io.*;
 
-public class MergeWithFullOuterJoinTask implements Callable {
-
-    private Partition partition;
-    private Host host;
-    private String[] paths;
-    private int nr_partitions;
+public class MergeWithFullOuterJoinTask extends BaseMapperTask {
     
-    final private Merger mapper;
-    
-    public MergeWithFullOuterJoinTask( Map<Partition,List<Host>> partitionMembership,
-                                       Partition partition,
-                                       Host host ,
-                                       Class mapper_clazz,
-                                       String... paths ) {
-
-        this.partition       = partition;
-        this.host            = host;
-        this.paths           = paths;
-        this.nr_partitions   = partitionMembership.size();
-
-        try {
-
-            this.mapper = (Merger)mapper_clazz.newInstance();
-
-        } catch ( Exception e ) {
-
-            // this IS a runtime exeption because we have actually already
-            // instantiated the class, we just need another instance to use.
-
-            throw new RuntimeException( e );
-            
-        }
-        
-    }
+    private Merger mapper;
 
     public Object call() throws Exception {
 
-        mapper.init( nr_partitions );
+        this.mapper = (Merger)super.newMapper();
+        super.setup( this.mapper );
 
         System.out.printf( "Running map jobs on host: %s\n", host );
 
         List<LocalPartitionReader> readers = new ArrayList();
-        
-        for( String path : paths ) {
-            readers.add( new LocalPartitionReader( partition, host, path ) );
+
+        for( InputReference ref : getInput().getReferences() ) {
+
+            FileInputReference file = (FileInputReference) ref;
+            
+            readers.add( new LocalPartitionReader( partition, host, file.getPath() ) );
+            
         }
 
         LocalMerger merger = new LocalMerger( readers );
@@ -71,6 +45,8 @@ public class MergeWithFullOuterJoinTask implements Callable {
             mapper.map( joined.key, joined.values );
             
         }
+
+        super.teardown( mapper );
 
         return null;
         

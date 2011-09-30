@@ -8,24 +8,43 @@ import maprunner.keys.*;
 import maprunner.values.*;
 import maprunner.util.*;
 import maprunner.shuffle.*;
+import maprunner.io.*;
 
 public abstract class BaseMapper {
 
-    public int nr_partitions = 0;
+    public int partitions = 0;
 
     private long global_chunk_id = -1;
+
+    public Input input = null;
     
-    public void init( int nr_partitions ) {
-        this.nr_partitions = nr_partitions;
+    public void init() { }
+
+    /**
+     * Perform mapper cleanup.  close open files, etc.
+     */
+    public void cleanup() { }
+
+    public Input getInput() {
+        return this.input;
     }
 
+    /**
+     * Init a map task. This also allows us to find the input files we're
+     * interacting with.  Merge task will use multiple files and merge them but
+     * you should generally never have to work with them directly.
+     */
+    public void setInput( Input input ) {
+        this.input = input;
+    }
+    
     public final void emit( byte[] key,
                             byte[] value ) {
 
         // TODO: the emit logic shouldn't go here ideally and should be moved to
         // a dedicated class and the Mapper should be clean.
 
-        Partition target_partition = Config.route( key, nr_partitions, true );
+        Partition target_partition = Config.route( key, partitions, true );
 
         MapOutputIndex mapOutputIndex = ShuffleManager.getMapOutputIndex( target_partition );
         
@@ -33,15 +52,15 @@ public abstract class BaseMapper {
         
     }
 
-    public void setGlobalChunkId( long global_chunk_id ) {
-        this.global_chunk_id = global_chunk_id;
+    /**
+     * Set the number of partitions we're running with.
+     */
+    public void setPartitions( int partitions ) {
+        this.partitions = partitions;
     }
     
-    /**
-     * Perform mapper cleanup.  close open files, etc.
-     */
-    public void cleanup( Partition partition ) {
-
+    public void setGlobalChunkId( long global_chunk_id ) {
+        this.global_chunk_id = global_chunk_id;
     }
 
 }

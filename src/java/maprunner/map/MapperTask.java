@@ -13,45 +13,21 @@ import maprunner.util.*;
 import maprunner.map.*;
 import maprunner.io.*;
 
-public class MapperTask implements Callable {
+public class MapperTask extends BaseMapperTask {
 
-    private Partition partition;
-    private Host host;
-    private String path;
-    private int nr_partitions;
-    
-    final private Mapper mapper;
-    
-    public MapperTask( Map<Partition,List<Host>> partitionMembership,
-                       Partition partition,
-                       Host host ,
-                       Class mapper_clazz,
-                       String path ) {
-        
-        this.partition      = partition;
-        this.host           = host;
-        this.path           = path;
-        this.nr_partitions  = partitionMembership.size();
-
-        try {
-
-            this.mapper = (Mapper)mapper_clazz.newInstance();
-
-        } catch ( Exception e ) {
-
-            // this IS a runtime exeption because we have actually already
-            // instantiated the class, we just need another instance to use.
-
-            throw new RuntimeException( e );
-            
-        }
-        
-    }
+    private Mapper mapper;
 
     public Object call() throws Exception {
 
-        mapper.init( nr_partitions );
+        this.mapper = (Mapper)super.newMapper();
+        super.setup( this.mapper );
 
+        //find the input for this task... Right now for the Mapper task only one
+        //input file is supported.
+        FileInputReference ref = (FileInputReference)getInput().getReferences().get( 0 );
+
+        String path = ref.getPath();
+        
         System.out.printf( "Running map jobs on host: %s\n", host );
 
         List<File> chunks = LocalPartition.getChunkFiles( partition, host, path );
@@ -76,7 +52,7 @@ public class MapperTask implements Callable {
 
         }
 
-        mapper.cleanup( partition );
+        super.teardown( mapper );
         
         return null;
         

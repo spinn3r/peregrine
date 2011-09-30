@@ -18,4 +18,15 @@ public final class Input {
         return references;
     }
     
+    public static Input fromPaths( String[] paths ) {
+
+        Input input = new Input();
+        for( String path : paths ) {
+            input.add( new FileInputReference( path ) );
+        }
+
+        return input;
+        
+    }
+    
 }

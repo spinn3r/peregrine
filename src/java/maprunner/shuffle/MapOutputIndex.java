@@ -20,7 +20,7 @@ public class MapOutputIndex {
     public MapOutputIndex( Partition partition ) {
         this.partition = partition;
     }
-    
+
     public void accept( long chunk_id, 
                         byte[] key,
                         byte[] value ) {
@@ -30,9 +30,17 @@ public class MapOutputIndex {
             MapOutputBuffer buffer = getBuffer( chunk_id );
             
             buffer.accept( key, value );
-            
+
         } catch ( IOException e ) {
-            throw new RuntimeException( "FIXME: while I just try to get this shit working" );
+
+            // note that we must hide IOException from the Mapper interface.
+            // There is no condition where the Mappers can recover from an
+            // IOException.  While there may not be any other networked replicas
+            // to talk to, we could still have a local failure which means we
+            // have to stop working.  The controller will handle this failure by
+            // re-routing a map request to another node.
+            
+            throw new RuntimeException( "Failed to process chunk.", e );
         }
 
     }
