@@ -19,7 +19,7 @@ public class FullOuterJoinMapperCallable implements Callable {
     private String[] paths;
     private int nr_partitions;
     
-    final private JoinMapper mapper;
+    final private Merger mapper;
     
     public FullOuterJoinMapperCallable( Map<Partition,List<Host>> partitionMembership,
                                         Partition partition,
@@ -34,7 +34,7 @@ public class FullOuterJoinMapperCallable implements Callable {
 
         try {
 
-            this.mapper = (JoinMapper)mapper_clazz.newInstance();
+            this.mapper = (Merger)mapper_clazz.newInstance();
 
         } catch ( Exception e ) {
 

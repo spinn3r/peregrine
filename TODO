@@ -1,4 +1,9 @@
 
+- I think that Joiner should be called Merger similar to Mapper and Reducer
+  ... in fact this is probably the right thing to do because even though the
+  logistics are 'join' I'd rather it be modeled after the Map , Reduce , Merge
+  paper.
+
 - IntValue should be efficient and maybe even use a VarInt ... right now it
   always uses 4 bytes which is hella lame.
 

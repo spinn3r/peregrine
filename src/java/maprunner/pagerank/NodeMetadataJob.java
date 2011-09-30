@@ -11,7 +11,7 @@ import maprunner.util.*;
 
 public class NodeMetadataJob {
 
-    public static class Map extends JoinMapper {
+    public static class Map extends Merger {
 
         public void map( byte[] key,
                          byte[]... values ) {

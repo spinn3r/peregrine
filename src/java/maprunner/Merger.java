@@ -9,8 +9,8 @@ import maprunner.values.*;
 import maprunner.util.*;
 import maprunner.shuffle.*;
 
-public class JoinMapper extends BaseMapper {
+public class Merger extends BaseMapper {
 
-    public void map( byte[] key, byte[]... join_values ) {}
+    public void map( byte[] key, byte[]... merged_values ) {}
 
 }
