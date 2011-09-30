@@ -34,6 +34,9 @@ public class NodeIndegreeJob {
         public void reduce( byte[] key, List<byte[]> values ) {
             
             int indegree = values.size();
+
+            System.out.printf( "FIXME: NodeIndegreeJob indegree=%s\n", indegree );
+            
             emit( key, new IntValue( indegree ).toBytes() );
             
         }

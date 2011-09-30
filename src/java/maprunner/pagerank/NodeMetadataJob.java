@@ -14,13 +14,6 @@ public class NodeMetadataJob {
     public static class Map extends Merger {
 
         @Override
-        public void init() {
-
-            //TODO: setup output streams ... node_metadata, dangling , and nonlinking
-            
-        }
-        
-        @Override
         public void map( byte[] key,
                          byte[]... values ) {
 
@@ -42,6 +35,8 @@ public class NodeMetadataJob {
 
             }
 
+            System.out.printf( "map: indegree: %s outdegree=%s\n", indegree, outdegree );
+            
             // now emit key, [indegree, outdegree]
 
             ByteArrayListValue result = new ByteArrayListValue();
@@ -55,6 +50,15 @@ public class NodeMetadataJob {
     }
 
     public static class Reduce extends Reducer {
+        
+        @Override
+        public void init( Partition partition, String path ) throws IOException {
+            
+            super.init( partition, path );
+
+            //TODO: setup output streams ... node_metadata, dangling , and nonlinking
+            
+        }
 
         @Override
         public void reduce( byte[] key, List<byte[]> values ) {

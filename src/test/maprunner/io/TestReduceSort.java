@@ -35,7 +35,7 @@ public class TestReduceSort extends TestCase {
                 
             };
 
-        MapOutputSorter sorter = new MapOutputSorter( listener );
+        LocalReducer sorter = new LocalReducer( listener );
 
         sorter.add( TestChunkSorter.makeRandomSortChunk( 500 ) );
         sorter.add( TestChunkSorter.makeRandomSortChunk( 200 ) );
