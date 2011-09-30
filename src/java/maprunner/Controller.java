@@ -15,7 +15,7 @@ import maprunner.io.*;
 public class Controller {
 
     public static void map( Class mapper, String... paths ) throws Exception {
-        map( mapper, Input.fromPaths( paths ) );
+        map( mapper, new Input( paths ) );
     }
 
     /**
@@ -50,7 +50,7 @@ public class Controller {
     }
 
     public static void mergeMapWithFullOuterJoin( Class mapper, String... paths ) throws Exception {
-        mergeMapWithFullOuterJoin( mapper, Input.fromPaths( paths ) );
+        mergeMapWithFullOuterJoin( mapper, new Input( paths ) );
     }
 
     /**
