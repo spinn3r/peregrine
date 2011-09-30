@@ -8,6 +8,7 @@ import maprunner.*;
 import maprunner.keys.*;
 import maprunner.values.*;
 import maprunner.util.*;
+import maprunner.io.*;
 
 public class NodeMetadataJob {
 
@@ -37,24 +38,32 @@ public class NodeMetadataJob {
 
             // now emit key, [indegree, outdegree]
 
-            ByteArrayListValue result = new ByteArrayListValue();
-            result.addValue( new IntValue( indegree ) );
-            result.addValue( new IntValue( outdegree ) );
-            
-            emit( key, result.toBytes() );
+            Struct struct = new Struct();
+            struct.write( indegree );
+            struct.write( outdegree );
+
+            emit( key, struct.toBytes() );
             
         }
 
     }
 
     public static class Reduce extends Reducer {
-        
+
+        PartitionWriter danglingWriter = null;
+
         @Override
         public void init( Partition partition, String path ) throws IOException {
             
             super.init( partition, path );
 
             //TODO: setup output streams ... node_metadata, dangling , and nonlinking
+
+            Output output = getOutput();
+
+            FileOutputReference dangling = (FileOutputReference)output.getReferences().get( 1 );
+            
+            this.danglingWriter = new PartitionWriter( partition, dangling.getPath() );
             
         }
 
@@ -63,16 +72,13 @@ public class NodeMetadataJob {
 
             if ( values.size() != 1 )
                 throw new RuntimeException( "Too many values.  Error in computation: " + values.size() );
-            
-            //FIXME: ok this is god damn retarded.
 
-            //ListPackedValue
-            ByteArrayListValue list = new ByteArrayListValue( values.get( 0 ) );
-
-            List<byte[]> split = list.getValues();
+            byte[] value = values.get( 0 );
             
-            int indegree  = new IntValue( split.get( 0 ) ).value;
-            int outdegree = new IntValue( split.get( 1 ) ).value;
+            Struct struct = new Struct( value );
+
+            int indegree  = struct.readInt();
+            int outdegree = struct.readInt();
 
             System.out.printf( "indegree=%,d outdegree=%,d\n", indegree, outdegree );
 
@@ -93,10 +99,8 @@ public class NodeMetadataJob {
                 System.out.printf( "nonlinking\n" );
             }
 
-            //emit to node_metadata
-            
-            //FIXME: this is retarded tooo..... 
-            emit( key, values.get( 0 ) );
+            // value already has indegree and outdegree so we are done.
+            emit( key, value );
             
         }
         
