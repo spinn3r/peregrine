@@ -35,10 +35,7 @@ public class Controller {
 
                     MapperTask task = new MapperTask();
 
-                    task.init( partitionMembership,
-                               part,
-                               host,
-                               mapper );
+                    task.init( partitionMembership, part, host, mapper );
 
                     task.setInput( input );
 
@@ -80,10 +77,7 @@ public class Controller {
 
                     MergeWithFullOuterJoinTask task = new MergeWithFullOuterJoinTask();
 
-                    task.init( partitionMembership,
-                               part,
-                               host,
-                               mapper );
+                    task.init( partitionMembership, part, host, mapper );
 
                     task.setInput( input );
 
