@@ -1,4 +1,4 @@
-package maprunner.test;
+package maprunner.io;
 
 import java.io.*;
 import java.util.*;
@@ -15,9 +15,9 @@ import maprunner.keys.*;
 /**
  * 
  */
-public class TestFullOuterJoin {
+public class TestFullOuterJoin extends junit.framework.TestCase {
 
-    public static void main( String[] args ) throws Exception {
+    public void test1() throws Exception {
 
         //write keys to two files but where there isn't a 100%
         //intersection... then try to join against these files. 
@@ -60,6 +60,8 @@ public class TestFullOuterJoin {
         
         Joiner joiner = new Joiner( readers );
 
+        //FIXME: make sure the results come back ordered correctly... 
+        
         while( true ) {
 
             JoinedTuple joined = joiner.next();
@@ -70,7 +72,7 @@ public class TestFullOuterJoin {
             System.out.printf( "FIXME joined: %s\n", Hex.encode( joined.key ) );
             
         }
-        
+
     }
 
     public static void write( PartitionWriter writer,
