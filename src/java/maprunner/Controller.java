@@ -32,11 +32,11 @@ public class Controller {
                                              Class mapper,
                                              String... path ) {
 
-                    return new MapperCallable( partitionMembership,
-                                               part,
-                                               host,
-                                               mapper,
-                                               path[0] );
+                    return new MapperTask( partitionMembership,
+                                           part,
+                                           host,
+                                           mapper,
+                                           path[0] );
                     
                 }
                 

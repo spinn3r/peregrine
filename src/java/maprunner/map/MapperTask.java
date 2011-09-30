@@ -13,7 +13,7 @@ import maprunner.util.*;
 import maprunner.map.*;
 import maprunner.io.*;
 
-public class MapperCallable implements Callable {
+public class MapperTask implements Callable {
 
     private Partition partition;
     private Host host;
@@ -22,12 +22,12 @@ public class MapperCallable implements Callable {
     
     final private Mapper mapper;
     
-    public MapperCallable( Map<Partition,List<Host>> partitionMembership,
-                           Partition partition,
-                           Host host ,
-                           Class mapper_clazz,
-                           String path ) {
-
+    public MapperTask( Map<Partition,List<Host>> partitionMembership,
+                       Partition partition,
+                       Host host ,
+                       Class mapper_clazz,
+                       String path ) {
+        
         this.partition      = partition;
         this.host           = host;
         this.path           = path;
