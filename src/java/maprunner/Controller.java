@@ -35,10 +35,10 @@ public class Controller {
 
                     MapperTask task = new MapperTask();
 
-                    task.init(  partitionMembership,
-                                part,
-                                host,
-                                mapper );
+                    task.init( partitionMembership,
+                               part,
+                               host,
+                               mapper );
 
                     task.setInput( input );
 
