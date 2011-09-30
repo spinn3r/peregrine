@@ -24,8 +24,30 @@ public class Struct implements Value {
         fromBytes( data );
     }
 
+    //WRITERS
+
+    public void write( List<byte[]> values ) {
+        for( byte[] val : values ) {
+            this.values.add( val );
+        }
+    }
+    
+    public void write( String value ) {
+        write( new StringValue( value ).toBytes() );
+    }
+
     public void write( int value ) {
-        values.add( new IntValue( value ).toBytes() );
+        write( new IntValue( value ).toBytes() );
+    }
+
+    public void write( byte[] value ) {
+        values.add( value );
+    }
+
+    // READERS
+
+    public List<byte[]> read() {
+        return values;
     }
 
     public int readInt() {

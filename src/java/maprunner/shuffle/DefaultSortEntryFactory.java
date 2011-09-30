@@ -18,10 +18,10 @@ public class DefaultSortEntryFactory implements SortEntryFactory {
 
         SortEntry entry = new SortEntry( tuple.key );
 
-        ByteArrayListValue intervalue = new ByteArrayListValue();
-        intervalue.fromBytes( tuple.value );
+        Struct struct = new Struct();
+        struct.fromBytes( tuple.value );
 
-        entry.addValues( intervalue.getValues() );
+        entry.addValues( struct.read() );
         
         return entry;
 

@@ -61,12 +61,12 @@ public class SortResult {
             listener.onFinalValue( entry.key , entry.getValues() );
         }
 
-        ByteArrayListValue intervalue = new ByteArrayListValue();
+        Struct struct = new Struct();
 
-        intervalue.addValues( entry.getValues() );
+        struct.write( entry.getValues() );
 
         if ( writer != null )
-            writer.write( entry.key, intervalue.toBytes() );
+            writer.write( entry.key, struct.toBytes() );
 
     }
     
