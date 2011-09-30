@@ -21,21 +21,17 @@ public class Controller {
     /**
      * Run map jobs on all chunks on the given path.
      */
-    public static void map( Class mapper, Input input ) throws Exception {
+    public static void map( final Class mapper, final Input input ) throws Exception {
 
         ShuffleManager.reset();
         
         System.out.printf( "Starting mapper: %s\n", mapper.getName() );
 
-        Map<Partition,List<Host>> partitionMembership = Config.getPartitionMembership();
+        final Map<Partition,List<Host>> partitionMembership = Config.getPartitionMembership();
         
         runCallables( new CallableFactory() {
 
-                public Callable newCallable( Map<Partition,List<Host>> partitionMembership,
-                                             Partition part,
-                                             Host host,
-                                             Class mapper,
-                                             Input input ) {
+                public Callable newCallable( Partition part, Host host ) {
 
                     MapperTask task = new MapperTask();
 
@@ -50,7 +46,7 @@ public class Controller {
                     
                 }
                 
-            }, partitionMembership, mapper, input );
+            }, partitionMembership );
 
         System.out.printf( "Finished mapper: %s\n", mapper.getName() );
 
@@ -70,21 +66,17 @@ public class Controller {
      * will be produced in the result set (containing fields populated from both
      * tables)
      */
-    public static void mergeMapWithFullOuterJoin( Class mapper, Input input ) throws Exception {
+    public static void mergeMapWithFullOuterJoin( final Class mapper, final Input input ) throws Exception {
 
         ShuffleManager.reset();
         
         System.out.printf( "Starting mapper: %s\n", mapper.getName() );
 
-        Map<Partition,List<Host>> partitionMembership = Config.getPartitionMembership();
+        final Map<Partition,List<Host>> partitionMembership = Config.getPartitionMembership();
         
         runCallables( new CallableFactory() {
 
-                public Callable newCallable( Map<Partition,List<Host>> partitionMembership,
-                                             Partition part,
-                                             Host host,
-                                             Class mapper,
-                                             Input input ) {
+                public Callable newCallable( Partition part, Host host ) {
 
                     MergeWithFullOuterJoinTask task = new MergeWithFullOuterJoinTask();
 
@@ -99,7 +91,7 @@ public class Controller {
                     
                 }
                 
-            }, partitionMembership, mapper, input );
+            }, partitionMembership );
 
         System.out.printf( "Finished mapper: %s\n", mapper.getName() );
 
@@ -127,9 +119,7 @@ public class Controller {
     }
 
     private static void runCallables( CallableFactory callableFactory,
-                                      Map<Partition,List<Host>> partitionMembership,
-                                      Class mapper,
-                                      Input input ) 
+                                      Map<Partition,List<Host>> partitionMembership ) 
         throws InterruptedException, ExecutionException {
 
         List<Callable> callables = new ArrayList( partitionMembership.size() );
@@ -142,11 +132,7 @@ public class Controller {
 
             for( Host host : hosts ) {
 
-                Callable callable = callableFactory.newCallable( partitionMembership,
-                                                                 part,
-                                                                 host,
-                                                                 mapper,
-                                                                 input );
+                Callable callable = callableFactory.newCallable( part, host );
 
                 callables.add( callable );
 
@@ -198,10 +184,6 @@ public class Controller {
 
 interface CallableFactory {
 
-    public Callable newCallable( Map<Partition,List<Host>> partitionMembership,
-                                 Partition part,
-                                 Host host,
-                                 Class mapper,
-                                 Input input );
+    public Callable newCallable( Partition part, Host host );
 
 }
