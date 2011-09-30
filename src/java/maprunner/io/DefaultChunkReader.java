@@ -138,10 +138,20 @@ public class DefaultChunkReader implements ChunkReader {
         
     }
 
-    public static void main( String[] args ) throws IOException {
+    public static void main( String[] args ) throws Exception {
 
         ChunkReader reader = new DefaultChunkReader( args[0] );
 
+        Key key = null;
+        Value value = null;
+        
+        if ( args.length > 1 ) {
+
+            key   = (Key)  Class.forName( args[1] ).newInstance();
+            value = (Value)Class.forName( args[2] ).newInstance();
+            
+        }
+        
         while( true ) {
 
             Tuple t = reader.read();
@@ -149,7 +159,18 @@ public class DefaultChunkReader implements ChunkReader {
             if ( t == null )
                 break;
 
-            System.out.printf( "%s = %s\n", Hex.encode( t.key ), Hex.encode( t.value ) );
+            if ( key == null ) {
+
+                System.out.printf( "%s = %s\n", Hex.encode( t.key ), Hex.encode( t.value ) );
+
+            } else {
+
+                key.fromBytes( t.key );
+                value.fromBytes( t.value );
+                
+                System.out.printf( "%s = %s\n", key, value );
+
+            }
 
         }
         

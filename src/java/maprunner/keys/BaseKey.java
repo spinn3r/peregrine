@@ -4,6 +4,7 @@ import java.io.*;
 import java.util.*;
 
 import maprunner.*;
+import maprunner.util.Hex;
 
 public abstract class BaseKey implements Key {
 
@@ -21,6 +22,10 @@ public abstract class BaseKey implements Key {
 
     public void fromBytes( byte[] data ) {
         this.data = data;
+    }
+
+    public String toString() {
+        return Hex.encode( data );
     }
 
 }

@@ -4,6 +4,7 @@ import java.io.*;
 import java.util.*;
 
 import maprunner.*;
+import maprunner.util.Hex;
 
 public abstract class BaseValue implements Value {
 
@@ -23,4 +24,8 @@ public abstract class BaseValue implements Value {
         this.data = data;
     }
 
+    public String toString() {
+        return Hex.encode( data );
+    }
+    
 }

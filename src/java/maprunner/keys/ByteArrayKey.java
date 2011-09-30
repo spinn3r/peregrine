@@ -17,8 +17,4 @@ public class ByteArrayKey extends BaseKey {
         super( data );
     }
 
-    public String toString() {
-        return Base64.encode( data );
-    }
-
 }
