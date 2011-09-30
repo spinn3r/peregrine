@@ -22,7 +22,12 @@ public class Reducer {
 
     }
     
-    public void reduce( byte[] key, List<byte[]> values ) {}
+    public void reduce( byte[] key, List<byte[]> values ) {
+
+        // FIXME: I am not sure that get(0) is the right approach
+        emit( key, values.get( 0 ) );
+
+    }
         
     public void emit( byte[] key, byte[] value ) {
 

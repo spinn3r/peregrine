@@ -35,9 +35,12 @@ public class Main {
         Controller.map( NodeIndegreeJob.Map.class, path );
         Controller.reduce( NodeIndegreeJob.Reduce.class, "/pr/tmp/node_indegree" );
 
+        Controller.map( Mapper.class, "/pr/test.graph" );
+        Controller.reduce( Reducer.class, "/pr/test.graph.sorted" );
+
         //now create node metadata...
 
-//        Controller.mapWithFullOuterJoin( NodeMetadataJob.Map.class, "/pr/tmp/node_indegree", "/pr/test.graph" );
+        Controller.mapWithFullOuterJoin( NodeMetadataJob.Map.class, "/pr/tmp/node_indegree", "/pr/test.graph.sorted" );
 
 //         //FIXME: hint about the fact that these keys are pre-sorted
 //         Controller.reduce( NodeMetadataJob.Reduce.class, "/pr/out/node_metadata" );

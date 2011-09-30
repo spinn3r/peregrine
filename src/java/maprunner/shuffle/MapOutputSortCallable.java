@@ -47,29 +47,27 @@ public class MapOutputSortCallable implements Callable {
         //FIXME: make this WHOLE thing testable externally ... 
         
         this.reducer.init( mapOutputIndex.partition, this.path );
-        
-        Collection<MapOutputBuffer> mapOutputBuffers = mapOutputIndex.getMapOutput();
-
-        List<ChunkReader> sorted = new ArrayList();
-
-        ChunkSorter sorter = new ChunkSorter();
-        
-        for ( MapOutputBuffer mapOutputBuffer : mapOutputBuffers ) {
-            sorted.add( sorter.sort( mapOutputBuffer.getChunkReader() ) );
-        }
 
         final AtomicInteger nr_tuples = new AtomicInteger();
 
-        ChunkMerger merger = new ChunkMerger( new SortListener() {
-
+        SortListener listener = new SortListener() {
+    
                 public void onFinalValue( byte[] key, List<byte[]> values ) {
                     reducer.reduce( key, values );
                     nr_tuples.getAndIncrement();
                 }
                 
-            } );
+            };
+        
+        MapOutputSorter sorter = new MapOutputSorter( listener );
+        
+        Collection<MapOutputBuffer> mapOutputBuffers = mapOutputIndex.getMapOutput();
+        
+        for ( MapOutputBuffer mapOutputBuffer : mapOutputBuffers ) {
+            sorter.add( mapOutputBuffer.getChunkReader() );
+        }
 
-        merger.merge( sorted );
+        sorter.sort();
 
         System.out.printf( "Sorted %,d entries for partition %s \n", nr_tuples.get() , mapOutputIndex.partition );
 
