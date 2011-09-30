@@ -32,8 +32,6 @@ public class NodeIndegreeJob {
     public static class Reduce extends Reducer {
 
         public void reduce( byte[] key, List<byte[]> values ) {
-
-            System.out.printf( "FIXME(reducer): %s key=%s\n", Thread.currentThread().getId() , Hex.encode( key ) );
             
             int indegree = values.size();
             emit( key, new IntValue( indegree ).toBytes() );

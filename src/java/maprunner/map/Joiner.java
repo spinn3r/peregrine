@@ -51,23 +51,27 @@ public class Joiner {
 
             FileReference ref = queue.poll();
 
-            boolean changed = ref == null || ( last != null && comparator.compare( last, ref ) != 0 );
+            try {
 
-            if ( changed ) {
-
-                JoinedTuple result = new JoinedTuple( last.key, joined );
-                joined = new byte[nr_readers][];
-
-                return result;
+                if ( ref == null && last == null )
+                    return null;
                 
+                boolean changed = ref == null || ( last != null && comparator.compare( last, ref ) != 0 );
+                
+                if ( changed ) {
+                    
+                    JoinedTuple result = new JoinedTuple( last.key, joined );
+                    joined = new byte[nr_readers][];
+                    
+                    return result;
+                    
+                }
+                
+                joined[ref.id] = ref.key;
+
+            } finally {
+                last = ref;
             }
-
-            if ( ref == null )
-                return null;
-
-            joined[ref.id] = ref.key;
-
-            last = ref;
             
         }
         
@@ -107,7 +111,7 @@ class FilePriorityQueue {
 
         if ( poll == null )
             return null;
-        
+
         FileReference result = new FileReference( poll.id, poll.key );
         
         add( poll );
@@ -138,7 +142,8 @@ class FileReference {
 
 class FileComparator implements Comparator<FileReference> {
 
-    DepthBasedKeyComparator delegate = new DepthBasedKeyComparator();
+    //DepthBasedKeyComparator delegate = new DepthBasedKeyComparator();
+    FullKeyComparator delegate = new FullKeyComparator();
     
     public int compare( FileReference r1, FileReference r2 ) {
 

@@ -67,8 +67,6 @@ public class FullOuterJoinMapperCallable implements Callable {
 
             if ( joined == null )
                 break;
-
-            System.out.printf( "Found entry %s \n" , Hex.encode( joined.key ) );
             
             mapper.map( joined.key, joined.values );
             

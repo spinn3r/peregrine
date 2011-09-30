@@ -67,7 +67,7 @@ public class TestFullOuterJoin {
             if ( joined == null )
                 break;
 
-            System.out.printf( "FIXME: %s\n", Hex.encode( joined.key ) );
+            System.out.printf( "FIXME joined: %s\n", Hex.encode( joined.key ) );
             
         }
         

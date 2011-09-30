@@ -60,11 +60,6 @@ public class ChunkSorter {
         // TODO: this seems to add about 15-30% more CPU time to the job based
         // on my benchmarks.
 
-        for( Tuple t : dest ) {
-            System.out.printf( "FIXME: ChunkSorter thread=%s id=%d key=%s\n",
-                               Thread.currentThread().getId(), id, Hex.encode( t.key ) );
-        }
-
         //writer.close();
         
         return result;

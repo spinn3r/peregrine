@@ -164,8 +164,6 @@ class PartitionPriorityQueue {
         if ( entry == null )
             return null;
 
-        System.out.printf( "FIXME: ChunkMerger %s key=%s\n", Thread.currentThread().getId(), Hex.encode( entry.t.key ) );
-
         this.result.t = entry.t;
         //this.result.cmp = comparator.cmp;
         
