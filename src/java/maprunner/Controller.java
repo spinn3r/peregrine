@@ -18,6 +18,8 @@ public class Controller {
      */
     public static void map( Class mapper, String path ) throws Exception {
 
+        ShuffleManager.reset();
+        
         System.out.printf( "Starting mapper: %s\n", mapper.getName() );
 
         Map<Partition,List<Host>> partitionMembership = Config.getPartitionMembership();
@@ -56,6 +58,8 @@ public class Controller {
      */
     public static void mapWithFullOuterJoin( Class mapper, String... path ) throws Exception {
 
+        ShuffleManager.reset();
+        
         System.out.printf( "Starting mapper: %s\n", mapper.getName() );
 
         Map<Partition,List<Host>> partitionMembership = Config.getPartitionMembership();
