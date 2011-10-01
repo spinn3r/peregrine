@@ -65,6 +65,14 @@ public class ChunkWriter {
         out.write( data );
         length += data.length;
     }
+
+    public int size() {
+        return size;
+    }
+
+    public int length() {
+        return length;
+    }
     
     public void close() throws IOException {
 

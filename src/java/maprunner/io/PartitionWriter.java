@@ -16,8 +16,9 @@ public class PartitionWriter {
     private String path = null;
 
     private LocalPartitionWriter[] writers;
-    
-    public PartitionWriter( Partition partition, String path ) throws IOException {
+
+    public PartitionWriter( Partition partition,
+                            String path ) throws IOException {
 
         this.path = path;
 
@@ -58,3 +59,4 @@ public class PartitionWriter {
     }
     
 }
+
