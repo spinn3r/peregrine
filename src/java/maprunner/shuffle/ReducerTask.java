@@ -19,25 +19,18 @@ public class ReducerTask implements Callable {
 
     private final Reducer reducer;
 
-    private boolean triggerReducer = false;
-
     private Output output;
     
     public ReducerTask( MapOutputIndex mapOutputIndex,
                         Class reducer_class,
                         Output output )
-        throws ExecutionException {
+        throws Exception {
         
         this.mapOutputIndex = mapOutputIndex;
 
         this.output = output;
 
-        //FIXME: unify this with the BaseMapperTask
-        try { 
-            this.reducer = (Reducer)reducer_class.newInstance();
-        } catch ( Exception e ) {
-            throw new ExecutionException( e );
-        }
+        this.reducer = (Reducer)reducer_class.newInstance();
 
         this.reducer.setOutput( output );
         
@@ -49,10 +42,6 @@ public class ReducerTask implements Callable {
         //hinted pre-sorted approach which in some applications would be MUCH
         //faster for the reduce operation.
 
-        //FIXME: make this WHOLE thing testable externally ... 
-
-        // the first output path will always be required.
-
         Partition partition = mapOutputIndex.partition;
         
         ReducerOutput[] reducerOutput = new ReducerOutput[ output.getReferences().size() ];
@@ -62,6 +51,8 @@ public class ReducerTask implements Callable {
         int idx = 0;
         for( OutputReference ref : output.getReferences() ) {
 
+            //FIXME: right now we only support file output... 
+            
             String path = ((FileOutputReference)ref).getPath();
             PartitionWriter writer = new PartitionWriter( partition, path );
             reducerOutput[idx++] = new PartitionWriterReducerOutput( writer );

@@ -92,14 +92,14 @@ public class Controller {
     }
 
     public static void reduce( Class reducer, String... paths ) 
-        throws InterruptedException, ExecutionException {
+        throws Exception {
 
         reduce( reducer, new Output( paths ) );
         
     }
     
     public static void reduce( Class reducer, Output output ) 
-        throws InterruptedException, ExecutionException {
+        throws Exception {
 
         System.out.printf( "Starting reducer: %s\n", reducer.getName() );
 
