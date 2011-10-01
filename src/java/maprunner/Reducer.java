@@ -14,31 +14,28 @@ public class Reducer {
     
     private Output output = null;
 
-    private PartitionWriter writer = null;
+    private ReducerOutput stdout = null;
+
+    public void init( ReducerOutput... output ) {
+        this.stdout = output[0];
+    }
+
+    public void cleanup() {}
     
-    // tell the reducer which partition its running on as well as the host.
+    public void reduce( byte[] key, List<byte[]> values ) {
 
-    public void init( Partition partition, String path ) throws IOException {
-        
-        writer = new PartitionWriter( partition, path );
+        Struct struct = new Struct();
 
-    }
-    
-    public void reduce( byte[] key, List<byte[]> values ) throws Exception {
+        for( byte[] val : values ) {
+            struct.write( val );
+        }
 
-        // FIXME: I am not sure that get(0) is the right approach
-        emit( key, values.get( 0 ) );
+        emit( key, struct.toBytes() );
 
     }
         
-    public void emit( byte[] key, byte[] value ) throws Exception {
-
-        writer.write( key, value );
-        
-    }
-
-    public void cleanup() throws Exception {
-        writer.close();
+    public void emit( byte[] key, byte[] value ) {
+        stdout.emit( key, value );
     }
 
     public void setOutput( Output output ) { 

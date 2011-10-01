@@ -49,29 +49,19 @@ public class NodeMetadataJob {
 
     public static class Reduce extends Reducer {
 
-        PartitionWriter danglingWriter = null;
-        PartitionWriter nonlinkedWriter = null;
+        ReducerOutput nodeMetadataOutput  = null;
+        ReducerOutput danglingOutput      = null;
+        ReducerOutput nonlinkedOutput     = null;
 
         @Override
-        public void init( Partition partition, String path ) throws IOException {
-            
-            super.init( partition, path );
-
-            //setup output streams ... node_metadata, dangling , and nonlinkin
-            //so that we can write to each one directly.
-
-            Output output = getOutput();
-
-            FileOutputReference dangling  = (FileOutputReference)output.getReferences().get( 1 );
-            FileOutputReference nonlinked = (FileOutputReference)output.getReferences().get( 2 );
-            
-            danglingWriter  = new PartitionWriter( partition, dangling.getPath() );
-            nonlinkedWriter = new PartitionWriter( partition, nonlinked.getPath() );
-            
+        public void init( ReducerOutput... output ) {
+            nodeMetadataOutput  = output[0];
+            danglingOutput      = output[1];
+            nonlinkedOutput     = output[2];
         }
 
         @Override
-        public void reduce( byte[] key, List<byte[]> values ) throws Exception {
+        public void reduce( byte[] key, List<byte[]> values ) {
 
             if ( values.size() != 1 )
                 throw new RuntimeException( "Too many values.  Error in computation: " + values.size() );
@@ -104,30 +94,19 @@ public class NodeMetadataJob {
 
                 // TODO would be NICE to support a sequence file where the
                 // values are optional for better storage.
-                danglingWriter.write( key, BooleanValue.TRUE );
+                danglingOutput.emit( key, BooleanValue.TRUE );
                 
             }
 
             if ( outdegree == 0 ) {
-                nonlinkedWriter.write( key, BooleanValue.TRUE );
+                nonlinkedOutput.emit( key, BooleanValue.TRUE );
             }
 
             // value already has indegree and outdegree so we are done.
-            emit( key, value );
+            nodeMetadataOutput.emit( key, value );
             
         }
 
-        @Override
-        public void cleanup() throws Exception {
-
-            super.cleanup();
-
-            danglingWriter.close();
-            nonlinkedWriter.close();
-            
-        }
-
-        
     }
 
 }

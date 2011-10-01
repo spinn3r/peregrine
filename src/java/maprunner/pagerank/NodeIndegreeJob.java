@@ -13,6 +13,7 @@ public class NodeIndegreeJob {
 
     public static class Map extends Mapper {
 
+        @Override
         public void map( byte[] key_data,
                          byte[] value_data ) {
 
@@ -31,7 +32,8 @@ public class NodeIndegreeJob {
 
     public static class Reduce extends Reducer {
 
-        public void reduce( byte[] key, List<byte[]> values ) throws Exception {
+        @Override
+        public void reduce( byte[] key, List<byte[]> values ) {
             
             int indegree = values.size();
 

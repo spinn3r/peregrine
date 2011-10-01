@@ -51,11 +51,26 @@ public class ReducerTask implements Callable {
 
         //FIXME: make this WHOLE thing testable externally ... 
 
-
         // the first output path will always be required.
-        String path = ((FileOutputReference)output.getReferences().get( 0 )).getPath();
 
-        this.reducer.init( mapOutputIndex.partition, path );
+        Partition partition = mapOutputIndex.partition;
+        
+        ReducerOutput[] reducerOutput = new ReducerOutput[ output.getReferences().size() ];
+
+        List<PartitionWriter> openPartitionWriters = new ArrayList();
+        
+        int idx = 0;
+        for( OutputReference ref : output.getReferences() ) {
+
+            String path = ((FileOutputReference)ref).getPath();
+            PartitionWriter writer = new PartitionWriter( partition, path );
+            reducerOutput[idx++] = new PartitionWriterReducerOutput( writer );
+
+            openPartitionWriters.add( writer );
+            
+        }
+        
+        this.reducer.init( reducerOutput );
 
         final AtomicInteger nr_tuples = new AtomicInteger();
 
@@ -87,6 +102,12 @@ public class ReducerTask implements Callable {
 
         System.out.printf( "Sorted %,d entries for partition %s \n", nr_tuples.get() , mapOutputIndex.partition );
 
+        // we have to close ALL of our output streams now.
+
+        for( PartitionWriter opened : openPartitionWriters ) {
+            opened.close();
+        }
+        
         this.reducer.cleanup();
 
         return null;
@@ -94,3 +115,26 @@ public class ReducerTask implements Callable {
     }
 
 }
+
+class PartitionWriterReducerOutput implements ReducerOutput {
+
+    protected PartitionWriter writer;
+    
+    public PartitionWriterReducerOutput( PartitionWriter writer ) {
+        this.writer = writer;
+    }
+
+    public void emit( byte[] key , byte[] value ) {
+
+        try {
+
+            writer.write( key, value );
+            
+        } catch ( IOException e ) {
+            throw new RuntimeException( e );
+        }
+        
+    }
+
+}
+
