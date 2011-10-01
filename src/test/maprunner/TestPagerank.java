@@ -10,9 +10,9 @@ import maprunner.values.*;
 import maprunner.util.*;
 import maprunner.pagerank.*;
 
-public class Main {
+public class TestPagerank extends junit.framework.TestCase {
 
-    public static void main( String[] args ) throws Exception {
+    public void test1() throws Exception {
 
         // TRY with three partitions... 
         Config.addPartitionMembership( 0, "cpu0" );
@@ -22,7 +22,7 @@ public class Main {
         
         ExtractWriter writer = new ExtractWriter( path );
 
-        buildRandomGraph( writer, 50, 10 );
+        buildGraph1( writer );
         
         writer.close();
 
@@ -44,6 +44,8 @@ public class Main {
         //FIXME: hint about the fact that these keys are pre-sorted
         Controller.reduce( NodeMetadataJob.Reduce.class, "/pr/out/node_metadata", "/pr/out/dangling", "/pr/out/nonlinked" );
 
+        //now read in the output and make sure our results are correct...
+        
     }
 
     public static void buildGraph1( ExtractWriter writer ) throws Exception { 
@@ -51,57 +53,6 @@ public class Main {
         addRecord( writer, 2, 0, 1 );
         addRecord( writer, 3, 1, 2 );
         addRecord( writer, 4, 2, 3 );
-
-    }
-
-    public static void buildRandomGraph( ExtractWriter writer,
-                                         int nr_nodes,
-                                         int max_edges_per_node ) throws Exception {
-        
-        System.out.printf( "Creating nodes/links: %s\n", nr_nodes );
-
-        int last = -1;
-
-        Random r = new Random();
-
-        int edges = 0;
-        
-        for( int i = 0; i < nr_nodes; ++i ) {
-
-            int ref = max_edges_per_node;
-
-            int gap = (int)Math.ceil( i / (float)ref ) ;
-
-            int source = i;
-
-            int first = (int)(gap * r.nextFloat());
-
-            int target = first;
-
-            List<Integer> targets = new ArrayList( max_edges_per_node );
-            
-            for( int j = 0; j < max_edges_per_node && j < i ; ++j ) {
-                targets.add( target );
-                target = target + gap;
-            }
-
-            edges += targets.size();
-
-            if ( targets.size() > 0 )
-                addRecord( writer, source, targets );
-            
-            // now output our progress... 
-            int perc = (int)((i / (float)nr_nodes) * 100);
-
-            if ( perc != last ) {
-                System.out.printf( "%s%% ", perc );
-            }
-
-            last = perc;
-
-        }
-
-        System.out.printf( " done (Wrote %,d edges over %,d nodes)\n", edges, nr_nodes );
 
     }
 
@@ -115,7 +66,7 @@ public class Main {
             list.add( t ) ;
         }
 
-        addRecord( writer, source, targets );
+        addRecord( writer, source, list );
         
     }
 
@@ -138,5 +89,9 @@ public class Main {
         writer.write( key, value, keyIsHashcode );
 
     }
-    
+
+    public static void main( String[] args ) throws Exception {
+        new TestPagerank().test1();
+    }
+
 }

@@ -108,10 +108,11 @@
 
         <junit printsummary="on"
                fork="true"
-               filtertrace="true"
+               filtertrace="false"
                haltonfailure="true"
-               showoutput="true"
-               haltonerror="true">
+               haltonerror="true"
+               showoutput="true" 
+               logfailedtests="true">
 
             <classpath>
                 <path refid="project.classpath"/>
