@@ -1,4 +1,29 @@
 
+- 
+
+- If you assume that every 18 months the computational complexity the process
+  speed doubles. ... or the same thing for 1/2 the prices.  If the price of SSDs
+  halves every month.  5-6 years before flash is the prices of HDD... It might
+  happen sooner because flash gets more used less HDDs will be made.
+
+  
+
+- We should support pluggable checksum algoritihms including Adler32 and CRC32
+  (for smaller chunks) and then of course SHA1 if people are paranoid.
+
+
+- When writing shuffle output to the target partition, we're going to eventually
+  have to run a reduce() over that data.  So instead of just writing data the
+  order it comes in, allow partitions that are GOING to be reduced in the
+  future, to sit next to each other on disk.  This way I can get more throughput
+  when I eventually read them.
+
+
+
+
+
+
+
 - we need the ability to split() a map job ... so that it can emit to multiple
   ...  Then we can reduce over these locations.
 

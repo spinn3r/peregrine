@@ -89,8 +89,11 @@ public class ChunkMerger {
     
     public void merge( List<ChunkReader> input, ChunkWriter writer ) throws IOException {
 
-        //FIXME: if the input length is zero or one then we are done.
-
+        //FIXME: if the input length is zero or one then we are done but
+        //everything will need to be written to the writer first which is
+        //somewhat inefficient so we should try to reference the original file
+        //that was supplied.
+        
         PartitionPriorityQueue queue = new PartitionPriorityQueue( input );
         
         SortListener sortListener = null;
@@ -102,7 +105,7 @@ public class ChunkMerger {
 
         while( true ) {
             
-            PartitionPriorityQueueEntry entry = queue.poll();
+            QueueEntry entry = queue.poll();
 
             if ( entry == null )
                 break;
@@ -124,11 +127,11 @@ public class ChunkMerger {
 
 class PartitionPriorityQueue {
 
-    private PriorityQueue<PartitionPriorityQueueEntry> queue = null;
+    private PriorityQueue<QueueEntry> queue = null;
 
     protected int key_offset = 0;
 
-    protected PartitionPriorityQueueEntry result = new PartitionPriorityQueueEntry();
+    protected QueueEntry result = new QueueEntry();
 
     protected ChunkMergeComparator comparator = new ChunkMergeComparator();
     
@@ -143,7 +146,7 @@ class PartitionPriorityQueue {
             if ( t == null )
                 continue;
             
-            PartitionPriorityQueueEntry entry = new PartitionPriorityQueueEntry();
+            QueueEntry entry = new QueueEntry();
             entry.reader = reader;
             entry.t = t;
             entry.queue = this;
@@ -154,12 +157,12 @@ class PartitionPriorityQueue {
         
     }
 
-    public PartitionPriorityQueueEntry poll() throws IOException {
+    public QueueEntry poll() throws IOException {
 
         //TODO: there's an optimization here where we get down to only one
         //priority queue as we can just return from it directly.
         
-        PartitionPriorityQueueEntry entry = queue.poll();
+        QueueEntry entry = queue.poll();
 
         if ( entry == null )
             return null;
@@ -179,13 +182,13 @@ class PartitionPriorityQueue {
         
     }
     
-    private void add( PartitionPriorityQueueEntry entry ) {
+    private void add( QueueEntry entry ) {
         queue.add( entry );
     }
 
 }
 
-class PartitionPriorityQueueEntry {
+class QueueEntry {
 
     public Tuple t = null;
     
@@ -195,12 +198,12 @@ class PartitionPriorityQueueEntry {
 
 }
 
-class ChunkMergeComparator implements Comparator<PartitionPriorityQueueEntry> {
+class ChunkMergeComparator implements Comparator<QueueEntry> {
 
     //private DepthBasedKeyComparator delegate = new DepthBasedKeyComparator();
     private FullKeyComparator delegate = new FullKeyComparator();
     
-    public int compare( PartitionPriorityQueueEntry k0, PartitionPriorityQueueEntry k1 ) {
+    public int compare( QueueEntry k0, QueueEntry k1 ) {
         return delegate.compare( k0.t.key, k1.t.key );
     }
 

@@ -67,6 +67,9 @@ public class Config {
                                    int nr_partitions,
                                    boolean keyIsHashcode ) {
 
+        //FIXME: we need to build out an entirely new router which we can
+        //replace with a custom partitioning system.
+        
         //TODO: we only need a FEW bytes to route a key , not the WHOLE thing if
         //it is a hashcode.  For example... we can route to 255 partitions with
         //just one byte... that IS if it is a hashode.  with just TWO bytes we
@@ -88,7 +91,9 @@ public class Config {
         }
         
         //FIXME: read these from a cached list by lookup for performance reasons
-        //(GC and new object creation)
+        //(GC and new object creation).  It just seems ugly to create these for
+        //every route.
+        
         return new Partition( partition );
         
     }
