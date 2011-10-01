@@ -62,8 +62,15 @@ public class ReducerTask implements Callable {
         SortListener listener = new SortListener() {
     
                 public void onFinalValue( byte[] key, List<byte[]> values ) {
-                    reducer.reduce( key, values );
-                    nr_tuples.getAndIncrement();
+
+                    try {
+                        reducer.reduce( key, values );
+                        nr_tuples.getAndIncrement();
+
+                    } catch ( Exception e ) {
+                        throw new RuntimeException( "Reduce failed: " , e );
+                    }
+                        
                 }
                 
             };

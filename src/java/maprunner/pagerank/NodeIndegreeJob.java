@@ -31,7 +31,7 @@ public class NodeIndegreeJob {
 
     public static class Reduce extends Reducer {
 
-        public void reduce( byte[] key, List<byte[]> values ) {
+        public void reduce( byte[] key, List<byte[]> values ) throws Exception {
             
             int indegree = values.size();
 

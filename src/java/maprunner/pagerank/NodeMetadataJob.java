@@ -50,6 +50,7 @@ public class NodeMetadataJob {
     public static class Reduce extends Reducer {
 
         PartitionWriter danglingWriter = null;
+        PartitionWriter nonlinkedWriter = null;
 
         @Override
         public void init( Partition partition, String path ) throws IOException {
@@ -61,14 +62,16 @@ public class NodeMetadataJob {
 
             Output output = getOutput();
 
-            FileOutputReference dangling = (FileOutputReference)output.getReferences().get( 1 );
+            FileOutputReference dangling  = (FileOutputReference)output.getReferences().get( 1 );
+            FileOutputReference nonlinked = (FileOutputReference)output.getReferences().get( 2 );
             
-            this.danglingWriter = new PartitionWriter( partition, dangling.getPath() );
+            danglingWriter  = new PartitionWriter( partition, dangling.getPath() );
+            nonlinkedWriter = new PartitionWriter( partition, nonlinked.getPath() );
             
         }
 
         @Override
-        public void reduce( byte[] key, List<byte[]> values ) {
+        public void reduce( byte[] key, List<byte[]> values ) throws Exception {
 
             if ( values.size() != 1 )
                 throw new RuntimeException( "Too many values.  Error in computation: " + values.size() );
@@ -90,19 +93,35 @@ public class NodeMetadataJob {
             // to swap them in once the task is correctly executed.
             
             if ( indegree == 0 ) {
+                
                 //emit to dangling ...
                 System.out.printf( "dangling\n" );
+
+                // TODO would be NICE to support a sequence file where the
+                // values are optional for better storage.
+                danglingWriter.write( key, BooleanValue.TRUE );
+                
             }
 
             if ( outdegree == 0 ) {
-                //emit to nonlinking ...
-                System.out.printf( "nonlinking\n" );
+                nonlinkedWriter.write( key, BooleanValue.TRUE );
             }
 
             // value already has indegree and outdegree so we are done.
             emit( key, value );
             
         }
+
+        @Override
+        public void cleanup() throws Exception {
+
+            super.cleanup();
+
+            danglingWriter.close();
+            nonlinkedWriter.close();
+            
+        }
+
         
     }
 

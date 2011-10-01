@@ -24,33 +24,21 @@ public class Reducer {
 
     }
     
-    public void reduce( byte[] key, List<byte[]> values ) {
+    public void reduce( byte[] key, List<byte[]> values ) throws Exception {
 
         // FIXME: I am not sure that get(0) is the right approach
         emit( key, values.get( 0 ) );
 
     }
         
-    public void emit( byte[] key, byte[] value ) {
+    public void emit( byte[] key, byte[] value ) throws Exception {
 
-        try {
-            writer.write( key, value );
-        } catch ( IOException e ) {
-            throw new RuntimeException( "emit failed:" , e );
-        }
+        writer.write( key, value );
         
     }
 
-    public void cleanup() {
-
-        try {
-            
-            writer.close();
-
-        } catch ( IOException e ) {
-            throw new RuntimeException( "cleanup failed:" , e );
-        }
-
+    public void cleanup() throws Exception {
+        writer.close();
     }
 
     public void setOutput( Output output ) { 
