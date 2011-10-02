@@ -17,9 +17,9 @@ public class ShuffleJobOutput implements JobOutput, LocalPartitionReaderListener
 
     private int partitions = 0;
 
-    private ChunkReference chunkRef = null;
+    protected ChunkReference chunkRef = null;
 
-    private Shuffler shuffler = null;
+    protected Shuffler shuffler = null;
     
     public ShuffleJobOutput() {
         this( "default" );

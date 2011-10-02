@@ -31,7 +31,7 @@ public class JobOutputFactory {
 
                 BroadcastReference bcast = (BroadcastReference) ref;
                 
-                jobOutput[idx++] = new ShuffleJobOutput( bcast.getName() );
+                jobOutput[idx++] = new BroadcastShuffleJobOutput( bcast.getName() );
                 
             } else {
                 //FIXME: right now we only support file output... 
