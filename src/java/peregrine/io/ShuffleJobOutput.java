@@ -1,4 +1,4 @@
-package peregrine.map;
+package peregrine.io;
 
 import java.io.*;
 import java.util.*;
@@ -13,11 +13,11 @@ import peregrine.map.*;
 import peregrine.io.*;
 import peregrine.shuffle.*;
 
-class ShuffleJobOutput implements JobOutput {
+public class ShuffleJobOutput implements JobOutput {
 
     private int partitions = 0;
 
-    protected long global_chunk_id = -1;
+    public long global_chunk_id = -1;
 
     public ShuffleJobOutput( int partitions ) {
         this.partitions = partitions;

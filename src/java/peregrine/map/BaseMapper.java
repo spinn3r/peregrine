@@ -24,14 +24,14 @@ public abstract class BaseMapper {
 
     }
 
-    public void cleanup() { }
-
     public final void emit( byte[] key,
                             byte[] value ) {
 
         stdout.emit( key, value );
         
     }
+
+    public void cleanup() { }
 
 }
 

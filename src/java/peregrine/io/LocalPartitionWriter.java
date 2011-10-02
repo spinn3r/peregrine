@@ -14,7 +14,7 @@ import peregrine.io.*;
  */
 public class LocalPartitionWriter {
 
-    public static long CHUNK_SIZE = 1000000;
+    public static long CHUNK_SIZE = 100000000;
     
     private String path = null;
 
@@ -53,7 +53,6 @@ public class LocalPartitionWriter {
             out.close();
 
         String chunk_name = LocalPartition.getFilenameForChunkID( this.chunk_id );
-        
         String chunk_path = String.format( "%s/%s" , this.path, chunk_name );
 
         out = new ChunkWriter( chunk_path );

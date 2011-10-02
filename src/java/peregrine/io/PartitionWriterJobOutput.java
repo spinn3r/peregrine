@@ -1,4 +1,4 @@
-package peregrine.map;
+package peregrine.io;
 
 import java.io.*;
 import java.util.*;
@@ -12,7 +12,7 @@ import peregrine.util.*;
 import peregrine.map.*;
 import peregrine.io.*;
 
-class PartitionWriterJobOutput implements JobOutput {
+public class PartitionWriterJobOutput implements JobOutput {
 
     protected PartitionWriter writer;
     
