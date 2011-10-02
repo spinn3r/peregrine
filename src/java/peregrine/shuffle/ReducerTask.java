@@ -36,32 +36,17 @@ public class ReducerTask implements Callable {
 
     public Object call() throws Exception {
 
+        Partition partition = mapOutputIndex.partition;
+
+        JobOutput[] jobOutput = JobOutputFactory.getJobOutput( partition, output );
+
         try {
         
             //FIXME: this implements the DEFAULT sort everything approach not the
             //hinted pre-sorted approach which in some applications would be MUCH
             //faster for the reduce operation.
 
-            Partition partition = mapOutputIndex.partition;
-            
-            JobOutput[] reducerOutput = new JobOutput[ output.getReferences().size() ];
-
-            List<PartitionWriter> openPartitionWriters = new ArrayList();
-            
-            int idx = 0;
-            for( OutputReference ref : output.getReferences() ) {
-
-                //FIXME: right now we only support file output... 
-                
-                String path = ((FileOutputReference)ref).getPath();
-                PartitionWriter writer = new PartitionWriter( partition, path );
-                reducerOutput[idx++] = new PartitionWriterJobOutput( writer );
-
-                openPartitionWriters.add( writer );
-                
-            }
-            
-            this.reducer.init( reducerOutput );
+            this.reducer.init( jobOutput );
 
             final AtomicInteger nr_tuples = new AtomicInteger();
 
@@ -95,12 +80,12 @@ public class ReducerTask implements Callable {
 
             // we have to close ALL of our output streams now.
 
-            for( PartitionWriter opened : openPartitionWriters ) {
-                opened.close();
+        } finally {
+
+            for( JobOutput current : jobOutput ) {
+                current.close();
             }
 
-        } finally {
-            
             this.reducer.cleanup();
 
         }
@@ -109,31 +94,5 @@ public class ReducerTask implements Callable {
 
     }
 
-}
-
-class PartitionWriterJobOutput implements JobOutput {
-
-    protected PartitionWriter writer;
-    
-    public PartitionWriterJobOutput( PartitionWriter writer ) {
-        this.writer = writer;
-    }
-
-    public void emit( byte[] key , byte[] value ) {
-
-        try {
-
-            writer.write( key, value );
-            
-        } catch ( IOException e ) {
-            throw new RuntimeException( e );
-        }
-        
-    }
-
-    public void close() throws IOException {
-        writer.close();
-    }
-    
 }
 
