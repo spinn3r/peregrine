@@ -17,12 +17,16 @@ public class NodeMetadataJob {
         JobOutput nodeMetadataOutput  = null;
         JobOutput danglingOutput      = null;
         JobOutput nonlinkedOutput     = null;
+        JobOutput nrNodesOutput       = null;
 
+        int count = 0;
+        
         @Override
         public void init( JobOutput... output ) {
             nodeMetadataOutput  = output[0];
             danglingOutput      = output[1];
             nonlinkedOutput     = output[2];
+            nrNodesOutput       = output[3];
         }
 
         @Override
@@ -68,6 +72,21 @@ public class NodeMetadataJob {
                                      .write( indegree )
                                      .write( outdegree )
                                      .toBytes() );
+
+            ++count;
+            
+        }
+
+        @Override
+        public void cleanup() {
+
+            if ( count == 0 )
+                throw new RuntimeException();
+
+            byte[] key = new HashKey( "count" ).toBytes();
+            byte[] value = new IntValue( count ).toBytes();
+            
+            nrNodesOutput.emit( key, value );
             
         }
 

@@ -16,6 +16,11 @@ public final class Output {
         }
     }
 
+    public Output( OutputReference... refs ) {
+        for( OutputReference ref : refs )
+            add( ref );
+    }
+    
     public Output( OutputReference ref ) {
         add( ref );
     }

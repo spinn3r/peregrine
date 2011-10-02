@@ -45,7 +45,7 @@ public class TestBroadcastMapReduce extends junit.framework.TestCase {
             System.out.printf( "Writing count: %,d\n", count );
 
             byte[] key = new HashKey( "count" ).toBytes();
-            byte[] value = new IntValue( count ).toBytes()
+            byte[] value = new IntValue( count ).toBytes();
             
             countBroadcast.emit( key, value );
             
@@ -64,8 +64,8 @@ public class TestBroadcastMapReduce extends junit.framework.TestCase {
                 count += new IntValue( val ).value;
             }
             
-            //if ( count != 1000 )
-            //    throw new RuntimeException( "Wrong size: " + count );
+            if ( count != 1000 )
+               throw new RuntimeException( "Wrong size: " + count );
 
             System.out.printf( "FIXME: found %,d count from key\n", count );
             
@@ -97,7 +97,7 @@ public class TestBroadcastMapReduce extends junit.framework.TestCase {
         
         Controller.map( Map.class,
                         new Input( path ),
-                        new Output( new BroadcastReference( "count" ) ) );
+                        new Output( new BroadcastOutputReference( "count" ) ) );
 
         Controller.reduce( Reduce.class,
                            new Input( new ShuffleInputReference( "count" ) ),

@@ -27,9 +27,9 @@ public class JobOutputFactory {
                 PartitionWriter writer = new PartitionWriter( partition, path );
                 jobOutput[idx++] = new PartitionWriterJobOutput( writer );
 
-            } else if ( ref instanceof BroadcastReference ) {
+            } else if ( ref instanceof BroadcastOutputReference ) {
 
-                BroadcastReference bcast = (BroadcastReference) ref;
+                BroadcastOutputReference bcast = (BroadcastOutputReference) ref;
                 
                 jobOutput[idx++] = new BroadcastShuffleJobOutput( bcast.getName() );
                 

@@ -41,11 +41,14 @@ public class TestPagerank extends junit.framework.TestCase {
         //now create node metadata...
         Controller.mergeMapWithFullOuterJoin( NodeMetadataJob.Map.class,
                                               new Input( "/pr/tmp/node_indegree", "/pr/test.graph.sorted" ),
-                                              new Output( "/pr/out/node_metadata", "/pr/out/dangling", "/pr/out/nonlinked" ) );
+                                              new Output( new FileOutputReference( "/pr/out/node_metadata" ),
+                                                          new FileOutputReference( "/pr/out/dangling" ),
+                                                          new FileOutputReference( "/pr/out/nonlinked" ),
+                                                          new BroadcastOutputReference( "nr_nodes" ) ) );
 
         //FIXME: hint about the fact that these keys are pre-sorted
         //Controller.reduce( NodeMetadataJob.Reduce.class, );
-
+        
         //now read in the output and make sure our results are correct...
         
     }

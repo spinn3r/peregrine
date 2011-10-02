@@ -35,7 +35,7 @@ public class BroadcastShuffleJobOutput extends ShuffleJobOutput {
         for ( Partition target : partitionMembership.keySet() ) {
 
             MapOutputIndex mapOutputIndex = shuffler.getMapOutputIndex( target );
-            
+
             mapOutputIndex.accept( chunkRef.global, key, value );
 
         }

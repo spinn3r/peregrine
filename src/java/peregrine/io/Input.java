@@ -18,6 +18,11 @@ public final class Input {
         }
     }
 
+    public Input( InputReference... refs ) {
+        for( InputReference ref : refs )
+            add( ref );
+    }
+
     public Input( InputReference ref ) {
         add( ref );
     }

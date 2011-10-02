@@ -103,3 +103,23 @@ public abstract class BaseMapperTask extends BaseOutputTask implements Callable 
     }
 
 }
+
+class MapperChunkRolloverListener implements LocalPartitionReaderListener {
+
+    private BaseMapperTask task = null;
+    
+    public MapperChunkRolloverListener( BaseMapperTask task ) {
+        this.task = task;
+    }
+
+    @Override
+    public void onChunk( ChunkReference ref ) {
+        task.fireOnChunk( ref );
+    }
+
+    @Override
+    public void onChunkEnd( ChunkReference ref ) {
+        task.fireOnChunkEnd( ref );
+    }
+
+}
