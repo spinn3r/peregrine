@@ -30,6 +30,7 @@ public class TestBroadcastMapReduce extends junit.framework.TestCase {
         public void map( byte[] key,
                          byte[] value ) {
 
+            //FIXME: this is a bug because STDOUT will become a broadcast entry.
             //emit( key, value );
             ++count;
             
@@ -43,7 +44,7 @@ public class TestBroadcastMapReduce extends junit.framework.TestCase {
 
             System.out.printf( "Writing count: %,d\n", count );
             
-            //countBroadcast.emit( new IntKey( count ).toBytes(), new IntValue( count ).toBytes() );
+            countBroadcast.emit( new IntKey( count ).toBytes(), new IntValue( count ).toBytes() );
             
         }
 
@@ -63,7 +64,7 @@ public class TestBroadcastMapReduce extends junit.framework.TestCase {
             //if ( count != 1000 )
             //    throw new RuntimeException( "Wrong size: " + count );
 
-            //System.out.printf( "FIXME: found %,d count\n", count );
+            System.out.printf( "FIXME: found %,d count\n", count );
             
         }
 
