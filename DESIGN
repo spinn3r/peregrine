@@ -109,7 +109,7 @@
 
             PUT /part/0/pr/tmp/foo/chunk00001.dat HTTP 1.1
             User-Agent: Java
-            Content-Type: application/x-maprunner-chunk
+            Content-Type: application/x-peregrine-chunk
 
             ...
 
@@ -378,7 +378,7 @@
 
     http://en.wikipedia.org/wiki/Extract,_transform,_load
 
-    Data is first written into maprunner by using an ExtractWriter and sending
+    Data is first written into peregrine by using an ExtractWriter and sending
     data to a given path in the system.  Input data is in the form of (K,V) and
     routed to the correct shard based on hash(K).
 
@@ -395,7 +395,7 @@
    - Data based on fetching URLs would be a good example.
 
 - Optimized for short running ETL jobs.  Data is designed to be stored within
-  exported within maprunner on the local DFS points but isn't meant to be used
+  exported within peregrine on the local DFS points but isn't meant to be used
   to serve operational reads.  At the end of your map jobs you should export the
   data to your cluster in a system like Cassandra, MySQL, HBase, etc.
 

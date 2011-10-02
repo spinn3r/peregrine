@@ -40,7 +40,7 @@
 
     <appender name="root" class="org.apache.log4j.RollingFileAppender">
 
-        <param name="File" value="logs/maprunner.log" />
+        <param name="File" value="logs/peregrine.log" />
         <param name="MaxFileSize" value="100MB" />
         <param name="MaxBackupIndex" value="10" />
 
