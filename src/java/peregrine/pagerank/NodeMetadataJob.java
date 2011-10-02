@@ -75,11 +75,6 @@ public class NodeMetadataJob {
 
             System.out.printf( "indegree=%,d outdegree=%,d\n", indegree, outdegree );
 
-            //FIXME: the client should NOT have to deal with all this overhead
-            //for writing to paths... we should probably just have emit()
-            //support the concept of a file descriptor which the reducer needs
-            //to specify
-            
             // NOTE that since this is being done in the reduce phase we don't
             // need to actually sort the output so we can write to local files
             // directly (sweet). We still have to use PartitionWriter though

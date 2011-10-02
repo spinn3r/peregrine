@@ -11,8 +11,6 @@ import peregrine.shuffle.*;
 import peregrine.io.*;
 
 public class Reducer {
-    
-    private Output output = null;
 
     private ReducerOutput stdout = null;
 
@@ -36,14 +34,6 @@ public class Reducer {
         
     public void emit( byte[] key, byte[] value ) {
         stdout.emit( key, value );
-    }
-
-    public void setOutput( Output output ) { 
-        this.output = output;
-    }
-
-    public Output getOutput() { 
-        return this.output;
     }
 
 }

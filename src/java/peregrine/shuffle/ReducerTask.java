@@ -32,8 +32,6 @@ public class ReducerTask implements Callable {
 
         this.reducer = (Reducer)reducer_class.newInstance();
 
-        this.reducer.setOutput( output );
-        
     }
 
     public Object call() throws Exception {
