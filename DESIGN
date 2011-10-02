@@ -50,23 +50,89 @@
 
 
     - controld:
-        - Inbound messages
-        
            - CHUNK_WRITTEN partition:path:chunk_id
-           - MAP_COMPLETE partition:path:chunk_id
-           - REDUCE_COMPLETE partition
 
+           - MAP_COMPLETE partition:path:chunk_id
+
+           - REDUCE_COMPLETE partition
+                - the given partition has been reduce on the given machine.
+           
+           - HOST_FAILED
+
+                - indicates that the source machine believes that the given host
+                  has failed and is no longer usable.
+
+            - HEARTBEAT
+
+                - heartbeat messages sent from boxes in the wild to report back
+                  to the controller.
+
+            - HOST_STATUS
+
+                - sent by a command line app to query the current status of the
+                  controller.  Returns a json message to be parsed by the
+                  client.
+                  
         - Outbound messages
 
-            - MAP_EXECUTE partition:path:chunk_id
-            - REDUCE partition
+            - MAP partition:path:chunk_id
 
     - mapd:
-        - OUTBOUND MESSAGES
-            - APPEND partition:path
+        - MAP partition path chunk_id
+    
+    - dfsd
 
+        - What we could do is a mkchunk command which is higher level and then
+          puts most of these actions on the remote end.  Creating the FIRST
+          chunk writes the first all the parent directories.
+
+        - You can't remove chunks though.  You can only remove whole files.
+
+        - DELETE
+
+            - ALWAYs recursive.
+            - Can delete files or directories.
+
+            - example
+            
+            DELETE /part/0/pr/tmp/foo HTTP/1.1
+            User-Agent: Java
+           
+            HTTP 200 OK
+    
+        - PUT
+
+            - put a chunk on the remote end
+            - makes parent directories if necessary.
+        
+            - example
+
+            PUT /part/0/pr/tmp/foo/chunk00001.dat HTTP 1.1
+            User-Agent: Java
+            Content-Type: application/x-maprunner-chunk
+
+            ...
+
+            HTTP 200 OK
+
+            - handles writing to files or output references for additional map jobs
+              and giving them to mapd or the reducer.    
+              
+        - EMIT partition fd
+
+            Used during shuffle to write to a file descriptor.
+        
+        - GET /part/0/path/to/chunk.dat
+
+            - HTTP read on a given chunk file...  Mostly used for speculative
+              execution.
+
+        - How do these handle errors?  HTTP 500?
+              
     - reduced:
-        - 
+    
+        - REDUCE partition path [chunk_id]
+            - reduce a parition... starting from the given chunk ID.
         
             
     - we're going to need filesystem commands like stat() which then report back chunk stats.

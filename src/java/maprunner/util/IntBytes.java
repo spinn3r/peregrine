@@ -5,6 +5,8 @@ import java.util.*;
 
 public class IntBytes {
 
+    public static final int LENGTH = 4;
+
     /**
      * Get a 4 byte array from the given int.
      */

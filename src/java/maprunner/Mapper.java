@@ -8,6 +8,7 @@ import maprunner.keys.*;
 import maprunner.values.*;
 import maprunner.util.*;
 import maprunner.shuffle.*;
+import maprunner.map.BaseMapper;
 
 public class Mapper extends BaseMapper {
 

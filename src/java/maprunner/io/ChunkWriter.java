@@ -70,7 +70,7 @@ public class ChunkWriter {
         return size;
     }
 
-    public int length() {
+    public long length() {
         return length;
     }
     

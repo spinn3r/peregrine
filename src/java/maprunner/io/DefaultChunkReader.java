@@ -11,8 +11,6 @@ import maprunner.values.*;
 
 public class DefaultChunkReader implements ChunkReader {
 
-    private static int SIZE_BYTE_ARRAY_LENGTH = 4;
-    
     public static int BUFFER_SIZE = 16384;
     
     private File file = null;
@@ -51,9 +49,9 @@ public class DefaultChunkReader implements ChunkReader {
         this.length = file.length();
 
         RandomAccessFile raf = new RandomAccessFile( file , "r" );
-        raf.seek( file.length() - SIZE_BYTE_ARRAY_LENGTH );
+        raf.seek( file.length() - IntBytes.LENGTH );
 
-        byte[] size_bytes = new byte[ SIZE_BYTE_ARRAY_LENGTH ];
+        byte[] size_bytes = new byte[ IntBytes.LENGTH ];
         raf.read( size_bytes );
 
         setSize( IntBytes.toInt( size_bytes ) );
@@ -67,8 +65,8 @@ public class DefaultChunkReader implements ChunkReader {
 
         this.length = data.length;
 
-        byte[] size_bytes = new byte[ SIZE_BYTE_ARRAY_LENGTH ];
-        System.arraycopy( data, data.length - SIZE_BYTE_ARRAY_LENGTH, size_bytes, 0, SIZE_BYTE_ARRAY_LENGTH );
+        byte[] size_bytes = new byte[ IntBytes.LENGTH ];
+        System.arraycopy( data, data.length - IntBytes.LENGTH, size_bytes, 0, IntBytes.LENGTH );
 
         setSize( IntBytes.toInt( size_bytes ) );
 
@@ -87,7 +85,7 @@ public class DefaultChunkReader implements ChunkReader {
 
     public Tuple read() throws IOException {
 
-        if( this.input.getPosition() < this.length - SIZE_BYTE_ARRAY_LENGTH ) {
+        if( this.input.getPosition() < this.length - IntBytes.LENGTH ) {
             
             byte[] key     = readBytes( varintReader.read( this.input ) );
             byte[] value   = readBytes( varintReader.read( this.input ) );
