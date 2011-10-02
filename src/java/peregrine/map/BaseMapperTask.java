@@ -24,6 +24,7 @@ public abstract class BaseMapperTask implements Callable {
     protected ShuffleJobOutput shuffleJobOutput;
 
     private Input input = null;
+    private Output output = null;
 
     public void init( Map<Partition,List<Host>> partitionMembership,
                       Partition partition,
@@ -43,6 +44,14 @@ public abstract class BaseMapperTask implements Callable {
 
     public void setInput( Input input ) { 
         this.input = input;
+    }
+
+    public Output getOutput() { 
+        return this.output;
+    }
+
+    public void setOutput( Output output ) { 
+        this.output = output;
     }
 
     /**
@@ -65,13 +74,24 @@ public abstract class BaseMapperTask implements Callable {
 
     }
 
-    protected void setup( BaseMapper mapper ) {
+    protected void setup( BaseMapper mapper ) throws IOException {
 
-        shuffleJobOutput = new ShuffleJobOutput( nr_partitions );
+        JobOutput[] result;
+
+        if ( output == null || output.getReferences().size() == 0 ) {
         
-        JobOutput[] output = new JobOutput[] { shuffleJobOutput };
+            shuffleJobOutput = new ShuffleJobOutput( nr_partitions );
+            
+            result = new JobOutput[] { shuffleJobOutput };
 
-        mapper.init( output );
+        } else {
+
+            result = JobOutputFactory.getJobOutput( partition, output );
+            
+        }
+
+        mapper.init( result );
+
     }
 
     protected void teardown( BaseMapper mapper ) {
@@ -79,32 +99,3 @@ public abstract class BaseMapperTask implements Callable {
     }
 
 }
-
-class ShuffleJobOutput implements JobOutput {
-
-    private int partitions = 0;
-
-    protected long global_chunk_id = -1;
-
-    public ShuffleJobOutput( int partitions ) {
-        this.partitions = partitions;
-    }
-    
-    @Override
-    public void emit( byte[] key , byte[] value ) {
-
-        Partition target_partition = Config.route( key, partitions, true );
-
-        MapOutputIndex mapOutputIndex = ShuffleManager.getMapOutputIndex( target_partition );
-        
-        mapOutputIndex.accept( global_chunk_id, key, value );
-
-    }
-
-    @Override 
-    public void close() throws IOException {
-
-    }
-    
-}
-
