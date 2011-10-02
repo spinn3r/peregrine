@@ -17,7 +17,9 @@ public class ReducerTask extends BaseOutputTask implements Callable {
 
     private MapOutputIndex mapOutputIndex = null;
 
-    private final Reducer reducer;
+    private Reducer reducer;
+
+    private Class reducer_class = null;
     
     public ReducerTask( MapOutputIndex mapOutputIndex,
                         Class reducer_class,
@@ -27,8 +29,8 @@ public class ReducerTask extends BaseOutputTask implements Callable {
         super.init( mapOutputIndex.partition );
         
         this.mapOutputIndex = mapOutputIndex;
-        this.reducer = (Reducer)reducer_class.newInstance();
-
+        this.reducer_class = reducer_class;
+        
         setOutput( output );
 
     }
@@ -38,59 +40,63 @@ public class ReducerTask extends BaseOutputTask implements Callable {
         if ( output.getReferences().size() == 0 )
             throw new IOException( "Reducer tasks require output." );
 
-        JobOutput[] jobOutput = JobOutputFactory.getJobOutput( partition, output );
+        this.reducer = (Reducer)reducer_class.newInstance();
 
         try {
-        
-            //FIXME: this implements the DEFAULT sort everything approach not the
-            //hinted pre-sorted approach which in some applications would be MUCH
-            //faster for the reduce operation.
 
-            this.reducer.init( jobOutput );
+            setup();
+            reducer.init( getJobOutput() );
 
-            final AtomicInteger nr_tuples = new AtomicInteger();
-
-            SortListener listener = new SortListener() {
-        
-                    public void onFinalValue( byte[] key, List<byte[]> values ) {
-
-                        try {
-                            reducer.reduce( key, values );
-                            nr_tuples.getAndIncrement();
-
-                        } catch ( Exception e ) {
-                            throw new RuntimeException( "Reduce failed: " , e );
-                        }
-                            
-                    }
-                    
-                };
-            
-            LocalReducer reducer = new LocalReducer( listener );
-            
-            Collection<MapOutputBuffer> mapOutputBuffers = mapOutputIndex.getMapOutput();
-            
-            for ( MapOutputBuffer mapOutputBuffer : mapOutputBuffers ) {
-                reducer.add( mapOutputBuffer.getChunkReader() );
-            }
-
-            reducer.sort();
-
-            System.out.printf( "Sorted %,d entries for partition %s \n", nr_tuples.get() , mapOutputIndex.partition );
-
-            // we have to close ALL of our output streams now.
+            doCall();
 
         } finally {
 
-            for( JobOutput current : jobOutput ) {
-                current.close();
-            }
-
-            this.reducer.cleanup();
+            reducer.cleanup();
+            teardown();
 
         }
 
         return null;
+
+    }
+
+    private void doCall() throws Exception {
+
+        //FIXME: this implements the DEFAULT sort everything approach not the
+        //hinted pre-sorted approach which in some applications would be MUCH
+        //faster for the reduce operation.
+
+        final AtomicInteger nr_tuples = new AtomicInteger();
+
+        SortListener listener = new SortListener() {
+    
+                public void onFinalValue( byte[] key, List<byte[]> values ) {
+
+                    try {
+                        reducer.reduce( key, values );
+                        nr_tuples.getAndIncrement();
+
+                    } catch ( Exception e ) {
+                        throw new RuntimeException( "Reduce failed: " , e );
+                    }
+                        
+                }
+                
+            };
+        
+        LocalReducer reducer = new LocalReducer( listener );
+        
+        Collection<MapOutputBuffer> mapOutputBuffers = mapOutputIndex.getMapOutput();
+        
+        for ( MapOutputBuffer mapOutputBuffer : mapOutputBuffers ) {
+            reducer.add( mapOutputBuffer.getChunkReader() );
+        }
+
+        reducer.sort();
+
+        System.out.printf( "Sorted %,d entries for partition %s \n", nr_tuples.get() , mapOutputIndex.partition );
+
+        // we have to close ALL of our output streams now.
 
     }
 
