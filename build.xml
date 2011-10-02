@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<project name="maprunner" default="jar" basedir=".">
+<project name="peregrine" default="jar" basedir=".">
 
     <property environment="env"/>
 
     <property file="build.properties"/>
 
-    <property name="project" value="maprunner"/>
+    <property name="project" value="peregrine"/>
     <property name="javadocdir" value="compile/javadoc"/>
     <property name="version" value="0.0.1"/>
 
@@ -55,7 +55,7 @@
 
                 <include name="com/**"/>
                 <include name="org/**"/>
-                <include name="maprunner/**"/>
+                <include name="peregrine/**"/>
             
             </fileset>
 
@@ -139,20 +139,20 @@
     </tstamp>
     <property name="copyright" value="Copyright &amp;copy; Tailrank Inc. All Rights Reserved.">
     </property>
-    <property name="title" value="Maprunner Client Reference API">
+    <property name="title" value="Peregrine Client Reference API">
     </property>
 
     <javadoc bottom="Copyright &amp;copy; Tailrank Inc. All Rights Reserved." 
-             windowtitle="Maprunner API" 
+             windowtitle="Peregrine API" 
              use="true" 
              private="false" 
              destdir="${javadocdir}" 
              author="true" 
-             doctitle="Maprunner API" 
+             doctitle="Peregrine API" 
              version="true" 
              sourcepath="src/java" 
              classpathref="project.classpath"
-             packagenames="maprunner.*">
+             packagenames="peregrine.*">
 
     </javadoc>
 

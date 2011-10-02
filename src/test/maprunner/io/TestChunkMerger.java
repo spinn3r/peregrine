@@ -1,4 +1,4 @@
-package maprunner.io;
+package peregrine.io;
 
 import java.io.*;
 import java.util.*;
@@ -7,12 +7,12 @@ import java.util.concurrent.atomic.*;
 
 import java.security.*;
 
-import maprunner.*;
-import maprunner.keys.*;
-import maprunner.values.*;
-import maprunner.util.*;
-import maprunner.shuffle.*;
-import maprunner.io.*;
+import peregrine.*;
+import peregrine.keys.*;
+import peregrine.values.*;
+import peregrine.util.*;
+import peregrine.shuffle.*;
+import peregrine.io.*;
 
 public class TestChunkMerger extends junit.framework.TestCase {
 

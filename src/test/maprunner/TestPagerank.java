@@ -1,14 +1,14 @@
-package maprunner;
+package peregrine;
 
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.*;
 
-import maprunner.io.*;
-import maprunner.keys.*;
-import maprunner.values.*;
-import maprunner.util.*;
-import maprunner.pagerank.*;
+import peregrine.io.*;
+import peregrine.keys.*;
+import peregrine.values.*;
+import peregrine.util.*;
+import peregrine.pagerank.*;
 
 public class TestPagerank extends junit.framework.TestCase {
 

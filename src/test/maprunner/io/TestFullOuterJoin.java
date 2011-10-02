@@ -1,16 +1,16 @@
-package maprunner.io;
+package peregrine.io;
 
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.*;
 
-import maprunner.*;
-import maprunner.io.*;
-import maprunner.util.*;
-import maprunner.map.*;
-import maprunner.shuffle.*;
-import maprunner.keys.*;
+import peregrine.*;
+import peregrine.io.*;
+import peregrine.util.*;
+import peregrine.map.*;
+import peregrine.shuffle.*;
+import peregrine.keys.*;
 
 /**
  * 
