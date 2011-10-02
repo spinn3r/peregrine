@@ -58,30 +58,29 @@ public class MapperTask extends BaseMapperTask {
         // it's a bit more readable.
 
         long partition_chunk_prefix = (long)partition.getId() * 1000000000;
-        
-        int local_chunk_id = 0;
+
+        ChunkReference chunkRef = new ChunkReference();
+
+        chunkRef.local = 0;
 
         for ( File file : chunks ) {
 
-            long global_chunk_id = partition_chunk_prefix + local_chunk_id;
+            chunkRef.global = partition_chunk_prefix + chunkRef.local;
             
-            callMapperOnChunk( file, global_chunk_id, local_chunk_id );
+            callMapperOnChunk( file, chunkRef );
 
-            ++local_chunk_id;
+            ++chunkRef.local;
 
         }
 
     }
     
-    private void callMapperOnChunk( File file,
-                                    final long global_chunk_id,
-                                    final int local_chunk_id ) throws Exception {
+    private void callMapperOnChunk( File file, ChunkReference chunkRef ) throws Exception {
 
         System.out.printf( "Handling chunk: %s on partition: %s with global_chunk_id: %016d, local_chunk_id: %s\n",
-                           file.getPath(), partition, global_chunk_id, local_chunk_id );
+                           file.getPath(), partition, chunkRef.global, chunkRef.local );
 
-        if ( shuffleJobOutput != null )
-            shuffleJobOutput.global_chunk_id = global_chunk_id;
+        fireOnChunk( chunkRef );
         
         ChunkReader reader = new DefaultChunkReader( file );
 
@@ -96,7 +95,7 @@ public class MapperTask extends BaseMapperTask {
 
         }
 
-        reader.read();
+        fireOnChunkEnd( chunkRef );
 
     }
     

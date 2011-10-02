@@ -24,26 +24,12 @@ public class LocalPartitionReader {
 
     private Tuple t = null;
 
-    private LocalPartitionReaderListener listener = null;
-
-    private int local_chunk_id = -1;
-    
     public LocalPartitionReader( Partition partition,
                                  Host host, 
                                  String path ) throws IOException {
 
-        this( partition, host, path, new LocalPartitionReaderListener() );
-        
-    }
-    
-    public LocalPartitionReader( Partition partition,
-                                 Host host, 
-                                 String path,
-                                 LocalPartitionReaderListener listener ) throws IOException {
-
         this.chunkReaders = LocalPartition.getChunkReaders( partition, host, path );
         this.iterator = chunkReaders.iterator();
-        this.listener = listener;
         
     }
 
@@ -54,15 +40,9 @@ public class LocalPartitionReader {
 
         if ( t == null ) {
 
-            if ( local_chunk_id >= 0 )
-                listener.onChunkEnd( local_chunk_id );
-            
             if ( iterator.hasNext() ) {
                 
-                ++local_chunk_id;
                 chunkReader = iterator.next();
-                
-                listener.onChunkStart( local_chunk_id );
                 
                 t = chunkReader.read();
             }

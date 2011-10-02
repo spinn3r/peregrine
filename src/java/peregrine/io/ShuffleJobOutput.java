@@ -13,11 +13,11 @@ import peregrine.map.*;
 import peregrine.io.*;
 import peregrine.shuffle.*;
 
-public class ShuffleJobOutput implements JobOutput {
+public class ShuffleJobOutput implements JobOutput, LocalPartitionReaderListener {
 
     private int partitions = 0;
 
-    public long global_chunk_id = -1;
+    private ChunkReference chunkRef = null;
 
     private Shuffler shuffler = null;
     
@@ -42,7 +42,7 @@ public class ShuffleJobOutput implements JobOutput {
 
         MapOutputIndex mapOutputIndex = shuffler.getMapOutputIndex( target_partition );
         
-        mapOutputIndex.accept( global_chunk_id, key, value );
+        mapOutputIndex.accept( chunkRef.global, key, value );
 
     }
 
@@ -50,6 +50,14 @@ public class ShuffleJobOutput implements JobOutput {
     public void close() throws IOException {
 
     }
+
+    @Override 
+    public void onChunk( ChunkReference chunkRef ) {
+        this.chunkRef = chunkRef;
+    }
+
+    @Override 
+    public void onChunkEnd( ChunkReference ref ) { }
     
 }
 

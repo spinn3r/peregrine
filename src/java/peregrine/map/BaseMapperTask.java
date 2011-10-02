@@ -20,7 +20,7 @@ public abstract class BaseMapperTask extends BaseOutputTask implements Callable 
     protected int nr_partitions;
     protected Class mapper_clazz = null;
 
-    protected ShuffleJobOutput shuffleJobOutput;
+    protected List<ShuffleJobOutput> shuffleJobOutput = new ArrayList();
 
     private Input input = null;
 
@@ -70,14 +70,36 @@ public abstract class BaseMapperTask extends BaseOutputTask implements Callable 
 
         if ( output == null || output.getReferences().size() == 0 ) {
         
-            shuffleJobOutput = new ShuffleJobOutput();
-            
-            setJobOutput( new JobOutput[] { shuffleJobOutput } );
+            setJobOutput( new JobOutput[] { new ShuffleJobOutput() } );
 
         } else {
             super.setup();
         }
 
+        for ( JobOutput current : jobOutput ) {
+
+            if ( current instanceof ShuffleJobOutput ) {
+                shuffleJobOutput.add( (ShuffleJobOutput)current );
+            }
+            
+        }
+        
+    }
+
+    protected void fireOnChunk( ChunkReference chunkRef ) {
+
+        for( ShuffleJobOutput current : shuffleJobOutput ) {
+            current.onChunk( chunkRef );
+        }
+        
+    }
+
+    protected void fireOnChunkEnd( ChunkReference chunkRef ) {
+
+        for( ShuffleJobOutput current : shuffleJobOutput ) {
+            current.onChunkEnd( chunkRef );
+        }
+        
     }
 
 }

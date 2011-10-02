@@ -62,6 +62,7 @@ public class ChunkWriter {
     }
 
     private void write( byte[] data ) throws IOException {
+
         out.write( data );
         length += data.length;
     }

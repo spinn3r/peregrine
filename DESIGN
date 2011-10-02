@@ -1,5 +1,12 @@
 
-- 
+
+- merger checkpoints must be not only on chunk boundaries but in between keys.
+
+    - if we have keys k1,k1,k1 at the end of chunk0 , and then we transitition
+      to chunk1, and it has three keys k1,k1,k1 then we first need to get to the
+      end of all three keys before sending off a chunkpoint.  If we didn't do
+      this then on resume we would send emit a value of ... FIXME this only
+      applies to reduces ... 
 
 - If you assume that every 18 months the computational complexity the process
   speed doubles. ... or the same thing for 1/2 the prices.  If the price of SSDs

@@ -127,6 +127,8 @@ public class Controller {
 
         ShuffleInputReference shuffleInput = (ShuffleInputReference)input.getReferences().get( 0 );
 
+        System.out.printf( "using shuffle input : %s \n", shuffleInput.getName() );
+        
         Shuffler shuffler = Shuffler.getInstance( shuffleInput.getName() );
         
         Map<Partition,List<Host>> partitionMembership = Config.getPartitionMembership();
