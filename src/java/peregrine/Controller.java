@@ -107,15 +107,8 @@ public class Controller {
         System.out.printf( "Finished mapper: %s\n", mapper.getName() );
 
     }
-
-    public static void reduce( Class reducer, String... paths ) 
-        throws Exception {
-
-        reduce( reducer, new Output( paths ) );
-        
-    }
     
-    public static void reduce( Class reducer, Output output ) 
+    public static void reduce( Class reducer, Input input, Output output ) 
         throws Exception {
 
         System.out.printf( "Starting reducer: %s\n", reducer.getName() );

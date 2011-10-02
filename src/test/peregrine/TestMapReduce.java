@@ -80,7 +80,7 @@ public class TestMapReduce extends junit.framework.TestCase {
         String output = String.format( "/test/%s/test1.out", getClass().getName() );
         
         Controller.map( Map.class, path );
-        Controller.reduce( Reduce.class, output );
+        Controller.reduce( Reduce.class, null, new Output( output ) );
 
     }
 

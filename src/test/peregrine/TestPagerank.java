@@ -33,10 +33,10 @@ public class TestPagerank extends junit.framework.TestCase {
         //it.
         
         Controller.map( NodeIndegreeJob.Map.class, path );
-        Controller.reduce( NodeIndegreeJob.Reduce.class, "/pr/tmp/node_indegree" );
+        Controller.reduce( NodeIndegreeJob.Reduce.class, null, new Output( "/pr/tmp/node_indegree" ) );
 
         Controller.map( Mapper.class, "/pr/test.graph" );
-        Controller.reduce( Reducer.class, "/pr/test.graph.sorted" );
+        Controller.reduce( Reducer.class, null, new Output( "/pr/test.graph.sorted" ) );
 
         //now create node metadata...
         Controller.mergeMapWithFullOuterJoin( NodeMetadataJob.Map.class,
