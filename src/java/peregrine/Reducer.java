@@ -12,9 +12,9 @@ import peregrine.io.*;
 
 public class Reducer {
 
-    private ReducerOutput stdout = null;
+    private JobOutput stdout = null;
 
-    public void init( ReducerOutput... output ) {
+    public void init( JobOutput... output ) {
         this.stdout = output[0];
     }
 

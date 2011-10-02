@@ -36,68 +36,74 @@ public class ReducerTask implements Callable {
 
     public Object call() throws Exception {
 
-        //FIXME: this implements the DEFAULT sort everything approach not the
-        //hinted pre-sorted approach which in some applications would be MUCH
-        //faster for the reduce operation.
-
-        Partition partition = mapOutputIndex.partition;
+        try {
         
-        ReducerOutput[] reducerOutput = new ReducerOutput[ output.getReferences().size() ];
+            //FIXME: this implements the DEFAULT sort everything approach not the
+            //hinted pre-sorted approach which in some applications would be MUCH
+            //faster for the reduce operation.
 
-        List<PartitionWriter> openPartitionWriters = new ArrayList();
-        
-        int idx = 0;
-        for( OutputReference ref : output.getReferences() ) {
-
-            //FIXME: right now we only support file output... 
+            Partition partition = mapOutputIndex.partition;
             
-            String path = ((FileOutputReference)ref).getPath();
-            PartitionWriter writer = new PartitionWriter( partition, path );
-            reducerOutput[idx++] = new PartitionWriterReducerOutput( writer );
+            JobOutput[] reducerOutput = new JobOutput[ output.getReferences().size() ];
 
-            openPartitionWriters.add( writer );
+            List<PartitionWriter> openPartitionWriters = new ArrayList();
             
-        }
-        
-        this.reducer.init( reducerOutput );
+            int idx = 0;
+            for( OutputReference ref : output.getReferences() ) {
 
-        final AtomicInteger nr_tuples = new AtomicInteger();
-
-        SortListener listener = new SortListener() {
-    
-                public void onFinalValue( byte[] key, List<byte[]> values ) {
-
-                    try {
-                        reducer.reduce( key, values );
-                        nr_tuples.getAndIncrement();
-
-                    } catch ( Exception e ) {
-                        throw new RuntimeException( "Reduce failed: " , e );
-                    }
-                        
-                }
+                //FIXME: right now we only support file output... 
                 
-            };
+                String path = ((FileOutputReference)ref).getPath();
+                PartitionWriter writer = new PartitionWriter( partition, path );
+                reducerOutput[idx++] = new PartitionWriterJobOutput( writer );
+
+                openPartitionWriters.add( writer );
+                
+            }
+            
+            this.reducer.init( reducerOutput );
+
+            final AtomicInteger nr_tuples = new AtomicInteger();
+
+            SortListener listener = new SortListener() {
         
-        LocalReducer reducer = new LocalReducer( listener );
-        
-        Collection<MapOutputBuffer> mapOutputBuffers = mapOutputIndex.getMapOutput();
-        
-        for ( MapOutputBuffer mapOutputBuffer : mapOutputBuffers ) {
-            reducer.add( mapOutputBuffer.getChunkReader() );
+                    public void onFinalValue( byte[] key, List<byte[]> values ) {
+
+                        try {
+                            reducer.reduce( key, values );
+                            nr_tuples.getAndIncrement();
+
+                        } catch ( Exception e ) {
+                            throw new RuntimeException( "Reduce failed: " , e );
+                        }
+                            
+                    }
+                    
+                };
+            
+            LocalReducer reducer = new LocalReducer( listener );
+            
+            Collection<MapOutputBuffer> mapOutputBuffers = mapOutputIndex.getMapOutput();
+            
+            for ( MapOutputBuffer mapOutputBuffer : mapOutputBuffers ) {
+                reducer.add( mapOutputBuffer.getChunkReader() );
+            }
+
+            reducer.sort();
+
+            System.out.printf( "Sorted %,d entries for partition %s \n", nr_tuples.get() , mapOutputIndex.partition );
+
+            // we have to close ALL of our output streams now.
+
+            for( PartitionWriter opened : openPartitionWriters ) {
+                opened.close();
+            }
+
+        } finally {
+            
+            this.reducer.cleanup();
+
         }
-
-        reducer.sort();
-
-        System.out.printf( "Sorted %,d entries for partition %s \n", nr_tuples.get() , mapOutputIndex.partition );
-
-        // we have to close ALL of our output streams now.
-
-        for( PartitionWriter opened : openPartitionWriters ) {
-            opened.close();
-        }
-        
-        this.reducer.cleanup();
 
         return null;
 
@@ -105,11 +111,11 @@ public class ReducerTask implements Callable {
 
 }
 
-class PartitionWriterReducerOutput implements ReducerOutput {
+class PartitionWriterJobOutput implements JobOutput {
 
     protected PartitionWriter writer;
     
-    public PartitionWriterReducerOutput( PartitionWriter writer ) {
+    public PartitionWriterJobOutput( PartitionWriter writer ) {
         this.writer = writer;
     }
 
@@ -125,5 +131,9 @@ class PartitionWriterReducerOutput implements ReducerOutput {
         
     }
 
+    public void close() throws IOException {
+        writer.close();
+    }
+    
 }
 

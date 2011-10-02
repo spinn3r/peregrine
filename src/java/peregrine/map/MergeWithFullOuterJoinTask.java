@@ -18,6 +18,9 @@ public class MergeWithFullOuterJoinTask extends BaseMapperTask {
 
     public Object call() throws Exception {
 
+        //FIXME: this task doesn't surface global_chunk_id so technically this
+        //would not work with the distributed version.
+        
         this.mapper = (Merger)super.newMapper();
         super.setup( this.mapper );
 

@@ -15,9 +15,9 @@ public abstract class BaseMapper {
 
     public int partitions = 0;
 
-    private MapperOutput stdout = null;
+    private JobOutput stdout = null;
     
-    public void init( MapperOutput... output ) {
+    public void init( JobOutput... output ) {
 
         if ( output.length > 0 )
             this.stdout = output[0];

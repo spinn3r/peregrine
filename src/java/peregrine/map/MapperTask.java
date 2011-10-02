@@ -67,7 +67,7 @@ public class MapperTask extends BaseMapperTask {
         System.out.printf( "Handling chunk: %s on partition: %s with global_chunk_id: %016d, local_chunk_id: %s\n",
                            file.getPath(), partition, global_chunk_id, local_chunk_id );
 
-        shuffleMapperOutput.global_chunk_id = global_chunk_id;
+        shuffleJobOutput.global_chunk_id = global_chunk_id;
         
         ChunkReader reader = new DefaultChunkReader( file );
 

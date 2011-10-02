@@ -21,7 +21,7 @@ public abstract class BaseMapperTask implements Callable {
     protected int nr_partitions;
     protected Class mapper_clazz = null;
 
-    protected ShuffleMapperOutput shuffleMapperOutput;
+    protected ShuffleJobOutput shuffleJobOutput;
 
     private Input input = null;
 
@@ -67,9 +67,9 @@ public abstract class BaseMapperTask implements Callable {
 
     protected void setup( BaseMapper mapper ) {
 
-        shuffleMapperOutput = new ShuffleMapperOutput( nr_partitions );
+        shuffleJobOutput = new ShuffleJobOutput( nr_partitions );
         
-        MapperOutput[] output = new MapperOutput[] { shuffleMapperOutput };
+        JobOutput[] output = new JobOutput[] { shuffleJobOutput };
 
         mapper.init( output );
     }
@@ -80,13 +80,13 @@ public abstract class BaseMapperTask implements Callable {
 
 }
 
-class ShuffleMapperOutput implements MapperOutput {
+class ShuffleJobOutput implements JobOutput {
 
     private int partitions = 0;
 
     protected long global_chunk_id = -1;
 
-    public ShuffleMapperOutput( int partitions ) {
+    public ShuffleJobOutput( int partitions ) {
         this.partitions = partitions;
     }
     
@@ -100,5 +100,11 @@ class ShuffleMapperOutput implements MapperOutput {
         mapOutputIndex.accept( global_chunk_id, key, value );
 
     }
+
+    @Override 
+    public void close() throws IOException {
+
+    }
     
 }
+

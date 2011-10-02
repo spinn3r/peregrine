@@ -49,12 +49,12 @@ public class NodeMetadataJob {
 
     public static class Reduce extends Reducer {
 
-        ReducerOutput nodeMetadataOutput  = null;
-        ReducerOutput danglingOutput      = null;
-        ReducerOutput nonlinkedOutput     = null;
+        JobOutput nodeMetadataOutput  = null;
+        JobOutput danglingOutput      = null;
+        JobOutput nonlinkedOutput     = null;
 
         @Override
-        public void init( ReducerOutput... output ) {
+        public void init( JobOutput... output ) {
             nodeMetadataOutput  = output[0];
             danglingOutput      = output[1];
             nonlinkedOutput     = output[2];
