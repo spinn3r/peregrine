@@ -21,7 +21,7 @@ public class LocalPartitionWriter {
     private int chunk_id = 0;
 
     private ChunkWriter out = null;
-    
+
     public LocalPartitionWriter( String path ) throws IOException {
 
         this.path = path;
@@ -51,8 +51,13 @@ public class LocalPartitionWriter {
 
         if ( out != null )
             out.close();
-        
-        String chunk_path = String.format( "%s/%s" , this.path, LocalPartition.getFilenameForChunkID( this.chunk_id ) );
+
+        String chunk_path;
+        if ( path.endsWith( "/stat" ) ) {
+             chunk_path = path;
+        } else {
+            chunk_path = String.format( "%s/%s" , this.path, LocalPartition.getFilenameForChunkID( this.chunk_id ) );
+        }
 
         out = new ChunkWriter( chunk_path );
         

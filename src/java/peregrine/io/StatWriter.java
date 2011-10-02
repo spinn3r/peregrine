@@ -19,9 +19,31 @@ import peregrine.values.*;
  */
 class StatWriter {
 
-    public StatWriter( String path ) {
-
+    private PartitionWriter parent;
+    
+    public StatWriter( PartitionWriter parent ) {
+        this.parent = parent;
     }
 
+    public void write() throws IOException {
+
+        Map<Partition,List<Host>> partitionMembership = Config.getPartitionMembership();
+
+        String stat_path = parent.path + "/stat";
+        
+        for( Partition target : partitionMembership.keySet() ) {
+
+            PartitionWriter writer = new PartitionWriter( target, stat_path );
+
+            IntKey key = new IntKey( parent.partition.getId() );
+            IntValue value = new IntValue( parent.count() );
+
+            writer.write( key.toBytes(), value.toBytes() );
+            writer.close();
+            
+        }
+
+    }
+    
 }
 

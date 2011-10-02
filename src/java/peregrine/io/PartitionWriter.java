@@ -13,14 +13,18 @@ import peregrine.values.*;
  */
 public class PartitionWriter {
 
-    private String path = null;
+    protected String path;
 
-    private LocalPartitionWriter[] writers;
+    protected LocalPartitionWriter[] writers;
 
-    public PartitionWriter( Partition partition,
-                            String path ) throws IOException {
+    protected Partition partition;
+    
+    private int count = 0;
+
+    public PartitionWriter( Partition partition, String path ) throws IOException {
 
         this.path = path;
+        this.partition = partition;
 
         Map<Partition,List<Host>> partitionMembership = Config.getPartitionMembership();
 
@@ -43,13 +47,25 @@ public class PartitionWriter {
         for( LocalPartitionWriter writer : writers ) {
             writer.write( key, value );
         }
-        
+
+        ++count;
+
+    }
+
+    public int count() {
+        return count;
     }
 
     public void close() throws IOException {
 
         for( LocalPartitionWriter writer : writers ) {
             writer.close();
+        }
+
+        //write out the stat file.
+
+        if ( ! path.endsWith( "/stat" ) ) {
+            new StatWriter( this ).write();
         }
 
     }

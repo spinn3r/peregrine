@@ -118,7 +118,8 @@
             - handles writing to files or output references for additional map jobs
               and giving them to mapd or the reducer.    
               
-        - EMIT partition fd
+        - EMIT /part/0
+          EMIT /part/1
 
             Used during shuffle to write to a file descriptor.
         
@@ -136,7 +137,9 @@
         
             
     - we're going to need filesystem commands like stat() which then report back chunk stats.
-            
+
+- when writing the extract how am I going to do the parallel dispatch??? 
+    
 - Extract jobs should probably be written to disk FIRST (or buffered in memory)
   so that I can compute the checksums.
 

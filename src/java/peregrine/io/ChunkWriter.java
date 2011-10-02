@@ -25,7 +25,7 @@ public class ChunkWriter {
 
     private OutputStream out = null;
 
-    private int size = 0;
+    private int count = 0;
 
     protected long length = 0;
 
@@ -57,7 +57,7 @@ public class ChunkWriter {
         write( varintWriter.write( value.length ) );
         write( value );
 
-        ++size;
+        ++count;
 
     }
 
@@ -66,8 +66,8 @@ public class ChunkWriter {
         length += data.length;
     }
 
-    public int size() {
-        return size;
+    public int count() {
+        return count;
     }
 
     public long length() {
@@ -80,7 +80,7 @@ public class ChunkWriter {
             return;
 
         // last four bytes store the number of items.
-        out.write( IntBytes.toByteArray( size ) );
+        out.write( IntBytes.toByteArray( count ) );
         out.close();
 
         closed = true;
