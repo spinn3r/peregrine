@@ -84,4 +84,8 @@ public class TestMapReduce extends junit.framework.TestCase {
 
     }
 
+    public static void main( String[] args ) throws Exception {
+        new TestMapReduce().test1();
+    }
+
 }

@@ -68,21 +68,8 @@ public class ReducerTask extends BaseOutputTask implements Callable {
 
         final AtomicInteger nr_tuples = new AtomicInteger();
 
-        SortListener listener = new SortListener() {
-    
-                public void onFinalValue( byte[] key, List<byte[]> values ) {
-
-                    try {
-                        reducer.reduce( key, values );
-                        nr_tuples.getAndIncrement();
-
-                    } catch ( Exception e ) {
-                        throw new RuntimeException( "Reduce failed: " , e );
-                    }
-                        
-                }
-                
-            };
+        ReducerTaskSortListener listener =
+            new ReducerTaskSortListener( reducer );
         
         LocalReducer reducer = new LocalReducer( listener );
         
@@ -94,7 +81,7 @@ public class ReducerTask extends BaseOutputTask implements Callable {
 
         reducer.sort();
 
-        System.out.printf( "Sorted %,d entries for partition %s \n", nr_tuples.get() , mapOutputIndex.partition );
+        System.out.printf( "Sorted %,d entries for partition %s \n", listener.nr_tuples , mapOutputIndex.partition );
 
         // we have to close ALL of our output streams now.
 
@@ -102,3 +89,26 @@ public class ReducerTask extends BaseOutputTask implements Callable {
 
 }
 
+class ReducerTaskSortListener implements SortListener {
+
+    private Reducer reducer = null;
+
+    public int nr_tuples = 0;
+    
+    public ReducerTaskSortListener( Reducer reducer ) {
+        this.reducer = reducer;
+    }
+    
+    public void onFinalValue( byte[] key, List<byte[]> values ) {
+
+        try {
+            reducer.reduce( key, values );
+            ++nr_tuples;
+
+        } catch ( Exception e ) {
+            throw new RuntimeException( "Reduce failed: " , e );
+        }
+            
+    }
+
+}

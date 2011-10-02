@@ -113,9 +113,25 @@ public class Controller {
 
         System.out.printf( "Starting reducer: %s\n", reducer.getName() );
 
+        // we need to support reading input from the shuffler.  If the user
+        // doesn't specify input, use the default shuffler.
+        
+        if ( input == null || input.getReferences().size() == 0 ) {
+            input = new Input();
+            input.add( new ShuffleInputReference() );
+        }
+
+        if ( input.getReferences().size() != 1 ) {
+            throw new IOException( "Reducer requires one shuffle input." );
+        }
+
+        ShuffleInputReference shuffleInput = (ShuffleInputReference)input.getReferences().get( 0 );
+
+        Shuffler shuffler = Shuffler.getInstance( shuffleInput.getName() );
+        
         Map<Partition,List<Host>> partitionMembership = Config.getPartitionMembership();
 
-        Collection<MapOutputIndex> mapOutputIndexes = Shuffler.getInstance().getMapOutput();
+        Collection<MapOutputIndex> mapOutputIndexes = shuffler.getMapOutput();
 
         List<Callable> callables = new ArrayList();
 

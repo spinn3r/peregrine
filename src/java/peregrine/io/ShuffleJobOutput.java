@@ -19,8 +19,12 @@ public class ShuffleJobOutput implements JobOutput {
 
     public long global_chunk_id = -1;
 
-    public ShuffleJobOutput( int partitions ) {
-        this.partitions = partitions;
+    public ShuffleJobOutput() {
+
+        Map<Partition,List<Host>> partitionMembership = Config.getPartitionMembership();
+
+        this.partitions = partitionMembership.size();
+        
     }
     
     @Override
