@@ -13,30 +13,30 @@ import peregrine.util.*;
 import peregrine.map.*;
 import peregrine.io.*;
 
-public class ReducerTask implements Callable {
+public class ReducerTask extends BaseOutputTask implements Callable {
 
     private MapOutputIndex mapOutputIndex = null;
 
     private final Reducer reducer;
-
-    private Output output;
     
     public ReducerTask( MapOutputIndex mapOutputIndex,
                         Class reducer_class,
                         Output output )
         throws Exception {
+
+        super.init( mapOutputIndex.partition );
         
         this.mapOutputIndex = mapOutputIndex;
-
-        this.output = output;
-
         this.reducer = (Reducer)reducer_class.newInstance();
+
+        setOutput( output );
 
     }
 
     public Object call() throws Exception {
 
-        Partition partition = mapOutputIndex.partition;
+        if ( output.getReferences().size() == 0 )
+            throw new IOException( "Reducer tasks require output." );
 
         JobOutput[] jobOutput = JobOutputFactory.getJobOutput( partition, output );
 

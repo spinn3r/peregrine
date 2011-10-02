@@ -14,18 +14,36 @@ import peregrine.io.*;
 
 public class MergeWithFullOuterJoinTask extends BaseMapperTask {
     
-    private Merger mapper;
+    private Merger merger;
 
     public Object call() throws Exception {
 
-        //FIXME: this task doesn't surface global_chunk_id so technically this
-        //would not work with the distributed version.
+        merger = (Merger)super.newMapper();
+
+        try {
+            
+            setup();
+            merger.init( getJobOutput() );
+            
+            doCall();
+            
+        } finally {
+            merger.cleanup();
+            teardown();
+        }
+
+        return null;
         
-        this.mapper = (Merger)super.newMapper();
-        super.setup( this.mapper );
+    }
+
+    private void doCall() throws Exception {
 
         System.out.printf( "Running map jobs on host: %s\n", host );
 
+        //FIXME: this task doesn't surface global_chunk_id so technically this
+        //would not work with the distributed version.
+
+        // FIXME: move this to an input factory.
         List<LocalPartitionReader> readers = new ArrayList();
 
         for( InputReference ref : getInput().getReferences() ) {
@@ -36,23 +54,19 @@ public class MergeWithFullOuterJoinTask extends BaseMapperTask {
             
         }
 
-        LocalMerger merger = new LocalMerger( readers );
+        LocalMerger localMerger = new LocalMerger( readers );
 
         while( true ) {
 
-            JoinedTuple joined = merger.next();
+            JoinedTuple joined = localMerger.next();
 
             if ( joined == null )
                 break;
             
-            mapper.map( joined.key, joined.values );
+            this.merger.map( joined.key, joined.values );
             
         }
 
-        super.teardown( mapper );
-
-        return null;
-        
     }
-
+    
 }

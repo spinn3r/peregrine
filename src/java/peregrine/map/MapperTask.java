@@ -21,8 +21,25 @@ public class MapperTask extends BaseMapperTask {
 
     public Object call() throws Exception {
 
-        this.mapper = (Mapper)super.newMapper();
-        super.setup( this.mapper );
+        mapper = (Mapper)super.newMapper();
+
+        try {
+
+            setup();
+            mapper.init( getJobOutput() );
+            
+            doCall();
+            
+        } finally {
+            mapper.cleanup();
+            teardown();
+        }
+        
+        return null;
+        
+    }
+
+    private void doCall() throws Exception {
 
         //find the input for this task... Right now for the Mapper task only one
         //input file is supported.
@@ -54,12 +71,8 @@ public class MapperTask extends BaseMapperTask {
 
         }
 
-        super.teardown( mapper );
-        
-        return null;
-        
     }
-
+    
     private void callMapperOnChunk( File file,
                                     final long global_chunk_id,
                                     final int local_chunk_id ) throws Exception {
@@ -67,7 +80,8 @@ public class MapperTask extends BaseMapperTask {
         System.out.printf( "Handling chunk: %s on partition: %s with global_chunk_id: %016d, local_chunk_id: %s\n",
                            file.getPath(), partition, global_chunk_id, local_chunk_id );
 
-        shuffleJobOutput.global_chunk_id = global_chunk_id;
+        if ( shuffleJobOutput != null )
+            shuffleJobOutput.global_chunk_id = global_chunk_id;
         
         ChunkReader reader = new DefaultChunkReader( file );
 

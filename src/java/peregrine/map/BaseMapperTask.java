@@ -14,9 +14,8 @@ import peregrine.map.*;
 import peregrine.io.*;
 import peregrine.shuffle.*;
 
-public abstract class BaseMapperTask implements Callable {
+public abstract class BaseMapperTask extends BaseOutputTask implements Callable {
 
-    protected Partition partition;
     protected Host host;
     protected int nr_partitions;
     protected Class mapper_clazz = null;
@@ -24,14 +23,14 @@ public abstract class BaseMapperTask implements Callable {
     protected ShuffleJobOutput shuffleJobOutput;
 
     private Input input = null;
-    private Output output = null;
 
     public void init( Map<Partition,List<Host>> partitionMembership,
                       Partition partition,
                       Host host ,
                       Class mapper_clazz ) {
+
+        super.init( partition );
         
-        this.partition      = partition;
         this.host           = host;
         this.nr_partitions  = partitionMembership.size();
         this.mapper_clazz   = mapper_clazz;
@@ -44,14 +43,6 @@ public abstract class BaseMapperTask implements Callable {
 
     public void setInput( Input input ) { 
         this.input = input;
-    }
-
-    public Output getOutput() { 
-        return this.output;
-    }
-
-    public void setOutput( Output output ) { 
-        this.output = output;
     }
 
     /**
@@ -74,28 +65,19 @@ public abstract class BaseMapperTask implements Callable {
 
     }
 
-    protected void setup( BaseMapper mapper ) throws IOException {
-
-        JobOutput[] result;
+    @Override
+    public void setup() throws IOException {
 
         if ( output == null || output.getReferences().size() == 0 ) {
         
             shuffleJobOutput = new ShuffleJobOutput( nr_partitions );
             
-            result = new JobOutput[] { shuffleJobOutput };
+            setJobOutput( new JobOutput[] { shuffleJobOutput } );
 
         } else {
-
-            result = JobOutputFactory.getJobOutput( partition, output );
-            
+            super.setup();
         }
 
-        mapper.init( result );
-
-    }
-
-    protected void teardown( BaseMapper mapper ) {
-        mapper.cleanup();
     }
 
 }
