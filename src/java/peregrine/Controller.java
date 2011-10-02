@@ -27,10 +27,9 @@ public class Controller {
     /**
      * Run map jobs on all chunks on the given path.
      */
-    public static void map( final Class mapper, final Input input, final Output output ) throws Exception {
+    public static void map( final Class mapper, final Input input,
+                            final Output output ) throws Exception {
 
-        ShuffleManager.reset();
-        
         System.out.printf( "Starting mapper: %s\n", mapper.getName() );
 
         final Map<Partition,List<Host>> partitionMembership = Config.getPartitionMembership();
@@ -56,12 +55,18 @@ public class Controller {
 
     }
 
-    public static void mergeMapWithFullOuterJoin( Class mapper, String... paths ) throws Exception {
+    public static void mergeMapWithFullOuterJoin( Class mapper,
+                                                  String... paths ) throws Exception {
+
         mergeMapWithFullOuterJoin( mapper, new Input( paths ) );
+
     }
 
-    public static void mergeMapWithFullOuterJoin( final Class mapper, final Input input ) throws Exception {
+    public static void mergeMapWithFullOuterJoin( final Class mapper,
+                                                  final Input input ) throws Exception {
+
         mergeMapWithFullOuterJoin( mapper, input, null );
+
     }
 
     /**
@@ -74,10 +79,10 @@ public class Controller {
      * will be produced in the result set (containing fields populated from both
      * tables)
      */
-    public static void mergeMapWithFullOuterJoin( final Class mapper, final Input input, final Output output ) throws Exception {
+    public static void mergeMapWithFullOuterJoin( final Class mapper,
+                                                  final Input input,
+                                                  final Output output ) throws Exception {
 
-        ShuffleManager.reset();
-        
         System.out.printf( "Starting mapper: %s\n", mapper.getName() );
 
         final Map<Partition,List<Host>> partitionMembership = Config.getPartitionMembership();
@@ -117,7 +122,7 @@ public class Controller {
 
         Map<Partition,List<Host>> partitionMembership = Config.getPartitionMembership();
 
-        Collection<MapOutputIndex> mapOutputIndexes = ShuffleManager.getMapOutput();
+        Collection<MapOutputIndex> mapOutputIndexes = Shuffler.getInstance().getMapOutput();
 
         List<Callable> callables = new ArrayList();
 
@@ -126,6 +131,8 @@ public class Controller {
         }
 
         waitFor( callables );
+
+        Shuffler.getInstance().reset();
 
         System.out.printf( "Finished reducer: %s\n", reducer.getName() );
         

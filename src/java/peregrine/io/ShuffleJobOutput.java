@@ -26,9 +26,11 @@ public class ShuffleJobOutput implements JobOutput {
     @Override
     public void emit( byte[] key , byte[] value ) {
 
+        Shuffler shuffler = Shuffler.getInstance();
+        
         Partition target_partition = Config.route( key, partitions, true );
 
-        MapOutputIndex mapOutputIndex = ShuffleManager.getMapOutputIndex( target_partition );
+        MapOutputIndex mapOutputIndex = shuffler.getMapOutputIndex( target_partition );
         
         mapOutputIndex.accept( global_chunk_id, key, value );
 

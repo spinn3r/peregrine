@@ -22,11 +22,14 @@ public class JobOutputFactory {
         int idx = 0;
         for( OutputReference ref : output.getReferences() ) {
 
-            //FIXME: right now we only support file output... 
-            
-            String path = ((FileOutputReference)ref).getPath();
-            PartitionWriter writer = new PartitionWriter( partition, path );
-            jobOutput[idx++] = new PartitionWriterJobOutput( writer );
+            if ( ref instanceof FileOutputReference ) {
+                String path = ((FileOutputReference)ref).getPath();
+                PartitionWriter writer = new PartitionWriter( partition, path );
+                jobOutput[idx++] = new PartitionWriterJobOutput( writer );
+            } else {
+                //FIXME: right now we only support file output... 
+                throw new IOException( "ref not supported: " + ref.getClass().getName() );
+            }
 
         }
 
