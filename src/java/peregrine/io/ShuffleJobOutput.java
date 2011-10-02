@@ -19,19 +19,25 @@ public class ShuffleJobOutput implements JobOutput {
 
     public long global_chunk_id = -1;
 
+    private Shuffler shuffler = null;
+    
     public ShuffleJobOutput() {
+        this( "default" );
+    }
+        
+    public ShuffleJobOutput( String name ) {
 
         Map<Partition,List<Host>> partitionMembership = Config.getPartitionMembership();
 
         this.partitions = partitionMembership.size();
+
+        this.shuffler = Shuffler.getInstance( name );
         
     }
     
     @Override
     public void emit( byte[] key , byte[] value ) {
 
-        Shuffler shuffler = Shuffler.getInstance();
-        
         Partition target_partition = Config.route( key, partitions, true );
 
         MapOutputIndex mapOutputIndex = shuffler.getMapOutputIndex( target_partition );

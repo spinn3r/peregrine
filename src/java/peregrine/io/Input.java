@@ -17,9 +17,14 @@ public final class Input {
             add( new FileInputReference( path ) );
         }
     }
+
+    public Input( InputReference ref ) {
+        add( ref );
+    }
     
-    public void add( InputReference ref ) {
+    public Input add( InputReference ref ) {
         this.references.add( ref );
+        return this;
     }
 
     public List<InputReference> getReferences() {

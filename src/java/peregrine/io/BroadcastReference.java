@@ -12,5 +12,9 @@ public final class BroadcastReference implements OutputReference {
         this.name = name;
     }
 
+    public String getName() {
+        return name;
+    }
+
 }
     

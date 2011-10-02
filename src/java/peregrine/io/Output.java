@@ -16,8 +16,13 @@ public final class Output {
         }
     }
 
-    public void add( OutputReference ref ) {
+    public Output( OutputReference ref ) {
+        add( ref );
+    }
+
+    public Output add( OutputReference ref ) {
         this.references.add( ref );
+        return this;
     }
 
     public List<OutputReference> getReferences() {

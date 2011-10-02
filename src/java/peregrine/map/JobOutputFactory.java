@@ -26,6 +26,13 @@ public class JobOutputFactory {
                 String path = ((FileOutputReference)ref).getPath();
                 PartitionWriter writer = new PartitionWriter( partition, path );
                 jobOutput[idx++] = new PartitionWriterJobOutput( writer );
+
+            } else if ( ref instanceof BroadcastReference ) {
+
+                BroadcastReference bcast = (BroadcastReference) ref;
+                
+                jobOutput[idx++] = new ShuffleJobOutput( bcast.getName() );
+                
             } else {
                 //FIXME: right now we only support file output... 
                 throw new IOException( "ref not supported: " + ref.getClass().getName() );
