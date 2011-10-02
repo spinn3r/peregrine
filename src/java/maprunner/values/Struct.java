@@ -60,6 +60,7 @@ public class Struct implements Value {
         return new IntValue( values.get( ptr++ ) ).value;
     }
 
+    @Override
     public byte[] toBytes() {
 
         try {
@@ -80,6 +81,7 @@ public class Struct implements Value {
         
     }
 
+    @Override
     public void fromBytes( byte[] data ) {
 
         try {
@@ -103,6 +105,7 @@ public class Struct implements Value {
 
     }
 
+    @Override
     public String toString() {
 
         StringBuffer buff = new StringBuffer();
