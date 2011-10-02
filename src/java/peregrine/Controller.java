@@ -14,6 +14,8 @@ import peregrine.io.*;
 
 public class Controller {
 
+    // FIXME: a lot of this class is boilerplate and could be refactored.
+    
     public static void map( Class mapper, String... paths ) throws Exception {
         map( mapper, new Input( paths ) );
     }
@@ -58,6 +60,10 @@ public class Controller {
         mergeMapWithFullOuterJoin( mapper, new Input( paths ) );
     }
 
+    public static void mergeMapWithFullOuterJoin( final Class mapper, final Input input ) throws Exception {
+        mergeMapWithFullOuterJoin( mapper, input, null );
+    }
+
     /**
      * http://en.wikipedia.org/wiki/Join_(SQL)#Full_outer_join
      * 
@@ -68,7 +74,7 @@ public class Controller {
      * will be produced in the result set (containing fields populated from both
      * tables)
      */
-    public static void mergeMapWithFullOuterJoin( final Class mapper, final Input input ) throws Exception {
+    public static void mergeMapWithFullOuterJoin( final Class mapper, final Input input, final Output output ) throws Exception {
 
         ShuffleManager.reset();
         
@@ -85,7 +91,8 @@ public class Controller {
                     task.init( partitionMembership, part, host, mapper );
 
                     task.setInput( input );
-
+                    task.setOutput( output );
+                    
                     return task;
                     
                 }

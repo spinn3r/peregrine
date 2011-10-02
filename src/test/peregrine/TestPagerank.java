@@ -39,10 +39,12 @@ public class TestPagerank extends junit.framework.TestCase {
         Controller.reduce( Reducer.class, "/pr/test.graph.sorted" );
 
         //now create node metadata...
-        Controller.mergeMapWithFullOuterJoin( NodeMetadataJob.Map.class, "/pr/tmp/node_indegree", "/pr/test.graph.sorted" );
+        Controller.mergeMapWithFullOuterJoin( NodeMetadataJob.Map.class,
+                                              new Input( "/pr/tmp/node_indegree", "/pr/test.graph.sorted" ),
+                                              new Output( "/pr/out/node_metadata", "/pr/out/dangling", "/pr/out/nonlinked" ) );
 
         //FIXME: hint about the fact that these keys are pre-sorted
-        Controller.reduce( NodeMetadataJob.Reduce.class, "/pr/out/node_metadata", "/pr/out/dangling", "/pr/out/nonlinked" );
+        //Controller.reduce( NodeMetadataJob.Reduce.class, );
 
         //now read in the output and make sure our results are correct...
         

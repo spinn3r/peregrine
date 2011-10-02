@@ -10,11 +10,7 @@ public final class Output {
 
     private List<OutputReference> references = new ArrayList();
 
-    public Output( String path ) {
-        add( new FileOutputReference( path ) );
-    }
-
-    public Output( String[] paths ) {
+    public Output( String... paths ) {
         for( String path : paths ) {
             add( new FileOutputReference( path ) );
         }
