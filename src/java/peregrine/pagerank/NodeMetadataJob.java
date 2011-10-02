@@ -92,4 +92,14 @@ public class NodeMetadataJob {
 
     }
 
+    public static class Reduce extends Reducer {
+
+        @Override
+        public void reduce( byte[] key, List<byte[]> values ) {
+            
+            
+        }
+        
+    }
+
 }

@@ -46,6 +46,8 @@ public class TestPagerank extends junit.framework.TestCase {
                                                           new FileOutputReference( "/pr/out/nonlinked" ),
                                                           new BroadcastOutputReference( "nr_nodes" ) ) );
 
+
+        
         //FIXME: hint about the fact that these keys are pre-sorted
         //Controller.reduce( NodeMetadataJob.Reduce.class, );
         

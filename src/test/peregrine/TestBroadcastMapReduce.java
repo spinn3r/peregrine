@@ -45,7 +45,10 @@ public class TestBroadcastMapReduce extends junit.framework.TestCase {
             System.out.printf( "Writing count: %,d\n", count );
 
             byte[] key = new HashKey( "count" ).toBytes();
-            byte[] value = new IntValue( count ).toBytes();
+
+            byte[] value = new StructWriter()
+                .writeVarint( count )
+                .toBytes();
             
             countBroadcast.emit( key, value );
             
@@ -61,14 +64,14 @@ public class TestBroadcastMapReduce extends junit.framework.TestCase {
             int count = 0;
             
             for( byte[] val : values ) {
-                count += new IntValue( val ).value;
+                count += new StructReader( val ).readVarint();
             }
             
             if ( count != 1000 )
                throw new RuntimeException( "Wrong size: " + count );
 
-            System.out.printf( "FIXME: found %,d count from key\n", count );
-            
+            System.out.printf( "FIXME: found %,d broadcast count from key\n", count );
+
         }
 
     }
@@ -102,6 +105,9 @@ public class TestBroadcastMapReduce extends junit.framework.TestCase {
         Controller.reduce( Reduce.class,
                            new Input( new ShuffleInputReference( "count" ) ),
                            new Output( output ) );
+
+        // FIXME: we have to actually emit values from the reducer and assert
+        // their value across all partitions now.
 
     }
 
