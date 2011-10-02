@@ -43,6 +43,8 @@ public class MergeWithFullOuterJoinTask extends BaseMapperTask {
         //FIXME: this task doesn't surface global_chunk_id so technically this
         //would not work with the distributed version.
 
+        LocalPartitionReaderListener listener = new MapperChunkRolloverListener( this );
+        
         // FIXME: move this to an input factory.
         List<LocalPartitionReader> readers = new ArrayList();
 
@@ -50,7 +52,7 @@ public class MergeWithFullOuterJoinTask extends BaseMapperTask {
 
             FileInputReference file = (FileInputReference) ref;
             
-            readers.add( new LocalPartitionReader( partition, host, file.getPath() ) );
+            readers.add( new LocalPartitionReader( partition, host, file.getPath(), listener ) );
             
         }
 
