@@ -62,12 +62,6 @@ public class PartitionWriter {
             writer.close();
         }
 
-        //write out the stat file.
-
-        if ( ! path.endsWith( "/stat" ) ) {
-            new StatWriter( this ).write();
-        }
-
     }
 
     public String toString() {
