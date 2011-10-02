@@ -18,10 +18,14 @@ public class Controller {
         map( mapper, new Input( paths ) );
     }
 
+    public static void map( final Class mapper, final Input input ) throws Exception {
+        map( mapper, input, null );
+    }
+        
     /**
      * Run map jobs on all chunks on the given path.
      */
-    public static void map( final Class mapper, final Input input ) throws Exception {
+    public static void map( final Class mapper, final Input input, final Output output ) throws Exception {
 
         ShuffleManager.reset();
         
@@ -38,7 +42,8 @@ public class Controller {
                     task.init( partitionMembership, part, host, mapper );
 
                     task.setInput( input );
-
+                    task.setOutput( output );
+                    
                     return task;
                     
                 }

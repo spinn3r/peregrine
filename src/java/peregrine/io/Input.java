@@ -12,6 +12,10 @@ public final class Input {
 
     public Input() { }
 
+    public Input( String path ) {
+        add( new FileInputReference( path ) );
+    }
+
     public Input( String[] paths ) {
         for( String path : paths ) {
             add( new FileInputReference( path ) );
