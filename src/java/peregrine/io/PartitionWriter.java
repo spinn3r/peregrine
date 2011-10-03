@@ -22,6 +22,10 @@ public class PartitionWriter {
     private int count = 0;
 
     public PartitionWriter( Partition partition, String path ) throws IOException {
+        this( partition, path, false );
+    }
+    
+    public PartitionWriter( Partition partition, String path, boolean append ) throws IOException {
 
         this.path = path;
         this.partition = partition;
@@ -36,7 +40,12 @@ public class PartitionWriter {
 
             Host member = membership.get( i );
 
-            writers[ i ] = new LocalPartitionWriter( Config.getDFSPath( partition, member, path ) );
+            String dfs_path = Config.getDFSPath( partition, member, path );
+
+            LocalPartitionWriter writer = new LocalPartitionWriter( dfs_path, append );
+            
+            writers[ i ] = writer;
+            
         }
 
     }

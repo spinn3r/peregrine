@@ -23,16 +23,28 @@ public class LocalPartitionWriter {
     private ChunkWriter out = null;
 
     public LocalPartitionWriter( String path ) throws IOException {
+        this( path, false );
+    }
+        
+    public LocalPartitionWriter( String path, boolean append ) throws IOException {
 
         this.path = path;
 
-        List<File> chunks =
-            LocalPartition.getChunkFiles( path );
+        List<File> chunks = LocalPartition.getChunkFiles( path );
 
-        for ( File chunk : chunks ) {
+        if ( append == false ) {
+            
+            for ( File chunk : chunks ) {
+                
+                if ( ! chunk.delete() )
+                    throw new IOException( "Unable to remove local chunk: " + chunk );
+                
+            }
 
-            if ( ! chunk.delete() )
-                throw new IOException( "Unable to remove local chunk: " + chunk );
+        } else {
+
+            // the chunk_id needs to be changed so that the append works.
+            chunk_id = chunks.size();
             
         }
         

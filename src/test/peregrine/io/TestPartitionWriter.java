@@ -99,6 +99,83 @@ public class TestPartitionWriter extends peregrine.BaseTest {
         
     }
 
+    public void test3() throws Exception {
+
+        int max_per_round = 10000;
+        
+        System.out.printf( "Running test3...\n" );
+        
+        DiskPerf.remove( Config.DFS_ROOT );
+
+        Partition part = new Partition( 0 );
+        Host host = new Host( "cpu0", 0, 0 );
+
+        String path = "/tmp/test";
+
+        // **** STEP 1 ... make a new file and write lots of chunks to it.
+        
+        LocalPartitionWriter.CHUNK_SIZE = 1000;
+
+        PartitionWriter writer = new PartitionWriter( new Partition( 0 ), path );
+
+        for ( int i = 0; i < max_per_round; ++i ) {
+
+            byte[] key = new StructWriter()
+                .writeVarint( i )
+                .toBytes()
+                ;
+
+            byte[] value = key;
+
+            writer.write( key, value );
+            
+        }
+
+        writer.close();
+
+        // **** STEP 2 ok... do the SAME thing but this time in append mode.
+
+        writer = new PartitionWriter( new Partition( 0 ), path, true );
+
+        for ( int i = 0; i < max_per_round; ++i ) {
+
+            byte[] key = new StructWriter()
+                .writeVarint( i )
+                .toBytes()
+                ;
+
+            byte[] value = key;
+
+            writer.write( key, value );
+            
+        }
+
+        writer.close();
+
+        // **** STEP 3 ok.... now READ all the values out and make sure we have 2 x 
+
+        LocalPartitionReader reader = new LocalPartitionReader( part, host, path );
+
+        int count = 0;
+        while( true ) {
+
+            Tuple t = reader.read();
+
+            if ( t == null )
+                break;
+
+            ++count;
+            
+        }
+
+        System.out.printf( "Read %,d entries from appended file.\n", count );
+        
+        reader.close();
+        
+        assertEquals( count, max_per_round * 2 );
+        
+    }
+
     public void setUp() {
 
         super.setUp();
@@ -115,8 +192,8 @@ public class TestPartitionWriter extends peregrine.BaseTest {
         //System.out.printf( "%s\n", t.run() );
 
         t.setUp();
-        t.test2();
-        t.tearDown();
+        t.test3();
+        //t.tearDown();
         
         //t.test1();
         
