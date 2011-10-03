@@ -65,7 +65,7 @@ public class TestPagerank extends junit.framework.TestCase {
                                               new Input( new FileInputReference( "/pr/test.graph_by_source" ),
                                                          new FileInputReference( "/pr/out/rank_vector" ),
                                                          new FileInputReference( "/pr/out/dangling" ),
-//                                                         new FileInputReference( "/pr/out/nonlinked" ),
+                                                         new FileInputReference( "/pr/out/nonlinked" ),
                                                          new BroadcastInputReference( "/pr/out/nr_nodes" ) ),
                                               new Output( new BroadcastOutputReference( "dangling_rank_sum" ) ) );
 

@@ -48,11 +48,7 @@ public class IterJob {
             byte[] graph_by_source  = values[0];
             byte[] rank_vector      = values[1];
             byte[] dangling         = values[2];
-
-            byte[] nonlinked        = null;
-            
-            if ( values.length >= 4 )
-                nonlinked = values[3];
+            byte[] nonlinked        = values[3];
 
             System.out.printf( "key: %s , graph_by_source: %s, rank_vector: %s, dangling=%s, nonlinked=%s\n",
                                Hex.encode( key ),
