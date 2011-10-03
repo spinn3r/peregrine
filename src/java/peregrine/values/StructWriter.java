@@ -13,46 +13,36 @@ import peregrine.util.*;
  */
 public class StructWriter {
 
-    private ByteArrayOutputStream out = new ByteArrayOutputStream();
+    private ByteArrayOutputStream out = null;
+    private UnsafeOutputStream unsafe = null;
 
     private static VarintWriter varintWriter = new VarintWriter();
-    
+
+    public StructWriter() {
+
+        out = new ByteArrayOutputStream();
+        unsafe = new UnsafeOutputStream( out );
+        
+    }
+
     public StructWriter writeVarint( int value ) {
 
-        try {
-            
-            out.write( varintWriter.write( value ) );
-            return this;
-            
-        } catch ( IOException e ) {
-            throw new RuntimeException( e );
-        }
+        unsafe.write( varintWriter.write( value ) );
+        return this;
         
     }
 
     public StructWriter writeDouble( double value ) {
 
-        try {
-
-            out.write( LongBytes.toByteArray( Double.doubleToLongBits( value ) ) );
-            return this;
-            
-        } catch ( IOException e ) {
-            throw new RuntimeException( e );
-        }
+        unsafe.write( LongBytes.toByteArray( Double.doubleToLongBits( value ) ) );
+        return this;
 
     }
     
     public StructWriter writeHashcode( String key ) {
 
-        try {
-            
-            out.write( Hashcode.getHashcode( key ) );
-            return this;
-            
-        } catch ( IOException e ) {
-            throw new RuntimeException( e );
-        }
+        unsafe.write( Hashcode.getHashcode( key ) );
+        return this;
         
     }
     
@@ -62,4 +52,26 @@ public class StructWriter {
         
     }
     
+}
+
+class UnsafeOutputStream {
+
+    private OutputStream delegate = null;
+    
+    public UnsafeOutputStream( OutputStream is ) {
+        this.delegate = is;
+    }
+
+    public void write( byte[] data ) {
+
+        try {
+
+            this.delegate.write( data );
+            
+        } catch ( IOException e ) {
+            throw new RuntimeException(e);
+        }
+        
+    }
+
 }
