@@ -49,9 +49,7 @@ public class ReducerTask extends BaseOutputTask implements Callable {
 
             setup();
 
-            reducer.setBroadcastInput( BroadcastInputFactory.getBroadcastInput( getInput(),
-                                                                                partition,
-                                                                                host ) );
+            reducer.setBroadcastInput( BroadcastInputFactory.getBroadcastInput( getInput(), partition, host ) );
 
             reducer.init( getJobOutput() );
 
@@ -121,6 +119,7 @@ class ReducerTaskSortListener implements SortListener {
     public void onFinalValue( byte[] key, List<byte[]> values ) {
 
         try {
+
             reducer.reduce( key, values );
             ++nr_tuples;
 

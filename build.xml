@@ -108,6 +108,7 @@
 
         <junit printsummary="on"
                fork="true"
+               forkmode="perTest"
                filtertrace="false"
                haltonfailure="true"
                haltonerror="true"
