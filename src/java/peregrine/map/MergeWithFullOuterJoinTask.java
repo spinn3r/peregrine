@@ -38,7 +38,7 @@ public class MergeWithFullOuterJoinTask extends BaseMapperTask {
 
     private void doCall() throws Exception {
 
-        System.out.printf( "Running map jobs on host: %s\n", host );
+        System.out.printf( "Running merge jobs on host: %s\n", host );
 
         //FIXME: this task doesn't surface global_chunk_id so technically this
         //would not work with the distributed version.

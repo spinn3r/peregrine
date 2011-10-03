@@ -1,4 +1,12 @@
 
+
+
+
+- The way we're handling broadcast values will yield TOO MANY values for chunks
+  ... should I expose the listener interface for map jobs?
+
+
+
 - I think that Joiner should be called Merger similar to Mapper and Reducer
   ... in fact this is probably the right thing to do because even though the
   logistics are 'join' I'd rather it be modeled after the Map , Reduce , Merge

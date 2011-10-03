@@ -41,48 +41,14 @@ public class MapperTask extends BaseMapperTask {
 
     private void doCall() throws Exception {
 
-        //find the input for this task... Right now for the Mapper task only one
-        //input file is supported.
+        LocalPartitionReaderListener listener = new MapperChunkRolloverListener( this );
+
         FileInputReference ref = (FileInputReference)getInput().getReferences().get( 0 );
 
         String path = ref.getPath();
-        
-        System.out.printf( "Running map jobs on host: %s\n", host );
 
-        List<File> chunks = LocalPartition.getChunkFiles( partition, host, path );
-
-        // NOTE: there are two ways to compute the partition_chunk_prefix ... we
-        // could simply shift host ID 32 bits but then the printed form of the
-        // int isn't usable for debug purposes.  If we just use some padding of
-        // zeros then we still have plenty of hosts and plenty of chunks but
-        // it's a bit more readable.
-
-        long partition_chunk_prefix = (long)partition.getId() * 1000000000;
-
-        ChunkReference chunkRef = new ChunkReference();
-
-        chunkRef.local = 0;
-
-        for ( File file : chunks ) {
-
-            chunkRef.global = partition_chunk_prefix + chunkRef.local;
-            
-            callMapperOnChunk( file, chunkRef );
-
-            ++chunkRef.local;
-
-        }
-
-    }
-    
-    private void callMapperOnChunk( File file, ChunkReference chunkRef ) throws Exception {
-
-        System.out.printf( "Handling chunk: %s on partition: %s with global_chunk_id: %016d, local_chunk_id: %s\n",
-                           file.getPath(), partition, chunkRef.global, chunkRef.local );
-
-        fireOnChunk( chunkRef );
-        
-        ChunkReader reader = new DefaultChunkReader( file );
+        LocalPartitionReader reader =
+            new LocalPartitionReader( partition, host, path, listener );
 
         while( true ) {
 
@@ -95,8 +61,6 @@ public class MapperTask extends BaseMapperTask {
 
         }
 
-        fireOnChunkEnd( chunkRef );
-
     }
-    
+
 }
