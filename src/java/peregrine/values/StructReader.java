@@ -15,10 +15,13 @@ public class StructReader {
 
     private ByteArrayInputStream in;
 
+    private UnsafeInputStream unsafe;
+    
     private static VarintReader varintReader = new VarintReader();
 
     public StructReader( byte[] data ) {
         this.in = new ByteArrayInputStream( data );
+        this.unsafe = new UnsafeInputStream( this.in );
     }
 
     public int readVarint() {
@@ -35,32 +38,42 @@ public class StructReader {
 
     public double readDouble() {
 
-        try {
+        byte[] data = new byte[8];
+        unsafe.read( data );
 
-            byte[] data = new byte[8];
-            in.read( data );
-
-            return Double.longBitsToDouble( LongBytes.toLong( data ) );
-            
-        } catch ( IOException e ) {
-            throw new RuntimeException( e );
-        }
+        return Double.longBitsToDouble( LongBytes.toLong( data ) );
 
     }
 
     public byte[] readHashcode() {
 
+        byte[] result = new byte[Hashcode.HASH_WIDTH];
+        unsafe.read( result );
+
+        return result;
+
+    }
+    
+}
+
+class UnsafeInputStream {
+
+    private InputStream delegate = null;
+    
+    public UnsafeInputStream( InputStream is ) {
+        this.delegate = is;
+    }
+
+    public void read( byte[] data ) {
+
         try {
 
-            byte[] result = new byte[Hashcode.HASH_WIDTH];
-            in.read( result );
-
-            return result;
+            this.delegate.read( data );
             
         } catch ( IOException e ) {
-            throw new RuntimeException( e );
+            throw new RuntimeException(e);
         }
         
     }
-    
+
 }
