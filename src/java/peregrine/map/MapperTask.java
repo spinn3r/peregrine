@@ -43,12 +43,13 @@ public class MapperTask extends BaseMapperTask {
 
         LocalPartitionReaderListener listener = new MapperChunkRolloverListener( this );
 
-        FileInputReference ref = (FileInputReference)getInput().getReferences().get( 0 );
+        if ( getInput().getReferences().size() != 1 ) {
+            throw new Exception( "Map jobs must be provided with one input." );
+        }
 
-        String path = ref.getPath();
+        List<LocalPartitionReader> readers = getLocalPartitionReaders( listener );
 
-        LocalPartitionReader reader =
-            new LocalPartitionReader( partition, host, path, listener );
+        LocalPartitionReader reader = readers.get( 0 );
 
         while( true ) {
 

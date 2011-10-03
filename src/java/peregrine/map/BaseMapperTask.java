@@ -102,6 +102,26 @@ public abstract class BaseMapperTask extends BaseOutputTask implements Callable 
         
     }
 
+    /**
+     * Construct a set of partition readers from the input.
+     */
+    protected List<LocalPartitionReader> getLocalPartitionReaders( LocalPartitionReaderListener listener)
+        throws IOException {
+
+        List<LocalPartitionReader> readers = new ArrayList();
+
+        for( InputReference ref : getInput().getReferences() ) {
+
+            FileInputReference file = (FileInputReference) ref;
+            
+            readers.add( new LocalPartitionReader( partition, host, file.getPath(), listener ) );
+            
+        }
+
+        return readers;
+        
+    }
+    
 }
 
 class MapperChunkRolloverListener implements LocalPartitionReaderListener {
