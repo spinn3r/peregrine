@@ -32,6 +32,7 @@ public class ChunkWriter {
     private boolean closed = false;
     
     public ChunkWriter( String path ) throws IOException {
+
         this.path = path;
 
         // make sure the parent directories exist.

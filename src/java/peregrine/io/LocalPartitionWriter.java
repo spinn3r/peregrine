@@ -63,7 +63,7 @@ public class LocalPartitionWriter {
             out.close();
 
         String chunk_name = LocalPartition.getFilenameForChunkID( this.chunk_id );
-        String chunk_path = String.format( "%s/%s" , this.path, chunk_name );
+        String chunk_path = new File( this.path, chunk_name ).getPath();
 
         out = new ChunkWriter( chunk_path );
         
