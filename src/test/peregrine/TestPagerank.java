@@ -39,13 +39,13 @@ public class TestPagerank extends junit.framework.TestCase {
         Controller.reduce( Reducer.class, null, new Output( "/pr/test.graph_by_source" ) );
 
         //now create node metadata...
-        Controller.mergeMapWithFullOuterJoin( NodeMetadataJob.Map.class,
-                                              new Input( "/pr/tmp/node_indegree", "/pr/test.graph_by_source" ),
-                                              new Output( new FileOutputReference( "/pr/out/node_metadata" ),
-                                                          new FileOutputReference( "/pr/out/dangling" ),
-                                                          new FileOutputReference( "/pr/out/nonlinked" ),
-                                                          new BroadcastOutputReference( "nr_nodes" ) ) );
-
+        Controller.merge( NodeMetadataJob.Map.class,
+                          new Input( "/pr/tmp/node_indegree", "/pr/test.graph_by_source" ),
+                          new Output( new FileOutputReference( "/pr/out/node_metadata" ),
+                                      new FileOutputReference( "/pr/out/dangling" ),
+                                      new FileOutputReference( "/pr/out/nonlinked" ),
+                                      new BroadcastOutputReference( "nr_nodes" ) ) );
+        
         String nr_nodes_path = "/pr/out/nr_nodes";
 
         Controller.reduce( NodeMetadataJob.Reduce.class,
@@ -61,13 +61,13 @@ public class TestPagerank extends junit.framework.TestCase {
 
         // FIXME: add nonlinked... 
         
-        Controller.mergeMapWithFullOuterJoin( IterJob.Map.class,
-                                              new Input( new FileInputReference( "/pr/test.graph_by_source" ),
-                                                         new FileInputReference( "/pr/out/rank_vector" ),
-                                                         new FileInputReference( "/pr/out/dangling" ),
-                                                         new FileInputReference( "/pr/out/nonlinked" ),
-                                                         new BroadcastInputReference( "/pr/out/nr_nodes" ) ),
-                                              new Output( new BroadcastOutputReference( "dangling_rank_sum" ) ) );
+        Controller.merge( IterJob.Map.class,
+                          new Input( new FileInputReference( "/pr/test.graph_by_source" ),
+                                     new FileInputReference( "/pr/out/rank_vector" ),
+                                     new FileInputReference( "/pr/out/dangling" ),
+                                     new FileInputReference( "/pr/out/nonlinked" ),
+                                     new BroadcastInputReference( "/pr/out/nr_nodes" ) ),
+                          new Output( new BroadcastOutputReference( "dangling_rank_sum" ) ) );
 
         Controller.reduce( IterJob.Reduce.class,
                            null,
