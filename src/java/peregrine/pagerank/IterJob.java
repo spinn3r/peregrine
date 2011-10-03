@@ -49,36 +49,49 @@ public class IterJob {
             byte[] rank_vector      = values[1];
             byte[] dangling         = values[2];
 
-            System.out.printf( "key: %s , graph_by_source: %s, rank_vector: %s, dangling=%s\n",
+            byte[] nonlinked        = null;
+            
+            if ( values.length >= 4 )
+                nonlinked = values[3];
+
+            System.out.printf( "key: %s , graph_by_source: %s, rank_vector: %s, dangling=%s, nonlinked=%s\n",
                                Hex.encode( key ),
                                Hex.encode( graph_by_source ),
                                Hex.encode( rank_vector ),
-                               Hex.encode( dangling ) );
-            
-            HashSetValue outbound = new HashSetValue( graph_by_source );
+                               Hex.encode( dangling ),
+                               Hex.encode( nonlinked ) );
 
-            int outdegree = outbound.size();
-
+            // for the first pass, the rank_vector will be null.
+            // TODO expand this in the future to support iter > 0 
             double rank = 1 / nr_nodes;
 
-            double grant = rank / outdegree;
-            
-            for ( byte[] target : outbound.getValues() ) {
-
-                byte[] value = new StructWriter()
-                    .writeDouble( grant )
-                    .toBytes();
-                
-                emit( target, value );
-
-            }
-
-            // now ... if this is a dangling node... emit it so that we can sum
-            // up over the dangling nodes.
             if ( dangling != null ) {
-                dangling_rank_sum += rank;
-            }
 
+                // this is a dangling node.  It will not have any outbound
+                // links so don't attempt to index them.
+
+                dangling_rank_sum += rank;
+
+            } else { 
+            
+                HashSetValue outbound = new HashSetValue( graph_by_source );
+
+                int outdegree = outbound.size();
+
+                double grant = rank / outdegree;
+                
+                for ( byte[] target : outbound.getValues() ) {
+
+                    byte[] value = new StructWriter()
+                        .writeDouble( grant )
+                        .toBytes();
+                    
+                    emit( target, value );
+
+                }
+
+            }
+                
         }
 
         @Override

@@ -65,6 +65,7 @@ public class TestPagerank extends junit.framework.TestCase {
                                               new Input( new FileInputReference( "/pr/test.graph_by_source" ),
                                                          new FileInputReference( "/pr/out/rank_vector" ),
                                                          new FileInputReference( "/pr/out/dangling" ),
+//                                                         new FileInputReference( "/pr/out/nonlinked" ),
                                                          new BroadcastInputReference( "/pr/out/nr_nodes" ) ),
                                               new Output( new BroadcastOutputReference( "dangling_rank_sum" ) ) );
 
@@ -83,6 +84,8 @@ public class TestPagerank extends junit.framework.TestCase {
 
     public static void buildGraph1( ExtractWriter writer ) throws Exception { 
 
+        // only 0 and 1 should be dangling.
+        
         addRecord( writer, 2, 0, 1 );
         addRecord( writer, 3, 1, 2 );
         addRecord( writer, 4, 2, 3 );

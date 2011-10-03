@@ -1,5 +1,18 @@
 
 
+
+
+
+
+- The shuffle phase needs to support async IO but then write everything to a
+  BlockingQueue and this queue is then drained by a single thread.
+
+    I think file PUTs could do the same thing by having a single thread doing
+    the writing to a file... The SAME system could be used for reading from
+    files.
+
+
+
 - When writing a new file, we need to require that it is removed first.
 
 - Filesystem operations like touch() should actually be done with reduce() or

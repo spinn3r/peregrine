@@ -49,19 +49,36 @@
 
     http://en.wikipedia.org/wiki/Sort-merge_join
 
-    
+
+- OK... async IO isn't available right now on JDK 1.6 I think and it isn't SUPER
+  clear how to do this with netty... Let netty handle the async IO and then
+  write messages to a queue which is drained to disk as a shuffle group by a
+  single thread.  There is a single thread per shuffle group writing to disk.
+  Creating more than 10 or so isn't really a good idea since a single disk can't
+  support this.
     
 
 
 - the controller should be able to send these messages:
 
+    - json messages should be sent so I can iterate faster and don't need to
+      build an encoder/decoder.
+
+        
+
+    - the existing API is becoming a BIT complicated.  One way to simplify it
+      would be to serialize messages which we just send from the controller to
+      the reducers but if the protocl changes rapidly I'm going to have to
+      verify that the versions are compatible.
+
 
     - controld:
+    
            - CHUNK_WRITTEN partition:path:chunk_id
 
            - MAP_COMPLETE partition:path:chunk_id
 
-           - REDUCE_COMPLETE partition
+           - REDUCE_COMPLETE reduce_id
                 - the given partition has been reduce on the given machine.
            
            - HOST_FAILED
@@ -81,7 +98,6 @@
                   client.
                   
         - Outbound messages
-
             - MAP partition:path:chunk_id
 
     - mapd:

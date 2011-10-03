@@ -51,7 +51,7 @@ public class NodeMetadataJob {
 
             }
 
-            if ( indegree == 0 ) {
+            if ( outdegree == 0 ) {
                 
                 //emit to dangling ...
                 System.out.printf( "dangling\n" );
@@ -62,7 +62,7 @@ public class NodeMetadataJob {
                 
             }
 
-            if ( outdegree == 0 ) {
+            if ( indegree == 0 ) {
                 nonlinkedOutput.emit( key, BooleanValue.TRUE );
             }
 
