@@ -12,16 +12,24 @@ import peregrine.io.*;
 
 public class IterJob {
 
+    public static final double DAMPENING = 0.85;
+    
     // join graph_by_source, rank_vector, dangling
     
     public static class Map extends Merger {
 
         int nr_nodes;
-        
+
+        double dangling_rank_sum = 0.0;
+
+        private JobOutput danglingRankSumBroadcast = null;
+
         @Override
         public void init( JobOutput... output ) {
 
             super.init( output );
+
+            danglingRankSumBroadcast = output[0];
             
             BroadcastInput nrNodesBroadcastInput = getBroadcastInput().get( 0 );
             
@@ -65,6 +73,27 @@ public class IterJob {
 
             }
 
+            // now ... if this is a dangling node... emit it so that we can sum
+            // up over the dangling nodes.
+            if ( dangling != null ) {
+                dangling_rank_sum += rank;
+            }
+
+        }
+
+        @Override
+        public void cleanup() {
+
+            byte[] key = new StructWriter()
+                .writeHashcode( "dangling_rank_sum" )
+                .toBytes();
+
+            byte[] value = new StructWriter()
+                .writeDouble( dangling_rank_sum )
+                .toBytes();
+
+            danglingRankSumBroadcast.emit( key, value );
+            
         }
 
     }

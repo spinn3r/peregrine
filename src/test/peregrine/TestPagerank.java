@@ -59,22 +59,26 @@ public class TestPagerank extends junit.framework.TestCase {
         // init the empty rank_vector table ... we need to merge against it.
         Controller.map( Mapper.class, new Input(), new Output( "/pr/out/rank_vector" ) );
 
-        System.out.printf( "FIXME starting final merge \n" );
+        // FIXME: add nonlinked... 
         
         Controller.mergeMapWithFullOuterJoin( IterJob.Map.class,
                                               new Input( new FileInputReference( "/pr/test.graph_by_source" ),
                                                          new FileInputReference( "/pr/out/rank_vector" ),
                                                          new FileInputReference( "/pr/out/dangling" ),
-                                                         new BroadcastInputReference( "/pr/out/nr_nodes" ) ) );
+                                                         new BroadcastInputReference( "/pr/out/nr_nodes" ) ),
+                                              new Output( new BroadcastOutputReference( "dangling_rank_sum" ) ) );
 
-        Controller.reduce( NodeMetadataJob.Reduce.class,
+        Controller.reduce( IterJob.Reduce.class,
                            null,
                            new Output( "/pr/out/rank_vector_new" ) );
 
-        
-        //FIXME: hint about the fact that these keys are pre-sorted
-        //Controller.reduce( NodeMetadataJob.Reduce.class, );
+        // now compute the dangling rank sum.. 
 
+        Controller.reduce( TeleportationGrantJob.Reduce.class, 
+                           new Input( new ShuffleInputReference( "dangling_rank_sum" ),
+                                      new BroadcastInputReference( "/pr/out/nr_nodes" ) ),
+                           new Output( "/pr/out/teleportation_rant" ) );
+        
     }
 
     public static void buildGraph1( ExtractWriter writer ) throws Exception { 

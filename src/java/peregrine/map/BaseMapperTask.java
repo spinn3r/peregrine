@@ -94,20 +94,8 @@ public abstract class BaseMapperTask extends BaseOutputTask implements Callable 
 
         // setup broadcast input... 
 
-        for ( InputReference in : getInput().getReferences() ) {
+        broadcastInput = BroadcastInputFactory.getBroadcastInput( getInput(), partition, host );
 
-            if ( in instanceof BroadcastInputReference ) {
-
-                BroadcastInputReference bir = (BroadcastInputReference) in;
-
-                BroadcastInput bi = new BroadcastInput( partition, host, bir.getPath() );
-
-                broadcastInput.add( bi );
-                
-            }
-            
-        }
-        
     }
 
     protected void fireOnChunk( ChunkReference chunkRef ) {

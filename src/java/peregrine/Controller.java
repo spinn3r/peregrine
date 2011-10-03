@@ -121,8 +121,8 @@ public class Controller {
             input.add( new ShuffleInputReference() );
         }
 
-        if ( input.getReferences().size() != 1 ) {
-            throw new IOException( "Reducer requires one shuffle input." );
+        if ( input.getReferences().size() < 1 ) {
+            throw new IOException( "Reducer requires at least one shuffle input." );
         }
 
         ShuffleInputReference shuffleInput = (ShuffleInputReference)input.getReferences().get( 0 );
@@ -138,7 +138,16 @@ public class Controller {
         List<Callable> callables = new ArrayList();
 
         for( MapOutputIndex mapOutputIndex : mapOutputIndexes ) {
-            callables.add( new ReducerTask( mapOutputIndex, reducer, output ) );
+
+            //FIXME: this is a lame way to get the host
+            Host host = partitionMembership.get( mapOutputIndex.partition ).get( 0 );
+            
+            ReducerTask task = new ReducerTask( mapOutputIndex, host, reducer );
+            task.setInput( input );
+            task.setOutput( output );
+
+            callables.add( task );
+
         }
 
         waitFor( callables );

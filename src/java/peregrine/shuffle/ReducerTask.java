@@ -14,24 +14,27 @@ import peregrine.map.*;
 import peregrine.io.*;
 
 public class ReducerTask extends BaseOutputTask implements Callable {
+    
+    private Input input = null;
 
     private MapOutputIndex mapOutputIndex = null;
 
     private Reducer reducer;
 
     private Class reducer_class = null;
+
+    private Host host = null;
     
     public ReducerTask( MapOutputIndex mapOutputIndex,
-                        Class reducer_class,
-                        Output output )
+                        Host host,
+                        Class reducer_class )
         throws Exception {
 
         super.init( mapOutputIndex.partition );
         
         this.mapOutputIndex = mapOutputIndex;
+        this.host = host;
         this.reducer_class = reducer_class;
-        
-        setOutput( output );
 
     }
 
@@ -45,6 +48,11 @@ public class ReducerTask extends BaseOutputTask implements Callable {
         try {
 
             setup();
+
+            reducer.setBroadcastInput( BroadcastInputFactory.getBroadcastInput( getInput(),
+                                                                                partition,
+                                                                                host ) );
+
             reducer.init( getJobOutput() );
 
             doCall();
@@ -88,6 +96,14 @@ public class ReducerTask extends BaseOutputTask implements Callable {
 
         // we have to close ALL of our output streams now.
 
+    }
+
+    public void setInput( Input input ) { 
+        this.input = input;
+    }
+
+    public Input getInput() { 
+        return this.input;
     }
 
 }

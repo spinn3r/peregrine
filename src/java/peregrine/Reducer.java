@@ -14,6 +14,8 @@ public class Reducer {
 
     private JobOutput stdout = null;
 
+    private List<BroadcastInput> broadcastInput = new ArrayList();
+    
     public void init( JobOutput... output ) {
         this.stdout = output[0];
     }
@@ -34,6 +36,14 @@ public class Reducer {
         
     public void emit( byte[] key, byte[] value ) {
         stdout.emit( key, value );
+    }
+
+    public List<BroadcastInput> getBroadcastInput() { 
+        return this.broadcastInput;
+    }
+
+    public void setBroadcastInput( List<BroadcastInput> broadcastInput ) { 
+        this.broadcastInput = broadcastInput;
     }
 
 }
