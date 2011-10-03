@@ -74,14 +74,17 @@ public class ReducerTask extends BaseOutputTask implements Callable {
         LocalReducer reducer = new LocalReducer( listener );
         
         Collection<MapOutputBuffer> mapOutputBuffers = mapOutputIndex.getMapOutput();
-        
+
+        int nr_readers = 0;
         for ( MapOutputBuffer mapOutputBuffer : mapOutputBuffers ) {
             reducer.add( mapOutputBuffer.getChunkReader() );
+            ++nr_readers;
         }
 
         reducer.sort();
 
-        System.out.printf( "Sorted %,d entries for partition %s \n", listener.nr_tuples , mapOutputIndex.partition );
+        System.out.printf( "Sorted %,d entries in %,d chunk readers for partition %s \n",
+                           listener.nr_tuples , nr_readers, mapOutputIndex.partition );
 
         // we have to close ALL of our output streams now.
 

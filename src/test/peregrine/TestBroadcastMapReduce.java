@@ -52,6 +52,8 @@ public class TestBroadcastMapReduce extends junit.framework.TestCase {
                 .writeVarint( count )
                 .toBytes();
 
+            System.out.printf( "CLEANUP will emit %,d \n", count );
+            
             countBroadcast.emit( key, value );
             
         }
