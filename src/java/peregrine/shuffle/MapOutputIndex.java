@@ -12,9 +12,9 @@ import peregrine.util.*;
 
 public class MapOutputIndex {
 
-    public ConcurrentHashMap<Long,MapOutputBuffer> bufferMap
-        = new ConcurrentHashMap();
-
+    public Map<Long,MapOutputBuffer> bufferMap
+        = new Hashtable();
+    
     public Partition partition;
     
     public MapOutputIndex( Partition partition ) {
@@ -51,10 +51,17 @@ public class MapOutputIndex {
 
         if ( buffer == null ) {
 
-            buffer = new MapOutputBuffer( chunk_id );
-            bufferMap.putIfAbsent( chunk_id, buffer );
-            buffer = bufferMap.get( chunk_id );
-            
+            synchronized( bufferMap ) {
+
+                buffer = bufferMap.get( chunk_id );
+
+                if ( buffer == null ) {
+                    buffer = new MapOutputBuffer( chunk_id );
+                    bufferMap.put( chunk_id, buffer );
+                }
+
+            }
+
         }
         
         return buffer;

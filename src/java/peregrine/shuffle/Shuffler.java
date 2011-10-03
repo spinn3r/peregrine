@@ -12,14 +12,14 @@ import peregrine.util.*;
 
 public class Shuffler {
 
-    public ConcurrentHashMap<Partition,MapOutputIndex> bufferMap = null;
+    public Map<Partition,MapOutputIndex> bufferMap = null;
 
     public Shuffler() {
         reset();
     }
 
     public void reset() {
-        bufferMap = new ConcurrentHashMap();
+        bufferMap = new Hashtable();
     }
     
     public MapOutputIndex getMapOutputIndex( Partition target_partition ) {
@@ -27,11 +27,18 @@ public class Shuffler {
         MapOutputIndex buffer = bufferMap.get( target_partition );
 
         if ( buffer == null ) {
-            
-            buffer = new MapOutputIndex( target_partition );
-            bufferMap.putIfAbsent( target_partition, buffer );
-            buffer = bufferMap.get( target_partition );
-            
+
+            synchronized( bufferMap ) {
+
+                buffer = bufferMap.get( target_partition );
+
+                if ( buffer == null ) {
+                    buffer = new MapOutputIndex( target_partition );
+                    bufferMap.put( target_partition, buffer );
+                }
+
+            }
+
         }
         
         return buffer;
@@ -42,7 +49,7 @@ public class Shuffler {
         return bufferMap.values();
     }
 
-    public static ConcurrentHashMap<String,Shuffler> shufflers = new ConcurrentHashMap();
+    public static Map<String,Shuffler> shufflers = new Hashtable();
 
     public static Shuffler getInstance() {
         return getInstance( "default" );
@@ -53,8 +60,18 @@ public class Shuffler {
         Shuffler instance = shufflers.get( name );
 
         if ( instance == null ) {
-            instance = new Shuffler();
-            shufflers.put( name, instance );
+
+            synchronized( shufflers ) {
+
+                instance = shufflers.get( name );
+
+                if ( instance == null ) {
+                    instance = new Shuffler();
+                    shufflers.put( name, instance );
+                }
+                
+            }
+
         }
 
         return instance;
