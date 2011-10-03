@@ -117,21 +117,30 @@ public class TestBroadcastMapReduce extends junit.framework.TestCase {
         // their value across all partitions now.
 
         // now read all partition values...
+
+        assertValueOnAllPartitions( count_out, 1000 );
         
+    }
+
+    public static void assertValueOnAllPartitions( String path, int value ) throws Exception {
+
         java.util.Map<Partition,List<Host>> membership = Config.getPartitionMembership();
         
         for( Partition part : membership.keySet() ) {
 
             for( Host host : membership.get( part ) ) {
 
-                LocalPartitionReader reader = new LocalPartitionReader( part, host, count_out );
+                LocalPartitionReader reader = new LocalPartitionReader( part, host, path );
 
                 Tuple t = reader.read();
 
+                if ( t == null )
+                    throw new Exception( "No value read" );
+                
                 int count = new StructReader( t.value ).readVarint();
 
-                if ( count != 1000 )
-                    throw new Exception( "Invalid count: " + count );
+                if ( count != value )
+                    throw new Exception( "Invalid value: " + count );
                 
                 System.out.printf( "count: %,d\n", count );
                 
@@ -143,7 +152,7 @@ public class TestBroadcastMapReduce extends junit.framework.TestCase {
         }
 
     }
-
+    
     public static void main( String[] args ) throws Exception {
         new TestBroadcastMapReduce().test1();
     }

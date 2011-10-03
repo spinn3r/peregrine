@@ -83,9 +83,14 @@ public class NodeMetadataJob {
             if ( count == 0 )
                 throw new RuntimeException();
 
-            byte[] key = new HashKey( "count" ).toBytes();
-            byte[] value = new IntValue( count ).toBytes();
-            
+            byte[] key = new StructWriter()
+                .writeHashcode( "count" )
+                .toBytes();
+
+            byte[] value = new StructWriter()
+                .writeVarint( count )
+                .toBytes();
+
             nrNodesOutput.emit( key, value );
             
         }
@@ -96,10 +101,22 @@ public class NodeMetadataJob {
 
         @Override
         public void reduce( byte[] key, List<byte[]> values ) {
+
+            int count = 0;
             
-            
+            for( byte[] val : values ) {
+                count += new StructReader( val )
+                    .readVarint();
+            }
+
+            byte[] value = new StructWriter()
+                .writeVarint( count )
+                .toBytes();
+
+            emit( key, value );
+
         }
-        
+
     }
 
 }

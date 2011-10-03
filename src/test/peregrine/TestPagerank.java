@@ -46,13 +46,19 @@ public class TestPagerank extends junit.framework.TestCase {
                                                           new FileOutputReference( "/pr/out/nonlinked" ),
                                                           new BroadcastOutputReference( "nr_nodes" ) ) );
 
+        String nr_nodes_path = "/pr/out/nr_nodes";
 
-        
+        Controller.reduce( NodeMetadataJob.Reduce.class,
+                           new Input( new ShuffleInputReference( "nr_nodes" ) ),
+                           new Output( nr_nodes_path ) );
+
         //FIXME: hint about the fact that these keys are pre-sorted
         //Controller.reduce( NodeMetadataJob.Reduce.class, );
         
         //now read in the output and make sure our results are correct...
-        
+
+        TestBroadcastMapReduce.assertValueOnAllPartitions( nr_nodes_path, 5 );
+
     }
 
     public static void buildGraph1( ExtractWriter writer ) throws Exception { 
