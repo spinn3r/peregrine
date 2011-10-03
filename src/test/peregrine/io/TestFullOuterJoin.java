@@ -70,7 +70,8 @@ public class TestFullOuterJoin extends junit.framework.TestCase {
             if ( joined == null )
                 break;
 
-            System.out.printf( "FIXME joined: %s\n", Hex.encode( joined.key ) );
+            System.out.printf( "joined: %s, left=%s, right=%s\n",
+                               Hex.encode( joined.key, 0 ), Hex.encode( joined.values[0], 0 ), Hex.encode( joined.values[1], 0 ) );
             
         }
 
@@ -83,6 +84,13 @@ public class TestFullOuterJoin extends junit.framework.TestCase {
         byte[] value = key;
         
         writer.write( key, value );
+    }
+
+    public static void main( String[] args ) throws Exception {
+
+        TestFullOuterJoin t = new TestFullOuterJoin();
+        t.test1();
+        
     }
 
 }

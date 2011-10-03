@@ -22,6 +22,8 @@ public abstract class BaseMapperTask extends BaseOutputTask implements Callable 
 
     protected List<ShuffleJobOutput> shuffleJobOutput = new ArrayList();
 
+    protected List<BroadcastInput> broadcastInput = new ArrayList();
+
     private Input input = null;
 
     public void init( Map<Partition,List<Host>> partitionMembership,
@@ -35,6 +37,10 @@ public abstract class BaseMapperTask extends BaseOutputTask implements Callable 
         this.nr_partitions  = partitionMembership.size();
         this.mapper_clazz   = mapper_clazz;
         
+    }
+
+    public List<BroadcastInput> getBroadcastInput() { 
+        return this.broadcastInput;
     }
 
     public Input getInput() { 
@@ -76,10 +82,28 @@ public abstract class BaseMapperTask extends BaseOutputTask implements Callable 
             super.setup();
         }
 
+        // now process the job output correctly...
+        
         for ( JobOutput current : jobOutput ) {
 
             if ( current instanceof ShuffleJobOutput ) {
                 shuffleJobOutput.add( (ShuffleJobOutput)current );
+            }
+            
+        }
+
+        // setup broadcast input... 
+
+        for ( InputReference in : getInput().getReferences() ) {
+
+            if ( in instanceof BroadcastInputReference ) {
+
+                BroadcastInputReference bir = (BroadcastInputReference) in;
+
+                BroadcastInput bi = new BroadcastInput( partition, host, bir.getPath() );
+
+                broadcastInput.add( bi );
+                
             }
             
         }
@@ -112,6 +136,9 @@ public abstract class BaseMapperTask extends BaseOutputTask implements Callable 
 
         for( InputReference ref : getInput().getReferences() ) {
 
+            if ( ref instanceof BroadcastInputReference )
+                continue;
+            
             FileInputReference file = (FileInputReference) ref;
             
             readers.add( new LocalPartitionReader( partition, host, file.getPath(), listener ) );

@@ -44,7 +44,8 @@ public class LocalPartitionReader {
          this.chunkReaders = LocalPartition.getChunkReaders( partition, host, path );
          this.iterator = chunkReaders.iterator();
          this.listener = listener;
-
+         this.path = path;
+         
          this.chunkRef = new ChunkReference( partition );
          
     }
@@ -83,6 +84,10 @@ public class LocalPartitionReader {
 
     }
 
+    public String toString() {
+        return this.path;
+    }
+    
 }
 
 class DefaultLocalPartitionReaderListener implements LocalPartitionReaderListener {

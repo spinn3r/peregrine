@@ -23,6 +23,7 @@ public class MergeWithFullOuterJoinTask extends BaseMapperTask {
         try {
             
             setup();
+            merger.setBroadcastInput( getBroadcastInput() );
             merger.init( getJobOutput() );
             
             doCall();

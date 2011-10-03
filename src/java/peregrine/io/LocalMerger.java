@@ -35,6 +35,8 @@ public class LocalMerger {
         int id = 0;
         for( LocalPartitionReader reader : readers ) {
 
+            System.out.printf( "merging with %s as %s\n", reader, id );
+            
             FileReference ref = new FileReference( id++, reader );
             queue.add( ref );
             
@@ -56,7 +58,10 @@ public class LocalMerger {
 
                 if ( ref == null && last == null )
                     return null;
-                
+
+                if ( last != null )
+                    joined[last.id] = last.value;
+
                 boolean changed = ref == null || ( last != null && comparator.compare( last, ref ) != 0 );
                 
                 if ( changed ) {
@@ -67,8 +72,6 @@ public class LocalMerger {
                     return result;
                     
                 }
-
-                joined[ref.id] = ref.value;
 
             } finally {
                 last = ref;
@@ -90,7 +93,7 @@ class FilePriorityQueue {
 
         if ( t == null )
             return;
-
+        
         ref.key   = t.key;
         ref.value = t.value;
 
@@ -106,7 +109,7 @@ class FilePriorityQueue {
             return null;
 
         FileReference result = new FileReference( poll.id, poll.key, poll.value );
-        
+
         add( poll );
 
         return result;

@@ -52,17 +52,22 @@ public class TestPagerank extends junit.framework.TestCase {
                            new Input( new ShuffleInputReference( "nr_nodes" ) ),
                            new Output( nr_nodes_path ) );
 
-        // init the empty rank_vector table ...
+        //now read in the output and make sure our results are correct...
+
+        TestBroadcastMapReduce.assertValueOnAllPartitions( nr_nodes_path, 12 );
+
+        // init the empty rank_vector table ... we need to merge against it.
         Controller.map( Mapper.class, new Input(), new Output( "/pr/out/rank_vector" ) );
 
-
+        System.out.printf( "FIXME starting final merge \n" );
+        
+        Controller.mergeMapWithFullOuterJoin( IterJob.Map.class,
+                                              new Input( new FileInputReference( "/pr/test.graph_by_source" ),
+                                                         new FileInputReference( "/pr/out/rank_vector" ),
+                                                         new BroadcastInputReference( "/pr/out/nr_nodes" ) ) );
         
         //FIXME: hint about the fact that these keys are pre-sorted
         //Controller.reduce( NodeMetadataJob.Reduce.class, );
-        
-        //now read in the output and make sure our results are correct...
-
-        TestBroadcastMapReduce.assertValueOnAllPartitions( nr_nodes_path, 5 );
 
     }
 
@@ -71,6 +76,13 @@ public class TestPagerank extends junit.framework.TestCase {
         addRecord( writer, 2, 0, 1 );
         addRecord( writer, 3, 1, 2 );
         addRecord( writer, 4, 2, 3 );
+        addRecord( writer, 5, 2, 3 );
+        addRecord( writer, 6, 2, 3 );
+        addRecord( writer, 7, 2, 3 );
+        addRecord( writer, 8, 2, 3 );
+        addRecord( writer, 9, 2, 3 );
+        addRecord( writer, 10, 2, 3 );
+        addRecord( writer, 11, 2, 3 );
 
     }
 

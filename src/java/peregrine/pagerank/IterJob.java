@@ -16,60 +16,64 @@ public class IterJob {
     
     public static class Map extends Merger {
 
-        JobOutput nodeMetadataOutput  = null;
-        JobOutput danglingOutput      = null;
-        JobOutput nonlinkedOutput     = null;
-
+        int nr_nodes;
+        
         @Override
         public void init( JobOutput... output ) {
-            nodeMetadataOutput  = output[0];
-            danglingOutput      = output[1];
-            nonlinkedOutput     = output[2];
+
+            super.init( output );
+            
+            BroadcastInput nrNodesBroadcastInput = getBroadcastInput().get( 0 );
+            
+            nr_nodes = new StructReader( nrNodesBroadcastInput.getValue() )
+                .readVarint()
+                ;
+
+            System.out.printf( "Working with nr_nodes: %,d\n", nr_nodes );
+            
         }
 
         @Override
         public void map( byte[] key,
                          byte[]... values ) {
 
-            // left should be node_indegree , right should be the graph... 
+            byte[] graph_by_source = values[0];
+            byte[] rank_vector = values[1];
 
-            int indegree  = 0;
-            int outdegree = 0;
+            System.out.printf( "key: %s , graph_by_source: %s, rank_vector: %s\n",
+                               Hex.encode( key ), Hex.encode( graph_by_source ), Hex.encode( rank_vector ) );
             
-            if ( values[0] != null ) {
-                indegree = new IntValue( values[0] ).value;
-            }
+            HashSetValue outbound = new HashSetValue( graph_by_source );
 
-            if ( values[1] != null ) {
+            int outdegree = outbound.size();
 
-                HashSetValue set = new HashSetValue();
-                set.fromBytes( values[1] );
+            double rank = 1 / nr_nodes;
 
-                outdegree = set.size();
+            double grant = rank / outdegree;
+            
+            for ( byte[] target : outbound.getValues() ) {
 
-            }
-
-            if ( indegree == 0 ) {
+                byte[] value = new StructWriter()
+                    .write( grant )
+                    .toBytes();
                 
-                //emit to dangling ...
-                System.out.printf( "dangling\n" );
+                emit( target, value );
 
-                // TODO would be NICE to support a sequence file where the
-                // values are optional for better storage.
-                danglingOutput.emit( key, BooleanValue.TRUE );
-                
             }
-
-            if ( outdegree == 0 ) {
-                nonlinkedOutput.emit( key, BooleanValue.TRUE );
+            
+            /*
+            if ( graph_by_source == null ) {
+                System.out.printf( "X" );
+                return;
+            } else {
+                System.out.printf( "V\n" );
             }
+            
+            double rank = 0.0;
 
-            // now emit key, [indegree, outdegree]
-
-            nodeMetadataOutput.emit( key, new Struct()
-                                     .write( indegree )
-                                     .write( outdegree )
-                                     .toBytes() );
+            */
+            
+            // read the graph targets and for each one emit target rank_vector::rank / graph_by_source::outdegree ... 
             
         }
 

@@ -5,6 +5,10 @@ import java.util.*;
 public class Hex {
 
     public static String encode( byte[] input ) {
+        return encode( input, 128 );
+    }
+
+    public static String encode( byte[] input , int offset ) {
 
         if ( input == null )
             return "null";
@@ -13,7 +17,7 @@ public class Hex {
         
         for( byte b : input ) {
 
-            int i = ((int)b) + 128;
+            int i = ((int)b) + offset;
             
             buff.append( String.format( "%02x ", i ) );
 

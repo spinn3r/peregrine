@@ -30,6 +30,19 @@ public class StructWriter {
         
     }
 
+    public StructWriter write( double value ) {
+
+        try {
+
+            out.write( LongBytes.toByteArray( Double.doubleToLongBits( value ) ) );
+            return this;
+            
+        } catch ( IOException e ) {
+            throw new RuntimeException( e );
+        }
+
+    }
+    
     public StructWriter writeHashcode( String key ) {
 
         try {

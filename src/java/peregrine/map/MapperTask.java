@@ -26,6 +26,7 @@ public class MapperTask extends BaseMapperTask {
         try {
 
             setup();
+            mapper.setBroadcastInput( getBroadcastInput() );
             mapper.init( getJobOutput() );
             
             doCall();
