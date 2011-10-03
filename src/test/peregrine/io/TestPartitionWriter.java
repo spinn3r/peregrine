@@ -22,10 +22,6 @@ public class TestPartitionWriter extends peregrine.BaseTest {
      */
     public void test1() throws Exception {
 
-        //PartitionWriter 
-        Config.addPartitionMembership( 0, "cpu0" );
-        Config.addPartitionMembership( 1, "cpu1" );
-
         String path = "/tmp/test";
         
         PartitionWriter writer = new PartitionWriter( new Partition( 0 ), path );
@@ -41,11 +37,88 @@ public class TestPartitionWriter extends peregrine.BaseTest {
         System.out.printf( "worked.\n" );
         
     }
-    
+
+    public void test2() throws Exception {
+
+        System.out.printf( "Running test2...\n" );
+        
+        DiskPerf.remove( Config.DFS_ROOT );
+
+        Partition part = new Partition( 0 );
+        Host host = new Host( "cpu0", 0, 0 );
+
+        String path = "/tmp/test";
+
+        // STEP 1... make a new file and write lots of chunks to it.
+        
+        LocalPartitionWriter.CHUNK_SIZE = 1000;
+
+        PartitionWriter writer = new PartitionWriter( new Partition( 0 ), path );
+
+        for ( int i = 0; i < 10000; ++i ) {
+
+            byte[] key = new StructWriter()
+                .writeVarint( i )
+                .toBytes()
+                ;
+
+            byte[] value = key;
+
+            writer.write( key, value );
+            
+        }
+
+        writer.close();
+
+        // STEP 2: make sure we have LOTS of chunks.
+        
+        List<ChunkReader> readers = LocalPartition.getChunkReaders( part, host, path );
+
+        System.out.printf( "We have %,d readers\n", readers.size() );
+        
+        assertTrue( readers.size() > 1 ) ;
+
+        // now create another PartitionWriter this time try to overwrite the
+        // existing file and all chunks should be removed.
+        
+        writer = new PartitionWriter( new Partition( 0 ), path );
+        writer.close();
+
+        readers = LocalPartition.getChunkReaders( part, host, path );
+
+        System.out.printf( "We have %,d readers\n", readers.size() );
+        
+        assertEquals( readers.size(), 1 ) ;
+
+        // now create a partition writer which should in theory span a few
+        // chunks.
+
+        // then try to overwrite it so that it only has one chunk now...
+
+        // make sure we only have one chunk on disk.
+        
+    }
+
+    public void setUp() {
+
+        super.setUp();
+
+        //PartitionWriter 
+        Config.addPartitionMembership( 0, "cpu0" );
+        Config.addPartitionMembership( 1, "cpu1" );
+
+    }
+
     public static void main( String[] args ) throws Exception {
 
         TestPartitionWriter t = new TestPartitionWriter();
-        t.test1();
+        //System.out.printf( "%s\n", t.run() );
+
+        t.setUp();
+        t.test2();
+        t.tearDown();
+        
+        //t.test1();
         
     }
 

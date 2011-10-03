@@ -26,6 +26,16 @@ public class LocalPartitionWriter {
 
         this.path = path;
 
+        List<File> chunks =
+            LocalPartition.getChunkFiles( path );
+
+        for ( File chunk : chunks ) {
+
+            if ( ! chunk.delete() )
+                throw new IOException( "Unable to remove local chunk: " + chunk );
+            
+        }
+        
         //create the first chunk...
         rollover();
         
