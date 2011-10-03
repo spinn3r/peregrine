@@ -44,12 +44,14 @@ public class TestBroadcastMapReduce extends junit.framework.TestCase {
 
             System.out.printf( "Writing count: %,d\n", count );
 
-            byte[] key = new HashKey( "count" ).toBytes();
+            byte[] key = new StructWriter()
+                .writeHashcode( "count" )
+                .toBytes();
 
             byte[] value = new StructWriter()
                 .writeVarint( count )
                 .toBytes();
-            
+
             countBroadcast.emit( key, value );
             
         }
@@ -66,12 +68,13 @@ public class TestBroadcastMapReduce extends junit.framework.TestCase {
             for( byte[] val : values ) {
                 count += new StructReader( val ).readVarint();
             }
+
+            byte[] value = new StructWriter()
+                .writeVarint( count )
+                .toBytes();
+
+            emit( key, value );
             
-            if ( count != 1000 )
-               throw new RuntimeException( "Wrong size: " + count );
-
-            System.out.printf( "FIXME: found %,d broadcast count from key\n", count );
-
         }
 
     }
@@ -102,12 +105,40 @@ public class TestBroadcastMapReduce extends junit.framework.TestCase {
                         new Input( path ),
                         new Output( new BroadcastOutputReference( "count" ) ) );
 
+        String count_out = String.format( "/test/%s/test1.count", getClass().getName() );
+
         Controller.reduce( Reduce.class,
                            new Input( new ShuffleInputReference( "count" ) ),
-                           new Output( output ) );
+                           new Output( count_out ) );
 
         // FIXME: we have to actually emit values from the reducer and assert
         // their value across all partitions now.
+
+        // now read all partition values...
+        
+        java.util.Map<Partition,List<Host>> membership = Config.getPartitionMembership();
+        
+        for( Partition part : membership.keySet() ) {
+
+            for( Host host : membership.get( part ) ) {
+
+                LocalPartitionReader reader = new LocalPartitionReader( part, host, count_out );
+
+                Tuple t = reader.read();
+
+                int count = new StructReader( t.value ).readVarint();
+
+                if ( count != 1000 )
+                    throw new Exception( "Invalid count: " + count );
+                
+                System.out.printf( "count: %,d\n", count );
+                
+                if ( reader.read() != null )
+                    throw new IOException( "too many values" );
+                
+            }
+
+        }
 
     }
 

@@ -33,4 +33,19 @@ public class StructReader {
         
     }
 
+    public byte[] readHashcode() {
+
+        try {
+
+            byte[] result = new byte[Hashcode.HASH_WIDTH];
+            in.read( result );
+
+            return result;
+            
+        } catch ( IOException e ) {
+            throw new RuntimeException( e );
+        }
+        
+    }
+    
 }

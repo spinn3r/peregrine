@@ -30,6 +30,19 @@ public class StructWriter {
         
     }
 
+    public StructWriter writeHashcode( String key ) {
+
+        try {
+            
+            out.write( Hashcode.getHashcode( key ) );
+            return this;
+            
+        } catch ( IOException e ) {
+            throw new RuntimeException( e );
+        }
+        
+    }
+    
     public byte[] toBytes() {
 
         return out.toByteArray();
