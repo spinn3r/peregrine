@@ -26,11 +26,6 @@ public class IterJob {
          */
         double dangling_rank_sum = 0.0;
 
-        /**
-         * 
-         */
-        double teleport_grant = 0.0;
-        
         private JobOutput danglingRankSumBroadcast = null;
 
         @Override
@@ -118,22 +113,34 @@ public class IterJob {
 
     public static class Reduce extends Reducer {
 
+        /**
+         * 
+         */
+        double teleport_grant = 0.0;
+
+        @Override
+        public void init( JobOutput... output ) {
+
+        }
+        
         @Override
         public void reduce( byte[] key, List<byte[]> values ) {
 
-            double sum = 0.0;
+            double rank_sum = 0.0;
             
             // sum up the values... 
             for ( byte[] value : values ) {
 
-                sum += new StructReader( value )
+                rank_sum += new StructReader( value )
                     .readDouble()
                     ;
                 
             }
 
+            double rank = (DAMPENING * rank_sum) + teleport_grant;
+
             byte[] value = new StructWriter()
-                .writeDouble( sum )
+                .writeDouble( rank )
                 .toBytes()
                 ;
 

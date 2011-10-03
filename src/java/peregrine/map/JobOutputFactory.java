@@ -23,8 +23,11 @@ public class JobOutputFactory {
         for( OutputReference ref : output.getReferences() ) {
 
             if ( ref instanceof FileOutputReference ) {
-                String path = ((FileOutputReference)ref).getPath();
-                PartitionWriter writer = new PartitionWriter( partition, path );
+
+                FileOutputReference fileref = (FileOutputReference)ref;
+
+                PartitionWriter writer = new PartitionWriter( partition, fileref.getPath(), fileref.getAppend() );
+
                 jobOutput[idx++] = new PartitionWriterJobOutput( writer );
 
             } else if ( ref instanceof BroadcastOutputReference ) {
