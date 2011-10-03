@@ -30,7 +30,7 @@ public class StructWriter {
         
     }
 
-    public StructWriter write( double value ) {
+    public StructWriter writeDouble( double value ) {
 
         try {
 

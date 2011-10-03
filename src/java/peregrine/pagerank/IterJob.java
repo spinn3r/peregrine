@@ -37,11 +37,15 @@ public class IterJob {
         public void map( byte[] key,
                          byte[]... values ) {
 
-            byte[] graph_by_source = values[0];
-            byte[] rank_vector = values[1];
+            byte[] graph_by_source  = values[0];
+            byte[] rank_vector      = values[1];
+            byte[] dangling         = values[2];
 
-            System.out.printf( "key: %s , graph_by_source: %s, rank_vector: %s\n",
-                               Hex.encode( key ), Hex.encode( graph_by_source ), Hex.encode( rank_vector ) );
+            System.out.printf( "key: %s , graph_by_source: %s, rank_vector: %s, dangling=%s\n",
+                               Hex.encode( key ),
+                               Hex.encode( graph_by_source ),
+                               Hex.encode( rank_vector ),
+                               Hex.encode( dangling ) );
             
             HashSetValue outbound = new HashSetValue( graph_by_source );
 
@@ -54,26 +58,39 @@ public class IterJob {
             for ( byte[] target : outbound.getValues() ) {
 
                 byte[] value = new StructWriter()
-                    .write( grant )
+                    .writeDouble( grant )
                     .toBytes();
                 
                 emit( target, value );
 
             }
-            
-            /*
-            if ( graph_by_source == null ) {
-                System.out.printf( "X" );
-                return;
-            } else {
-                System.out.printf( "V\n" );
-            }
-            
-            double rank = 0.0;
 
-            */
+        }
+
+    }
+
+    public static class Reduce extends Reducer {
+
+        @Override
+        public void reduce( byte[] key, List<byte[]> values ) {
+
+            double sum = 0.0;
             
-            // read the graph targets and for each one emit target rank_vector::rank / graph_by_source::outdegree ... 
+            // sum up the values... 
+            for ( byte[] value : values ) {
+
+                sum += new StructReader( value )
+                    .readDouble()
+                    ;
+                
+            }
+
+            byte[] value = new StructWriter()
+                .writeDouble( sum )
+                .toBytes()
+                ;
+
+            emit( key, value );
             
         }
 

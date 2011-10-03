@@ -33,6 +33,21 @@ public class StructReader {
         
     }
 
+    public double readDouble() {
+
+        try {
+
+            byte[] data = new byte[8];
+            in.read( data );
+
+            return Double.longBitsToDouble( LongBytes.toLong( data ) );
+            
+        } catch ( IOException e ) {
+            throw new RuntimeException( e );
+        }
+
+    }
+
     public byte[] readHashcode() {
 
         try {

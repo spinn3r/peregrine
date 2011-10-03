@@ -64,7 +64,13 @@ public class TestPagerank extends junit.framework.TestCase {
         Controller.mergeMapWithFullOuterJoin( IterJob.Map.class,
                                               new Input( new FileInputReference( "/pr/test.graph_by_source" ),
                                                          new FileInputReference( "/pr/out/rank_vector" ),
+                                                         new FileInputReference( "/pr/out/dangling" ),
                                                          new BroadcastInputReference( "/pr/out/nr_nodes" ) ) );
+
+        Controller.reduce( NodeMetadataJob.Reduce.class,
+                           null,
+                           new Output( "/pr/out/rank_vector_new" ) );
+
         
         //FIXME: hint about the fact that these keys are pre-sorted
         //Controller.reduce( NodeMetadataJob.Reduce.class, );
