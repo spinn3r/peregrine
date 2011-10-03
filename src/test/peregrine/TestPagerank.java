@@ -44,17 +44,20 @@ public class TestPagerank extends junit.framework.TestCase {
                           new Output( new FileOutputReference( "/pr/out/node_metadata" ),
                                       new FileOutputReference( "/pr/out/dangling" ),
                                       new FileOutputReference( "/pr/out/nonlinked" ),
-                                      new BroadcastOutputReference( "nr_nodes" ) ) );
-        
-        String nr_nodes_path = "/pr/out/nr_nodes";
+                                      new BroadcastOutputReference( "nr_nodes" ),
+                                      new BroadcastOutputReference( "nr_dangling" ) ) );
 
         Controller.reduce( NodeMetadataJob.Reduce.class,
                            new Input( new ShuffleInputReference( "nr_nodes" ) ),
-                           new Output( nr_nodes_path ) );
+                           new Output( "/pr/out/nr_nodes" ) );
+
+        Controller.reduce( NodeMetadataJob.Reduce.class,
+                           new Input( new ShuffleInputReference( "nr_dangling" ) ),
+                           new Output( "/pr/out/nr_dangling" ) );
 
         //now read in the output and make sure our results are correct...
 
-        TestBroadcastMapReduce.assertValueOnAllPartitions( nr_nodes_path, 12 );
+        TestBroadcastMapReduce.assertValueOnAllPartitions( "/pr/out/nr_nodes", 12 );
 
         // init the empty rank_vector table ... we need to merge against it.
         Controller.map( Mapper.class, new Input(), new Output( "/pr/out/rank_vector" ) );

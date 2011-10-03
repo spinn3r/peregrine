@@ -14,19 +14,23 @@ public class NodeMetadataJob {
 
     public static class Map extends Merger {
 
-        JobOutput nodeMetadataOutput  = null;
-        JobOutput danglingOutput      = null;
-        JobOutput nonlinkedOutput     = null;
-        JobOutput nrNodesOutput       = null;
+        JobOutput nodeMetadataOutput         = null;
+        JobOutput danglingOutput             = null;
+        JobOutput nonlinkedOutput            = null;
 
-        int count = 0;
+        JobOutput nrNodesBroadcastOutput     = null;
+        JobOutput nrDanglingBroadcastOutput  = null;
+
+        int nrNodes = 0;
+        int nrDangling = 0;
         
         @Override
         public void init( JobOutput... output ) {
-            nodeMetadataOutput  = output[0];
-            danglingOutput      = output[1];
-            nonlinkedOutput     = output[2];
-            nrNodesOutput       = output[3];
+            nodeMetadataOutput           = output[0];
+            danglingOutput               = output[1];
+            nonlinkedOutput              = output[2];
+            nrNodesBroadcastOutput       = output[3];
+            nrDanglingBroadcastOutput    = output[4];
         }
 
         @Override
@@ -53,9 +57,8 @@ public class NodeMetadataJob {
 
             if ( outdegree == 0 ) {
                 
-                //emit to dangling ...
-                System.out.printf( "dangling\n" );
-
+                ++nrDangling;
+                
                 // TODO would be NICE to support a sequence file where the
                 // values are optional for better storage.
                 danglingOutput.emit( key, BooleanValue.TRUE );
@@ -73,25 +76,25 @@ public class NodeMetadataJob {
                                      .write( outdegree )
                                      .toBytes() );
 
-            ++count;
+            ++nrNodes;
             
         }
 
         @Override
         public void cleanup() {
 
-            if ( count == 0 )
+            if ( nrNodes == 0 )
                 throw new RuntimeException();
 
             byte[] key = new StructWriter()
-                .writeHashcode( "count" )
+                .writeHashcode( "nrNodes" )
                 .toBytes();
 
             byte[] value = new StructWriter()
-                .writeVarint( count )
+                .writeVarint( nrNodes )
                 .toBytes();
 
-            nrNodesOutput.emit( key, value );
+            nrNodesBroadcastOutput.emit( key, value );
             
         }
 

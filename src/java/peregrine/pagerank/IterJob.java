@@ -17,14 +17,14 @@ public class IterJob {
     // join graph_by_source, rank_vector, dangling
     
     public static class Map extends Merger {
-
-        int nr_nodes;
+        
+        protected int nr_nodes;
 
         /**
          * Running count of dangling rank sum so that we can build
          * teleport_grant for the next iteration.
          */
-        double dangling_rank_sum = 0.0;
+        protected double dangling_rank_sum = 0.0;
 
         private JobOutput danglingRankSumBroadcast = null;
 
@@ -116,11 +116,38 @@ public class IterJob {
         /**
          * 
          */
-        double teleport_grant = 0.0;
+        protected double teleport_grant = 0.0;
 
+        protected int nr_nodes;
+
+        protected int nr_dangling = 0;
+
+        protected int iter = 0;
+        
         @Override
         public void init( JobOutput... output ) {
 
+            BroadcastInput nrNodesBroadcastInput = getBroadcastInput().get( 0 );
+            
+            nr_nodes = new StructReader( nrNodesBroadcastInput.getValue() )
+                .readVarint()
+                ;
+
+            // for iter 0 teleport_grant would be:
+
+            if ( iter == 0 ) {
+
+                // FIXME: add this back in later when I can read in nr_dangling, etc. 
+                
+                /*
+                  
+                double teleport_grant_sum = nr_dangling * ( 1 / nr_nodes );
+                teleport_grant = (1.0 - ( DAMPENING * (1.0 - teleport_grant_sum)) ) / nr_nodes;
+
+                */
+                
+            } 
+            
         }
         
         @Override
