@@ -55,17 +55,17 @@ public class Controller {
 
     }
 
-    public static void mergeMapWithFullOuterJoin( Class mapper,
-                                                  String... paths ) throws Exception {
+    public static void merge( Class mapper,
+                              String... paths ) throws Exception {
 
-        mergeMapWithFullOuterJoin( mapper, new Input( paths ) );
+        merge( mapper, new Input( paths ) );
 
     }
 
-    public static void mergeMapWithFullOuterJoin( final Class mapper,
-                                                  final Input input ) throws Exception {
+    public static void merge( final Class mapper,
+                              final Input input ) throws Exception {
 
-        mergeMapWithFullOuterJoin( mapper, input, null );
+        merge( mapper, input, null );
 
     }
 
@@ -79,9 +79,9 @@ public class Controller {
      * will be produced in the result set (containing fields populated from both
      * tables)
      */
-    public static void mergeMapWithFullOuterJoin( final Class mapper,
-                                                  final Input input,
-                                                  final Output output ) throws Exception {
+    public static void merge( final Class mapper,
+                              final Input input,
+                              final Output output ) throws Exception {
 
         System.out.printf( "Starting mapper: %s\n", mapper.getName() );
 
@@ -91,7 +91,7 @@ public class Controller {
 
                 public Callable newCallable( Partition part, Host host ) {
 
-                    MergeWithFullOuterJoinTask task = new MergeWithFullOuterJoinTask();
+                    MergeTask task = new MergeTask();
 
                     task.init( partitionMembership, part, host, mapper );
 

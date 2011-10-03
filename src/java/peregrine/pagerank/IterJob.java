@@ -20,8 +20,17 @@ public class IterJob {
 
         int nr_nodes;
 
+        /**
+         * Running count of dangling rank sum so that we can build
+         * teleport_grant for the next iteration.
+         */
         double dangling_rank_sum = 0.0;
 
+        /**
+         * 
+         */
+        double teleport_grant = 0.0;
+        
         private JobOutput danglingRankSumBroadcast = null;
 
         @Override

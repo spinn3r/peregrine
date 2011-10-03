@@ -12,7 +12,7 @@ import peregrine.util.*;
 import peregrine.map.*;
 import peregrine.io.*;
 
-public class MergeWithFullOuterJoinTask extends BaseMapperTask {
+public class MergeTask extends BaseMapperTask {
     
     private Merger merger;
 
