@@ -1,5 +1,10 @@
 
 
+- When writing a new file, we need to require that it is removed first.
+
+- Filesystem operations like touch() should actually be done with reduce() or
+  map only jobs that emit no output... I think. 
+
 
 
 - The way we're handling broadcast values will yield TOO MANY values for chunks

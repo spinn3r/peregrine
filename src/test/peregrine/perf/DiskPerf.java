@@ -1,4 +1,4 @@
-package peregrine.test;
+package peregrine.perf;
 
 import java.io.*;
 import java.util.*;

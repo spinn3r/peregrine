@@ -43,12 +43,18 @@ public class MapperTask extends BaseMapperTask {
 
         LocalPartitionReaderListener listener = new MapperChunkRolloverListener( this );
 
-        if ( getInput().getReferences().size() != 1 ) {
-            throw new Exception( "Map jobs must be provided with one input." );
+        // note a map job with ZERO input files is acceptable.  This would be
+        // used for some generator that just emits values on init.
+        
+        if ( getInput().getReferences().size() > 1 ) {
+            throw new Exception( "Map jobs must not have more than one input." );
         }
 
         List<LocalPartitionReader> readers = getLocalPartitionReaders( listener );
 
+        if ( readers.size() == 0 )
+            return;
+        
         LocalPartitionReader reader = readers.get( 0 );
 
         while( true ) {

@@ -36,11 +36,11 @@ public class TestPagerank extends junit.framework.TestCase {
         Controller.reduce( NodeIndegreeJob.Reduce.class, null, new Output( "/pr/tmp/node_indegree" ) );
 
         Controller.map( Mapper.class, "/pr/test.graph" );
-        Controller.reduce( Reducer.class, null, new Output( "/pr/test.graph.sorted" ) );
+        Controller.reduce( Reducer.class, null, new Output( "/pr/test.graph_by_source" ) );
 
         //now create node metadata...
         Controller.mergeMapWithFullOuterJoin( NodeMetadataJob.Map.class,
-                                              new Input( "/pr/tmp/node_indegree", "/pr/test.graph.sorted" ),
+                                              new Input( "/pr/tmp/node_indegree", "/pr/test.graph_by_source" ),
                                               new Output( new FileOutputReference( "/pr/out/node_metadata" ),
                                                           new FileOutputReference( "/pr/out/dangling" ),
                                                           new FileOutputReference( "/pr/out/nonlinked" ),
@@ -52,6 +52,11 @@ public class TestPagerank extends junit.framework.TestCase {
                            new Input( new ShuffleInputReference( "nr_nodes" ) ),
                            new Output( nr_nodes_path ) );
 
+        // init the empty rank_vector table ...
+        Controller.map( Mapper.class, new Input(), new Output( "/pr/out/rank_vector" ) );
+
+
+        
         //FIXME: hint about the fact that these keys are pre-sorted
         //Controller.reduce( NodeMetadataJob.Reduce.class, );
         
