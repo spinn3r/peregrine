@@ -6,6 +6,7 @@ import java.util.*;
 import java.util.concurrent.*;
 
 /**
+ * 
  */
 public class FileOutputQueue {
 
@@ -15,7 +16,7 @@ public class FileOutputQueue {
 
     private BlockingQueue<byte[]> queue = new LinkedBlockingDeque( LIMIT );
 
-    public void FileOutputQueue( String dest ) {
+    public FileOutputQueue( String dest ) {
 
         this.dest = dest;
 
@@ -55,7 +56,12 @@ class FileOutputCallable implements Callable {
         // efficiently read off disk.
 
         File file = new File( dest );
+
+        // always make parent directories for PUTs 
+        new File( file.getParent() ).mkdirs();
         
+        System.out.printf( "dest: %s\n" , dest );
+
         BufferedOutputStream out
             = new BufferedOutputStream( new FileOutputStream( file ) );
         

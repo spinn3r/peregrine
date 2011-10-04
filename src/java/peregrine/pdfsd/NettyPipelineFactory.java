@@ -45,7 +45,8 @@ public class NettyPipelineFactory implements ChannelPipelineFactory {
                                                                    REQUEST_MAX_CHUNK_SIZE ) );
 
         pipeline.addLast("encoder",        new HttpResponseEncoder() );
-        pipeline.addLast("handler",        new HTTPShuffleHandler());
+        //pipeline.addLast("handler",        new HTTPShuffleHandler());
+        pipeline.addLast("handler",        new FilesystemHandler());
         
         return pipeline;
 
