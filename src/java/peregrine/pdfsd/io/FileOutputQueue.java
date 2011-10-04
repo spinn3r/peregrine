@@ -10,6 +10,9 @@ import java.util.concurrent.*;
  */
 public class FileOutputQueue {
 
+    /**
+     * How many messages to buffer before they go out to disk.
+     */
     public int LIMIT = 1000;
 
     private String dest = null;
@@ -57,7 +60,8 @@ class FileOutputCallable implements Callable {
 
         File file = new File( dest );
 
-        // always make parent directories for PUTs 
+        // always make parent directories for PUTs but do this in a dedicated
+        // thread.
         new File( file.getParent() ).mkdirs();
         
         System.out.printf( "dest: %s\n" , dest );
