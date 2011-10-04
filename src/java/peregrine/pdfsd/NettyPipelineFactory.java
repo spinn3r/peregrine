@@ -1,5 +1,5 @@
 
-package peregrine.dfsd;
+package peregrine.pdfsd;
 
 import static org.jboss.netty.channel.Channels.*;
 

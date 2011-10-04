@@ -1,4 +1,4 @@
-package peregrine.dfsd;
+package peregrine.pdfsd;
 
 import java.io.*;
 import java.util.*;

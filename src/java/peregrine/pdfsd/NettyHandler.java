@@ -1,4 +1,4 @@
-package peregrine.dfsd;
+package peregrine.pdfsd;
 
 import static org.jboss.netty.handler.codec.http.HttpHeaders.*;
 import static org.jboss.netty.handler.codec.http.HttpHeaders.Names.*;
