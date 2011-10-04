@@ -78,6 +78,8 @@ public class HTTPShuffleHandler extends SimpleChannelUpstreamHandler {
 
                 byte[] data = content.array();
 
+                System.out.printf( "READ %,d bytes\n" , data.length );
+                
             } else {
 
                 HttpResponse response = new DefaultHttpResponse(HTTP_1_1, OK);
