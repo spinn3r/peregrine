@@ -1,4 +1,8 @@
 
+- junit needs to print exceptions when it is runnning..... for some reason right
+  now they are swallowed... why is that.
+
+
 - Rename everythign to pdfsd peregrine distributed filesystem
 
 

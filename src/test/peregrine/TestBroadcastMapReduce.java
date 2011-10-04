@@ -138,7 +138,8 @@ public class TestBroadcastMapReduce extends junit.framework.TestCase {
                 byte[] _key = reader.key();
                 byte[] _value = reader.value();
                 
-                int count = new StructReader( _value ).readVarint();
+                int count = new StructReader( _value )
+                    .readVarint();
 
                 if ( count != value )
                     throw new Exception( "Invalid value: " + count );

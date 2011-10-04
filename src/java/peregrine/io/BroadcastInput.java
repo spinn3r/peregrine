@@ -15,15 +15,16 @@ public final class BroadcastInput {
         
         LocalPartitionReader reader = new LocalPartitionReader( part, host, path );
 
-        Tuple t = reader.read();
-
-        if ( t == null )
+        if ( reader.hasNext() == false )
             throw new IOException( "No broadcast file for: " + path );
 
-        if ( reader.read() != null )
+        byte[] key   = reader.key();
+        byte[] value = reader.value();
+
+        if ( reader.hasNext() )
             throw new IOException( "Too many broadcast values for: " + path );
 
-        this.value = t.value;
+        this.value = value;
 
     }
     

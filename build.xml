@@ -106,7 +106,7 @@
             <classpath refid="project.classpath"/>
         </taskdef>	
 
-        <junit printsummary="on"
+        <junit printsummary="withOutAndErr"
                fork="true"
                forkmode="perTest"
                filtertrace="false"
@@ -126,9 +126,42 @@
                 </fileset>
 
             </batchtest>
-
+            
         </junit>
-    </target>
+    </target> 
+
+    <target name="test-all" 
+            depends="jar,compile.test" 
+            description="Run junit tests.">
+
+        <taskdef name="junit"
+                 classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask">
+            <classpath refid="project.classpath"/>
+        </taskdef>	
+
+        <junit printsummary="on"
+               fork="true"
+               forkmode="perTest"
+               filtertrace="false"
+               haltonfailure="false"
+               haltonerror="false"
+               showoutput="true" 
+               logfailedtests="true">
+
+            <classpath>
+                <path refid="project.classpath"/>
+            </classpath>
+
+            <batchtest todir="target/test-reports"> 
+
+                <fileset dir="src/test">
+                    <include name="**/Test*.java"/>
+                </fileset>
+
+            </batchtest>
+            
+        </junit>
+    </target> 
 
   <target name="javadoc" description="Generate javadoc" depends="compile">
 

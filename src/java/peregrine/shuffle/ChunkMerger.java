@@ -146,8 +146,10 @@ class PartitionPriorityQueue {
             
             QueueEntry entry = new QueueEntry();
             entry.reader = reader;
+
             entry.key = reader.key();
-            entry.value = reader.key();
+            entry.value = reader.value();
+
             entry.queue = this;
 
             queue.add( entry );

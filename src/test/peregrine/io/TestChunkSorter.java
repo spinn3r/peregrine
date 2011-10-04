@@ -45,6 +45,42 @@ public class TestChunkSorter extends junit.framework.TestCase {
         
     }
 
+    public void test2() throws Exception {
+
+        System.out.printf( "test2\n" );
+        
+        int max = 10;
+
+        System.out.printf( "writing to array: \n" );
+
+        Tuple[] array = new Tuple[max];
+
+        for( int i = 0; i < 10; ++i ) {
+            array[i] = new Tuple( new byte[0], new byte[0] );
+        }
+
+        System.out.printf( "reading from it.\n" );
+        
+        TupleArrayChunkReader reader = new TupleArrayChunkReader( array ) ;
+
+        int count = 0;
+        while( reader.hasNext() ) {
+
+            byte[] key = reader.key();
+            byte[] value = reader.value();
+
+            ++count;
+
+            System.out.printf( "." );
+            
+        }
+
+        System.out.printf( "\n" );
+        
+        assertEquals( count, max );
+        
+    }
+    
     private ChunkReader _test( ChunkReader reader ) throws Exception {
 
         ChunkSorter sorter = new ChunkSorter();
@@ -59,7 +95,8 @@ public class TestChunkSorter extends junit.framework.TestCase {
 
         TestChunkSorter t = new TestChunkSorter();
 
-        t.test1();
+        t.test2();
+        //t.test1();
         
     }
 
