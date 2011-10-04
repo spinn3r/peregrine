@@ -30,9 +30,9 @@ public class BroadcastShuffleJobOutput extends ShuffleJobOutput {
     @Override
     public void emit( byte[] key , byte[] value ) {
 
-        Map<Partition,List<Host>> partitionMembership = Config.getPartitionMembership();
+        Membership partitionMembership = Config.getPartitionMembership();
 
-        for ( Partition target : partitionMembership.keySet() ) {
+        for ( Partition target : partitionMembership.getPartitions() ) {
 
             MapOutputIndex mapOutputIndex = shuffler.getMapOutputIndex( target );
 

@@ -16,6 +16,14 @@ public class Membership {
     public List<Host> getHosts( Partition part ) {
         return delegate.get( part );
     }
+
+    public void setPartition( Partition part, List<Host> hosts ) {
+        delegate.put( part, hosts );
+    }
+
+    public int size() {
+        return delegate.size();
+    }
     
 }
-
+        

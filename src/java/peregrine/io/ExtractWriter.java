@@ -25,22 +25,22 @@ public class ExtractWriter {
 
         this.path = path;
 
-        Map<Partition,List<Host>> partitionMembership = Config.getPartitionMembership();
+        Membership partitionMembership = Config.getPartitionMembership();
         
         nr_partitions = partitionMembership.size();
 
         PARTITION_OUTPUT = new Object[nr_partitions];
 
-        for( Partition partition : partitionMembership.keySet() ) {
+        for( Partition partition : partitionMembership.getPartitions() ) {
 
-            List<Host> membership = partitionMembership.get( partition );
+            List<Host> membership = partitionMembership.getHosts( partition );
 
             System.out.printf( "Creating writer for partition: %s (%s)\n", partition, membership );
 
             List<LocalPartitionWriter> output = new ArrayList();
             
             for ( Host member : membership ) {
-                output.add( new LocalPartitionWriter( Config.getDFSPath( partition, member, path ) ) );
+                output.add( new LocalPartitionWriter( Config.getPDFSPath( partition, member, path ) ) );
             }
 
             PARTITION_OUTPUT[partition.getId()] = output;

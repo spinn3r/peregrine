@@ -26,7 +26,7 @@ public abstract class BaseMapperTask extends BaseOutputTask implements Callable 
 
     private Input input = null;
 
-    public void init( Map<Partition,List<Host>> partitionMembership,
+    public void init( Membership partitionMembership,
                       Partition partition,
                       Host host ,
                       Class mapper_clazz ) {

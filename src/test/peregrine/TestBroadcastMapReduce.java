@@ -124,11 +124,11 @@ public class TestBroadcastMapReduce extends junit.framework.TestCase {
 
     public static void assertValueOnAllPartitions( String path, int value ) throws Exception {
 
-        java.util.Map<Partition,List<Host>> membership = Config.getPartitionMembership();
+        Membership membership = Config.getPartitionMembership();
         
-        for( Partition part : membership.keySet() ) {
+        for( Partition part : membership.getPartitions() ) {
 
-            for( Host host : membership.get( part ) ) {
+            for( Host host : membership.getHosts( part ) ) {
 
                 LocalPartitionReader reader = new LocalPartitionReader( part, host, path );
 

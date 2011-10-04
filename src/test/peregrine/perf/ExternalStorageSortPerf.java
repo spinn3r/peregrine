@@ -24,7 +24,7 @@ public class ExternalStorageSortPerf {
 
         //now merge it all back to disk.
 
-        Config.DFS_ROOT = "/d2/peregrine-dfs";
+        Config.PDFS_ROOT = "/d2/peregrine-dfs";
 
         Config.addPartitionMembership( 0, "cpu0" );
 

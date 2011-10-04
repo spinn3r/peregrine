@@ -32,7 +32,7 @@ public class Controller {
 
         System.out.printf( "Starting mapper: %s\n", mapper.getName() );
 
-        final Map<Partition,List<Host>> partitionMembership = Config.getPartitionMembership();
+        final Membership partitionMembership = Config.getPartitionMembership();
         
         runCallables( new CallableFactory() {
 
@@ -85,7 +85,7 @@ public class Controller {
 
         System.out.printf( "Starting mapper: %s\n", mapper.getName() );
 
-        final Map<Partition,List<Host>> partitionMembership = Config.getPartitionMembership();
+        final Membership partitionMembership = Config.getPartitionMembership();
         
         runCallables( new CallableFactory() {
 
@@ -131,7 +131,7 @@ public class Controller {
         
         Shuffler shuffler = Shuffler.getInstance( shuffleInput.getName() );
         
-        Map<Partition,List<Host>> partitionMembership = Config.getPartitionMembership();
+        Membership partitionMembership = Config.getPartitionMembership();
 
         Collection<MapOutputIndex> mapOutputIndexes = shuffler.getMapOutput();
 
@@ -140,7 +140,7 @@ public class Controller {
         for( MapOutputIndex mapOutputIndex : mapOutputIndexes ) {
 
             //FIXME: this is a lame way to get the host
-            Host host = partitionMembership.get( mapOutputIndex.partition ).get( 0 );
+            Host host = partitionMembership.getHosts( mapOutputIndex.partition ).get( 0 );
             
             ReducerTask task = new ReducerTask( mapOutputIndex, host, reducer );
             task.setInput( input );
@@ -159,16 +159,16 @@ public class Controller {
     }
 
     private static void runCallables( CallableFactory callableFactory,
-                                      Map<Partition,List<Host>> partitionMembership ) 
+                                      Membership partitionMembership ) 
         throws InterruptedException, ExecutionException {
 
         List<Callable> callables = new ArrayList( partitionMembership.size() );
 
         int nr_partitions = partitionMembership.size();
         
-        for ( Partition part : partitionMembership.keySet() ) {
+        for ( Partition part : partitionMembership.getPartitions() ) {
 
-            List<Host> hosts = partitionMembership.get( part );
+            List<Host> hosts = partitionMembership.getHosts( part );
 
             for( Host host : hosts ) {
 

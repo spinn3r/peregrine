@@ -7,11 +7,9 @@ import peregrine.util.*;
 
 public class Config {
 
-    public static long DFS_BLOCK_SIZE = 100000000;
-    
-    public static String DFS_ROOT = "/tmp/peregrine-dfs";
+    public static String PDFS_ROOT = "/tmp/peregrine-dfs";
 
-    private static Map<Partition,List<Host>> PARTITION_MEMBERSHIP = new HashMap();
+    private static Membership membership = new Membership();
 
     public static void addPartitionMembership( int partition, String... hosts ) {
 
@@ -25,20 +23,20 @@ public class Config {
             
         }
 
-        PARTITION_MEMBERSHIP.put( new Partition( partition ), list );
+        membership.setPartition( new Partition( partition ), list );
 
     }
 
-    public static Map<Partition,List<Host>> getPartitionMembership() {
-        return PARTITION_MEMBERSHIP;
+    public static Membership getPartitionMembership() {
+        return membership;
     }
 
-    public static String getDFSRoot( Partition partition, Host host ) {
-        return String.format( "%s/%s/%s" , Config.DFS_ROOT , host.getName(), partition.getId() );
+    public static String getPDFSRoot( Partition partition, Host host ) {
+        return String.format( "%s/%s/%s" , Config.PDFS_ROOT , host.getName(), partition.getId() );
     }
         
-    public static String getDFSPath( Partition partition, Host host, String path ) {
-        return String.format( "%s%s" , getDFSRoot( partition, host ), path );
+    public static String getPDFSPath( Partition partition, Host host, String path ) {
+        return String.format( "%s%s" , getPDFSRoot( partition, host ), path );
     }
 
     /**

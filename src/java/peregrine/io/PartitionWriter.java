@@ -30,9 +30,9 @@ public class PartitionWriter {
         this.path = path;
         this.partition = partition;
 
-        Map<Partition,List<Host>> partitionMembership = Config.getPartitionMembership();
+        Membership partitionMembership = Config.getPartitionMembership();
 
-        List<Host> membership = partitionMembership.get( partition );
+        List<Host> membership = partitionMembership.getHosts( partition );
 
         writers = new LocalPartitionWriter[ membership.size() ];
 
@@ -40,7 +40,7 @@ public class PartitionWriter {
 
             Host member = membership.get( i );
 
-            String dfs_path = Config.getDFSPath( partition, member, path );
+            String dfs_path = Config.getPDFSPath( partition, member, path );
 
             LocalPartitionWriter writer = new LocalPartitionWriter( dfs_path, append );
             

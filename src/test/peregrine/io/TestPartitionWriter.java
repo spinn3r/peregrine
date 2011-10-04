@@ -42,7 +42,7 @@ public class TestPartitionWriter extends peregrine.BaseTest {
 
         System.out.printf( "Running test2...\n" );
         
-        DiskPerf.remove( Config.DFS_ROOT );
+        DiskPerf.remove( Config.PDFS_ROOT );
 
         Partition part = new Partition( 0 );
         Host host = new Host( "cpu0", 0 );
@@ -105,7 +105,7 @@ public class TestPartitionWriter extends peregrine.BaseTest {
         
         System.out.printf( "Running test3...\n" );
         
-        DiskPerf.remove( Config.DFS_ROOT );
+        DiskPerf.remove( Config.PDFS_ROOT );
 
         Partition part = new Partition( 0 );
         Host host = new Host( "cpu0", 0 );

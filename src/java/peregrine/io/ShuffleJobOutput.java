@@ -27,7 +27,7 @@ public class ShuffleJobOutput implements JobOutput, LocalPartitionReaderListener
         
     public ShuffleJobOutput( String name ) {
 
-        Map<Partition,List<Host>> partitionMembership = Config.getPartitionMembership();
+        Membership partitionMembership = Config.getPartitionMembership();
 
         this.partitions = partitionMembership.size();
 
