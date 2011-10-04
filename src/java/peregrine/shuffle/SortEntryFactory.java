@@ -14,6 +14,6 @@ import peregrine.io.*;
 
 public interface SortEntryFactory  {
     
-    public SortEntry newSortEntry( Tuple tuple );
+    public SortEntry newSortEntry( byte[] key, byte[] value );
 
 }

@@ -132,19 +132,20 @@ public class TestBroadcastMapReduce extends junit.framework.TestCase {
 
                 LocalPartitionReader reader = new LocalPartitionReader( part, host, path );
 
-                Tuple t = reader.read();
+                if ( reader.hasNext() == false )
+                    throw new Exception( "No values" );
 
-                if ( t == null )
-                    throw new Exception( "No value read" );
+                byte[] _key = reader.key();
+                byte[] _value = reader.value();
                 
-                int count = new StructReader( t.value ).readVarint();
+                int count = new StructReader( _value ).readVarint();
 
                 if ( count != value )
                     throw new Exception( "Invalid value: " + count );
                 
                 System.out.printf( "count: %,d\n", count );
                 
-                if ( reader.read() != null )
+                if ( reader.hasNext() )
                     throw new IOException( "too many values" );
                 
             }

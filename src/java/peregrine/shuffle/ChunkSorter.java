@@ -39,13 +39,12 @@ public class ChunkSorter {
         Tuple[] dest = new Tuple[size];
 
         int idx = 0;
-        while ( true ) {
 
-            Tuple t = input.read();
+        while ( input.hasNext() ) {
 
-            if ( t == null )
-                break;
-
+            //FIXME: get rid of using tuples here.
+            Tuple t = new Tuple( input.key(), input.value() );
+            
             data[idx] = t;
             dest[idx] = t;
 

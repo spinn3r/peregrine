@@ -83,21 +83,24 @@ public class DefaultChunkReader implements ChunkReader {
         this.size = size;
     }
 
-    public Tuple read() throws IOException {
+    public boolean hasNext() throws IOException {
 
         if( this.input.getPosition() < this.length - IntBytes.LENGTH ) {
-            
-            byte[] key     = readBytes( varintReader.read( this.input ) );
-            byte[] value   = readBytes( varintReader.read( this.input ) );
-
-            return new Tuple( key, value );
-            
+            return true;
         } else {
-            return null;
+            return false;
         }
 
     }
 
+    public byte[] key() throws IOException {
+        return readBytes( varintReader.read( this.input ) );
+    }
+
+    public byte[] value() throws IOException {
+        return readBytes( varintReader.read( this.input ) );
+    }
+    
     public void close() throws IOException {
         this.input.close();
     }
@@ -113,14 +116,9 @@ public class DefaultChunkReader implements ChunkReader {
 
         System.out.printf( "==== BEGIN DefaultChunkReader DUMP ==== \n" );
         
-        while( true ) {
-            
-            Tuple tuple = read();
+        while( hasNext() ) {
 
-            if ( tuple == null )
-                break;
-
-            System.out.printf( "key=%s, value=%s\n", Hex.encode( tuple.key ), Hex.encode( tuple.value ) );
+            System.out.printf( "key=%s, value=%s\n", Hex.encode( key() ), Hex.encode( value() ) );
 
         }
 
@@ -150,21 +148,16 @@ public class DefaultChunkReader implements ChunkReader {
             
         }
         
-        while( true ) {
-
-            Tuple t = reader.read();
-
-            if ( t == null )
-                break;
+        while( reader.hasNext() ) {
 
             if ( key == null ) {
 
-                System.out.printf( "%s = %s\n", Hex.encode( t.key ), Hex.encode( t.value ) );
+                System.out.printf( "%s = %s\n", Hex.encode( reader.key() ), Hex.encode( reader.value() ) );
 
             } else {
 
-                key.fromBytes( t.key );
-                value.fromBytes( t.value );
+                key.fromBytes( reader.key() );
+                value.fromBytes( reader.value() );
                 
                 System.out.printf( "%s = %s\n", key, value );
 

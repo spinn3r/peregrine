@@ -14,13 +14,13 @@ import peregrine.io.*;
 
 public class TopLevelSortEntryFactory implements SortEntryFactory {
     
-    public SortEntry newSortEntry( Tuple tuple ) {
+    public SortEntry newSortEntry( byte[] key, byte[] value ) {
 
         VarintWriter writer = new VarintWriter();
 
         // the first value is a literal... 
-        SortEntry entry = new SortEntry( tuple.key );
-        entry.addValue( tuple.value );
+        SortEntry entry = new SortEntry( key );
+        entry.addValue( value );
         
         return entry;
 

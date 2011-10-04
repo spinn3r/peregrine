@@ -113,6 +113,8 @@ public class TestPartitionWriter extends peregrine.BaseTest {
         String path = "/tmp/test";
 
         // **** STEP 1 ... make a new file and write lots of chunks to it.
+
+        System.out.printf( "step1\n" );
         
         LocalPartitionWriter.CHUNK_SIZE = 1000;
 
@@ -133,6 +135,8 @@ public class TestPartitionWriter extends peregrine.BaseTest {
 
         writer.close();
 
+        System.out.printf( "step2..\n" );
+        
         // **** STEP 2 ok... do the SAME thing but this time in append mode.
 
         writer = new PartitionWriter( new Partition( 0 ), path, true );
@@ -154,16 +158,22 @@ public class TestPartitionWriter extends peregrine.BaseTest {
 
         // **** STEP 3 ok.... now READ all the values out and make sure we have 2 x 
 
+        System.out.printf( "going to read now.\n" );
+        
         LocalPartitionReader reader = new LocalPartitionReader( part, host, path );
 
         int count = 0;
-        while( true ) {
+        while( reader.hasNext() ) {
 
-            Tuple t = reader.read();
+            byte[] key = reader.key();
+            byte[] value = reader.value();
 
-            if ( t == null )
-                break;
+            int intval = new StructReader( value )
+                .readVarint();
 
+            if ( count < 10000 )
+                assertEquals( intval, count );
+            
             ++count;
             
         }

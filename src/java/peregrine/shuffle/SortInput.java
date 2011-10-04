@@ -30,10 +30,10 @@ public final class SortInput {
 
     public void next() throws IOException {
 
-        Tuple tuple = this.reader.read();
+        if ( this.reader.hasNext() ) {
 
-        if ( tuple != null ) {
-            this.entry = sortEntryFactory.newSortEntry( tuple );
+            this.entry = sortEntryFactory.newSortEntry( this.reader.key(), this.reader.value() );
+
         } else {
             entry = null;
         }

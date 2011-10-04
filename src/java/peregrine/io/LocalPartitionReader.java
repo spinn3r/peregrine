@@ -27,6 +27,8 @@ public class LocalPartitionReader {
     private LocalPartitionReaderListener listener = null;
 
     private ChunkReference chunkRef = null;
+
+    private boolean hasNext = false;
     
     public LocalPartitionReader( Partition partition,
                                  Host host, 
@@ -50,12 +52,12 @@ public class LocalPartitionReader {
          
     }
 
-    public Tuple read() throws IOException {
+    public boolean hasNext() throws IOException {
 
         if ( chunkReader != null )
-            t = chunkReader.read();
+            hasNext = chunkReader.hasNext();
 
-        if ( t == null ) {
+        if ( hasNext == false ) {
 
             if ( chunkRef.local >= 0 )
                 listener.onChunkEnd( chunkRef );
@@ -68,13 +70,24 @@ public class LocalPartitionReader {
 
                 listener.onChunk( chunkRef );
                 
-                t = chunkReader.read();
+                hasNext = chunkReader.hasNext();
+
+            } else {
+                hasNext = false;
             }
 
         }
 
-        return t;
+        return hasNext;
         
+    }
+
+    public byte[] key() throws IOException {
+        return chunkReader.key();
+    }
+
+    public byte[] value() throws IOException {
+        return chunkReader.value();
     }
 
     public void close() throws IOException {

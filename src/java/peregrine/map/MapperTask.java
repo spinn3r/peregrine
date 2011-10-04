@@ -58,14 +58,9 @@ public class MapperTask extends BaseMapperTask {
         
         LocalPartitionReader reader = readers.get( 0 );
 
-        while( true ) {
+        while( reader.hasNext() ) {
 
-            Tuple t = reader.read();
-
-            if ( t == null )
-                break;
-
-            mapper.map( t.key, t.value );
+            mapper.map( reader.key(), reader.value() );
 
         }
 

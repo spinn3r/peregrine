@@ -11,8 +11,11 @@ import peregrine.values.*;
 
 public interface ChunkReader {
 
-    public Tuple read() throws IOException;
+    public boolean hasNext() throws IOException;
 
+    public byte[] key() throws IOException;
+    public byte[] value() throws IOException;
+    
     public int size() throws IOException;
 
     public void close() throws IOException;

@@ -27,14 +27,14 @@ public class TestChunkSorter extends junit.framework.TestCase {
 
         FullTupleComparator comparator = new FullTupleComparator();
         
-        while( true ) {
+        while( reader.hasNext() ) {
 
-            Tuple t = reader.read();
+            byte[] key = reader.key();
+            byte[] value = reader.value();
 
-            if ( t == null )
-                break;
-
-            System.out.printf( "READ: %s\n", Hex.encode( t.key ) );
+            Tuple t = new Tuple( key, value );
+            
+            System.out.printf( "READ: %s\n", Hex.encode( key ) );
             
             if ( last != null && comparator.compare( last, t ) > 0 )
                 throw new RuntimeException();

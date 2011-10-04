@@ -14,7 +14,10 @@ import peregrine.io.*;
  */
 public class LocalPartitionWriter {
 
-    public static long CHUNK_SIZE = 100000000;
+    /**
+     * Chunk size for rollover files.
+     */
+    public static long CHUNK_SIZE = 134217728;
     
     private String path = null;
 

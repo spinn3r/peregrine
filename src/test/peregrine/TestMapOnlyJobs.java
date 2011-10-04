@@ -59,9 +59,7 @@ public class TestMapOnlyJobs extends junit.framework.TestCase {
 
         LocalPartitionReader reader = new LocalPartitionReader( part, host, output );
 
-        Tuple t = reader.read();
-
-        if ( t == null )
+        if ( reader.hasNext() == false )
             throw new IOException( "nothing written" );
 
     }

@@ -89,13 +89,11 @@ class FilePriorityQueue {
 
     public void add( FileReference ref ) throws IOException {
 
-        Tuple t = ref.reader.read();
-
-        if ( t == null )
+        if ( ref.reader.hasNext() == false )
             return;
         
-        ref.key   = t.key;
-        ref.value = t.value;
+        ref.key   = ref.reader.key();
+        ref.value = ref.reader.value();
 
         delegate.add( ref );
 

@@ -14,12 +14,12 @@ import peregrine.io.*;
 
 public class DefaultSortEntryFactory implements SortEntryFactory {
     
-    public SortEntry newSortEntry( Tuple tuple ) {
+    public SortEntry newSortEntry( byte[] key, byte[] value ) {
 
-        SortEntry entry = new SortEntry( tuple.key );
+        SortEntry entry = new SortEntry( key );
 
         Struct struct = new Struct();
-        struct.fromBytes( tuple.value );
+        struct.fromBytes( value );
 
         entry.addValues( struct.read() );
         

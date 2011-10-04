@@ -19,12 +19,18 @@ public class TupleArrayChunkReader implements ChunkReader {
         this.data = data;
     }
 
-    public Tuple read() throws IOException {
+    public boolean hasNext() throws IOException {
+        return idx < data.length;
+    }
 
-        if ( data.length == idx )
-            return null;
-        
-        return data[ idx++ ];
+    public byte[] key() throws IOException {
+        return data[idx].key;
+    }
+
+    public byte[] value() throws IOException {
+        byte[] result = data[idx].value;
+        ++idx;
+        return result;
     }
 
     public int size() throws IOException {

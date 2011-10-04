@@ -112,7 +112,7 @@ public class ChunkMerger {
 
             ++tuples;
             
-            result.accept( topLevelSortEntryFactory.newSortEntry( entry.t ) );
+            result.accept( topLevelSortEntryFactory.newSortEntry( entry.key, entry.value ) );
 
         }
 
@@ -141,14 +141,13 @@ class PartitionPriorityQueue {
         
         for( ChunkReader reader : readers ) {
 
-            Tuple t = reader.read();
-
-            if ( t == null )
+            if ( reader.hasNext() == false )
                 continue;
             
             QueueEntry entry = new QueueEntry();
             entry.reader = reader;
-            entry.t = t;
+            entry.key = reader.key();
+            entry.value = reader.key();
             entry.queue = this;
 
             queue.add( entry );
@@ -167,14 +166,13 @@ class PartitionPriorityQueue {
         if ( entry == null )
             return null;
 
-        this.result.t = entry.t;
-        //this.result.cmp = comparator.cmp;
-        
-        Tuple t = entry.reader.read();
+        this.result.key = entry.key;
+        this.result.value = entry.value;
 
-        if ( t != null ) {
+        if ( entry.reader.hasNext() ) {
             // add this back in with the next value.
-            entry.t = t;
+            entry.key = entry.reader.key();
+            entry.value = entry.reader.value();
             add( entry );
         }
 
@@ -190,7 +188,8 @@ class PartitionPriorityQueue {
 
 class QueueEntry {
 
-    public Tuple t = null;
+    public byte[] key;
+    public byte[] value;
     
     protected PartitionPriorityQueue queue = null;
 
@@ -204,7 +203,7 @@ class ChunkMergeComparator implements Comparator<QueueEntry> {
     private FullKeyComparator delegate = new FullKeyComparator();
     
     public int compare( QueueEntry k0, QueueEntry k1 ) {
-        return delegate.compare( k0.t.key, k1.t.key );
+        return delegate.compare( k0.key, k1.key );
     }
 
 }
