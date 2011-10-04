@@ -13,23 +13,6 @@ public class Config {
 
     private static Map<Partition,List<Host>> PARTITION_MEMBERSHIP = new HashMap();
 
-    private static Map<String,Integer> HOST_ID_LOOKUP = new HashMap();
-
-    private static int lookupHostId( String name ) {
-
-        int id = -1;
-        
-        if ( HOST_ID_LOOKUP.containsKey( name ) ) {
-            id = HOST_ID_LOOKUP.get( name );
-        } else {
-            id = HOST_ID_LOOKUP.size();
-            HOST_ID_LOOKUP.put( name, id );
-        } 
-
-        return id;
-        
-    }
-    
     public static void addPartitionMembership( int partition, String... hosts ) {
 
         List<Host> list = new ArrayList();
@@ -37,10 +20,8 @@ public class Config {
         for( int i = 0; i < hosts.length; ++i ) {
 
             String host = hosts[i];
-            
-            int id = lookupHostId( host );
-            
-            list.add( new Host( host, id, i ) );
+
+            list.add( new Host( host, i ) );
             
         }
 

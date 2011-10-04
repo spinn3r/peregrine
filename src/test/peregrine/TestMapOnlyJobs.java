@@ -55,7 +55,7 @@ public class TestMapOnlyJobs extends junit.framework.TestCase {
         Controller.map( Map.class, new Input( path ), new Output( output ) );
 
         Partition part = new Partition( 0 );
-        Host host = new Host( "cpu0", 0 , 0  );
+        Host host = new Host( "cpu0", 0  );
 
         LocalPartitionReader reader = new LocalPartitionReader( part, host, output );
 

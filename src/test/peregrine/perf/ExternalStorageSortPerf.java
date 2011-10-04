@@ -29,7 +29,7 @@ public class ExternalStorageSortPerf {
         Config.addPartitionMembership( 0, "cpu0" );
 
         Partition part = new Partition( 0 );
-        Host host = new Host( "cpu0", 0, 0 );
+        Host host = new Host( "cpu0", 0 );
         String path = "/tmp/benchmark.test";
 
         LocalPartitionWriter.CHUNK_SIZE = 100000000;

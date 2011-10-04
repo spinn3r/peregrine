@@ -28,7 +28,7 @@ public class TestFullOuterJoin extends junit.framework.TestCase {
         //join are applied correctly
 
         Partition part = new Partition( 0 );
-        Host host = new Host( "cpu0", 0, 0 );
+        Host host = new Host( "cpu0", 0 );
         
         PartitionWriter writer;
 

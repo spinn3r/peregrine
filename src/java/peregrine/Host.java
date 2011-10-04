@@ -4,18 +4,20 @@ package peregrine;
 import java.io.*;
 import java.util.*;
 
+import peregrine.util.*;
+
 public class Host {
 
     private static int sequence = 0;
 
-    protected int id = 0;
+    protected long id = 0;
     protected String name = null;
 
     protected int partitionMemberId = 0;
     
-    public Host( String name, int id , int partitionMemberId ) {
+    public Host( String name, int partitionMemberId ) {
         this.name = name;
-        this.id = id;
+        this.id = LongBytes.toLong( Hashcode.getHashcode( name ) );
         this.partitionMemberId = partitionMemberId;
     }
 
@@ -24,14 +26,14 @@ public class Host {
     }
 
     public int hashCode() {
-        return id;
+        return name.hashCode();
     } 
 
     public String getName() {
         return name;
     }
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 
@@ -40,7 +42,7 @@ public class Host {
     }
     
     public String toString() {
-        return String.format( "name=%s,id=%s", name, id );
+        return String.format( "name=%s,id=%010d", name, id );
     }
     
 }

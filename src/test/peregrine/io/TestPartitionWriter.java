@@ -28,7 +28,7 @@ public class TestPartitionWriter extends peregrine.BaseTest {
         writer.close();
 
         Partition part = new Partition( 0 );
-        Host host = new Host( "cpu0", 0, 0 );
+        Host host = new Host( "cpu0", 0 );
 
         List<ChunkReader> readers = LocalPartition.getChunkReaders( part, host, path );
 
@@ -45,7 +45,7 @@ public class TestPartitionWriter extends peregrine.BaseTest {
         DiskPerf.remove( Config.DFS_ROOT );
 
         Partition part = new Partition( 0 );
-        Host host = new Host( "cpu0", 0, 0 );
+        Host host = new Host( "cpu0", 0 );
 
         String path = "/tmp/test";
 
@@ -108,7 +108,7 @@ public class TestPartitionWriter extends peregrine.BaseTest {
         DiskPerf.remove( Config.DFS_ROOT );
 
         Partition part = new Partition( 0 );
-        Host host = new Host( "cpu0", 0, 0 );
+        Host host = new Host( "cpu0", 0 );
 
         String path = "/tmp/test";
 

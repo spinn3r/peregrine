@@ -40,7 +40,10 @@ public class NettyHandler extends SimpleChannelUpstreamHandler {
 
     @Override
     public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
+
         HttpRequest request = (HttpRequest) e.getMessage();
+
+        //TODO handle other methods other than GET here
         if (request.getMethod() != GET) {
             sendError(ctx, METHOD_NOT_ALLOWED);
             return;
@@ -167,5 +170,8 @@ public class NettyHandler extends SimpleChannelUpstreamHandler {
 
         // Close the connection as soon as the error message is sent.
         ctx.getChannel().write(response).addListener(ChannelFutureListener.CLOSE);
+
     }
+
 }
+
