@@ -25,11 +25,11 @@ public class NettyPipelineFactory implements ChannelPipelineFactory {
         //pipeline.addLast("ssl", new SslHandler(engine));
 
         pipeline.addLast("decoder",        new HttpRequestDecoder());
-        pipeline.addLast("aggregator",     new HttpChunkAggregator(65536));
+        //pipeline.addLast("aggregator",     new HttpChunkAggregator(65536));
         pipeline.addLast("encoder",        new HttpResponseEncoder());
         pipeline.addLast("chunkedWriter",  new ChunkedWriteHandler());
 
-        pipeline.addLast("handler",        new NettyHandler());
+        pipeline.addLast("handler",        new HTTPShuffleHandler());
         
         return pipeline;
 

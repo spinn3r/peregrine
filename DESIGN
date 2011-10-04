@@ -123,7 +123,7 @@
            
             HTTP 200 OK
     
-        - PUT
+        - PUT /pdfs/part/0/path/to/chunk.dat
 
             - put a chunk on the remote end
             - makes parent directories if necessary.
@@ -141,12 +141,15 @@
             - handles writing to files or output references for additional map jobs
               and giving them to mapd or the reducer.    
               
-        - EMIT /part/0
-          EMIT /part/1
-
+        - 
+          PUT /shuffle/default/source/0
+          key[],value[]
+          
             Used during shuffle to write to a file descriptor.
-        
-        - GET /dfs/part/0/path/to/chunk.dat
+
+
+            
+        - GET /pdfs/part/0/path/to/chunk.dat
 
             - HTTP read on a given chunk file...  Mostly used for speculative
               execution.
