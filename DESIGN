@@ -146,7 +146,7 @@
 
             Used during shuffle to write to a file descriptor.
         
-        - GET /part/0/path/to/chunk.dat
+        - GET /dfs/part/0/path/to/chunk.dat
 
             - HTTP read on a given chunk file...  Mostly used for speculative
               execution.

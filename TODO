@@ -1,4 +1,6 @@
 
+- Rename everythign to pdfsd peregrine distributed filesystem
+
 
 - Map and Reduce BOTH need to support merge() operations... We ALSO need to
   support APPEND to files ... so that a new Map or Reduce job can just write to
