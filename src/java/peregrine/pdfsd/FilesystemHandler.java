@@ -38,8 +38,6 @@ import peregrine.Config;
 import peregrine.pdfsd.io.FileOutputQueue;
 
 /**
- * @author <a href="http://www.jboss.org/netty/">The Netty Project</a>
- * @author <a href="http://gleamynode.net/">Trustin Lee</a>
  */
 public class FilesystemHandler extends SimpleChannelUpstreamHandler {
 
