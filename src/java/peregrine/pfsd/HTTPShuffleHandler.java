@@ -1,4 +1,4 @@
-package peregrine.pdfsd;
+package peregrine.pfsd;
 
 import static org.jboss.netty.handler.codec.http.HttpHeaders.*;
 import static org.jboss.netty.handler.codec.http.HttpHeaders.Names.*;
@@ -29,25 +29,17 @@ import org.jboss.netty.handler.codec.http.HttpRequest;
 import org.jboss.netty.handler.codec.http.HttpResponse;
 import org.jboss.netty.handler.codec.http.HttpResponseStatus;
 import org.jboss.netty.handler.codec.http.HttpChunk;
-import org.jboss.netty.handler.codec.http.HttpMethod;
 import org.jboss.netty.handler.ssl.SslHandler;
 import org.jboss.netty.handler.stream.ChunkedFile;
 import org.jboss.netty.util.CharsetUtil;
 
-import peregrine.Config;
-import peregrine.pdfsd.io.FileOutputQueue;
-
 /**
+ * @author <a href="http://www.jboss.org/netty/">The Netty Project</a>
+ * @author <a href="http://gleamynode.net/">Trustin Lee</a>
  */
-public class FilesystemHandler extends SimpleChannelUpstreamHandler {
+public class HTTPShuffleHandler extends SimpleChannelUpstreamHandler {
 
     private HttpRequest request = null;
-
-    private HttpMethod method = null;
-
-    private String path = null;
-
-    private FileOutputQueue fileOutputQueue = null;
     
     @Override
     public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
@@ -55,34 +47,26 @@ public class FilesystemHandler extends SimpleChannelUpstreamHandler {
         Object message = e.getMessage();
         
         if ( message instanceof HttpRequest ) {
-
+            
             this.request = (HttpRequest)message;
-            this.method = request.getMethod();
             
             //TODO handle other methods other than GET here
-            if ( method != PUT )  {
+            if (request.getMethod() != PUT) {
                 sendError(ctx, METHOD_NOT_ALLOWED);
                 return;
             }
           
-            path = request.getUri();
-            path = sanitizeUri( path );
-            
-            if ( path == null || ! path.startsWith( "/" ) ) {
+            String path = request.getUri();
+
+            //FIXME: make sure it's to /shuffle
+            if (path == null) {
                 sendError(ctx, FORBIDDEN);
                 return;
             }
 
-            if ( method == PUT ) {
-                fileOutputQueue = new FileOutputQueue( path );
-                return;
-            }
+            //HttpChunk chunk = (HttpChunk)e.getMessage();
 
-            if ( method == GET ) {
-
-                //handle HTTP GETs here.
-                
-            }
+            //read the data... 
 
         } else if ( message instanceof HttpChunk ) {
             
@@ -94,12 +78,10 @@ public class FilesystemHandler extends SimpleChannelUpstreamHandler {
 
                 byte[] data = content.array();
 
-                fileOutputQueue.add( data );
-
+                System.out.printf( "READ %,d bytes\n" , data.length );
+                
             } else {
 
-                fileOutputQueue.add( new byte[0] );
-                
                 HttpResponse response = new DefaultHttpResponse(HTTP_1_1, OK);
 
                 Channel ch = e.getChannel();
@@ -112,34 +94,6 @@ public class FilesystemHandler extends SimpleChannelUpstreamHandler {
             
     }
 
-    private String sanitizeUri(String uri) {
-
-        // TODO: I believe this is actually wrong and that we have to try
-        // ISO-8601 first according to the HTTP spec but I need to research this
-        // problem.
-
-        try {
-
-            uri = URLDecoder.decode(uri, "UTF-8");
-
-        } catch (UnsupportedEncodingException e) {
-
-            try {
-                uri = URLDecoder.decode(uri, "ISO-8859-1");
-            } catch (UnsupportedEncodingException e1) {
-                throw new Error();
-            }
-
-        }
-
-        if ( uri.contains( "../" ) || uri.contains( "/.." ) )
-            return null;
-        
-        // Convert to absolute path.
-        return Config.PFS_ROOT + uri;
-        
-    }
-
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e)
         throws Exception {
@@ -149,6 +103,7 @@ public class FilesystemHandler extends SimpleChannelUpstreamHandler {
 
         cause.printStackTrace();
 
+        /*
         if (cause instanceof TooLongFrameException) {
             sendError(ctx, BAD_REQUEST);
             return;
@@ -157,11 +112,11 @@ public class FilesystemHandler extends SimpleChannelUpstreamHandler {
         if (ch.isConnected()) {
             sendError(ctx, INTERNAL_SERVER_ERROR);
         }
+        */
         
     }
 
     private void sendError(ChannelHandlerContext ctx, HttpResponseStatus status) {
-
         HttpResponse response = new DefaultHttpResponse(HTTP_1_1, status);
         response.setHeader(CONTENT_TYPE, "text/plain; charset=UTF-8");
         response.setContent(ChannelBuffers.copiedBuffer(

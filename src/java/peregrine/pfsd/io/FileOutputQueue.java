@@ -1,5 +1,5 @@
 
-package peregrine.pdfsd.io;
+package peregrine.pfsd.io;
 
 import java.io.*;
 import java.util.*;
