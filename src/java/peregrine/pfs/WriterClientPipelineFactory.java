@@ -19,7 +19,8 @@ public class WriterClientPipelineFactory implements ChannelPipelineFactory {
     public ChannelPipeline getPipeline() throws Exception {
         // Create a default pipeline implementation.
         ChannelPipeline pipeline = pipeline();
-        
+
+        //FIXME: the client codec needs a memory config too... 
         pipeline.addLast("codec", new HttpClientCodec());
         pipeline.addLast("handler", new HttpResponseHandler());
 

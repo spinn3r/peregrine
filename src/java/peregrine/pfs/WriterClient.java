@@ -5,7 +5,10 @@ import java.net.URI;
 import java.util.concurrent.Executors;
 
 import org.jboss.netty.bootstrap.ClientBootstrap;
+import org.jboss.netty.buffer.ChannelBuffer;
+import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.channel.Channel;
+import org.jboss.netty.channel.Channels;
 import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.channel.ChannelFutureListener;
 import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
@@ -15,6 +18,8 @@ import org.jboss.netty.handler.codec.http.HttpHeaders;
 import org.jboss.netty.handler.codec.http.HttpMethod;
 import org.jboss.netty.handler.codec.http.HttpRequest;
 import org.jboss.netty.handler.codec.http.HttpVersion;
+
+import peregrine.util.*;
 
 /**
  * A simple HTTP client that prints out the content of the HTTP response to
@@ -51,6 +56,8 @@ public class WriterClient {
         // Wait until the connection attempt succeeds or fails.
         Channel channel = future.awaitUninterruptibly().getChannel();
 
+        System.out.printf( "channel: %s\n", channel.getClass().getName() );
+        
         if ( ! future.isSuccess() ) {
 
             //FIXME: we need to throw an exception here I think... actually what
@@ -63,18 +70,36 @@ public class WriterClient {
 
         // Prepare the HTTP request.
         HttpRequest request = new DefaultHttpRequest( HttpVersion.HTTP_1_1, HttpMethod.PUT, uri.toASCIIString() );
+
+        request.setHeader(HttpHeaders.Names.USER_AGENT, WriterClient.class.getName() );
         request.setHeader(HttpHeaders.Names.HOST, host);
-        request.setHeader(HttpHeaders.Names.CONNECTION, HttpHeaders.Values.CLOSE);
+        request.setHeader(HttpHeaders.Names.CONNECTION, HttpHeaders.Values.CLOSE );
+        request.setHeader(HttpHeaders.Names.EXPECT, "100-continue" );
 
         // Send the HTTP request.
-        channel.write(request).addListener( new ChannelFutureListener() {
+
+        ChannelBuffer cbuff = ChannelBuffers.dynamicBuffer();
+
+        cbuff.writeBytes( "\r\nhello world\r\n".getBytes() );
+
+        /*
+        System.out.printf( "----\n" );
+
+        byte[] data = new byte[ request.getContent().readableBytes() ];
+        request.getContent().getBytes( 0, data );
+        
+        System.out.printf( "%s", Hex.pretty( data ) );
+        System.out.printf( "----\n" );
+        */
+        
+        channel.write( request ).addListener( new ChannelFutureListener() {
 
                 public void operationComplete( ChannelFuture future ) {
 
                     System.out.printf( "WRITE completed.\n" );
 
+                    /*
                     System.out.printf( "closing\n" );
-
                     future.getChannel().close().addListener( new ChannelFutureListener() {
                             
                             public void operationComplete( ChannelFuture future ) {
@@ -83,13 +108,11 @@ public class WriterClient {
                             }
 
                         } );
+                    */
 
                 }
                 
             } );
-        
-        // Wait for the server to close the connection.
-        channel.getCloseFuture().awaitUninterruptibly();
 
         // Shut down executor threads to exit.
         bootstrap.releaseExternalResources();

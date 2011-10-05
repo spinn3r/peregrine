@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.RandomAccessFile;
 import java.io.UnsupportedEncodingException;
+import java.net.URI;
 import java.net.URLDecoder;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
@@ -36,6 +37,7 @@ import org.jboss.netty.util.CharsetUtil;
 
 import peregrine.Config;
 import peregrine.pfsd.io.FileOutputQueue;
+import peregrine.util.*;
 
 /**
  */
@@ -53,6 +55,8 @@ public class FilesystemHandler extends SimpleChannelUpstreamHandler {
     public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
 
         Object message = e.getMessage();
+
+        System.out.printf( "GOT MESSAGE: %s\n", message.getClass().getName() );
         
         if ( message instanceof HttpRequest ) {
 
@@ -73,6 +77,8 @@ public class FilesystemHandler extends SimpleChannelUpstreamHandler {
                 return;
             }
 
+            System.out.printf( "URL is: %s\n", path );
+            
             if ( method == PUT ) {
                 fileOutputQueue = new FileOutputQueue( path );
                 return;
@@ -90,13 +96,19 @@ public class FilesystemHandler extends SimpleChannelUpstreamHandler {
 
             if ( ! chunk.isLast() ) {
 
+                System.out.printf( "GOT chunk\n" );
+
                 ChannelBuffer content = chunk.getContent();
 
                 byte[] data = content.array();
 
+                System.out.printf( "%s\n", Hex.pretty( data ) );
+                
                 fileOutputQueue.add( data );
 
             } else {
+
+                System.out.printf( "GOT LAST chunk\n" );
 
                 fileOutputQueue.add( new byte[0] );
                 
@@ -112,7 +124,7 @@ public class FilesystemHandler extends SimpleChannelUpstreamHandler {
             
     }
 
-    private String sanitizeUri(String uri) {
+    private String sanitizeUri(String uri) throws java.net.URISyntaxException {
 
         // TODO: I believe this is actually wrong and that we have to try
         // ISO-8601 first according to the HTTP spec but I need to research this
@@ -134,9 +146,9 @@ public class FilesystemHandler extends SimpleChannelUpstreamHandler {
 
         if ( uri.contains( "../" ) || uri.contains( "/.." ) )
             return null;
-        
+
         // Convert to absolute path.
-        return Config.PFS_ROOT + uri;
+        return Config.PFS_ROOT + new URI( uri ).getPath();
         
     }
 

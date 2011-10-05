@@ -1,4 +1,8 @@
 
+
+
+- I need to build in a way to easily start dumping messages sent into and out of netty...
+
 - junit needs to print exceptions when it is runnning..... for some reason right
   now they are swallowed... why is that.
 

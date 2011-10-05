@@ -21,6 +21,9 @@ public class HttpResponseHandler extends SimpleChannelUpstreamHandler {
 
     @Override
     public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
+
+        System.out.printf( "FIXME: GOT RESPONSE\n" );
+
         if (!readingChunks) {
             HttpResponse response = (HttpResponse) e.getMessage();
 

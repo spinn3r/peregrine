@@ -10,7 +10,7 @@ import java.util.concurrent.*;
  */
 public class FileOutputQueue {
 
-    /**
+    /**De
      * How many messages to buffer before they go out to disk.
      */
     public int LIMIT = 1000;
