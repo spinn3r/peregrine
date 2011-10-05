@@ -96,8 +96,6 @@ public class FilesystemHandler extends SimpleChannelUpstreamHandler {
 
                 byte[] data = content.array();
 
-                System.out.printf( "READ %,d bytes\n" , data.length );
-
                 fileOutputQueue.add( data );
 
             } else {
