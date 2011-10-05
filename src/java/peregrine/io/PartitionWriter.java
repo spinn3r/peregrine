@@ -40,9 +40,8 @@ public class PartitionWriter {
 
             Host member = membership.get( i );
 
-            String dfs_path = Config.getPFSPath( partition, member, path );
-
-            LocalPartitionWriter writer = new LocalPartitionWriter( dfs_path, append );
+            LocalPartitionWriter writer =
+                new LocalPartitionWriter( partition, member, path, append );
             
             writers[ i ] = writer;
             

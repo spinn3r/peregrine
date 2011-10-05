@@ -25,16 +25,21 @@ public class LocalPartitionWriter {
 
     private ChunkWriter out = null;
 
-    public LocalPartitionWriter( String path ) throws IOException {
-        this( path, false );
+    public LocalPartitionWriter( Partition partition,
+                                 Host host,
+                                 String path ) throws IOException {
+        this( partition, host, path, false );
     }
         
-    public LocalPartitionWriter( String path, boolean append ) throws IOException {
+    public LocalPartitionWriter( Partition partition,
+                                 Host host,
+                                 String _path,
+                                 boolean append ) throws IOException {
 
-        this.path = path;
+        this.path = Config.getPFSPath( partition, host, _path );
 
-        List<File> chunks = LocalPartition.getChunkFiles( path );
-
+        List<File> chunks = LocalPartition.getChunkFiles( partition, host, _path );
+        
         if ( append == false ) {
             
             for ( File chunk : chunks ) {
@@ -48,7 +53,7 @@ public class LocalPartitionWriter {
 
             // the chunk_id needs to be changed so that the append works.
             chunk_id = chunks.size();
-            
+
         }
         
         //create the first chunk...

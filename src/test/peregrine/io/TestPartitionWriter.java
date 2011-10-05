@@ -135,6 +135,9 @@ public class TestPartitionWriter extends peregrine.BaseTest {
 
         writer.close();
 
+        System.out.printf( "BEFORE had %,d chunks\n",
+                           LocalPartition.getChunkFiles( part, host, path ).size() );
+        
         System.out.printf( "step2..\n" );
         
         // **** STEP 2 ok... do the SAME thing but this time in append mode.
@@ -155,6 +158,9 @@ public class TestPartitionWriter extends peregrine.BaseTest {
         }
 
         writer.close();
+
+        System.out.printf( "AFTER had %,d chunks\n",
+                           LocalPartition.getChunkFiles( part, host, path ).size() );
 
         // **** STEP 3 ok.... now READ all the values out and make sure we have 2 x 
 

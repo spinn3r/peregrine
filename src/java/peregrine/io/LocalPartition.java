@@ -17,15 +17,16 @@ public class LocalPartition {
         return String.format( "chunk%06d.dat" , local_chunk_id );
     }
 
-    public static List<File> getChunkFiles( String dir ) {
+    private static List<File> getChunkFiles( String dir ) {
 
         List<File> files = new ArrayList();
 
         for( int i = 0; i < Integer.MAX_VALUE; ++i ) {
 
             String name = getFilenameForChunkID( i );
-            File chunk = new File( dir, name );
 
+            File chunk = new File( dir, name );
+            
             if ( chunk.exists() ) {
                 files.add( chunk);
             } else {
@@ -48,9 +49,7 @@ public class LocalPartition {
 
     }
 
-    public static List<ChunkReader> getChunkReaders( Partition part,
-                                                     Host host,
-                                                     String path )
+    public static List<ChunkReader> getChunkReaders( Partition part, Host host, String path )
         throws IOException {
     
         List<File> chunks = LocalPartition.getChunkFiles( part, host, path );
