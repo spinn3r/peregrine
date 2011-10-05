@@ -12,7 +12,7 @@ import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
 public class Main {
 
     public static int PORT = 11112;
-    
+
     public static void main(String[] args) {
 
         // Configure the server.
@@ -25,7 +25,7 @@ public class Main {
         bootstrap.setPipelineFactory( new NettyPipelineFactory() );
 
         // Bind and start to accept incoming connections.
-        bootstrap.bind(new InetSocketAddress( PORT ));
+        bootstrap.bind( new InetSocketAddress( PORT ) );
 
     }
 

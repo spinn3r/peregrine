@@ -19,13 +19,15 @@ public class FileOutputQueue {
 
     private BlockingQueue<byte[]> queue = new LinkedBlockingDeque( LIMIT );
 
+    private Future future = null;
+    
     public FileOutputQueue( String dest ) {
 
         this.dest = dest;
 
         FileOutputCallable callable = new FileOutputCallable( dest, queue );
 
-        FileOutputService.submit( callable );
+        this.future = FileOutputService.submit( callable );
         
     }
     
@@ -36,6 +38,10 @@ public class FileOutputQueue {
 
         queue.put( data );
         
+    }
+
+    public Future getFuture() {
+        return this.future;
     }
     
 }

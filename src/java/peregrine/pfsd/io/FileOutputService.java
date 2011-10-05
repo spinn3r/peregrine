@@ -18,8 +18,8 @@ public class FileOutputService {
     private static ExecutorService executors =
         Executors.newFixedThreadPool( THREAD_POOL_SIZE );
 
-    public static void submit( FileOutputCallable callable ) {
-        executors.submit( callable );
+    public static Future submit( FileOutputCallable callable ) {
+        return executors.submit( callable );
     }
     
 }
