@@ -42,7 +42,7 @@ public class LocalPartition {
                                             Host host,
                                             String path ) {
 
-        String dir = Config.getPDFSPath( part, host, path );
+        String dir = Config.getPFSPath( part, host, path );
 
         return getChunkFiles( dir );
 

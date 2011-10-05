@@ -40,7 +40,7 @@ public class ExtractWriter {
             List<LocalPartitionWriter> output = new ArrayList();
             
             for ( Host member : membership ) {
-                output.add( new LocalPartitionWriter( Config.getPDFSPath( partition, member, path ) ) );
+                output.add( new LocalPartitionWriter( Config.getPFSPath( partition, member, path ) ) );
             }
 
             PARTITION_OUTPUT[partition.getId()] = output;

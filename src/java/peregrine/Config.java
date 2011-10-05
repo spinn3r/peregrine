@@ -7,7 +7,7 @@ import peregrine.util.*;
 
 public class Config {
 
-    public static String PDFS_ROOT = "/tmp/peregrine-dfs";
+    public static String PFS_ROOT = "/tmp/peregrine-dfs";
 
     private static Membership membership = new Membership();
 
@@ -31,12 +31,12 @@ public class Config {
         return membership;
     }
 
-    public static String getPDFSRoot( Partition partition, Host host ) {
-        return String.format( "%s/%s/%s" , Config.PDFS_ROOT , host.getName(), partition.getId() );
+    public static String getPFSRoot( Partition partition, Host host ) {
+        return String.format( "%s/%s/%s" , Config.PFS_ROOT , host.getName(), partition.getId() );
     }
         
-    public static String getPDFSPath( Partition partition, Host host, String path ) {
-        return String.format( "%s%s" , getPDFSRoot( partition, host ), path );
+    public static String getPFSPath( Partition partition, Host host, String path ) {
+        return String.format( "%s%s" , getPFSRoot( partition, host ), path );
     }
 
     /**

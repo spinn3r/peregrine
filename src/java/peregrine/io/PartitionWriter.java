@@ -40,7 +40,7 @@ public class PartitionWriter {
 
             Host member = membership.get( i );
 
-            String dfs_path = Config.getPDFSPath( partition, member, path );
+            String dfs_path = Config.getPFSPath( partition, member, path );
 
             LocalPartitionWriter writer = new LocalPartitionWriter( dfs_path, append );
             

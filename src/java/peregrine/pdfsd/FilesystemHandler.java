@@ -136,7 +136,7 @@ public class FilesystemHandler extends SimpleChannelUpstreamHandler {
             return null;
         
         // Convert to absolute path.
-        return Config.PDFS_ROOT + uri;
+        return Config.PFS_ROOT + uri;
         
     }
 

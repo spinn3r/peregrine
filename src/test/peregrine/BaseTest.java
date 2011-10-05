@@ -18,13 +18,13 @@ import peregrine.perf.*;
 public abstract class BaseTest extends junit.framework.TestCase {
 
     public void setUp() {
-        System.out.printf( "Cleaning up PDFS_ROOT: %s\n", Config.PDFS_ROOT );
-        DiskPerf.remove( Config.PDFS_ROOT );
+        System.out.printf( "Cleaning up PFS_ROOT: %s\n", Config.PFS_ROOT );
+        DiskPerf.remove( Config.PFS_ROOT );
     }
 
     public void tearDown() {
-        System.out.printf( "Cleaning up PDFS_ROOT: %s\n", Config.PDFS_ROOT );
-        DiskPerf.remove( Config.PDFS_ROOT );
+        System.out.printf( "Cleaning up PFS_ROOT: %s\n", Config.PFS_ROOT );
+        DiskPerf.remove( Config.PFS_ROOT );
     }
 
 }
