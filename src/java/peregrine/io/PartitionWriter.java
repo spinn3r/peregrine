@@ -15,8 +15,6 @@ public interface PartitionWriter {
 
     public void write( byte[] key, byte[] value ) throws IOException;
 
-    public int count() throws IOException;
-
     public void close() throws IOException;
 
     public String toString();
