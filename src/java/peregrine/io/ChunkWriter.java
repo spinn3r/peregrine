@@ -21,7 +21,9 @@ public interface ChunkWriter {
      * total number of key value pair writes done to this ChunkWriter.
      */
     public int count() throws IOException;
+
+    public long length() throws IOException;
     
     public void close() throws IOException;
-    
+
 }

@@ -23,8 +23,12 @@ public class LocalPartitionWriter {
 
     private int chunk_id = 0;
 
-    private LocalChunkWriter chunkWriter = null;
+    private ChunkWriter chunkWriter = null;
 
+    private Partition partition;
+
+    private Host host;
+    
     public LocalPartitionWriter( Partition partition,
                                  Host host,
                                  String path ) throws IOException {
@@ -33,23 +37,30 @@ public class LocalPartitionWriter {
         
     public LocalPartitionWriter( Partition partition,
                                  Host host,
-                                 String local,
+                                 String path,
                                  boolean append ) throws IOException {
 
-        this.path = Config.getPFSPath( partition, host, local );
+        this.path = path;
+        this.partition = partition;
+        this.host = host;
 
-        List<File> chunks = LocalPartition.getChunkFiles( partition, host, local );
-        
         if ( append == false ) {
-            
-            for ( File chunk : chunks ) {
-                
-                if ( ! chunk.delete() )
-                    throw new IOException( "Unable to remove local chunk: " + chunk );
-                
-            }
+
+            erase();
 
         } else {
+
+            // FIXME: how do we setup append mode remotely ? This is going to be
+            // even a bigger issue when you factor in that ALL of the
+            // PartitionWriters could be remote.  ONE thing we could do is
+            // include a nonce as the beginning chunk ID ... Right now some of
+            // the probe operations where we read the file by ID wouldn't work
+            // in this manner though AND the clocks would need to be
+            // synchronized...hm.  ACTUALLY .. they won't ALL be non-local.  At
+            // least ONE will be local.. actually... no.  Not during extracts
+            // that run on the source.
+            
+            List<File> chunks = LocalPartition.getChunkFiles( partition, host, path );
 
             // the chunk_id needs to be changed so that the append works.
             chunk_id = chunks.size();
@@ -70,6 +81,39 @@ public class LocalPartitionWriter {
         
     }
 
+    public void close() throws IOException {
+        //close the last opened partition...
+        chunkWriter.close();        
+    }
+
+    public String toString() {
+        return path;
+    }
+
+    protected ChunkWriter newChunkWriter( int chunk_id ) throws IOException {
+
+        String local = Config.getPFSPath( partition, host, path );
+
+        String chunk_name = LocalPartition.getFilenameForChunkID( this.chunk_id );
+        String chunk_path = new File( local, chunk_name ).getPath();
+
+        return new LocalChunkWriter( chunk_path );
+
+    }
+
+    protected void erase() throws IOException {
+
+        List<File> chunks = LocalPartition.getChunkFiles( partition, host, path );
+
+        for ( File chunk : chunks ) {
+            
+            if ( ! chunk.delete() )
+                throw new IOException( "Unable to remove local chunk: " + chunk );
+            
+        }
+
+    }
+    
     private void rolloverWhenNecessary() throws IOException {
 
         if ( chunkWriter.length() > CHUNK_SIZE )
@@ -82,22 +126,10 @@ public class LocalPartitionWriter {
         if ( chunkWriter != null )
             chunkWriter.close();
 
-        String chunk_name = LocalPartition.getFilenameForChunkID( this.chunk_id );
-        String chunk_path = new File( this.path, chunk_name ).getPath();
-
-        chunkWriter = new LocalChunkWriter( chunk_path );
+        chunkWriter = newChunkWriter( chunk_id );
         
         ++chunk_id; // change the chunk ID now for the next file.
         
     }
 
-    public void close() throws IOException {
-        //close the last opened partition...
-        chunkWriter.close();        
-    }
-
-    public String toString() {
-        return path;
-    }
-    
 }
