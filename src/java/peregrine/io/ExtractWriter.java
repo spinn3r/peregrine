@@ -90,6 +90,8 @@ public class ExtractWriter {
                         byte[] value_bytes )
         throws IOException {
 
+        //FIXME: this needs to migrate to DefaultPartitionWriter
+
         List<LocalPartitionWriter> output = (List<LocalPartitionWriter>) PARTITION_OUTPUT[partition.getId()];
 
         //FIXME: the distributed version should parallel dispatch these and
@@ -103,10 +105,12 @@ public class ExtractWriter {
 
     public void close() throws IOException {
 
+        //FIXME: this needs to migrate to DefaultPartitionWriter
+        
         for (int i = 0; i < PARTITION_OUTPUT.length; ++i ) {
 
             List<LocalPartitionWriter> output = (List<LocalPartitionWriter>) PARTITION_OUTPUT[i];
-            
+
             for( LocalPartitionWriter out : output ) {
                 System.out.printf( "Closing: %s\n", out );
                 out.close();

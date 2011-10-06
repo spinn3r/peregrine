@@ -32,7 +32,7 @@ public class TestFullOuterJoin extends junit.framework.TestCase {
         
         PartitionWriter writer;
 
-        writer = new PartitionWriter( part, "/tmp/left" );
+        writer = new DefaultPartitionWriter( part, "/tmp/left" );
 
         write( writer, 1 );
         write( writer, 2 );
@@ -42,7 +42,7 @@ public class TestFullOuterJoin extends junit.framework.TestCase {
 
         writer.close();
 
-        writer = new PartitionWriter( part, "/tmp/right" );
+        writer = new DefaultPartitionWriter( part, "/tmp/right" );
 
         write( writer, 4 );
         write( writer, 5 );

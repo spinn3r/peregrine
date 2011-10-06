@@ -24,7 +24,7 @@ public class TestPartitionWriter extends peregrine.BaseTest {
 
         String path = "/tmp/test";
         
-        PartitionWriter writer = new PartitionWriter( new Partition( 0 ), path );
+        PartitionWriter writer = new DefaultPartitionWriter( new Partition( 0 ), path );
         writer.close();
 
         Partition part = new Partition( 0 );
@@ -53,7 +53,7 @@ public class TestPartitionWriter extends peregrine.BaseTest {
         
         LocalPartitionWriter.CHUNK_SIZE = 1000;
 
-        PartitionWriter writer = new PartitionWriter( new Partition( 0 ), path );
+        PartitionWriter writer = new DefaultPartitionWriter( new Partition( 0 ), path );
 
         for ( int i = 0; i < 10000; ++i ) {
 
@@ -81,7 +81,7 @@ public class TestPartitionWriter extends peregrine.BaseTest {
         // now create another PartitionWriter this time try to overwrite the
         // existing file and all chunks should be removed.
         
-        writer = new PartitionWriter( new Partition( 0 ), path );
+        writer = new DefaultPartitionWriter( new Partition( 0 ), path );
         writer.close();
 
         readers = LocalPartition.getChunkReaders( part, host, path );
@@ -118,7 +118,7 @@ public class TestPartitionWriter extends peregrine.BaseTest {
         
         LocalPartitionWriter.CHUNK_SIZE = 1000;
 
-        PartitionWriter writer = new PartitionWriter( new Partition( 0 ), path );
+        PartitionWriter writer = new DefaultPartitionWriter( new Partition( 0 ), path );
 
         for ( int i = 0; i < max_per_round; ++i ) {
 
@@ -142,7 +142,7 @@ public class TestPartitionWriter extends peregrine.BaseTest {
         
         // **** STEP 2 ok... do the SAME thing but this time in append mode.
 
-        writer = new PartitionWriter( new Partition( 0 ), path, true );
+        writer = new DefaultPartitionWriter( new Partition( 0 ), path, true );
 
         for ( int i = 0; i < max_per_round; ++i ) {
 

@@ -26,7 +26,7 @@ public class JobOutputFactory {
 
                 FileOutputReference fileref = (FileOutputReference)ref;
 
-                PartitionWriter writer = new PartitionWriter( partition, fileref.getPath(), fileref.getAppend() );
+                PartitionWriter writer = new DefaultPartitionWriter( partition, fileref.getPath(), fileref.getAppend() );
 
                 jobOutput[idx++] = new PartitionWriterJobOutput( writer );
 

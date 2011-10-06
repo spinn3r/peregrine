@@ -49,14 +49,21 @@ public class DefaultChunkReader implements ChunkReader {
         this.length = file.length();
 
         RandomAccessFile raf = new RandomAccessFile( file , "r" );
-        raf.seek( file.length() - IntBytes.LENGTH );
 
-        byte[] size_bytes = new byte[ IntBytes.LENGTH ];
-        raf.read( size_bytes );
+        try {
+        
+            raf.seek( file.length() - IntBytes.LENGTH );
+            
+            byte[] size_bytes = new byte[ IntBytes.LENGTH ];
+            raf.read( size_bytes );
+            
+            setSize( IntBytes.toInt( size_bytes ) );
 
-        setSize( IntBytes.toInt( size_bytes ) );
+        } finally {
+            
+            raf.close();
 
-        raf.close();
+        }
         
     }
 

@@ -50,6 +50,9 @@ public abstract class BaseOutputTask {
 
     public void teardown() throws IOException {
 
+        //FIXME: close ALL of these even if one of them failes and then throw
+        //ALL exceptions.
+        
         for( JobOutput current : jobOutput ) {
             current.close();
         }

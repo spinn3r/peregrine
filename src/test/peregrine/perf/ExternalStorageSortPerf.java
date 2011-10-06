@@ -48,7 +48,7 @@ public class ExternalStorageSortPerf {
                 random.add( LongBytes.toByteArray( r.nextLong() ) );
             }
             
-            PartitionWriter partitionWriter = new PartitionWriter( part, path );
+            PartitionWriter partitionWriter = new DefaultPartitionWriter( part, path );
 
             Iterator<byte[]> it = random.iterator();
             

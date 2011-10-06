@@ -9,72 +9,17 @@ import peregrine.keys.*;
 import peregrine.values.*;
 
 /**
- * Write to a logical partition which is a stream of chunk files.... 
+ * Main PartitionWriter interface. 
  */
-public class PartitionWriter {
+public interface PartitionWriter {
 
-    protected String path;
+    public void write( byte[] key, byte[] value ) throws IOException;
 
-    protected LocalPartitionWriter[] writers;
+    public int count() throws IOException;
 
-    protected Partition partition;
-    
-    private int count = 0;
+    public void close() throws IOException;
 
-    public PartitionWriter( Partition partition, String path ) throws IOException {
-        this( partition, path, false );
-    }
-    
-    public PartitionWriter( Partition partition, String path, boolean append ) throws IOException {
-
-        this.path = path;
-        this.partition = partition;
-
-        Membership partitionMembership = Config.getPartitionMembership();
-
-        List<Host> membership = partitionMembership.getHosts( partition );
-
-        writers = new LocalPartitionWriter[ membership.size() ];
-
-        for( int i = 0; i < writers.length; ++i ) {
-
-            Host member = membership.get( i );
-
-            LocalPartitionWriter writer =
-                new LocalPartitionWriter( partition, member, path, append );
-            
-            writers[ i ] = writer;
-            
-        }
-
-    }
-
-    public void write( byte[] key, byte[] value )
-        throws IOException {
-
-        for( LocalPartitionWriter writer : writers ) {
-            writer.write( key, value );
-        }
-
-        ++count;
-
-    }
-
-    public int count() {
-        return count;
-    }
-
-    public void close() throws IOException {
-
-        for( LocalPartitionWriter writer : writers ) {
-            writer.close();
-        }
-
-    }
-
-    public String toString() {
-        return path;
-    }
+    public String toString();
     
 }
 

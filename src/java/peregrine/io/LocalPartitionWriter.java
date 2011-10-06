@@ -32,7 +32,9 @@ public class LocalPartitionWriter {
     public LocalPartitionWriter( Partition partition,
                                  Host host,
                                  String path ) throws IOException {
+
         this( partition, host, path, false );
+
     }
         
     public LocalPartitionWriter( Partition partition,
@@ -59,12 +61,19 @@ public class LocalPartitionWriter {
             // synchronized...hm.  ACTUALLY .. they won't ALL be non-local.  At
             // least ONE will be local.. actually... no.  Not during extracts
             // that run on the source.
+            //
+            
+            // I could write a manifest file that I could just GET on the remote
+            // end.
             
             List<File> chunks = LocalPartition.getChunkFiles( partition, host, path );
 
             // the chunk_id needs to be changed so that the append works.
             chunk_id = chunks.size();
 
+            // I could do a HTTP HEAD on this remote resource to get back the
+            // right information.
+            
         }
         
         //create the first chunk...
