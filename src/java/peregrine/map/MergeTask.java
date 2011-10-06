@@ -11,6 +11,7 @@ import peregrine.values.*;
 import peregrine.util.*;
 import peregrine.map.*;
 import peregrine.io.*;
+import peregrine.io.partition.*;
 
 public class MergeTask extends BaseMapperTask {
     

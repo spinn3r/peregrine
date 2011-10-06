@@ -1,4 +1,4 @@
-package peregrine.io;
+package peregrine.io.partition;
 
 import java.io.*;
 import java.util.*;
@@ -7,6 +7,8 @@ import peregrine.*;
 import peregrine.util.*;
 import peregrine.keys.*;
 import peregrine.values.*;
+import peregrine.io.*;
+import peregrine.io.partition.*;
 
 /**
  * Write to a logical partition which is a stream of chunk files.... 

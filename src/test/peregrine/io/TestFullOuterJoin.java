@@ -1,5 +1,6 @@
 package peregrine.io;
 
+
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.*;
@@ -7,10 +8,11 @@ import java.util.concurrent.atomic.*;
 
 import peregrine.*;
 import peregrine.io.*;
-import peregrine.util.*;
+import peregrine.io.partition.*;
+import peregrine.keys.*;
 import peregrine.map.*;
 import peregrine.shuffle.*;
-import peregrine.keys.*;
+import peregrine.util.*;
 
 /**
  * 

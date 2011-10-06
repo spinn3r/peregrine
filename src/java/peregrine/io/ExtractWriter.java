@@ -5,6 +5,7 @@ import java.util.*;
 
 import peregrine.*;
 import peregrine.util.*;
+import peregrine.io.partition.*;
 
 /**
  * Take a given stream of input in the form of (K,V) and route it and write the

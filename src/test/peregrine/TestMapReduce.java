@@ -10,6 +10,7 @@ import peregrine.keys.*;
 import peregrine.values.*;
 import peregrine.util.*;
 import peregrine.pagerank.*;
+import peregrine.io.partition.*;
 
 public class TestMapReduce extends junit.framework.TestCase {
 

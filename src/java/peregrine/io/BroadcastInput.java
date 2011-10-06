@@ -6,6 +6,7 @@ import java.io.*;
 import peregrine.*;
 import peregrine.util.*;
 import peregrine.keys.*;
+import peregrine.io.partition.*;
 
 public final class BroadcastInput {
 

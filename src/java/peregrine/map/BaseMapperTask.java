@@ -13,6 +13,7 @@ import peregrine.util.*;
 import peregrine.map.*;
 import peregrine.io.*;
 import peregrine.shuffle.*;
+import peregrine.io.partition.*;
 
 public abstract class BaseMapperTask extends BaseOutputTask implements Callable {
 

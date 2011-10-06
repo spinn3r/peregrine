@@ -1,4 +1,4 @@
-package peregrine.io;
+package peregrine.io.partition;
 
 import java.io.*;
 import java.util.*;

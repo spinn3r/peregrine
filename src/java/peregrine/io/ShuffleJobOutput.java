@@ -1,17 +1,19 @@
 package peregrine.io;
 
+
 import java.io.*;
+import java.lang.reflect.*;
 import java.util.*;
 import java.util.concurrent.*;
-import java.lang.reflect.*;
 
 import peregrine.*;
-import peregrine.keys.*;
-import peregrine.values.*;
-import peregrine.util.*;
-import peregrine.map.*;
 import peregrine.io.*;
+import peregrine.io.partition.*;
+import peregrine.keys.*;
+import peregrine.map.*;
 import peregrine.shuffle.*;
+import peregrine.util.*;
+import peregrine.values.*;
 
 public class ShuffleJobOutput implements JobOutput, LocalPartitionReaderListener {
 

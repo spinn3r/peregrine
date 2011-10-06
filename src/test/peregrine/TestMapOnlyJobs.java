@@ -9,6 +9,7 @@ import peregrine.keys.*;
 import peregrine.values.*;
 import peregrine.util.*;
 import peregrine.pagerank.*;
+import peregrine.io.partition.*;
 
 public class TestMapOnlyJobs extends junit.framework.TestCase {
 

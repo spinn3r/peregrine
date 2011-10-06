@@ -9,6 +9,7 @@ import peregrine.*;
 import peregrine.io.*;
 import peregrine.util.*;
 import peregrine.shuffle.*;
+import peregrine.io.partition.*;
 
 /**
  * 

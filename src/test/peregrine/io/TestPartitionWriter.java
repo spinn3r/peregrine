@@ -14,6 +14,7 @@ import peregrine.util.*;
 import peregrine.shuffle.*;
 import peregrine.io.*;
 import peregrine.perf.*;
+import peregrine.io.partition.*;
 
 public class TestPartitionWriter extends peregrine.BaseTest {
 
