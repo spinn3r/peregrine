@@ -35,7 +35,7 @@ public class WriterClient {
 
     public static void main(String[] args) throws Exception {
 
-        URI uri = new URI( "http://localhost:11112/test.dat" );
+        URI uri = new URI( "http://localhost:11112/foo" );
 
         int port = uri.getPort();
 
@@ -73,14 +73,9 @@ public class WriterClient {
 
         request.setHeader(HttpHeaders.Names.USER_AGENT, WriterClient.class.getName() );
         request.setHeader(HttpHeaders.Names.HOST, host);
-        request.setHeader(HttpHeaders.Names.CONNECTION, HttpHeaders.Values.CLOSE );
-        request.setHeader(HttpHeaders.Names.EXPECT, "100-continue" );
+        request.setHeader(HttpHeaders.Names.TRANSFER_ENCODING, "chunked" );
 
         // Send the HTTP request.
-
-        ChannelBuffer cbuff = ChannelBuffers.dynamicBuffer();
-
-        cbuff.writeBytes( "\r\nhello world\r\n".getBytes() );
 
         /*
         System.out.printf( "----\n" );
@@ -94,26 +89,50 @@ public class WriterClient {
         
         channel.write( request ).addListener( new ChannelFutureListener() {
 
+                int idx = 0;
+                
                 public void operationComplete( ChannelFuture future ) {
 
-                    System.out.printf( "WRITE completed.\n" );
+                    System.out.printf( "WRITE completed: %,d %s\n" , idx, future );
 
-                    /*
-                    System.out.printf( "closing\n" );
-                    future.getChannel().close().addListener( new ChannelFutureListener() {
-                            
-                            public void operationComplete( ChannelFuture future ) {
-                                
-                                System.out.printf( "closed!\n" );    
-                            }
+                    if ( ! future.getChannel().isWritable() ) {
+                        System.out.printf( "NO LONGER WRITABLE.\n" );
+                        return;
+                        
+                    }
 
-                        } );
-                    */
+                    if ( idx <= 500 ) {
+
+                        ChannelBuffer cbuff = ChannelBuffers.dynamicBuffer();
+
+                        String msg = "hello world\n";
+                        
+                        cbuff.writeBytes( String.format( "%2x\r\n", msg.length() ).getBytes() );
+                        cbuff.writeBytes( msg.getBytes() );
+                        cbuff.writeBytes( "\r\n".getBytes() );
+                        
+                        future.getChannel().write( cbuff ).addListener( this );
+
+                    } else {
+
+                        System.out.printf( "Writing LAST packet\n" );
+                        
+                        ChannelBuffer cbuff = ChannelBuffers.dynamicBuffer();
+
+                        cbuff.writeBytes( "0\r\n\r\n".getBytes() );
+
+                        future.getChannel().write( cbuff );
+                        
+                    }
+
+                    ++idx;
 
                 }
                 
             } );
 
+        channel.getCloseFuture().awaitUninterruptibly();
+        
         // Shut down executor threads to exit.
         bootstrap.releaseExternalResources();
     }

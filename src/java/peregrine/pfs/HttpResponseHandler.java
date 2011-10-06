@@ -2,11 +2,14 @@ package peregrine.pfs;
 
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.channel.ChannelHandlerContext;
+import org.jboss.netty.channel.Channel;
+import org.jboss.netty.channel.ChannelStateEvent;
 import org.jboss.netty.channel.MessageEvent;
 import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
 import org.jboss.netty.handler.codec.http.HttpChunk;
 import org.jboss.netty.handler.codec.http.HttpResponse;
 import org.jboss.netty.util.CharsetUtil;
+import org.jboss.netty.channel.ExceptionEvent;
 
 /**
  * @author <a href="http://www.jboss.org/netty/">The Netty Project</a>
@@ -62,4 +65,41 @@ public class HttpResponseHandler extends SimpleChannelUpstreamHandler {
             }
         }
     }
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e)
+        throws Exception {
+
+        Channel ch = e.getChannel();
+        Throwable cause = e.getCause();
+
+        System.out.printf( "FIXME exception caught: \n" );
+        cause.printStackTrace();
+        
+    }
+
+    @Override
+    public void channelInterestChanged( ChannelHandlerContext ctx,
+                                        ChannelStateEvent e) throws Exception {
+
+        System.out.printf( "FIXME: interest changed: \n", e );
+        
+    }
+
+    @Override
+    public void channelOpen( ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
+
+        System.out.printf( "FIXME channel was open.  .\n" );
+
+    }
+
+    @Override
+    public void channelClosed(ChannelHandlerContext ctx, ChannelStateEvent e)
+        throws Exception {
+
+        System.out.printf( "FIXME channel was closed.  ouch.\n" );
+        
+    }
+    
 }
+
