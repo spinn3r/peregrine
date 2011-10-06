@@ -119,7 +119,7 @@ public class TestChunkSorter extends junit.framework.TestCase {
     public static ChunkReader makeTestSortChunk( int[] input ) throws IOException {
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        LocalChunkWriter writer = new LocalChunkWriter( out );
+        ChunkWriter writer = new DefaultChunkWriter( out );
 
         for( int i = 0; i < input.length; ++i ) {
 

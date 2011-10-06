@@ -16,10 +16,10 @@ public class IntermediateChunkHelper {
 
     ByteArrayOutputStream out;
 
-    public LocalChunkWriter getLocalChunkWriter() throws IOException {
+    public ChunkWriter getChunkWriter() throws IOException {
 
         this.out = new ByteArrayOutputStream();
-        return new LocalChunkWriter( out );
+        return new DefaultChunkWriter( out );
         
     }
 

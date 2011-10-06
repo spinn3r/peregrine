@@ -18,83 +18,44 @@ import peregrine.values.*;
  */
 public class LocalChunkWriter implements ChunkWriter {
 
-    public static boolean USE_ASYNC = true;
-    
     public static int BUFFER_SIZE = 16384;
 
-    private String path = null;
+    public static boolean USE_ASYNC = true;
 
-    private VarintWriter varintWriter = new VarintWriter();
-
-    private OutputStream out = null;
-
-    private int count = 0;
-
-    protected long length = 0;
-
-    private boolean closed = false;
+    private DefaultChunkWriter delegate = null;
     
     public LocalChunkWriter( String path ) throws IOException {
 
-        this.path = path;
-
         // make sure the parent directories exist.
-        new File( new File( this.path ).getParent() ).mkdirs();
+        new File( new File( path ).getParent() ).mkdirs();
 
+        OutputStream out;
+        
         if ( USE_ASYNC )
-            this.out = new AsyncOutputStream( this.path );
+            out = new AsyncOutputStream( path );
         else 
-            this.out = new FileOutputStream( this.path );
+            out = new FileOutputStream( path );
         
-        this.out = new BufferedOutputStream( this.out, BUFFER_SIZE );
+        out = new BufferedOutputStream( out, BUFFER_SIZE );
+
+        this.delegate = new DefaultChunkWriter( out );
         
     }
 
-    public LocalChunkWriter( OutputStream out ) throws IOException {
-        this.out = out;
+    public void write( byte[] key, byte[] value ) throws IOException {
+        delegate.write( key, value );        
     }
 
-    public void write( byte[] key, byte[] value )
-        throws IOException {
-
-        if ( closed )
-            throw new IOException( "LocalChunkWriter is closed" );
-        
-        write( varintWriter.write( key.length ) );
-        write( key );
-
-        write( varintWriter.write( value.length ) );
-        write( value );
-
-        ++count;
-
-    }
-
-    private void write( byte[] data ) throws IOException {
-
-        out.write( data );
-        length += data.length;
-    }
-
-    public int count() {
-        return count;
-    }
-
-    public long length() {
-        return length;
+    public int count() throws IOException {
+        return delegate.count();
     }
     
     public void close() throws IOException {
+        delegate.close();
+    }
 
-        if ( closed )
-            return;
-
-        // last four bytes store the number of items.
-        out.write( IntBytes.toByteArray( count ) );
-        out.close();
-
-        closed = true;
-        
+    public long length() throws IOException {
+        return delegate.length();
     }
     
 }

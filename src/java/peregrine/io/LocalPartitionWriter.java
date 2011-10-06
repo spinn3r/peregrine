@@ -23,7 +23,7 @@ public class LocalPartitionWriter {
 
     private int chunk_id = 0;
 
-    private LocalChunkWriter out = null;
+    private LocalChunkWriter chunkWriter = null;
 
     public LocalPartitionWriter( Partition partition,
                                  Host host,
@@ -64,7 +64,7 @@ public class LocalPartitionWriter {
     public void write( byte[] key_bytes, byte[] value_bytes )
         throws IOException {
 
-        out.write( key_bytes, value_bytes );
+        chunkWriter.write( key_bytes, value_bytes );
 
         rolloverWhenNecessary();
         
@@ -72,20 +72,20 @@ public class LocalPartitionWriter {
 
     private void rolloverWhenNecessary() throws IOException {
 
-        if ( out.length > CHUNK_SIZE )
+        if ( chunkWriter.length() > CHUNK_SIZE )
             rollover();
         
     }
     
     private void rollover() throws IOException {
 
-        if ( out != null )
-            out.close();
+        if ( chunkWriter != null )
+            chunkWriter.close();
 
         String chunk_name = LocalPartition.getFilenameForChunkID( this.chunk_id );
         String chunk_path = new File( this.path, chunk_name ).getPath();
 
-        out = new LocalChunkWriter( chunk_path );
+        chunkWriter = new LocalChunkWriter( chunk_path );
         
         ++chunk_id; // change the chunk ID now for the next file.
         
@@ -93,7 +93,7 @@ public class LocalPartitionWriter {
 
     public void close() throws IOException {
         //close the last opened partition...
-        out.close();        
+        chunkWriter.close();        
     }
 
     public String toString() {
