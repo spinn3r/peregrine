@@ -7,7 +7,7 @@ import java.util.concurrent.*;
 
 /**
  */
-public class FileOutputService {
+public class AsyncOutputStreamService {
 
     /**
      * Number of threads to handle IO.  This should probably be configured PER
@@ -18,7 +18,7 @@ public class FileOutputService {
     private static ExecutorService executors =
         Executors.newFixedThreadPool( THREAD_POOL_SIZE );
 
-    public static Future submit( FileOutputCallable callable ) {
+    public static Future submit( AsyncOutputStreamCallable callable ) {
         return executors.submit( callable );
     }
     

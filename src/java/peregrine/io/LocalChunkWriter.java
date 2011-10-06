@@ -4,6 +4,7 @@ import java.io.*;
 import java.util.*;
 
 import peregrine.*;
+import peregrine.io.async.*;
 import peregrine.util.*;
 import peregrine.keys.*;
 import peregrine.values.*;
@@ -17,8 +18,10 @@ import peregrine.values.*;
  */
 public class LocalChunkWriter implements ChunkWriter {
 
-    public static int BUFFER_SIZE = 16384;
+    public static boolean USE_ASYNC = true;
     
+    public static int BUFFER_SIZE = 16384;
+
     private String path = null;
 
     private VarintWriter varintWriter = new VarintWriter();
@@ -37,8 +40,13 @@ public class LocalChunkWriter implements ChunkWriter {
 
         // make sure the parent directories exist.
         new File( new File( this.path ).getParent() ).mkdirs();
+
+        if ( USE_ASYNC )
+            this.out = new AsyncOutputStream( this.path );
+        else 
+            this.out = new FileOutputStream( this.path );
         
-        this.out = new BufferedOutputStream( new FileOutputStream( this.path ), BUFFER_SIZE );
+        this.out = new BufferedOutputStream( this.out, BUFFER_SIZE );
         
     }
 

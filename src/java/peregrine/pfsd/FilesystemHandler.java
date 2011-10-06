@@ -49,7 +49,7 @@ public class FilesystemHandler extends SimpleChannelUpstreamHandler {
 
     private String path = null;
 
-    private FileOutputQueue fileOutputQueue = null;
+    //private FileOutputQueue fileOutputQueue = null;
     
     @Override
     public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
@@ -80,7 +80,7 @@ public class FilesystemHandler extends SimpleChannelUpstreamHandler {
             System.out.printf( "URL is: %s\n", path );
             
             if ( method == PUT ) {
-                fileOutputQueue = new FileOutputQueue( path );
+                //fileOutputQueue = new FileOutputQueue( path );
                 return;
             }
 
@@ -106,13 +106,14 @@ public class FilesystemHandler extends SimpleChannelUpstreamHandler {
 
                 //System.out.printf( "%s\n", Hex.pretty( data ) );
                 
-                fileOutputQueue.add( data );
+                //fileOutputQueue.add( data );
 
             } else {
 
                 //System.out.printf( "GOT LAST chunk\n" );
 
-                fileOutputQueue.add( new byte[0] );
+                //fileOutputQueue.add( new byte[0] );
+                //fileOutputQueue.close();
                 
                 HttpResponse response = new DefaultHttpResponse(HTTP_1_1, OK);
 

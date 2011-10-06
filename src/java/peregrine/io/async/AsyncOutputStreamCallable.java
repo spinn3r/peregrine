@@ -5,72 +5,13 @@ import java.io.*;
 import java.util.*;
 import java.util.concurrent.*;
 
-/**
- * 
- */
-public class FileOutputQueue {
-
-    /**
-     * How many messages to buffer before they go out to disk.
-     */
-    public int LIMIT = 1000;
-
-    private String dest = null;
-
-    private BlockingQueue<byte[]> queue = new LinkedBlockingDeque( LIMIT );
-
-    private Future future = null;
-
-    private boolean closed = false;
-    
-    public FileOutputQueue( String dest ) {
-
-        this.dest = dest;
-
-        FileOutputCallable callable = new FileOutputCallable( dest, queue );
-
-        this.future = FileOutputService.submit( callable );
-        
-    }
-    
-    public void write( byte[] data ) throws IOException {
-
-        try {
-
-            if ( closed )
-                throw new IOException( "closed" );
-            
-            queue.put( data );
-
-        } catch ( Exception e ) {
-            throw new IOException( e );
-        }
-
-    }
-
-    public void close() throws IOException {
-
-        closed = true;
-        
-        try {
-            
-            future.get();
-            
-        } catch ( Exception e ) {
-            throw new IOException( e );
-        }
-        
-    }
-    
-}
-
-class FileOutputCallable implements Callable {
+public class AsyncOutputStreamCallable implements Callable {
 
     private String dest;
 
     private BlockingQueue<byte[]> queue = null;
 
-    FileOutputCallable( String dest , BlockingQueue<byte[]> queue ) {
+    AsyncOutputStreamCallable( String dest , BlockingQueue<byte[]> queue ) {
         this.dest = dest;
         this.queue = queue;
     }
