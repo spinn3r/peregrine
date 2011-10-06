@@ -46,35 +46,10 @@ public class LocalPartitionWriter {
         this.partition = partition;
         this.host = host;
 
-        if ( append == false ) {
-
+        if ( append ) 
+            setAppend();
+        else
             erase();
-
-        } else {
-
-            // FIXME: how do we setup append mode remotely ? This is going to be
-            // even a bigger issue when you factor in that ALL of the
-            // PartitionWriters could be remote.  ONE thing we could do is
-            // include a nonce as the beginning chunk ID ... Right now some of
-            // the probe operations where we read the file by ID wouldn't work
-            // in this manner though AND the clocks would need to be
-            // synchronized...hm.  ACTUALLY .. they won't ALL be non-local.  At
-            // least ONE will be local.. actually... no.  Not during extracts
-            // that run on the source.
-            //
-            
-            // I could write a manifest file that I could just GET on the remote
-            // end.
-            
-            List<File> chunks = LocalPartition.getChunkFiles( partition, host, path );
-
-            // the chunk_id needs to be changed so that the append works.
-            chunk_id = chunks.size();
-
-            // I could do a HTTP HEAD on this remote resource to get back the
-            // right information.
-            
-        }
         
         //create the first chunk...
         rollover();
@@ -110,7 +85,42 @@ public class LocalPartitionWriter {
 
     }
 
-    protected void erase() throws IOException {
+    private void rolloverWhenNecessary() throws IOException {
+
+        if ( chunkWriter.length() > CHUNK_SIZE )
+            rollover();
+        
+    }
+
+    // PartitionWriterDelegate
+
+    public void setAppend() throws IOException {
+
+        // FIXME: how do we setup append mode remotely ? This is going to be
+        // even a bigger issue when you factor in that ALL of the
+        // PartitionWriters could be remote.  ONE thing we could do is
+        // include a nonce as the beginning chunk ID ... Right now some of
+        // the probe operations where we read the file by ID wouldn't work
+        // in this manner though AND the clocks would need to be
+        // synchronized...hm.  ACTUALLY .. they won't ALL be non-local.  At
+        // least ONE will be local.. actually... no.  Not during extracts
+        // that run on the source.
+        //
+        
+        // I could write a manifest file that I could just GET on the remote
+        // end.
+        
+        List<File> chunks = LocalPartition.getChunkFiles( partition, host, path );
+
+        // the chunk_id needs to be changed so that the append works.
+        chunk_id = chunks.size();
+
+        // I could do a HTTP HEAD on this remote resource to get back the
+        // right information.
+
+    }
+    
+    public void erase() throws IOException {
 
         List<File> chunks = LocalPartition.getChunkFiles( partition, host, path );
 
@@ -122,15 +132,8 @@ public class LocalPartitionWriter {
         }
 
     }
-    
-    private void rolloverWhenNecessary() throws IOException {
 
-        if ( chunkWriter.length() > CHUNK_SIZE )
-            rollover();
-        
-    }
-    
-    private void rollover() throws IOException {
+    public void rollover() throws IOException {
 
         if ( chunkWriter != null )
             chunkWriter.close();
