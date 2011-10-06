@@ -21,7 +21,7 @@ public class WriterClientPipelineFactory implements ChannelPipelineFactory {
         ChannelPipeline pipeline = pipeline();
 
         //FIXME: the client codec needs a memory config too... 
-        pipeline.addLast("codec", new HttpClientCodec());
+        pipeline.addLast("codec",   new HttpClientCodec());
         pipeline.addLast("handler", new HttpResponseHandler());
 
         return pipeline;

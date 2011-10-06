@@ -56,7 +56,7 @@ public class FilesystemHandler extends SimpleChannelUpstreamHandler {
 
         Object message = e.getMessage();
 
-        System.out.printf( "GOT MESSAGE: %s\n", message.getClass().getName() );
+        //System.out.printf( "GOT MESSAGE: %s\n", message.getClass().getName() );
         
         if ( message instanceof HttpRequest ) {
 
@@ -76,7 +76,7 @@ public class FilesystemHandler extends SimpleChannelUpstreamHandler {
                 sendError(ctx, FORBIDDEN);
                 return;
             }
-
+            
             System.out.printf( "URL is: %s\n", path );
             
             if ( method == PUT ) {
@@ -96,19 +96,19 @@ public class FilesystemHandler extends SimpleChannelUpstreamHandler {
 
             if ( ! chunk.isLast() ) {
 
-                System.out.printf( "GOT chunk\n" );
+                //System.out.printf( "GOT chunk\n" );
 
                 ChannelBuffer content = chunk.getContent();
 
                 byte[] data = content.array();
 
-                System.out.printf( "%s\n", Hex.pretty( data ) );
+                //System.out.printf( "%s\n", Hex.pretty( data ) );
                 
                 fileOutputQueue.add( data );
 
             } else {
 
-                System.out.printf( "GOT LAST chunk\n" );
+                //System.out.printf( "GOT LAST chunk\n" );
 
                 fileOutputQueue.add( new byte[0] );
                 

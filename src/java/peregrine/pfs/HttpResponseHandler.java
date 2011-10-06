@@ -72,34 +72,11 @@ public class HttpResponseHandler extends SimpleChannelUpstreamHandler {
 
         Channel ch = e.getChannel();
         Throwable cause = e.getCause();
-
-        System.out.printf( "FIXME exception caught: \n" );
+        
+        //System.out.printf( "FIXME exception caught: \n" );
         cause.printStackTrace();
         
     }
 
-    @Override
-    public void channelInterestChanged( ChannelHandlerContext ctx,
-                                        ChannelStateEvent e) throws Exception {
-
-        System.out.printf( "FIXME: interest changed: \n", e );
-        
-    }
-
-    @Override
-    public void channelOpen( ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
-
-        System.out.printf( "FIXME channel was open.  .\n" );
-
-    }
-
-    @Override
-    public void channelClosed(ChannelHandlerContext ctx, ChannelStateEvent e)
-        throws Exception {
-
-        System.out.printf( "FIXME channel was closed.  ouch.\n" );
-        
-    }
-    
 }
 
