@@ -1,5 +1,5 @@
 
-package peregrine.pfsd.io;
+package peregrine.io.async;
 
 import java.io.*;
 import java.util.*;
@@ -10,7 +10,7 @@ import java.util.concurrent.*;
  */
 public class FileOutputQueue {
 
-    /**De
+    /**
      * How many messages to buffer before they go out to disk.
      */
     public int LIMIT = 1000;
@@ -20,6 +20,8 @@ public class FileOutputQueue {
     private BlockingQueue<byte[]> queue = new LinkedBlockingDeque( LIMIT );
 
     private Future future = null;
+
+    private boolean closed = false;
     
     public FileOutputQueue( String dest ) {
 
@@ -31,17 +33,33 @@ public class FileOutputQueue {
         
     }
     
-    public void add( byte[] data ) throws Exception {
+    public void write( byte[] data ) throws IOException {
 
-        //NOTE: this will block.  I'm not sure if blocking the event queue is
-        //the right strategy.  I need a way to backoff.
+        try {
 
-        queue.put( data );
-        
+            if ( closed )
+                throw new IOException( "closed" );
+            
+            queue.put( data );
+
+        } catch ( Exception e ) {
+            throw new IOException( e );
+        }
+
     }
 
-    public Future getFuture() {
-        return this.future;
+    public void close() throws IOException {
+
+        closed = true;
+        
+        try {
+            
+            future.get();
+            
+        } catch ( Exception e ) {
+            throw new IOException( e );
+        }
+        
     }
     
 }

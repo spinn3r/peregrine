@@ -1,5 +1,5 @@
 
-package peregrine.pfsd.io;
+package peregrine.io.async;
 
 import java.io.*;
 import java.util.*;

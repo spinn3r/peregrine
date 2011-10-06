@@ -66,7 +66,7 @@ public class TestChunkMerger extends junit.framework.TestCase {
     public static ChunkReader makeTestSortChunk( int[] input ) throws IOException {
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        ChunkWriter writer = new ChunkWriter( out );
+        LocalChunkWriter writer = new LocalChunkWriter( out );
 
         for( int i = 0; i < input.length; ++i ) {
 

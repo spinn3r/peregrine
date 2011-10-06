@@ -90,7 +90,7 @@ public class ExternalStorageSortPerf {
 
             String chunk_path = "/d2/sort-chunk-" + chunknr;
             
-            ChunkWriter writer = new ChunkWriter( chunk_path );
+            LocalChunkWriter writer = new LocalChunkWriter( chunk_path );
             
             sorter.sort( reader );
 

@@ -15,7 +15,7 @@ import peregrine.values.*;
  * the R partition files BEFORE we sort the output so that we can perform reduce
  * on each (K,V...) pair.
  */
-public class ChunkWriter {
+public class LocalChunkWriter implements ChunkWriter {
 
     public static int BUFFER_SIZE = 16384;
     
@@ -31,7 +31,7 @@ public class ChunkWriter {
 
     private boolean closed = false;
     
-    public ChunkWriter( String path ) throws IOException {
+    public LocalChunkWriter( String path ) throws IOException {
 
         this.path = path;
 
@@ -42,7 +42,7 @@ public class ChunkWriter {
         
     }
 
-    public ChunkWriter( OutputStream out ) throws IOException {
+    public LocalChunkWriter( OutputStream out ) throws IOException {
         this.out = out;
     }
 
@@ -50,7 +50,7 @@ public class ChunkWriter {
         throws IOException {
 
         if ( closed )
-            throw new IOException( "ChunkWriter is closed" );
+            throw new IOException( "LocalChunkWriter is closed" );
         
         write( varintWriter.write( key.length ) );
         write( key );

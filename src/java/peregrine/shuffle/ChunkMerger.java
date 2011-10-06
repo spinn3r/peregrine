@@ -87,7 +87,7 @@ public class ChunkMerger {
         merge( input, null );
     }
     
-    public void merge( List<ChunkReader> input, ChunkWriter writer ) throws IOException {
+    public void merge( List<ChunkReader> input, LocalChunkWriter writer ) throws IOException {
 
         //FIXME: if the input length is zero or one then we are done but
         //everything will need to be written to the writer first which is

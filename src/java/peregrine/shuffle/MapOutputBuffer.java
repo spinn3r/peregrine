@@ -17,12 +17,12 @@ public class MapOutputBuffer {
 
     private ByteArrayOutputStream out = null;
 
-    private ChunkWriter writer = null;
+    private LocalChunkWriter writer = null;
     
     public MapOutputBuffer( long chunk_id ) throws IOException {
         this.chunk_id = chunk_id;
         this.out = new ByteArrayOutputStream();
-        this.writer = new ChunkWriter( out );
+        this.writer = new LocalChunkWriter( out );
     }
     
     public void accept( byte[] key, byte[] value ) throws IOException {

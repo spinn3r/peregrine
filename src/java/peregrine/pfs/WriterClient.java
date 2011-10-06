@@ -42,15 +42,15 @@ public class WriterClient {
         String host = uri.getHost();
 
         // Configure the client.
-        ClientBootstrap bootstrap = new ClientBootstrap(
-                new NioClientSocketChannelFactory(
-                        Executors.newCachedThreadPool(),
-                        Executors.newCachedThreadPool()));
+        ClientBootstrap bootstrap
+            = new ClientBootstrap(
+                new NioClientSocketChannelFactory( Executors.newCachedThreadPool(),
+                                                   Executors.newCachedThreadPool() ) );
 
         // Set up the event pipeline factory.
         bootstrap.setPipelineFactory(new WriterClientPipelineFactory());
 
-        // Start the connection attempt.
+        // Start the connection attempt... where is the connect timeout set?
         ChannelFuture future = bootstrap.connect(new InetSocketAddress(host, port));
 
         // Wait until the connection attempt succeeds or fails.
@@ -62,10 +62,13 @@ public class WriterClient {
 
             //FIXME: we need to throw an exception here I think... actually what
             //I NEED to do is have a listener handle this.
+
+            System.out.printf( "FIXME: unable to connect.\n" );
             
             future.getCause().printStackTrace();
             bootstrap.releaseExternalResources();
             return;
+
         }
 
         // Prepare the HTTP request.
@@ -102,30 +105,29 @@ public class WriterClient {
 
         final int max = 100000;
 
-        /*
-        channel.write( request );
-        
-
-        for( int i = 0; i < max; ++i ) {
-            channel.write( cbuff );
-        }
-
-        cbuff = ChannelBuffers.dynamicBuffer();
-        cbuff.writeBytes( "0\r\n\r\n".getBytes() );
-        channel.write( cbuff );
-
-        */
-        
-        
-        channel.write( request ).addListener( new ChannelFutureListener() {
+        ChannelFutureListener listener =  new ChannelFutureListener() {
 
                 int idx = 0;
-                
                 public void operationComplete( ChannelFuture future ) {
 
+                    Channel channel = future.getChannel();
+
+                    if ( ! channel.isOpen() ) {
+ 
+                        if ( future.getCause() != null ) {
+                            System.out.printf( "CAUGHT EXCEPTION\n" );
+                            future.getCause().printStackTrace();
+                        }
+                        
+                        return;
+
+                    }
+                    
                     if ( idx <= max ) {
 
-                        future.getChannel().write( cbuff ).addListener( this );
+                        System.out.printf( "." );
+                        
+                        channel.write( cbuff ).addListener( this );
 
                     } else {
 
@@ -133,7 +135,7 @@ public class WriterClient {
 
                         cbuff.writeBytes( "0\r\n\r\n".getBytes() );
 
-                        future.getChannel().write( cbuff );
+                        channel.write( cbuff );
                         
                     }
 
@@ -141,9 +143,11 @@ public class WriterClient {
 
                 }
                 
-            } );
+            };
 
-            
+        channel.getCloseFuture().addListener( listener );
+        channel.write( request ).addListener( listener );
+
         channel.getCloseFuture().awaitUninterruptibly();
         
         // Shut down executor threads to exit.

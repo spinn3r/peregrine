@@ -18,7 +18,7 @@ public class MemorySortPerf {
     public static void test( String[] args ) throws Exception {
 
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        ChunkWriter writer = new ChunkWriter( bos );
+        LocalChunkWriter writer = new LocalChunkWriter( bos );
         
         int max = Integer.parseInt( args[0] );
 
@@ -53,7 +53,7 @@ public class MemorySortPerf {
         ChunkSorter sorter = new ChunkSorter();
 
         bos = new ByteArrayOutputStream();
-        writer = new ChunkWriter( bos );
+        writer = new LocalChunkWriter( bos );
         
         long before, after;
         

@@ -23,7 +23,7 @@ public class LocalPartitionWriter {
 
     private int chunk_id = 0;
 
-    private ChunkWriter out = null;
+    private LocalChunkWriter out = null;
 
     public LocalPartitionWriter( Partition partition,
                                  Host host,
@@ -33,12 +33,12 @@ public class LocalPartitionWriter {
         
     public LocalPartitionWriter( Partition partition,
                                  Host host,
-                                 String _path,
+                                 String local,
                                  boolean append ) throws IOException {
 
-        this.path = Config.getPFSPath( partition, host, _path );
+        this.path = Config.getPFSPath( partition, host, local );
 
-        List<File> chunks = LocalPartition.getChunkFiles( partition, host, _path );
+        List<File> chunks = LocalPartition.getChunkFiles( partition, host, local );
         
         if ( append == false ) {
             
@@ -85,7 +85,7 @@ public class LocalPartitionWriter {
         String chunk_name = LocalPartition.getFilenameForChunkID( this.chunk_id );
         String chunk_path = new File( this.path, chunk_name ).getPath();
 
-        out = new ChunkWriter( chunk_path );
+        out = new LocalChunkWriter( chunk_path );
         
         ++chunk_id; // change the chunk ID now for the next file.
         

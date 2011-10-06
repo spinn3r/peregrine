@@ -36,7 +36,7 @@ import org.jboss.netty.handler.stream.ChunkedFile;
 import org.jboss.netty.util.CharsetUtil;
 
 import peregrine.Config;
-import peregrine.pfsd.io.FileOutputQueue;
+import peregrine.io.async.*;
 import peregrine.util.*;
 
 /**
@@ -91,6 +91,8 @@ public class FilesystemHandler extends SimpleChannelUpstreamHandler {
             }
 
         } else if ( message instanceof HttpChunk ) {
+
+            Thread.sleep( 1000 );
             
             HttpChunk chunk = (HttpChunk)message;
 

@@ -74,7 +74,7 @@ public class HttpResponseHandler extends SimpleChannelUpstreamHandler {
         Throwable cause = e.getCause();
         
         //System.out.printf( "FIXME exception caught: \n" );
-        cause.printStackTrace();
+        //cause.printStackTrace();
         
     }
 
