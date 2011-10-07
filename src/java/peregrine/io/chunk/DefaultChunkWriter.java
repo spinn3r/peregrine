@@ -36,7 +36,7 @@ public class DefaultChunkWriter implements ChunkWriter {
         throws IOException {
 
         if ( closed )
-            throw new IOException( "DefaultChunkWriter is closed" );
+            throw new IOException( "closed" );
         
         write( varintWriter.write( key.length ) );
         write( key );
@@ -68,7 +68,7 @@ public class DefaultChunkWriter implements ChunkWriter {
             return;
 
         // last four bytes store the number of items.
-        out.write( IntBytes.toByteArray( count ) );
+        write( IntBytes.toByteArray( count ) );
         out.close();
 
         closed = true;

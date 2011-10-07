@@ -76,6 +76,8 @@ public class LocalPartitionWriterDelegate extends BasePartitionWriterDelegate {
     @Override
     public ChunkWriter newChunkWriter( int chunk_id ) throws IOException {
 
+        // FIXME: move this to LocalPartition.getChunkFile
+        
         String local = Config.getPFSPath( partition, host, path );
 
         String chunk_name = LocalPartition.getFilenameForChunkID( chunk_id );

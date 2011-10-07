@@ -27,4 +27,25 @@ public abstract class BaseTest extends junit.framework.TestCase {
         DiskPerf.remove( Config.PFS_ROOT );
     }
 
+    public static byte[] toByteArray( InputStream is ) throws IOException {
+
+        //include length of content from the original site with contentLength
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+      
+        //now process the Reader...
+        byte data[] = new byte[2048];
+    
+        int readCount = 0;
+
+        while( ( readCount = is.read( data )) > 0 ) {
+            bos.write( data, 0, readCount );
+        }
+
+        is.close();
+        bos.close();
+
+        return bos.toByteArray();
+
+    }
+
 }

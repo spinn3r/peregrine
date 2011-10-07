@@ -21,5 +21,9 @@ public class AsyncOutputStreamService {
     public static Future submit( AsyncOutputStreamCallable callable ) {
         return executors.submit( callable );
     }
+
+    public static void shutdown() {
+        executors.shutdown();
+    }
     
 }

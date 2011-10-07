@@ -42,16 +42,6 @@ public class LocalPartition {
 
     }
     
-    public static List<File> getChunkFiles( Partition part,
-                                            Host host,
-                                            String path ) {
-
-        String dir = Config.getPFSPath( part, host, path );
-
-        return getChunkFiles( dir );
-
-    }
-
     public static List<ChunkReader> getChunkReaders( Partition part, Host host, String path )
         throws IOException {
     
@@ -66,5 +56,26 @@ public class LocalPartition {
         return chunkReaders;
         
     }
-    
+
+    public static List<File> getChunkFiles( Partition part,
+                                            Host host,
+                                            String path ) {
+
+        String dir = Config.getPFSPath( part, host, path );
+
+        return getChunkFiles( dir );
+
+    }
+
+
+    public static File getChunkFile( Partition part, Host host, String path, int chunk_id ) {
+
+        String local = Config.getPFSPath( part, host, path );
+
+        String chunk_name = LocalPartition.getFilenameForChunkID( chunk_id );
+
+        return new File( local, chunk_name );
+
+    }
+
 }

@@ -149,41 +149,5 @@ public class RemoteChunkWriterClient extends BaseOutputStream {
         return cbuff;
         
     }
-    
-    public static void main(String[] args) throws Exception {
-        
-        URI uri = new URI( "http://localhost:11112/foo" );
-
-        RemoteChunkWriterClient client = new RemoteChunkWriterClient( uri );
-
-        int block = 16384;
-        
-        long max = 1000 ;
-
-        long nr_bytes = (long)max * (long)block;
-        
-        System.out.printf( "Writing %,d bytes.\n" , nr_bytes );
-        
-        long before = System.currentTimeMillis();
-        
-        for( int i = 0; i < max; ++i ) {
-            client.write( new byte[block] );
-        }
-
-        System.out.printf( "Wrote all bytes.\n" );
-        
-        client.close();
-
-        long after = System.currentTimeMillis();
-
-        long duration = after - before;
-        
-        System.out.printf( "duration: %,d ms\n", duration );
-        
-        System.out.printf( "closed.  sweet.\n" );
-
-        socketChannelFactory.releaseExternalResources();
-
-    }
         
 }
