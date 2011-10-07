@@ -19,6 +19,8 @@ import com.spinn3r.log5j.*;
  */
 public class RemotePartitionWriterDelegate extends BasePartitionWriterDelegate {
 
+    public static int BUFFER_SIZE = 16384;
+
     private static final Logger log = Logger.getLogger();
 
     @Override
@@ -45,9 +47,12 @@ public class RemotePartitionWriterDelegate extends BasePartitionWriterDelegate {
 
             log.info( "Creating new chunk writer: %s" , uri );
 
-            RemoteChunkWriterClient client = new RemoteChunkWriterClient( uri );
+            OutputStream out;
 
-            return new DefaultChunkWriter( client );
+            out = new RemoteChunkWriterClient( uri );
+            out = new BufferedOutputStream( out, BUFFER_SIZE );
+            
+            return new DefaultChunkWriter( out );
 
         } catch ( URISyntaxException e ) {
             throw new IOException( "Unable to create new chunk writer: " , e );

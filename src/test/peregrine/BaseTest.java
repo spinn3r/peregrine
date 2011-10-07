@@ -18,8 +18,13 @@ import peregrine.perf.*;
 public abstract class BaseTest extends junit.framework.TestCase {
 
     public void setUp() {
+
+        // init log4j ... 
+        org.apache.log4j.xml.DOMConfigurator.configure( "conf/log4j.xml" );
+
         System.out.printf( "Cleaning up PFS_ROOT: %s\n", Config.PFS_ROOT );
         DiskPerf.remove( Config.PFS_ROOT );
+
     }
 
     public void tearDown() {

@@ -55,12 +55,8 @@ public class FSDaemon {
 
         // perform this once per VM.
         
-        // first configure netty to use log4j 
+        // first configure netty to use  
         InternalLoggerFactory.setDefaultFactory( new Log4JLoggerFactory() );
-
-        // now init log4j ... 
-
-        org.apache.log4j.xml.DOMConfigurator.configure( "conf/log4j.xml" );
 
     }
 

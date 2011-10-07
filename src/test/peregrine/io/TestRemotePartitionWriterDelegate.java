@@ -76,10 +76,20 @@ public class TestRemotePartitionWriterDelegate extends peregrine.PFSTest {
 
         while( reader.hasNext() ) {
 
-            byte[] key = reader.key();
-            byte[] value = reader.value();
+            try {
+                
+                byte[] key = reader.key();
+                byte[] value = reader.value();
+                
+                ++count;
 
-            ++count;
+            } catch ( Exception e ) {
+
+                System.out.printf( "Failed to index %,d\n", count );
+                
+                throw e;
+                
+            }
 
         }
 

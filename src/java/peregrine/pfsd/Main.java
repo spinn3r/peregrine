@@ -14,6 +14,9 @@ public class Main {
 
     public static void main(String[] args) {
 
+        // init log4j ... 
+        org.apache.log4j.xml.DOMConfigurator.configure( "conf/log4j.xml" );
+
         new FSDaemon();
         
     }

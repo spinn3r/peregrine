@@ -36,13 +36,14 @@ public class PFSTest extends peregrine.BaseTest {
 
         daemon.shutdown();
         AsyncOutputStreamService.shutdown();
+        com.spinn3r.log5j.LogManager.shutdown();
         
         super.tearDown();
 
         //FIXME: remove this when I can shut down without having extra threads
         //lying around.  Rework log5j for this.
-        System.exit( 0 );
-        
+        //System.exit( 0 );
+
     }
 
 }
