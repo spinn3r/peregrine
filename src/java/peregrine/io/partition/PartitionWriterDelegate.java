@@ -7,11 +7,12 @@ import peregrine.*;
 import peregrine.util.*;
 import peregrine.keys.*;
 import peregrine.values.*;
+import peregrine.io.chunk.*;
 
 /**
  * Delegates performing the actual IO to a given subsystem.  Local or remote. 
  */
-public interface PartitionWriterDelegate extends PartitionWriter {
+public interface PartitionWriterDelegate {
 
     /**
      * Init the writer delegate with the given partition host and path.
@@ -19,20 +20,15 @@ public interface PartitionWriterDelegate extends PartitionWriter {
     public void init( Partition partition,
                       Host host,
                       String path ) throws IOException;
-    
-    public void rollover() throws IOException;
 
     public void erase() throws IOException;
 
     /**
-     * Enable append mode.
+     * Enable append mode and return the chunk ID we should start writing to.
      */
-    public void setAppend() throws IOException;
-
-    /**
-     * Returns the length of the currently opened chunk in this delegate.
-     */
-    public long chunkLength() throws IOException;
+    public int append() throws IOException;
     
+    public ChunkWriter newChunkWriter( int chunk_id ) throws IOException;
+
 }
 

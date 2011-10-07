@@ -15,7 +15,8 @@ import peregrine.util.*;
 import peregrine.io.async.*;
 
 /**
- *
+ * HTTP client that supports chunked PUT to a remote PFS node.
+ * 
  */
 public class RemoteChunkWriterClient extends BaseOutputStream {
 

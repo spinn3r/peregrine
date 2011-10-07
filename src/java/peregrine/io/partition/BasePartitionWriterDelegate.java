@@ -21,6 +21,7 @@ public abstract class BasePartitionWriterDelegate implements PartitionWriterDele
 
     protected String path = null;
 
+    @Override
     public void init( Partition partition,
                       Host host,
                       String path ) throws IOException {
@@ -31,6 +32,7 @@ public abstract class BasePartitionWriterDelegate implements PartitionWriterDele
         
     }
 
+    @Override
     public String toString() {
         return path;
     }

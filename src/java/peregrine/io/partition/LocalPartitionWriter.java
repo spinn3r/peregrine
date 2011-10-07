@@ -8,11 +8,12 @@ import peregrine.util.*;
 import peregrine.keys.*;
 import peregrine.values.*;
 import peregrine.io.*;
+import peregrine.io.chunk.*;
 
 /**
  * Write to a logical partition which is a stream of chunk files.... 
  */
-public class LocalPartitionWriter {
+public class LocalPartitionWriter implements PartitionWriter {
 
     /**
      * Chunk size for rollover files.
@@ -28,6 +29,8 @@ public class LocalPartitionWriter {
     private Host host;
 
     private PartitionWriterDelegate delegate = null;
+
+    private ChunkWriter chunkWriter = null;
 
     public LocalPartitionWriter( Partition partition,
                                  Host host,
@@ -46,37 +49,51 @@ public class LocalPartitionWriter {
         delegate.init( partition, host, path );
 
         if ( append ) 
-            delegate.setAppend();
+            chunk_id = delegate.append();
         else
             delegate.erase();
         
         //create the first chunk...
-        delegate.rollover();
+        rollover();
         
     }
 
+    @Override
     public void write( byte[] key_bytes, byte[] value_bytes )
         throws IOException {
 
-        delegate.write( key_bytes, value_bytes );
+        chunkWriter.write( key_bytes, value_bytes );
 
         rolloverWhenNecessary();
         
     }
 
+    @Override
     public void close() throws IOException {
-        //close the last opened partition...
-        delegate.close();        
+        //close the last opened chunk writer...
+        chunkWriter.close();        
     }
 
+    @Override
     public String toString() {
         return path;
     }
 
     private void rolloverWhenNecessary() throws IOException {
 
-        if ( delegate.chunkLength() > CHUNK_SIZE )
-            delegate.rollover();
+        if ( chunkWriter.length() > CHUNK_SIZE )
+            rollover();
+        
+    }
+
+    private void rollover() throws IOException {
+
+        if ( chunkWriter != null )
+            chunkWriter.close();
+
+        chunkWriter = delegate.newChunkWriter( chunk_id );
+        
+        ++chunk_id; // change the chunk ID now for the next file.
         
     }
 

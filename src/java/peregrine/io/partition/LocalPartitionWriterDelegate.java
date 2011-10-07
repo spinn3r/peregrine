@@ -15,10 +15,6 @@ import peregrine.io.chunk.*;
  */
 public class LocalPartitionWriterDelegate extends BasePartitionWriterDelegate {
 
-    private ChunkWriter chunkWriter = null;
-
-    private int chunk_id = 0;
-    
     public void init( Partition partition,
                       Host host,
                       String path ) throws IOException {
@@ -29,27 +25,15 @@ public class LocalPartitionWriterDelegate extends BasePartitionWriterDelegate {
         
     }
 
-    public void write( byte[] key_bytes, byte[] value_bytes )
-        throws IOException {
-
-        chunkWriter.write( key_bytes, value_bytes );
-        
-    }
-
-    public void close() throws IOException {
-
-        //close the last opened chunk writer.
-        chunkWriter.close();        
-
-    }
-
+    @Override
     public String toString() {
         return path;
     }
 
     // PartitionWriterDelegate
 
-    public void setAppend() throws IOException {
+    @Override
+    public int append() throws IOException {
 
         // FIXME: how do we setup append mode remotely ? This is going to be
         // even a bigger issue when you factor in that ALL of the
@@ -67,14 +51,11 @@ public class LocalPartitionWriterDelegate extends BasePartitionWriterDelegate {
         
         List<File> chunks = LocalPartition.getChunkFiles( partition, host, path );
 
-        // the chunk_id needs to be changed so that the append works.
-        chunk_id = chunks.size();
-
-        // I could do a HTTP HEAD on this remote resource to get back the
-        // right information.
+        return chunks.size();
 
     }
     
+    @Override
     public void erase() throws IOException {
 
         List<File> chunks = LocalPartition.getChunkFiles( partition, host, path );
@@ -88,26 +69,12 @@ public class LocalPartitionWriterDelegate extends BasePartitionWriterDelegate {
 
     }
 
-    public void rollover() throws IOException {
-
-        if ( chunkWriter != null )
-            chunkWriter.close();
-
-        chunkWriter = newChunkWriter( chunk_id );
-        
-        ++chunk_id; // change the chunk ID now for the next file.
-        
-    }
-
-    public long chunkLength() throws IOException {
-        return chunkWriter.length();
-    }
-    
-    private ChunkWriter newChunkWriter( int chunk_id ) throws IOException {
+    @Override
+    public ChunkWriter newChunkWriter( int chunk_id ) throws IOException {
 
         String local = Config.getPFSPath( partition, host, path );
 
-        String chunk_name = LocalPartition.getFilenameForChunkID( this.chunk_id );
+        String chunk_name = LocalPartition.getFilenameForChunkID( chunk_id );
         String chunk_path = new File( local, chunk_name ).getPath();
 
         return new LocalChunkWriter( chunk_path );
