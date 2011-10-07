@@ -114,6 +114,7 @@ public class FilesystemHandler extends SimpleChannelUpstreamHandler {
                 //fileOutputQueue.close();
                 
                 HttpResponse response = new DefaultHttpResponse(HTTP_1_1, OK);
+                //HttpResponse response = new DefaultHttpResponse(HTTP_1_1, INTERNAL_SERVER_ERROR);
 
                 Channel ch = e.getChannel();
 

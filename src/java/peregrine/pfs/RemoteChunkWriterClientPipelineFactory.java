@@ -14,10 +14,10 @@ import org.jboss.netty.handler.codec.http.*;
  */
 public class RemoteChunkWriterClientPipelineFactory implements ChannelPipelineFactory {
 
-    private HttpRequest request;
+    private RemoteChunkWriterClientListener listener;
     
-    public RemoteChunkWriterClientPipelineFactory( HttpRequest request ) {
-        this.request = request;
+    public RemoteChunkWriterClientPipelineFactory( RemoteChunkWriterClientListener listener ) {
+        this.listener = listener;
     }
     
     public ChannelPipeline getPipeline() throws Exception {
@@ -26,7 +26,7 @@ public class RemoteChunkWriterClientPipelineFactory implements ChannelPipelineFa
 
         //FIXME: the client codec needs a memory config too... 
         pipeline.addLast("codec",   new HttpClientCodec());
-        pipeline.addLast("handler", new RemoteChunkWriterClientHandler( request ));
+        pipeline.addLast("handler", new RemoteChunkWriterClientHandler( listener ));
 
         return pipeline;
 

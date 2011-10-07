@@ -14,19 +14,14 @@ import org.jboss.netty.handler.codec.http.*;
 import peregrine.util.*;
 
 /**
- * A simple HTTP client that prints out the content of the HTTP response to
- * {@link System#out} to test {@link HttpServer}.
  *
- * @author <a href="http://www.jboss.org/netty/">The Netty Project</a>
- * @author Andy Taylor (andy.taylor@jboss.org)
- * @author <a href="http://gleamynode.net/">Trustin Lee</a>
- *
- * @version $Rev: 2226 $, $Date: 2010-03-31 11:26:51 +0900 (Wed, 31 Mar 2010) $
  */
 public class RemoteChunkWriterClient {
 
     public static byte[] CRLF = new byte[] { (byte)'\r', (byte)'\n' };
 
+    public static byte[] EOF = new byte[0];
+    
     public static final int LIMIT = 100;
 
     private static NioClientSocketChannelFactory socketChannelFactory =
@@ -40,7 +35,7 @@ public class RemoteChunkWriterClient {
      */
     private boolean clear = true;
 
-    private WriteListener listener = new WriteListener();
+    private RemoteChunkWriterClientListener listener = new RemoteChunkWriterClientListener();
     
     public RemoteChunkWriterClient( URI uri ) throws IOException {
 
@@ -59,7 +54,7 @@ public class RemoteChunkWriterClient {
         request.setHeader( HttpHeaders.Names.TRANSFER_ENCODING, "chunked" );
 
         // Set up the event pipeline factory.
-        bootstrap.setPipelineFactory( new RemoteChunkWriterClientPipelineFactory( request ) );
+        bootstrap.setPipelineFactory( new RemoteChunkWriterClientPipelineFactory( listener ) );
 
         // Start the connection attempt... where is the connect timeout set?
         ChannelFuture future = bootstrap.connect( new InetSocketAddress(host, port) );
@@ -69,20 +64,29 @@ public class RemoteChunkWriterClient {
                 
         if ( ! future.isSuccess() ) {
 
-            //FIXME: we need to throw an exception here I think... actually what
-            //I NEED to do is have a listener handle this.
-
             throw new IOException( future.getCause() );
 
-        } else {
-            // FIXME: get the HTTP response so we can figure out what the heck
-            // is going on here.
         }
 
+        // we're connected and can now perform IO by calling write.  We need to
+        // pay attention to close so that we can not perform writes any longer.
+
+        channel.getCloseFuture().addListener( listener );
+        channel.write( request );
+        
     }
 
     public void write( byte[] data ) throws IOException {
 
+        if ( listener.closed || channel.isOpen() == false ) {
+
+            if ( listener.cause != null )
+                throw new IOException( listener.cause );
+            
+            throw new IOException( "closed" );
+
+        }
+        
         try {
             
             if ( listener.clear ) {
@@ -101,19 +105,39 @@ public class RemoteChunkWriterClient {
         }
 
     }
-
-    //public static ChannelBuffer 
     
     public void close() throws IOException {
 
-        // finish waiting for the queue to drain.. then close the connection.
-        channel.close().awaitUninterruptibly();
-        
+        //required for chunked encoding.
+        write( EOF );
+
+        // prevent any more write requests
+        listener.closed = true;
+
+        try {
+            
+            Object result = listener.result.take();
+
+            if ( result instanceof IOException )
+                throw (IOException) result;
+
+            if ( result instanceof Throwable )
+                throw new IOException( (Throwable)result );
+
+            if ( result.equals( Boolean.TRUE ) )
+                return;
+
+            throw new IOException( "unknown result: " + result );
+
+        } catch ( InterruptedException e ) {
+            throw new IOException( e );
+        }
+            
     }
 
     public static ChannelBuffer newChannelBuffer( byte[] data ) {
 
-        ChannelBuffer cbuff = ChannelBuffers.dynamicBuffer();
+        ChannelBuffer cbuff = ChannelBuffers.buffer( data.length + 100 );
         
         cbuff.writeBytes( String.format( "%2x", data.length ).getBytes() );
         cbuff.writeBytes( CRLF );
@@ -132,7 +156,7 @@ public class RemoteChunkWriterClient {
 
         int block = 16384;
         
-        long max = 150 * 1024;
+        long max = 1000 ;
 
         long nr_bytes = (long)max * (long)block;
         
@@ -144,6 +168,8 @@ public class RemoteChunkWriterClient {
             client.write( new byte[block] );
         }
 
+        System.out.printf( "Wrote all bytes.\n" );
+        
         client.close();
 
         long after = System.currentTimeMillis();
@@ -153,110 +179,11 @@ public class RemoteChunkWriterClient {
         System.out.printf( "duration: %,d ms\n", duration );
         
         System.out.printf( "closed.  sweet.\n" );
+
+        Thread.sleep ( 1000000L );
         
         socketChannelFactory.releaseExternalResources();
 
     }
         
 }
-
-class WriteListener implements ChannelFutureListener {
-
-    public static final int LIMIT = 10;
-    
-    protected boolean clear = true;
-
-    protected BlockingQueue<byte[]> queue = new LinkedBlockingDeque( LIMIT );
-    
-    public void operationComplete( ChannelFuture future ) 
-        throws Exception {
-
-        if ( queue.peek() != null ) {
-            byte[] data = queue.take();
-
-            ChannelBuffer cbuff = RemoteChunkWriterClient.newChannelBuffer( data );
-            
-            future.getChannel().write( cbuff ).addListener( this );
-            
-            return;
-        }
-
-        // the queue was drained so the next packet should be sent directly
-
-        clear = true;
-        
-    }
-
-}
-
-        // Send the HTTP request.
-
-        /*
-        System.out.printf( "----\n" );
-
-        byte[] data = new byte[ request.getContent().readableBytes() ];
-        request.getContent().getBytes( 0, data );
-        
-        System.out.printf( "%s", Hex.pretty( data ) );
-        System.out.printf( "----\n" );
-        */
-
-        /*
-        
-        final ChannelBuffer cbuff = ChannelBuffers.dynamicBuffer();
-
-        StringBuffer sbuff = new StringBuffer();
-        for ( int i = 0; i < 16384; ++i ) {
-            sbuff.append( "x" );
-        }
-        
-        String msg = sbuff.toString();
-        
-        cbuff.writeBytes( String.format( "%2x\r\n", msg.length() ).getBytes() );
-        cbuff.writeBytes( msg.getBytes() );
-        cbuff.writeBytes( "\r\n".getBytes() );
-
-        final int max = 100;
-
-        ChannelFutureListener listener =  new ChannelFutureListener() {
-
-                int idx = 0;
-                public void operationComplete( ChannelFuture future ) {
-
-                    Channel channel = future.getChannel();
-
-                    if ( ! channel.isOpen() ) {
- 
-                        if ( future.getCause() != null ) {
-                            System.out.printf( "CAUGHT EXCEPTION\n" );
-                            future.getCause().printStackTrace();
-                        }
-                        
-                        return;
-
-                    }
-                    
-                    if ( idx <= max ) {
-
-                        System.out.printf( "." );
-                        
-                        channel.write( cbuff ).addListener( this );
-
-                    } else {
-
-                        ChannelBuffer cbuff = ChannelBuffers.dynamicBuffer();
-
-                        cbuff.writeBytes( "0\r\n\r\n".getBytes() );
-
-                        channel.write( cbuff );
-                        
-                    }
-
-                    ++idx;
-
-                }
-                
-            };
-
-        */
-//    }

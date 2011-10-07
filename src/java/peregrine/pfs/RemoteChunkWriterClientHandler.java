@@ -1,9 +1,13 @@
 package peregrine.pfs;
 
+import java.io.*;
+
 import org.jboss.netty.buffer.*;
 import org.jboss.netty.channel.*;
 import org.jboss.netty.handler.codec.http.*;
 import org.jboss.netty.util.*;
+
+import static org.jboss.netty.handler.codec.http.HttpResponseStatus.*;
 
 /**
  * @author <a href="http://www.jboss.org/netty/">The Netty Project</a>
@@ -14,28 +18,24 @@ import org.jboss.netty.util.*;
  */
 public class RemoteChunkWriterClientHandler extends SimpleChannelUpstreamHandler {
 
-    private HttpRequest request;
+    private RemoteChunkWriterClientListener listener = null;
     
-    public RemoteChunkWriterClientHandler( HttpRequest request ) {
-        this.request = request;
+    public RemoteChunkWriterClientHandler( RemoteChunkWriterClientListener listener ) {
+        this.listener = listener;
     }
 
-    @Override
-    public void channelConnected( ChannelHandlerContext ctx, ChannelStateEvent e) {
-
-        e.getChannel().write( request );
-
-    }
-    
     @Override
     public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
 
         HttpResponse response = (HttpResponse) e.getMessage();
 
-        System.out.println("STATUS: " + response.getStatus());
-        System.out.println("VERSION: " + response.getProtocolVersion());
-        System.out.println();
+        if ( response.getStatus().getCode() != OK.getCode() ) {
+            listener.closed = true;
+            listener.setCause( new IOException( response.getStatus().toString() ) );
+        }
 
+        listener.success();
+        
     }
 
     @Override
