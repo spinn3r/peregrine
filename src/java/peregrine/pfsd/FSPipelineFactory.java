@@ -12,7 +12,7 @@ import org.jboss.netty.handler.stream.ChunkedWriteHandler;
 
 /**
  */
-public class NettyPipelineFactory implements ChannelPipelineFactory {
+public class FSPipelineFactory implements ChannelPipelineFactory {
 
     public static int REQUEST_MAX_INITIAL_LINE_LENGTH    = 1024;
     public static int REQUEST_MAX_HEADER_SIZE            = 1024;
@@ -45,8 +45,7 @@ public class NettyPipelineFactory implements ChannelPipelineFactory {
                                                                    REQUEST_MAX_CHUNK_SIZE ) );
 
         pipeline.addLast("encoder",        new HttpResponseEncoder() );
-        //pipeline.addLast("handler",        new HTTPShuffleHandler());
-        pipeline.addLast("handler",        new FilesystemHandler());
+        pipeline.addLast("handler",        new FSHandler());
         
         return pipeline;
 

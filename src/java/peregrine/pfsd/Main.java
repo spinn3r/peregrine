@@ -33,7 +33,7 @@ public class Main {
                         Executors.newCachedThreadPool()));
 
         // Set up the event pipeline factory.
-        bootstrap.setPipelineFactory( new NettyPipelineFactory() );
+        bootstrap.setPipelineFactory( new FSPipelineFactory() );
 
         // Bind and start to accept incoming connections.
         bootstrap.bind( new InetSocketAddress( PORT ) );
