@@ -8,6 +8,7 @@ import peregrine.util.*;
 import peregrine.keys.*;
 import peregrine.values.*;
 import peregrine.io.*;
+import peregrine.io.chunk.*;
 
 /**
  * Read data from a partition from local storage.

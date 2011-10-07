@@ -7,6 +7,7 @@ import java.util.concurrent.atomic.*;
 
 import peregrine.*;
 import peregrine.io.*;
+import peregrine.io.chunk.*;
 import peregrine.util.*;
 import peregrine.shuffle.*;
 

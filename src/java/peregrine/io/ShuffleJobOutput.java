@@ -14,6 +14,7 @@ import peregrine.map.*;
 import peregrine.shuffle.*;
 import peregrine.util.*;
 import peregrine.values.*;
+import peregrine.io.chunk.*;
 
 public class ShuffleJobOutput implements JobOutput, LocalPartitionReaderListener {
 

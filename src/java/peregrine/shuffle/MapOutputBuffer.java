@@ -10,6 +10,7 @@ import peregrine.keys.*;
 import peregrine.values.*;
 import peregrine.util.*;
 import peregrine.io.*;
+import peregrine.io.chunk.*;
 
 public class MapOutputBuffer {
 

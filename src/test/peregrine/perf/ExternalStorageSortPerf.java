@@ -10,6 +10,7 @@ import peregrine.io.*;
 import peregrine.util.*;
 import peregrine.shuffle.*;
 import peregrine.io.partition.*;
+import peregrine.io.chunk.*;
 
 /**
  * 

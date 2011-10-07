@@ -13,6 +13,7 @@ import peregrine.values.*;
 import peregrine.util.*;
 import peregrine.shuffle.*;
 import peregrine.io.*;
+import peregrine.io.chunk.*;
 
 public class TestChunkMerger extends junit.framework.TestCase {
 

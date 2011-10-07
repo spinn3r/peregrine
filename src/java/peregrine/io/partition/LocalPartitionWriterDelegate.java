@@ -8,6 +8,7 @@ import peregrine.util.*;
 import peregrine.keys.*;
 import peregrine.values.*;
 import peregrine.io.*;
+import peregrine.io.chunk.*;
 
 /**
  * Write to a logical partition which is a stream of chunk files.... 

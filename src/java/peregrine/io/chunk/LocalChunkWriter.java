@@ -1,4 +1,4 @@
-package peregrine.io;
+package peregrine.io.chunk;
 
 import java.io.*;
 import java.util.*;
@@ -8,6 +8,7 @@ import peregrine.io.async.*;
 import peregrine.util.*;
 import peregrine.keys.*;
 import peregrine.values.*;
+import peregrine.io.*;
 
 /**
  * Export chunks are used in both the Extract phase of ETL jobs with

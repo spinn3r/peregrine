@@ -1,4 +1,4 @@
-package peregrine.io;
+package peregrine.io.chunk;
 
 import java.io.*;
 import java.util.*;
