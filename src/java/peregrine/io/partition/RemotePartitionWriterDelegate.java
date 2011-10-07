@@ -43,7 +43,7 @@ public class RemotePartitionWriterDelegate extends BasePartitionWriterDelegate {
             String chunk_name = LocalPartition.getFilenameForChunkID( chunk_id );
             String chunk_path = String.format( "/%s/%s%s/%s", host.getName(), partition.getId(), path, chunk_name ) ;
 
-            URI uri = new URI( String.format( "http://%s:%s%s", host.getName() , peregrine.pfsd.FSDaemon.PORT , chunk_path ) );
+            URI uri = new URI( String.format( "http://%s:%s%s", host.getName() , host.getPort() , chunk_path ) );
 
             log.info( "Creating new chunk writer: %s" , uri );
 

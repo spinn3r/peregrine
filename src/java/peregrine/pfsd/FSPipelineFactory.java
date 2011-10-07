@@ -17,6 +17,12 @@ public class FSPipelineFactory implements ChannelPipelineFactory {
     public static int REQUEST_MAX_INITIAL_LINE_LENGTH    = 1024;
     public static int REQUEST_MAX_HEADER_SIZE            = 1024;
 
+    private String root;
+    
+    public FSPipelineFactory( String root ) {
+        this.root = root;
+    }
+
     /**
      * The memory consumption of netty partially depends on these variables.
      * 
@@ -45,7 +51,7 @@ public class FSPipelineFactory implements ChannelPipelineFactory {
                                                                    REQUEST_MAX_CHUNK_SIZE ) );
 
         pipeline.addLast("encoder",        new HttpResponseEncoder() );
-        pipeline.addLast("handler",        new FSHandler());
+        pipeline.addLast("handler",        new FSHandler( root ));
         
         return pipeline;
 

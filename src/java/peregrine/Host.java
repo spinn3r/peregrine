@@ -5,6 +5,7 @@ import java.io.*;
 import java.util.*;
 
 import peregrine.util.*;
+import peregrine.pfsd.*;
 
 public class Host {
 
@@ -14,11 +15,18 @@ public class Host {
     protected String name = null;
 
     protected int partitionMemberId = 0;
-    
+
+    protected int port;
+
     public Host( String name, int partitionMemberId ) {
+        this( name, partitionMemberId, FSDaemon.PORT );
+    }
+
+    public Host( String name, int partitionMemberId, int port ) {
         this.name = name;
-        this.id = LongBytes.toLong( Hashcode.getHashcode( name ) );
+        this.id = LongBytes.toLong( Hashcode.getHashcode( String.format( "%s:%s", name, port ) ) );
         this.partitionMemberId = partitionMemberId;
+        this.port = port;
     }
 
     public boolean equals( Object obj ) {
@@ -37,12 +45,16 @@ public class Host {
         return id;
     }
 
+    public int getPort() {
+        return port;
+    }
+    
     public int getPartitionMemberId() {
         return partitionMemberId;
     }
     
     public String toString() {
-        return String.format( "name=%s,id=%010d", name, id );
+        return String.format( "name=%s, id=%010d, port=%s", name, id, port );
     }
     
 }

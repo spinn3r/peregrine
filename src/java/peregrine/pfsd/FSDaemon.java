@@ -10,6 +10,8 @@ import org.jboss.netty.logging.*;
 import org.jboss.netty.bootstrap.ServerBootstrap;
 import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
 
+import peregrine.*;
+
 import com.spinn3r.log5j.Logger;
 
 public class FSDaemon {
@@ -23,10 +25,10 @@ public class FSDaemon {
     private int port = -1;
     
     public FSDaemon() {
-        this( PORT );
+        this( Config.PFS_ROOT, PORT );
     }
     
-    public FSDaemon( int port ) {
+    public FSDaemon( String root, int port ) {
 
         this.port = port;
         
@@ -35,7 +37,7 @@ public class FSDaemon {
                                                                             Executors.newCachedThreadPool() ) );
 
         // Set up the event pipeline factory.
-        bootstrap.setPipelineFactory( new FSPipelineFactory() );
+        bootstrap.setPipelineFactory( new FSPipelineFactory( root ) );
 
         log.info( "Starting on port: %s" , port );
         

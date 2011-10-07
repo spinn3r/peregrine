@@ -11,6 +11,10 @@ public class Config {
 
     private static Membership membership = new Membership();
 
+    public static void addPartitionMembership( int partition, List<Host> hosts ) {
+        membership.setPartition( new Partition( partition ), hosts );
+    }
+
     public static void addPartitionMembership( int partition, String... hosts ) {
 
         List<Host> list = new ArrayList();

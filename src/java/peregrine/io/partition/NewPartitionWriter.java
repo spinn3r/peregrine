@@ -9,10 +9,14 @@ import peregrine.keys.*;
 import peregrine.values.*;
 import peregrine.io.chunk.*;
 
+import com.spinn3r.log5j.Logger;
+
 /**
  * 
  */
 public class NewPartitionWriter implements PartitionWriter {
+
+    private static final Logger log = Logger.getLogger();
 
     /**
      * Chunk size for rollover files.
@@ -51,6 +55,8 @@ public class NewPartitionWriter implements PartitionWriter {
 
         for( Host host : hosts ) {
 
+            log.info( "Creating partition writer delegate for host: " + host );
+            
             // FIXME: for now make them ALL remote but we need logic to make them local
             PartitionWriterDelegate delegate = new RemotePartitionWriterDelegate();
 

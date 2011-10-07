@@ -27,6 +27,8 @@ public class MultiChunkWriter implements ChunkWriter {
         if ( delegates == null || delegates.size() == 0 )
             throw new IOException( "No delegates" );
 
+        this.delegates = delegates;
+        
     }
 
     @Override

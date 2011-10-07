@@ -45,7 +45,16 @@ public class FSHandler extends SimpleChannelUpstreamHandler {
      * NR of bytes written.
      */
     private long written = 0;
+
+    /**
+     * Root directory for serving files.
+     */
+    private String root;
     
+    public FSHandler( String root ) {
+        this.root = root;
+    }
+
     @Override
     public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
 
@@ -143,7 +152,7 @@ public class FSHandler extends SimpleChannelUpstreamHandler {
             return null;
 
         // Convert to absolute path.
-        return Config.PFS_ROOT + new URI( uri ).getPath();
+        return root + new URI( uri ).getPath();
         
     }
 
