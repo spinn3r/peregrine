@@ -21,10 +21,16 @@ import peregrine.*;
 import peregrine.io.async.*;
 import peregrine.util.*;
 
+import com.spinn3r.log5j.*;
+
 /**
  */
 public class FSHandler extends SimpleChannelUpstreamHandler {
 
+    private static final Logger log = Logger.getLogger();
+    
+    public static int BUFFER_SIZE = 16384;
+    
     public static byte[] EOF = new byte[0];
 
     private HttpRequest request = null;
@@ -33,15 +39,13 @@ public class FSHandler extends SimpleChannelUpstreamHandler {
 
     private String path = null;
 
-    //private FileOutputQueue fileOutputQueue = null;
+    private OutputStream asyncOutputStream = null;
     
     @Override
     public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
 
         Object message = e.getMessage();
 
-        //System.out.printf( "GOT MESSAGE: %s\n", message.getClass().getName() );
-        
         if ( message instanceof HttpRequest ) {
 
             this.request = (HttpRequest)message;
@@ -60,11 +64,12 @@ public class FSHandler extends SimpleChannelUpstreamHandler {
                 sendError(ctx, FORBIDDEN);
                 return;
             }
-            
-            System.out.printf( "URL is: %s\n", path );
-            
+
+            log.info( "%s: %s\n", method, request.getUri() );
+
             if ( method == PUT ) {
-                //fileOutputQueue = new FileOutputQueue( path );
+                asyncOutputStream = new AsyncOutputStream( path );
+                asyncOutputStream = new BufferedOutputStream( asyncOutputStream, BUFFER_SIZE );
                 return;
             }
 
@@ -80,25 +85,21 @@ public class FSHandler extends SimpleChannelUpstreamHandler {
 
             if ( ! chunk.isLast() ) {
 
-                //System.out.printf( "GOT chunk\n" );
-
                 ChannelBuffer content = chunk.getContent();
-
                 byte[] data = content.array();
 
-                //System.out.printf( "%s\n", Hex.pretty( data ) );
-                
-                //fileOutputQueue.add( data );
+                asyncOutputStream.write( data );
 
             } else {
 
-                //System.out.printf( "GOT LAST chunk\n" );
+                asyncOutputStream.write( EOF );
+                asyncOutputStream.close();
 
-                //fileOutputQueue.add( EOF );
-                //fileOutputQueue.close();
+                // FIXME: log that this was written successfully...
+
+                //log.info( "
                 
                 HttpResponse response = new DefaultHttpResponse(HTTP_1_1, OK);
-                //HttpResponse response = new DefaultHttpResponse(HTTP_1_1, INTERNAL_SERVER_ERROR);
 
                 Channel ch = e.getChannel();
 
@@ -145,7 +146,7 @@ public class FSHandler extends SimpleChannelUpstreamHandler {
         Channel ch = e.getChannel();
         Throwable cause = e.getCause();
 
-        cause.printStackTrace();
+        log.error( "Could not write request: " , cause );
 
         if (cause instanceof TooLongFrameException) {
             sendError(ctx, BAD_REQUEST);

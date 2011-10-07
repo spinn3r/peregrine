@@ -28,8 +28,6 @@ public class AsyncOutputStreamCallable implements Callable {
         // always make parent directories for PUTs but do this in a dedicated
         // thread.
         new File( file.getParent() ).mkdirs();
-        
-        System.out.printf( "dest: %s\n" , dest );
 
         BufferedOutputStream out
             = new BufferedOutputStream( new FileOutputStream( file ) );
