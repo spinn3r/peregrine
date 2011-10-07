@@ -12,11 +12,12 @@ import org.jboss.netty.channel.socket.nio.*;
 import org.jboss.netty.handler.codec.http.*;
 
 import peregrine.util.*;
+import peregrine.io.async.*;
 
 /**
  *
  */
-public class RemoteChunkWriterClient {
+public class RemoteChunkWriterClient extends BaseOutputStream {
 
     public static byte[] CRLF = new byte[] { (byte)'\r', (byte)'\n' };
 

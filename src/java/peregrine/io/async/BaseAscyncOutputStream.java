@@ -8,7 +8,7 @@ import java.util.concurrent.*;
 /**
  * 
  */
-public abstract class BaseAscyncOutputStream extends OutputStream {
+public abstract class BaseAscyncOutputStream extends BaseOutputStream {
 
     /**
      * How many messages to buffer before they go out to disk.  The best bet
@@ -51,24 +51,6 @@ public abstract class BaseAscyncOutputStream extends OutputStream {
         } catch ( Exception e ) {
             throw new IOException( e );
         }
-
-    }
-
-    public void write( byte[] b, int off, int len ) throws IOException {
-
-        byte[] data = new byte[ len ];
-
-        System.arraycopy( b, off, data, 0, len );
-
-        write( data );
-        
-    }
-
-    public void write( int b ) throws IOException {
-        write( new byte[] { (byte)b } );
-    }
-    
-    public void flush() throws IOException {
 
     }
     
