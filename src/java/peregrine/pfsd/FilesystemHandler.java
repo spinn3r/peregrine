@@ -92,8 +92,6 @@ public class FilesystemHandler extends SimpleChannelUpstreamHandler {
 
         } else if ( message instanceof HttpChunk ) {
 
-            Thread.sleep( 1000 );
-            
             HttpChunk chunk = (HttpChunk)message;
 
             if ( ! chunk.isLast() ) {
