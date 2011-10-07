@@ -10,10 +10,14 @@ import peregrine.values.*;
 import peregrine.io.*;
 import peregrine.io.chunk.*;
 
+import com.spinn3r.log5j.*;
+
 /**
  * Write to a logical partition which is a stream of chunk files.... 
  */
 public class LocalPartitionWriterDelegate extends BasePartitionWriterDelegate {
+
+    private static final Logger log = Logger.getLogger();
 
     public void init( Partition partition,
                       Host host,
@@ -76,6 +80,8 @@ public class LocalPartitionWriterDelegate extends BasePartitionWriterDelegate {
 
         String chunk_name = LocalPartition.getFilenameForChunkID( chunk_id );
         String chunk_path = new File( local, chunk_name ).getPath();
+
+        log.info( "Creating new local chunk writer: %s" , chunk_path );
 
         return new LocalChunkWriter( chunk_path );
 

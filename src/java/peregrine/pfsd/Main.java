@@ -10,9 +10,6 @@ import org.jboss.netty.logging.*;
 import org.jboss.netty.bootstrap.ServerBootstrap;
 import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
 
-import org.apache.log4j.*;
-import org.apache.log4j.xml.*;
-
 public class Main {
 
     public static int PORT = 11112;
@@ -24,7 +21,7 @@ public class Main {
 
         // now init log4j ... 
 
-        DOMConfigurator.configure( "conf/log4j.xml" );
+        org.apache.log4j.xml.DOMConfigurator.configure( "conf/log4j.xml" );
 
         // Configure the server.
         ServerBootstrap bootstrap = new ServerBootstrap(
