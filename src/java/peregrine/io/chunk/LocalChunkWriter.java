@@ -49,18 +49,22 @@ public class LocalChunkWriter implements ChunkWriter {
         
     }
 
+    @Override
     public void write( byte[] key, byte[] value ) throws IOException {
         delegate.write( key, value );        
     }
 
+    @Override
     public int count() throws IOException {
         return delegate.count();
     }
     
+    @Override
     public void close() throws IOException {
         delegate.close();
     }
 
+    @Override
     public long length() throws IOException {
         return delegate.length();
     }
