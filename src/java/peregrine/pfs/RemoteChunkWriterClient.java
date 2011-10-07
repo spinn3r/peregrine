@@ -132,9 +132,9 @@ public class RemoteChunkWriterClient {
 
         int block = 16384;
         
-        int max = 150 * 1024;
+        long max = 150 * 1024;
 
-        int nr_bytes = max * block;
+        long nr_bytes = (long)max * (long)block;
         
         System.out.printf( "Writing %,d bytes.\n" , nr_bytes );
         
