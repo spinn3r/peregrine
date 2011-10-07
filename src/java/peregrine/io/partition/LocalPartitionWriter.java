@@ -91,7 +91,7 @@ public class LocalPartitionWriter implements PartitionWriter {
         if ( chunkWriter != null )
             chunkWriter.close();
 
-        chunkWriter = delegate.newChunkWriter( chunk_id );
+        chunkWriter = new DefaultChunkWriter( delegate.newChunkWriter( chunk_id ) );
         
         ++chunk_id; // change the chunk ID now for the next file.
         

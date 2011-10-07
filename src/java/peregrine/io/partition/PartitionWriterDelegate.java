@@ -28,7 +28,7 @@ public interface PartitionWriterDelegate {
      */
     public int append() throws IOException;
     
-    public ChunkWriter newChunkWriter( int chunk_id ) throws IOException;
+    public OutputStream newChunkWriter( int chunk_id ) throws IOException;
 
 }
 

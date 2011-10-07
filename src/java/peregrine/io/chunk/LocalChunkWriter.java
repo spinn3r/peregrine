@@ -27,6 +27,12 @@ public class LocalChunkWriter implements ChunkWriter {
     
     public LocalChunkWriter( String path ) throws IOException {
 
+        this.delegate = new DefaultChunkWriter( getOutputStream( path ) );
+        
+    }
+
+    public static OutputStream getOutputStream( String path ) throws IOException {
+
         // make sure the parent directories exist.
         new File( new File( path ).getParent() ).mkdirs();
 
@@ -39,7 +45,7 @@ public class LocalChunkWriter implements ChunkWriter {
         
         out = new BufferedOutputStream( out, BUFFER_SIZE );
 
-        this.delegate = new DefaultChunkWriter( out );
+        return out;
         
     }
 

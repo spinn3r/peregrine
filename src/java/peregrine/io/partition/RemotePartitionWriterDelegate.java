@@ -34,7 +34,7 @@ public class RemotePartitionWriterDelegate extends BasePartitionWriterDelegate {
     }
 
     @Override
-    public ChunkWriter newChunkWriter( int chunk_id ) throws IOException {
+    public OutputStream newChunkWriter( int chunk_id ) throws IOException {
 
         try {
             
@@ -51,9 +51,9 @@ public class RemotePartitionWriterDelegate extends BasePartitionWriterDelegate {
 
             out = new RemoteChunkWriterClient( uri );
             out = new BufferedOutputStream( out, BUFFER_SIZE );
-            
-            return new DefaultChunkWriter( out );
 
+            return out;
+            
         } catch ( URISyntaxException e ) {
             throw new IOException( "Unable to create new chunk writer: " , e );
         }

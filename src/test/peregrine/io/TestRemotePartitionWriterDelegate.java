@@ -34,7 +34,7 @@ public class TestRemotePartitionWriterDelegate extends peregrine.PFSTest {
 
         int chunk_id = 0;
         
-        ChunkWriter writer = delegate.newChunkWriter( chunk_id );
+        ChunkWriter writer = new DefaultChunkWriter( delegate.newChunkWriter( chunk_id ) );
 
         int max = 1000;
 

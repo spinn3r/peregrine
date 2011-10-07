@@ -8,6 +8,7 @@ import peregrine.util.*;
 import peregrine.keys.*;
 import peregrine.values.*;
 import peregrine.io.*;
+import peregrine.io.async.*;
 import peregrine.io.chunk.*;
 
 import com.spinn3r.log5j.*;
@@ -74,7 +75,7 @@ public class LocalPartitionWriterDelegate extends BasePartitionWriterDelegate {
     }
 
     @Override
-    public ChunkWriter newChunkWriter( int chunk_id ) throws IOException {
+    public OutputStream newChunkWriter( int chunk_id ) throws IOException {
 
         // FIXME: move this to LocalPartition.getChunkFile
         
@@ -85,8 +86,8 @@ public class LocalPartitionWriterDelegate extends BasePartitionWriterDelegate {
 
         log.info( "Creating new local chunk writer: %s" , chunk_path );
 
-        return new LocalChunkWriter( chunk_path );
-
+        return LocalChunkWriter.getOutputStream( chunk_path );
+        
     }
 
 }
