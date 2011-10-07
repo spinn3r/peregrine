@@ -6,42 +6,26 @@ import static org.jboss.netty.handler.codec.http.HttpMethod.*;
 import static org.jboss.netty.handler.codec.http.HttpResponseStatus.*;
 import static org.jboss.netty.handler.codec.http.HttpVersion.*;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.RandomAccessFile;
-import java.io.UnsupportedEncodingException;
-import java.net.URI;
-import java.net.URLDecoder;
-import org.jboss.netty.buffer.ChannelBuffer;
-import org.jboss.netty.buffer.ChannelBuffers;
-import org.jboss.netty.channel.Channel;
-import org.jboss.netty.channel.ChannelFuture;
-import org.jboss.netty.channel.ChannelFutureListener;
-import org.jboss.netty.channel.ChannelFutureProgressListener;
-import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.channel.DefaultFileRegion;
-import org.jboss.netty.channel.ExceptionEvent;
-import org.jboss.netty.channel.FileRegion;
-import org.jboss.netty.channel.MessageEvent;
-import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
-import org.jboss.netty.handler.codec.frame.TooLongFrameException;
-import org.jboss.netty.handler.codec.http.DefaultHttpResponse;
-import org.jboss.netty.handler.codec.http.HttpRequest;
-import org.jboss.netty.handler.codec.http.HttpResponse;
-import org.jboss.netty.handler.codec.http.HttpResponseStatus;
-import org.jboss.netty.handler.codec.http.HttpChunk;
-import org.jboss.netty.handler.codec.http.HttpMethod;
-import org.jboss.netty.handler.ssl.SslHandler;
-import org.jboss.netty.handler.stream.ChunkedFile;
-import org.jboss.netty.util.CharsetUtil;
+import java.io.*;
+import java.net.*;
 
-import peregrine.Config;
+import org.jboss.netty.buffer.*;
+import org.jboss.netty.channel.*;
+import org.jboss.netty.handler.codec.frame.*;
+import org.jboss.netty.handler.codec.http.*;
+import org.jboss.netty.handler.ssl.*;
+import org.jboss.netty.handler.stream.*;
+import org.jboss.netty.util.*;
+
+import peregrine.*;
 import peregrine.io.async.*;
 import peregrine.util.*;
 
 /**
  */
 public class FilesystemHandler extends SimpleChannelUpstreamHandler {
+
+    public static byte[] EOF = new byte[0];
 
     private HttpRequest request = null;
 
@@ -110,7 +94,7 @@ public class FilesystemHandler extends SimpleChannelUpstreamHandler {
 
                 //System.out.printf( "GOT LAST chunk\n" );
 
-                //fileOutputQueue.add( new byte[0] );
+                //fileOutputQueue.add( EOF );
                 //fileOutputQueue.close();
                 
                 HttpResponse response = new DefaultHttpResponse(HTTP_1_1, OK);

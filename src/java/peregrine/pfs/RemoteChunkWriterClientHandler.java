@@ -10,11 +10,6 @@ import org.jboss.netty.util.*;
 import static org.jboss.netty.handler.codec.http.HttpResponseStatus.*;
 
 /**
- * @author <a href="http://www.jboss.org/netty/">The Netty Project</a>
- * @author Andy Taylor (andy.taylor@jboss.org)
- * @author <a href="http://gleamynode.net/">Trustin Lee</a>
- *
- * @version $Rev: 2189 $, $Date: 2010-02-19 18:02:57 +0900 (Fri, 19 Feb 2010) $
  */
 public class RemoteChunkWriterClientHandler extends SimpleChannelUpstreamHandler {
 
