@@ -132,7 +132,7 @@ public class RemoteChunkWriterClient {
 
         int block = 16384;
         
-        int max = 40 * 1024;
+        int max = 150 * 1024;
 
         int nr_bytes = max * block;
         
