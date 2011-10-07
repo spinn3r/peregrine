@@ -40,6 +40,11 @@ public class FSHandler extends SimpleChannelUpstreamHandler {
     private String path = null;
 
     private OutputStream asyncOutputStream = null;
+
+    /**
+     * NR of bytes written.
+     */
+    private long written = 0;
     
     @Override
     public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
@@ -65,7 +70,7 @@ public class FSHandler extends SimpleChannelUpstreamHandler {
                 return;
             }
 
-            log.info( "%s: %s\n", method, request.getUri() );
+            log.info( "%s: %s", method, request.getUri() );
 
             if ( method == PUT ) {
                 asyncOutputStream = new AsyncOutputStream( path );
@@ -88,6 +93,8 @@ public class FSHandler extends SimpleChannelUpstreamHandler {
                 ChannelBuffer content = chunk.getContent();
                 byte[] data = content.array();
 
+                written += data.length;
+                
                 asyncOutputStream.write( data );
 
             } else {
@@ -95,9 +102,10 @@ public class FSHandler extends SimpleChannelUpstreamHandler {
                 asyncOutputStream.write( EOF );
                 asyncOutputStream.close();
 
-                // FIXME: log that this was written successfully...
+                // log that this was written successfully including the NR of
+                // bytes.
 
-                //log.info( "
+                log.info( "Wrote %,d bytes to %s", written, path );
                 
                 HttpResponse response = new DefaultHttpResponse(HTTP_1_1, OK);
 
@@ -146,7 +154,7 @@ public class FSHandler extends SimpleChannelUpstreamHandler {
         Channel ch = e.getChannel();
         Throwable cause = e.getCause();
 
-        log.error( "Could not write request: " , cause );
+        log.error( "Could not handle request: " , cause );
 
         if (cause instanceof TooLongFrameException) {
             sendError(ctx, BAD_REQUEST);
@@ -162,10 +170,12 @@ public class FSHandler extends SimpleChannelUpstreamHandler {
     private void sendError(ChannelHandlerContext ctx, HttpResponseStatus status) {
 
         HttpResponse response = new DefaultHttpResponse(HTTP_1_1, status);
+
         response.setHeader(CONTENT_TYPE, "text/plain; charset=UTF-8");
-        response.setContent(ChannelBuffers.copiedBuffer(
-                "Failure: " + status.toString() + "\r\n",
-                CharsetUtil.UTF_8));
+
+        String msg = "Failure: " + status.toString() + "\r\n";
+
+        response.setContent( ChannelBuffers.copiedBuffer( msg, CharsetUtil.UTF_8));
 
         // Close the connection as soon as the error message is sent.
         ctx.getChannel().write(response).addListener(ChannelFutureListener.CLOSE);

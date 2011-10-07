@@ -180,8 +180,6 @@ public class RemoteChunkWriterClient {
         
         System.out.printf( "closed.  sweet.\n" );
 
-        Thread.sleep ( 1000000L );
-        
         socketChannelFactory.releaseExternalResources();
 
     }

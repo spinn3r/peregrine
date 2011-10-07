@@ -13,21 +13,11 @@ import peregrine.io.chunk.*;
 /**
  * Write to a logical partition which is a stream of chunk files.... 
  */
-public class LocalPartitionWriterDelegate extends BasePartitionWriterDelegate {
+public class RemotePartitionWriterDelegate extends BasePartitionWriterDelegate {
 
     private ChunkWriter chunkWriter = null;
 
     private int chunk_id = 0;
-    
-    public void init( Partition partition,
-                      Host host,
-                      String path ) throws IOException {
-
-        this.partition = partition;
-        this.host = host;
-        this.path = path;
-        
-    }
 
     public void write( byte[] key_bytes, byte[] value_bytes )
         throws IOException {
