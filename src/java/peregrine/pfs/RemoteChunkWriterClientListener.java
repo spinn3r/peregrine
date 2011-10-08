@@ -55,9 +55,8 @@ public class RemoteChunkWriterClientListener implements ChannelFutureListener {
             
             future.getChannel().write( cbuff ).addListener( this );
 
-            // we are done / EOF.
+            // we are done / EOF from the client.
             if ( data.length == 0 ) {
-                System.out.printf( "FIXME: EOF found... signalling success.\n" );
                 success();
             }
                 
