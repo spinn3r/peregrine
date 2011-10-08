@@ -72,14 +72,14 @@ public class TestParallelFileSystemWrites extends peregrine.BaseTest {
 
         int computed_written = 0;
 
-        byte[] key = new StructWriter()
-            .writeVarint( 0 )
-            .toBytes()
-            ;
-
-        byte[] value = new byte[4096];
-
         for( int i = 0; i < max; ++i ) {
+
+            byte[] key = new StructWriter()
+                .writeVarint( i )
+                .toBytes()
+                ;
+
+            byte[] value = key;
 
             writer.write( key, value );
 
