@@ -82,7 +82,10 @@ public class TestParallelFileSystemWrites extends peregrine.BaseTest {
 
         }
 
-        writer.close();
+        System.out.printf( "sleeping\n" );
+        Thread.sleep( 300000L );
+        
+        //writer.close();
 
         // FIXME: ok... now verify the SHA1 of all these files and make sure
         // they are the same. 
