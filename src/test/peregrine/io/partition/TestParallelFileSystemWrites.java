@@ -34,6 +34,8 @@ public class TestParallelFileSystemWrites extends peregrine.BaseTest {
      */
     public void _test( int max ) throws Exception {
 
+        long before = System.currentTimeMillis();
+        
         int port = FSDaemon.PORT;
         int nr_replicas = 3;
 
@@ -68,25 +70,28 @@ public class TestParallelFileSystemWrites extends peregrine.BaseTest {
         NewPartitionWriter writer = new NewPartitionWriter( part, path );
 
         int computed_written = 0;
-        
+
+        byte[] key = new StructWriter()
+            .writeVarint( 0 )
+            .toBytes()
+            ;
+
+        byte[] value = new byte[4096];
+
         for( int i = 0; i < max; ++i ) {
-
-            byte[] key = new StructWriter()
-                .writeVarint( i )
-                .toBytes()
-                ;
-
-            byte[] value = key;
 
             writer.write( key, value );
 
         }
 
-
         System.out.printf( "closing\n" );
         
         writer.close();
 
+        long after = System.currentTimeMillis();
+
+        System.out.printf( "duration: %,d ms\n", (after-before) );
+        
         System.out.printf( "sleeping\n" );
         Thread.sleep( 300000L );
 
@@ -104,11 +109,14 @@ public class TestParallelFileSystemWrites extends peregrine.BaseTest {
 
         TestParallelFileSystemWrites t = new TestParallelFileSystemWrites();
 
+        /*
         t.hosts = new ArrayList();
 
         t.hosts.add( new Host( "dev3.wdc.sl.spinn3r.com", 11112 ) );
         t.hosts.add( new Host( "util0029.wdc.sl.spinn3r.com", 11112 ) );
         t.hosts.add( new Host( "util0030.wdc.sl.spinn3r.com", 11112 ) );
+
+        */
         
         t.setUp();
         t._test( max );

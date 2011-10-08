@@ -19,7 +19,7 @@ import com.spinn3r.log5j.*;
  */
 public class RemotePartitionWriterDelegate extends BasePartitionWriterDelegate {
 
-    public static int BUFFER_SIZE = 16384;
+    public static int BUFFER_SIZE = 8192;
 
     private static final Logger log = Logger.getLogger();
 

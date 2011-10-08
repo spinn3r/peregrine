@@ -19,7 +19,7 @@ import peregrine.io.*;
  */
 public class LocalChunkWriter implements ChunkWriter {
 
-    public static int BUFFER_SIZE = 16384;
+    public static int BUFFER_SIZE = 8192;
 
     public static boolean USE_ASYNC = true;
 

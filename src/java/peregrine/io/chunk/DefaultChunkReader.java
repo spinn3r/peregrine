@@ -11,7 +11,7 @@ import peregrine.values.*;
 
 public class DefaultChunkReader implements ChunkReader {
 
-    public static int BUFFER_SIZE = 16384;
+    public static int BUFFER_SIZE = 8192;
     
     private File file = null;
 

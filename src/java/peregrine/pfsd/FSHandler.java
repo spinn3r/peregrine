@@ -29,7 +29,7 @@ public class FSHandler extends SimpleChannelUpstreamHandler {
 
     private static final Logger log = Logger.getLogger();
     
-    public static int BUFFER_SIZE = 16384;
+    public static int BUFFER_SIZE = 8192;
     
     public static byte[] EOF = new byte[0];
 
@@ -118,7 +118,7 @@ public class FSHandler extends SimpleChannelUpstreamHandler {
                 written += data.length;
                 chunks = chunks + 1;
 
-                System.out.printf( "FIXME: got %,d chunks and %,d bytes written so far\n", chunks, written );
+                //System.out.printf( "FIXME: got %,d chunks and %,d bytes written so far\n", chunks, written );
                 
                 asyncOutputStream.write( data );
 

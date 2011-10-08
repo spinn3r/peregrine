@@ -1,13 +1,13 @@
 package peregrine.util;
 
 import java.io.*;
+import java.nio.*;
 import java.util.*;
 
 public class VarintWriter {
 
     /**
      * Emit a varint to the output stream.  Only use with varint encoding.
-     *
      */
     public byte[] write( int value ) {
 
@@ -41,5 +41,29 @@ public class VarintWriter {
         return result;
         
     }
-    
+
+    /**
+     * Emit a varint to the output stream.  Only use with varint encoding.
+     */
+    public void write( ByteBuffer buff, int value ) {
+
+        //note varints have to be incremented by one(1) so that we can avoid
+        //having to store a zero offset.  If we were to do this then it would be
+        //0x00 0x00 which is an escaped 0x00 and would be inserted into the
+        //stream as a literal.
+
+        ++value;
+
+        while (true) {
+            if ((value & ~0x7F) == 0) {
+                buff.put( (byte)value );
+                break;
+            } else {
+                buff.put((byte)((value & 0x7F) | 0x80));
+                value >>>= 7;
+            }
+        }
+
+    }
+
 }
