@@ -12,7 +12,7 @@ import peregrine.util.*;
 import peregrine.pagerank.*;
 import peregrine.io.partition.*;
 
-public class TestMapReduce extends junit.framework.TestCase {
+public class TestMapReduce extends peregrine.BaseTest {
 
     public static class Map extends Mapper {
 

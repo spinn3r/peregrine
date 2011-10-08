@@ -56,6 +56,7 @@ public class RemoteChunkWriterClientListener implements ChannelFutureListener {
             future.getChannel().write( cbuff ).addListener( this );
             
             return;
+            
         }
 
         // the queue was drained so the next packet should be sent directly

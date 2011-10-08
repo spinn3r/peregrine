@@ -97,6 +97,8 @@ public class RemoteChunkWriterClient extends BaseOutputStream {
                 channel.write( RemoteChunkWriterClient.newChannelBuffer( data ) ).addListener( listener );
                 
             } else {
+                System.out.printf( "Adding %,d bytes to queue\n", data.length );
+                
                 listener.queue.put( data );
             }
 

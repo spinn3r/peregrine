@@ -16,7 +16,7 @@ public class AsyncOutputStreamService {
     public static int THREAD_POOL_SIZE = 150;
     
     private static ExecutorService executors =
-        Executors.newFixedThreadPool( THREAD_POOL_SIZE );
+        Executors.newFixedThreadPool( THREAD_POOL_SIZE, new AsyncThreadFactory() );
 
     public static Future submit( AsyncOutputStreamCallable callable ) {
         return executors.submit( callable );
@@ -24,6 +24,18 @@ public class AsyncOutputStreamService {
 
     public static void shutdown() {
         executors.shutdown();
+    }
+    
+}
+
+class AsyncThreadFactory implements ThreadFactory {
+
+    public static int idx = 0;
+    
+    public Thread newThread(Runnable r) {
+        Thread thread = new Thread( r, "peregrine.io.async:" + idx++ );
+        thread.setDaemon( true );
+        return thread;
     }
     
 }

@@ -25,7 +25,8 @@ public class TestParallelFileSystemWrites extends peregrine.BaseTest {
     protected List<Host> hosts = null;
     
     public void test1() throws Exception {
-        _test( 100000 );
+        //_test( 100 );
+        //_test( 9000000 );
         //_test( 30000000 );
     }
 

@@ -33,24 +33,23 @@ public class AsyncOutputStreamCallable implements Callable {
             = new BufferedOutputStream( new FileOutputStream( file ) );
 
         try { 
-            
+
             while( true ) {
 
                 // this blocks and that is ok because that's actually what we need.
 
                 byte[] data = queue.take();
 
-                if ( data.length == 0 )
+                if ( data.length == 0 ) {
                     break;
+                }
 
                 out.write( data );
                 
             }
 
         } finally {
-
             out.close();
-
         }
 
         return null;

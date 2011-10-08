@@ -70,16 +70,17 @@ public class DefaultChunkWriter implements ChunkWriter {
     private void flushByteBuffer() throws IOException {
 
         length += buff.position();
+
+        byte[] backing = buff.array();
+        int len = buff.position();
         
-        write( buff.array() );
+        byte[] result = new byte[ len ];
+        System.arraycopy( backing, 0, result, 0, len );
+        
+        out.write( result );
+
         buff.reset();
 
-    }
-    
-    private void write( byte[] data ) throws IOException {
-
-        out.write( data );
-        length += data.length;
     }
 
     @Override
@@ -101,7 +102,11 @@ public class DefaultChunkWriter implements ChunkWriter {
         flushByteBuffer();
 
         // last four bytes store the number of items.
-        write( IntBytes.toByteArray( count ) );
+
+        byte[] count_bytes = IntBytes.toByteArray( count );
+        out.write( count_bytes );
+        length += count_bytes.length;
+        
         out.close();
 
         closed = true;

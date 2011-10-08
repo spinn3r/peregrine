@@ -173,15 +173,21 @@ public class TestPartitionWriter extends peregrine.BaseTest {
         int count = 0;
         while( reader.hasNext() ) {
 
-            byte[] key = reader.key();
-            byte[] value = reader.value();
-
-            int intval = new StructReader( value )
-                .readVarint();
-
-            if ( count < 10000 )
-                assertEquals( intval, count );
+            try {
             
+                byte[] key = reader.key();
+                byte[] value = reader.value();
+                
+                int intval = new StructReader( value )
+                    .readVarint();
+                
+                if ( count < 10000 )
+                    assertEquals( intval, count );
+
+            } catch ( Throwable t ) {
+                throw new IOException( "Failed after reading N items: " + count, t );
+            }
+                
             ++count;
             
         }
