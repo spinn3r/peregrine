@@ -1,4 +1,4 @@
-package peregrine.io.chunk;
+package peregrine.io.async;
 
 import java.io.*;
 import java.util.*;
@@ -14,15 +14,16 @@ import peregrine.io.*;
 import com.spinn3r.log5j.*;
 
 /**
- * Write each value to N chunk writers.
+ * Write each value to N output streams.  All of these streams are async and
+ * only block when their buffer is full.
  */
-public class MultiChunkWriter implements ChunkWriter {
+public class MultiOutputStream extends BaseOutputStream {
 
     private static final Logger log = Logger.getLogger();
 
-    protected List<ChunkWriter> delegates;
+    protected List<OutputStream> delegates;
     
-    public MultiChunkWriter( List<ChunkWriter> delegates ) throws IOException {
+    public MultiOutputStream( List<OutputStream> delegates ) throws IOException {
 
         if ( delegates == null || delegates.size() == 0 )
             throw new IOException( "No delegates" );
@@ -32,12 +33,12 @@ public class MultiChunkWriter implements ChunkWriter {
     }
 
     @Override
-    public void write( final byte[] key, final byte[] value ) throws IOException {
+    public void write( final byte[] value ) throws IOException {
 
-        MultiChunkWriterIterator it = new MultiChunkWriterIterator( this ) {
+        MultiOutputStreamIterator it = new MultiOutputStreamIterator( this ) {
 
-                public void handle( ChunkWriter writer ) throws IOException {
-                    writer.write( key, value );
+                public void handle( OutputStream out ) throws IOException {
+                    out.write( value );
                 }
 
             };
@@ -49,9 +50,9 @@ public class MultiChunkWriter implements ChunkWriter {
     @Override
     public void close() throws IOException {
 
-        MultiChunkWriterIterator it = new MultiChunkWriterIterator( this ) {
+        MultiOutputStreamIterator it = new MultiOutputStreamIterator( this ) {
 
-                public void handle( ChunkWriter writer ) throws IOException {
+                public void handle( OutputStream writer ) throws IOException {
                     writer.close();
                 }
 
@@ -62,19 +63,22 @@ public class MultiChunkWriter implements ChunkWriter {
     }
 
     @Override
-    public int count() throws IOException {
-        assertDelegates();
-        return delegates.get(0).count();
-    }
+    public void flush() throws IOException {
 
-    @Override
-    public long length() throws IOException {
-        assertDelegates();
-        return delegates.get(0).length();
+        MultiOutputStreamIterator it = new MultiOutputStreamIterator( this ) {
+
+                public void handle( OutputStream writer ) throws IOException {
+                    writer.close();
+                }
+
+            };
+
+        it.iterate();
+
     }
 
     /**
-     * Determines how we handle failure of a specific ChunkWriter failing.  The
+     * Determines how we handle failure of a specific OutputStream failing.  The
      * default is just to log the fact that we failed (which we should ALWAYS
      * do) but in production we should probably gossip about the failure with
      * the controller so that we understand what is happening.
@@ -93,13 +97,13 @@ public class MultiChunkWriter implements ChunkWriter {
 }
 
 /**
- * Handles calling a method per ChunkWriter.
+ * Handles calling a method per OutputStream.
  */
-abstract class MultiChunkWriterIterator {
+abstract class MultiOutputStreamIterator {
 
-    private MultiChunkWriter writer;
+    private MultiOutputStream writer;
     
-    public MultiChunkWriterIterator( MultiChunkWriter writer ) {
+    public MultiOutputStreamIterator( MultiOutputStream writer ) {
         this.writer = writer;
     }
     
@@ -107,13 +111,13 @@ abstract class MultiChunkWriterIterator {
     
         writer.assertDelegates();
 
-        Iterator<ChunkWriter> it = writer.delegates.iterator();
+        Iterator<OutputStream> it = writer.delegates.iterator();
 
         while( it.hasNext() ) {
 
             try {
 
-                ChunkWriter current = it.next();
+                OutputStream current = it.next();
 
                 handle( current );
 
@@ -128,6 +132,6 @@ abstract class MultiChunkWriterIterator {
 
     }
 
-    public abstract void handle( ChunkWriter writer ) throws IOException;
+    public abstract void handle( OutputStream out ) throws IOException;
     
 }

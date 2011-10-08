@@ -8,6 +8,7 @@ import peregrine.util.*;
 import peregrine.keys.*;
 import peregrine.values.*;
 import peregrine.io.chunk.*;
+import peregrine.io.async.*;
 
 import com.spinn3r.log5j.Logger;
 
@@ -111,16 +112,16 @@ public class NewPartitionWriter implements PartitionWriter {
         if ( chunkWriter != null )
             chunkWriter.close();
 
-        List<ChunkWriter> writers = new ArrayList();
+        List<OutputStream> outputStreams = new ArrayList();
 
         for ( PartitionWriterDelegate delegate : partitionWriterDelegates ) {
-            writers.add( new DefaultChunkWriter( delegate.newChunkWriter( chunk_id ) ) );
+            outputStreams.add( delegate.newChunkWriter( chunk_id ) );
         }
 
-        chunkWriter = new MultiChunkWriter( writers );
+        chunkWriter = new DefaultChunkWriter( new MultiOutputStream( outputStreams ) );
         
         ++chunk_id; // change the chunk ID now for the next file.
-        
+
     }
 
 }

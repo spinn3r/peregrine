@@ -50,6 +50,8 @@ public class FSHandler extends SimpleChannelUpstreamHandler {
      * Root directory for serving files.
      */
     private String root;
+
+    private long started;
     
     public FSHandler( String root ) {
         this.root = root;
@@ -82,6 +84,9 @@ public class FSHandler extends SimpleChannelUpstreamHandler {
             log.info( "%s: %s", method, request.getUri() );
 
             if ( method == PUT ) {
+
+                started = System.currentTimeMillis();
+                
                 asyncOutputStream = new AsyncOutputStream( path );
                 asyncOutputStream = new BufferedOutputStream( asyncOutputStream, BUFFER_SIZE );
                 return;

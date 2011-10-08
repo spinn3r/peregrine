@@ -14,7 +14,6 @@ public abstract class BaseOutputStream extends OutputStream {
     public void write( byte[] b, int off, int len ) throws IOException {
 
         byte[] data = new byte[ len ];
-
         System.arraycopy( b, off, data, 0, len );
 
         write( data );
