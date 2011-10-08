@@ -19,8 +19,6 @@ import peregrine.io.*;
  */
 public class LocalChunkWriter implements ChunkWriter {
 
-    public static int BUFFER_SIZE = 8192;
-
     public static boolean USE_ASYNC = true;
 
     private DefaultChunkWriter delegate = null;
@@ -42,9 +40,7 @@ public class LocalChunkWriter implements ChunkWriter {
             out = new AsyncOutputStream( path );
         else 
             out = new FileOutputStream( path );
-        
-        out = new BufferedOutputStream( out, BUFFER_SIZE );
-
+ 
         return out;
         
     }
