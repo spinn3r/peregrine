@@ -19,12 +19,12 @@ import peregrine.values.*;
  */
 public class TestChunkWriterPerf {
 
-    public static void test1() throws Exception {
+    public static void perf1() throws Exception {
 
         System.gc();
         
         System.out.printf( "=============\n" );
-        System.out.printf( "test1 (DefaultChunkWriter using real StructWriters\n" );
+        System.out.printf( "perf1 (DefaultChunkWriter using real StructWriters\n" );
         
         ByteArrayOutputStream bos = new ByteArrayOutputStream( 100000000 ) ;
 
@@ -57,7 +57,7 @@ public class TestChunkWriterPerf {
 
     }
 
-    public static void test5() throws Exception {
+    public static void perf5() throws Exception {
 
         System.gc();
 
@@ -67,7 +67,7 @@ public class TestChunkWriterPerf {
         buff.mark();
         
         System.out.printf( "=============\n" );
-        System.out.printf( "test5 rolling ByteBuffer being written to to /dev/null with values being written directly to the target buffer.\n" );
+        System.out.printf( "perf5 rolling ByteBuffer being written to to /dev/null with values being written directly to the target buffer.\n" );
 
         long before = System.currentTimeMillis();
         
@@ -123,12 +123,12 @@ public class TestChunkWriterPerf {
     }
 
     
-    public static void test2() throws Exception {
+    public static void perf2() throws Exception {
 
         System.gc();
 
         System.out.printf( "=============\n" );
-        System.out.printf( "test2\n" );
+        System.out.printf( "perf2\n" );
         
         ByteArrayOutputStream bos = new ByteArrayOutputStream( 100000000 ) ;
         BufferedOutputStream buff = new BufferedOutputStream( bos, 8192 );
@@ -157,7 +157,7 @@ public class TestChunkWriterPerf {
 
     }
 
-    public static void test3() throws Exception {
+    public static void perf3() throws Exception {
 
         System.gc();
 
@@ -165,7 +165,7 @@ public class TestChunkWriterPerf {
         buff.mark();
         
         System.out.printf( "=============\n" );
-        System.out.printf( "test3\n" );
+        System.out.printf( "perf3\n" );
 
         long before = System.currentTimeMillis();
         
@@ -217,12 +217,12 @@ public class TestChunkWriterPerf {
 
     }
 
-    public static void test4() throws Exception {
+    public static void perf4() throws Exception {
 
         System.gc();
 
         System.out.printf( "=============\n" );
-        System.out.printf( "test4\n" );
+        System.out.printf( "perf4\n" );
         
         FileOutputStream fos = new FileOutputStream( "/dev/null" ) ;
         BufferedOutputStream buff = new BufferedOutputStream( fos, 8192 );
@@ -252,7 +252,7 @@ public class TestChunkWriterPerf {
     }
 
 
-    public static void test6() throws Exception {
+    public static void perf6() throws Exception {
 
         System.gc();
 
@@ -262,7 +262,7 @@ public class TestChunkWriterPerf {
         buff.mark();
         
         System.out.printf( "=============\n" );
-        System.out.printf( "test6\n" );
+        System.out.printf( "perf6\n" );
 
         long before = System.currentTimeMillis();
         
@@ -316,12 +316,12 @@ public class TestChunkWriterPerf {
 
     public static void main( String[] args ) throws Exception {
 
-        test1();
-        test5();
-        test6();
-        test4();
-        test3();
-        test2();
+        perf1();
+        perf5();
+        perf6();
+        perf4();
+        perf3();
+        perf2();
         
     }
 

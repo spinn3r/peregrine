@@ -27,8 +27,8 @@ public class RemoteChunkWriterClient extends BaseOutputStream {
     public static final int LIMIT = 100;
 
     private static NioClientSocketChannelFactory socketChannelFactory =
-        new NioClientSocketChannelFactory( Executors.newCachedThreadPool(), 
-                                           Executors.newCachedThreadPool() );
+        new NioClientSocketChannelFactory( Executors.newCachedThreadPool( new DefaultThreadFactory( RemoteChunkWriterClient.class ) ), 
+                                           Executors.newCachedThreadPool( new DefaultThreadFactory( RemoteChunkWriterClient.class ) ) );
 
     private Channel channel = null;
 

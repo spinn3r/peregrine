@@ -4,13 +4,14 @@ import java.io.*;
 import java.util.*;
 
 import java.net.InetSocketAddress;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 
 import org.jboss.netty.logging.*;
 import org.jboss.netty.bootstrap.ServerBootstrap;
 import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
 
 import peregrine.*;
+import peregrine.util.*;
 
 import com.spinn3r.log5j.Logger;
 
@@ -31,10 +32,12 @@ public class FSDaemon {
     public FSDaemon( String root, int port ) {
 
         this.port = port;
-        
+
+        ThreadFactory tf = new DefaultThreadFactory( FSDaemon.class );
+
         // Configure the server.
-        bootstrap = new ServerBootstrap( new NioServerSocketChannelFactory( Executors.newCachedThreadPool(),
-                                                                            Executors.newCachedThreadPool() ) );
+        bootstrap = new ServerBootstrap( new NioServerSocketChannelFactory( Executors.newCachedThreadPool( tf ),
+                                                                            Executors.newCachedThreadPool( tf ) ) );
 
         // Set up the event pipeline factory.
         bootstrap.setPipelineFactory( new FSPipelineFactory( root ) );
@@ -63,4 +66,3 @@ public class FSDaemon {
     }
 
 }
-    

@@ -90,7 +90,7 @@ public class DefaultChunkWriter implements ChunkWriter {
 
     @Override
     public long length() {
-        return length;
+        return length + buff.position();
     }
 
     @Override
