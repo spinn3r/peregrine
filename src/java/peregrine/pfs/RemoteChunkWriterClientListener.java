@@ -51,12 +51,14 @@ public class RemoteChunkWriterClientListener implements ChannelFutureListener {
 
             byte[] data = queue.take();
 
-            System.out.printf( "Found item in listner which is %,d bytes long: \n", data.length );
-            
             ChannelBuffer cbuff = RemoteChunkWriterClient.newChannelBuffer( data );
             
             future.getChannel().write( cbuff ).addListener( this );
-            
+
+            // we are done / EOF.
+            if ( data.length == 0 )
+                success();
+                
             return;
             
         }
