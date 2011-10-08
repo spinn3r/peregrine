@@ -56,6 +56,23 @@ public class TestParallelFileSystemWrites extends peregrine.BaseTest {
         
         NewPartitionWriter writer = new NewPartitionWriter( part, path );
 
+        int max = 100000;
+
+        int computed_written = 0;
+        
+        for( int i = 0; i < max; ++i ) {
+
+            byte[] key = new StructWriter()
+                .writeVarint( i )
+                .toBytes()
+                ;
+
+            byte[] value = key;
+
+            writer.write( key, value );
+
+        }
+
         writer.close();
         
     }
