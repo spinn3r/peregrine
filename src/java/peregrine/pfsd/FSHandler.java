@@ -112,14 +112,13 @@ public class FSHandler extends SimpleChannelUpstreamHandler {
 
             if ( ! chunk.isLast() ) {
 
-                ++chunks;
-
-                System.out.printf( "FIXME: got %,d chunks so far\n", chunks );
-                
                 ChannelBuffer content = chunk.getContent();
                 byte[] data = content.array();
 
                 written += data.length;
+                chunks = chunks + 1;
+
+                System.out.printf( "FIXME: got %,d chunks and %,d bytes written so far\n", chunks, written );
                 
                 asyncOutputStream.write( data );
 
