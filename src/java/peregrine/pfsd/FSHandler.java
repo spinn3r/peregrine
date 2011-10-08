@@ -78,6 +78,10 @@ public class FSHandler extends SimpleChannelUpstreamHandler {
                 upstream = new FSDeleteDirectHandler( this );
             }
 
+            if ( method == HEAD ) {
+                upstream = new FSHeadDirectHandler( this );
+            }
+
             if ( method == GET ) {
                 // TODO
             }

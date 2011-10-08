@@ -28,16 +28,16 @@ import com.spinn3r.log5j.*;
 
 /**
  */
-public class FSDeleteDirectHandler extends SimpleChannelUpstreamHandler {
+public class FSHeadDirectHandler extends SimpleChannelUpstreamHandler {
 
     private static final Logger log = Logger.getLogger();
 
     private static ExecutorService executors =
-        Executors.newCachedThreadPool( new DefaultThreadFactory( FSDeleteDirectHandler.class) );
+        Executors.newCachedThreadPool( new DefaultThreadFactory( FSHeadDirectHandler.class) );
     
     private FSHandler handler;
     
-    public FSDeleteDirectHandler( FSHandler handler ) {
+    public FSHeadDirectHandler( FSHandler handler ) {
         this.handler = handler;
     }
 
@@ -46,21 +46,21 @@ public class FSDeleteDirectHandler extends SimpleChannelUpstreamHandler {
 
         Channel ch = e.getChannel();
 
-        executors.submit( new FSDeleteDirectCallable( handler.path, ch ) );
+        executors.submit( new FSHeadDirectCallable( handler.path, ch ) );
         
     }
 
 }
 
-class FSDeleteDirectCallable extends FSBaseDirectCallable {
+class FSHeadDirectCallable extends FSBaseDirectCallable {
 
     private static final Logger log = Logger.getLogger();
 
     private String path;
     private Channel channel;
     
-    public FSDeleteDirectCallable( String path,
-                                   Channel channel ) {
+    public FSHeadDirectCallable( String path,
+                                 Channel channel ) {
         this.path = path;
         this.channel = channel;
     }
@@ -71,34 +71,15 @@ class FSDeleteDirectCallable extends FSBaseDirectCallable {
             
             List<File> files = LocalPartition.getChunkFiles( path );
 
-            int deleted = 0;
-            
-            for( File file : files ) {
-
-                // TODO: use the new JDK 1.7 API so we can get the reason why the
-                // delete failed ... However, at the time this code was being
-                // written the delete() method did not exist in the Javadoc for 1.7
-                // so we can revisit it later once this problem has been sorted out.
-                
-                if ( ! file.delete() ) {
-
-                    HttpResponse response = new DefaultHttpResponse( HTTP_1_1, INTERNAL_SERVER_ERROR );
-                    channel.write(response);
-                    return null;
-                    
-                }
-
-                ++deleted;
-                
-            }
+            int nr_chunks = files.size();
 
             HttpResponse response = new DefaultHttpResponse( HTTP_1_1, OK );
-            response.setHeader( "X-deleted", "" + deleted );
+            response.setHeader( "X-nr-chunks", "" + nr_chunks );
             
             channel.write(response);
 
         }
-            
+
         return null;
         
     }
