@@ -51,7 +51,15 @@ public class FSHandler extends SimpleChannelUpstreamHandler {
      */
     private String root;
 
+    /**
+     * Time we started the request.
+     */
     private long started;
+
+    /**
+     * Number of chunks written.
+     */
+    private long chunks = 0;
     
     public FSHandler( String root ) {
         this.root = root;
@@ -104,6 +112,10 @@ public class FSHandler extends SimpleChannelUpstreamHandler {
 
             if ( ! chunk.isLast() ) {
 
+                ++chunks;
+
+                System.out.printf( "FIXME: got %,d chunks so far\n", chunks );
+                
                 ChannelBuffer content = chunk.getContent();
                 byte[] data = content.array();
 
@@ -119,7 +131,15 @@ public class FSHandler extends SimpleChannelUpstreamHandler {
                 // log that this was written successfully including the NR of
                 // bytes.
 
-                log.info( "Wrote %,d bytes to %s", written, path );
+                long duration = System.currentTimeMillis() - started;
+
+                int mean_chunk_size = 0;
+
+                if ( chunks > 0 )
+                    mean_chunk_size = (int)(written / chunks);
+                
+                log.info( "Wrote %,d bytes in %,d chunks (mean chunk size = %,d bytes) in %,d ms to %s",
+                          written, chunks, mean_chunk_size, duration, path );
                 
                 HttpResponse response = new DefaultHttpResponse(HTTP_1_1, OK);
 
