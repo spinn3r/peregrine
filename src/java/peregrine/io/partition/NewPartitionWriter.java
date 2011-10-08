@@ -36,6 +36,11 @@ public class NewPartitionWriter implements PartitionWriter {
 
     private int chunk_id = 0;
 
+    /**
+     * Bytes written.
+     */
+    private long written = 0;
+    
     public NewPartitionWriter( Partition partition,
                                String path ) throws IOException {
         this( partition, path, false );
@@ -91,8 +96,11 @@ public class NewPartitionWriter implements PartitionWriter {
 
     @Override
     public void close() throws IOException {
-        //close the last opened chunk writer...
-        chunkWriter.close();        
+
+        closeChunkWriter();
+
+        log.info( "Wrote %,d bytes to %s" , written, path );
+        
     }
 
     @Override
@@ -107,11 +115,19 @@ public class NewPartitionWriter implements PartitionWriter {
         
     }
 
-    private void rollover() throws IOException {
+    private void closeChunkWriter() throws IOException {
 
         if ( chunkWriter != null )
             chunkWriter.close();
 
+        written += chunkWriter.length();
+        
+    }
+    
+    private void rollover() throws IOException {
+
+        closeChunkWriter();
+        
         List<OutputStream> outputStreams = new ArrayList();
 
         for ( PartitionWriterDelegate delegate : partitionWriterDelegates ) {
