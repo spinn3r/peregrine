@@ -116,7 +116,7 @@ public class NewPartitionWriter implements PartitionWriter {
         for ( PartitionWriterDelegate delegate : partitionWriterDelegates ) {
             writers.add( new DefaultChunkWriter( delegate.newChunkWriter( chunk_id ) ) );
         }
-        
+
         chunkWriter = new MultiChunkWriter( writers );
         
         ++chunk_id; // change the chunk ID now for the next file.

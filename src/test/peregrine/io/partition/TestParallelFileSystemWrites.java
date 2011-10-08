@@ -22,27 +22,37 @@ public class TestParallelFileSystemWrites extends peregrine.BaseTest {
 
     protected FSDaemon daemon = null;
 
+    protected List<Host> hosts = null;
+    
+    public void test1() throws Exception {
+        _test( 100000 );
+    }
+
     /**
      * test running with two lists which each have different values.
      */
-    public void test1() throws Exception {
+    public void _test( int max ) throws Exception {
 
         int port = FSDaemon.PORT;
         int nr_replicas = 3;
 
-        List<Host> hosts = new ArrayList();
-        
-        for( int i = 0; i < nr_replicas; ++i ) {
+        if ( hosts == null ) {
 
-            String root = String.format( "%s/%s", Config.PFS_ROOT, port );
+            hosts = new ArrayList();
             
-            FSDaemon daemon = new FSDaemon( root, port );
+            for( int i = 0; i < nr_replicas; ++i ) {
 
-            Host host = new Host( "localhost", i, port );
+                String root = String.format( "%s/%s", Config.PFS_ROOT, port );
+                
+                FSDaemon daemon = new FSDaemon( root, port );
 
-            hosts.add( host );
+                Host host = new Host( "localhost", i, port );
 
-            ++port;
+                hosts.add( host );
+
+                ++port;
+
+            }
 
         }
 
@@ -55,8 +65,6 @@ public class TestParallelFileSystemWrites extends peregrine.BaseTest {
         String path = "/test/parallel-test";
         
         NewPartitionWriter writer = new NewPartitionWriter( part, path );
-
-        int max = 100000;
 
         int computed_written = 0;
         
@@ -74,14 +82,29 @@ public class TestParallelFileSystemWrites extends peregrine.BaseTest {
         }
 
         writer.close();
+
+        // FIXME: ok... now verify the SHA1 of all these files and make sure
+        // they are the same. 
         
     }
 
     public static void main( String[] args ) throws Exception {
-        
+
+        int max = 100000;
+
+        if ( args.length > 0 ) 
+            max = Integer.parseInt( args[ 0 ] );
+
         TestParallelFileSystemWrites t = new TestParallelFileSystemWrites();
+
+        t.hosts = new ArrayList();
+
+        t.hosts.add( new Host( "dev3.wdc.sl.spinn3r.com", 11112 ) );
+        t.hosts.add( new Host( "util0029.wdc.sl.spinn3r.com", 11112 ) );
+        t.hosts.add( new Host( "util0030.wdc.sl.spinn3r.com", 11112 ) );
+
         t.setUp();
-        t.test1();
+        t._test( max );
 
         //t.tearDown();
 
