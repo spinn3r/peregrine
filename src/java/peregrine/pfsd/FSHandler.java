@@ -29,38 +29,17 @@ public class FSHandler extends SimpleChannelUpstreamHandler {
 
     private static final Logger log = Logger.getLogger();
     
-    public static int BUFFER_SIZE = 8192;
-    
-    public static byte[] EOF = new byte[0];
-
     private HttpRequest request = null;
 
-    private HttpMethod method = null;
-
-    private String path = null;
-
-    private OutputStream asyncOutputStream = null;
-
-    /**
-     * NR of bytes written.
-     */
-    private long written = 0;
+    protected String path = null;
 
     /**
      * Root directory for serving files.
      */
     private String root;
 
-    /**
-     * Time we started the request.
-     */
-    private long started;
+    private SimpleChannelUpstreamHandler upstream = null;
 
-    /**
-     * Number of chunks written.
-     */
-    private long chunks = 0;
-    
     public FSHandler( String root ) {
         this.root = root;
     }
@@ -68,12 +47,17 @@ public class FSHandler extends SimpleChannelUpstreamHandler {
     @Override
     public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
 
+        // introspect requests and route them to the correct handler.  For
+        // example, PUT request need to be handled separately than GET requests
+        // as well as DELETE and HEAD.
+        
         Object message = e.getMessage();
 
         if ( message instanceof HttpRequest ) {
 
             this.request = (HttpRequest)message;
-            this.method = request.getMethod();
+
+            HttpMethod method = request.getMethod();
             
             //TODO handle other methods other than GET here
             if ( method != PUT )  {
@@ -92,12 +76,7 @@ public class FSHandler extends SimpleChannelUpstreamHandler {
             log.info( "%s: %s", method, request.getUri() );
 
             if ( method == PUT ) {
-
-                started = System.currentTimeMillis();
-                
-                asyncOutputStream = new AsyncOutputStream( path );
-                asyncOutputStream = new BufferedOutputStream( asyncOutputStream, BUFFER_SIZE );
-                return;
+                upstream = new FSPutDirectHandler( this );
             }
 
             if ( method == GET ) {
@@ -106,50 +85,11 @@ public class FSHandler extends SimpleChannelUpstreamHandler {
                 
             }
 
-        } else if ( message instanceof HttpChunk ) {
-
-            HttpChunk chunk = (HttpChunk)message;
-
-            if ( ! chunk.isLast() ) {
-
-                ChannelBuffer content = chunk.getContent();
-                byte[] data = content.array();
-
-                written += data.length;
-                chunks = chunks + 1;
-
-                //System.out.printf( "FIXME: got %,d chunks and %,d bytes written so far\n", chunks, written );
-                
-                asyncOutputStream.write( data );
-
-            } else {
-
-                asyncOutputStream.write( EOF );
-                asyncOutputStream.close();
-
-                // log that this was written successfully including the NR of
-                // bytes.
-
-                long duration = System.currentTimeMillis() - started;
-
-                int mean_chunk_size = 0;
-
-                if ( chunks > 0 )
-                    mean_chunk_size = (int)(written / chunks);
-                
-                log.info( "Wrote %,d bytes in %,d chunks (mean chunk size = %,d bytes) in %,d ms to %s",
-                          written, chunks, mean_chunk_size, duration, path );
-                
-                HttpResponse response = new DefaultHttpResponse(HTTP_1_1, OK);
-
-                Channel ch = e.getChannel();
-
-                ctx.getChannel().write(response).addListener(ChannelFutureListener.CLOSE);
-
-            }
-
         }
-            
+
+        if ( upstream != null )
+            upstream.messageReceived( ctx, e );
+
     }
 
     private String sanitizeUri(String uri) throws java.net.URISyntaxException {

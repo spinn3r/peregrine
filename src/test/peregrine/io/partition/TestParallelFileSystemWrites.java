@@ -93,8 +93,8 @@ public class TestParallelFileSystemWrites extends peregrine.BaseTest {
 
         System.out.printf( "duration: %,d ms\n", (after-before) );
         
-        System.out.printf( "sleeping\n" );
-        Thread.sleep( 300000L );
+        //System.out.printf( "sleeping\n" );
+        //Thread.sleep( 300000L );
 
         // FIXME: ok... now verify the SHA1 of all these files and make sure
         // they are the same. 
@@ -110,11 +110,13 @@ public class TestParallelFileSystemWrites extends peregrine.BaseTest {
 
         TestParallelFileSystemWrites t = new TestParallelFileSystemWrites();
 
-        t.hosts = new ArrayList();
 
+        /*
+        t.hosts = new ArrayList();
         t.hosts.add( new Host( "dev3.wdc.sl.spinn3r.com", 11112 ) );
         t.hosts.add( new Host( "util0029.wdc.sl.spinn3r.com", 11112 ) );
         t.hosts.add( new Host( "util0030.wdc.sl.spinn3r.com", 11112 ) );
+        */
         
         t.setUp();
         t._test( max );

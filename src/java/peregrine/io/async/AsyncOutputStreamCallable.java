@@ -29,8 +29,7 @@ public class AsyncOutputStreamCallable implements Callable {
         // thread.
         new File( file.getParent() ).mkdirs();
 
-        BufferedOutputStream out
-            = new BufferedOutputStream( new FileOutputStream( file ) );
+        OutputStream out = new FileOutputStream( file );
 
         try { 
 
