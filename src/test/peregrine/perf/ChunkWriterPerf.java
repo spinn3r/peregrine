@@ -17,7 +17,7 @@ import peregrine.values.*;
 /**
  * 
  */
-public class TestChunkWriterPerf {
+public class ChunkWriterPerf {
 
     public static void perf1() throws Exception {
 
