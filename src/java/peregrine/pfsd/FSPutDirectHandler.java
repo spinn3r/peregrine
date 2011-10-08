@@ -27,9 +27,9 @@ import com.spinn3r.log5j.*;
  */
 public class FSPutDirectHandler extends SimpleChannelUpstreamHandler {
 
-    public static byte[] EOF = new byte[0];
-
     private static final Logger log = Logger.getLogger();
+
+    public static byte[] EOF = new byte[0];
 
     private HttpRequest request = null;
 
@@ -78,8 +78,6 @@ public class FSPutDirectHandler extends SimpleChannelUpstreamHandler {
                 written += data.length;
                 chunks = chunks + 1;
 
-                //System.out.printf( "FIXME: got %,d chunks and %,d bytes written so far\n", chunks, written );
-                
                 asyncOutputStream.write( data );
 
             } else {

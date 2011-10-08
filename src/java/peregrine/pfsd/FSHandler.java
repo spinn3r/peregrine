@@ -58,13 +58,10 @@ public class FSHandler extends SimpleChannelUpstreamHandler {
             this.request = (HttpRequest)message;
 
             HttpMethod method = request.getMethod();
-            
-            //TODO handle other methods other than GET here
-            if ( method != PUT )  {
-                sendError(ctx, METHOD_NOT_ALLOWED);
-                return;
-            }
-          
+
+            // log EVERY request no matter the source.
+            log.info( "%s: %s", method, request.getUri() );
+
             path = request.getUri();
             path = sanitizeUri( path );
             
@@ -73,16 +70,22 @@ public class FSHandler extends SimpleChannelUpstreamHandler {
                 return;
             }
 
-            log.info( "%s: %s", method, request.getUri() );
-
             if ( method == PUT ) {
                 upstream = new FSPutDirectHandler( this );
             }
 
-            if ( method == GET ) {
+            if ( method == DELETE ) {
+                upstream = new FSDeleteDirectHandler( this );
+            }
 
-                //handle HTTP GETs here.
-                
+            if ( method == GET ) {
+                // TODO
+            }
+
+            //TODO handle other methods other than GET here
+            if ( upstream == null )  {
+                sendError(ctx, METHOD_NOT_ALLOWED);
+                return;
             }
 
         }

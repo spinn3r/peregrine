@@ -20,7 +20,7 @@ public class LocalPartition {
         return String.format( "chunk%06d.dat" , local_chunk_id );
     }
 
-    private static List<File> getChunkFiles( String dir ) {
+    public static List<File> getChunkFiles( String dir ) {
 
         List<File> files = new ArrayList();
 
