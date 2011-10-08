@@ -115,6 +115,8 @@
                showoutput="true" 
                logfailedtests="true">
 
+            <formatter type="plain" usefile="false" />
+
             <classpath>
                 <path refid="project.classpath"/>
             </classpath>

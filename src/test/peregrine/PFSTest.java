@@ -35,8 +35,6 @@ public class PFSTest extends peregrine.BaseTest {
     public void tearDown() {
 
         daemon.shutdown();
-        AsyncOutputStreamService.shutdown();
-        com.spinn3r.log5j.LogManager.shutdown();
         
         super.tearDown();
 
