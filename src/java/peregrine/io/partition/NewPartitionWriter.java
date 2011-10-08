@@ -117,11 +117,11 @@ public class NewPartitionWriter implements PartitionWriter {
 
     private void closeChunkWriter() throws IOException {
 
-        if ( chunkWriter != null )
+        if ( chunkWriter != null ) {
             chunkWriter.close();
+            written += chunkWriter.length();
+        }
 
-        written += chunkWriter.length();
-        
     }
     
     private void rollover() throws IOException {
