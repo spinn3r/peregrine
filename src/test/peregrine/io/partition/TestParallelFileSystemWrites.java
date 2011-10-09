@@ -110,12 +110,10 @@ public class TestParallelFileSystemWrites extends peregrine.BaseTest {
 
         TestParallelFileSystemWrites t = new TestParallelFileSystemWrites();
 
-        /*
         t.hosts = new ArrayList();
         t.hosts.add( new Host( "dev3.wdc.sl.spinn3r.com", 11112 ) );
         t.hosts.add( new Host( "util0029.wdc.sl.spinn3r.com", 11112 ) );
         t.hosts.add( new Host( "util0030.wdc.sl.spinn3r.com", 11112 ) );
-        */
         
         t.setUp();
         t._test( max );
