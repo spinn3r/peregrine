@@ -139,14 +139,14 @@ public class RemoteChunkWriterClient extends BaseOutputStream {
 
     public static ChannelBuffer newChannelBuffer( byte[] data ) {
 
-        ChannelBuffer cbuff = ChannelBuffers.buffer( data.length + 100 );
-        
-        cbuff.writeBytes( String.format( "%2x", data.length ).getBytes() );
-        cbuff.writeBytes( CRLF );
-        cbuff.writeBytes( data );
-        cbuff.writeBytes( CRLF );
+        // FIXME: we should use a Netty composite buffer to avoid the copy.
 
-        return cbuff;
+        String prefix = String.format( "%2x", data.length );
+
+        return ChannelBuffers.wrappedBuffer( ChannelBuffers.wrappedBuffer( prefix.getBytes() ),
+                                             ChannelBuffers.wrappedBuffer( CRLF ),
+                                             ChannelBuffers.wrappedBuffer( data ),
+                                             ChannelBuffers.wrappedBuffer( CRLF ) );
         
     }
         
