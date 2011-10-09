@@ -37,7 +37,7 @@ public class RemoteChunkWriterClient extends BaseOutputStream {
      */
     private boolean clear = true;
 
-    private RemoteChunkWriterClientListener listener = new RemoteChunkWriterClientListener();
+    private RemoteChunkWriterClientListener listener;;
     
     public RemoteChunkWriterClient( URI uri ) throws IOException {
 
@@ -45,6 +45,8 @@ public class RemoteChunkWriterClient extends BaseOutputStream {
 
         String host = uri.getHost();
 
+        listener = new RemoteChunkWriterClientListener( uri );
+        
         // Configure the client.
         ClientBootstrap bootstrap = new ClientBootstrap( socketChannelFactory );
 

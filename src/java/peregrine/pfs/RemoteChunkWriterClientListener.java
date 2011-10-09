@@ -29,7 +29,13 @@ public class RemoteChunkWriterClientListener implements ChannelFutureListener {
     protected BlockingQueue<Object> result = new LinkedBlockingDeque( 1 );
 
     protected Throwable cause = null;
+
+    protected URI uri;
     
+    public RemoteChunkWriterClientListener( URI uri ) {
+        this.uri = uri;
+    }
+
     public void operationComplete( ChannelFuture future ) 
         throws Exception {
 
@@ -52,14 +58,12 @@ public class RemoteChunkWriterClientListener implements ChannelFutureListener {
             byte[] data = queue.take();
 
             ChannelBuffer cbuff = RemoteChunkWriterClient.newChannelBuffer( data );
-            
+
+            // NOTE that even if the last response was written here we MUST wait
+            // until we get the HTTP response.
+
             future.getChannel().write( cbuff ).addListener( this );
 
-            // we are done / EOF from the client.
-            if ( data.length == 0 ) {
-                success();
-            }
-                
             return;
             
         }

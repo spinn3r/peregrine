@@ -1,3 +1,5 @@
 compile
 target
 logs
+clover_html
+.clover

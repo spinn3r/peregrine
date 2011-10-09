@@ -9,9 +9,13 @@ import org.jboss.netty.util.*;
 
 import static org.jboss.netty.handler.codec.http.HttpResponseStatus.*;
 
+import com.spinn3r.log5j.Logger;
+
 /**
  */
 public class RemoteChunkWriterClientHandler extends SimpleChannelUpstreamHandler {
+
+    private static final Logger log = Logger.getLogger();
 
     private RemoteChunkWriterClientListener listener = null;
     
@@ -24,8 +28,11 @@ public class RemoteChunkWriterClientHandler extends SimpleChannelUpstreamHandler
 
         HttpResponse response = (HttpResponse) e.getMessage();
 
+        listener.closed = true;
+
+        log.info( "Received HTTP response: %s for %s", response.getStatus(), listener.uri );
+        
         if ( response.getStatus().getCode() != OK.getCode() ) {
-            listener.closed = true;
             listener.setCause( new IOException( response.getStatus().toString() ) );
         }
 
