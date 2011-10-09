@@ -14,6 +14,10 @@ public class TestPagerank extends junit.framework.TestCase {
 
     public void test1() throws Exception {
 
+    }
+    
+    public void _test1() throws Exception {
+
         // TRY with three partitions... 
         Config.addPartitionMembership( 0, "cpu0" );
         Config.addPartitionMembership( 1, "cpu1" );
@@ -137,7 +141,7 @@ public class TestPagerank extends junit.framework.TestCase {
     }
 
     public static void main( String[] args ) throws Exception {
-        new TestPagerank().test1();
+        new TestPagerank()._test1();
     }
 
 }

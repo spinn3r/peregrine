@@ -46,11 +46,11 @@ public class TestParallelFileSystemWrites extends peregrine.BaseTest {
             
             for( int i = 0; i < nr_replicas; ++i ) {
 
-                String root = String.format( "%s/%s", Config.PFS_ROOT, port );
+                Host host = new Host( "localhost", i, port );
+
+                String root = String.format( "%s/%s/%s", Config.PFS_ROOT, host.getName(), host.getPort() );
                 
                 FSDaemon daemon = new FSDaemon( root, port );
-
-                Host host = new Host( "localhost", i, port );
 
                 hosts.add( host );
 
@@ -109,7 +109,6 @@ public class TestParallelFileSystemWrites extends peregrine.BaseTest {
             max = Integer.parseInt( args[ 0 ] );
 
         TestParallelFileSystemWrites t = new TestParallelFileSystemWrites();
-
 
         /*
         t.hosts = new ArrayList();
