@@ -103,6 +103,8 @@ public class TestRemotePartitionWriterDelegate extends peregrine.PFSTest {
         t.setUp();
         t.test1();
         t.tearDown();
+
+        Thread.sleep( 2000L );
         
     }
 

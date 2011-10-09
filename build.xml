@@ -20,6 +20,19 @@
 
     </path>
 
+    <property name="clover.jar" location="./lib/clover-ant-3.1.0.jar"/>
+
+    <taskdef resource="cloverlib.xml" classpath="${clover.jar}"/>
+
+    <target name="with.clover">
+        <clover-setup/>
+    </target>
+
+    <target name="clover.html">
+      <clover-html-report outdir="clover_html"
+                          title="My Project"/>
+    </target>
+
     <target name="compile">
 
         <mkdir dir="compile"/>
@@ -60,22 +73,6 @@
             </fileset>
 
         </jar>
-
-    </target>
-
-    <target name="site">
-
-      <mkdir dir="site"/>
-      
-      <copy todir="site">
-        <fileset dir="src/web">
-          <include name="**"/>
-        </fileset>
-      </copy>
-
-      <replaceregexp match="^\s+" flags="m" replace="" byline="true">
-        <fileset dir="site/templates" includes="**/*.tpl"/>
-      </replaceregexp>
 
     </target>
 
@@ -165,6 +162,49 @@
         </junit>
     </target> 
 
+    <target name="test-basic" 
+            depends="jar,compile.test" 
+            description="Run junit tests.">
+
+        <taskdef name="junit"
+                 classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask">
+            <classpath refid="project.classpath"/>
+        </taskdef>	
+
+        <junit printsummary="on"
+               fork="true"
+               forkmode="perTest"
+               filtertrace="false"
+               haltonfailure="false"
+               haltonerror="false"
+               showoutput="true" 
+               logfailedtests="true">
+
+            <classpath>
+                <path refid="project.classpath"/>
+            </classpath>
+
+            <batchtest todir="target/test-reports"> 
+
+                <fileset dir="src/test">
+                    <include name="**/peregrine/io/TestPartitionWriter.java"/>
+
+                    <include name="**/peregrine/TestMapOnlyJobs"/>
+                    <include name="**/peregrine/TestMapReduce"/>
+                    <include name="**/peregrine/io/TestChunkMerger"/>
+                    <include name="**/peregrine/io/TestChunkSorter"/>
+                    <include name="**/peregrine/io/TestFullOuterJoin"/>
+                    <include name="**/peregrine/io/TestPartitionWriter"/>
+                    <include name="**/peregrine/io/TestReduceSort"/>
+                    <include name="**/peregrine/values/TestIntValue"/>
+
+                </fileset>
+
+            </batchtest>
+            
+        </junit>
+    </target> 
+
   <target name="javadoc" description="Generate javadoc" depends="compile">
 
     <mkdir dir="${javadocdir}">
@@ -189,44 +229,9 @@
              sourcepath="src/java" 
              classpathref="project.classpath"
              packagenames="peregrine.*">
-
+      
     </javadoc>
-
+    
   </target>
-
-    <target name="dist" depends="jar,javadoc">
-
-        <mkdir dir="target/${project}-${version}" />
-
-        <copy todir="target/${project}-${version}">
-            <fileset dir=".">
-                <include name="lib/*.jar"/>
-                <include name="src/java/**"/>
-                <include name="build.xml"/>
-                <include name="LICENSE"/>
-            </fileset>
-        </copy>
-
-        <copy todir="target/${project}-${version}">
-            <fileset dir="compile">
-                <include name="javadoc/**"/>
-            </fileset>
-        </copy>
-
-        <copy file="target/${project}-${version}.jar"
-              todir="target/${project}-${version}" />
-        
-        <tar destfile="target/${project}-${version}.tar">
-
-            <tarfileset dir="target">
-                <include name="${project}-${version}/**"/>
-            </tarfileset>
-
-        </tar>
-
-        <gzip src="target/${project}-${version}.tar" destfile="target/${project}-${version}.tar.gz"/>
-        <delete file="target/${project}-${version}.tar"/>
-
-    </target>
 
 </project>

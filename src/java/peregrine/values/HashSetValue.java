@@ -76,7 +76,7 @@ public class HashSetValue implements Value {
         
         for ( byte[] val : getValues() ) {
 
-            buff.append( String.format( "%s ", Base64.encode( val ) ) );
+            buff.append( String.format( "%s ", Hex.encode( val ) ) );
             
         }
 
