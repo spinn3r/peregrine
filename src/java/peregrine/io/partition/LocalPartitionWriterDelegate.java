@@ -40,20 +40,6 @@ public class LocalPartitionWriterDelegate extends BasePartitionWriterDelegate {
     @Override
     public int append() throws IOException {
 
-        // FIXME: how do we setup append mode remotely ? This is going to be
-        // even a bigger issue when you factor in that ALL of the
-        // PartitionWriters could be remote.  ONE thing we could do is
-        // include a nonce as the beginning chunk ID ... Right now some of
-        // the probe operations where we read the file by ID wouldn't work
-        // in this manner though AND the clocks would need to be
-        // synchronized...hm.  ACTUALLY .. they won't ALL be non-local.  At
-        // least ONE will be local.. actually... no.  Not during extracts
-        // that run on the source.
-        //
-        
-        // I could write a manifest file that I could just GET on the remote
-        // end.
-        
         List<File> chunks = LocalPartition.getChunkFiles( partition, host, path );
 
         return chunks.size();

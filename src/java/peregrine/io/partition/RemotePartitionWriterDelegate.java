@@ -23,12 +23,70 @@ public class RemotePartitionWriterDelegate extends BasePartitionWriterDelegate {
 
     @Override
     public int append() throws IOException {
-        throw new IOException( "not implemented yet" );
+
+        Map map = request( "HEAD" );
+        
+        int chunks = readHeader( map, "X-nr-chunks" );
+
+        return chunks;
+        
     }
     
     @Override
     public void erase() throws IOException {
-        throw new IOException( "not implemented yet" );
+
+        try {
+            Map map = request( "DELETE" );
+            
+            int deleted = readHeader( map, "X-deleted" );
+            
+            log.info( "Deleted %,d chunks on host: %s", host );
+
+        } catch ( RemoteRequestException e ) {
+
+            // 404 is ok as this would be a new file.
+            if ( e.status != 404 )
+                throw e;
+            
+        }
+        
+    }
+
+    /**
+     * Perform an HTTP request.  Note that it's ok that this is done synchronous
+     * as we have to wait for the results ANYWAY before moving forward AND this
+     * only happens when writing to a new partition.
+     */
+    private Map request( String method ) throws IOException {
+
+        //FIXME: infinite read connect, DNS timeouts, etc.
+        
+        URL url = new URL( String.format( "http://%s:%s%s", host.getName(), host.getPort(), path ) );
+
+        log.info( "%s: %s", url, method );
+
+        HttpURLConnection httpCon = (HttpURLConnection) url.openConnection();
+        httpCon.setRequestMethod( method );
+        int response = httpCon.getResponseCode();
+
+        if ( response != 200 ) {
+            throw new RemoteRequestException( response );
+        }
+
+        return httpCon.getHeaderFields();
+
+    }
+
+    private int readHeader( Map headers, String name ) throws IOException {
+
+        String val = headers.get( name ).toString();
+        
+        if ( val == null ) {
+            throw new IOException( "HTTP response header not specified: " + name );
+        }
+
+        return Integer.parseInt( val );
+        
     }
 
     @Override
@@ -53,4 +111,15 @@ public class RemotePartitionWriterDelegate extends BasePartitionWriterDelegate {
             
     }
 
+}
+
+class RemoteRequestException extends IOException {
+
+    public int status;
+    
+    public RemoteRequestException( int status ) {
+        super( "HTTP request failed: " + status );
+        this.status = status;
+    }
+    
 }

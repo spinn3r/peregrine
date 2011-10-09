@@ -54,7 +54,7 @@ public class Host {
     }
     
     public String toString() {
-        return String.format( "name=%s, id=%010d, port=%s", name, id, port );
+        return String.format( "%s:%s", name, port, id );
     }
     
 }

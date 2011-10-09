@@ -69,16 +69,14 @@ public class NewPartitionWriter implements PartitionWriter {
             delegate.init( partition, host, path );
 
             partitionWriterDelegates.add( delegate );
-            
+
+            if ( append ) 
+                chunk_id = delegate.append();
+            else
+                delegate.erase();
+
         }
 
-        /*
-        if ( append ) 
-            chunk_id = delegate.append();
-        else
-            delegate.erase();
-        */
-            
         //create the first chunk...
         rollover();
         
