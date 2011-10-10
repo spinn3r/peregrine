@@ -14,11 +14,9 @@ import peregrine.io.partition.*;
  */
 public class ExtractWriter {
 
-    private Object[] PARTITION_OUTPUT = null;
+    private List<PartitionWriter> output;
 
-    private String path = null;
-
-    private VarintWriter varintWriter = new VarintWriter();
+    private String path;
 
     private int nr_partitions = -1;
     
@@ -30,21 +28,14 @@ public class ExtractWriter {
         
         nr_partitions = partitionMembership.size();
 
-        PARTITION_OUTPUT = new Object[nr_partitions];
-
+        output = new ArrayList( nr_partitions );
+        
         for( Partition partition : partitionMembership.getPartitions() ) {
 
-            List<Host> membership = partitionMembership.getHosts( partition );
+            System.out.printf( "Creating writer for partition: %s\n", partition );
 
-            System.out.printf( "Creating writer for partition: %s (%s)\n", partition, membership );
-
-            List<LocalPartitionWriter> output = new ArrayList();
-            
-            for ( Host member : membership ) {
-                output.add( new LocalPartitionWriter( partition, member, path ) );
-            }
-
-            PARTITION_OUTPUT[partition.getId()] = output;
+            NewPartitionWriter writer = new NewPartitionWriter( partition, path );
+            output.add( writer );
             
         }
         
@@ -67,56 +58,33 @@ public class ExtractWriter {
     public void write( Key key, Value value, boolean keyIsHashcode ) 
         throws IOException {
 
-        byte[] key_bytes   = key.toBytes();
-        byte[] value_bytes = value.toBytes();
-
-        write( key_bytes, value_bytes, keyIsHashcode );
+        write( key.toBytes(), value.toBytes(), keyIsHashcode );
         
     }
     
     /**
      * If the Key is already a hashcode and we can route over it specify keyIsHashcode=true.
      */
-    public void write( byte[] key_bytes, byte[] value_bytes, boolean keyIsHashcode )
+    public void write( byte[] key, byte[] value, boolean keyIsHashcode )
         throws IOException {
 
-        Partition partition = Config.route( key_bytes, nr_partitions, keyIsHashcode );
+        Partition partition = Config.route( key, nr_partitions, keyIsHashcode );
         
-        write( partition, key_bytes, value_bytes );
+        write( partition, key, value );
         
     }
 
-    private void write( Partition partition,
-                        byte[] key_bytes,
-                        byte[] value_bytes )
+    private void write( Partition part, byte[] key, byte[] value )
         throws IOException {
 
-        //FIXME: this needs to migrate to DefaultPartitionWriter
-
-        List<LocalPartitionWriter> output = (List<LocalPartitionWriter>) PARTITION_OUTPUT[partition.getId()];
-
-        //FIXME: the distributed version should parallel dispatch these and
-        //write to the partitions directly.
-
-        for( LocalPartitionWriter out : output ) {
-            out.write( key_bytes, value_bytes );
-        }
+        output.get( part.getId() ).write( key, value );
         
     }
 
     public void close() throws IOException {
 
-        //FIXME: this needs to migrate to DefaultPartitionWriter
-        
-        for (int i = 0; i < PARTITION_OUTPUT.length; ++i ) {
-
-            List<LocalPartitionWriter> output = (List<LocalPartitionWriter>) PARTITION_OUTPUT[i];
-
-            for( LocalPartitionWriter out : output ) {
-                System.out.printf( "Closing: %s\n", out );
-                out.close();
-            }
-
+        for( PartitionWriter writer : output ) {
+            writer.close();
         }
 
     }

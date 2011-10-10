@@ -4,13 +4,27 @@ import java.io.*;
 import java.util.*;
 
 import peregrine.util.*;
+import peregrine.pfsd.*;
 
+/**
+ * 
+ * @author Kevin Burton 
+ */
 public class Config {
 
     public static String PFS_ROOT = "/tmp/peregrine-dfs";
 
     private static Membership membership = new Membership();
 
+    /**
+     * The current 'host' that we are running on.  This is used so that we can
+     * determine whether we should local or remote readers/writers.  This should
+     * be set correctly or we won't be able to tell that we are on the local
+     * machine and would have performance issues though we should still perform
+     * correctly.
+     */
+    public static Host host = null;
+    
     public static void addPartitionMembership( int partition, List<Host> hosts ) {
         membership.setPartition( new Partition( partition ), hosts );
     }
@@ -23,7 +37,7 @@ public class Config {
 
             String host = hosts[i];
 
-            list.add( new Host( host, i ) );
+            list.add( new Host( host, i, FSDaemon.PORT ) );
             
         }
 
@@ -35,6 +49,15 @@ public class Config {
         return membership;
     }
 
+    public static Host getHost() {
+        return host;
+    }
+
+    public static void setHost( Host _host ) {
+        host = _host;
+    }
+
+    
     public static String getPFSRoot( Partition partition, Host host ) {
         return String.format( "%s/%s/%s" , Config.PFS_ROOT , host.getName(), partition.getId() );
     }

@@ -18,19 +18,28 @@ public class Host {
 
     protected int port;
 
-    public Host( String name, int partitionMemberId ) {
-        this( name, partitionMemberId, FSDaemon.PORT );
+    public Host( String name ) {
+        this( name, FSDaemon.PORT );
+    }
+
+    public Host( String name, int port ) {
+        this.name = name;
+        this.port = port;
+        this.id = LongBytes.toLong( Hashcode.getHashcode( String.format( "%s:%s", name, port ) ) );
     }
 
     public Host( String name, int partitionMemberId, int port ) {
-        this.name = name;
-        this.id = LongBytes.toLong( Hashcode.getHashcode( String.format( "%s:%s", name, port ) ) );
+        this( name, port );
         this.partitionMemberId = partitionMemberId;
-        this.port = port;
     }
 
     public boolean equals( Object obj ) {
+
+        if ( obj == null )
+            return false;
+        
         return id == ((Host)obj).id;
+        
     }
 
     public int hashCode() {
@@ -54,7 +63,7 @@ public class Host {
     }
     
     public String toString() {
-        return String.format( "%s:%s", name, port, id );
+        return String.format( "%s:%s", name, port );
     }
     
 }

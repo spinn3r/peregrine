@@ -63,8 +63,15 @@ public class NewPartitionWriter implements PartitionWriter {
 
             log.info( "Creating partition writer delegate for host: " + host );
             
-            // FIXME: for now make them ALL remote but we need logic to make them local
-            PartitionWriterDelegate delegate = new RemotePartitionWriterDelegate();
+            PartitionWriterDelegate delegate;
+
+            System.out.printf( "FIXNE: host: %s vs %s\n", host, Config.getHost() );
+            
+            if ( host.equals( Config.getHost() ) ) {
+                delegate = new LocalPartitionWriterDelegate();
+            } else { 
+                delegate = new RemotePartitionWriterDelegate();
+            }
 
             delegate.init( partition, host, path );
 
