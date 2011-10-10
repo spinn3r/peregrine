@@ -119,7 +119,7 @@ public class TestPartitionWriter extends peregrine.BaseTest {
 
         System.out.printf( "step1\n" );
         
-        LocalPartitionWriter.CHUNK_SIZE = 1000;
+        DefaultPartitionWriter.CHUNK_SIZE = 1000;
 
         PartitionWriter writer = new DefaultPartitionWriter( new Partition( 0 ), path );
 

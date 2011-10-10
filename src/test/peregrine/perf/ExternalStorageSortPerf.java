@@ -34,7 +34,7 @@ public class ExternalStorageSortPerf {
         Host host = new Host( "cpu0", 0 );
         String path = "/tmp/benchmark.test";
 
-        LocalPartitionWriter.CHUNK_SIZE = 100000000;
+        DefaultPartitionWriter.CHUNK_SIZE = 100000000;
 
         if ( args.length == 1 ) {
                 
