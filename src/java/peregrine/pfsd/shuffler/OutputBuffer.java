@@ -1,10 +1,13 @@
 package peregrine.pfsd.shuffler;
 
-import java.util.*;
 import java.io.*;
 import java.nio.*;
+import java.util.*;
+import java.util.concurrent.atomic.*;
 
 import peregrine.*;
+import peregrine.util.*;
+import peregrine.io.async.*;
 
 /**
  */
@@ -16,32 +19,20 @@ public class OutputBuffer {
     public static long COMMIT_SIZE = 134217728;
 
     /**
-     * Individual buffer size for per partition writes.
+     * Real world HTTP chunks size we would see.
      */
-    public static int BUFFER_SIZE = 262144;
+    public static int HTTP_CHUNK_SIZE = 3000;
 
-    /**
-     * Blocks that are closed out and pending a write.  Keep these together with
-     * the chunks the partitions they represent so that we can commit them on
-     * disk as one unit.
-     */
-    private Map<Integer,List<byte[]>> closed = new HashMap();
+    private AtomicInteger ptr = new AtomicInteger();
 
-    private Map<Integer,ByteBuffer> buffers = new HashMap();
+    private ShufflePacket[] index;
 
-    public OutputBuffer() {
+    private String path;
+    
+    public OutputBuffer( String path ) {
 
-        // create initial data structures so we don't have to worry about null
-        // values.
-
-        List<Partition> partitions = Config.getPartitionMembership().getPartitions( Config.getHost() );
-
-        for ( Partition part : partitions ) {
-
-            closed.put( part.getId(), new ArrayList() );
-            buffers.put( part.getId(), newByteBuffer() );
-            
-        }
+        this.index = new ShufflePacket[ (int)(COMMIT_SIZE / HTTP_CHUNK_SIZE) ];
+        this.path = path;
         
     }
     
@@ -49,38 +40,78 @@ public class OutputBuffer {
                         int from_chunk,
                         byte[] data ) {
 
-        ByteBuffer buff = buffers.get( from_partition );
+        ShufflePacket pack = new ShufflePacket( from_partition, from_chunk, data );
 
-        if ( buff.position() + data.length > buff.capacity () ) {
+        index[ ptr.getAndIncrement() ] = pack;
 
-            // this buffer is about to be full.. create another one
-
-        }
-        
     }
 
     public void close() throws IOException {
 
-    }
+        // we are done working with this buffer.  serialize it to disk now and
+        // close it out.
 
-    private ByteBuffer rollByteBuffer( ByteBuffer old, int partition ) {
+        List<Partition> partitions = Config.getPartitionMembership().getPartitions( Config.getHost() );
 
-        ByteBuffer result = newByteBuffer();
-
-        synchronized( closed ) {
-
-            synchronized( buffers ) {
-
-            }
-
+        Map<Partition,List<ShufflePacket>> lookup = new HashMap();
+        
+        for( Partition part : partitions ) {
+            lookup.put( part, new ArrayList() );
         }
 
-        return result;
+        for( int i = 0; i < index.length; ++i ) {
+
+            ShufflePacket current = index[i];
+
+            if ( current == null )
+                continue;
+
+            if ( i > ptr.get() )
+                break;
+
+            lookup.get( current.partition ).add( current );
+            
+        }
+
+        // now stream these out to disk...
+
+        AsyncOutputStream out = new AsyncOutputStream( path );
+        
+        for( Map.Entry<Partition,List<ShufflePacket>> entry : lookup.entrySet() ) {
+
+            Partition part = entry.getKey();
+            List<ShufflePacket> packets = entry.getValue();
+            
+            out.write( LongBytes.toByteArray( part.getId() ) );
+
+            for( ShufflePacket pack : packets ) {
+
+                out.write( pack.data );
+                
+            }
+            
+        }
+
+        out.close();
         
     }
-
-    private ByteBuffer newByteBuffer() {
-        return ByteBuffer.allocate( BUFFER_SIZE );
-    }
     
+}
+
+class ShufflePacket {
+
+    public int partition;
+    public int chunk;
+    public byte[] data; 
+
+    public ShufflePacket( int from_partition,
+                          int from_chunk,
+                          byte[] data ) {
+
+        this.partition = from_partition;
+        this.chunk = from_chunk;
+        this.data = data;
+
+    }
+
 }
