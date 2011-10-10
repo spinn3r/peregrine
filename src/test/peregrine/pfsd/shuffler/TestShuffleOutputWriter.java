@@ -46,8 +46,16 @@ public class TestShuffleOutputWriter extends peregrine.BaseTest {
 
         buff.close();
 
-        ShuffleInputReader reader = new ShuffleInputReader( path );
-        
+        ShuffleInputReader reader = new ShuffleInputReader( path, 1 );
+
+        int count = 0;
+        while( reader.hasNext() ) {
+            ShufflePacket pack = reader.next();
+            ++count;
+        }
+
+        assertEquals( max_writes, count );
+
     }
 
     public static void main( String[] args ) throws Exception {

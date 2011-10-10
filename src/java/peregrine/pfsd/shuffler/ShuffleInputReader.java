@@ -34,10 +34,13 @@ public class ShuffleInputReader {
     private int count;
 
     private int idx = 0;
+
+    private int partition;
     
     public ShuffleInputReader( String path, int partition ) throws IOException {
 
         this.path = path;
+        this.partition = partition;
 
         // pull out the header information 
 
@@ -82,7 +85,11 @@ public class ShuffleInputReader {
 
     }
 
-    public ShufflePacket read( int partition ) throws IOException {
+    public boolean hasNext() throws IOException {
+        return idx < count;
+    }
+    
+    public ShufflePacket next() throws IOException {
 
         if ( idx >= count )
             return null;

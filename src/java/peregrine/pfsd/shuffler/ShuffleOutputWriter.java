@@ -125,8 +125,8 @@ public class ShuffleOutputWriter {
         AsyncOutputStream out = new AsyncOutputStream( path );
 
         out.write( MAGIC );
-        out.write( LongBytes.toByteArray( lookup.size() ) );
-
+        out.write( IntBytes.toByteArray( lookup.size() ) );
+        
         // the offset in this chunk to start reading the data from this
         // partition and chunk.
 
