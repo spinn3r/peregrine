@@ -54,6 +54,8 @@
     </target>
     
     <target name="clean">
+        <delete dir="clover.html"/>
+        <delete dir=".clover"/>
         <delete dir="compile"/>
         <delete dir="target"/>
     </target>

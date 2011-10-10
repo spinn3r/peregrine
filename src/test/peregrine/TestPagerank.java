@@ -14,13 +14,11 @@ public class TestPagerank extends junit.framework.TestCase {
 
     public void test1() throws Exception {
 
-    }
-    
-    public void _test1() throws Exception {
-
+        Config.setHost( new Host( "localhost" ) );
+        
         // TRY with three partitions... 
-        Config.addPartitionMembership( 0, "cpu0" );
-        Config.addPartitionMembership( 1, "cpu1" );
+        Config.addPartitionMembership( 0, "localhost" );
+        Config.addPartitionMembership( 1, "localhost" );
         
         String path = "/pr/test.graph";
         
@@ -141,7 +139,7 @@ public class TestPagerank extends junit.framework.TestCase {
     }
 
     public static void main( String[] args ) throws Exception {
-        new TestPagerank()._test1();
+        new TestPagerank().test1();
     }
 
 }
