@@ -63,9 +63,11 @@ public class TestMapReduce extends peregrine.BaseTest {
 
     public void test1() throws Exception {
 
+        Config.setHost( new Host( "localhost" ) );
+
         // TRY with three partitions... 
-        Config.addPartitionMembership( 0, "cpu0" );
-        Config.addPartitionMembership( 1, "cpu1" );
+        Config.addPartitionMembership( 0, "localhost" );
+        Config.addPartitionMembership( 1, "localhost" );
         
         String path = String.format( "/test/%s/test1.in", getClass().getName() );
         

@@ -19,6 +19,7 @@ import peregrine.io.chunk.*;
 
 public class TestPartitionWriter extends peregrine.BaseTest {
 
+    
     /**
      * test running with two lists which each have different values.
      */
@@ -30,7 +31,7 @@ public class TestPartitionWriter extends peregrine.BaseTest {
         writer.close();
 
         Partition part = new Partition( 0 );
-        Host host = new Host( "cpu0", 0 );
+        Host host = new Host( "localhost", 0 );
 
         List<ChunkReader> readers = LocalPartition.getChunkReaders( part, host, path );
 
@@ -47,13 +48,13 @@ public class TestPartitionWriter extends peregrine.BaseTest {
         DiskPerf.remove( Config.PFS_ROOT );
 
         Partition part = new Partition( 0 );
-        Host host = new Host( "cpu0", 0 );
+        Host host = new Host( "localhost", 0 );
 
         String path = "/tmp/test";
 
         // STEP 1... make a new file and write lots of chunks to it.
         
-        LocalPartitionWriter.CHUNK_SIZE = 1000;
+        DefaultPartitionWriter.CHUNK_SIZE = 1000;
 
         PartitionWriter writer = new DefaultPartitionWriter( new Partition( 0 ), path );
 
@@ -110,7 +111,7 @@ public class TestPartitionWriter extends peregrine.BaseTest {
         DiskPerf.remove( Config.PFS_ROOT );
 
         Partition part = new Partition( 0 );
-        Host host = new Host( "cpu0", 0 );
+        Host host = new Host( "localhost", 0 );
 
         String path = "/tmp/test";
 
@@ -204,9 +205,11 @@ public class TestPartitionWriter extends peregrine.BaseTest {
 
         super.setUp();
 
+        Config.setHost( new Host( "localhost" ) );
+
         //PartitionWriter 
-        Config.addPartitionMembership( 0, "cpu0" );
-        Config.addPartitionMembership( 1, "cpu1" );
+        Config.addPartitionMembership( 0, "localhost" );
+        Config.addPartitionMembership( 1, "localhost" );
 
     }
 

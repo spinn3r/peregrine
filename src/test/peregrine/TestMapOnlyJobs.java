@@ -27,9 +27,11 @@ public class TestMapOnlyJobs extends junit.framework.TestCase {
 
     public void test1() throws Exception {
 
+        Config.setHost( new Host( "localhost" ) );
+
         // TRY with three partitions... 
-        Config.addPartitionMembership( 0, "cpu0" );
-        Config.addPartitionMembership( 1, "cpu1" );
+        Config.addPartitionMembership( 0, "localhost" );
+        Config.addPartitionMembership( 1, "localhost" );
         
         String path = "/test/map.only/test1";
         
@@ -56,7 +58,7 @@ public class TestMapOnlyJobs extends junit.framework.TestCase {
         Controller.map( Map.class, new Input( path ), new Output( output ) );
 
         Partition part = new Partition( 0 );
-        Host host = new Host( "cpu0", 0  );
+        Host host = new Host( "localhost", 0  );
 
         LocalPartitionReader reader = new LocalPartitionReader( part, host, output );
 

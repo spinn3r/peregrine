@@ -25,7 +25,7 @@ public class TestRemotePartitionWriterDelegate extends peregrine.PFSTest {
      */
     public void test1() throws Exception {
 
-        Host host = new Host( "localhost", 0 );
+        Host host = new Host( "localhost" );
         Partition part = new Partition( 0 );
         String path = "/test/remote-write1" ;
         

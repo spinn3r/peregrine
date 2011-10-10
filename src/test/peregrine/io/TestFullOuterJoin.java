@@ -1,6 +1,5 @@
 package peregrine.io;
 
-
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.*;
@@ -24,13 +23,14 @@ public class TestFullOuterJoin extends junit.framework.TestCase {
         //write keys to two files but where there isn't a 100%
         //intersection... then try to join against these files. 
 
-        Config.addPartitionMembership( 0, "cpu0" );
+        Config.setHost( new Host( "localhost" ) );
+        Config.addPartitionMembership( 0, "localhost" );
 
         //now test writing two regions to a file and see if both sides of the
         //join are applied correctly
 
         Partition part = new Partition( 0 );
-        Host host = new Host( "cpu0", 0 );
+        Host host = new Host( "localhost", 0 );
         
         PartitionWriter writer;
 
