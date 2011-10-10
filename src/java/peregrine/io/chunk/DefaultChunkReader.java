@@ -94,7 +94,12 @@ public class DefaultChunkReader implements ChunkReader {
     }
 
     public byte[] key() throws IOException {
+
+        // TODO: if keys are fixed width we could in theory keep writing these
+        // into a static buffer which we reuse each time.
+
         return readBytes( varintReader.read( this.input ) );
+        
     }
 
     public byte[] value() throws IOException {

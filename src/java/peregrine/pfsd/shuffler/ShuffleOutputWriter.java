@@ -129,8 +129,10 @@ public class ShuffleOutputWriter {
 
         // the offset in this chunk to start reading the data from this
         // partition and chunk.
+
+        int nr_bytes_per_header = 3;
         
-        int off = MAGIC.length + IntBytes.LENGTH + (lookup.size() * IntBytes.LENGTH * 2);
+        int off = MAGIC.length + IntBytes.LENGTH + (lookup.size() * IntBytes.LENGTH * nr_bytes_per_header);
 
         for( int part : lookup.keySet() ) {
 
@@ -140,13 +142,18 @@ public class ShuffleOutputWriter {
 
             for( ShufflePacket pack : packets ) {
 
-                width += (IntBytes.LENGTH * 3);
+                int integers_per_shuffle_packet = 3;
+                
+                width += (IntBytes.LENGTH * integers_per_shuffle_packet);
                 width += pack.data.length;
                 
             }
+
+            int count = packets.size();
             
             out.write( IntBytes.toByteArray( part ) );
             out.write( IntBytes.toByteArray( off ) );
+            out.write( IntBytes.toByteArray( count ) );
             
             off += width;
                 

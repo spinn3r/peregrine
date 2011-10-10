@@ -20,8 +20,11 @@ public class StructReader {
     private static VarintReader varintReader = new VarintReader();
 
     public StructReader( byte[] data ) {
-        this.in = new ByteArrayInputStream( data );
-        this.unsafe = new UnsafeInputStream( this.in );
+        this( new ByteArrayInputStream( data ) );
+    }
+
+    public StructReader( InputStream is ) {
+        this.unsafe = new UnsafeInputStream( is );
     }
 
     public int readVarint() {
@@ -45,6 +48,20 @@ public class StructReader {
 
     }
 
+    public int readInt() {
+
+        byte[] data = new byte[4];
+        unsafe.read( data );
+
+        return IntBytes.toInt( data );
+
+    }
+
+    public byte[] read( byte[] data ) {
+        unsafe.read( data );
+        return data;
+    }
+    
     public byte[] readHashcode() {
 
         byte[] result = new byte[Hashcode.HASH_WIDTH];
