@@ -34,7 +34,7 @@ public class ExtractWriter {
 
             System.out.printf( "Creating writer for partition: %s\n", partition );
 
-            NewPartitionWriter writer = new NewPartitionWriter( partition, path );
+            DefaultPartitionWriter writer = new DefaultPartitionWriter( partition, path );
             output.add( writer );
             
         }
