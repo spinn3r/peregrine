@@ -8,7 +8,7 @@ import java.util.concurrent.*;
 /**
  * 
  */
-public class AsyncOutputStream extends BaseAscyncOutputStream {
+public class AsyncOutputStream extends BaseAsyncOutputStream {
     
     public AsyncOutputStream( String dest ) {
 

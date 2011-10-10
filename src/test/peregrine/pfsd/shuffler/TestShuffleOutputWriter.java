@@ -13,7 +13,7 @@ import peregrine.pagerank.*;
 import peregrine.io.partition.*;
 import peregrine.pfsd.shuffler.*;
 
-public class TestOutputBuffer extends peregrine.BaseTest {
+public class TestShuffleOutputWriter extends peregrine.BaseTest {
 
     public void setUp() {
 
@@ -27,7 +27,9 @@ public class TestOutputBuffer extends peregrine.BaseTest {
     
     public void test1() throws IOException {
 
-        OutputBuffer buff = new OutputBuffer( "/tmp/shuffle1.test" );
+        String path = "/tmp/shuffle1.test";
+        
+        ShuffleOutputWriter buff = new ShuffleOutputWriter( path );
 
         int max_writes = 1000;
         int max_partitions = Config.getPartitionMembership().size();
@@ -43,12 +45,14 @@ public class TestOutputBuffer extends peregrine.BaseTest {
         }
 
         buff.close();
+
+        ShuffleInputReader reader = new ShuffleInputReader( path );
         
     }
 
     public static void main( String[] args ) throws Exception {
 
-        TestOutputBuffer test = new TestOutputBuffer();
+        TestShuffleOutputWriter test = new TestShuffleOutputWriter();
         test.setUp();
         test.test1();
         test.tearDown();

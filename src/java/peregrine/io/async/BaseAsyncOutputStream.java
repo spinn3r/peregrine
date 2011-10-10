@@ -8,7 +8,7 @@ import java.util.concurrent.*;
 /**
  * 
  */
-public abstract class BaseAscyncOutputStream extends BaseOutputStream {
+public abstract class BaseAsyncOutputStream extends BaseOutputStream {
 
     /**
      * How many messages to buffer before they go out to disk.  The best bet
@@ -17,19 +17,19 @@ public abstract class BaseAscyncOutputStream extends BaseOutputStream {
      */
     public static int LIMIT = 100;
 
-    private static final byte[] EOF = new byte[0];
+    protected static final byte[] EOF = new byte[0];
     
-    private BlockingQueue<byte[]> queue = new LinkedBlockingDeque( LIMIT );
+    protected BlockingQueue<byte[]> queue = new LinkedBlockingDeque( LIMIT );
 
-    private Future future = null;
+    protected Future future = null;
 
-    private boolean closed = false;
+    protected boolean closed = false;
 
     public void init( Future future ) {
         this.future = future;
     }
     
-    public BlockingQueue<byte[]> getQueue() {
+    protected BlockingQueue<byte[]> getQueue() {
         return queue;
     }
     

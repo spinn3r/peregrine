@@ -26,7 +26,7 @@ import com.spinn3r.log5j.Logger;
  * data: binary data of `length' bytes.  
  * 
  */
-public class OutputBuffer {
+public class ShuffleOutputWriter {
 
     private static final Logger log = Logger.getLogger();
 
@@ -61,7 +61,7 @@ public class OutputBuffer {
      */
     private boolean closed = false;
     
-    public OutputBuffer( String path ) {
+    public ShuffleOutputWriter( String path ) {
 
         this.index = new ShufflePacket[ (int)(COMMIT_SIZE / HTTP_CHUNK_SIZE) ];
         this.path = path;
@@ -130,8 +130,8 @@ public class OutputBuffer {
         // the offset in this chunk to start reading the data from this
         // partition and chunk.
         
-        int off = MAGIC.length + IntBytes.LENGTH;
-        
+        int off = MAGIC.length + IntBytes.LENGTH + (lookup.size() * IntBytes.LENGTH * 2);
+
         for( int part : lookup.keySet() ) {
 
             List<ShufflePacket> packets = lookup.get( part );
@@ -140,7 +140,7 @@ public class OutputBuffer {
 
             for( ShufflePacket pack : packets ) {
 
-                width += (IntBytes.LENGTH * 2);
+                width += (IntBytes.LENGTH * 3);
                 width += pack.data.length;
                 
             }
@@ -159,6 +159,7 @@ public class OutputBuffer {
             for( ShufflePacket pack : packets ) {
                 out.write( pack.partition );
                 out.write( pack.chunk );
+                out.write( IntBytes.toByteArray( pack.data.length ) );
                 out.write( pack.data );
             }
             
@@ -168,22 +169,4 @@ public class OutputBuffer {
         
     }
     
-}
-
-class ShufflePacket {
-
-    public int partition;
-    public int chunk;
-    public byte[] data; 
-
-    public ShufflePacket( int from_partition,
-                          int from_chunk,
-                          byte[] data ) {
-
-        this.partition = from_partition;
-        this.chunk = from_chunk;
-        this.data = data;
-
-    }
-
 }
