@@ -19,8 +19,15 @@ public class Membership {
         return delegate.get( part );
     }
 
+    public List<Partition> getPartitions( Host host ) {
+
+        return reverse.get( host );
+        
+    }
+    
     public void setPartition( Partition part, List<Host> hosts ) {
         delegate.put( part, hosts );
+        updateReverseMapping( part, hosts );
     }
 
     public int size() {

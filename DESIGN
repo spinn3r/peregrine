@@ -142,7 +142,7 @@
               and giving them to mapd or the reducer.    
               
         - 
-          PUT /shuffle/default/source/0
+          PUT /shuffle/default/from-partition/16/from-chunk/2
           key[],value[]
           
             Used during shuffle to write to a file descriptor.
