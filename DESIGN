@@ -1,4 +1,15 @@
 
+- pfs should support append and writes from parallel clients.  We would have to
+  make sure each write wasn't fragmented in the current design so I will need to
+  be careful here.  ONE way we could do this would be to have the client buffer
+  requests and the pfs daemon do the chunk rolling.  Then when the client opens
+  up a file for writing it would buffer say 128kb at a time an send it in a
+  given HTTP transaction for an 'append' ...
+
+    DELETE and ERASE are anohter issue which we would need to be careful of.
+    Also, doing a file truncate() would be nice too.  What operations does
+    Hadoop support.
+
 
 - merger checkpoints must be not only on chunk boundaries but in between keys.
 

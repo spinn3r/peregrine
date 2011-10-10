@@ -9,9 +9,13 @@ import peregrine.*;
 import peregrine.util.*;
 import peregrine.io.async.*;
 
+import com.spinn3r.log5j.Logger;
+
 /**
  */
 public class OutputBuffer {
+
+    private static final Logger log = Logger.getLogger();
 
     /**
      * Chunk size for rollover files.
@@ -48,15 +52,25 @@ public class OutputBuffer {
 
     public void close() throws IOException {
 
+
+        
         // we are done working with this buffer.  serialize it to disk now and
         // close it out.
 
         List<Partition> partitions = Config.getPartitionMembership().getPartitions( Config.getHost() );
 
-        Map<Partition,List<ShufflePacket>> lookup = new HashMap();
+        log.info( "Going to write shuffle for %s", partitions );
+        
+        if ( partitions == null || partitions.size() == 0 )
+            throw new IOException( "No partitions defined for: " + Config.getHost() );
+        
+        Map<Integer,List<ShufflePacket>> lookup = new HashMap();
         
         for( Partition part : partitions ) {
-            lookup.put( part, new ArrayList() );
+
+            System.out.printf( "FIXME: Adding lookup for : %s \n" , part );
+            lookup.put( part.getId(), new ArrayList() );
+
         }
 
         for( int i = 0; i < index.length; ++i ) {
@@ -69,7 +83,12 @@ public class OutputBuffer {
             if ( i > ptr.get() )
                 break;
 
-            lookup.get( current.partition ).add( current );
+            List<ShufflePacket> packets = lookup.get( current.partition );
+
+            if ( packets == null )
+                throw new IOException( "No locally defined partition for: " + current.partition );
+            
+            packets.add( current );
             
         }
 
@@ -77,12 +96,12 @@ public class OutputBuffer {
 
         AsyncOutputStream out = new AsyncOutputStream( path );
         
-        for( Map.Entry<Partition,List<ShufflePacket>> entry : lookup.entrySet() ) {
+        for( Map.Entry<Integer,List<ShufflePacket>> entry : lookup.entrySet() ) {
 
-            Partition part = entry.getKey();
+            int part = entry.getKey();
             List<ShufflePacket> packets = entry.getValue();
             
-            out.write( LongBytes.toByteArray( part.getId() ) );
+            out.write( LongBytes.toByteArray( part ) );
 
             for( ShufflePacket pack : packets ) {
 
