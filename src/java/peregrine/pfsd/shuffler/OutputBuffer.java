@@ -12,6 +12,19 @@ import peregrine.io.async.*;
 import com.spinn3r.log5j.Logger;
 
 /**
+ * Write shuffle output to disk.
+ *
+ * The file is a binary file.
+ *
+ * It first contains a header of:
+ *
+ * MAGIC
+ * 
+ *
+ * partition ID: int (4 bytes).
+ * length: int (4 bytes). 
+ * data: binary data of `length' bytes.  
+ * 
  */
 public class OutputBuffer {
 
@@ -27,11 +40,26 @@ public class OutputBuffer {
      */
     public static int HTTP_CHUNK_SIZE = 3000;
 
+    /**
+     * Magic number for this file.  Right now it is 'pso1' which stands for
+     * Peregrine Shuffle Output version 1.
+     */
+    public static final byte[] MAGIC =
+        new byte[] { (byte)'p', (byte)'s', (byte)'o', (byte)'1' };
+    
     private AtomicInteger ptr = new AtomicInteger();
 
     private ShufflePacket[] index;
 
+    /**
+     * Path to store this output buffer once closed.
+     */
     private String path;
+
+    /**
+     * True if we are closed so that we don't corupt ourselves.
+     */
+    private boolean closed = false;
     
     public OutputBuffer( String path ) {
 
@@ -42,8 +70,11 @@ public class OutputBuffer {
     
     public void accept( int from_partition,
                         int from_chunk,
-                        byte[] data ) {
+                        byte[] data ) throws IOException {
 
+        if ( closed )
+            throw new IOException( "closed" );
+        
         ShufflePacket pack = new ShufflePacket( from_partition, from_chunk, data );
 
         index[ ptr.getAndIncrement() ] = pack;
@@ -52,7 +83,7 @@ public class OutputBuffer {
 
     public void close() throws IOException {
 
-
+        closed = true;
         
         // we are done working with this buffer.  serialize it to disk now and
         // close it out.
@@ -67,10 +98,7 @@ public class OutputBuffer {
         Map<Integer,List<ShufflePacket>> lookup = new HashMap();
         
         for( Partition part : partitions ) {
-
-            System.out.printf( "FIXME: Adding lookup for : %s \n" , part );
             lookup.put( part.getId(), new ArrayList() );
-
         }
 
         for( int i = 0; i < index.length; ++i ) {
@@ -95,18 +123,43 @@ public class OutputBuffer {
         // now stream these out to disk...
 
         AsyncOutputStream out = new AsyncOutputStream( path );
-        
-        for( Map.Entry<Integer,List<ShufflePacket>> entry : lookup.entrySet() ) {
 
-            int part = entry.getKey();
-            List<ShufflePacket> packets = entry.getValue();
-            
-            out.write( LongBytes.toByteArray( part ) );
+        out.write( MAGIC );
+        out.write( LongBytes.toByteArray( lookup.size() ) );
+
+        // the offset in this chunk to start reading the data from this
+        // partition and chunk.
+        
+        int off = MAGIC.length + IntBytes.LENGTH;
+        
+        for( int part : lookup.keySet() ) {
+
+            List<ShufflePacket> packets = lookup.get( part );
+
+            int width = 0;
 
             for( ShufflePacket pack : packets ) {
 
-                out.write( pack.data );
+                width += (IntBytes.LENGTH * 2);
+                width += pack.data.length;
                 
+            }
+            
+            out.write( IntBytes.toByteArray( part ) );
+            out.write( IntBytes.toByteArray( off ) );
+            
+            off += width;
+                
+        }
+        
+        for( int part : lookup.keySet() ) {
+
+            List<ShufflePacket> packets = lookup.get( part );
+
+            for( ShufflePacket pack : packets ) {
+                out.write( pack.partition );
+                out.write( pack.chunk );
+                out.write( pack.data );
             }
             
         }
