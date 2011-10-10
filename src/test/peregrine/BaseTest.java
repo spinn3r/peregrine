@@ -14,7 +14,6 @@ import peregrine.util.*;
 import peregrine.shuffle.*;
 import peregrine.io.*;
 import peregrine.io.async.*;
-import peregrine.perf.*;
 
 public abstract class BaseTest extends junit.framework.TestCase {
 
@@ -24,13 +23,13 @@ public abstract class BaseTest extends junit.framework.TestCase {
         org.apache.log4j.xml.DOMConfigurator.configure( "conf/log4j.xml" );
 
         System.out.printf( "Cleaning up PFS_ROOT: %s\n", Config.PFS_ROOT );
-        DiskPerf.remove( Config.PFS_ROOT );
+        remove( Config.PFS_ROOT );
 
     }
 
     public void tearDown() {
         System.out.printf( "Cleaning up PFS_ROOT: %s\n", Config.PFS_ROOT );
-        DiskPerf.remove( Config.PFS_ROOT );
+        remove( Config.PFS_ROOT );
     }
 
     public static byte[] toByteArray( InputStream is ) throws IOException {
@@ -52,6 +51,30 @@ public abstract class BaseTest extends junit.framework.TestCase {
 
         return bos.toByteArray();
 
+    }
+
+    public static void remove( String path ) {
+        remove( new File( path ) );
+    }
+
+    public static void remove( File file ) {
+
+        if ( ! file.exists() )
+            return;
+
+        File[] files = file.listFiles();
+        
+        for ( File current : files ) {
+
+            if ( current.isDirectory() == false ) {
+                System.out.printf( "Deleting: %s\n", current.getPath() );
+                current.delete();
+            } else {
+                remove( current );
+            }
+            
+        }
+        
     }
 
 }

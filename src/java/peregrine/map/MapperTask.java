@@ -60,9 +60,7 @@ public class MapperTask extends BaseMapperTask {
         LocalPartitionReader reader = readers.get( 0 );
 
         while( reader.hasNext() ) {
-
             mapper.map( reader.key(), reader.value() );
-
         }
 
     }

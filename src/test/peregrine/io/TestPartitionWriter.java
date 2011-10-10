@@ -13,7 +13,6 @@ import peregrine.values.*;
 import peregrine.util.*;
 import peregrine.shuffle.*;
 import peregrine.io.*;
-import peregrine.perf.*;
 import peregrine.io.partition.*;
 import peregrine.io.chunk.*;
 
@@ -45,7 +44,7 @@ public class TestPartitionWriter extends peregrine.BaseTest {
 
         System.out.printf( "Running test2...\n" );
         
-        DiskPerf.remove( Config.PFS_ROOT );
+        remove( Config.PFS_ROOT );
 
         Partition part = new Partition( 0 );
         Host host = new Host( "localhost", 0 );
@@ -108,7 +107,7 @@ public class TestPartitionWriter extends peregrine.BaseTest {
         
         System.out.printf( "Running test3...\n" );
         
-        DiskPerf.remove( Config.PFS_ROOT );
+        remove( Config.PFS_ROOT );
 
         Partition part = new Partition( 0 );
         Host host = new Host( "localhost", 0 );

@@ -9,6 +9,8 @@ public class Membership {
 
     private Map<Partition,List<Host>> delegate = new HashMap();
 
+    private Map<Host,List<Partition>> reverse = new HashMap();
+
     public Set<Partition> getPartitions() {
         return delegate.keySet();
     }
@@ -23,6 +25,23 @@ public class Membership {
 
     public int size() {
         return delegate.size();
+    }
+
+    private void updateReverseMapping( Partition part, List<Host> hosts ) {
+
+        for( Host host : hosts ) {
+
+            List<Partition> partitions = reverse.get( host );
+
+            if ( partitions == null ) {
+                partitions = new ArrayList();
+                reverse.put( host, partitions );
+            }
+
+            partitions.add( part );
+            
+        }
+        
     }
     
 }

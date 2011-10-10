@@ -25,13 +25,6 @@ public class DefaultChunkReader implements ChunkReader {
      * number of key value pairs to deal with.
      */
     private int size = 0;
-    
-    public DefaultChunkReader( String path )
-        throws IOException {
-
-        this( new File( path ) );
-
-    }
 
     public DefaultChunkReader( File file )
         throws IOException {
@@ -143,7 +136,7 @@ public class DefaultChunkReader implements ChunkReader {
 
     public static void main( String[] args ) throws Exception {
 
-        ChunkReader reader = new DefaultChunkReader( args[0] );
+        ChunkReader reader = new DefaultChunkReader( new File( args[0] ) );
 
         Key key = null;
         Value value = null;

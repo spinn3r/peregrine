@@ -13,7 +13,6 @@ import peregrine.values.*;
 import peregrine.util.*;
 import peregrine.shuffle.*;
 import peregrine.io.*;
-import peregrine.perf.*;
 
 import peregrine.io.partition.*;
 import peregrine.io.chunk.*;
