@@ -68,7 +68,7 @@ public class TestParallelFileSystemWrites extends peregrine.BaseTest {
         
         String path = "/test/parallel-test";
         
-        NewPartitionWriter writer = new NewPartitionWriter( part, path );
+        DefaultPartitionWriter writer = new DefaultPartitionWriter( part, path );
 
         int computed_written = 0;
 
