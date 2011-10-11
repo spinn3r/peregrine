@@ -30,9 +30,7 @@ public class StructReader {
     }
 
     public int readVarint() {
-
         return varintReader.read();
-        
     }
 
     public double readDouble() {

@@ -4,7 +4,11 @@ import java.io.*;
 import java.nio.*;
 import java.util.*;
 
+import org.jboss.netty.buffer.*;
+
 public class VarintWriter {
+
+    // FIXME: Struct.java is the ONLY on using this and it will need to go away.
 
     /**
      * Emit a varint to the output stream.  Only use with varint encoding.
@@ -45,7 +49,7 @@ public class VarintWriter {
     /**
      * Emit a varint to the output stream.  Only use with varint encoding.
      */
-    public void write( ByteBuffer buff, int value ) {
+    public void write( ChannelBuffer buff, int value ) {
 
         //note varints have to be incremented by one(1) so that we can avoid
         //having to store a zero offset.  If we were to do this then it would be
@@ -56,10 +60,10 @@ public class VarintWriter {
 
         while (true) {
             if ((value & ~0x7F) == 0) {
-                buff.put( (byte)value );
+                buff.writeByte( (byte)value );
                 break;
             } else {
-                buff.put((byte)((value & 0x7F) | 0x80));
+                buff.writeByte((byte)((value & 0x7F) | 0x80));
                 value >>>= 7;
             }
         }

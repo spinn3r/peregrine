@@ -5,6 +5,8 @@ import java.nio.*;
 
 import java.nio.charset.Charset;
 
+import org.jboss.netty.buffer.*;
+
 import peregrine.*;
 import peregrine.util.*;
 
@@ -17,16 +19,17 @@ public class StructWriter {
 
     private static Charset UTF8 = null;
 
-    private static ByteBuffer buff = null;
+    private static ChannelBuffer buff = null;
 
     private static VarintWriter varintWriter = new VarintWriter();
 
-    private static ThreadLocalByteBuffer threadLocal = new ThreadLocalByteBuffer();
+    private static ThreadLocalChannelBuffer threadLocal = new ThreadLocalChannelBuffer();
 
     public StructWriter() {
 
         buff = threadLocal.get();
-        buff.reset();
+        buff.resetWriterIndex();
+        buff.resetReaderIndex();
         
     }
 
@@ -39,26 +42,26 @@ public class StructWriter {
 
     public StructWriter writeDouble( double value ) {
 
-        buff.put( LongBytes.toByteArray( Double.doubleToLongBits( value ) ) );
+        buff.writeBytes( LongBytes.toByteArray( Double.doubleToLongBits( value ) ) );
         return this;
 
     }
     
     public StructWriter writeHashcode( String key ) {
-        buff.put( Hashcode.getHashcode( key ) );
+        buff.writeBytes( Hashcode.getHashcode( key ) );
         return this;
         
     }
 
     public StructWriter writeString( String value ) {
-        buff.put( value.getBytes( UTF8 ) );
+        buff.writeBytes( value.getBytes( UTF8 ) );
         return this;
     }
     
     public byte[] toBytes() {
 
         byte[] backing = buff.array();
-        int len = buff.position();
+        int len = buff.writerIndex();
         
         byte[] result = new byte[ len ];
         System.arraycopy( backing, 0, result, 0, len );
@@ -73,12 +76,11 @@ public class StructWriter {
 
 }
 
-class ThreadLocalByteBuffer extends ThreadLocal<ByteBuffer> {
+class ThreadLocalChannelBuffer extends ThreadLocal<ChannelBuffer> {
 
-    public ByteBuffer initialValue() {
+    public ChannelBuffer initialValue() {
 
-        ByteBuffer buff = ByteBuffer.allocate( StructWriter.BUFFER_SIZE );
-        buff.mark();
+        ChannelBuffer buff = ChannelBuffers.buffer( StructWriter.BUFFER_SIZE );
         return buff;
     }
     

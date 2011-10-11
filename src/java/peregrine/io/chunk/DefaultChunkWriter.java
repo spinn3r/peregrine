@@ -10,6 +10,8 @@ import peregrine.util.*;
 import peregrine.keys.*;
 import peregrine.values.*;
 
+import org.jboss.netty.buffer.*;
+
 /**
  * Export chunks are used in both the Extract phase of ETL jobs with
  * ExtractWriter to write data to individual partitions and chunks AND with map
@@ -31,13 +33,12 @@ public class DefaultChunkWriter implements ChunkWriter {
 
     private boolean closed = false;
 
-    private ByteBuffer buff;
+    private ChannelBuffer buff;
     
     public DefaultChunkWriter( OutputStream out ) throws IOException {
         this.out = out;
 
-        this.buff = ByteBuffer.allocate( BUFFER_SIZE );
-        this.buff.mark();
+        this.buff = ChannelBuffers.buffer( BUFFER_SIZE );
 
     }
 
@@ -53,33 +54,41 @@ public class DefaultChunkWriter implements ChunkWriter {
 
         int write_width = key.length + value.length + 8;
 
-        if ( buff.position() + write_width >= buff.limit() ) {
-            flushByteBuffer();
+        if ( buff.writerIndex() + write_width >= buff.capacity() ) {
+            flushChannelBuffer();
         }
 
-        varintWriter.write( buff, key.length );
-        buff.put( key );
-
-        varintWriter.write( buff, value.length );
-        buff.put( value );
-
+        write( buff, key, value );
+        
         ++count;
 
     }
 
-    private void flushByteBuffer() throws IOException {
+    public void write( ChannelBuffer buff, byte[] key, byte[] value )
+        throws IOException {
 
-        length += buff.position();
+        varintWriter.write( buff, key.length );
+        buff.writeBytes( key );
+
+        varintWriter.write( buff, value.length );
+        buff.writeBytes( value );
+
+    }
+    
+    private void flushChannelBuffer() throws IOException {
+
+        length += buff.writerIndex();
 
         byte[] backing = buff.array();
-        int len = buff.position();
+        int len = buff.writerIndex();
         
         byte[] result = new byte[ len ];
         System.arraycopy( backing, 0, result, 0, len );
         
         out.write( result );
 
-        buff.reset();
+        buff.resetReaderIndex();
+        buff.resetWriterIndex();
 
     }
 
@@ -90,7 +99,7 @@ public class DefaultChunkWriter implements ChunkWriter {
 
     @Override
     public long length() {
-        return length + buff.position();
+        return length + buff.writerIndex();
     }
 
     @Override
@@ -99,7 +108,7 @@ public class DefaultChunkWriter implements ChunkWriter {
         if ( closed )
             return;
 
-        flushByteBuffer();
+        flushChannelBuffer();
 
         // last four bytes store the number of items.
 
