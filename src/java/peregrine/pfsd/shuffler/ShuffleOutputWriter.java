@@ -70,12 +70,13 @@ public class ShuffleOutputWriter {
     
     public void accept( int from_partition,
                         int from_chunk,
+                        int to_partition,
                         byte[] data ) throws IOException {
 
         if ( closed )
             throw new IOException( "closed" );
         
-        ShufflePacket pack = new ShufflePacket( from_partition, from_chunk, data );
+        ShufflePacket pack = new ShufflePacket( from_partition, from_chunk, to_partition, data );
 
         index[ ptr.getAndIncrement() ] = pack;
 
@@ -111,10 +112,10 @@ public class ShuffleOutputWriter {
             if ( i > ptr.get() )
                 break;
 
-            List<ShufflePacket> packets = lookup.get( current.partition );
+            List<ShufflePacket> packets = lookup.get( current.to_partition );
 
             if ( packets == null )
-                throw new IOException( "No locally defined partition for: " + current.partition );
+                throw new IOException( "No locally defined partition for: " + current.to_partition );
             
             packets.add( current );
             
@@ -142,7 +143,7 @@ public class ShuffleOutputWriter {
 
             for( ShufflePacket pack : packets ) {
 
-                int integers_per_shuffle_packet = 3;
+                int integers_per_shuffle_packet = 4;
                 
                 width += (IntBytes.LENGTH * integers_per_shuffle_packet);
                 width += pack.data.length;
@@ -164,8 +165,9 @@ public class ShuffleOutputWriter {
             List<ShufflePacket> packets = lookup.get( part );
 
             for( ShufflePacket pack : packets ) {
-                out.write( pack.partition );
-                out.write( pack.chunk );
+                out.write( IntBytes.toByteArray( pack.from_partition ) );
+                out.write( IntBytes.toByteArray( pack.from_chunk ) );
+                out.write( IntBytes.toByteArray( pack.to_partition ) );
                 out.write( IntBytes.toByteArray( pack.data.length ) );
                 out.write( pack.data );
             }

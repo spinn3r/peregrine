@@ -38,7 +38,11 @@ public class TestShuffleOutputWriter extends peregrine.BaseTest {
         
             for( int j = 0 ; j < max_partitions; ++j ) {
 
-                buff.accept( j, j , new byte[2048] );
+                int from_partition = i;
+                int from_chunk = i;
+                int to_partition = j;
+                
+                buff.accept( from_partition, from_chunk, to_partition, new byte[2048] );
                 
             }
 

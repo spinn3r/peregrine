@@ -24,9 +24,6 @@ public class ShuffleInputReader {
     // header lookup information for partition and where to start reading.
     private Map<Integer,Integer> lookup = new HashMap();
 
-    /**
-     * 
-     */
     private String path;
 
     private StructReader struct;
@@ -96,15 +93,16 @@ public class ShuffleInputReader {
 
         ++idx;
         
-        int part  = struct.readInt();
-        int chunk = struct.readInt();
-        int len = struct.readInt();
+        int from_partition  = struct.readInt();
+        int from_chunk      = struct.readInt();
+        int to_partition    = struct.readInt();
+        int len             = struct.readInt();
 
         byte[] data = new byte[ len ];
 
         data = struct.read( data );
         
-        ShufflePacket pack = new ShufflePacket( part, chunk, data );
+        ShufflePacket pack = new ShufflePacket( from_partition, from_partition, to_partition, data );
 
         return pack;
         
