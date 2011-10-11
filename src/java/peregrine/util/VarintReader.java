@@ -13,6 +13,14 @@ public class VarintReader {
         this.byteReader = new ByteArrayByteReader( data, index );
     }
 
+    public VarintReader( InputStream is ) {
+        this.byteReader = new InputStreamByteReader( is );
+    }
+
+    public int read() {
+        return read1() - 1;
+    }
+    
     public int read( byte[] data ) {
         return read( data, 0 );
     }
@@ -63,11 +71,6 @@ public class VarintReader {
         return result;
     }
 
-    public int read( InputStream input ) throws IOException {
-        byteReader = new InputStreamByteReader( input );
-        return read1() - 1;
-    }
-    
     private boolean isLastVarintByte( byte b ) {
         return (b >> 7) == 0;
     }

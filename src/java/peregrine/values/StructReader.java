@@ -17,7 +17,7 @@ public class StructReader {
 
     private InputStream is;
     
-    private static VarintReader varintReader = new VarintReader();
+    private static VarintReader varintReader;
 
     public StructReader( byte[] data ) {
         this( new ByteArrayInputStream( data ) );
@@ -26,17 +26,12 @@ public class StructReader {
     public StructReader( InputStream is ) {
         this.is = is;
         this.unsafe = new UnsafeInputStream( is );
+        this.varintReader = new VarintReader( is );
     }
 
     public int readVarint() {
 
-        try {
-
-            return varintReader.read( is );
-            
-        } catch ( IOException e ) {
-            throw new RuntimeException( e );
-        }
+        return varintReader.read();
         
     }
 

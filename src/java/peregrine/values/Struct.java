@@ -92,11 +92,11 @@ public class Struct implements Value {
         try {
             
             TrackedInputStream is = new TrackedInputStream( new ByteArrayInputStream( data ) );
-            VarintReader varintReader = new VarintReader();
+            VarintReader varintReader = new VarintReader( is );
             
             while( is.getPosition() < data.length ) {
 
-                int len = varintReader.read( is );
+                int len = varintReader.read();
                 byte[] entry = new byte[len];
                 is.read( entry );
                 values.add( entry );

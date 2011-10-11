@@ -17,7 +17,7 @@ public class DefaultChunkReader implements ChunkReader {
 
     private InputStream input = null;
 
-    private VarintReader varintReader = new VarintReader();
+    private VarintReader varintReader;;
 
     private long length = -1;
 
@@ -42,6 +42,8 @@ public class DefaultChunkReader implements ChunkReader {
         //and also buffer it
         this.input = new BufferedInputStream( is, BUFFER_SIZE );
 
+        this.varintReader = new VarintReader( this.input );
+        
         // and keep track of reads but also buffer the IO ...
         this.length = file.length();
 
@@ -75,7 +77,8 @@ public class DefaultChunkReader implements ChunkReader {
         setSize( IntBytes.toInt( size_bytes ) );
 
         this.input = new ByteArrayInputStream( data );
-        
+        this.varintReader = new VarintReader( this.input );
+
     }
 
     private void setSize( int size ) throws IOException {
@@ -101,12 +104,12 @@ public class DefaultChunkReader implements ChunkReader {
 
         ++idx;
         
-        return readBytes( varintReader.read( this.input ) );
+        return readBytes( varintReader.read() );
         
     }
 
     public byte[] value() throws IOException {
-        return readBytes( varintReader.read( this.input ) );
+        return readBytes( varintReader.read() );
     }
     
     public void close() throws IOException {
