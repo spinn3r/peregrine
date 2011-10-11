@@ -65,8 +65,6 @@ public class DefaultPartitionWriter implements PartitionWriter {
             
             PartitionWriterDelegate delegate;
 
-            System.out.printf( "FIXNE: host: %s vs %s\n", host, Config.getHost() );
-            
             if ( host.equals( Config.getHost() ) ) {
                 delegate = new LocalPartitionWriterDelegate();
             } else { 
