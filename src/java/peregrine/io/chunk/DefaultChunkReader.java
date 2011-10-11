@@ -15,7 +15,7 @@ public class DefaultChunkReader implements ChunkReader {
     
     private File file = null;
 
-    private TrackedInputStream input = null;
+    private InputStream input = null;
 
     private VarintReader varintReader = new VarintReader();
 
@@ -26,6 +26,11 @@ public class DefaultChunkReader implements ChunkReader {
      */
     private int size = 0;
 
+    /**
+     * The current item we are reading from.
+     */
+    private int idx = 0;
+    
     public DefaultChunkReader( File file )
         throws IOException {
         
@@ -35,10 +40,9 @@ public class DefaultChunkReader implements ChunkReader {
         InputStream is = new FileInputStream( file );
 
         //and also buffer it
-        is = new BufferedInputStream( is, BUFFER_SIZE );
+        this.input = new BufferedInputStream( is, BUFFER_SIZE );
 
         // and keep track of reads but also buffer the IO ...
-        this.input = new TrackedInputStream( is );
         this.length = file.length();
 
         RandomAccessFile raf = new RandomAccessFile( file , "r" );
@@ -70,7 +74,7 @@ public class DefaultChunkReader implements ChunkReader {
 
         setSize( IntBytes.toInt( size_bytes ) );
 
-        this.input = new TrackedInputStream( new ByteArrayInputStream( data ) );
+        this.input = new ByteArrayInputStream( data );
         
     }
 
@@ -85,7 +89,7 @@ public class DefaultChunkReader implements ChunkReader {
 
     public boolean hasNext() throws IOException {
 
-        if( this.input.getPosition() < this.length - IntBytes.LENGTH ) {
+        if( idx < size ) {
             return true;
         } else {
             return false;
@@ -95,9 +99,8 @@ public class DefaultChunkReader implements ChunkReader {
 
     public byte[] key() throws IOException {
 
-        // TODO: if keys are fixed width we could in theory keep writing these
-        // into a static buffer which we reuse each time.
-
+        ++idx;
+        
         return readBytes( varintReader.read( this.input ) );
         
     }
