@@ -39,8 +39,7 @@ public class Shuffler {
 
     }
 
-    public void accept( String name,
-                        int from_partition,
+    public void accept( int from_partition,
                         int from_chunk,
                         int to_partition,
                         byte[] data ) throws IOException {
@@ -52,29 +51,35 @@ public class Shuffler {
 
             String path = Config.getPFSPath( part, host, String.format( "/shuffle/%s-%s.tmp", name, idx++ ) );
 
-            if ( this.future != null ) {
-
-                try {
-                    this.future.get();
-                } catch ( Exception e ) {
-                    throw new IOException( "Failed to close writer: " , e );
-                }
-
-            }
-            
-            last = writer;
+            close();
             
             writer = new ShuffleOutputWriter( path );
 
-            if ( last != null ) {
-                // ok we have to close this now....
-                this.future = executors.submit( new ShufflerCloseCallable( last ) );
-            }
-            
         }
 
         writer.accept( from_partition, from_chunk, to_partition, data );
         
+    }
+
+    public void close() throws IOException {
+
+        if ( this.future != null ) {
+
+            try {
+                this.future.get();
+            } catch ( Exception e ) {
+                throw new IOException( "Failed to close writer: " , e );
+            }
+
+        }
+
+        last = writer;
+
+        if ( last != null ) {
+            // ok we have to close this now....
+            this.future = executors.submit( new ShufflerCloseCallable( last ) );
+        }
+
     }
     
 }
