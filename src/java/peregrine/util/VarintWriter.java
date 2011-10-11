@@ -70,4 +70,19 @@ public class VarintWriter {
 
     }
 
+    /**
+     * Given an int, return the number of bytes required for storage.
+     */
+    public static int sizeof( int value ) {
+
+        if ( value <= 128 ) 
+            return 1;
+        else if ( value <= 131072 )
+            return 2;
+        else if ( value <= 8388608 )
+            return 3;
+        return 4;
+
+    }
+    
 }

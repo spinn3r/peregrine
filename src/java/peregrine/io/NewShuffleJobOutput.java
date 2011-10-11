@@ -63,7 +63,7 @@ public class NewShuffleJobOutput implements JobOutput, LocalPartitionReaderListe
 
         int to_partition    = target.getId();
 
-        shuffleOutput.write( to_partition, value );
+        shuffleOutput.write( to_partition, key, value );
         
     }
 
@@ -107,15 +107,30 @@ class ShuffleOutput {
 
     }
     
-    public void write( int to_partition, byte[] data ) {
+    public void write( int to_partition, byte[] key, byte[] value ) {
 
-        int width = data.length + (IntBytes.LENGTH * 2);
+        // the max width that this write could consume.  2 ints for the
+        // partition and the width of the value and then the length of the key
+        // and the lenght of the value + two ints for the varints.
 
-        if ( extent.writerIndex() + width > NewShuffleJobOutput.EXTENT_SIZE ) {
+        int length =
+            VarintWriter.sizeof( key.length ) +
+            key.length +
+            VarintWriter.sizeof( value.length ) +
+            value.length
+            ;
+        
+        int write_width =
+            IntBytes.LENGTH +
+            IntBytes.LENGTH +
+            length
+            ;
+
+        if ( extent.writerIndex() + write_width > NewShuffleJobOutput.EXTENT_SIZE ) {
             rollover();
         }
 
-        extent.write( to_partition, data );
+        extent.write( to_partition, length, key, value );
         
     }
 
@@ -129,12 +144,12 @@ class ShuffleOutput {
 class ShuffleOutputExtent {
 
     ChannelBuffer buff = ChannelBuffers.buffer( NewShuffleJobOutput.EXTENT_SIZE );
-    
-    public void write( int to_partition, byte[] data ) {
+
+    public void write( int to_partition, int length, byte[] key, byte[] value ) {
 
         buff.writeInt( to_partition );
-        buff.writeInt( data.length );
-        buff.writeBytes( data );
+        buff.writeInt( length );
+        DefaultChunkWriter.write( buff, key, value );
         
     }
 
