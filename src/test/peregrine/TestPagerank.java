@@ -12,7 +12,7 @@ import peregrine.pagerank.*;
 
 public class TestPagerank extends junit.framework.TestCase {
 
-    public void _test1() throws Exception {
+    public void test1() throws Exception {
 
         Config.setHost( new Host( "localhost" ) );
         
@@ -143,7 +143,7 @@ public class TestPagerank extends junit.framework.TestCase {
     }
 
     public static void main( String[] args ) throws Exception {
-        new TestPagerank()._test1();
+        new TestPagerank().test1();
     }
 
 }
