@@ -6,14 +6,18 @@ public class DefaultThreadFactory implements ThreadFactory {
 
     public int idx = 0;
 
-    private Class template;
+    private String template;
     
     public DefaultThreadFactory( Class clazz ) {
-        this.template = clazz;
+        this( clazz.getName() );
+    }
+
+    public DefaultThreadFactory( String template ) {
+        this.template = template;
     }
 
     public Thread newThread(Runnable r) {
-        Thread thread = new Thread( r, template.getName() + idx++ );
+        Thread thread = new Thread( r, template + idx++ );
         thread.setDaemon( true );
         return thread;
     }

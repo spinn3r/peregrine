@@ -60,6 +60,8 @@ public class ShuffleOutputWriter {
      * True if we are closed so that we don't corupt ourselves.
      */
     private boolean closed = false;
+
+    private int length = 0;
     
     public ShuffleOutputWriter( String path ) {
 
@@ -78,10 +80,16 @@ public class ShuffleOutputWriter {
         
         ShufflePacket pack = new ShufflePacket( from_partition, from_chunk, to_partition, data );
 
+        this.length += data.length;
+        
         index[ ptr.getAndIncrement() ] = pack;
 
     }
 
+    public int length() {
+        return this.length;
+    }
+    
     public void close() throws IOException {
 
         closed = true;

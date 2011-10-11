@@ -29,16 +29,16 @@ public class FSHandler extends SimpleChannelUpstreamHandler {
 
     private static final Logger log = Logger.getLogger();
     
-    private HttpRequest request = null;
+    protected HttpRequest request = null;
 
     protected String path = null;
 
     /**
      * Root directory for serving files.
      */
-    private String root;
+    protected String root;
 
-    private SimpleChannelUpstreamHandler upstream = null;
+    protected SimpleChannelUpstreamHandler upstream = null;
 
     public FSHandler( String root ) {
         this.root = root;
@@ -63,6 +63,7 @@ public class FSHandler extends SimpleChannelUpstreamHandler {
             log.info( "%s: %s", method, request.getUri() );
 
             path = request.getUri();
+
             path = sanitizeUri( path );
             
             if ( path == null || ! path.startsWith( "/" ) ) {
@@ -71,7 +72,13 @@ public class FSHandler extends SimpleChannelUpstreamHandler {
             }
 
             if ( method == PUT ) {
-                upstream = new FSPutDirectHandler( this );
+
+                if ( request.getUri().startsWith( "/shuffle/" ) ) {
+                    upstream = new FSPutShuffleHandler( this );
+                } else {
+                    upstream = new FSPutDirectHandler( this );
+                }
+
             }
 
             if ( method == DELETE ) {

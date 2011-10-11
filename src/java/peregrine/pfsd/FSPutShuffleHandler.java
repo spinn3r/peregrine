@@ -8,6 +8,7 @@ import static org.jboss.netty.handler.codec.http.HttpVersion.*;
 
 import java.io.*;
 import java.net.*;
+import java.util.regex.*;
 
 import org.jboss.netty.buffer.*;
 import org.jboss.netty.channel.*;
@@ -20,14 +21,17 @@ import org.jboss.netty.util.*;
 import peregrine.*;
 import peregrine.io.async.*;
 import peregrine.util.*;
+import peregrine.pfsd.shuffler.*;
 
 import com.spinn3r.log5j.*;
 
 /**
  */
-public class FSPutDirectHandler extends SimpleChannelUpstreamHandler {
+public class FSPutShuffleHandler extends SimpleChannelUpstreamHandler {
 
     private static final Logger log = Logger.getLogger();
+
+    private static Pattern PATH_REGEX = Pattern.compile( "/shuffle/([a-zA-Z0-9]+)/from-partition/([0-9]+)/from-chunk/([0-9]+)/to-partition/([0-9]+)" );
 
     public static byte[] EOF = new byte[0];
 
@@ -49,13 +53,28 @@ public class FSPutDirectHandler extends SimpleChannelUpstreamHandler {
     private long chunks = 0;
 
     private FSHandler handler;
+
+    private int from_partition;
+    private int from_chunk;
+    private int to_partition;
+    private String name;
     
-    public FSPutDirectHandler( FSHandler handler ) {
+    public FSPutShuffleHandler( FSHandler handler ) throws Exception {
         this.handler = handler;
 
         started = System.currentTimeMillis();
+
+        String path = handler.request.getUri();
         
-        asyncOutputStream = new AsyncOutputStream( handler.path );
+        Matcher m = PATH_REGEX.matcher( path );
+
+        if ( ! m.find() )
+            throw new IOException( "The path specified is not a shuffle URL: " + path );
+
+        this.name           = m.group( 1 );
+        this.from_partition = Integer.parseInt( m.group( 2 ) );
+        this.from_chunk     = Integer.parseInt( m.group( 3 ) );
+        this.to_partition   = Integer.parseInt( m.group( 4 ) );
 
     }
 
@@ -76,31 +95,7 @@ public class FSPutDirectHandler extends SimpleChannelUpstreamHandler {
                 written += data.length;
                 chunks = chunks + 1;
 
-                asyncOutputStream.write( data );
-
             } else {
-
-                asyncOutputStream.write( EOF );
-                asyncOutputStream.close();
-
-                // log that this was written successfully including the NR of
-                // bytes.
-
-                long duration = System.currentTimeMillis() - started;
-
-                int mean_chunk_size = 0;
-
-                if ( chunks > 0 )
-                    mean_chunk_size = (int)(written / chunks);
-                
-                log.info( "Wrote %,d bytes in %,d chunks (mean chunk size = %,d bytes) in %,d ms to %s",
-                          written, chunks, mean_chunk_size, duration, handler.path );
-                
-                HttpResponse response = new DefaultHttpResponse( HTTP_1_1, OK );
-
-                Channel ch = e.getChannel();
-
-                ctx.getChannel().write(response).addListener(ChannelFutureListener.CLOSE);
 
             }
 
