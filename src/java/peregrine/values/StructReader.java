@@ -13,9 +13,9 @@ import peregrine.util.*;
  */
 public class StructReader {
 
-    private ByteArrayInputStream in;
-
     private UnsafeInputStream unsafe;
+
+    private InputStream is;
     
     private static VarintReader varintReader = new VarintReader();
 
@@ -24,6 +24,7 @@ public class StructReader {
     }
 
     public StructReader( InputStream is ) {
+        this.is = is;
         this.unsafe = new UnsafeInputStream( is );
     }
 
@@ -31,7 +32,7 @@ public class StructReader {
 
         try {
 
-            return varintReader.read( in );
+            return varintReader.read( is );
             
         } catch ( IOException e ) {
             throw new RuntimeException( e );

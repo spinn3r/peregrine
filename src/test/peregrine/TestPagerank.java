@@ -12,7 +12,7 @@ import peregrine.pagerank.*;
 
 public class TestPagerank extends junit.framework.TestCase {
 
-    public void test1() throws Exception {
+    public void _test1() throws Exception {
 
         Config.setHost( new Host( "localhost" ) );
         
@@ -87,6 +87,10 @@ public class TestPagerank extends junit.framework.TestCase {
         
     }
 
+    public void test2() {
+
+    }
+    
     public static void buildGraph1( ExtractWriter writer ) throws Exception { 
 
         // only 0 and 1 should be dangling.
@@ -139,7 +143,7 @@ public class TestPagerank extends junit.framework.TestCase {
     }
 
     public static void main( String[] args ) throws Exception {
-        new TestPagerank().test1();
+        new TestPagerank()._test1();
     }
 
 }
