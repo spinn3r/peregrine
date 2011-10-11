@@ -1,4 +1,13 @@
 
+- log output should be written to /var/log/peregrine-port/
+
+- some items in StructReader and StructWriter need to be lenght prefixed.  For
+  example byte[] and String.  However, this is redundand if they're the only
+  item in the set.  Perhaps a fixed width version which doesn't require length prefixed.
+
+    writeByteArray() writeByteArrayFixed() 
+    readByteArray() readByteArrayFixed();
+    
 
 - I need to FULLY solve the issue of endianness in peregrine because ByteBuffer
   and netty will force me to solve it.

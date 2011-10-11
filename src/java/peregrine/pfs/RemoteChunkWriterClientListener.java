@@ -21,7 +21,7 @@ public class RemoteChunkWriterClientListener implements ChannelFutureListener {
 
     protected boolean closed = false;
     
-    protected BlockingQueue<byte[]> queue = new LinkedBlockingDeque( LIMIT );
+    protected BlockingQueue<ChannelBuffer> queue = new LinkedBlockingDeque( LIMIT );
 
     // stores the result of this IO operation.  Boolean.TRUE if it was success
     // or Throwable it it was a failure.
@@ -55,14 +55,12 @@ public class RemoteChunkWriterClientListener implements ChannelFutureListener {
 
         if ( queue.peek() != null ) {
 
-            byte[] data = queue.take();
-
-            ChannelBuffer cbuff = RemoteChunkWriterClient.newChannelBuffer( data );
+             ChannelBuffer data = queue.take();
 
             // NOTE that even if the last response was written here we MUST wait
             // until we get the HTTP response.
 
-            future.getChannel().write( cbuff ).addListener( this );
+            future.getChannel().write( data ).addListener( this );
 
             return;
             

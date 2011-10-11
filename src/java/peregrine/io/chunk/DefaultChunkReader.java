@@ -114,23 +114,6 @@ public class DefaultChunkReader implements ChunkReader {
         return this.size;
     }
     
-    /**
-     * Dump this chunk to stdout.
-     */
-    public void dump() throws IOException {
-
-        System.out.printf( "==== BEGIN DefaultChunkReader DUMP ==== \n" );
-        
-        while( hasNext() ) {
-
-            System.out.printf( "key=%s, value=%s\n", Hex.encode( key() ), Hex.encode( value() ) );
-
-        }
-
-        System.out.printf( "==== END DefaultChunkReader DUMP ==== \n" );
-
-    }
-    
     private byte[] readBytes( int len ) throws IOException {
 
         byte[] data = new byte[len];

@@ -82,6 +82,14 @@ public class RemoteChunkWriterClient extends BaseOutputStream {
 
     public void write( byte[] data ) throws IOException {
 
+        write( ChannelBuffers.wrappedBuffer( data ) );
+        
+    }
+    
+    public void write( ChannelBuffer data ) throws IOException {
+
+        data = newChannelBuffer( data );
+        
         if ( listener.closed || channel.isOpen() == false ) {
 
             if ( listener.cause != null )
@@ -96,7 +104,7 @@ public class RemoteChunkWriterClient extends BaseOutputStream {
             if ( listener.clear ) {
                 
                 listener.clear = false;
-                channel.write( RemoteChunkWriterClient.newChannelBuffer( data ) ).addListener( listener );
+                channel.write( data ).addListener( listener );
                 
             } else {
                 listener.queue.put( data );
@@ -138,15 +146,16 @@ public class RemoteChunkWriterClient extends BaseOutputStream {
         }
             
     }
-    public static ChannelBuffer newChannelBuffer( byte[] data ) {
-        return newChannelBuffer( ChannelBuffers.wrappedBuffer( data ), data.length );
+    
+    private ChannelBuffer newChannelBuffer( byte[] data ) {
+        return newChannelBuffer( ChannelBuffers.wrappedBuffer( data ) );
     }
     
-    public static ChannelBuffer newChannelBuffer( ChannelBuffer data, int length ) {
+    private ChannelBuffer newChannelBuffer( ChannelBuffer data ) {
 
         // FIXME: we should use a Netty composite buffer to avoid the copy.
 
-        String prefix = String.format( "%2x", length );
+        String prefix = String.format( "%2x", data.writerIndex() );
 
         return ChannelBuffers.wrappedBuffer( ChannelBuffers.wrappedBuffer( prefix.getBytes() ),
                                              ChannelBuffers.wrappedBuffer( CRLF ),

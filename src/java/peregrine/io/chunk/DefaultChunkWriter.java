@@ -19,7 +19,7 @@ import peregrine.values.*;
  */
 public class DefaultChunkWriter implements ChunkWriter {
 
-    public static int BUFFER_SIZE = 8192;
+    public static int BUFFER_SIZE = 16384;
     
     private VarintWriter varintWriter = new VarintWriter();
 

@@ -21,11 +21,11 @@ public class StructWriter {
 
     private static VarintWriter varintWriter = new VarintWriter();
 
-    private static ThreadLocalByteBuffer tla = new ThreadLocalByteBuffer();
+    private static ThreadLocalByteBuffer threadLocal = new ThreadLocalByteBuffer();
 
     public StructWriter() {
 
-        buff = tla.get();
+        buff = threadLocal.get();
         buff.reset();
         
     }
@@ -45,7 +45,6 @@ public class StructWriter {
     }
     
     public StructWriter writeHashcode( String key ) {
-
         buff.put( Hashcode.getHashcode( key ) );
         return this;
         

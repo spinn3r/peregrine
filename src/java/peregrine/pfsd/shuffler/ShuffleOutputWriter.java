@@ -105,7 +105,8 @@ public class ShuffleOutputWriter {
             throw new IOException( "No partitions defined for: " + Config.getHost() );
         
         Map<Integer,List<ShufflePacket>> lookup = new HashMap();
-        
+
+        // init the lookup with one ArrayList per partition.
         for( Partition part : partitions ) {
             lookup.put( part.getId(), new ArrayList() );
         }
@@ -129,6 +130,8 @@ public class ShuffleOutputWriter {
             
         }
 
+        log.info( "Going write output buffer: %s\n", lookup );
+        
         // now stream these out to disk...
 
         AsyncOutputStream out = new AsyncOutputStream( path );

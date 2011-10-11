@@ -19,4 +19,14 @@ public class ShufflePacket {
 
     }
 
+    public String toString() {
+
+        return String.format( "from_partition: %s, from_chunk: %s, to_partition: %s, length: %,d bytes",
+                              from_partition,
+                              from_chunk,
+                              to_partition,
+                              data.length );
+
+    }
+    
 }
