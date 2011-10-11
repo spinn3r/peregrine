@@ -16,6 +16,10 @@ import com.spinn3r.log5j.*;
 /**
  * Write each value to N output streams.  All of these streams are async and
  * only block when their buffer is full.
+ *
+ * In the future investigate using scatter/gather with async IO for performance
+ * reasons.
+ * 
  */
 public class MultiOutputStream extends BaseOutputStream {
 

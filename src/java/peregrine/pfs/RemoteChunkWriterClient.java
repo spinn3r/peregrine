@@ -138,16 +138,19 @@ public class RemoteChunkWriterClient extends BaseOutputStream {
         }
             
     }
-
     public static ChannelBuffer newChannelBuffer( byte[] data ) {
+        return newChannelBuffer( ChannelBuffers.wrappedBuffer( data ), data.length );
+    }
+    
+    public static ChannelBuffer newChannelBuffer( ChannelBuffer data, int length ) {
 
         // FIXME: we should use a Netty composite buffer to avoid the copy.
 
-        String prefix = String.format( "%2x", data.length );
+        String prefix = String.format( "%2x", length );
 
         return ChannelBuffers.wrappedBuffer( ChannelBuffers.wrappedBuffer( prefix.getBytes() ),
                                              ChannelBuffers.wrappedBuffer( CRLF ),
-                                             ChannelBuffers.wrappedBuffer( data ),
+                                             data,
                                              ChannelBuffers.wrappedBuffer( CRLF ) );
         
     }

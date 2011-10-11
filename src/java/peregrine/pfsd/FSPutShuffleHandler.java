@@ -31,7 +31,8 @@ public class FSPutShuffleHandler extends SimpleChannelUpstreamHandler {
 
     private static final Logger log = Logger.getLogger();
 
-    private static Pattern PATH_REGEX = Pattern.compile( "/shuffle/([a-zA-Z0-9]+)/from-partition/([0-9]+)/from-chunk/([0-9]+)/to-partition/([0-9]+)" );
+    private static Pattern PATH_REGEX =
+        Pattern.compile( "/shuffle/([a-zA-Z0-9]+)/from-partition/([0-9]+)/from-chunk/([0-9]+)/to-partition/([0-9]+)" );
 
     public static byte[] EOF = new byte[0];
 
@@ -58,6 +59,8 @@ public class FSPutShuffleHandler extends SimpleChannelUpstreamHandler {
     private int from_chunk;
     private int to_partition;
     private String name;
+
+    private Shuffler shuffler = null;
     
     public FSPutShuffleHandler( FSHandler handler ) throws Exception {
         this.handler = handler;
@@ -76,6 +79,8 @@ public class FSPutShuffleHandler extends SimpleChannelUpstreamHandler {
         this.from_chunk     = Integer.parseInt( m.group( 3 ) );
         this.to_partition   = Integer.parseInt( m.group( 4 ) );
 
+        this.shuffler = ShufflerFactory.getInstance( this.name );
+        
     }
 
     @Override

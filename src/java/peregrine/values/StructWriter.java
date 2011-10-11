@@ -14,7 +14,9 @@ import peregrine.util.*;
 public class StructWriter {
 
     public static int BUFFER_SIZE = 16384;
-    
+
+    private static Charset UTF8 = null;
+
     private static ByteBuffer buff = null;
 
     private static VarintWriter varintWriter = new VarintWriter();
@@ -48,6 +50,11 @@ public class StructWriter {
         return this;
         
     }
+
+    public StructWriter writeString( String value ) {
+        buff.put( value.getBytes( UTF8 ) );
+        return this;
+    }
     
     public byte[] toBytes() {
 
@@ -60,7 +67,11 @@ public class StructWriter {
         return result;
         
     }
-    
+
+    static {
+        UTF8 = Charset.forName( "UTF-8" );
+    }
+
 }
 
 class ThreadLocalByteBuffer extends ThreadLocal<ByteBuffer> {

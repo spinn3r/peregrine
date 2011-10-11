@@ -41,11 +41,11 @@ public class ShuffleOutputWriter {
     public static int HTTP_CHUNK_SIZE = 3000;
 
     /**
-     * Magic number for this file.  Right now it is 'pso1' which stands for
+     * Magic number for this file.  Right now it is 'PSO1' which stands for
      * Peregrine Shuffle Output version 1.
      */
     public static final byte[] MAGIC =
-        new byte[] { (byte)'p', (byte)'s', (byte)'o', (byte)'1' };
+        new byte[] { (byte)'P', (byte)'S', (byte)'O', (byte)'1' };
     
     private AtomicInteger ptr = new AtomicInteger();
 

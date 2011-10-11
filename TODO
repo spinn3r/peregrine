@@ -1,13 +1,14 @@
 
 
+- I need to FULLY solve the issue of endianness in peregrine because ByteBuffer
+  and netty will force me to solve it.
+
 
 - I need to build in a way to easily start dumping messages sent into and out of netty...
 
 - junit needs to print exceptions when it is runnning..... for some reason right
   now they are swallowed... why is that.
 
-
-- Rename everythign to pdfsd peregrine distributed filesystem
 
 
 - Map and Reduce BOTH need to support merge() operations... We ALSO need to
@@ -18,12 +19,6 @@
       could in theory (now) be merged...
 
 
-- The shuffle phase needs to support async IO but then write everything to a
-  BlockingQueue and this queue is then drained by a single thread.
-
-    I think file PUTs could do the same thing by having a single thread doing
-    the writing to a file... The SAME system could be used for reading from
-    files.
 
 
 
