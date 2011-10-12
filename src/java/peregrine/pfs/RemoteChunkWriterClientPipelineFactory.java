@@ -11,10 +11,10 @@ import org.jboss.netty.handler.codec.http.*;
  */
 public class RemoteChunkWriterClientPipelineFactory implements ChannelPipelineFactory {
 
-    private RemoteChunkWriterClientListener listener;
+    private RemoteChunkWriterClient client;
     
-    public RemoteChunkWriterClientPipelineFactory( RemoteChunkWriterClientListener listener ) {
-        this.listener = listener;
+    public RemoteChunkWriterClientPipelineFactory( RemoteChunkWriterClient client ) {
+        this.client = client;
     }
     
     public ChannelPipeline getPipeline() throws Exception {
@@ -23,7 +23,7 @@ public class RemoteChunkWriterClientPipelineFactory implements ChannelPipelineFa
 
         //FIXME: the client codec needs a memory config too... 
         pipeline.addLast("codec",   new HttpClientCodec());
-        pipeline.addLast("handler", new RemoteChunkWriterClientHandler( listener ));
+        pipeline.addLast("handler", new RemoteChunkWriterClientHandler( client ));
 
         return pipeline;
 

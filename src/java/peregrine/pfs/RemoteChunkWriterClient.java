@@ -20,26 +20,68 @@ import peregrine.io.async.*;
  */
 public class RemoteChunkWriterClient extends BaseOutputStream {
 
-    public static byte[] CRLF = new byte[] { (byte)'\r', (byte)'\n' };
-
-    public static byte[] EOF = new byte[0];
-    
-    public static final int LIMIT = 100;
-
     private static NioClientSocketChannelFactory socketChannelFactory =
         new NioClientSocketChannelFactory( Executors.newCachedThreadPool( new DefaultThreadFactory( RemoteChunkWriterClient.class ) ), 
                                            Executors.newCachedThreadPool( new DefaultThreadFactory( RemoteChunkWriterClient.class ) ) );
 
-    private RemoteChunkWriterClientListener listener;
+    public static final int PENDING  = -1;
+    public static final int CLOSED   = 0;
+    public static final int OPEN     = 1;
+    
+    public static byte[] CRLF = new byte[] { (byte)'\r', (byte)'\n' };
 
-    private boolean open = false;
+    public static byte[] EOF = new byte[0];
 
+    public static final int LIMIT = 10;
+
+    protected int channelState = PENDING;
+
+    /**
+     * Stores writes waiting to be sent over the wire.
+     */
+    protected BlockingQueue<ChannelBuffer> queue = new LinkedBlockingDeque( LIMIT );
+
+    /**
+     * Stores the result of this IO operation.  Boolean.TRUE if it was success
+     * or Throwable it it was a failure.
+     */
+    protected BlockingQueue<Object> result = new LinkedBlockingDeque( 1 );
+
+    /**
+     * True when the open() method has been called.
+     */
+    private boolean opened = false;
+
+    /**
+     * The HTTP request URI representing this client.
+     */
     protected URI uri;
 
+    /**
+     * The HTTP request we sent and are about to send.
+     */
     protected HttpRequest request;
 
+    /**
+     * Request that we close()
+     */
     private boolean closed = false;
-    
+
+    /**
+     * The cause of a failure.
+     */
+    protected Throwable cause = null;
+
+    /**
+     * Clear to directly send a packet. 
+     */
+    protected boolean clear = false;
+
+    /**
+     * The channel we are using (when connected).
+     */
+    protected Channel channel = null;
+
     public RemoteChunkWriterClient( URI uri ) throws IOException {
 
         String host = uri.getHost();
@@ -66,14 +108,12 @@ public class RemoteChunkWriterClient extends BaseOutputStream {
 
         String host = uri.getHost();
         int port = uri.getPort();
-
-        listener = new RemoteChunkWriterClientListener( this );
         
         // Configure the client.
         ClientBootstrap bootstrap = new ClientBootstrap( socketChannelFactory );
 
         // Set up the event pipeline factory.
-        bootstrap.setPipelineFactory( new RemoteChunkWriterClientPipelineFactory( listener ) );
+        bootstrap.setPipelineFactory( new RemoteChunkWriterClientPipelineFactory( this ) );
 
         // Start the connection attempt... where is the connect timeout set?
         ChannelFuture connectFuture = bootstrap.connect( new InetSocketAddress( host, port ) );
@@ -81,9 +121,9 @@ public class RemoteChunkWriterClient extends BaseOutputStream {
         // we're connected and can now perform IO by calling write.  We need to
         // pay attention to close so that we can not perform writes any longer.
 
-        connectFuture.addListener( listener );
+        connectFuture.addListener( new ConnectFutureListener( this ) );
 
-        open = true;
+        opened = true;
         
     }
 
@@ -93,7 +133,7 @@ public class RemoteChunkWriterClient extends BaseOutputStream {
     
     private void requireOpen() throws IOException {
 
-        if ( ! open ) open();
+        if ( ! opened ) open();
         
     }
     
@@ -109,12 +149,10 @@ public class RemoteChunkWriterClient extends BaseOutputStream {
         
         data = newChannelBuffer( data );
         
-        if ( closed || listener.isClosed() ) {
+        if ( closed || isChannelStateClosed() ) {
 
-            if ( listener.cause != null ) 
-                throw new IOException( listener.cause );
-
-            System.out.printf( "WE WREE CLOSED\n" );
+            if ( cause != null ) 
+                throw new IOException( cause );
             
             throw new IOException( "closed" );
 
@@ -122,13 +160,13 @@ public class RemoteChunkWriterClient extends BaseOutputStream {
         
         try {
             
-            if ( listener.clear ) {
+            if ( clear ) {
                 
-                listener.clear = false;
-                listener.channel.write( data ).addListener( listener );
+                clear = false;
+                channel.write( data ).addListener( new WriteFutureListener( this ) );
                 
             } else {
-                listener.queue.put( data );
+                queue.put( data );
             }
 
         } catch ( Exception e ) {
@@ -149,25 +187,38 @@ public class RemoteChunkWriterClient extends BaseOutputStream {
 
         try {
             
-            Object result = listener.result.take();
+            Object _result = result.take();
 
-            if ( result instanceof IOException )
+            if ( _result instanceof IOException )
                 throw (IOException) result;
 
-            if ( result instanceof Throwable )
+            if ( _result instanceof Throwable )
                 throw new IOException( (Throwable)result );
 
-            if ( result.equals( Boolean.TRUE ) )
+            if ( _result.equals( Boolean.TRUE ) )
                 return;
 
-            throw new IOException( "unknown result: " + result );
+            throw new IOException( "unknown result: " + _result );
 
         } catch ( InterruptedException e ) {
             throw new IOException( e );
         }
             
     }
-    
+
+    public void setCause( Throwable throwable ) throws Exception {
+        this.cause = throwable;
+        this.result.put( throwable );
+    }
+
+    public void success() throws Exception {
+        this.result.put( Boolean.TRUE );
+    }
+
+    public boolean isChannelStateClosed() {
+        return channelState == CLOSED;
+    }
+
     private ChannelBuffer newChannelBuffer( byte[] data ) {
         return newChannelBuffer( ChannelBuffers.wrappedBuffer( data ) );
     }
@@ -185,4 +236,85 @@ public class RemoteChunkWriterClient extends BaseOutputStream {
         
     }
         
+}
+
+class ConnectFutureListener implements ChannelFutureListener {
+
+    private RemoteChunkWriterClient client;
+
+    public ConnectFutureListener( RemoteChunkWriterClient client ) {
+        this.client = client;
+    }
+
+    public void operationComplete( ChannelFuture future ) 
+        throws Exception {
+
+        client.channel = future.getChannel();
+
+        client.channelState = RemoteChunkWriterClient.OPEN;
+
+        client.channel.write( client.request ).addListener( new WriteFutureListener( client ) );
+        
+        // we need to find out when we are closed now.
+        client.channel.getCloseFuture().addListener( new CloseFutureListener( client ) );
+
+    }
+        
+}
+
+class CloseFutureListener implements ChannelFutureListener {
+
+    private RemoteChunkWriterClient client;
+    
+    public CloseFutureListener( RemoteChunkWriterClient client ) {
+        this.client = client;
+    }
+
+    public void operationComplete( ChannelFuture future ) 
+        throws Exception {
+
+        client.channelState = RemoteChunkWriterClient.CLOSED;
+
+        Throwable cause = future.getCause();
+        
+        if ( cause != null ) {
+            client.setCause( cause );
+        }
+
+    }
+
+}
+
+class WriteFutureListener implements ChannelFutureListener {
+
+    private RemoteChunkWriterClient client;
+    
+    public WriteFutureListener( RemoteChunkWriterClient client ) {
+        this.client = client;
+    }
+
+    public void operationComplete( ChannelFuture future ) 
+        throws Exception {
+
+        Channel channel = future.getChannel();
+        
+        if ( client.queue.peek() != null ) {
+
+             ChannelBuffer data = client.queue.take();
+
+            // NOTE that even if the last response was written here we MUST wait
+            // until we get the HTTP response.
+
+            channel.write( data ).addListener( this );
+
+            return;
+            
+        }
+
+        // the queue was drained so the next packet should be sent directly
+
+        client.clear = true;
+
+    }
+
 }

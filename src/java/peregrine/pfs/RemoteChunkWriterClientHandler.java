@@ -17,10 +17,10 @@ public class RemoteChunkWriterClientHandler extends SimpleChannelUpstreamHandler
 
     private static final Logger log = Logger.getLogger();
 
-    private RemoteChunkWriterClientListener listener = null;
+    private RemoteChunkWriterClient client = null;
     
-    public RemoteChunkWriterClientHandler( RemoteChunkWriterClientListener listener ) {
-        this.listener = listener;
+    public RemoteChunkWriterClientHandler( RemoteChunkWriterClient client ) {
+        this.client = client;
     }
 
     @Override
@@ -28,15 +28,15 @@ public class RemoteChunkWriterClientHandler extends SimpleChannelUpstreamHandler
 
         HttpResponse response = (HttpResponse) e.getMessage();
 
-        log.info( "Received HTTP response: %s for %s", response.getStatus(), listener.uri );
+        log.info( "Received HTTP response: %s for %s", response.getStatus(), client.uri );
 
-        listener.state = listener.CLOSED;
+        client.channelState = RemoteChunkWriterClient.CLOSED;
 
         if ( response.getStatus().getCode() != OK.getCode() ) {
-            listener.setCause( new IOException( response.getStatus().toString() ) );
+            client.setCause( new IOException( response.getStatus().toString() ) );
         }
 
-        listener.success();
+        client.success();
         
     }
 
