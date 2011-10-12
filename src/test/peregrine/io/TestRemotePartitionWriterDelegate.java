@@ -24,6 +24,8 @@ public class TestRemotePartitionWriterDelegate extends peregrine.PFSTest {
     
     public void setUp() {
 
+        super.setUp();
+        
         config = new Config();
         
         config.setHost( new Host( "localhost" ) );
