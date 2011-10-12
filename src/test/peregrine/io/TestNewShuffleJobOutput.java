@@ -83,6 +83,9 @@ public class TestNewShuffleJobOutput extends peregrine.BaseTest {
 
         // now try to read the entries back out once it is shuffled...
 
+        //ShufflerFactory.getInstance( "default" ).close();
+        //ShufflerFactory.getInstance( "default" ).close();
+
     }
 
     public static void main( String[] args ) throws Exception {

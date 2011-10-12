@@ -183,7 +183,7 @@ class ShuffleFlushCallable implements Callable {
         }
 
         log.info( "Shuffled %,d entries.", count );
-        
+
         return null;
         
     }

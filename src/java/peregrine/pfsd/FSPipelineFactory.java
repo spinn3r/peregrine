@@ -20,9 +20,14 @@ public class FSPipelineFactory implements ChannelPipelineFactory {
     public static int REQUEST_MAX_HEADER_SIZE            = 1024;
 
     private Config config;
+    private FSDaemon daemon;
     
-    public FSPipelineFactory( Config config ) {
+    public FSPipelineFactory( Config config,
+                              FSDaemon daemon ) {
+
         this.config = config;
+        this.daemon = daemon;
+        
     }
 
     /**
@@ -53,7 +58,7 @@ public class FSPipelineFactory implements ChannelPipelineFactory {
                                                                    REQUEST_MAX_CHUNK_SIZE ) );
 
         pipeline.addLast("encoder",        new HttpResponseEncoder() );
-        pipeline.addLast("handler",        new FSHandler( config ));
+        pipeline.addLast("handler",        new FSHandler( config, daemon ));
         
         return pipeline;
 

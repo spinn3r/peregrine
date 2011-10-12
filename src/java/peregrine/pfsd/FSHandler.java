@@ -46,9 +46,15 @@ public class FSHandler extends SimpleChannelUpstreamHandler {
     protected RemoteChunkWriterClient remote = null;
 
     protected Config config;
+
+    protected FSDaemon daemon;
     
-    public FSHandler( Config config ) {
+    public FSHandler( Config config,
+                      FSDaemon daemon ) {
+
+        this.daemon = daemon;
         this.config = config;
+
     }
     
     @Override

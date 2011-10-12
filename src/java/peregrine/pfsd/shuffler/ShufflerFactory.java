@@ -17,9 +17,9 @@ import com.spinn3r.log5j.Logger;
  */
 public class ShufflerFactory {
 
-    private static Map<String,Shuffler> instances = new HashMap();
+    private Map<String,Shuffler> instances = new HashMap();
     
-    public static Shuffler getInstance( Config config, String name ) {
+    public Shuffler getInstance( Config config, String name ) {
 
         Shuffler shuffler = instances.get( name );
 

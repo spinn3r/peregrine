@@ -12,6 +12,7 @@ import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
 
 import peregrine.*;
 import peregrine.util.*;
+import peregrine.pfsd.shuffler.*;
 
 import com.spinn3r.log5j.Logger;
 
@@ -24,6 +25,11 @@ public class FSDaemon {
     private ServerBootstrap bootstrap = null;
 
     private int port;
+
+    /**
+     * Each daemon can only have one shuffle instance.
+     */
+    protected ShufflerFactory shufflerFactory = new ShufflerFactory();
     
     public FSDaemon( Config config ) {
 
@@ -45,7 +51,7 @@ public class FSDaemon {
                                                                             Executors.newCachedThreadPool( tf ) ) );
 
         // Set up the event pipeline factory.
-        bootstrap.setPipelineFactory( new FSPipelineFactory( config ) );
+        bootstrap.setPipelineFactory( new FSPipelineFactory( config, this ) );
 
         log.info( "Starting on port %s.  Using root: %s" , port, root );
         
