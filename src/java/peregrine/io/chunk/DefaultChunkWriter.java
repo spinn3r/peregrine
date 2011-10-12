@@ -70,13 +70,13 @@ public class DefaultChunkWriter implements ChunkWriter {
     public static void write( ChannelBuffer buff,
                               byte[] key,
                               byte[] value ) {
-
+        
         varintWriter.write( buff, key.length );
         buff.writeBytes( key );
 
         varintWriter.write( buff, value.length );
         buff.writeBytes( value );
-
+        
     }
     
     private void flushChannelBuffer() throws IOException {

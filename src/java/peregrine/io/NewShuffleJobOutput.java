@@ -151,11 +151,16 @@ class ShuffleFlushCallable implements Callable {
                 int to_partition = buff.readInt();
                 int length       = buff.readInt();
 
+                System.out.printf( "length: %,d\n", length );
+
                 ChannelBuffer slice = buff.slice( buff.readerIndex() , length );
 
                 RemoteChunkWriterClient client = partitionOutput.get( to_partition );
                 client.write( slice );
 
+                // bump up the writer index now
+                buff.readerIndex( buff.readerIndex() + length );
+                
                 ++count;
                 
             }
