@@ -28,11 +28,14 @@ public class Shuffler {
     private String name;
 
     private Future future = null;
+
+    private Config config = null;
     
-    public Shuffler( String name ) {
+    public Shuffler( Config config, String name ) {
 
         this.name = name;
-
+        this.config = config;
+        
         ThreadFactory tf = new DefaultThreadFactory( getClass().getName() + "#" + name );
         
         executors = Executors.newCachedThreadPool( tf );
@@ -47,13 +50,13 @@ public class Shuffler {
         if ( writer == null || writer.length() > ShuffleOutputWriter.COMMIT_SIZE ) {
 
             Partition part = new Partition( to_partition );
-            Host host = Config.getHost();
+            Host host = config.getHost();
 
-            String path = Config.getPFSPath( part, host, String.format( "/shuffle/%s-%s.tmp", name, idx++ ) );
+            String path = config.getPFSPath( part, host, String.format( "/shuffle/%s-%s.tmp", name, idx++ ) );
 
             close();
             
-            writer = new ShuffleOutputWriter( path );
+            writer = new ShuffleOutputWriter( config, path );
 
         }
 

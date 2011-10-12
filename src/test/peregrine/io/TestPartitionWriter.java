@@ -18,7 +18,19 @@ import peregrine.io.chunk.*;
 
 public class TestPartitionWriter extends peregrine.BaseTest {
 
+    protected Config config;
     
+    public void setUp() {
+
+        config = new Config();
+        
+        config.setHost( new Host( "localhost" ) );
+
+        config.addPartitionMembership( 0, "localhost" );
+        config.addPartitionMembership( 1, "localhost" );
+
+    }
+
     /**
      * test running with two lists which each have different values.
      */
@@ -26,13 +38,13 @@ public class TestPartitionWriter extends peregrine.BaseTest {
 
         String path = "/tmp/test";
         
-        PartitionWriter writer = new DefaultPartitionWriter( new Partition( 0 ), path );
+        PartitionWriter writer = new DefaultPartitionWriter( config, new Partition( 0 ), path );
         writer.close();
 
         Partition part = new Partition( 0 );
         Host host = new Host( "localhost", 0 );
 
-        List<ChunkReader> readers = LocalPartition.getChunkReaders( part, host, path );
+        List<ChunkReader> readers = LocalPartition.getChunkReaders( config, part, host, path );
 
         assertEquals( readers.size(), 1 ) ;
 
@@ -44,7 +56,7 @@ public class TestPartitionWriter extends peregrine.BaseTest {
 
         System.out.printf( "Running test2...\n" );
         
-        remove( Config.PFS_ROOT );
+        remove( config.getRoot() );
 
         Partition part = new Partition( 0 );
         Host host = new Host( "localhost", 0 );
@@ -55,7 +67,7 @@ public class TestPartitionWriter extends peregrine.BaseTest {
         
         DefaultPartitionWriter.CHUNK_SIZE = 1000;
 
-        PartitionWriter writer = new DefaultPartitionWriter( new Partition( 0 ), path );
+        PartitionWriter writer = new DefaultPartitionWriter( config, new Partition( 0 ), path );
 
         for ( int i = 0; i < 10000; ++i ) {
 
@@ -74,7 +86,7 @@ public class TestPartitionWriter extends peregrine.BaseTest {
 
         // STEP 2: make sure we have LOTS of chunks.
         
-        List<ChunkReader> readers = LocalPartition.getChunkReaders( part, host, path );
+        List<ChunkReader> readers = LocalPartition.getChunkReaders( config, part, host, path );
 
         System.out.printf( "We have %,d readers\n", readers.size() );
         
@@ -83,10 +95,10 @@ public class TestPartitionWriter extends peregrine.BaseTest {
         // now create another PartitionWriter this time try to overwrite the
         // existing file and all chunks should be removed.
         
-        writer = new DefaultPartitionWriter( new Partition( 0 ), path );
+        writer = new DefaultPartitionWriter( config, new Partition( 0 ), path );
         writer.close();
 
-        readers = LocalPartition.getChunkReaders( part, host, path );
+        readers = LocalPartition.getChunkReaders( config, part, host, path );
 
         System.out.printf( "We have %,d readers\n", readers.size() );
         
@@ -107,7 +119,7 @@ public class TestPartitionWriter extends peregrine.BaseTest {
         
         System.out.printf( "Running test3...\n" );
         
-        remove( Config.PFS_ROOT );
+        remove( config.getRoot() );
 
         Partition part = new Partition( 0 );
         Host host = new Host( "localhost", 0 );
@@ -120,7 +132,7 @@ public class TestPartitionWriter extends peregrine.BaseTest {
         
         DefaultPartitionWriter.CHUNK_SIZE = 1000;
 
-        PartitionWriter writer = new DefaultPartitionWriter( new Partition( 0 ), path );
+        PartitionWriter writer = new DefaultPartitionWriter( config, new Partition( 0 ), path );
 
         for ( int i = 0; i < max_per_round; ++i ) {
 
@@ -138,13 +150,13 @@ public class TestPartitionWriter extends peregrine.BaseTest {
         writer.close();
 
         System.out.printf( "BEFORE had %,d chunks\n",
-                           LocalPartition.getChunkFiles( part, host, path ).size() );
+                           LocalPartition.getChunkFiles( config, part, host, path ).size() );
         
         System.out.printf( "step2..\n" );
         
         // **** STEP 2 ok... do the SAME thing but this time in append mode.
 
-        writer = new DefaultPartitionWriter( new Partition( 0 ), path, true );
+        writer = new DefaultPartitionWriter( config, new Partition( 0 ), path, true );
 
         for ( int i = 0; i < max_per_round; ++i ) {
 
@@ -162,13 +174,13 @@ public class TestPartitionWriter extends peregrine.BaseTest {
         writer.close();
 
         System.out.printf( "AFTER had %,d chunks\n",
-                           LocalPartition.getChunkFiles( part, host, path ).size() );
+                           LocalPartition.getChunkFiles( config, part, host, path ).size() );
 
         // **** STEP 3 ok.... now READ all the values out and make sure we have 2 x 
 
         System.out.printf( "going to read now.\n" );
         
-        LocalPartitionReader reader = new LocalPartitionReader( part, host, path );
+        LocalPartitionReader reader = new LocalPartitionReader( config, part, host, path );
 
         int count = 0;
         while( reader.hasNext() ) {
@@ -198,18 +210,6 @@ public class TestPartitionWriter extends peregrine.BaseTest {
         
         assertEquals( count, max_per_round * 2 );
         
-    }
-
-    public void setUp() {
-
-        super.setUp();
-
-        Config.setHost( new Host( "localhost" ) );
-
-        //PartitionWriter 
-        Config.addPartitionMembership( 0, "localhost" );
-        Config.addPartitionMembership( 1, "localhost" );
-
     }
 
     public static void main( String[] args ) throws Exception {

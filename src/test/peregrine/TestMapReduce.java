@@ -61,17 +61,24 @@ public class TestMapReduce extends peregrine.BaseTest {
 
     }
 
+    protected Config config;
+    
+    public void setUp() {
+        
+        config = new Config();
+        config.setHost( new Host( "localhost" ) );
+
+    }
+
     public void test1() throws Exception {
 
-        Config.setHost( new Host( "localhost" ) );
-
         // TRY with three partitions... 
-        Config.addPartitionMembership( 0, "localhost" );
-        Config.addPartitionMembership( 1, "localhost" );
+        config.addPartitionMembership( 0, "localhost" );
+        config.addPartitionMembership( 1, "localhost" );
         
         String path = String.format( "/test/%s/test1.in", getClass().getName() );
         
-        ExtractWriter writer = new ExtractWriter( path );
+        ExtractWriter writer = new ExtractWriter( config, path );
 
         int max = 1000;
         
@@ -96,13 +103,13 @@ public class TestMapReduce extends peregrine.BaseTest {
         int count = 0;
         
         //make sure too many values weren't written.
-        Membership membership = Config.getPartitionMembership();
+        Membership membership = config.getPartitionMembership();
 
         for( Partition part : membership.getPartitions() ) {
 
             for( Host host : membership.getHosts( part ) ) {
 
-                LocalPartitionReader reader = new LocalPartitionReader( part, host, path );
+                LocalPartitionReader reader = new LocalPartitionReader( config, part, host, path );
 
                 while( reader.hasNext() ) {
 
@@ -120,9 +127,11 @@ public class TestMapReduce extends peregrine.BaseTest {
         assertEquals( count, max*2 );
         
         String output = String.format( "/test/%s/test1.out", getClass().getName() );
+
+        Controller controller = new Controller( config );
         
-        Controller.map( Map.class, path );
-        Controller.reduce( Reduce.class, null, new Output( output ) );
+        controller.map( Map.class, path );
+        controller.reduce( Reduce.class, null, new Output( output ) );
 
     }
 

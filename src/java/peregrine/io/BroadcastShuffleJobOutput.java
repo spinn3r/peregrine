@@ -15,13 +15,13 @@ import peregrine.shuffle.*;
 
 public class BroadcastShuffleJobOutput extends ShuffleJobOutput {
 
-    public BroadcastShuffleJobOutput() {
-        this( "default" );
+    public BroadcastShuffleJobOutput( Config config ) {
+        this( config, "default" );
     }
         
-    public BroadcastShuffleJobOutput( String name ) {
+    public BroadcastShuffleJobOutput( Config config, String name ) {
 
-        super( name );
+        super( config, name );
 
         this.shuffler = Shuffler.getInstance( name );
         
@@ -30,7 +30,7 @@ public class BroadcastShuffleJobOutput extends ShuffleJobOutput {
     @Override
     public void emit( byte[] key , byte[] value ) {
 
-        Membership partitionMembership = Config.getPartitionMembership();
+        Membership partitionMembership = config.getPartitionMembership();
 
         for ( Partition target : partitionMembership.getPartitions() ) {
 

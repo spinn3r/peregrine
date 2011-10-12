@@ -82,6 +82,17 @@ public class TestBroadcastMapReduce extends peregrine.BaseTest {
 
     }
 
+    protected Config config;
+    
+    public void setUp() {
+
+        super.setUp();
+        
+        config = new Config();
+        config.setHost( new Host( "localhost" ) );
+
+    }
+    
     /**
      *
      * FIXME: I disabled this test... I don't it was EVER working and it isn't
@@ -90,60 +101,59 @@ public class TestBroadcastMapReduce extends peregrine.BaseTest {
      */
      public void test1() throws Exception {
 
-        Config.setHost( new Host( "localhost" ) );
+         // TRY with three partitions... 
+         config.addPartitionMembership( 0, "localhost" );
+         config.addPartitionMembership( 1, "localhost" );
+         
+         String path = String.format( "/test/%s/test1.in", getClass().getName() );
+        
+         ExtractWriter writer = new ExtractWriter( config, path );
+         
+         for( int i = 0; i < 1000; ++i ) {
              
-        // TRY with three partitions... 
-        Config.addPartitionMembership( 0, "localhost" );
-        Config.addPartitionMembership( 1, "localhost" );
-        
-        String path = String.format( "/test/%s/test1.in", getClass().getName() );
-        
-        ExtractWriter writer = new ExtractWriter( path );
+             byte[] key = new IntKey( i ).toBytes();
+             byte[] value = key;
+             writer.write( key, value );
+             
+         }
+         
+         writer.close();
+         
+         String output = String.format( "/test/%s/test1.out", getClass().getName() );
 
-        for( int i = 0; i < 1000; ++i ) {
+         Controller controller = new Controller( config );
 
-            byte[] key = new IntKey( i ).toBytes();
-            byte[] value = key;
-            writer.write( key, value );
-            
-        }
+         controller.map( Map.class,
+                         new Input( path ),
+                         new Output( new BroadcastOutputReference( "count" ) ) );
 
-        writer.close();
-
-        String output = String.format( "/test/%s/test1.out", getClass().getName() );
-        
-        Controller.map( Map.class,
-                        new Input( path ),
-                        new Output( new BroadcastOutputReference( "count" ) ) );
-
-        String count_out = String.format( "/test/%s/test1.count", getClass().getName() );
-
-        Controller.reduce( Reduce.class,
-                           new Input( new ShuffleInputReference( "count" ) ),
-                           new Output( count_out ) );
-
-        // FIXME: we have to actually emit values from the reducer and assert
-        // their value across all partitions now.
-
-        // now read all partition values...
-
-        
-        //FIXME: this broke no the local version and we ned to add it back in.
-        //assertValueOnAllPartitions( count_out, 1000 );
-
-        System.out.printf( "WIN\n" );
+         String count_out = String.format( "/test/%s/test1.count", getClass().getName() );
+         
+         controller.reduce( Reduce.class,
+                            new Input( new ShuffleInputReference( "count" ) ),
+                            new Output( count_out ) );
+         
+         // FIXME: we have to actually emit values from the reducer and assert
+         // their value across all partitions now.
+         
+         // now read all partition values...
+         
+         //FIXME: this broke no the local version and we ned to add it back in.
+         //assertValueOnAllPartitions( count_out, 1000 );
+         
+         System.out.printf( "WIN\n" );
         
     }
 
-    public static void assertValueOnAllPartitions( String path, int value ) throws Exception {
+    public static void assertValueOnAllPartitions( Config config, String path, int value ) throws Exception {
 
-        Membership membership = Config.getPartitionMembership();
+        Membership membership = config.getPartitionMembership();
         
         for( Partition part : membership.getPartitions() ) {
 
             for( Host host : membership.getHosts( part ) ) {
 
-                LocalPartitionReader reader = new LocalPartitionReader( part, host, path );
+                LocalPartitionReader reader = new LocalPartitionReader( config, part, host, path );
 
                 if ( reader.hasNext() == false )
                     throw new Exception( "No values" );

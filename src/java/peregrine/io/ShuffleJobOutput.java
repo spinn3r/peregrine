@@ -1,6 +1,5 @@
 package peregrine.io;
 
-
 import java.io.*;
 import java.lang.reflect.*;
 import java.util.*;
@@ -23,18 +22,21 @@ public class ShuffleJobOutput implements JobOutput, LocalPartitionReaderListener
     protected ChunkReference chunkRef = null;
 
     protected Shuffler shuffler = null;
-    
-    public ShuffleJobOutput() {
-        this( "default" );
+
+    protected Config config;
+
+    public ShuffleJobOutput( Config config ) {
+        this( config, "default" );
     }
         
-    public ShuffleJobOutput( String name ) {
+    public ShuffleJobOutput( Config config, String name ) {
 
-        Membership partitionMembership = Config.getPartitionMembership();
+        Membership partitionMembership = config.getPartitionMembership();
 
         this.partitions = partitionMembership.size();
 
         this.shuffler = Shuffler.getInstance( name );
+        this.config = config;
         
     }
     

@@ -19,7 +19,7 @@ public class Main {
         // init log4j ... 
         org.apache.log4j.xml.DOMConfigurator.configure( "conf/log4j.xml" );
 
-        String dir = Config.PFS_ROOT;
+        String dir = Config.DEFAULT_ROOT;
         int port = FSDaemon.PORT;
 
         if ( args.length == 2 ) {
@@ -29,7 +29,12 @@ public class Main {
             
         }
 
-        new FSDaemon( dir , port );
+        Config config = new Config();
+
+        config.setRoot( dir );
+        config.setHost( new Host( "localhost", port ) );
+        
+        new FSDaemon( config );
 
         Thread.sleep( Long.MAX_VALUE );
         

@@ -19,13 +19,17 @@ public abstract class BasePartitionWriterDelegate implements PartitionWriterDele
 
     protected Host host;
 
-    protected String path = null;
+    protected String path;
 
+    protected Config config;
+    
     @Override
-    public void init( Partition partition,
+    public void init( Config config,
+                      Partition partition,
                       Host host,
                       String path ) throws IOException {
 
+        this.config = config;
         this.partition = partition;
         this.host = host;
         this.path = path;

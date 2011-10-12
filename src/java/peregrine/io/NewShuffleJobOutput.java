@@ -49,16 +49,19 @@ public class NewShuffleJobOutput implements JobOutput, LocalPartitionReaderListe
     protected String name;
 
     protected Future future = null;
+
+    protected Config config;
     
-    public NewShuffleJobOutput() {
-        this( "default" );
+    public NewShuffleJobOutput( Config config ) {
+        this( config, "default" );
     }
         
-    public NewShuffleJobOutput( String name ) {
+    public NewShuffleJobOutput( Config config, String name ) {
 
+        this.config = config;
         this.name = name;
         
-        this.partitionMembership = Config.getPartitionMembership();
+        this.partitionMembership = config.getPartitionMembership();
 
         this.partitions = partitionMembership.size();
 
@@ -112,7 +115,7 @@ public class NewShuffleJobOutput implements JobOutput, LocalPartitionReaderListe
             if ( future != null )
                 future.get();
 
-            future = executors.submit( new ShuffleFlushCallable( this.shuffleOutput ) );
+            future = executors.submit( new ShuffleFlushCallable( config, shuffleOutput ) );
 
         } catch ( Exception e ) {
             throw new RuntimeException( e );
@@ -128,7 +131,11 @@ class ShuffleFlushCallable implements Callable {
 
     private ShuffleOutput output = null;
 
-    public ShuffleFlushCallable( ShuffleOutput output ) {
+    private Config config = null;
+    
+    public ShuffleFlushCallable( Config config,
+                                 ShuffleOutput output ) {
+        this.config = config;
         this.output = output;
     }
     
@@ -183,7 +190,7 @@ class ShuffleFlushCallable implements Callable {
 
             Map<Integer,RemoteChunkWriterClient> clients = new HashMap();
 
-            Membership membership = Config.getPartitionMembership();
+            Membership membership = config.getPartitionMembership();
             
             Set<Partition> partitions = membership.getPartitions();
             

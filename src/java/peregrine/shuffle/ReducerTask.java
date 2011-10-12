@@ -25,13 +25,15 @@ public class ReducerTask extends BaseOutputTask implements Callable {
 
     private Host host = null;
     
-    public ReducerTask( MapOutputIndex mapOutputIndex,
+    public ReducerTask( Config config,
+                        MapOutputIndex mapOutputIndex,
                         Host host,
                         Class reducer_class )
         throws Exception {
 
         super.init( mapOutputIndex.partition );
-        
+
+        this.config = config;
         this.mapOutputIndex = mapOutputIndex;
         this.host = host;
         this.reducer_class = reducer_class;
@@ -49,7 +51,7 @@ public class ReducerTask extends BaseOutputTask implements Callable {
 
             setup();
 
-            reducer.setBroadcastInput( BroadcastInputFactory.getBroadcastInput( getInput(), partition, host ) );
+            reducer.setBroadcastInput( BroadcastInputFactory.getBroadcastInput( config, getInput(), partition, host ) );
 
             reducer.init( getJobOutput() );
 

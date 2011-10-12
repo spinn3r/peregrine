@@ -28,7 +28,11 @@ public class PFSTest extends peregrine.BaseTest {
 
         super.setUp();
 
-        daemon = new FSDaemon();
+        Config config = new Config();
+
+        config.setHost( new Host( "localhost", FSDaemon.PORT ) );
+        
+        daemon = new FSDaemon( config );
         
     }
 

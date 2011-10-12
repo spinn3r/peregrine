@@ -31,25 +31,27 @@ public class LocalPartitionReader {
 
     private boolean hasNext = false;
     
-    public LocalPartitionReader( Partition partition,
+    public LocalPartitionReader( Config config,
+                                 Partition partition,
                                  Host host, 
                                  String path ) throws IOException {
         
-        this( partition, host, path, new DefaultLocalPartitionReaderListener() );
+        this( config, partition, host, path, new DefaultLocalPartitionReaderListener() );
         
     }
     
-    public LocalPartitionReader( Partition partition,
+    public LocalPartitionReader( Config config,
+                                 Partition partition,
                                  Host host, 
                                  String path,
                                  LocalPartitionReaderListener listener ) throws IOException {
 
-         this.chunkReaders = LocalPartition.getChunkReaders( partition, host, path );
-         this.iterator = chunkReaders.iterator();
-         this.listener = listener;
-         this.path = path;
-         
-         this.chunkRef = new ChunkReference( partition );
+        this.chunkReaders = LocalPartition.getChunkReaders( config, partition, host, path );
+        this.iterator = chunkReaders.iterator();
+        this.listener = listener;
+        this.path = path;
+        
+        this.chunkRef = new ChunkReference( partition );
          
     }
 

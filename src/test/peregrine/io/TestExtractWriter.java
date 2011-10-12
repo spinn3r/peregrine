@@ -19,15 +19,19 @@ import peregrine.io.chunk.*;
 
 public class TestExtractWriter extends peregrine.BaseTest {
 
+    protected Config config;
+    
     public void setUp() {
 
         super.setUp();
 
-        Config.setHost( new Host( "localhost" ) );
+        config = new Config();
+        
+        config.setHost( new Host( "localhost" ) );
 
         //PartitionWriter 
-        Config.addPartitionMembership( 0, "localhost" );
-        Config.addPartitionMembership( 1, "localhost" );
+        config.addPartitionMembership( 0, "localhost" );
+        config.addPartitionMembership( 1, "localhost" );
 
     }
     
@@ -38,7 +42,7 @@ public class TestExtractWriter extends peregrine.BaseTest {
 
         String path = "/test/extract1";
         
-        ExtractWriter writer = new ExtractWriter( path );
+        ExtractWriter writer = new ExtractWriter( config, path );
 
         for ( int i = 0; i < 100; ++i ) {
 

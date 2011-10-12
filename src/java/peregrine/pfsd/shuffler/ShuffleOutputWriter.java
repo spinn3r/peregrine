@@ -62,11 +62,14 @@ public class ShuffleOutputWriter {
     private boolean closed = false;
 
     private int length = 0;
+
+    private Config config;
     
-    public ShuffleOutputWriter( String path ) {
+    public ShuffleOutputWriter( Config config, String path ) {
 
         this.index = new ShufflePacket[ (int)(COMMIT_SIZE / HTTP_CHUNK_SIZE) ];
         this.path = path;
+        this.config = config;
         
     }
     
@@ -97,12 +100,12 @@ public class ShuffleOutputWriter {
         // we are done working with this buffer.  serialize it to disk now and
         // close it out.
 
-        List<Partition> partitions = Config.getPartitionMembership().getPartitions( Config.getHost() );
+        List<Partition> partitions = config.getPartitionMembership().getPartitions( config.getHost() );
 
         log.info( "Going to write shuffle for %s", partitions );
         
         if ( partitions == null || partitions.size() == 0 )
-            throw new IOException( "No partitions defined for: " + Config.getHost() );
+            throw new IOException( "No partitions defined for: " + config.getHost() );
         
         Map<Integer,List<ShufflePacket>> lookup = new HashMap();
 

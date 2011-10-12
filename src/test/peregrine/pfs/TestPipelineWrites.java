@@ -26,9 +26,19 @@ public class TestPipelineWrites extends peregrine.BaseTest {
 
         super.setUp();
 
-        new FSDaemon( String.format( "%s/localhost/11112", Config.PFS_ROOT ), 11112 );
-        new FSDaemon( String.format( "%s/localhost/11113", Config.PFS_ROOT ), 11113 );
+        new FSDaemon( newConfig( 11112 ) );
+        new FSDaemon( newConfig( 11113 ) );
 
+    }
+
+    public Config newConfig( int port ) {
+
+        Config config = new Config();
+
+        config.setHost( new Host( "localhost", port ) );
+        config.setRoot( String.format( "%s/localhost/%s", Config.DEFAULT_ROOT, port ) );
+        
+        return config;
     }
     
     /**
@@ -73,7 +83,7 @@ public class TestPipelineWrites extends peregrine.BaseTest {
 
         byte[] digest_value = digest.digest();
 
-        File file = new File( String.format( "%s/localhost/11112/test-write-hash", Config.PFS_ROOT ) );
+        File file = new File( String.format( "%s/localhost/11112/test-write-hash", Config.DEFAULT_ROOT ) );
 
         byte[] data = toByteArray( new FileInputStream( file ) );
 

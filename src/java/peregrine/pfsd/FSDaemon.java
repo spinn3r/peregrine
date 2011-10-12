@@ -23,20 +23,14 @@ public class FSDaemon {
 
     private ServerBootstrap bootstrap = null;
 
-    private int port = -1;
+    private int port;
     
-    public FSDaemon() {
-        this( PORT );
-    }
+    public FSDaemon( Config config ) {
 
-    public FSDaemon( int port ) {
-        this( Config.PFS_ROOT, port );
-    }
-    
-    public FSDaemon( String root, int port ) {
+        this.port = config.getHost().getPort();
 
-        this.port = port;
-
+        String root = config.getRoot();
+        
         File file = new File( root );
 
         // try to make the root directory.
@@ -51,7 +45,7 @@ public class FSDaemon {
                                                                             Executors.newCachedThreadPool( tf ) ) );
 
         // Set up the event pipeline factory.
-        bootstrap.setPipelineFactory( new FSPipelineFactory( root ) );
+        bootstrap.setPipelineFactory( new FSPipelineFactory( config ) );
 
         log.info( "Starting on port %s.  Using root: %s" , port, root );
         

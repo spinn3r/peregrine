@@ -15,22 +15,24 @@ import peregrine.pfsd.shuffler.*;
 
 public class TestShuffler extends peregrine.BaseTest {
 
+    protected Config config;
     public void setUp() {
 
-        Config.setHost( new Host( "localhost" ) );
-        
+        config = new Config();
+        config.setHost( new Host( "localhost" ) );
+
         // TRY with three partitions... 
-        Config.addPartitionMembership( 0, "localhost" );
-        Config.addPartitionMembership( 1, "localhost" );
+        config.addPartitionMembership( 0, "localhost" );
+        config.addPartitionMembership( 1, "localhost" );
 
     }
     
     public void test1() throws IOException {
 
-        Shuffler shuffler = ShufflerFactory.getInstance( "default" );
+        Shuffler shuffler = ShufflerFactory.getInstance( config, "default" );
 
         int max_writes = 1000;
-        int max_partitions = Config.getPartitionMembership().size();
+        int max_partitions = config.getPartitionMembership().size();
 
         for( int i = 0; i < max_writes; ++i ) {
         

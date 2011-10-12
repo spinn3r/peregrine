@@ -10,6 +10,8 @@ import org.jboss.netty.handler.codec.http.HttpRequestDecoder;
 import org.jboss.netty.handler.codec.http.HttpResponseEncoder;
 import org.jboss.netty.handler.stream.ChunkedWriteHandler;
 
+import peregrine.*;
+
 /**
  */
 public class FSPipelineFactory implements ChannelPipelineFactory {
@@ -17,10 +19,10 @@ public class FSPipelineFactory implements ChannelPipelineFactory {
     public static int REQUEST_MAX_INITIAL_LINE_LENGTH    = 1024;
     public static int REQUEST_MAX_HEADER_SIZE            = 1024;
 
-    private String root;
+    private Config config;
     
-    public FSPipelineFactory( String root ) {
-        this.root = root;
+    public FSPipelineFactory( Config config ) {
+        this.config = config;
     }
 
     /**
@@ -51,7 +53,7 @@ public class FSPipelineFactory implements ChannelPipelineFactory {
                                                                    REQUEST_MAX_CHUNK_SIZE ) );
 
         pipeline.addLast("encoder",        new HttpResponseEncoder() );
-        pipeline.addLast("handler",        new FSHandler( root ));
+        pipeline.addLast("handler",        new FSHandler( config ));
         
         return pipeline;
 

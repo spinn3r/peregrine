@@ -79,7 +79,7 @@ public class FSPutShuffleHandler extends SimpleChannelUpstreamHandler {
         this.from_chunk     = Integer.parseInt( m.group( 3 ) );
         this.to_partition   = Integer.parseInt( m.group( 4 ) );
 
-        this.shuffler = ShufflerFactory.getInstance( this.name );
+        this.shuffler = ShufflerFactory.getInstance( handler.config, this.name );
         
     }
 

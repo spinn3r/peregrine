@@ -17,7 +17,8 @@ public interface PartitionWriterDelegate {
     /**
      * Init the writer delegate with the given partition host and path.
      */
-    public void init( Partition partition,
+    public void init( Config config,
+                      Partition partition,
                       Host host,
                       String path ) throws IOException;
 

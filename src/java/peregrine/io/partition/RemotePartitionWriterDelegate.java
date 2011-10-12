@@ -98,7 +98,7 @@ public class RemotePartitionWriterDelegate extends BasePartitionWriterDelegate {
 
         try {
             
-            String local = Config.getPFSPath( partition, host, path );
+            String local = config.getPFSPath( partition, host, path );
 
             String chunk_name = LocalPartition.getFilenameForChunkID( chunk_id );
             String chunk_path = String.format( "/%s%s/%s", partition.getId(), path, chunk_name ) ;

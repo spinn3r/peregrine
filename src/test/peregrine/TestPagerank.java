@@ -12,17 +12,24 @@ import peregrine.pagerank.*;
 
 public class TestPagerank extends junit.framework.TestCase {
 
+    protected Config config;
+    
+    public void setUp() {
+        
+        config = new Config();
+        config.setHost( new Host( "localhost" ) );
+
+    }
+
     public void test1() throws Exception {
 
-        Config.setHost( new Host( "localhost" ) );
-        
         // TRY with three partitions... 
-        Config.addPartitionMembership( 0, "localhost" );
-        Config.addPartitionMembership( 1, "localhost" );
+        config.addPartitionMembership( 0, "localhost" );
+        config.addPartitionMembership( 1, "localhost" );
         
         String path = "/pr/test.graph";
         
-        ExtractWriter writer = new ExtractWriter( path );
+        ExtractWriter writer = new ExtractWriter( config, path );
 
         buildGraph1( writer );
         
@@ -33,15 +40,17 @@ public class TestPagerank extends junit.framework.TestCase {
         //FIXME: /pr/test.graph will NOT be sorted on input even though the
         //values are unique.... on stage two we won't be able to join against
         //it.
-        
-        Controller.map( NodeIndegreeJob.Map.class, path );
-        Controller.reduce( NodeIndegreeJob.Reduce.class, null, new Output( "/pr/tmp/node_indegree" ) );
 
-        Controller.map( Mapper.class, "/pr/test.graph" );
-        Controller.reduce( Reducer.class, null, new Output( "/pr/test.graph_by_source" ) );
+        Controller controller = new Controller( config );
+        
+        controller.map( NodeIndegreeJob.Map.class, path );
+        controller.reduce( NodeIndegreeJob.Reduce.class, null, new Output( "/pr/tmp/node_indegree" ) );
+
+        controller.map( Mapper.class, "/pr/test.graph" );
+        controller.reduce( Reducer.class, null, new Output( "/pr/test.graph_by_source" ) );
 
         //now create node metadata...
-        Controller.merge( NodeMetadataJob.Map.class,
+        controller.merge( NodeMetadataJob.Map.class,
                           new Input( "/pr/tmp/node_indegree", "/pr/test.graph_by_source" ),
                           new Output( new FileOutputReference( "/pr/out/node_metadata" ),
                                       new FileOutputReference( "/pr/out/dangling" ),
@@ -49,11 +58,11 @@ public class TestPagerank extends junit.framework.TestCase {
                                       new BroadcastOutputReference( "nr_nodes" ),
                                       new BroadcastOutputReference( "nr_dangling" ) ) );
 
-        Controller.reduce( NodeMetadataJob.Reduce.class,
+        controller.reduce( NodeMetadataJob.Reduce.class,
                            new Input( new ShuffleInputReference( "nr_nodes" ) ),
                            new Output( "/pr/out/nr_nodes" ) );
 
-        Controller.reduce( NodeMetadataJob.Reduce.class,
+        controller.reduce( NodeMetadataJob.Reduce.class,
                            new Input( new ShuffleInputReference( "nr_dangling" ) ),
                            new Output( "/pr/out/nr_dangling" ) );
 
@@ -63,11 +72,11 @@ public class TestPagerank extends junit.framework.TestCase {
         //TestBroadcastMapReduce.assertValueOnAllPartitions( "/pr/out/nr_nodes", 12 );
 
         // init the empty rank_vector table ... we need to merge against it.
-        Controller.map( Mapper.class, new Input(), new Output( "/pr/out/rank_vector" ) );
+        controller.map( Mapper.class, new Input(), new Output( "/pr/out/rank_vector" ) );
 
         // FIXME: add nonlinked... 
         
-        Controller.merge( IterJob.Map.class,
+        controller.merge( IterJob.Map.class,
                           new Input( new FileInputReference( "/pr/test.graph_by_source" ),
                                      new FileInputReference( "/pr/out/rank_vector" ),
                                      new FileInputReference( "/pr/out/dangling" ),
@@ -75,13 +84,13 @@ public class TestPagerank extends junit.framework.TestCase {
                                      new BroadcastInputReference( "/pr/out/nr_nodes" ) ),
                           new Output( new BroadcastOutputReference( "dangling_rank_sum" ) ) );
 
-        Controller.reduce( IterJob.Reduce.class,
+        controller.reduce( IterJob.Reduce.class,
                            null,
                            new Output( "/pr/out/rank_vector_new" ) );
 
         // now compute the dangling rank sum.. 
 
-        Controller.reduce( TeleportationGrantJob.Reduce.class, 
+        controller.reduce( TeleportationGrantJob.Reduce.class, 
                            new Input( new ShuffleInputReference( "dangling_rank_sum" ),
                                       new BroadcastInputReference( "/pr/out/nr_nodes" ) ),
                            new Output( "/pr/out/teleportation_rant" ) );

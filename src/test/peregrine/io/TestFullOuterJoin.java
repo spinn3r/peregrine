@@ -18,13 +18,22 @@ import peregrine.util.*;
  */
 public class TestFullOuterJoin extends junit.framework.TestCase {
 
+    protected Config config;
+    
+    public void setUp() {
+
+        config = new Config();
+        
+        config.setHost( new Host( "localhost" ) );
+
+    }
+
     public void test1() throws Exception {
 
         //write keys to two files but where there isn't a 100%
         //intersection... then try to join against these files. 
 
-        Config.setHost( new Host( "localhost" ) );
-        Config.addPartitionMembership( 0, "localhost" );
+        config.addPartitionMembership( 0, "localhost" );
 
         //now test writing two regions to a file and see if both sides of the
         //join are applied correctly
@@ -34,7 +43,7 @@ public class TestFullOuterJoin extends junit.framework.TestCase {
         
         PartitionWriter writer;
 
-        writer = new DefaultPartitionWriter( part, "/tmp/left" );
+        writer = new DefaultPartitionWriter( config, part, "/tmp/left" );
 
         write( writer, 1 );
         write( writer, 2 );
@@ -44,7 +53,7 @@ public class TestFullOuterJoin extends junit.framework.TestCase {
 
         writer.close();
 
-        writer = new DefaultPartitionWriter( part, "/tmp/right" );
+        writer = new DefaultPartitionWriter( config, part, "/tmp/right" );
 
         write( writer, 4 );
         write( writer, 5 );
@@ -58,8 +67,8 @@ public class TestFullOuterJoin extends junit.framework.TestCase {
 
         List<LocalPartitionReader> readers = new ArrayList();
         
-        readers.add( new LocalPartitionReader( part, host, "/tmp/left" ) );
-        readers.add( new LocalPartitionReader( part, host, "/tmp/right" ) );
+        readers.add( new LocalPartitionReader( config, part, host, "/tmp/left" ) );
+        readers.add( new LocalPartitionReader( config, part, host, "/tmp/right" ) );
         
         LocalMerger merger = new LocalMerger( readers );
 

@@ -42,20 +42,25 @@ public class DefaultPartitionWriter implements PartitionWriter {
      * Bytes written.
      */
     private long written = 0;
+
+    private Config config;
     
-    public DefaultPartitionWriter( Partition partition,
-                               String path ) throws IOException {
-        this( partition, path, false );
+    public DefaultPartitionWriter( Config config,
+                                   Partition partition,
+                                   String path ) throws IOException {
+        this( config, partition, path, false );
     }
     
-    public DefaultPartitionWriter( Partition partition,
-                               String path,
-                               boolean append ) throws IOException {
+    public DefaultPartitionWriter( Config config,
+                                   Partition partition,
+                                   String path,
+                                   boolean append ) throws IOException {
 
-        this.path = path;
+        this.config = config;
         this.partition = partition;
+        this.path = path;
 
-        Membership partitionMembership = Config.getPartitionMembership();
+        Membership partitionMembership = config.getPartitionMembership();
 
         List<Host> hosts = partitionMembership.getHosts( partition );
 
@@ -67,13 +72,13 @@ public class DefaultPartitionWriter implements PartitionWriter {
             
             PartitionWriterDelegate delegate;
 
-            if ( host.equals( Config.getHost() ) ) {
+            if ( host.equals( config.getHost() ) ) {
                 delegate = new LocalPartitionWriterDelegate();
             } else { 
                 delegate = new RemotePartitionWriterDelegate();
             }
 
-            delegate.init( partition, host, path );
+            delegate.init( config, partition, host, path );
 
             partitionWriterDelegates.add( delegate );
 
@@ -141,7 +146,7 @@ public class DefaultPartitionWriter implements PartitionWriter {
         
         for ( PartitionWriterDelegate delegate : partitionWriterDelegates ) {
 
-            Host local = Config.getHost();
+            Host local = config.getHost();
             
             if ( delegate.getHost().equals( local ) ) {
 

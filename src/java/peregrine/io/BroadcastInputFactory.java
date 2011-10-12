@@ -13,7 +13,10 @@ import peregrine.values.*;
  */
 public class BroadcastInputFactory {
 
-    public static List<BroadcastInput> getBroadcastInput( Input input, Partition part, Host host ) throws IOException {
+    public static List<BroadcastInput> getBroadcastInput( Config config,
+                                                          Input input,
+                                                          Partition part,
+                                                          Host host ) throws IOException {
 
         List<BroadcastInput> result = new ArrayList();
         
@@ -23,7 +26,7 @@ public class BroadcastInputFactory {
                 
                 BroadcastInputReference bir = (BroadcastInputReference) in;
                 
-                BroadcastInput bi = new BroadcastInput( part, host, bir.getPath() );
+                BroadcastInput bi = new BroadcastInput( config, part, host, bir.getPath() );
                 
                 result.add( bi );
                 

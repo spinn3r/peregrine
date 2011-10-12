@@ -19,7 +19,7 @@ public class ShufflerFactory {
 
     private static Map<String,Shuffler> instances = new HashMap();
     
-    public static Shuffler getInstance( String name ) {
+    public static Shuffler getInstance( Config config, String name ) {
 
         Shuffler shuffler = instances.get( name );
 
@@ -31,7 +31,7 @@ public class ShufflerFactory {
 
                 if ( shuffler == null ) {
 
-                    shuffler = new Shuffler( name );
+                    shuffler = new Shuffler( config, name );
                     instances.put( name, shuffler );
                     
                 } 

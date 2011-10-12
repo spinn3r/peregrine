@@ -12,9 +12,11 @@ import peregrine.pfsd.*;
  */
 public class Config {
 
-    public static String PFS_ROOT = "/tmp/peregrine-dfs";
+    public static String DEFAULT_ROOT = "/tmp/peregrine-dfs";
+    
+    public String root = DEFAULT_ROOT;
 
-    private static Membership membership = new Membership();
+    private Membership membership = new Membership();
 
     /**
      * The current 'host' that we are running on.  This is used so that we can
@@ -23,13 +25,13 @@ public class Config {
      * machine and would have performance issues though we should still perform
      * correctly.
      */
-    public static Host host = null;
+    public Host host = null;
     
-    public static void addPartitionMembership( int partition, List<Host> hosts ) {
+    public void addPartitionMembership( int partition, List<Host> hosts ) {
         membership.setPartition( new Partition( partition ), hosts );
     }
 
-    public static void addPartitionMembership( int partition, Host... hosts ) {
+    public void addPartitionMembership( int partition, Host... hosts ) {
 
         List<Host> list = new ArrayList();
 
@@ -41,7 +43,7 @@ public class Config {
         
     }
     
-    public static void addPartitionMembership( int partition, String... hosts ) {
+    public void addPartitionMembership( int partition, String... hosts ) {
 
         List<Host> list = new ArrayList();
 
@@ -54,23 +56,33 @@ public class Config {
 
     }
 
-    public static Membership getPartitionMembership() {
+    public Membership getPartitionMembership() {
         return membership;
     }
 
-    public static Host getHost() {
+    public Host getHost() {
         return host;
     }
 
-    public static void setHost( Host _host ) {
+    public Config setHost( Host _host ) {
         host = _host;
+        return this;
     }
 
-    public static String getPFSRoot( Partition partition, Host host ) {
-        return String.format( "%s/%s" , Config.PFS_ROOT , partition.getId() );
+    public String getRoot() {
+        return root;
+    }
+
+    public Config setRoot( String root ) {
+        this.root = root;
+        return this;
+    }
+    
+    public String getPFSRoot( Partition partition, Host host ) {
+        return String.format( "%s/%s" , root , partition.getId() );
     }
         
-    public static String getPFSPath( Partition partition, Host host, String path ) {
+    public String getPFSPath( Partition partition, Host host, String path ) {
         return String.format( "%s%s" , getPFSRoot( partition, host ), path );
     }
 

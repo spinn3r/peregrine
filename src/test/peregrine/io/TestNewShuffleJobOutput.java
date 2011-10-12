@@ -20,26 +20,44 @@ import peregrine.pfsd.*;
 
 public class TestNewShuffleJobOutput extends peregrine.BaseTest {
 
+    protected Config config;
+    
     public void setUp() {
 
         super.setUp();
+
+        config = getConfig();
+
+        Config config11112 = getConfig();
+        Config config11113 = getConfig();
+
+        config11112.getHost().setPort( 11112 );
+        config11113.getHost().setPort( 11113 );
         
-        Config.setHost( new Host( "localhost" ) );
-
-        Config.addPartitionMembership( 0, new Host( "localhost", 11112 ) );
-        Config.addPartitionMembership( 1, new Host( "localhost", 11113 ) );
-
-        new FSDaemon( 11112 );
-        new FSDaemon( 11113 );
+        new FSDaemon( config11112 );
+        new FSDaemon( config11113 );
 
     }
 
+    private Config getConfig() {
+
+        Config config = new Config();
+
+        config.setHost( new Host( "localhost" ) );
+        
+        config.addPartitionMembership( 0, new Host( "localhost", 11112 ) );
+        config.addPartitionMembership( 1, new Host( "localhost", 11113 ) );
+
+        return config;
+        
+    }
+    
     /**
      * test running with two lists which each have different values.
      */
     public void test1() throws Exception {
 
-        NewShuffleJobOutput output = new NewShuffleJobOutput();
+        NewShuffleJobOutput output = new NewShuffleJobOutput( config );
 
         ChunkReference chunkRef = new ChunkReference( new Partition( 0  ) );
         chunkRef.local = 0;
@@ -65,8 +83,6 @@ public class TestNewShuffleJobOutput extends peregrine.BaseTest {
 
         // now try to read the entries back out once it is shuffled...
 
-        
-        
     }
 
     public static void main( String[] args ) throws Exception {

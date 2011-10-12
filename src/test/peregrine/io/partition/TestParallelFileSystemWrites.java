@@ -48,9 +48,13 @@ public class TestParallelFileSystemWrites extends peregrine.BaseTest {
 
                 Host host = new Host( "localhost", i, port );
 
-                String root = String.format( "%s/%s/%s", Config.PFS_ROOT, host.getName(), host.getPort() );
+                String root = String.format( "%s/%s/%s", Config.DEFAULT_ROOT, host.getName(), host.getPort() );
+
+                Config config = new Config();
+                config.setHost( host );
+                config.setRoot( root );
                 
-                FSDaemon daemon = new FSDaemon( root, port );
+                FSDaemon daemon = new FSDaemon( config );
 
                 hosts.add( host );
 
@@ -62,13 +66,16 @@ public class TestParallelFileSystemWrites extends peregrine.BaseTest {
 
         System.out.printf( "Running with hosts: %s\n", hosts );
 
-        Config.addPartitionMembership( 0, hosts );
+        Config config = new Config();
+        config.setHost( new Host( "localhost" ) );
+        
+        config.addPartitionMembership( 0, hosts );
 
         Partition part = new Partition( 0 );
         
         String path = "/test/parallel-test";
         
-        DefaultPartitionWriter writer = new DefaultPartitionWriter( part, path );
+        DefaultPartitionWriter writer = new DefaultPartitionWriter( config, part, path );
 
         int computed_written = 0;
 

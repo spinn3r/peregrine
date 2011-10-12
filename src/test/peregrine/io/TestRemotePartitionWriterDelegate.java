@@ -20,20 +20,26 @@ import peregrine.pfsd.*;
 
 public class TestRemotePartitionWriterDelegate extends peregrine.PFSTest {
 
+    protected Config config;
+    
+    public void setUp() {
+
+        config = new Config();
+        
+        config.setHost( new Host( "localhost" ) );
+
+    }
+        
     /**
      * test running with two lists which each have different values.
      */
     public void test1() throws Exception {
 
-        Host host = new Host( "localhost" );
-
-        Config.setHost( host );
-        
         Partition part = new Partition( 0 );
         String path = "/test/remote-write1" ;
         
         RemotePartitionWriterDelegate delegate = new RemotePartitionWriterDelegate();
-        delegate.init( part, host, path );
+        delegate.init( config, part, config.getHost(), path );
 
         int chunk_id = 0;
         
@@ -67,7 +73,7 @@ public class TestRemotePartitionWriterDelegate extends peregrine.PFSTest {
 
         // now use the chunk reader to find out what was written.
 
-        File chunk = LocalPartition.getChunkFile( part, host, path, chunk_id );
+        File chunk = LocalPartition.getChunkFile( config, part, config.getHost(), path, chunk_id );
 
         assertEquals( length, chunk.length() );
 

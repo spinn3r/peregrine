@@ -15,7 +15,8 @@ import peregrine.io.partition.*;
 
 public class JobOutputFactory {
 
-    public static JobOutput[] getJobOutput( Partition partition,
+    public static JobOutput[] getJobOutput( Config config,
+                                            Partition partition,
                                             Output output ) throws IOException {
 
         JobOutput[] jobOutput = new JobOutput[ output.getReferences().size() ];
@@ -27,7 +28,7 @@ public class JobOutputFactory {
 
                 FileOutputReference fileref = (FileOutputReference)ref;
 
-                PartitionWriter writer = new DefaultPartitionWriter( partition, fileref.getPath(), fileref.getAppend() );
+                PartitionWriter writer = new DefaultPartitionWriter( config, partition, fileref.getPath(), fileref.getAppend() );
 
                 jobOutput[idx++] = new PartitionWriterJobOutput( writer );
 
@@ -35,7 +36,7 @@ public class JobOutputFactory {
 
                 BroadcastOutputReference bcast = (BroadcastOutputReference) ref;
                 
-                jobOutput[idx++] = new BroadcastShuffleJobOutput( bcast.getName() );
+                jobOutput[idx++] = new BroadcastShuffleJobOutput( config, bcast.getName() );
                 
             } else {
                 //FIXME: right now we only support file output... 

@@ -36,11 +36,6 @@ public class FSHandler extends SimpleChannelUpstreamHandler {
 
     protected String path = null;
 
-    /**
-     * Root directory for serving files.
-     */
-    protected String root;
-
     protected SimpleChannelUpstreamHandler upstream = null;
 
     /**
@@ -49,9 +44,11 @@ public class FSHandler extends SimpleChannelUpstreamHandler {
     protected boolean pipeline = false;
 
     protected RemoteChunkWriterClient remote = null;
+
+    protected Config config;
     
-    public FSHandler( String root ) {
-        this.root = root;
+    public FSHandler( Config config ) {
+        this.config = config;
     }
     
     @Override
@@ -222,7 +219,7 @@ public class FSHandler extends SimpleChannelUpstreamHandler {
             return null;
 
         // Convert to absolute path.
-        return root + new URI( uri ).getPath();
+        return config.getRoot() + new URI( uri ).getPath();
         
     }
 

@@ -14,25 +14,31 @@ import peregrine.io.*;
 
 public class Controller {
 
+    private Config config = null;
+
+    public Controller( Config config ) {
+        this.config = config;
+    }
+    
     // FIXME: a lot of this class is boilerplate and could be refactored.
     
-    public static void map( Class mapper, String... paths ) throws Exception {
+    public void map( Class mapper, String... paths ) throws Exception {
         map( mapper, new Input( paths ) );
     }
 
-    public static void map( final Class mapper, final Input input ) throws Exception {
+    public void map( final Class mapper, final Input input ) throws Exception {
         map( mapper, input, null );
     }
         
     /**
      * Run map jobs on all chunks on the given path.
      */
-    public static void map( final Class mapper, final Input input,
-                            final Output output ) throws Exception {
+    public void map( final Class mapper, final Input input,
+                      final Output output ) throws Exception {
 
         System.out.printf( "Starting mapper: %s\n", mapper.getName() );
 
-        final Membership partitionMembership = Config.getPartitionMembership();
+        final Membership partitionMembership = config.getPartitionMembership();
         
         runCallables( new CallableFactory() {
 
@@ -40,7 +46,7 @@ public class Controller {
 
                     MapperTask task = new MapperTask();
 
-                    task.init( partitionMembership, part, host, mapper );
+                    task.init( config, partitionMembership, part, host, mapper );
 
                     task.setInput( input );
                     task.setOutput( output );
@@ -55,15 +61,15 @@ public class Controller {
 
     }
 
-    public static void merge( Class mapper,
-                              String... paths ) throws Exception {
+    public void merge( Class mapper,
+                       String... paths ) throws Exception {
 
         merge( mapper, new Input( paths ) );
 
     }
 
-    public static void merge( final Class mapper,
-                              final Input input ) throws Exception {
+    public  void merge( final Class mapper,
+                        final Input input ) throws Exception {
 
         merge( mapper, input, null );
 
@@ -79,13 +85,13 @@ public class Controller {
      * will be produced in the result set (containing fields populated from both
      * tables)
      */
-    public static void merge( final Class mapper,
-                              final Input input,
-                              final Output output ) throws Exception {
+    public void merge( final Class mapper,
+                       final Input input,
+                       final Output output ) throws Exception {
 
         System.out.printf( "Starting mapper: %s\n", mapper.getName() );
 
-        final Membership partitionMembership = Config.getPartitionMembership();
+        final Membership partitionMembership = config.getPartitionMembership();
         
         runCallables( new CallableFactory() {
 
@@ -93,7 +99,7 @@ public class Controller {
 
                     MergeTask task = new MergeTask();
 
-                    task.init( partitionMembership, part, host, mapper );
+                    task.init( config, partitionMembership, part, host, mapper );
 
                     task.setInput( input );
                     task.setOutput( output );
@@ -108,7 +114,7 @@ public class Controller {
 
     }
     
-    public static void reduce( Class reducer, Input input, Output output ) 
+    public void reduce( Class reducer, Input input, Output output ) 
         throws Exception {
 
         System.out.printf( "Starting reducer: %s\n", reducer.getName() );
@@ -131,7 +137,7 @@ public class Controller {
         
         Shuffler shuffler = Shuffler.getInstance( shuffleInput.getName() );
         
-        Membership partitionMembership = Config.getPartitionMembership();
+        Membership partitionMembership = config.getPartitionMembership();
 
         Collection<MapOutputIndex> mapOutputIndexes = shuffler.getMapOutput();
 
@@ -142,7 +148,7 @@ public class Controller {
             //FIXME: this is a lame way to get the host
             Host host = partitionMembership.getHosts( mapOutputIndex.partition ).get( 0 );
             
-            ReducerTask task = new ReducerTask( mapOutputIndex, host, reducer );
+            ReducerTask task = new ReducerTask( config, mapOutputIndex, host, reducer );
             task.setInput( input );
             task.setOutput( output );
 

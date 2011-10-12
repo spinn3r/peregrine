@@ -62,7 +62,7 @@ public class TestRemoteChunkWriterClient extends peregrine.PFSTest {
 
         byte[] digest_value = digest.digest();
 
-        File file = new File( String.format( "%s/test-write-hash", Config.PFS_ROOT ) );
+        File file = new File( String.format( "%s/test-write-hash", Config.DEFAULT_ROOT ) );
 
         byte[] data = toByteArray( new FileInputStream( file ) );
 

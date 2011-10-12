@@ -22,14 +22,13 @@ public abstract class BaseTest extends junit.framework.TestCase {
         // init log4j ... 
         org.apache.log4j.xml.DOMConfigurator.configure( "conf/log4j.xml" );
 
-        System.out.printf( "Cleaning up PFS_ROOT: %s\n", Config.PFS_ROOT );
-        remove( Config.PFS_ROOT );
+        remove( Config.DEFAULT_ROOT );
 
     }
 
     public void tearDown() {
-        System.out.printf( "Cleaning up PFS_ROOT: %s\n", Config.PFS_ROOT );
-        remove( Config.PFS_ROOT );
+        System.out.printf( "Cleaning up: %s\n", Config.DEFAULT_ROOT );
+        remove( Config.DEFAULT_ROOT );
     }
 
     public static byte[] toByteArray( InputStream is ) throws IOException {

@@ -57,6 +57,10 @@ public class Host {
     public int getPort() {
         return port;
     }
+
+    public void setPort( int port ) {
+        this.port = port;
+    }
     
     public int getPartitionMemberId() {
         return partitionMemberId;

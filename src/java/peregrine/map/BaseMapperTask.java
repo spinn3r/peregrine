@@ -28,13 +28,15 @@ public abstract class BaseMapperTask extends BaseOutputTask implements Callable 
 
     private Input input = null;
 
-    public void init( Membership partitionMembership,
+    public void init( Config config, 
+                      Membership partitionMembership,
                       Partition partition,
-                      Host host ,
+                      Host host,
                       Class mapper_clazz ) {
 
         super.init( partition );
-        
+
+        this.config         = config;
         this.host           = host;
         this.nr_partitions  = partitionMembership.size();
         this.mapper_clazz   = mapper_clazz;
@@ -78,7 +80,7 @@ public abstract class BaseMapperTask extends BaseOutputTask implements Callable 
 
         if ( output == null || output.getReferences().size() == 0 ) {
         
-            setJobOutput( new JobOutput[] { new ShuffleJobOutput() } );
+            setJobOutput( new JobOutput[] { new ShuffleJobOutput( config ) } );
 
         } else {
             super.setup();
@@ -96,7 +98,7 @@ public abstract class BaseMapperTask extends BaseOutputTask implements Callable 
 
         // setup broadcast input... 
 
-        broadcastInput = BroadcastInputFactory.getBroadcastInput( getInput(), partition, host );
+        broadcastInput = BroadcastInputFactory.getBroadcastInput( config, getInput(), partition, host );
 
     }
 
@@ -131,7 +133,7 @@ public abstract class BaseMapperTask extends BaseOutputTask implements Callable 
             
             FileInputReference file = (FileInputReference) ref;
             
-            readers.add( new LocalPartitionReader( partition, host, file.getPath(), listener ) );
+            readers.add( new LocalPartitionReader( config, partition, host, file.getPath(), listener ) );
             
         }
 

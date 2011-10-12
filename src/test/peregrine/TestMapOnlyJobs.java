@@ -25,17 +25,24 @@ public class TestMapOnlyJobs extends junit.framework.TestCase {
 
     }
 
+    protected Config config;
+    
+    public void setUp() {
+        
+        config = new Config();
+        config.setHost( new Host( "localhost" ) );
+
+    }
+
     public void test1() throws Exception {
 
-        Config.setHost( new Host( "localhost" ) );
-
         // TRY with three partitions... 
-        Config.addPartitionMembership( 0, "localhost" );
-        Config.addPartitionMembership( 1, "localhost" );
+        config.addPartitionMembership( 0, "localhost" );
+        config.addPartitionMembership( 1, "localhost" );
         
         String path = "/test/map.only/test1";
         
-        ExtractWriter writer = new ExtractWriter( path );
+        ExtractWriter writer = new ExtractWriter( config, path );
 
         for( int i = 0; i < 10; ++i ) {
 
@@ -54,13 +61,15 @@ public class TestMapOnlyJobs extends junit.framework.TestCase {
         //it.
 
         String output = "/test/map.only/test1.out";
+
+        Controller controller = new Controller( config );
         
-        Controller.map( Map.class, new Input( path ), new Output( output ) );
+        controller.map( Map.class, new Input( path ), new Output( output ) );
 
         Partition part = new Partition( 0 );
         Host host = new Host( "localhost", 0  );
 
-        LocalPartitionReader reader = new LocalPartitionReader( part, host, output );
+        LocalPartitionReader reader = new LocalPartitionReader( config, part, host, output );
 
         if ( reader.hasNext() == false )
             throw new IOException( "nothing written" );

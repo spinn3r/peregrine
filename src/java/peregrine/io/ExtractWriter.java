@@ -20,11 +20,11 @@ public class ExtractWriter {
 
     private int nr_partitions = -1;
     
-    public ExtractWriter( String path ) throws IOException {
+    public ExtractWriter( Config config, String path ) throws IOException {
 
         this.path = path;
 
-        Membership partitionMembership = Config.getPartitionMembership();
+        Membership partitionMembership = config.getPartitionMembership();
         
         nr_partitions = partitionMembership.size();
 
@@ -34,7 +34,7 @@ public class ExtractWriter {
 
             System.out.printf( "Creating writer for partition: %s\n", partition );
 
-            DefaultPartitionWriter writer = new DefaultPartitionWriter( partition, path );
+            DefaultPartitionWriter writer = new DefaultPartitionWriter( config, partition, path );
             output.add( writer );
             
         }

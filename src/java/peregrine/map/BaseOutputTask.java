@@ -22,6 +22,8 @@ public abstract class BaseOutputTask {
 
     protected Partition partition = null;
 
+    protected Config config = null;
+    
     protected void init( Partition partition ) {
         this.partition = partition;
     }
@@ -44,7 +46,7 @@ public abstract class BaseOutputTask {
     
     public void setup() throws IOException {
 
-        this.jobOutput = JobOutputFactory.getJobOutput( partition, output );
+        this.jobOutput = JobOutputFactory.getJobOutput( config, partition, output );
 
     }
 
