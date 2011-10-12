@@ -162,10 +162,10 @@ public class DefaultPartitionWriter implements PartitionWriter {
 
         }
 
-        log.info( "Using output streams: %s", outputStreams );
-        log.info( "Going to pipeline requests to: %s", pipeline );
-
-        client.setHeader( FSHandler.X_PIPELINE_HEADER, pipeline );
+        if ( client != null ) {
+            log.info( "Going to pipeline requests to: %s", pipeline );
+            client.setHeader( FSHandler.X_PIPELINE_HEADER, pipeline );
+        }
         
         chunkWriter = new DefaultChunkWriter( new MultiOutputStream( outputStreams ) );
         

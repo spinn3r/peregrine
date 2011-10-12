@@ -105,18 +105,23 @@ public class TestParallelFileSystemWrites extends peregrine.BaseTest {
 
         int max = 100000;
 
-        if ( args.length > 0 ) 
+        if ( args.length >= 1 ) 
             max = Integer.parseInt( args[ 0 ] );
 
         TestParallelFileSystemWrites t = new TestParallelFileSystemWrites();
 
-        /*
-        t.hosts = new ArrayList();
-        t.hosts.add( new Host( "dev3.wdc.sl.spinn3r.com", 11112 ) );
-        t.hosts.add( new Host( "util0029.wdc.sl.spinn3r.com", 11112 ) );
-        t.hosts.add( new Host( "util0030.wdc.sl.spinn3r.com", 11112 ) );
-        */
-        
+        if ( args.length >= 2 ) {
+
+            t.hosts = new ArrayList();
+
+            String[] hosts = args[1].split( "," );
+
+            for( String host : hosts ) {
+                t.hosts.add( new Host( host, 11112 ) );
+            }
+            
+        }
+
         t.setUp();
         t._test( max );
 
