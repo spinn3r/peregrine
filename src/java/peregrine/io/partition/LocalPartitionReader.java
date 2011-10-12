@@ -25,7 +25,7 @@ public class LocalPartitionReader {
 
     private Tuple t = null;
 
-    private LocalPartitionReaderListener listener = null;
+    private List<LocalPartitionReaderListener> listeners = new ArrayList();
 
     private ChunkReference chunkRef = null;
 
@@ -36,7 +36,19 @@ public class LocalPartitionReader {
                                  Host host, 
                                  String path ) throws IOException {
         
-        this( config, partition, host, path, new DefaultLocalPartitionReaderListener() );
+        this( config, partition, host, path, new ArrayList() );
+        
+    }
+
+    public LocalPartitionReader( Config config,
+                                 Partition partition,
+                                 Host host, 
+                                 String path,
+                                 LocalPartitionReaderListener listener ) throws IOException {
+
+        this( config, partition, host, path, new ArrayList() );
+
+        listeners.add( listener );
         
     }
     
@@ -44,11 +56,11 @@ public class LocalPartitionReader {
                                  Partition partition,
                                  Host host, 
                                  String path,
-                                 LocalPartitionReaderListener listener ) throws IOException {
+                                 List<LocalPartitionReaderListener> listeners ) throws IOException {
 
         this.chunkReaders = LocalPartition.getChunkReaders( config, partition, host, path );
         this.iterator = chunkReaders.iterator();
-        this.listener = listener;
+        this.listeners = listeners;
         this.path = path;
         
         this.chunkRef = new ChunkReference( partition );
@@ -62,16 +74,18 @@ public class LocalPartitionReader {
 
         if ( hasNext == false ) {
 
-            if ( chunkRef.local >= 0 )
-                listener.onChunkEnd( chunkRef );
+            fireOnChunkEnd();
             
             if ( iterator.hasNext() ) {
 
                 chunkRef.incr();
+
+                if ( chunkReader != null )
+                    chunkReader.close();
                 
                 chunkReader = iterator.next();
 
-                listener.onChunk( chunkRef );
+                fireOnChunk();
                 
                 hasNext = chunkReader.hasNext();
 
@@ -85,6 +99,30 @@ public class LocalPartitionReader {
         
     }
 
+    private void fireOnChunk() {
+
+        System.out.printf( "FIXME firing... onChunk: %s\n" , listeners );
+
+        for( LocalPartitionReaderListener listener : listeners ) {
+            listener.onChunk( chunkRef );
+        }
+        
+    }
+    
+    private void fireOnChunkEnd() {
+
+        System.out.printf( "FIXME firing... onChunkEnd: %s\n" , listeners );
+
+        if ( chunkRef.local >= 0 ) {
+            
+            for( LocalPartitionReaderListener listener : listeners ) {
+                listener.onChunkEnd( chunkRef );
+            }
+
+        }
+
+    }
+    
     public byte[] key() throws IOException {
         return chunkReader.key();
     }
@@ -95,8 +133,10 @@ public class LocalPartitionReader {
 
     public void close() throws IOException {
 
-        if ( chunkReader != null )
+        if ( chunkReader != null ) {
             chunkReader.close();
+            fireOnChunkEnd();
+        }
 
     }
 
@@ -104,14 +144,4 @@ public class LocalPartitionReader {
         return this.path;
     }
     
-}
-
-class DefaultLocalPartitionReaderListener implements LocalPartitionReaderListener {
-
-    @Override
-    public void onChunk( ChunkReference ref ) {}
-
-    @Override
-    public void onChunkEnd( ChunkReference ref ) {}
-
 }

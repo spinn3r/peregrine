@@ -80,7 +80,7 @@ public abstract class BaseMapperTask extends BaseOutputTask implements Callable 
 
         if ( output == null || output.getReferences().size() == 0 ) {
         
-            setJobOutput( new JobOutput[] { new ShuffleJobOutput( config ) } );
+            setJobOutput( new JobOutput[] { new NewShuffleJobOutput( config ) } );
 
         } else {
             super.setup();
@@ -121,9 +121,22 @@ public abstract class BaseMapperTask extends BaseOutputTask implements Callable 
     /**
      * Construct a set of partition readers from the input.
      */
-    protected List<LocalPartitionReader> getLocalPartitionReaders( LocalPartitionReaderListener listener)
+    protected List<LocalPartitionReader> getLocalPartitionReaders( LocalPartitionReaderListener listener )
         throws IOException {
 
+        List<LocalPartitionReaderListener> listeners = new ArrayList();
+
+        listeners.add( listener );
+
+        for( ShuffleJobOutput current : shuffleJobOutput ) {
+
+            System.out.printf( "FIXME found shuffle job output: %s\n", shuffleJobOutput );
+            
+            if ( current instanceof LocalPartitionReaderListener )
+                listeners.add( (LocalPartitionReaderListener) current );
+            
+        }
+        
         List<LocalPartitionReader> readers = new ArrayList();
 
         for( InputReference ref : getInput().getReferences() ) {
@@ -132,8 +145,8 @@ public abstract class BaseMapperTask extends BaseOutputTask implements Callable 
                 continue;
             
             FileInputReference file = (FileInputReference) ref;
-            
-            readers.add( new LocalPartitionReader( config, partition, host, file.getPath(), listener ) );
+
+            readers.add( new LocalPartitionReader( config, partition, host, file.getPath(), listeners ) );
             
         }
 
@@ -143,21 +156,29 @@ public abstract class BaseMapperTask extends BaseOutputTask implements Callable 
     
 }
 
+/**
+ * Used so that tasks can listen to map job progress and broadcast output.
+ */
 class MapperChunkRolloverListener implements LocalPartitionReaderListener {
 
     private BaseMapperTask task = null;
     
     public MapperChunkRolloverListener( BaseMapperTask task ) {
+
+        System.out.printf( "FIXME0 in constructor for %s\n", getClass() );
         this.task = task;
     }
 
     @Override
     public void onChunk( ChunkReference ref ) {
+        System.out.printf( "MapperChunkRolloverListener.onChunk\n" );
         task.fireOnChunk( ref );
     }
 
     @Override
     public void onChunkEnd( ChunkReference ref ) {
+        System.out.printf( "MapperChunkRolloverListener.onChunkEnd\n" );
+        
         task.fireOnChunkEnd( ref );
     }
 

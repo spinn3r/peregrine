@@ -101,6 +101,8 @@ public class NewShuffleJobOutput implements JobOutput, LocalPartitionReaderListe
     @Override 
     public void onChunk( ChunkReference chunkRef ) {
 
+        System.out.printf( "FIXME here in nw shuffle job utput\n" );
+
         this.chunkRef = chunkRef;
 
         this.shuffleOutput = new ShuffleOutput( chunkRef, name );
@@ -110,6 +112,8 @@ public class NewShuffleJobOutput implements JobOutput, LocalPartitionReaderListe
     @Override 
     public void onChunkEnd( ChunkReference ref ) {
 
+        System.out.printf( "FIXME1 here\n" );
+        
         try {
         
             if ( future != null )

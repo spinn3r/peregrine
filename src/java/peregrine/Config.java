@@ -26,7 +26,14 @@ public class Config {
      * correctly.
      */
     public Host host = null;
-    
+
+    public Config() { }
+
+    public Config( String host, int port ) {
+        setHost( new Host( host, port ) );
+        setRoot( String.format( "%s/%s/%s", DEFAULT_ROOT, host, port ) );
+    }
+
     public void addPartitionMembership( int partition, List<Host> hosts ) {
         membership.setPartition( new Partition( partition ), hosts );
     }
