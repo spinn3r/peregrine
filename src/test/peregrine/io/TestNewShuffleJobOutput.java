@@ -26,28 +26,28 @@ public class TestNewShuffleJobOutput extends peregrine.BaseTest {
 
         super.setUp();
 
-        config = getConfig();
+        config = getConfig( 11112 );
 
-        Config config11112 = getConfig();
-        Config config11113 = getConfig();
-
-        config11112.getHost().setPort( 11112 );
-        config11113.getHost().setPort( 11113 );
-        
-        new FSDaemon( config11112 );
-        new FSDaemon( config11113 );
+        new FSDaemon( config );
+        new FSDaemon( getConfig( 11113 ) );
+        new FSDaemon( getConfig( 11114 ) );
 
     }
 
-    private Config getConfig() {
+    private Config getConfig( int port ) {
 
         Config config = new Config();
 
-        config.setHost( new Host( "localhost" ) );
+        Host host = new Host( "localhost", port );
         
+        config.setHost( host );
+
         config.addPartitionMembership( 0, new Host( "localhost", 11112 ) );
         config.addPartitionMembership( 1, new Host( "localhost", 11113 ) );
+        config.addPartitionMembership( 2, new Host( "localhost", 11114 ) );
 
+        config.setRoot( String.format( "%s/%s/%s" , Config.DEFAULT_ROOT, host.getName(), host.getPort() ) );
+        
         return config;
         
     }
@@ -91,6 +91,8 @@ public class TestNewShuffleJobOutput extends peregrine.BaseTest {
         t.setUp();
         t.test1();
         //t.tearDown();
+
+        //Thread.sleep( 5000L );
         
     }
 
