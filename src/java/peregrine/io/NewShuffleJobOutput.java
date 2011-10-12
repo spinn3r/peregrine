@@ -63,6 +63,7 @@ public class NewShuffleJobOutput implements JobOutput, LocalPartitionReaderListe
     @Override
     public void emit( byte[] key , byte[] value ) {
 
+        /*
         Partition target = Config.route( key, partitions, true );
 
         int from_partition  = chunkRef.partition.getId();
@@ -71,6 +72,7 @@ public class NewShuffleJobOutput implements JobOutput, LocalPartitionReaderListe
         int to_partition    = target.getId();
 
         shuffleOutput.write( to_partition, key, value );
+        */
         
     }
 

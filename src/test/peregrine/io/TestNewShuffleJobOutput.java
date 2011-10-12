@@ -18,7 +18,7 @@ import peregrine.io.partition.*;
 import peregrine.io.chunk.*;
 import peregrine.pfsd.*;
 
-public class TestNewShuffleJobOutput extends peregrine.PFSTest {
+public class TestNewShuffleJobOutput extends peregrine.BaseTest {
 
     public void setUp() {
 

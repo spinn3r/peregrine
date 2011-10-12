@@ -67,7 +67,7 @@ public class Config {
     }
 
     public static String getPFSRoot( Partition partition, Host host ) {
-        return String.format( "%s/%s/%s" , Config.PFS_ROOT , host.getName(), partition.getId() );
+        return String.format( "%s/%s" , Config.PFS_ROOT , partition.getId() );
     }
         
     public static String getPFSPath( Partition partition, Host host, String path ) {
