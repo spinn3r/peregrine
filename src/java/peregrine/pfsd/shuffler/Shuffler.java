@@ -91,7 +91,8 @@ class ShufflerCloseCallable implements Callable {
     ShufflerCloseCallable( ShuffleOutputWriter writer ) {
         this.writer = writer;
     }
-    
+
+    @Override
     public Object call() throws Exception {
 
         // close this in a background task since this blocks.
