@@ -62,6 +62,10 @@ public class TestNewShuffleJobOutput extends peregrine.BaseTest {
         output.onChunkEnd( chunkRef );
 
         output.close();
+
+        // now try to read the entries back out once it is shuffled...
+
+        
         
     }
 
@@ -70,7 +74,7 @@ public class TestNewShuffleJobOutput extends peregrine.BaseTest {
         TestNewShuffleJobOutput t = new TestNewShuffleJobOutput();
         t.setUp();
         t.test1();
-        t.tearDown();
+        //t.tearDown();
         
     }
 

@@ -52,7 +52,7 @@ public class ChunkReference {
     }
 
     public String toString() {
-        return String.format( "%s local=%s", partition, local );
+        return String.format( "%s local=%06d", partition, local );
     }
     
 }
