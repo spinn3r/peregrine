@@ -139,6 +139,13 @@ public class FSHandler extends SimpleChannelUpstreamHandler {
 
                 if ( x_pipeline == null )
                     return;
+
+                log.info( "%s=%s", X_PIPELINE_HEADER, x_pipeline );
+
+                x_pipeline = x_pipeline.trim();
+
+                if ( "".equals( x_pipeline ) )
+                    return;
                 
                 String[] hosts = x_pipeline.split( " " );
 
@@ -155,7 +162,7 @@ public class FSHandler extends SimpleChannelUpstreamHandler {
                 
                 x_pipeline.trim();
 
-                // request.setHeader( X_PIPELINE_HEADER, x_pipeline );
+                request.setHeader( X_PIPELINE_HEADER, x_pipeline );
 
                 uri = new URI( String.format( "http://%s%s", host, uri.getPath() ) );
 

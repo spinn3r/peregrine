@@ -37,4 +37,9 @@ public abstract class BasePartitionWriterDelegate implements PartitionWriterDele
         return path;
     }
 
+    @Override
+    public Host getHost() {
+        return host;
+    }
+    
 }

@@ -235,7 +235,11 @@ public class RemoteChunkWriterClient extends BaseOutputStream {
                                              ChannelBuffers.wrappedBuffer( CRLF ) );
         
     }
-        
+
+    public String toString() {
+        return uri.toString();
+    }
+    
 }
 
 class ConnectFutureListener implements ChannelFutureListener {

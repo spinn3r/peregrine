@@ -30,5 +30,7 @@ public interface PartitionWriterDelegate {
     
     public OutputStream newChunkWriter( int chunk_id ) throws IOException;
 
+    public Host getHost();
+
 }
 

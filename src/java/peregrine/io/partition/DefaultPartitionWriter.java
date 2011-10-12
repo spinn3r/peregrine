@@ -9,6 +9,8 @@ import peregrine.keys.*;
 import peregrine.values.*;
 import peregrine.io.chunk.*;
 import peregrine.io.async.*;
+import peregrine.pfs.*;
+import peregrine.pfsd.*;
 
 import com.spinn3r.log5j.Logger;
 
@@ -133,10 +135,38 @@ public class DefaultPartitionWriter implements PartitionWriter {
         
         List<OutputStream> outputStreams = new ArrayList();
 
+        RemoteChunkWriterClient client = null;
+
+        String pipeline = "";
+        
         for ( PartitionWriterDelegate delegate : partitionWriterDelegates ) {
-            outputStreams.add( delegate.newChunkWriter( chunk_id ) );
+
+            Host local = Config.getHost();
+            
+            if ( delegate.getHost().equals( local ) ) {
+
+                OutputStream out = delegate.newChunkWriter( chunk_id );
+
+                outputStreams.add( out );
+                
+            } else if ( client == null ) {
+
+                OutputStream out = delegate.newChunkWriter( chunk_id );
+                
+                client = (RemoteChunkWriterClient)out;
+                outputStreams.add( client );
+
+            } else {
+                pipeline += delegate.getHost() + " ";
+            }
+
         }
 
+        log.info( "Using output streams: %s", outputStreams );
+        log.info( "Going to pipeline requests to: %s", pipeline );
+
+        client.setHeader( FSHandler.X_PIPELINE_HEADER, pipeline );
+        
         chunkWriter = new DefaultChunkWriter( new MultiOutputStream( outputStreams ) );
         
         ++chunk_id; // change the chunk ID now for the next file.
