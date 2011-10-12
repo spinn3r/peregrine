@@ -29,19 +29,28 @@ public class Config {
         membership.setPartition( new Partition( partition ), hosts );
     }
 
+    public static void addPartitionMembership( int partition, Host... hosts ) {
+
+        List<Host> list = new ArrayList();
+
+        for( Host host : hosts ) {
+            list.add( host );
+        }
+
+        addPartitionMembership( partition, list );
+        
+    }
+    
     public static void addPartitionMembership( int partition, String... hosts ) {
 
         List<Host> list = new ArrayList();
 
         for( int i = 0; i < hosts.length; ++i ) {
-
             String host = hosts[i];
-
             list.add( new Host( host, i, FSDaemon.PORT ) );
-            
         }
 
-        membership.setPartition( new Partition( partition ), list );
+        addPartitionMembership( partition, list );
 
     }
 
@@ -57,7 +66,6 @@ public class Config {
         host = _host;
     }
 
-    
     public static String getPFSRoot( Partition partition, Host host ) {
         return String.format( "%s/%s/%s" , Config.PFS_ROOT , host.getName(), partition.getId() );
     }

@@ -101,7 +101,7 @@ public class RemotePartitionWriterDelegate extends BasePartitionWriterDelegate {
             String local = Config.getPFSPath( partition, host, path );
 
             String chunk_name = LocalPartition.getFilenameForChunkID( chunk_id );
-            String chunk_path = String.format( "/%s/%s%s/%s", host.getName(), partition.getId(), path, chunk_name ) ;
+            String chunk_path = String.format( "/%s%s/%s", partition.getId(), path, chunk_name ) ;
 
             URI uri = new URI( String.format( "http://%s:%s%s", host.getName() , host.getPort() , chunk_path ) );
 

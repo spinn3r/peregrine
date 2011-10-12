@@ -64,7 +64,12 @@ public class DefaultChunkWriter implements ChunkWriter {
 
     }
 
-    public static void write( ChannelBuffer buff, byte[] key, byte[] value ) {
+    /**
+     * Perform a DIRECT write on a ChannelBuffer.  
+     */
+    public static void write( ChannelBuffer buff,
+                              byte[] key,
+                              byte[] value ) {
 
         varintWriter.write( buff, key.length );
         buff.writeBytes( key );

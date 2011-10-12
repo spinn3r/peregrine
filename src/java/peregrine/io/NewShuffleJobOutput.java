@@ -3,6 +3,7 @@ package peregrine.io;
 import java.io.*;
 import java.lang.reflect.*;
 import java.util.*;
+import java.net.*;
 import java.util.concurrent.*;
 
 import org.jboss.netty.buffer.*;
@@ -16,9 +17,15 @@ import peregrine.shuffle.*;
 import peregrine.util.*;
 import peregrine.values.*;
 import peregrine.io.chunk.*;
+import peregrine.io.async.*;
+import peregrine.pfs.*;
 import peregrine.pfsd.shuffler.*;
 
+import com.spinn3r.log5j.Logger;
+
 public class NewShuffleJobOutput implements JobOutput, LocalPartitionReaderListener {
+
+    private static final Logger log = Logger.getLogger();
 
     /**
      * Write in 2MB chunks at ~100MB output this is only 2MB extra memory
@@ -82,7 +89,57 @@ public class NewShuffleJobOutput implements JobOutput, LocalPartitionReaderListe
     }
 
     @Override 
-    public void onChunkEnd( ChunkReference ref ) { }
+    public void onChunkEnd( ChunkReference ref ) {
+
+        try {
+            
+            // now close out the previous output and start writing it to cients on
+            // the network.
+
+            log.info( "Closing shuffle job output for chunk: %s", ref );
+
+            Map<Partition,OutputStream> clients = new HashMap();
+
+            Membership membership = Config.getPartitionMembership();
+            
+            Set<Partition> partitions = membership.getPartitions();
+            
+            for( Partition part : partitions ) {
+
+                List<Host> hosts = membership.getHosts( part );
+
+                List<OutputStream> output = new ArrayList();
+                
+                for( Host host : hosts ) {
+
+                    URI uri = new URI( String.format( "http://%s:%s/shuffle/default/from-partition/%s/from-chunk/%s/to-partition/%s",
+                                                      host.getName(),
+                                                      host.getPort(),
+                                                      ref.partition.getId(),
+                                                      ref.local,
+                                                      part.getId() ) );
+
+                    RemoteChunkWriterClient client = new RemoteChunkWriterClient( uri );
+
+                    output.add( client );
+                    
+                }
+
+                clients.put( part, new MultiOutputStream( output ) );
+                
+            }
+
+            // FIXME: now read the data and write it to all clients .. man this is hard...
+
+            // FIXME: now close all clients...
+            
+        } catch ( Exception e ) {
+            // This should be ok as it will cause the map job to fail which will
+            // then be caught by gossip.
+            throw new RuntimeException( e );
+        }
+            
+    }
     
 }
 
@@ -158,3 +215,4 @@ class ShuffleOutputExtent {
     }
     
 }
+

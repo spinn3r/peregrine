@@ -20,8 +20,6 @@ public class Membership {
     }
 
     public List<Partition> getPartitions( Host host ) {
-
-        System.out.printf( "FIXME: %s\n", reverse );
         
         return reverse.get( host );
         

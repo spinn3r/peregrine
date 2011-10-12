@@ -26,13 +26,24 @@ public class FSDaemon {
     private int port = -1;
     
     public FSDaemon() {
-        this( Config.PFS_ROOT, PORT );
+        this( PORT );
+    }
+
+    public FSDaemon( int port ) {
+        this( Config.PFS_ROOT, port );
     }
     
     public FSDaemon( String root, int port ) {
 
         this.port = port;
 
+        File file = new File( root );
+
+        // try to make the root directory.
+        if ( ! file.exists() ) {
+            file.mkdirs();
+        }
+        
         ThreadFactory tf = new DefaultThreadFactory( FSDaemon.class );
 
         // Configure the server.
@@ -42,7 +53,7 @@ public class FSDaemon {
         // Set up the event pipeline factory.
         bootstrap.setPipelineFactory( new FSPipelineFactory( root ) );
 
-        log.info( "Starting on port: %s" , port );
+        log.info( "Starting on port %s.  Using root: %s" , port, root );
         
         // Bind and start to accept incoming connections.
         bootstrap.bind( new InetSocketAddress( port ) );

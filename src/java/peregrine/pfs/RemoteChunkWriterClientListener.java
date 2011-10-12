@@ -15,12 +15,16 @@ import peregrine.util.*;
 
 public class RemoteChunkWriterClientListener implements ChannelFutureListener {
 
+    public static final int PENDING  = -1;
+    public static final int CLOSED   = 0;
+    public static final int OPEN     = 1;
+    
     public static final int LIMIT = 10;
     
-    protected boolean clear = true;
+    protected boolean clear = false;
 
-    protected boolean closed = false;
-    
+    protected int state = PENDING;
+
     protected BlockingQueue<ChannelBuffer> queue = new LinkedBlockingDeque( LIMIT );
 
     // stores the result of this IO operation.  Boolean.TRUE if it was success
@@ -31,20 +35,33 @@ public class RemoteChunkWriterClientListener implements ChannelFutureListener {
     protected Throwable cause = null;
 
     protected URI uri;
+
+    protected Channel channel;
+
+    protected RemoteChunkWriterClient client; 
     
-    public RemoteChunkWriterClientListener( URI uri ) {
-        this.uri = uri;
+    public RemoteChunkWriterClientListener( RemoteChunkWriterClient client ) {
+        this.client = client;
     }
 
     public void operationComplete( ChannelFuture future ) 
         throws Exception {
 
-        Channel channel = future.getChannel();
-        
-        if ( ! channel.isOpen() ) {
+        channel = future.getChannel();
 
-            closed = true;
+        if ( state == -1 && channel.isOpen() ) {
+
+            state = OPEN;
+
+            channel.write( client.request );
             
+            // we need to find out when we are closed now.
+            channel.getCloseFuture().addListener( this );
+
+        } else if ( ! channel.isOpen() ) {
+
+            state = CLOSED;
+
             if ( future.getCause() != null ) {
                 setCause( future.getCause() );
             }
@@ -60,7 +77,7 @@ public class RemoteChunkWriterClientListener implements ChannelFutureListener {
             // NOTE that even if the last response was written here we MUST wait
             // until we get the HTTP response.
 
-            future.getChannel().write( data ).addListener( this );
+            channel.write( data ).addListener( this );
 
             return;
             
@@ -81,5 +98,8 @@ public class RemoteChunkWriterClientListener implements ChannelFutureListener {
         this.result.put( Boolean.TRUE );
     }
 
-}
+    public boolean isClosed() {
+        return state == CLOSED;
+    }
 
+}

@@ -19,6 +19,7 @@ import org.jboss.netty.util.*;
 
 import peregrine.*;
 import peregrine.io.async.*;
+import peregrine.pfs.*;
 import peregrine.util.*;
 
 import com.spinn3r.log5j.*;
@@ -28,6 +29,8 @@ import com.spinn3r.log5j.*;
 public class FSHandler extends SimpleChannelUpstreamHandler {
 
     private static final Logger log = Logger.getLogger();
+
+    public static final String X_PIPELINE_HEADER = "X-pipeline";
     
     protected HttpRequest request = null;
 
@@ -40,10 +43,17 @@ public class FSHandler extends SimpleChannelUpstreamHandler {
 
     protected SimpleChannelUpstreamHandler upstream = null;
 
+    /**
+     * True when we should pipeline this DELETE/PUT request to another host.
+     */
+    protected boolean pipeline = false;
+
+    protected RemoteChunkWriterClient remote = null;
+    
     public FSHandler( String root ) {
         this.root = root;
     }
-
+    
     @Override
     public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
 
@@ -93,6 +103,13 @@ public class FSHandler extends SimpleChannelUpstreamHandler {
                 // TODO
             }
 
+            // this method needs pipelining... 
+            if ( method == DELETE || method == PUT ) {
+
+                pipeline = true;
+                
+            }
+            
             //TODO handle other methods other than GET here
             if ( upstream == null )  {
                 sendError(ctx, METHOD_NOT_ALLOWED);
@@ -104,8 +121,74 @@ public class FSHandler extends SimpleChannelUpstreamHandler {
         if ( upstream != null )
             upstream.messageReceived( ctx, e );
 
+        if ( pipeline ) {
+            handlePipeline( message );
+        }
+        
     }
+    
+    private void handlePipeline( Object message ) throws IOException {
 
+        try {
+            
+            URI uri = new URI( request.getUri() );
+
+            if ( message instanceof HttpRequest && remote == null ) {
+
+                String x_pipeline = request.getHeader( X_PIPELINE_HEADER );
+
+                if ( x_pipeline == null )
+                    return;
+                
+                String[] hosts = x_pipeline.split( " " );
+
+                if ( hosts.length == 0 )
+                    return;
+
+                String host = hosts[0];
+
+                x_pipeline = "";
+                    
+                for( int i = 1; i < hosts.length; ++i ) {
+                    x_pipeline += hosts[i] + " ";
+                }
+                
+                x_pipeline.trim();
+
+                // request.setHeader( X_PIPELINE_HEADER, x_pipeline );
+
+                uri = new URI( String.format( "http://%s%s", host, uri.getPath() ) );
+
+                log.info( "Going to pipeline requests to: %s ", uri );
+                
+                remote = new RemoteChunkWriterClient( request, uri );
+                
+            } else if ( remote != null && message instanceof HttpChunk ) {
+
+                HttpChunk chunk = (HttpChunk)message;
+
+                if ( ! chunk.isLast() ) {
+                    
+                    ChannelBuffer content = chunk.getContent();
+                    
+                    remote.write( content );
+
+                } else {
+
+                    // any HTTP exceptions on the remote host should bubble up
+                    // in close() and be passed on to callers.
+                    remote.close();
+                    
+                }
+                
+            }
+            
+        } catch ( URISyntaxException e ) {
+            throw new IOException( "Invalid URI: ", e );
+        }
+
+    }
+    
     private String sanitizeUri(String uri) throws java.net.URISyntaxException {
 
         // TODO: I believe this is actually wrong and that we have to try

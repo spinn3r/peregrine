@@ -30,56 +30,73 @@ public class RemoteChunkWriterClient extends BaseOutputStream {
         new NioClientSocketChannelFactory( Executors.newCachedThreadPool( new DefaultThreadFactory( RemoteChunkWriterClient.class ) ), 
                                            Executors.newCachedThreadPool( new DefaultThreadFactory( RemoteChunkWriterClient.class ) ) );
 
-    private Channel channel = null;
+    private RemoteChunkWriterClientListener listener;
 
-    /**
-     * True when it is clear to send another packet.
-     */
-    private boolean clear = true;
+    private boolean open = false;
 
-    private RemoteChunkWriterClientListener listener;;
+    protected URI uri;
+
+    protected HttpRequest request;
+
+    private boolean closed = false;
     
     public RemoteChunkWriterClient( URI uri ) throws IOException {
 
-        int port = uri.getPort();
-
         String host = uri.getHost();
 
-        listener = new RemoteChunkWriterClientListener( uri );
-        
-        // Configure the client.
-        ClientBootstrap bootstrap = new ClientBootstrap( socketChannelFactory );
-
         // Prepare the HTTP request.
-        HttpRequest request = new DefaultHttpRequest( HttpVersion.HTTP_1_1, HttpMethod.PUT, uri.toASCIIString() );
+        this.request = new DefaultHttpRequest( HttpVersion.HTTP_1_1, HttpMethod.PUT, uri.toASCIIString() );
 
         request.setHeader( HttpHeaders.Names.USER_AGENT, RemoteChunkWriterClient.class.getName() );
         request.setHeader( HttpHeaders.Names.HOST, host );
         request.setHeader( HttpHeaders.Names.TRANSFER_ENCODING, "chunked" );
 
+        this.uri = uri;
+
+    }
+    
+    public RemoteChunkWriterClient( HttpRequest request, URI uri ) throws IOException {
+
+        this.request = request;
+        this.uri = uri;
+        
+    }
+
+    private void open() throws IOException {
+
+        String host = uri.getHost();
+        int port = uri.getPort();
+
+        listener = new RemoteChunkWriterClientListener( this );
+        
+        // Configure the client.
+        ClientBootstrap bootstrap = new ClientBootstrap( socketChannelFactory );
+
         // Set up the event pipeline factory.
         bootstrap.setPipelineFactory( new RemoteChunkWriterClientPipelineFactory( listener ) );
 
         // Start the connection attempt... where is the connect timeout set?
-        ChannelFuture future = bootstrap.connect( new InetSocketAddress(host, port) );
-
-        // Wait until the connection attempt succeeds or fails.
-        this.channel = future.awaitUninterruptibly().getChannel();
-                
-        if ( ! future.isSuccess() ) {
-
-            throw new IOException( future.getCause() );
-
-        }
+        ChannelFuture connectFuture = bootstrap.connect( new InetSocketAddress( host, port ) );
 
         // we're connected and can now perform IO by calling write.  We need to
         // pay attention to close so that we can not perform writes any longer.
 
-        channel.getCloseFuture().addListener( listener );
-        channel.write( request );
+        connectFuture.addListener( listener );
+
+        open = true;
         
     }
 
+    public void setHeader( String name, String value ) {
+        request.setHeader( name , value );
+    }
+    
+    private void requireOpen() throws IOException {
+
+        if ( ! open ) open();
+        
+    }
+    
     public void write( byte[] data ) throws IOException {
 
         write( ChannelBuffers.wrappedBuffer( data ) );
@@ -88,12 +105,16 @@ public class RemoteChunkWriterClient extends BaseOutputStream {
     
     public void write( ChannelBuffer data ) throws IOException {
 
+        requireOpen();
+        
         data = newChannelBuffer( data );
         
-        if ( listener.closed || channel.isOpen() == false ) {
+        if ( closed || listener.isClosed() ) {
 
-            if ( listener.cause != null )
+            if ( listener.cause != null ) 
                 throw new IOException( listener.cause );
+
+            System.out.printf( "WE WREE CLOSED\n" );
             
             throw new IOException( "closed" );
 
@@ -104,7 +125,7 @@ public class RemoteChunkWriterClient extends BaseOutputStream {
             if ( listener.clear ) {
                 
                 listener.clear = false;
-                channel.write( data ).addListener( listener );
+                listener.channel.write( data ).addListener( listener );
                 
             } else {
                 listener.queue.put( data );
@@ -124,7 +145,7 @@ public class RemoteChunkWriterClient extends BaseOutputStream {
         write( EOF );
 
         // prevent any more write requests
-        listener.closed = true;
+        closed = true;
 
         try {
             

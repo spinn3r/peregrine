@@ -28,10 +28,10 @@ public class RemoteChunkWriterClientHandler extends SimpleChannelUpstreamHandler
 
         HttpResponse response = (HttpResponse) e.getMessage();
 
-        listener.closed = true;
-
         log.info( "Received HTTP response: %s for %s", response.getStatus(), listener.uri );
-        
+
+        listener.state = listener.CLOSED;
+
         if ( response.getStatus().getCode() != OK.getCode() ) {
             listener.setCause( new IOException( response.getStatus().toString() ) );
         }
