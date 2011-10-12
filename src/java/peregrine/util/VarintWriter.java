@@ -75,11 +75,11 @@ public class VarintWriter {
      */
     public static int sizeof( int value ) {
 
-        if ( value <= 128 ) 
+        if ( value <= 126 ) 
             return 1;
-        else if ( value <= 131072 )
+        else if ( value <= 16382 ) /* huh? 2^14 */ 
             return 2;
-        else if ( value <= 8388608 )
+        else if ( value <= 2097150 )
             return 3;
         return 4;
 
