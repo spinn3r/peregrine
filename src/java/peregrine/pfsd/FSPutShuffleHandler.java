@@ -79,7 +79,7 @@ public class FSPutShuffleHandler extends SimpleChannelUpstreamHandler {
         this.from_chunk     = Integer.parseInt( m.group( 3 ) );
         this.to_partition   = Integer.parseInt( m.group( 4 ) );
 
-        this.shuffler = handler.daemon.shufflerFactory.getInstance( handler.config, this.name );
+        this.shuffler = handler.daemon.shufflerFactory.getInstance( this.name );
         
     }
 
@@ -100,8 +100,12 @@ public class FSPutShuffleHandler extends SimpleChannelUpstreamHandler {
                 written += data.length;
                 chunks = chunks + 1;
 
+                shuffler.accept( from_partition, from_chunk, to_partition, data );
+                
             } else {
 
+                // ... 
+                
                 HttpResponse response = new DefaultHttpResponse( HTTP_1_1, OK );
 
                 Channel ch = e.getChannel();

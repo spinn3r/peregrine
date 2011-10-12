@@ -18,8 +18,14 @@ import com.spinn3r.log5j.Logger;
 public class ShufflerFactory {
 
     private Map<String,Shuffler> instances = new HashMap();
+
+    protected Config config;
     
-    public Shuffler getInstance( Config config, String name ) {
+    public ShufflerFactory( Config config ) {
+        this.config = config;
+    }
+    
+    public Shuffler getInstance( String name ) {
 
         Shuffler shuffler = instances.get( name );
 

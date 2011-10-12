@@ -21,6 +21,10 @@ import peregrine.pfsd.*;
 public class TestNewShuffleJobOutput extends peregrine.BaseTest {
 
     protected Config config;
+
+    protected FSDaemon daemon0;
+    protected FSDaemon daemon1;
+    protected FSDaemon daemon2;
     
     public void setUp() {
 
@@ -28,9 +32,9 @@ public class TestNewShuffleJobOutput extends peregrine.BaseTest {
 
         config = getConfig( 11112 );
 
-        new FSDaemon( config );
-        new FSDaemon( getConfig( 11113 ) );
-        new FSDaemon( getConfig( 11114 ) );
+        daemon0 = new FSDaemon( config );
+        daemon1 = new FSDaemon( getConfig( 11113 ) );
+        daemon2 = new FSDaemon( getConfig( 11114 ) );
 
     }
 
@@ -83,8 +87,13 @@ public class TestNewShuffleJobOutput extends peregrine.BaseTest {
 
         // now try to read the entries back out once it is shuffled...
 
-        //ShufflerFactory.getInstance( "default" ).close();
-        //ShufflerFactory.getInstance( "default" ).close();
+        daemon0.shufflerFactory.getInstance( "default" ).close();
+        daemon1.shufflerFactory.getInstance( "default" ).close();
+        daemon2.shufflerFactory.getInstance( "default" ).close();
+
+        daemon0.shufflerFactory.getInstance( "default" ).close();
+        daemon1.shufflerFactory.getInstance( "default" ).close();
+        daemon2.shufflerFactory.getInstance( "default" ).close();
 
     }
 

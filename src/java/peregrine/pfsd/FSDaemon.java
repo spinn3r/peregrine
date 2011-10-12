@@ -29,12 +29,13 @@ public class FSDaemon {
     /**
      * Each daemon can only have one shuffle instance.
      */
-    protected ShufflerFactory shufflerFactory = new ShufflerFactory();
+    public ShufflerFactory shufflerFactory;
     
     public FSDaemon( Config config ) {
 
         this.port = config.getHost().getPort();
-
+        this.shufflerFactory = new ShufflerFactory( config ); 
+        
         String root = config.getRoot();
         
         File file = new File( root );

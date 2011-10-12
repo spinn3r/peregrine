@@ -29,7 +29,9 @@ public class TestShuffler extends peregrine.BaseTest {
     
     public void test1() throws IOException {
 
-        Shuffler shuffler = ShufflerFactory.getInstance( config, "default" );
+        ShufflerFactory factory = new ShufflerFactory( config );
+        
+        Shuffler shuffler = factory.getInstance( "default" );
 
         int max_writes = 1000;
         int max_partitions = config.getPartitionMembership().size();

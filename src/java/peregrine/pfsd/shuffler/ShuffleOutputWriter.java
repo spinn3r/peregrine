@@ -133,7 +133,7 @@ public class ShuffleOutputWriter {
             
         }
 
-        log.info( "Going write output buffer: %s\n", lookup );
+        log.info( "Going write output buffer with %,d entries.", lookup.size() );
         
         // now stream these out to disk...
 
