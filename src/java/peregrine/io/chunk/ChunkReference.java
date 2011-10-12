@@ -50,5 +50,9 @@ public class ChunkReference {
         this.global = prefix + local;
 
     }
+
+    public String toString() {
+        return String.format( "%s local=%s", partition, local );
+    }
     
 }

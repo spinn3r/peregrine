@@ -11,8 +11,10 @@ import org.jboss.netty.channel.*;
 import org.jboss.netty.channel.socket.nio.*;
 import org.jboss.netty.handler.codec.http.*;
 
-import peregrine.util.*;
+import peregrine.*;
 import peregrine.io.async.*;
+import peregrine.pfsd.*;
+import peregrine.util.*;
 
 /**
  * HTTP client that supports chunked PUT to a remote PFS node.
@@ -82,7 +84,41 @@ public class RemoteChunkWriterClient extends BaseOutputStream {
      */
     protected Channel channel = null;
 
+    public RemoteChunkWriterClient( List<Host> hosts, String path ) throws IOException {
+
+        try {
+            
+            URI uri = new URI( String.format( "http://%s%s", hosts.get(0), path ) );
+
+            init( uri );
+            
+            String x_pipeline = "";
+            
+            for( int i = 1; i < hosts.size(); ++i ) {
+                Host host = hosts.get( i );
+                x_pipeline += host + " ";
+            }
+
+            x_pipeline = x_pipeline.trim();
+
+            request.setHeader( FSHandler.X_PIPELINE_HEADER, x_pipeline );
+
+        } catch ( URISyntaxException e ) {
+            throw new IOException( e );
+        }
+        
+    }
+
     public RemoteChunkWriterClient( URI uri ) throws IOException {
+        init( uri );
+    }
+    
+    public RemoteChunkWriterClient( HttpRequest request, URI uri ) throws IOException {
+        this.request = request;
+        this.uri = uri;
+    }
+
+    private void init( URI uri ) {
 
         String host = uri.getHost();
 
@@ -97,13 +133,6 @@ public class RemoteChunkWriterClient extends BaseOutputStream {
 
     }
     
-    public RemoteChunkWriterClient( HttpRequest request, URI uri ) throws IOException {
-
-        this.request = request;
-        this.uri = uri;
-        
-    }
-
     private void open() throws IOException {
 
         String host = uri.getHost();

@@ -27,6 +27,9 @@ public class NewShuffleJobOutput implements JobOutput, LocalPartitionReaderListe
 
     private static final Logger log = Logger.getLogger();
 
+    private static ExecutorService executors =
+        Executors.newFixedThreadPool( 1, new DefaultThreadFactory( NewShuffleJobOutput.class) );
+
     /**
      * Write in 2MB chunks at ~100MB output this is only 2MB extra memory
      * potentially wasted which would be at most 2%.
@@ -42,6 +45,10 @@ public class NewShuffleJobOutput implements JobOutput, LocalPartitionReaderListe
     protected Membership partitionMembership;
 
     protected ShuffleOutput shuffleOutput;
+
+    protected String name;
+
+    protected Future future = null;
     
     public NewShuffleJobOutput() {
         this( "default" );
@@ -49,11 +56,11 @@ public class NewShuffleJobOutput implements JobOutput, LocalPartitionReaderListe
         
     public NewShuffleJobOutput( String name ) {
 
+        this.name = name;
+        
         this.partitionMembership = Config.getPartitionMembership();
 
         this.partitions = partitionMembership.size();
-
-        this.shuffler = ShufflerFactory.getInstance( name );
 
         // we need to buffer the output so that we can route it to the right
         // host.
@@ -63,7 +70,6 @@ public class NewShuffleJobOutput implements JobOutput, LocalPartitionReaderListe
     @Override
     public void emit( byte[] key , byte[] value ) {
 
-        /*
         Partition target = Config.route( key, partitions, true );
 
         int from_partition  = chunkRef.partition.getId();
@@ -72,13 +78,21 @@ public class NewShuffleJobOutput implements JobOutput, LocalPartitionReaderListe
         int to_partition    = target.getId();
 
         shuffleOutput.write( to_partition, key, value );
-        */
         
     }
 
     @Override 
     public void close() throws IOException {
 
+        try {
+            
+            if ( future != null ) 
+                future.get();
+            
+        } catch ( Exception e ) {
+            throw new IOException( e );
+        }
+        
     }
 
     @Override 
@@ -86,7 +100,7 @@ public class NewShuffleJobOutput implements JobOutput, LocalPartitionReaderListe
 
         this.chunkRef = chunkRef;
 
-        this.shuffleOutput = new ShuffleOutput( chunkRef );
+        this.shuffleOutput = new ShuffleOutput( chunkRef, name );
         
     }
 
@@ -94,13 +108,77 @@ public class NewShuffleJobOutput implements JobOutput, LocalPartitionReaderListe
     public void onChunkEnd( ChunkReference ref ) {
 
         try {
-            
-            // now close out the previous output and start writing it to cients on
-            // the network.
+        
+            if ( future != null )
+                future.get();
 
-            log.info( "Closing shuffle job output for chunk: %s", ref );
+            future = executors.submit( new ShuffleFlushCallable( this.shuffleOutput ) );
 
-            Map<Partition,OutputStream> clients = new HashMap();
+        } catch ( Exception e ) {
+            throw new RuntimeException( e );
+        }
+
+    }
+    
+}
+
+class ShuffleFlushCallable implements Callable {
+
+    private static final Logger log = Logger.getLogger();
+
+    private ShuffleOutput output = null;
+
+    public ShuffleFlushCallable( ShuffleOutput output ) {
+        this.output = output;
+    }
+    
+    public Object call() throws Exception {
+
+        log.info( "Closing shuffle job output for chunk: %s", output.chunkRef );
+
+        Map<Integer,RemoteChunkWriterClient> partitionOutput = getPartitionOutput();
+
+        // now read the data and write it to all clients .. 
+
+        int count = 0;
+        
+        for( ShuffleOutputExtent extent : output.extents ) {
+
+            ChannelBuffer buff = extent.buff;
+
+            for ( int i = 0; i < extent.count; ++i ) {
+
+                int to_partition = buff.readInt();
+                int length       = buff.readInt();
+
+                ChannelBuffer slice = buff.slice( buff.readerIndex() , length );
+
+                RemoteChunkWriterClient client = partitionOutput.get( to_partition );
+                client.write( slice );
+
+                ++count;
+                
+            }
+
+        }
+        
+        // now close all clients and we are done.
+        
+        for( RemoteChunkWriterClient client : partitionOutput.values() ) {
+            client.close();
+        }
+
+        log.info( "Shuffled %,d entries.", count );
+        
+        return null;
+        
+    }
+
+    private Map<Integer,RemoteChunkWriterClient> getPartitionOutput() {
+
+        try {
+
+            Map<Integer,RemoteChunkWriterClient> clients = new HashMap();
 
             Membership membership = Config.getPartitionMembership();
             
@@ -109,38 +187,27 @@ public class NewShuffleJobOutput implements JobOutput, LocalPartitionReaderListe
             for( Partition part : partitions ) {
 
                 List<Host> hosts = membership.getHosts( part );
-
-                List<OutputStream> output = new ArrayList();
                 
-                for( Host host : hosts ) {
+                String path = String.format( "/shuffle/%s/from-partition/%s/from-chunk/%s/to-partition/%s",
+                                             output.name,
+                                             output.chunkRef.partition.getId(),
+                                             output.chunkRef.local,
+                                             part.getId() );
 
-                    URI uri = new URI( String.format( "http://%s:%s/shuffle/default/from-partition/%s/from-chunk/%s/to-partition/%s",
-                                                      host.getName(),
-                                                      host.getPort(),
-                                                      ref.partition.getId(),
-                                                      ref.local,
-                                                      part.getId() ) );
+                RemoteChunkWriterClient client = new RemoteChunkWriterClient( hosts, path );
 
-                    RemoteChunkWriterClient client = new RemoteChunkWriterClient( uri );
-
-                    output.add( client );
-                    
-                }
-
-                clients.put( part, new MultiOutputStream( output ) );
+                clients.put( part.getId(), client );
                 
             }
 
-            // FIXME: now read the data and write it to all clients .. man this is hard...
-
-            // FIXME: now close all clients...
+            return clients;
             
         } catch ( Exception e ) {
             // This should be ok as it will cause the map job to fail which will
             // then be caught by gossip.
             throw new RuntimeException( e );
         }
-            
+
     }
     
 }
@@ -150,17 +217,22 @@ public class NewShuffleJobOutput implements JobOutput, LocalPartitionReaderListe
  */
 class ShuffleOutput {
 
+    private static final Logger log = Logger.getLogger();
+
     List<ShuffleOutputExtent> extents = new ArrayList();
 
     ShuffleOutputExtent extent = null;
 
-    private int partitions;
+    protected int partitions;
 
-    private ChunkReference chunkRef = null;
+    protected ChunkReference chunkRef = null;
+
+    protected String name = null;
     
-    public ShuffleOutput( ChunkReference chunkRef ) {
+    public ShuffleOutput( ChunkReference chunkRef, String name ) {
 
         this.chunkRef = chunkRef;
+        this.name = name;
         
         rollover();
 
@@ -172,7 +244,7 @@ class ShuffleOutput {
         // partition and the width of the value and then the length of the key
         // and the lenght of the value + two ints for the varints.
 
-        int length =
+        int key_value_length =
             VarintWriter.sizeof( key.length ) +
             key.length +
             VarintWriter.sizeof( value.length ) +
@@ -182,14 +254,14 @@ class ShuffleOutput {
         int write_width =
             IntBytes.LENGTH +
             IntBytes.LENGTH +
-            length
+            key_value_length
             ;
 
         if ( extent.writerIndex() + write_width > NewShuffleJobOutput.EXTENT_SIZE ) {
             rollover();
         }
 
-        extent.write( to_partition, length, key, value );
+        extent.write( to_partition, key_value_length, key, value );
         
     }
 
@@ -202,13 +274,17 @@ class ShuffleOutput {
 
 class ShuffleOutputExtent {
 
-    ChannelBuffer buff = ChannelBuffers.buffer( NewShuffleJobOutput.EXTENT_SIZE );
+    protected ChannelBuffer buff = ChannelBuffers.buffer( NewShuffleJobOutput.EXTENT_SIZE );
 
+    protected int count = 0;
+    
     public void write( int to_partition, int length, byte[] key, byte[] value ) {
 
         buff.writeInt( to_partition );
         buff.writeInt( length );
         DefaultChunkWriter.write( buff, key, value );
+
+        ++count;
         
     }
 

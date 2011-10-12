@@ -22,6 +22,8 @@ public class TestNewShuffleJobOutput extends peregrine.BaseTest {
 
     public void setUp() {
 
+        super.setUp();
+        
         Config.setHost( new Host( "localhost" ) );
 
         Config.addPartitionMembership( 0, new Host( "localhost", 11112 ) );
@@ -47,7 +49,7 @@ public class TestNewShuffleJobOutput extends peregrine.BaseTest {
         for ( int i = 0; i < 100; ++i ) {
 
             byte[] key = new StructWriter()
-                .writeVarint( i )
+                .writeHashcode( "" + i )
                 .toBytes()
                 ;
 
@@ -58,6 +60,8 @@ public class TestNewShuffleJobOutput extends peregrine.BaseTest {
         }
 
         output.onChunkEnd( chunkRef );
+
+        output.close();
         
     }
 
@@ -67,8 +71,6 @@ public class TestNewShuffleJobOutput extends peregrine.BaseTest {
         t.setUp();
         t.test1();
         t.tearDown();
-
-        Thread.sleep( 2000L );
         
     }
 
