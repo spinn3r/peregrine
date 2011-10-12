@@ -13,17 +13,6 @@ import com.spinn3r.log5j.Logger;
 
 /**
  * Write shuffle output to disk.
- *
- * The file is a binary file.
- *
- * It first contains a header of:
- *
- * MAGIC
- * 
- *
- * partition ID: int (4 bytes).
- * length: int (4 bytes). 
- * data: binary data of `length' bytes.  
  * 
  */
 public class ShuffleOutputWriter {
