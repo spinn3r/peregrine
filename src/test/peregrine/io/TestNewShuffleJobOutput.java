@@ -61,7 +61,7 @@ public class TestNewShuffleJobOutput extends peregrine.BaseTest {
      */
     public void test1() throws Exception {
 
-        NewShuffleJobOutput output = new NewShuffleJobOutput( config );
+        ShuffleJobOutput output = new ShuffleJobOutput( config );
 
         ChunkReference chunkRef = new ChunkReference( new Partition( 0  ) );
         chunkRef.local = 0;

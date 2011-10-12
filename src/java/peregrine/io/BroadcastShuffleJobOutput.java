@@ -23,22 +23,22 @@ public class BroadcastShuffleJobOutput extends ShuffleJobOutput {
 
         super( config, name );
 
-        this.shuffler = Shuffler.getInstance( name );
+        //this.shuffler = Shuffler.getInstance( name );
         
     }
     
     @Override
     public void emit( byte[] key , byte[] value ) {
 
-        Membership partitionMembership = config.getPartitionMembership();
+        // Membership partitionMembership = config.getPartitionMembership();
 
-        for ( Partition target : partitionMembership.getPartitions() ) {
+        // for ( Partition target : partitionMembership.getPartitions() ) {
 
-            MapOutputIndex mapOutputIndex = shuffler.getMapOutputIndex( target );
+        //     MapOutputIndex mapOutputIndex = shuffler.getMapOutputIndex( target );
 
-            mapOutputIndex.accept( chunkRef.global, key, value );
+        //     mapOutputIndex.accept( chunkRef.global, key, value );
 
-        }
+        // }
 
     }
 
