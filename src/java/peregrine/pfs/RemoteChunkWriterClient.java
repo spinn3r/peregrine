@@ -171,79 +171,6 @@ public class RemoteChunkWriterClient extends BaseOutputStream {
         write( ChannelBuffers.wrappedBuffer( data ) );
         
     }
-    
-    public void write( ChannelBuffer data ) throws IOException {
-
-        requireOpen();
-        
-        data = newChannelBuffer( data );
-        
-        if ( closed || isChannelStateClosed() ) {
-
-            if ( cause != null ) 
-                throw new IOException( cause );
-            
-            throw new IOException( "closed" );
-
-        }
-        
-        try {
-            
-            if ( clear ) {
-                
-                clear = false;
-                channel.write( data ).addListener( new WriteFutureListener( this ) );
-                
-            } else {
-                queue.put( data );
-            }
-
-        } catch ( Exception e ) {
-
-            throw new IOException( e );
-
-        }
-
-    }
-    
-    public void close() throws IOException {
-
-        // if we aren't opened there is no reason to do any work.  This could
-        // happen if we opened this code and never did a write() to it which
-        // would mean we don't have an HTTP connection to the server
-        if ( ! opened ) return;
-
-        // don't allow a double close.  This would never return.
-        if ( closed ) return;
-        
-        //required for chunked encoding.
-        write( EOF );
-
-        // prevent any more write requests
-        closed = true;
-
-        try {
-
-            // FIXME: this should have a timeout so that we don't block for
-            // infinity.  We need a unit test for this.
-            Object _result = result.take();
-
-            if ( _result instanceof IOException )
-                throw (IOException) result;
-
-            if ( _result instanceof Throwable )
-                throw new IOException( (Throwable)result );
-
-            if ( _result.equals( Boolean.TRUE ) )
-                return;
-
-            throw new IOException( "unknown result: " + _result );
-
-        } catch ( InterruptedException e ) {
-            throw new IOException( e );
-        }
-            
-    }
 
     public void setCause( Throwable throwable ) throws Exception {
         this.cause = throwable;
@@ -278,7 +205,160 @@ public class RemoteChunkWriterClient extends BaseOutputStream {
     public String toString() {
         return uri.toString();
     }
+
+    public void close() throws IOException {
+
+        // if we aren't opened there is no reason to do any work.  This could
+        // happen if we opened this code and never did a write() to it which
+        // would mean we don't have an HTTP connection to the server
+        if ( ! opened ) return;
+
+        // don't allow a double close.  This would never return.
+        if ( closed ) return;
+        
+        //required for chunked encoding.
+        write( EOF );
+
+        try {
+            Thread.sleep( 500L );
+        } catch ( Exception e ) {
+            throw new IOException( e );
+        }
+        
+        if ( clear && queue.peek() != null ) {
+
+            try {
+            
+                ChannelBuffer data = queue.take();
+                
+                channel.write( data ).addListener( new WriteFutureListener( this ) );
+                
+            } catch ( InterruptedException e ) {
+                throw new IOException( e );
+            }
+
+        }
+
+        // prevent any more write requests
+        closed = true;
+
+        try {
+
+            // FIXME: this should have a timeout so that we don't block for
+            // infinity.  We need a unit test for this.
+            Object _result = result.take();
+
+            if ( _result instanceof IOException )
+                throw (IOException) result;
+
+            if ( _result instanceof Throwable )
+                throw new IOException( (Throwable)result );
+
+            if ( _result.equals( Boolean.TRUE ) )
+                return;
+
+            throw new IOException( "unknown result: " + _result );
+
+        } catch ( InterruptedException e ) {
+            throw new IOException( e );
+        }
+            
+    }
+
+    public void write( ChannelBuffer data ) throws IOException {
+
+        requireOpen();
+        
+        data = newChannelBuffer( data );
+        
+        if ( closed || isChannelStateClosed() ) {
+
+            if ( cause != null ) 
+                throw new IOException( cause );
+            
+            throw new IOException( "closed" );
+
+        }
+        
+        try {
+            
+            if ( clear ) {
+                
+                clear = false;
+
+                System.out.printf( "FIXME: GOING TO WRITE %,d bytes VIA CLEAR for %s\n", data.writerIndex(), request.getUri() );
+
+                // NOTE it is required to put a packet on to the queue and pull
+                // one back off because technically there could be a race in the
+                // write listener where we read it, it was empty, one was put on
+                // the queue, then we were marked as clear.  We ALSO need to do
+                // by first taking the head out of the queue and THEN putting an
+                // item in as the queue MAY be full and we would block if we
+                // tried to put an item in first.
+
+                if ( queue.peek() != null ) {
+
+                    ChannelBuffer tmp = queue.take();
+                    queue.put( data );
+                    data = tmp;
+
+                }
+
+                channel.write( data ).addListener( new WriteFutureListener( this ) );
+
+                System.out.printf( "FIXME: Wrote %,d bytes VIA CLEAR for %s\n", data.writerIndex(), request.getUri() );
+
+            } else {
+                System.out.printf( "FIXME: Added %,d bytes INTO QUEUE for %s\n", data.writerIndex(), request.getUri() );
+                queue.put( data );
+            }
+
+        } catch ( Exception e ) {
+
+            throw new IOException( e );
+
+        }
+
+    }
+
+}
+
+class WriteFutureListener implements ChannelFutureListener {
+
+    private RemoteChunkWriterClient client;
     
+    public WriteFutureListener( RemoteChunkWriterClient client ) {
+        this.client = client;
+    }
+
+    public void operationComplete( ChannelFuture future ) 
+        throws Exception {
+
+        Channel channel = future.getChannel();
+        
+        if ( client.queue.peek() != null ) {
+
+             ChannelBuffer data = client.queue.take();
+
+            // NOTE that even if the last response was written here we MUST wait
+            // until we get the HTTP response.
+             
+             channel.write( data ).addListener( this );
+
+             System.out.printf( "FIXME: Wrote %,d bytes for %s\n", data.writerIndex(), client.request.getUri() );
+
+             return;
+            
+        }
+
+        // the queue was drained so the next packet should be sent direc
+
+        System.out.printf( "FIXME: marking clear for: %s\n" , client.request.getUri() );
+        
+        client.clear = true;
+
+    }
+
 }
 
 class ConnectFutureListener implements ChannelFutureListener {
@@ -323,40 +403,6 @@ class CloseFutureListener implements ChannelFutureListener {
         if ( cause != null ) {
             client.setCause( cause );
         }
-
-    }
-
-}
-
-class WriteFutureListener implements ChannelFutureListener {
-
-    private RemoteChunkWriterClient client;
-    
-    public WriteFutureListener( RemoteChunkWriterClient client ) {
-        this.client = client;
-    }
-
-    public void operationComplete( ChannelFuture future ) 
-        throws Exception {
-
-        Channel channel = future.getChannel();
-        
-        if ( client.queue.peek() != null ) {
-
-             ChannelBuffer data = client.queue.take();
-
-            // NOTE that even if the last response was written here we MUST wait
-            // until we get the HTTP response.
-
-            channel.write( data ).addListener( this );
-
-            return;
-            
-        }
-
-        // the queue was drained so the next packet should be sent directly
-
-        client.clear = true;
 
     }
 

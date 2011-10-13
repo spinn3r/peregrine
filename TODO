@@ -1,4 +1,25 @@
 
+
+- The current status is that HTTP requests are dying after say 100 or
+  so.... What I need to do is FIX this bug and then close out shuffling sorting
+  and I'm pretty much done.  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 - log output should be written to /var/log/peregrine-port/
 
 - some items in StructReader and StructWriter need to be lenght prefixed.  For

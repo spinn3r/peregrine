@@ -232,11 +232,14 @@ public class FSHandler extends SimpleChannelUpstreamHandler {
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e)
         throws Exception {
-        
+
         Channel ch = e.getChannel();
         Throwable cause = e.getCause();
 
-        log.error( "Could not handle request: %s", request.getUri() , cause );
+        if ( request == null )
+            log.error( "Could not handle initial request: ", cause );
+        else
+            log.error( "Could not handle request: %s", request.getUri() , cause );
 
         if (cause instanceof TooLongFrameException) {
             sendError(ctx, BAD_REQUEST);
