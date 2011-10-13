@@ -216,48 +216,33 @@ public class RemoteChunkWriterClient extends BaseOutputStream {
         // don't allow a double close.  This would never return.
         if ( closed ) return;
         
-        //required for chunked encoding.
+        //required for chunked encoding.  We must wrote an EOF at the end of the
+        //stream ot note that there is no more data.
         write( EOF );
 
-        try {
-            Thread.sleep( 500L );
-        } catch ( Exception e ) {
-            throw new IOException( e );
-        }
+        waitForClose();
         
-        if ( clear && queue.peek() != null ) {
-
-            try {
-            
-                ChannelBuffer data = queue.take();
-                
-                channel.write( data ).addListener( new WriteFutureListener( this ) );
-                
-            } catch ( InterruptedException e ) {
-                throw new IOException( e );
-            }
-
-        }
-
         // prevent any more write requests
         closed = true;
 
         try {
 
             // FIXME: this should have a timeout so that we don't block for
-            // infinity.  We need a unit test for this.
-            Object _result = result.take();
+            // infinity.  We need a unit test for this... this would basically
+            // emulate infinte write timeouts.
+            
+            Object took = result.take();
 
-            if ( _result instanceof IOException )
-                throw (IOException) result;
+            if ( took instanceof IOException )
+                throw (IOException) took;
 
-            if ( _result instanceof Throwable )
-                throw new IOException( (Throwable)result );
+            if ( took instanceof Throwable )
+                throw new IOException( (Throwable)took );
 
-            if ( _result.equals( Boolean.TRUE ) )
+            if ( took.equals( Boolean.TRUE ) )
                 return;
 
-            throw new IOException( "unknown result: " + _result );
+            throw new IOException( "unknown result: " + took );
 
         } catch ( InterruptedException e ) {
             throw new IOException( e );
@@ -265,6 +250,48 @@ public class RemoteChunkWriterClient extends BaseOutputStream {
             
     }
 
+    private void waitForClose() throws IOException {
+
+        // FIXME: I don't like this code and it probably means that this entire
+        // class should be refactored to avoid having to do this.  The problem
+        // is that in the pipeline code I can't await() and must do ALL the IO
+        // in the event thread.  This is normally OK but this ends up with a
+        // race condition on shutdown where we haven't YET flagged the channel
+        // as clear and then add the EOF to the queue but it's in the QUEUE so
+        // it is never sent and we sit here blocking forever.  This is a
+        // workaround but it would be nice to have a more elegant way to handle
+        // this.
+        while( true ) { 
+        
+            try {
+
+                if ( clear && queue.peek() != null ) {
+
+                    try {
+                    
+                        ChannelBuffer data = queue.take();
+                        
+                        channel.write( data ).addListener( new WriteFutureListener( this ) );
+                        
+                    } catch ( InterruptedException e ) {
+                        throw new IOException( e );
+                    }
+
+                }
+
+                if ( isChannelStateClosed() )
+                    break;
+                
+                Thread.sleep( 10L );
+
+            } catch ( Exception e ) {
+                throw new IOException( e );
+            }
+
+        }
+
+    }
+    
     public void write( ChannelBuffer data ) throws IOException {
 
         requireOpen();
@@ -286,8 +313,6 @@ public class RemoteChunkWriterClient extends BaseOutputStream {
                 
                 clear = false;
 
-                System.out.printf( "FIXME: GOING TO WRITE %,d bytes VIA CLEAR for %s\n", data.writerIndex(), request.getUri() );
-
                 // NOTE it is required to put a packet on to the queue and pull
                 // one back off because technically there could be a race in the
                 // write listener where we read it, it was empty, one was put on
@@ -306,10 +331,7 @@ public class RemoteChunkWriterClient extends BaseOutputStream {
 
                 channel.write( data ).addListener( new WriteFutureListener( this ) );
 
-                System.out.printf( "FIXME: Wrote %,d bytes VIA CLEAR for %s\n", data.writerIndex(), request.getUri() );
-
             } else {
-                System.out.printf( "FIXME: Added %,d bytes INTO QUEUE for %s\n", data.writerIndex(), request.getUri() );
                 queue.put( data );
             }
 
@@ -345,16 +367,12 @@ class WriteFutureListener implements ChannelFutureListener {
              
              channel.write( data ).addListener( this );
 
-             System.out.printf( "FIXME: Wrote %,d bytes for %s\n", data.writerIndex(), client.request.getUri() );
-
              return;
             
         }
 
         // the queue was drained so the next packet should be sent direc
 
-        System.out.printf( "FIXME: marking clear for: %s\n" , client.request.getUri() );
-        
         client.clear = true;
 
     }
