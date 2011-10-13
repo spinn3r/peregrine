@@ -29,12 +29,16 @@ public class RemoteChunkWriterClient extends BaseOutputStream {
     public static final int PENDING  = -1;
     public static final int CLOSED   = 0;
     public static final int OPEN     = 1;
+
+    public static final int CHUNK_LENGTH_OVERHEAD = 10;
     
-    public static byte[] CRLF = new byte[] { (byte)'\r', (byte)'\n' };
+    public static final byte[] CRLF = new byte[] { (byte)'\r', (byte)'\n' };
 
-    public static byte[] EOF = new byte[0];
+    public static final int CHUNK_OVERHEAD = CHUNK_LENGTH_OVERHEAD + (CRLF.length * 2);
 
-    public static final int LIMIT = 10;
+    public static final byte[] EOF = new byte[0];
+
+    public static int LIMIT = 10;
 
     protected int channelState = PENDING;
 

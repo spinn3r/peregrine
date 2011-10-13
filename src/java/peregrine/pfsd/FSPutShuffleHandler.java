@@ -27,31 +27,12 @@ import com.spinn3r.log5j.*;
 
 /**
  */
-public class FSPutShuffleHandler extends SimpleChannelUpstreamHandler {
+public class FSPutShuffleHandler extends FSPutBaseHandler {
 
     private static final Logger log = Logger.getLogger();
 
     private static Pattern PATH_REGEX =
         Pattern.compile( "/shuffle/([a-zA-Z0-9]+)/from-partition/([0-9]+)/from-chunk/([0-9]+)/to-partition/([0-9]+)" );
-
-    public static byte[] EOF = new byte[0];
-
-    private OutputStream asyncOutputStream = null;
-
-    /**
-     * NR of bytes written.
-     */
-    private long written = 0;
-
-    /**
-     * Time we started the request.
-     */
-    private long started;
-
-    /**
-     * Number of chunks written.
-     */
-    private long chunks = 0;
 
     private FSHandler handler;
 
@@ -63,9 +44,9 @@ public class FSPutShuffleHandler extends SimpleChannelUpstreamHandler {
     private Shuffler shuffler = null;
     
     public FSPutShuffleHandler( FSHandler handler ) throws Exception {
+        super( handler );
+        
         this.handler = handler;
-
-        started = System.currentTimeMillis();
 
         String path = handler.request.getUri();
         
@@ -86,6 +67,8 @@ public class FSPutShuffleHandler extends SimpleChannelUpstreamHandler {
     @Override
     public void messageReceived( ChannelHandlerContext ctx, MessageEvent e ) throws Exception {
 
+        super.messageReceived( ctx, e );
+
         Object message = e.getMessage();
 
         if ( message instanceof HttpChunk ) {
@@ -96,9 +79,6 @@ public class FSPutShuffleHandler extends SimpleChannelUpstreamHandler {
 
                 ChannelBuffer content = chunk.getContent();
                 byte[] data = content.array();
-
-                written += data.length;
-                chunks = chunks + 1;
 
                 shuffler.accept( from_partition, from_chunk, to_partition, data );
                 

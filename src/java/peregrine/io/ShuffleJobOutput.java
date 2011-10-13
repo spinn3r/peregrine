@@ -326,14 +326,14 @@ class ShuffleOutputExtent {
  * Buffer output until it is ready to be sent in one CHUNK.
  * 
  */
-class ShuffleOutputBuffer {
+class BufferedChannelBuffer {
 
     public List<ChannelBuffer> buffers = new ArrayList();
 
     private int length = 0;
     
     public void add( ChannelBuffer buff ) {
-        buffer.add( buff );
+        buffers.add( buff );
         length += buff.writerIndex();
     }
 
@@ -342,9 +342,7 @@ class ShuffleOutputBuffer {
      * close as possible.
      */
     public boolean hasCapacity( ChannelBuffer buff ) {
-
-        return lenght + buff.writerIndex() + 
-        
+        return length + buff.writerIndex() + RemoteChunkWriterClient.CHUNK_OVERHEAD > MAX_CHUNK_SIZE;
     }
     
 }

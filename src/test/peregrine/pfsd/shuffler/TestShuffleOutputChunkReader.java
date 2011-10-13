@@ -1,0 +1,86 @@
+package peregrine.pfsd.shuffler;
+
+import java.io.*;
+import java.util.*;
+import java.util.concurrent.*;
+
+import peregrine.*;
+import peregrine.io.*;
+import peregrine.keys.*;
+import peregrine.values.*;
+import peregrine.util.*;
+import peregrine.pagerank.*;
+import peregrine.io.partition.*;
+import peregrine.pfsd.shuffler.*;
+
+public class TestShuffleOutputChunkReader extends peregrine.BaseTest {
+
+    protected Config config;
+    public void setUp() {
+
+        config = new Config();
+        config.setHost( new Host( "localhost" ) );
+        
+        // TRY with three partitions... 
+        config.addPartitionMembership( 0, "localhost" );
+        config.addPartitionMembership( 1, "localhost" );
+
+    }
+    
+    public void test1() throws IOException {
+
+        String path = "/tmp/shuffle1.test";
+        
+        ShuffleOutputWriter buff = new ShuffleOutputWriter( config, path );
+
+        int max_writes = 10;
+        int max_partitions = config.getPartitionMembership().size();
+
+        byte[] value = new byte[] { (byte)6, (byte)7, (byte)8, (byte)9 };
+
+        for( int i = 0; i < max_writes; ++i ) {
+        
+            for( int j = 0 ; j < max_partitions; ++j ) {
+
+                int from_partition = i;
+                int from_chunk = i;
+                int to_partition = j;
+
+                buff.accept( from_partition, from_chunk, to_partition, value );
+                
+            }
+
+        }
+
+        buff.close();
+
+        ShuffleInputReader reader = new ShuffleInputReader( path, 1 );
+
+        int count = 0;
+        while( reader.hasNext() ) {
+            ShufflePacket pack = reader.next();
+
+            System.out.printf( "from_partition: %s, from_chunk: %s, to_partition: %s, data length: %,d, data: %s \n",
+                               pack.from_partition, pack.from_chunk, pack.to_partition, pack.data.length, Hex.encode( pack.data, 0 ) );
+            
+            //assertEquals( pack.to_partition, 1 );
+            
+            ++count;
+        }
+
+        //assertEquals( max_writes, count );
+
+    }
+
+    /*
+    public static void main( string[] args ) throws exception {
+
+        testshuffleoutputchunkreader test = new testshuffleoutputchunkreader();
+        test.setup();
+        test.test1();
+        test.tearDown();
+        
+    }
+    */
+    
+}

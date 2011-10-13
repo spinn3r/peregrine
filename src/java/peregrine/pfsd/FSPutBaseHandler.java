@@ -24,31 +24,40 @@ import peregrine.util.*;
 import com.spinn3r.log5j.*;
 
 /**
+ * Base handler for dealing with logging throughput and other issues with PUT.
  */
-public class FSPutDirectHandler extends FSPutBaseHandler {
+public class FSPutBaseHandler extends SimpleChannelUpstreamHandler {
 
     private static final Logger log = Logger.getLogger();
 
-    public static byte[] EOF = new byte[0];
+    /**
+     * NR of bytes written.
+     */
+    private long written = 0;
 
-    private OutputStream asyncOutputStream = null;
+    /**
+     * Time we started the request.
+     */
+    private long started;
+
+    /**
+     * Number of chunks written.
+     */
+    private long chunks = 0;
 
     private FSHandler handler;
     
-    public FSPutDirectHandler( FSHandler handler ) {
-        super( handler );
-        
+    public FSPutBaseHandler( FSHandler handler ) {
+
         this.handler = handler;
 
-        asyncOutputStream = new AsyncOutputStream( handler.path );
+        started = System.currentTimeMillis();
 
     }
 
     @Override
     public void messageReceived( ChannelHandlerContext ctx, MessageEvent e ) throws Exception {
 
-        super.messageReceived( ctx, e );
-        
         Object message = e.getMessage();
 
         if ( message instanceof HttpChunk ) {
@@ -58,20 +67,24 @@ public class FSPutDirectHandler extends FSPutBaseHandler {
             if ( ! chunk.isLast() ) {
 
                 ChannelBuffer content = chunk.getContent();
-                byte[] data = content.array();
 
-                asyncOutputStream.write( data );
+                written += content.writerIndex();
+                chunks = chunks + 1;
 
             } else {
 
-                asyncOutputStream.write( EOF );
-                asyncOutputStream.close();
+                // log that this was written successfully including the NR of
+                // bytes.
 
-                HttpResponse response = new DefaultHttpResponse( HTTP_1_1, OK );
+                long duration = System.currentTimeMillis() - started;
 
-                Channel ch = e.getChannel();
+                int mean_chunk_size = 0;
 
-                ctx.getChannel().write(response).addListener(ChannelFutureListener.CLOSE);
+                if ( chunks > 0 )
+                    mean_chunk_size = (int)(written / chunks);
+                
+                log.info( "Wrote %,d bytes in %,d chunks (mean chunk size = %,d bytes) in %,d ms to %s",
+                          written, chunks, mean_chunk_size, duration, handler.path );
 
             }
 
