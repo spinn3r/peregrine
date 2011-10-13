@@ -78,15 +78,19 @@ public class ShuffleInputReader {
                 start      = off;
                 this.count = count;
             }
+
+            // read everything.
+            if ( partition == -1 ) {
+                start       = point;
+                this.count += count;
+            }
             
         }
 
         if ( start == -1 )
             throw new IOException( "Unable to find start for part: " + partition );
-    
-        int skip = start - point;
-
-        in.skip( skip );
+        
+        in.skip( start - point );
 
         // now switched to buffered reads... 
         in = new BufferedInputStream( in , BUFFER_SIZE );
@@ -110,7 +114,7 @@ public class ShuffleInputReader {
         int to_partition    = struct.readInt();
         int len             = struct.readInt();
         
-        if ( to_partition != this.partition )
+        if ( this.partition != -1 && to_partition != this.partition )
            throw new IOException( "Read invalid partition data: " + to_partition );
         
         byte[] data = new byte[ len ];
@@ -120,6 +124,25 @@ public class ShuffleInputReader {
 
         return pack;
         
+    }
+
+    public static void main( String[] args ) throws IOException {
+
+        String path = args[0];
+        
+        // debug code to dump a shuffle.
+        
+        ShuffleInputReader reader = new ShuffleInputReader( path, -1 );
+
+        while( reader.hasNext() ) {
+
+            ShufflePacket pack = reader.next();
+
+            System.out.printf( "from_partition: %s, from_chunk: %s, to_partition: %s, data length: %,d, data: %s \n",
+                               pack.from_partition, pack.from_chunk, pack.to_partition, pack.data.length, Hex.encode( pack.data, 0 ) );
+
+        }
+
     }
     
 }
