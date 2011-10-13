@@ -159,13 +159,9 @@ class ShuffleFlushCallable implements Callable {
         // continue and just gossip that they have failed...  this includes
         // write() AND close()
 
-        System.out.printf( "FIXME: working with %,d \n", output.extents.size() );
-
         for( ShuffleOutputExtent extent : output.extents ) {
 
             ChannelBuffer buff = extent.buff;
-
-            System.out.printf( "FIXME: extent has %,d  entries\n", extent.count );
 
             for ( int i = 0; i < extent.count; ++i ) {
 

@@ -129,8 +129,6 @@ public abstract class BaseMapperTask extends BaseOutputTask implements Callable 
         listeners.add( listener );
 
         for( ShuffleJobOutput current : shuffleJobOutput ) {
-
-            System.out.printf( "FIXME found shuffle job output: %s\n", shuffleJobOutput );
             
             if ( current instanceof LocalPartitionReaderListener )
                 listeners.add( (LocalPartitionReaderListener) current );
@@ -164,21 +162,16 @@ class MapperChunkRolloverListener implements LocalPartitionReaderListener {
     private BaseMapperTask task = null;
     
     public MapperChunkRolloverListener( BaseMapperTask task ) {
-
-        System.out.printf( "FIXME0 in constructor for %s\n", getClass() );
         this.task = task;
     }
 
     @Override
     public void onChunk( ChunkReference ref ) {
-        System.out.printf( "MapperChunkRolloverListener.onChunk\n" );
         task.fireOnChunk( ref );
     }
 
     @Override
     public void onChunkEnd( ChunkReference ref ) {
-        System.out.printf( "MapperChunkRolloverListener.onChunkEnd\n" );
-        
         task.fireOnChunkEnd( ref );
     }
 

@@ -102,7 +102,6 @@ public class LocalPartitionReader {
     private void fireOnChunk() {
 
         for( LocalPartitionReaderListener listener : listeners ) {
-            System.out.printf( "FIXME firing... onChunk: %s %s\n" , chunkRef, listeners );
             listener.onChunk( chunkRef );
         }
         
@@ -111,8 +110,6 @@ public class LocalPartitionReader {
     private void fireOnChunkEnd() {
 
         if ( chunkRef.local >= 0 ) {
-
-            System.out.printf( "FIXME firing... onChunkEnd: %s %s\n" , chunkRef, listeners );
 
             for( LocalPartitionReaderListener listener : listeners ) {
                 listener.onChunkEnd( chunkRef );
