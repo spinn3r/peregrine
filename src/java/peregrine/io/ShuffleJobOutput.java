@@ -101,8 +101,6 @@ public class ShuffleJobOutput implements JobOutput, LocalPartitionReaderListener
     @Override 
     public void onChunk( ChunkReference chunkRef ) {
 
-        System.out.printf( "FIXME here in nw shuffle job utput\n" );
-
         this.chunkRef = chunkRef;
 
         this.shuffleOutput = new ShuffleOutput( chunkRef, name );
@@ -111,8 +109,6 @@ public class ShuffleJobOutput implements JobOutput, LocalPartitionReaderListener
 
     @Override 
     public void onChunkEnd( ChunkReference ref ) {
-
-        System.out.printf( "FIXME1 here\n" );
         
         try {
         
@@ -137,14 +133,20 @@ class ShuffleFlushCallable implements Callable {
 
     private Config config = null;
     
-    public ShuffleFlushCallable( Config config,
-                                 ShuffleOutput output ) {
+    public ShuffleFlushCallable( Config config, ShuffleOutput output ) {
         this.config = config;
         this.output = output;
     }
     
     public Object call() throws Exception {
 
+        // FIXME: dont allow us to close somethin out TWICE
+
+        if ( output.flushing )
+            return null;
+
+        output.flushing = true;
+        
         log.info( "Closing shuffle job output for chunk: %s", output.chunkRef );
 
         Map<Integer,RemoteChunkWriterClient> partitionOutput = getPartitionOutput();
@@ -156,24 +158,30 @@ class ShuffleFlushCallable implements Callable {
         // FIXME: ANY of these writes can fail and if they do we need to
         // continue and just gossip that they have failed...  this includes
         // write() AND close()
-        
+
+        System.out.printf( "FIXME: working with %,d \n", output.extents.size() );
+
         for( ShuffleOutputExtent extent : output.extents ) {
 
             ChannelBuffer buff = extent.buff;
 
+            System.out.printf( "FIXME: extent has %,d  entries\n", extent.count );
+
             for ( int i = 0; i < extent.count; ++i ) {
 
-                System.out.printf( "FIXME: working on %,d of %,d \n", i, extent.count );
-                
                 int to_partition = buff.readInt();
                 int length       = buff.readInt();
 
                 ChannelBuffer slice = buff.slice( buff.readerIndex() , length );
 
                 RemoteChunkWriterClient client = partitionOutput.get( to_partition );
+
+                if ( client == null )
+                    throw new Exception( "NO client for partition: " + to_partition );
+                
                 client.write( slice );
 
-                // bump up the writer index now
+                // bump up the writer index now for the next reader.
                 buff.readerIndex( buff.readerIndex() + length );
                 
                 ++count;
@@ -248,6 +256,8 @@ class ShuffleOutput {
     protected ChunkReference chunkRef = null;
 
     protected String name = null;
+
+    protected boolean flushing = false;
     
     public ShuffleOutput( ChunkReference chunkRef, String name ) {
 

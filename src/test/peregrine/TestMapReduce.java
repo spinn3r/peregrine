@@ -69,10 +69,10 @@ public class TestMapReduce extends peregrine.BaseTest {
         super.setUp();
         
         Config config0 = newConfig( "localhost", 11112 );
-        Config config1 = newConfig( "localhost", 11113 );
+        //Config config1 = newConfig( "localhost", 11113 );
 
         new FSDaemon( config0 );
-        new FSDaemon( config1 );
+        //new FSDaemon( config1 );
 
         config = config0;
         
@@ -83,7 +83,7 @@ public class TestMapReduce extends peregrine.BaseTest {
         Config config = new Config( host, port );
 
         config.addPartitionMembership( 0, new Host( "localhost", 11112 ) );
-        config.addPartitionMembership( 1, new Host( "localhost", 11113 ) );
+        //config.addPartitionMembership( 1, new Host( "localhost", 11113 ) );
 
         return config;
         
