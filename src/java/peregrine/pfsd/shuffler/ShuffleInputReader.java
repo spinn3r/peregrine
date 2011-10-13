@@ -102,7 +102,7 @@ public class ShuffleInputReader {
 
         data = struct.read( data );
         
-        ShufflePacket pack = new ShufflePacket( from_partition, from_partition, to_partition, data );
+        ShufflePacket pack = new ShufflePacket( from_partition, from_chunk, to_partition, data );
 
         return pack;
         

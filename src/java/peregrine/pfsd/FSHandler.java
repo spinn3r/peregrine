@@ -236,7 +236,7 @@ public class FSHandler extends SimpleChannelUpstreamHandler {
         Channel ch = e.getChannel();
         Throwable cause = e.getCause();
 
-        log.error( "Could not handle request: " , cause );
+        log.error( "Could not handle request: %s", request.getUri() , cause );
 
         if (cause instanceof TooLongFrameException) {
             sendError(ctx, BAD_REQUEST);

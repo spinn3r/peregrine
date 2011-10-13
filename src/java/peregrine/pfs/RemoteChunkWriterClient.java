@@ -208,6 +208,14 @@ public class RemoteChunkWriterClient extends BaseOutputStream {
     
     public void close() throws IOException {
 
+        // if we aren't opened there is no reason to do any work.  This could
+        // happen if we opened this code and never did a write() to it which
+        // would mean we don't have an HTTP connection to the server
+        if ( ! opened ) return;
+
+        // don't allow a double close.  This would never return.
+        if ( closed ) return;
+        
         //required for chunked encoding.
         write( EOF );
 
@@ -215,7 +223,9 @@ public class RemoteChunkWriterClient extends BaseOutputStream {
         closed = true;
 
         try {
-            
+
+            // FIXME: this should have a timeout so that we don't block for
+            // infinity.  We need a unit test for this.
             Object _result = result.take();
 
             if ( _result instanceof IOException )
@@ -286,10 +296,10 @@ class ConnectFutureListener implements ChannelFutureListener {
 
         client.channelState = RemoteChunkWriterClient.OPEN;
 
-        client.channel.write( client.request ).addListener( new WriteFutureListener( client ) );
-        
         // we need to find out when we are closed now.
         client.channel.getCloseFuture().addListener( new CloseFutureListener( client ) );
+
+        client.channel.write( client.request ).addListener( new WriteFutureListener( client ) );
 
     }
         
