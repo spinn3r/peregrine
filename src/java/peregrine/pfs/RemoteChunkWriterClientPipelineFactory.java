@@ -1,6 +1,7 @@
 package peregrine.pfs;
 
 import static org.jboss.netty.channel.Channels.*;
+import static peregrine.pfsd.FSPipelineFactory.*;
 
 import org.jboss.netty.channel.*;
 import org.jboss.netty.handler.codec.http.*;
@@ -22,7 +23,10 @@ public class RemoteChunkWriterClientPipelineFactory implements ChannelPipelineFa
         ChannelPipeline pipeline = pipeline();
 
         //FIXME: the client codec needs a memory config too... 
-        pipeline.addLast("codec",   new HttpClientCodec());
+        pipeline.addLast("codec",   new HttpClientCodec( MAX_INITIAL_LINE_LENGTH ,
+                                                         MAX_HEADER_SIZE,
+                                                         MAX_CHUNK_SIZE ));
+        
         pipeline.addLast("handler", new RemoteChunkWriterClientHandler( client ));
 
         return pipeline;

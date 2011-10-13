@@ -16,19 +16,8 @@ import peregrine.*;
  */
 public class FSPipelineFactory implements ChannelPipelineFactory {
 
-    public static int REQUEST_MAX_INITIAL_LINE_LENGTH    = 1024;
-    public static int REQUEST_MAX_HEADER_SIZE            = 1024;
-
-    private Config config;
-    private FSDaemon daemon;
-    
-    public FSPipelineFactory( Config config,
-                              FSDaemon daemon ) {
-
-        this.config = config;
-        this.daemon = daemon;
-        
-    }
+    public static int MAX_INITIAL_LINE_LENGTH    = 1024;
+    public static int MAX_HEADER_SIZE            = 1024;
 
     /**
      * The memory consumption of netty partially depends on these variables.
@@ -46,16 +35,27 @@ public class FSPipelineFactory implements ChannelPipelineFactory {
      * 1000       25            8192      204.0 MB
      * </pre>
      */
-    public static int REQUEST_MAX_CHUNK_SIZE             = 2048;
+    public static int MAX_CHUNK_SIZE             = 16384;
+
+    private Config config;
+    private FSDaemon daemon;
+    
+    public FSPipelineFactory( Config config,
+                              FSDaemon daemon ) {
+
+        this.config = config;
+        this.daemon = daemon;
+        
+    }
 
     public ChannelPipeline getPipeline() throws Exception {
 
         // Create a default pipeline implementation.
         ChannelPipeline pipeline = pipeline();
 
-        pipeline.addLast("decoder",        new HttpRequestDecoder( REQUEST_MAX_INITIAL_LINE_LENGTH ,
-                                                                   REQUEST_MAX_HEADER_SIZE,
-                                                                   REQUEST_MAX_CHUNK_SIZE ) );
+        pipeline.addLast("decoder",        new HttpRequestDecoder( MAX_INITIAL_LINE_LENGTH ,
+                                                                   MAX_HEADER_SIZE,
+                                                                   MAX_CHUNK_SIZE ) );
 
         pipeline.addLast("encoder",        new HttpResponseEncoder() );
         pipeline.addLast("handler",        new FSHandler( config, daemon ));

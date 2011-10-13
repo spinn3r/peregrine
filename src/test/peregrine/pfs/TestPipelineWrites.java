@@ -54,7 +54,7 @@ public class TestPipelineWrites extends peregrine.BaseTest {
         
         int block = 16384;
         
-        long max = 10 ;
+        long max = 2000 ;
 
         long nr_bytes = (long)max * (long)block;
         
