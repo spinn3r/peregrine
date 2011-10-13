@@ -49,5 +49,16 @@ public class ShufflerFactory {
         return shuffler;
         
     }
+
+    /**
+     * Close all shufflers and flush their output to disk.
+     */
+    public void closeAll() throws IOException {
+
+        for( Shuffler current : instances.values() ) {
+            current.close();
+        }
+
+    }
     
 }

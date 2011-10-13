@@ -64,6 +64,8 @@ public class TestMapReduce extends peregrine.BaseTest {
 
     protected Config config;
 
+    protected List<FSDaemon> daemons = new ArrayList();
+    
     public void setUp() {
 
         super.setUp();
@@ -71,7 +73,7 @@ public class TestMapReduce extends peregrine.BaseTest {
         Config config0 = newConfig( "localhost", 11112 );
         //Config config1 = newConfig( "localhost", 11113 );
 
-        new FSDaemon( config0 );
+        daemons.add( new FSDaemon( config0 ) );
         //new FSDaemon( config1 );
 
         config = config0;
@@ -147,6 +149,11 @@ public class TestMapReduce extends peregrine.BaseTest {
         Controller controller = new Controller( config );
         
         controller.map( Map.class, path );
+
+        for( FSDaemon daemon : daemons ) {
+            daemon.shufflerFactory.closeAll();
+        }
+        
         controller.reduce( Reduce.class, null, new Output( output ) );
 
     }

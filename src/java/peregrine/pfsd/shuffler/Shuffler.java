@@ -54,7 +54,7 @@ public class Shuffler {
 
             String path = config.getPFSPath( part, host, String.format( "/shuffle/%s-%s.tmp", name, idx++ ) );
 
-            close();
+            rollover();
             
             writer = new ShuffleOutputWriter( config, path );
 
@@ -64,7 +64,7 @@ public class Shuffler {
         
     }
 
-    public void close() throws IOException {
+    public void rollover() throws IOException {
 
         if ( this.future != null ) {
 
@@ -79,19 +79,36 @@ public class Shuffler {
         last = writer;
 
         if ( last != null ) {
-            // ok we have to close this now....
-            this.future = executors.submit( new ShufflerCloseCallable( last ) );
+            // ok we have to flush this to disk this now....
+            this.future = executors.submit( new ShufflerFlushCallable( last ) );
         }
 
     }
-    
+
+    public void close() throws IOException {
+
+        try {
+            
+            rollover();
+            
+            // block until we close
+            future.get();
+
+        } catch ( IOException e ) {
+            throw e;
+        } catch ( Exception e ) {
+            throw new IOException( "Failed to close shufflers: " , e );
+        }
+        
+    }
+
 }
 
-class ShufflerCloseCallable implements Callable {
+class ShufflerFlushCallable implements Callable {
 
     private ShuffleOutputWriter writer;
     
-    ShufflerCloseCallable( ShuffleOutputWriter writer ) {
+    ShufflerFlushCallable( ShuffleOutputWriter writer ) {
         this.writer = writer;
     }
 
