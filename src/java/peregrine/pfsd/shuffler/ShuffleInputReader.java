@@ -49,7 +49,10 @@ public class ShuffleInputReader {
         // use skip to jump over the preamble. This MAY be a slight performance
         // issue but I doubt it.  There are only 12 bytes per partition and if
         // the local partition has 25 partitions this is only 300 bytes and in
-        // the worse case scenario we read 288 extra bytes.
+        // the worse case scenario we read 288 extra bytes.  Ideally we would
+        // store the shuffle correctly so that the partitions this machine was
+        // responsible for reducing over were at the beginning of the shuffle
+        // data but in practice this may be a premature optimization.
         
         in = new FileInputStream( file );
         this.struct = new StructReader( in );
@@ -103,11 +106,8 @@ public class ShuffleInputReader {
         ++idx;
 
         int from_partition  = struct.readInt();
-
         int from_chunk      = struct.readInt();
-
         int to_partition    = struct.readInt();
-
         int len             = struct.readInt();
         
         if ( to_partition != this.partition )
