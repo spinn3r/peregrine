@@ -33,8 +33,10 @@ public class TestShuffleOutputWriter extends peregrine.BaseTest {
         
         ShuffleOutputWriter buff = new ShuffleOutputWriter( config, path );
 
-        int max_writes = 1000;
+        int max_writes = 10;
         int max_partitions = config.getPartitionMembership().size();
+
+        byte[] value = new byte[] { (byte)6, (byte)7, (byte)8, (byte)9 };
 
         for( int i = 0; i < max_writes; ++i ) {
         
@@ -43,8 +45,8 @@ public class TestShuffleOutputWriter extends peregrine.BaseTest {
                 int from_partition = i;
                 int from_chunk = i;
                 int to_partition = j;
-                
-                buff.accept( from_partition, from_chunk, to_partition, new byte[2048] );
+
+                buff.accept( from_partition, from_chunk, to_partition, value );
                 
             }
 
@@ -57,6 +59,12 @@ public class TestShuffleOutputWriter extends peregrine.BaseTest {
         int count = 0;
         while( reader.hasNext() ) {
             ShufflePacket pack = reader.next();
+
+            System.out.printf( "from_partition: %s, from_chunk: %s, to_partition: %s, data length: %,d, data: %s \n",
+                               pack.from_partition, pack.from_chunk, pack.to_partition, pack.data.length, Hex.encode( pack.data, 0 ) );
+            
+            //assertEquals( pack.to_partition, 1 );
+            
             ++count;
         }
 

@@ -15,6 +15,8 @@ public class StructReader {
 
     private UnsafeInputStream unsafe;
 
+    private boolean debug = false;
+
     private InputStream is;
     
     private static VarintReader varintReader;
@@ -47,6 +49,10 @@ public class StructReader {
         byte[] data = new byte[4];
         unsafe.read( data );
 
+        if ( debug ) {
+            System.out.printf( "readInt: %s\n", Hex.encode( data, 0 ) );
+        }
+
         return IntBytes.toInt( data );
 
     }
@@ -64,7 +70,11 @@ public class StructReader {
         return result;
 
     }
-    
+
+    public void setDebug( boolean debug ) {
+        this.debug = debug;
+    }
+
 }
 
 class UnsafeInputStream {

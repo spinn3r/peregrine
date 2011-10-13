@@ -33,6 +33,8 @@ public class ShuffleInputReader {
     private int idx = 0;
 
     private int partition;
+
+    private InputStream in;
     
     public ShuffleInputReader( String path, int partition ) throws IOException {
 
@@ -41,13 +43,15 @@ public class ShuffleInputReader {
 
         // pull out the header information 
 
-        InputStream in;
-
         File file = new File( path );
-        
-        FileInputStream fis = new FileInputStream( file );
-        in = new BufferedInputStream( fis , BUFFER_SIZE );
 
+        // NOTE: we read directly from a FileInputStream here because we need to
+        // use skip to jump over the preamble. This MAY be a slight performance
+        // issue but I doubt it.  There are only 12 bytes per partition and if
+        // the local partition has 25 partitions this is only 300 bytes and in
+        // the worse case scenario we read 288 extra bytes.
+        
+        in = new FileInputStream( file );
         this.struct = new StructReader( in );
 
         // read the magic.
@@ -56,6 +60,8 @@ public class ShuffleInputReader {
         int size = struct.readInt();
 
         int start = -1;
+
+        int point = ShuffleOutputWriter.MAGIC.length + IntBytes.LENGTH;
         
         for ( int i = 0; i < size; ++i ) {
 
@@ -63,6 +69,8 @@ public class ShuffleInputReader {
             int off    = struct.readInt();
             int count  = struct.readInt();
 
+            point += IntBytes.LENGTH * 3;
+            
             if ( part == partition ) {
                 start      = off;
                 this.count = count;
@@ -70,14 +78,15 @@ public class ShuffleInputReader {
             
         }
 
-        int point = ShuffleOutputWriter.MAGIC.length + IntBytes.LENGTH + (size * IntBytes.LENGTH * 2);
+        if ( start == -1 )
+            throw new IOException( "Unable to find start for part: " + partition );
     
         int skip = start - point;
 
-        fis.skip( skip );
+        in.skip( skip );
 
-        // create a new input as the previous one is now invalid.
-        in = new BufferedInputStream( fis , BUFFER_SIZE );
+        // now switched to buffered reads... 
+        in = new BufferedInputStream( in , BUFFER_SIZE );
         this.struct = new StructReader( in );
 
     }
@@ -92,14 +101,19 @@ public class ShuffleInputReader {
             return null;
 
         ++idx;
-        
+
         int from_partition  = struct.readInt();
+
         int from_chunk      = struct.readInt();
+
         int to_partition    = struct.readInt();
+
         int len             = struct.readInt();
-
+        
+        if ( to_partition != this.partition )
+           throw new IOException( "Read invalid partition data: " + to_partition );
+        
         byte[] data = new byte[ len ];
-
         data = struct.read( data );
         
         ShufflePacket pack = new ShufflePacket( from_partition, from_chunk, to_partition, data );

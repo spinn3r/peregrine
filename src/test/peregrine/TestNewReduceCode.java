@@ -12,6 +12,7 @@ import peregrine.util.*;
 import peregrine.pagerank.*;
 import peregrine.io.partition.*;
 import peregrine.pfsd.*;
+import peregrine.pfsd.shuffler.*;
 
 public class TestNewReduceCode extends peregrine.BaseTest {
 
@@ -95,7 +96,7 @@ public class TestNewReduceCode extends peregrine.BaseTest {
 
         String path = String.format( "/test/%s/test1.in", getClass().getName() );
 
-        DefaultPartitionWriter.CHUNK_SIZE = 2048;
+        DefaultPartitionWriter.CHUNK_SIZE = 16384;
         
         ExtractWriter writer = new ExtractWriter( config, path );
 
@@ -118,34 +119,7 @@ public class TestNewReduceCode extends peregrine.BaseTest {
         }
 
         writer.close();
-
-        // int count = 0;
-        
-        // //make sure too many values weren't written.
-        // Membership membership = config.getPartitionMembership();
-
-        // for( Partition part : membership.getPartitions() ) {
-
-        //     for( Host host : membership.getHosts( part ) ) {
-
-        //         LocalPartitionReader reader = new LocalPartitionReader( config, part, host, path );
-
-        //         while( reader.hasNext() ) {
-
-        //             byte[] key = reader.key();
-        //             byte[] value = reader.value();
-
-        //             ++count ;
-                    
-        //         }
-                
-        //     }
-            
-        // }
-
-        // //FIXME: read the value off BOTH partitions / hosts.
-        // assertTrue( count > 0 );
-        
+       
         String output = String.format( "/test/%s/test1.out", getClass().getName() );
 
         Controller controller = new Controller( config );
@@ -156,6 +130,22 @@ public class TestNewReduceCode extends peregrine.BaseTest {
             daemon.shufflerFactory.closeAll();
         }
 
+        // now see if I can reduce over the output data.
+
+        File file = new File( "/tmp/peregrine-dfs//localhost/11112/0/shuffle/default-0.tmp" );
+
+        ShuffleInputReader reader = new ShuffleInputReader( file.getPath(), 0 );
+
+        int count = 0;
+        while( reader.hasNext() ) {
+            System.out.printf( "." );
+            
+            ShufflePacket pack = reader.next();
+            ++count;
+        }
+
+        System.out.printf( "count: %,d\n", count );
+        
     }
 
     public static void main( String[] args ) throws Exception {
