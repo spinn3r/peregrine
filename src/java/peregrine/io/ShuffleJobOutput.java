@@ -23,6 +23,8 @@ import peregrine.pfsd.shuffler.*;
 
 import com.spinn3r.log5j.Logger;
 
+import static peregrine.pfsd.FSPipelineFactory.*;
+
 public class ShuffleJobOutput implements JobOutput, LocalPartitionReaderListener {
 
     private static final Logger log = Logger.getLogger();
@@ -320,3 +322,29 @@ class ShuffleOutputExtent {
     
 }
 
+/**
+ * Buffer output until it is ready to be sent in one CHUNK.
+ * 
+ */
+class ShuffleOutputBuffer {
+
+    public List<ChannelBuffer> buffers = new ArrayList();
+
+    private int length = 0;
+    
+    public void add( ChannelBuffer buff ) {
+        buffer.add( buff );
+        length += buff.writerIndex();
+    }
+
+    /**
+     * Make sure we can accept this output buffer so that it's < 16384 but as
+     * close as possible.
+     */
+    public boolean hasCapacity( ChannelBuffer buff ) {
+
+        return lenght + buff.writerIndex() + 
+        
+    }
+    
+}

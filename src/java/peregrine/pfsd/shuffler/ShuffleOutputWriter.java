@@ -11,6 +11,8 @@ import peregrine.io.async.*;
 
 import com.spinn3r.log5j.Logger;
 
+import static peregrine.pfsd.FSPipelineFactory.MAX_CHUNK_SIZE;
+
 /**
  * Write shuffle output to disk.
  * 
@@ -23,11 +25,6 @@ public class ShuffleOutputWriter {
      * Chunk size for rollover files.
      */
     public static long COMMIT_SIZE = 134217728;
-
-    /**
-     * Real world HTTP chunks size we would see.
-     */
-    public static int HTTP_CHUNK_SIZE = 3000;
 
     /**
      * Magic number for this file.  Right now it is 'PSO1' which stands for
@@ -56,7 +53,7 @@ public class ShuffleOutputWriter {
     
     public ShuffleOutputWriter( Config config, String path ) {
 
-        this.index = new ShufflePacket[ (int)(COMMIT_SIZE / HTTP_CHUNK_SIZE) ];
+        this.index = new ShufflePacket[ (int)(COMMIT_SIZE / MAX_CHUNK_SIZE) ];
         this.path = path;
         this.config = config;
         
@@ -81,11 +78,9 @@ public class ShuffleOutputWriter {
     public int length() {
         return this.length;
     }
-    
-    public void close() throws IOException {
 
-        closed = true;
-        
+    private Map<Integer,List<ShufflePacket>> buildLookup() throws IOException {
+
         // we are done working with this buffer.  serialize it to disk now and
         // close it out.
 
@@ -95,7 +90,7 @@ public class ShuffleOutputWriter {
         
         if ( partitions == null || partitions.size() == 0 )
             throw new IOException( "No partitions defined for: " + config.getHost() );
-        
+
         Map<Integer,List<ShufflePacket>> lookup = new HashMap();
 
         // init the lookup with one ArrayList per partition.
@@ -121,6 +116,16 @@ public class ShuffleOutputWriter {
             packets.add( current );
             
         }
+
+        return lookup;
+        
+    }
+    
+    public void close() throws IOException {
+
+        closed = true;
+
+        Map<Integer,List<ShufflePacket>> lookup = buildLookup();
 
         log.info( "Going write output buffer with %,d entries.", lookup.size() );
         
