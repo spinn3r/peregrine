@@ -36,6 +36,10 @@ public class FSPostDirectHandler extends SimpleChannelUpstreamHandler {
         Executors.newCachedThreadPool( new DefaultThreadFactory( FSPostDirectHandler.class) );
     
     private FSHandler handler;
+
+    private Channel channel;
+
+    private Map<String,List<String>> message;
     
     public FSPostDirectHandler( FSHandler handler ) {
         this.handler = handler;
@@ -45,6 +49,8 @@ public class FSPostDirectHandler extends SimpleChannelUpstreamHandler {
     public void messageReceived( ChannelHandlerContext ctx, MessageEvent e ) throws Exception {
 
         Object message = e.getMessage();
+
+        channel = e.getChannel();
 
         if ( message instanceof HttpChunk ) {
 
@@ -57,18 +63,11 @@ public class FSPostDirectHandler extends SimpleChannelUpstreamHandler {
 
                 System.out.printf( "data: %s\n", new String( data ) );
                 
-                Map<String,List<String>> params =
-                    new QueryStringDecoder( new String( data ) ).getParameters();
-
-                System.out.printf( "params: %s\n", params );
+                this.message = new QueryStringDecoder( new String( data ) ).getParameters();
 
             } else {
 
-                HttpResponse response = new DefaultHttpResponse( HTTP_1_1, OK );
-
-                Channel ch = e.getChannel();
-
-                ctx.getChannel().write(response).addListener(ChannelFutureListener.CLOSE);
+                handleMessage();
 
             }
                 
@@ -76,4 +75,35 @@ public class FSPostDirectHandler extends SimpleChannelUpstreamHandler {
         
     }
 
+    private void handleMessage() {
+
+        String action = message.get( "action" ).get( 0 );
+
+        try {
+        
+            if ( "flush".equals( action ) ) {
+
+                log.info( "Flushing shufflers..." );
+                
+                handler.daemon.shufflerFactory.flush();
+
+                log.info( "Flushing shufflers...done" );
+
+                HttpResponse response = new DefaultHttpResponse( HTTP_1_1, OK );
+                channel.write(response).addListener(ChannelFutureListener.CLOSE);
+
+                return;
+                
+            }
+                
+        } catch ( IOException e ) {
+            log.error( "Unable handle message %s: ", message, e );
+        }
+
+        HttpResponse response = new DefaultHttpResponse( HTTP_1_1, INTERNAL_SERVER_ERROR );
+        channel.write(response).addListener(ChannelFutureListener.CLOSE);
+        return;
+
+    }
+    
 }

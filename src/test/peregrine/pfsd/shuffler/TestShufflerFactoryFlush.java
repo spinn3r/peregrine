@@ -49,7 +49,7 @@ public class TestShufflerFactoryFlush extends peregrine.BaseTest {
         // now measure the flush time...
 
         QueryStringEncoder encoder = new QueryStringEncoder( "" );
-        encoder.addParam( "message", "flush" );
+        encoder.addParam( "action", "flush" );
         String query = encoder.toString();
 
         RemoteChunkWriterClient client = new RemoteChunkWriterClient( new URI( "http://localhost:11112/shuffler/RPC2" ) );
