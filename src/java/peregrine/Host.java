@@ -43,7 +43,7 @@ public class Host {
     }
 
     public int hashCode() {
-        return name.hashCode();
+        return name.hashCode() + port;
     } 
 
     public String getName() {

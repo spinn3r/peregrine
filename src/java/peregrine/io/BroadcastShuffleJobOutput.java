@@ -31,6 +31,8 @@ public class BroadcastShuffleJobOutput extends ShuffleJobOutput {
         Membership partitionMembership = config.getPartitionMembership();
 
         for ( Partition target : partitionMembership.getPartitions() ) {
+
+            System.out.printf( "FIXME: %s is going to EMIT to partition: %s\n", Thread.currentThread(), target );
             emit( target.getId() , key, value );
         }
 

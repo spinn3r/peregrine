@@ -221,6 +221,8 @@ class ShuffleFlushCallable implements Callable {
                                              output.chunkRef.partition.getId(),
                                              output.chunkRef.local );
 
+                System.out.printf( "FIXME: hosts: %s, part: %s\n", hosts , part );
+                
                 ChannelBufferWritable client = new RemoteChunkWriterClient( hosts, path );
                 client = new BufferedChannelBuffer( client , MAX_CHUNK_SIZE );
                 

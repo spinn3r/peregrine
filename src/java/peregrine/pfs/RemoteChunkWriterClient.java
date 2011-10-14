@@ -89,6 +89,8 @@ public class RemoteChunkWriterClient extends BaseOutputStream implements Channel
     protected Channel channel = null;
 
     protected HttpMethod method = HttpMethod.PUT;
+
+    protected boolean inited = false;
     
     public RemoteChunkWriterClient( List<Host> hosts, String path ) throws IOException {
 
@@ -136,10 +138,15 @@ public class RemoteChunkWriterClient extends BaseOutputStream implements Channel
         request.setHeader( HttpHeaders.Names.TRANSFER_ENCODING, "chunked" );
 
     }
-    
+
+    private void initWhenNecessary() {
+        init();
+        inited = true;
+    }
+
     private void open() throws IOException {
 
-        init();
+        initWhenNecessary();
         
         String host = uri.getHost();
         int port = uri.getPort();
@@ -167,10 +174,13 @@ public class RemoteChunkWriterClient extends BaseOutputStream implements Channel
     }
     
     public void setHeader( String name, String value ) {
+        initWhenNecessary();
         request.setHeader( name , value );
     }
     
     private void requireOpen() throws IOException {
+
+        initWhenNecessary();
 
         if ( ! opened ) open();
         

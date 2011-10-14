@@ -11,7 +11,7 @@ import peregrine.util.*;
 import peregrine.pagerank.*;
 import peregrine.io.partition.*;
 
-public class TestBroadcastMapReduce extends peregrine.TestWithTwoDaemons {
+public class TestBroadcastMapReduce extends peregrine.TestWithTwoPartitions {
 
     public static class Map extends Mapper {
 
@@ -23,6 +23,8 @@ public class TestBroadcastMapReduce extends peregrine.TestWithTwoDaemons {
         public void init( JobOutput... output ) {
             super.init( output );
 
+            System.out.printf( "FIXME: init on Thread: %s\n", Thread.currentThread() );
+            
             countBroadcast = output[0];
             
         }
@@ -30,18 +32,18 @@ public class TestBroadcastMapReduce extends peregrine.TestWithTwoDaemons {
         @Override
         public void map( byte[] key,
                          byte[] value ) {
-
-            //FIXME: this is a bug because STDOUT will become a broadcast entry.
-            //emit( key, value );
             ++count;
-            
         }
 
         @Override
         public void cleanup() {
 
-            if ( count == 0 )
+            System.out.printf( "FIXME: within cleanup()\n" );
+            
+            if ( count == 0 ) {
+                System.out.printf( "FIXME failing! \n" );
                 throw new RuntimeException();
+            }
 
             System.out.printf( "Writing count: %,d\n", count );
 
@@ -53,7 +55,7 @@ public class TestBroadcastMapReduce extends peregrine.TestWithTwoDaemons {
                 .writeVarint( count )
                 .toBytes();
 
-            System.out.printf( "CLEANUP will emit %,d \n", count );
+            System.out.printf( "FIXME: CLEANUP will emit %,d \n", count );
             
             countBroadcast.emit( key, value );
             
@@ -90,9 +92,7 @@ public class TestBroadcastMapReduce extends peregrine.TestWithTwoDaemons {
      */
      public void test1() throws Exception {
 
-         // TRY with three partitions... 
-         config.addPartitionMembership( 0, "localhost" );
-         config.addPartitionMembership( 1, "localhost" );
+         System.out.printf( "FIXME: partitions: %s\n" , config.getPartitionMembership().getPartitions() );
          
          String path = String.format( "/test/%s/test1.in", getClass().getName() );
         
