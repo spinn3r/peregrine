@@ -94,9 +94,9 @@ public class RemoteChunkWriterClient extends BaseOutputStream implements Channel
 
         try {
             
-            URI uri = new URI( String.format( "http://%s%s", hosts.get(0), path ) );
+            this.uri = new URI( String.format( "http://%s%s", hosts.get(0), path ) );
 
-            init( uri );
+            init();
             
             String x_pipeline = "";
             
@@ -116,7 +116,7 @@ public class RemoteChunkWriterClient extends BaseOutputStream implements Channel
     }
 
     public RemoteChunkWriterClient( URI uri ) throws IOException {
-        init( uri );
+        this.uri = uri;
     }
     
     public RemoteChunkWriterClient( HttpRequest request, URI uri ) throws IOException {
@@ -124,7 +124,7 @@ public class RemoteChunkWriterClient extends BaseOutputStream implements Channel
         this.uri = uri;
     }
 
-    private void init( URI uri ) {
+    private void init() {
 
         String host = uri.getHost();
 
@@ -135,12 +135,12 @@ public class RemoteChunkWriterClient extends BaseOutputStream implements Channel
         request.setHeader( HttpHeaders.Names.HOST, host );
         request.setHeader( HttpHeaders.Names.TRANSFER_ENCODING, "chunked" );
 
-        this.uri = uri;
-
     }
     
     private void open() throws IOException {
 
+        init();
+        
         String host = uri.getHost();
         int port = uri.getPort();
         
