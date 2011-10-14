@@ -86,7 +86,7 @@ public class ShuffleOutputWriter {
 
         List<Partition> partitions = config.getPartitionMembership().getPartitions( config.getHost() );
 
-        log.info( "Going to write shuffle for %s", partitions );
+        log.info( "Going to write shuffle for %s to %s", partitions , path );
         
         if ( partitions == null || partitions.size() == 0 )
             throw new IOException( "No partitions defined for: " + config.getHost() );

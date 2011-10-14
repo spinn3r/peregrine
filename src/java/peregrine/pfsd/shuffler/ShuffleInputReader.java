@@ -88,7 +88,7 @@ public class ShuffleInputReader {
         }
 
         if ( start == -1 )
-            throw new IOException( "Unable to find start for part: " + partition );
+            throw new IOException( "Unable to find start for partition: " + partition );
         
         in.skip( start - point );
 
@@ -126,6 +126,10 @@ public class ShuffleInputReader {
         
     }
 
+    public void close() throws IOException {
+        in.close();
+    }
+    
     public static void main( String[] args ) throws IOException {
 
         String path = args[0];
@@ -138,9 +142,11 @@ public class ShuffleInputReader {
 
             ShufflePacket pack = reader.next();
 
-            System.out.printf( "from_partition: %s, from_chunk: %s, to_partition: %s, data length: %,d, data: %s \n",
-                               pack.from_partition, pack.from_chunk, pack.to_partition, pack.data.length, Hex.encode( pack.data, 0 ) );
+            System.out.printf( "from_partition: %s, from_chunk: %s, to_partition: %s, data length: %,d\n",
+                               pack.from_partition, pack.from_chunk, pack.to_partition, pack.data.length );
 
+            System.out.printf( "%s\n", Hex.pretty( pack.data ) );
+            
         }
 
     }

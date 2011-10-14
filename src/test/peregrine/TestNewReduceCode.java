@@ -145,6 +145,23 @@ public class TestNewReduceCode extends peregrine.BaseTest {
         }
 
         System.out.printf( "count: %,d\n", count );
+
+        String shuffle_file = "/tmp/peregrine-dfs/localhost/11112/0/shuffle/default-0.tmp";
+
+        ShuffleInputChunkReader chunkReader = new ShuffleInputChunkReader( shuffle_file, 0 );
+
+        count = 0;
+        
+        while( chunkReader.hasNext() ) {
+
+            byte[] key = chunkReader.key();
+            byte[] value = chunkReader.value();
+
+            ++count;
+            
+        }
+
+        System.out.printf( "Read: %,d entries\n", count );
         
     }
 

@@ -94,7 +94,8 @@ class InputStreamByteReader implements ByteReader {
     @Override
     public byte readByte() {
 
-        //FIXMEL this isn't right.
+        //FIXME this isn't right.  We shouldnt' be throwing a RuntimeException
+        //here... 
         
         try {
             return (byte)is.read();
