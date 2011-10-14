@@ -22,7 +22,6 @@ public class RemoteChunkWriterClientPipelineFactory implements ChannelPipelineFa
 
         ChannelPipeline pipeline = pipeline();
 
-        //FIXME: the client codec needs a memory config too... 
         pipeline.addLast("codec",   new HttpClientCodec( MAX_INITIAL_LINE_LENGTH ,
                                                          MAX_HEADER_SIZE,
                                                          MAX_CHUNK_SIZE ));

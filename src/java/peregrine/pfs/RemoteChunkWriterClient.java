@@ -22,7 +22,7 @@ import peregrine.util.*;
  */
 public class RemoteChunkWriterClient extends BaseOutputStream implements ChannelBufferWritable {
 
-    private static NioClientSocketChannelFactory socketChannelFactory =
+    protected static NioClientSocketChannelFactory socketChannelFactory =
         new NioClientSocketChannelFactory( Executors.newCachedThreadPool( new DefaultThreadFactory( RemoteChunkWriterClient.class ) ), 
                                            Executors.newCachedThreadPool( new DefaultThreadFactory( RemoteChunkWriterClient.class ) ) );
 
@@ -88,6 +88,8 @@ public class RemoteChunkWriterClient extends BaseOutputStream implements Channel
      */
     protected Channel channel = null;
 
+    protected HttpMethod method = HttpMethod.PUT;
+    
     public RemoteChunkWriterClient( List<Host> hosts, String path ) throws IOException {
 
         try {
@@ -127,7 +129,7 @@ public class RemoteChunkWriterClient extends BaseOutputStream implements Channel
         String host = uri.getHost();
 
         // Prepare the HTTP request.
-        this.request = new DefaultHttpRequest( HttpVersion.HTTP_1_1, HttpMethod.PUT, uri.toASCIIString() );
+        this.request = new DefaultHttpRequest( HttpVersion.HTTP_1_1, method, uri.toASCIIString() );
 
         request.setHeader( HttpHeaders.Names.USER_AGENT, RemoteChunkWriterClient.class.getName() );
         request.setHeader( HttpHeaders.Names.HOST, host );
@@ -160,6 +162,10 @@ public class RemoteChunkWriterClient extends BaseOutputStream implements Channel
         
     }
 
+    public void setMethod( HttpMethod method ) {
+        this.method = method;
+    }
+    
     public void setHeader( String name, String value ) {
         request.setHeader( name , value );
     }

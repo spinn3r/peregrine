@@ -10,7 +10,6 @@
     Also, doing a file truncate() would be nice too.  What operations does
     Hadoop support.
 
-
 - merger checkpoints must be not only on chunk boundaries but in between keys.
 
     - if we have keys k1,k1,k1 at the end of chunk0 , and then we transitition
@@ -24,11 +23,8 @@
   halves every month.  5-6 years before flash is the prices of HDD... It might
   happen sooner because flash gets more used less HDDs will be made.
 
-  
-
 - We should support pluggable checksum algoritihms including Adler32 and CRC32
   (for smaller chunks) and then of course SHA1 if people are paranoid.
-
 
 - When writing shuffle output to the target partition, we're going to eventually
   have to run a reduce() over that data.  So instead of just writing data the
@@ -36,15 +32,8 @@
   future, to sit next to each other on disk.  This way I can get more throughput
   when I eventually read them.
 
-
-
-
-
-
-
 - we need the ability to split() a map job ... so that it can emit to multiple
   ...  Then we can reduce over these locations.
-
 
     mapOuterJoin( mapper, file0, file1, ... , fileN )
     mapInnerJoin( mapper, file0, file1, ... , fileN )
@@ -60,32 +49,27 @@
 
     http://en.wikipedia.org/wiki/Sort-merge_join
 
-
 - OK... async IO isn't available right now on JDK 1.6 I think and it isn't SUPER
   clear how to do this with netty... Let netty handle the async IO and then
   write messages to a queue which is drained to disk as a shuffle group by a
   single thread.  There is a single thread per shuffle group writing to disk.
   Creating more than 10 or so isn't really a good idea since a single disk can't
   support this.
-    
-
 
 - the controller should be able to send these messages:
 
     - json messages should be sent so I can iterate faster and don't need to
       build an encoder/decoder.
 
-        
-
     - the existing API is becoming a BIT complicated.  One way to simplify it
       would be to serialize messages which we just send from the controller to
       the reducers but if the protocl changes rapidly I'm going to have to
       verify that the versions are compatible.
 
-
     - controllerd:
-    
-           - message=chunk_written&partition=0&path=/foo/bar.in&chunk=0
+
+           - POST /controller/
+             message=chunk_written&partition=0&path=/foo/bar.in&chunk=0
 
            - MAP_COMPLETE partition:path:chunk_id
 
@@ -112,8 +96,20 @@
             - MAP partition:path:chunk_id
 
     - mapd:
-        - MAP partition path chunk_id
+        - POST /mapper/RPC
+          message=map&partition=0&path=/foo/bar&chunk=0
+              
+    - reducerd:
+
+        - POST /reducer/RPC
+          message=reduce&partition=0&path=/foo/bar&chunk=0
     
+          reduce a parition... starting from the given chunk ID.
+
+        - POST /shuffler/RPC
+          message=flush
+
+          
     - dfsd
 
         - What we could do is a mkchunk command which is higher level and then
@@ -153,26 +149,18 @@
               and giving them to mapd or the reducer.    
               
         - 
-          PUT /shuffle/default/from-partition/16/from-chunk/2/to-partition/0
+          PUT /0/shuffle/default/from-partition/16/from-chunk/2
           key[],value[]
           
             Used during shuffle to write to a file descriptor.
 
-
-            
         - GET /pdfs/part/0/path/to/chunk.dat
 
             - HTTP read on a given chunk file...  Mostly used for speculative
               execution.
 
         - How do these handle errors?  HTTP 500?
-              
-    - reduced:
-    
-        - REDUCE partition path [chunk_id]
-            - reduce a parition... starting from the given chunk ID.
-        
-            
+
     - we're going to need filesystem commands like stat() which then report back chunk stats.
 
 - when writing the extract how am I going to do the parallel dispatch??? 
@@ -191,13 +179,11 @@
         http://en.wikipedia.org/wiki/Fletcher%27s_checksum
         http://en.wikipedia.org/wiki/SHA-2
 
-
     http://www.strchr.com/hash_functions
 
     Adler32 vs CRC32 vs Fletcher
 
     ... 
-    
 
 - Make all IO async and have a dedicated reader that reads disk chunks INTO
   memory.  Then I need a consumer which listens to the queue and performs work.
@@ -218,7 +204,6 @@
   For debug and engineering purposes (and testing) using LocalPartitionWriters
   should be easy since this would also make it easy to test.
 
-
 - If I were to take an ENTIRE chunk, and read it into memory as 1 100MB byte
   array.  Then I could in theory keep a map of the position of a key, and the
   offset into the byte array.
@@ -236,16 +221,10 @@
   I should benchmark this though because the performance boost MIGHT not be
   worth the complexity.
 
-    
-
-
-
 - The mapper API should probably be like:
-
 
     Controller.map( InputReference() , mapper );
     Controller.reducer( reducer, OutputReference() );
-
 
     - At 25 parallel readers I could read at about 80MB/s or so... this means
       40MB/s write throughput to disk (or 40MB/s total input read throughput)
@@ -256,11 +235,9 @@
       that you can make the sort go faster by wrting more data... I have to see
       how CPU bound our reduce phase is going to be.
 
-
 - Range routing has the advantage that I can keep things globally sorted AND
   group sorted... I just have to emit a different key based on position (or line
   number) in a document if I'm grepping.
-
 
 - Cluster membership should be defined via gossip protocol in the future but for
   now the controller keeps track of everything.  
@@ -270,21 +247,13 @@
 
 - Heartbeat protocol should be used to verify that the machines are actually
   there.
-   
-   
-
 
 - The architecture should be easy to understand and comprehend.  This means that
   optimizations in the framework can be easily implemented for new and external
   developers.
 
-
-
-
-
 - On a 1TB disk, how fast do we want it to be available again over gigabit
   ethernet...
-    
 
 - step1...
 
@@ -310,26 +279,19 @@
         T2, 1
         T3, 1
 
-
 - partition setup... start with the number of machines.  The algorithm for
   determining the number of partitions is:
 
     nr_partitions = nr_hosts
 
-
 - Using LARGER numbers of partitions means that when a machine fails that I can
 1  restore to TWO machines and NOT just one...   TWO machines as the source and
   TWO as the target.  CLEARLY there is a sweet spot.
-
 
     - 1000 paritions + 100MB buffer == 100k per chunk written to disk.
 
     - potentially store all files to disk. how long would it take to read 100k
       at 100MB/s 1ms ... so this is 50% or the original performance... 
-
-
-
-        
 
 - One reason that the Pregel API is really cool is that you could implement the
   SAME framework on a single machine instance without a massive amount of wasted
@@ -343,31 +305,24 @@
 - The route() partition logic should be done via dependency injection so that we
   can make it faster by not having to do an isHashcode comparison for each
   route() usage.  This is a tight loop
-    
 
 - how do we store input text so that cat() works efficiently... with a custom
   partition handler.  Make it so tat lines 1-1000 show up on partition 0,
   1001-2000 on parittion 2, etc.
-    
 
 - AHHH!!! I put THREE partitions on EACH node... then I can run one reduce on
   EACH for each partition.  Since these boxes replicate these blocks, I can run
   ONE reduce per partition across all three hosts for VERY even CPU
   utilization.  If one of the boxes fails, the controller runs the job on one of
   the backup hosts.
-    
-
 
 - I need to think more about how I want to handle the shuffle stage... I think
   the Mapper should keep a handle on communications channels to shards and that
   ShuffleManager should JUST keep track of chunk job output ... this way if
   they're sorted it can just do a merge joing of the output on disk.
 
-        
-        
 - we should fallocate chunks , especially chunks that are being written to by
   reducers, so they are on disk contibuous.
-        
 
 - I could compute my own minimum spanning tree so that I can route chunks from
   the controller directly and have machines distribute the data FOR me... The
@@ -388,7 +343,6 @@
 
     - ReduceMergeMap ... 
 
-
     - ReduceLoad
     - MergeLoad
     - instead of storing the output locally, just load it back into the remote
@@ -403,8 +357,7 @@
     - if we do NOT need to
 
     - the map output might in theory MUCH larger than the map input.
-    
-        
+
 - Allow the programmer to work with bytes directly for performance reasons.
         
 - Make the system so that the Extract phase can actually be the begging of the
@@ -412,8 +365,6 @@
   the data, if it is already ready to be mapped just read it and stream into the
   map system.
 
-  
-        
 - The system is modeled after ETL jobs in the form of Extract, Transform, Load:
 
     http://en.wikipedia.org/wiki/Extract,_transform,_load

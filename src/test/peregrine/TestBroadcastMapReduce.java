@@ -179,7 +179,9 @@ public class TestBroadcastMapReduce extends peregrine.BaseTest {
     }
     
     public static void main( String[] args ) throws Exception {
-        new TestBroadcastMapReduce().test1();
+        TestBroadcastMapReduce test = new TestBroadcastMapReduce();
+        test.setUp();
+        test.test1();
     }
 
 }

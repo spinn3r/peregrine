@@ -47,6 +47,8 @@ public class RemoteChunkWriterClientHandler extends SimpleChannelUpstreamHandler
     public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e)
         throws Exception {
 
+        client.setCause( e.getCause() );
+
     }
 
 }

@@ -104,15 +104,17 @@ public class FSHandler extends SimpleChannelUpstreamHandler {
                 upstream = new FSHeadDirectHandler( this );
             }
 
+            if ( method == POST ) {
+                upstream = new FSPostDirectHandler( this );
+            }
+            
             if ( method == GET ) {
                 // TODO
             }
 
             // this method needs pipelining... 
             if ( method == DELETE || method == PUT ) {
-
                 pipeline = true;
-                
             }
             
             //TODO handle other methods other than GET here

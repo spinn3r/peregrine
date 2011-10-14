@@ -36,8 +36,6 @@ public class TestNewReduceCode extends peregrine.BaseTest {
         
         @Override
         public void reduce( byte[] key, List<byte[]> values ) {
-
-            System.out.printf( "YAY... in reduce() \n" );
             
             ++count;
 
@@ -128,8 +126,9 @@ public class TestNewReduceCode extends peregrine.BaseTest {
         
         controller.map( Map.class, path );
 
+        // FIXME: the controller needs to do this...
         for( FSDaemon daemon : daemons ) {
-            daemon.shufflerFactory.closeAll();
+            daemon.shufflerFactory.flush();
         }
 
         // now see if I can reduce over the output data.

@@ -20,6 +20,8 @@ public class ShufflerFactory {
     private Map<String,Shuffler> instances = new HashMap();
 
     protected Config config;
+
+    public long lastFlushed = -1;
     
     public ShufflerFactory( Config config ) {
         this.config = config;
@@ -53,12 +55,18 @@ public class ShufflerFactory {
     /**
      * Close all shufflers and flush their output to disk.
      */
-    public void closeAll() throws IOException {
+    public void flush() throws IOException {
 
         for( Shuffler current : instances.values() ) {
             current.close();
         }
 
+        lastFlushed = System.currentTimeMillis();
+        
+    }
+
+    public long lastFlushed() {
+        return lastFlushed();
     }
     
 }

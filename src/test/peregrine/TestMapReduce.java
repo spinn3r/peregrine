@@ -151,7 +151,7 @@ public class TestMapReduce extends peregrine.BaseTest {
         controller.map( Map.class, path );
 
         for( FSDaemon daemon : daemons ) {
-            daemon.shufflerFactory.closeAll();
+            daemon.shufflerFactory.flush();
         }
         
         controller.reduce( Reduce.class, null, new Output( output ) );
