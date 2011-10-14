@@ -60,8 +60,6 @@ public class FSPostDirectHandler extends SimpleChannelUpstreamHandler {
 
                 ChannelBuffer content = chunk.getContent();
                 byte[] data = content.array();
-
-                System.out.printf( "data: %s\n", new String( data ) );
                 
                 this.message = new QueryStringDecoder( new String( data ) ).getParameters();
 
@@ -79,25 +77,24 @@ public class FSPostDirectHandler extends SimpleChannelUpstreamHandler {
 
         String action = message.get( "action" ).get( 0 );
 
-        try {
-        
-            if ( "flush".equals( action ) ) {
+        if ( "flush".equals( action ) ) {
 
-                log.info( "Flushing shufflers..." );
-                
-                handler.daemon.shufflerFactory.flush();
+            executors.submit( new AsyncAction( channel, message ) {
 
-                log.info( "Flushing shufflers...done" );
+                    public void doAction() throws Exception {
 
-                HttpResponse response = new DefaultHttpResponse( HTTP_1_1, OK );
-                channel.write(response).addListener(ChannelFutureListener.CLOSE);
+                        log.info( "Flushing shufflers..." );
+                        
+                        handler.daemon.shufflerFactory.flush();
 
-                return;
-                
-            }
-                
-        } catch ( IOException e ) {
-            log.error( "Unable handle message %s: ", message, e );
+                        log.info( "Flushing shufflers...done" );
+
+                    }
+                    
+                } );
+
+            return;
+            
         }
 
         HttpResponse response = new DefaultHttpResponse( HTTP_1_1, INTERNAL_SERVER_ERROR );
@@ -106,4 +103,41 @@ public class FSPostDirectHandler extends SimpleChannelUpstreamHandler {
 
     }
     
+}
+
+abstract class AsyncAction implements Runnable {
+
+    private static final Logger log = Logger.getLogger();
+
+    private Channel channel;
+    private Map<String,List<String>> message;
+    
+    public AsyncAction( Channel channel,
+                        Map<String,List<String>> message ) {
+        this.channel = channel;
+        this.message = message;
+    }
+
+    @Override
+    public void run() {
+
+        try {
+
+            doAction();
+
+            HttpResponse response = new DefaultHttpResponse( HTTP_1_1, OK );
+            channel.write(response).addListener(ChannelFutureListener.CLOSE);
+
+        } catch ( Exception e ) {
+            log.error( "Unable handle message %s: ", message, e );
+
+            HttpResponse response = new DefaultHttpResponse( HTTP_1_1, INTERNAL_SERVER_ERROR );
+            channel.write(response).addListener(ChannelFutureListener.CLOSE);
+
+        }
+
+    }
+
+    public abstract void doAction() throws Exception;
+
 }
