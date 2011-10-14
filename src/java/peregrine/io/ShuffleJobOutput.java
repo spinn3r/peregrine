@@ -151,7 +151,7 @@ class ShuffleFlushCallable implements Callable {
         
         log.info( "Closing shuffle job output for chunk: %s", output.chunkRef );
 
-        Map<Integer,RemoteChunkWriterClient> partitionOutput = getPartitionOutput();
+        Map<Integer,ChannelBufferWritable> partitionOutput = getPartitionOutput();
 
         // now read the data and write it to all clients .. 
 
@@ -172,7 +172,7 @@ class ShuffleFlushCallable implements Callable {
 
                 ChannelBuffer slice = buff.slice( buff.readerIndex() , length );
 
-                RemoteChunkWriterClient client = partitionOutput.get( to_partition );
+                ChannelBufferWritable client = partitionOutput.get( to_partition );
 
                 if ( client == null )
                     throw new Exception( "NO client for partition: " + to_partition );
@@ -190,7 +190,7 @@ class ShuffleFlushCallable implements Callable {
         
         // now close all clients and we are done.
         
-        for( RemoteChunkWriterClient client : partitionOutput.values() ) {
+        for( ChannelBufferWritable client : partitionOutput.values() ) {
             client.close();
         }
 
@@ -200,11 +200,11 @@ class ShuffleFlushCallable implements Callable {
         
     }
 
-    private Map<Integer,RemoteChunkWriterClient> getPartitionOutput() {
+    private Map<Integer,ChannelBufferWritable> getPartitionOutput() {
 
         try {
 
-            Map<Integer,RemoteChunkWriterClient> clients = new HashMap();
+            Map<Integer,ChannelBufferWritable> clients = new HashMap();
 
             Membership membership = config.getPartitionMembership();
             
@@ -220,8 +220,9 @@ class ShuffleFlushCallable implements Callable {
                                              output.chunkRef.local,
                                              part.getId() );
 
-                RemoteChunkWriterClient client = new RemoteChunkWriterClient( hosts, path );
-
+                ChannelBufferWritable client = new RemoteChunkWriterClient( hosts, path );
+                client = new BufferedChannelBuffer( client , MAX_CHUNK_SIZE );
+                
                 clients.put( part.getId(), client );
                 
             }

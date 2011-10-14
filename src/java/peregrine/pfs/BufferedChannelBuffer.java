@@ -31,12 +31,7 @@ public class BufferedChannelBuffer implements ChannelBufferWritable {
     public void write( ChannelBuffer buff ) throws IOException {
 
         if ( ! hasCapacity( buff ) ) { 
-
-            delegate.write( getChannelBuffer() );
-
-            buffers = new ArrayList();
-            length = 0;
-            
+            flush();
         }
 
         buffers.add( buff );
@@ -44,11 +39,19 @@ public class BufferedChannelBuffer implements ChannelBufferWritable {
 
     }
 
+    public void flush() throws IOException {
+
+        delegate.write( getChannelBuffer() );
+        
+        buffers = new ArrayList();
+        length = 0;
+
+    }
+    
     @Override
     public void close() throws IOException {
 
-        // write the last data... 
-        delegate.write( getChannelBuffer() );
+        flush();
         
         delegate.close();
         
@@ -72,7 +75,10 @@ public class BufferedChannelBuffer implements ChannelBufferWritable {
      * close as possible.
      */
     private boolean hasCapacity( ChannelBuffer buff ) {
-        return length + buff.writerIndex() + RemoteChunkWriterClient.CHUNK_OVERHEAD > capacity;
+
+        int newCapacity = length + buff.writerIndex() + RemoteChunkWriterClient.CHUNK_OVERHEAD;
+        
+        return newCapacity < capacity;
     }
     
 }
