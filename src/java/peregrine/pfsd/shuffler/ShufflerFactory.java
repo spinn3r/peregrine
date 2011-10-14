@@ -17,6 +17,8 @@ import com.spinn3r.log5j.Logger;
  */
 public class ShufflerFactory {
 
+    private static final Logger log = Logger.getLogger();
+
     private Map<String,Shuffler> instances = new HashMap();
 
     protected Config config;
@@ -31,6 +33,8 @@ public class ShufflerFactory {
 
         Shuffler shuffler = instances.get( name );
 
+        // double check idiom.  this doesn't happen very often so this should be
+        // fine and won't impact performance.
         if ( shuffler == null ) {
 
             synchronized( instances ) {
@@ -57,12 +61,16 @@ public class ShufflerFactory {
      */
     public void flush() throws IOException {
 
+        log.info( "Flushing %,d shufflers...", instances.size() );
+
         for( Shuffler current : instances.values() ) {
             current.close();
         }
 
         lastFlushed = System.currentTimeMillis();
-        
+
+        log.info( "Flushing %,d shufflers...done", instances.size() );
+
     }
 
     public long lastFlushed() {

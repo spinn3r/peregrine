@@ -84,11 +84,7 @@ public class FSPostDirectHandler extends SimpleChannelUpstreamHandler {
 
                     public void doAction() throws Exception {
 
-                        log.info( "Flushing shufflers..." );
-                        
                         handler.daemon.shufflerFactory.flush();
-
-                        log.info( "Flushing shufflers...done" );
 
                     }
                     

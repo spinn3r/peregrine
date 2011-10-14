@@ -66,9 +66,6 @@ public class ShuffleJobOutput implements JobOutput, LocalPartitionReaderListener
         this.partitionMembership = config.getPartitionMembership();
 
         this.partitions = partitionMembership.size();
-
-        // we need to buffer the output so that we can route it to the right
-        // host.
         
     }
     
@@ -82,8 +79,12 @@ public class ShuffleJobOutput implements JobOutput, LocalPartitionReaderListener
 
         int to_partition    = target.getId();
 
-        shuffleOutput.write( to_partition, key, value );
+        emit( to_partition, key, value );
         
+    }
+
+    protected void emit( int to_partition, byte[] key , byte[] value ) {
+        shuffleOutput.write( to_partition, key, value );
     }
 
     @Override 
