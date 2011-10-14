@@ -83,9 +83,9 @@
       verify that the versions are compatible.
 
 
-    - controld:
+    - controllerd:
     
-           - CHUNK_WRITTEN partition:path:chunk_id
+           - message=chunk_written&partition=0&path=/foo/bar.in&chunk=0
 
            - MAP_COMPLETE partition:path:chunk_id
 
@@ -97,12 +97,12 @@
                 - indicates that the source machine believes that the given host
                   has failed and is no longer usable.
 
-            - HEARTBEAT
+            - message=heartbeat&version=1.0.0
 
                 - heartbeat messages sent from boxes in the wild to report back
                   to the controller.
 
-            - HOST_STATUS
+            - GET /controller/host_status
 
                 - sent by a command line app to query the current status of the
                   controller.  Returns a json message to be parsed by the

@@ -104,6 +104,8 @@ public class ShuffleInputReader {
     
     public ShufflePacket next() throws IOException {
 
+        System.out.printf( "FIXME within next for partition: %s\n", partition );
+        
         if ( idx >= count )
             return null;
 

@@ -2,6 +2,8 @@ package peregrine.util;
 
 import java.util.*;
 
+import org.jboss.netty.buffer.*;
+
 public class Hex {
 
     public static String encode( byte[] input ) {
@@ -27,6 +29,25 @@ public class Hex {
         
     }
 
+    public static String encode( ChannelBuffer buff ) {
+
+        StringBuffer result = new StringBuffer();
+
+        String hex = ChannelBuffers.hexDump( buff );
+
+        for (int i = 0; i < hex.length(); ++i ) {
+
+            result.append( hex.charAt( i ) );
+            
+            if ( ( i + 1 ) % 2 == 0 )
+                result.append( ' ' );
+            
+        }
+        
+        return result.toString();
+        
+    }
+    
     public static String pretty( String input ) {
         return pretty( input.getBytes() );
     }
@@ -35,9 +56,11 @@ public class Hex {
 
         int width = 16;
         
-        StringBuffer buff = new StringBuffer();
+        StringBuffer result = new StringBuffer();
 
         int nr_blocks = (int)Math.ceil( input.length / (double)width );
+
+        ChannelBuffer buff = ChannelBuffers.wrappedBuffer( input );
         
         for( int i = 0; i < nr_blocks; ++i ) {
 
@@ -51,40 +74,43 @@ public class Hex {
             
             byte[] block = new byte[ len ];
 
+            ChannelBuffer index = ChannelBuffers.buffer( 4 );
+            index.writeInt( start );
+            
             // step 0 include the start
-            buff.append( Hex.encode( IntBytes.toByteArray( start ), 0 ) );
-            buff.append( ": " );
+            result.append( encode( index ) );
+            result.append( ": " );
             
             System.arraycopy( input, start, block, 0, len );
 
+            ChannelBuffer slice = buff.slice( start, len );
+            
             // step 1 ... encode this block as a hex dump.
             
-            buff.append( encode( block , 0 ) );
+            result.append( encode( slice ) );
 
             // step 2 ... encod this block as a strong
-
-            // FIXME: padd this so that the right lines up.
 
             int padd = 1;
 
             for ( int j = 0; j < ((width + padd) - len) * 3; ++ j ) {
-                buff.append( ' ' );
+                result.append( ' ' );
             }
             
             for( byte b : block ) {
 
                 if ( b >= 32 )
-                    buff.append( (char)b );
+                    result.append( (char)b );
                 else
-                    buff.append( '.' );
+                    result.append( '.' );
                 
             }
             
-            buff.append( "\n" );
+            result.append( "\n" );
             
         }
 
-        return buff.toString();
+        return result.toString();
         
     }
     
