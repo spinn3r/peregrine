@@ -126,11 +126,6 @@ public class TestNewReduceCode extends peregrine.BaseTest {
         
         controller.map( Map.class, path );
 
-        // FIXME: the controller needs to do this...
-        for( FSDaemon daemon : daemons ) {
-            daemon.shufflerFactory.flush();
-        }
-
         // now see if I can reduce over the output data.
 
         /*

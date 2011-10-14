@@ -27,6 +27,8 @@ public class Config {
      */
     public Host host = null;
 
+    public Set<Host> hosts = new HashSet();
+    
     public Config() { }
 
     public Config( String host, int port ) {
@@ -35,7 +37,14 @@ public class Config {
     }
 
     public void addPartitionMembership( int partition, List<Host> hosts ) {
+
         membership.setPartition( new Partition( partition ), hosts );
+
+        // make sure we have a hosts entry for every host.
+        for( Host host : hosts ) {
+            this.hosts.add( host );
+        }
+        
     }
 
     public void addPartitionMembership( int partition, Host... hosts ) {
@@ -76,6 +85,10 @@ public class Config {
         return this;
     }
 
+    public Set<Host> getHosts() {
+        return hosts;
+    }
+    
     public String getRoot() {
         return root;
     }

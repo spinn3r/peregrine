@@ -79,6 +79,7 @@ public class FSPostDirectHandler extends SimpleChannelUpstreamHandler {
 
         if ( "flush".equals( action ) ) {
 
+            // we don't need to wait until this stops.
             executors.submit( new AsyncAction( channel, message ) {
 
                     public void doAction() throws Exception {

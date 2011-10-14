@@ -2,6 +2,7 @@
 package peregrine;
 
 import java.io.*;
+import java.net.*;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -11,6 +12,9 @@ import peregrine.util.*;
 import peregrine.map.*;
 import peregrine.shuffle.*;
 import peregrine.io.*;
+import peregrine.pfs.*;
+
+import org.jboss.netty.handler.codec.http.*;
 
 public class Controller {
 
@@ -131,6 +135,8 @@ public class Controller {
             throw new IOException( "Reducer requires at least one shuffle input." );
         }
 
+        flushShufflers();
+        
         ShuffleInputReference shuffleInput = (ShuffleInputReference)input.getReferences().get( 0 );
         System.out.printf( "using shuffle input : %s \n", shuffleInput.getName() );
 
@@ -160,6 +166,28 @@ public class Controller {
         
     }
 
+    private void flushShufflers() throws Exception {
+
+        // flush all the shufflers on ALL hosts....
+
+        QueryStringEncoder encoder = new QueryStringEncoder( "" );
+        encoder.addParam( "action", "flush" );
+        String message = encoder.toString();
+
+        for ( Host host : config.getHosts() ) {
+
+            URI uri = new URI( String.format( "http://%s:%s/shuffler/RPC2", host.getName(), host.getPort() ) );
+            
+            RemoteChunkWriterClient client = new RemoteChunkWriterClient( uri );
+
+            client.setMethod( HttpMethod.POST );
+            client.write( message.getBytes() );
+            client.close();
+
+        }
+        
+    }
+    
     private static void runCallables( CallableFactory callableFactory,
                                       Membership partitionMembership ) 
         throws InterruptedException, ExecutionException {
