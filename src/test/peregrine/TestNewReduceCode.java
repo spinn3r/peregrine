@@ -134,6 +134,7 @@ public class TestNewReduceCode extends peregrine.BaseTest {
 
         // now see if I can reduce over the output data.
 
+        /*
         String shuffle_file = "/tmp/peregrine-dfs/localhost/11112/0/shuffle/default/0000000000.tmp";
 
         ShuffleInputChunkReader chunkReader = new ShuffleInputChunkReader( shuffle_file, 0 );
@@ -152,7 +153,8 @@ public class TestNewReduceCode extends peregrine.BaseTest {
         System.out.printf( "Read: %,d entries\n", count );
 
         assertEquals( 20000, count );
-
+        */
+        
         controller.reduce( Reduce.class, null, new Output( output ) );
         
     }

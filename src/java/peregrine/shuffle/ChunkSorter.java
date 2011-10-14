@@ -31,28 +31,24 @@ public class ChunkSorter {
     private int id = -1;
     
     public ChunkReader sort( ChunkReader input ) throws IOException {
-
-        ++id;
         
-        int size = input.size();
+        ++id;
 
-        Tuple[] data = new Tuple[size];
-        Tuple[] dest = new Tuple[size];
-
-        int idx = 0;
-
+        List<Tuple> tuples = new ArrayList();
+        
         while ( input.hasNext() ) {
-
-            //FIXME: get rid of using tuples here.
-            Tuple t = new Tuple( input.key(), input.value() );
             
-            data[idx] = t;
-            dest[idx] = t;
-
-            ++idx;
+            Tuple t = new Tuple( input.key(), input.value() );
+            tuples.add( t );
             
         }
 
+        Tuple[] data = new Tuple[ tuples.size() ];
+        Tuple[] dest = new Tuple[ tuples.size() ];
+
+        tuples.toArray( data );
+        tuples.toArray( dest );
+        
         sort( data, dest , new FullTupleComparator() );
 
         TupleArrayChunkReader result = new TupleArrayChunkReader( dest );

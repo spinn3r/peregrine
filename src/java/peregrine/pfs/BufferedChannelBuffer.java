@@ -20,6 +20,8 @@ public class BufferedChannelBuffer implements ChannelBufferWritable {
 
     private int capacity;
 
+    private int size;
+    
     private ChannelBufferWritable delegate;
     
     public BufferedChannelBuffer( ChannelBufferWritable delegate,
@@ -58,7 +60,7 @@ public class BufferedChannelBuffer implements ChannelBufferWritable {
         
     }
     
-    private ChannelBuffer getChannelBuffer() {
+    protected ChannelBuffer getChannelBuffer() {
 
         ChannelBuffer[] buffs = new ChannelBuffer[ buffers.size() ];
 
@@ -75,11 +77,12 @@ public class BufferedChannelBuffer implements ChannelBufferWritable {
      * Make sure we can accept this output buffer so that it's < 16384 but as
      * close as possible.
      */
-    private boolean hasCapacity( ChannelBuffer buff ) {
+    protected boolean hasCapacity( ChannelBuffer buff ) {
 
         int newCapacity = length + buff.writerIndex() + RemoteChunkWriterClient.CHUNK_OVERHEAD;
         
         return newCapacity < capacity;
+
     }
     
 }

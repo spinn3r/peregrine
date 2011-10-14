@@ -30,14 +30,20 @@ public class ShuffleInputChunkReader implements ChunkReader {
 
     InputStream is = null;
 
-    public byte[] key = null;
+    String path;
 
-    public byte[] value = null;
+    byte[] key = null;
 
+    byte[] value = null;
+
+    int partition;
+    
     public ShuffleInputChunkReader( String path , int partition ) throws IOException {
-        
-        reader = new ShuffleInputReader( path, partition );
 
+        this.path = path;
+        this.partition = partition;
+        this.reader = new ShuffleInputReader( path, partition );
+        
         nextShufflePacket();
         
     }
@@ -118,4 +124,9 @@ public class ShuffleInputChunkReader implements ChunkReader {
         reader.close();
     }
 
+    @Override
+    public String toString() {
+        return String.format( "%s:%s:%s" , getClass().getName(), path, partition );
+    }
+    
 }
