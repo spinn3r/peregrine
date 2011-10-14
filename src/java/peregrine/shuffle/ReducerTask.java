@@ -89,8 +89,14 @@ public class ReducerTask extends BaseOutputTask implements Callable {
                                                 String.format( "/shuffle/%s/", shuffleInput.getName() ) );
 
         System.out.printf( "Trying to find suffle files in: %s\n", shuffle_dir );
-        
-        File[] files = new File( shuffle_dir ).listFiles();
+
+        File shuffle_dir_file = new File( shuffle_dir );
+
+        if ( ! shuffle_dir_file.exists() ) {
+            throw new IOException( "Shuffle output does not exist: " + shuffleInput.getName() );
+        }
+
+        File[] files = shuffle_dir_file.listFiles();
 
         for( File file : files ) {
             ChunkReader reader = new ShuffleInputChunkReader( file.getPath(), partition.getId() );

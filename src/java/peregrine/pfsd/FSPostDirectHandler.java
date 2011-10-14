@@ -98,6 +98,8 @@ public class FSPostDirectHandler extends SimpleChannelUpstreamHandler {
             
         }
 
+        log.warn( "No handler for action %s with message %s", action, message );
+        
         HttpResponse response = new DefaultHttpResponse( HTTP_1_1, INTERNAL_SERVER_ERROR );
         channel.write(response).addListener(ChannelFutureListener.CLOSE);
         return;
@@ -130,7 +132,7 @@ abstract class AsyncAction implements Runnable {
             channel.write(response).addListener(ChannelFutureListener.CLOSE);
 
         } catch ( Exception e ) {
-            log.error( "Unable handle message %s: ", message, e );
+            log.error( "Unable handle message: " + message, e );
 
             HttpResponse response = new DefaultHttpResponse( HTTP_1_1, INTERNAL_SERVER_ERROR );
             channel.write(response).addListener(ChannelFutureListener.CLOSE);

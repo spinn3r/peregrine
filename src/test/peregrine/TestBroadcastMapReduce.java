@@ -11,7 +11,7 @@ import peregrine.util.*;
 import peregrine.pagerank.*;
 import peregrine.io.partition.*;
 
-public class TestBroadcastMapReduce extends peregrine.BaseTest {
+public class TestBroadcastMapReduce extends peregrine.TestWithTwoDaemons {
 
     public static class Map extends Mapper {
 
@@ -82,17 +82,6 @@ public class TestBroadcastMapReduce extends peregrine.BaseTest {
 
     }
 
-    protected Config config;
-    
-    public void setUp() {
-
-        super.setUp();
-        
-        config = new Config();
-        config.setHost( new Host( "localhost" ) );
-
-    }
-    
     /**
      *
      * FIXME: I disabled this test... I don't it was EVER working and it isn't

@@ -18,6 +18,8 @@ import com.spinn3r.log5j.Logger;
  */
 public class Shuffler {
 
+    private static final Logger log = Logger.getLogger();
+
     private ExecutorService executors = null;
 
     public ShuffleOutputWriter writer = null;
@@ -87,12 +89,15 @@ public class Shuffler {
 
     public void close() throws IOException {
 
+        log.info( "Closing shuffler: %s", name );
+        
         try {
             
             rollover();
             
             // block until we close
-            future.get();
+            if ( future != null )
+                future.get();
 
         } catch ( IOException e ) {
             throw e;
