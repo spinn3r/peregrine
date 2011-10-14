@@ -132,25 +132,11 @@ public class TestNewReduceCode extends peregrine.BaseTest {
 
         // now see if I can reduce over the output data.
 
-        File file = new File( "/tmp/peregrine-dfs/localhost/11112/0/shuffle/default-0.tmp" );
-
-        ShuffleInputReader reader = new ShuffleInputReader( file.getPath(), 0 );
-
-        int count = 0;
-        while( reader.hasNext() ) {
-            System.out.printf( "." );
-            
-            ShufflePacket pack = reader.next();
-            ++count;
-        }
-
-        System.out.printf( "count: %,d\n", count );
-
         String shuffle_file = "/tmp/peregrine-dfs/localhost/11112/0/shuffle/default-0.tmp";
 
         ShuffleInputChunkReader chunkReader = new ShuffleInputChunkReader( shuffle_file, 0 );
 
-        count = 0;
+        int count = 0;
         
         while( chunkReader.hasNext() ) {
 
@@ -162,6 +148,8 @@ public class TestNewReduceCode extends peregrine.BaseTest {
         }
 
         System.out.printf( "Read: %,d entries\n", count );
+
+        assertEquals( 20000, count );
         
     }
 

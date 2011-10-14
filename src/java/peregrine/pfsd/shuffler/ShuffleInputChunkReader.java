@@ -22,8 +22,6 @@ public class ShuffleInputChunkReader implements ChunkReader {
 
     ShuffleInputReader reader;
 
-    boolean hasNext = false;
-
     ShufflePacket pack = null;
 
     int idx = 0;
@@ -49,7 +47,7 @@ public class ShuffleInputChunkReader implements ChunkReader {
 
         while( true ) {
 
-            if ( idx < pack.data.length ) {
+            if ( pack != null && idx < pack.data.length ) {
 
                 key   = readBytes( varintReader.read() );
                 value = readBytes( varintReader.read() );
@@ -60,7 +58,7 @@ public class ShuffleInputChunkReader implements ChunkReader {
                        value.length
                     ;
 
-                break;
+                return true;
                 
             } else if ( nextShufflePacket() ) {
 
@@ -68,13 +66,10 @@ public class ShuffleInputChunkReader implements ChunkReader {
                 continue;
 
             } else {
-                hasNext = false;
-                break;
+                return false;
             }
 
         }
-
-        return hasNext;
             
     }
 
@@ -94,7 +89,6 @@ public class ShuffleInputChunkReader implements ChunkReader {
             is            = new ByteArrayInputStream( pack.data );
             varintReader  = new VarintReader( is );
             idx           = 0;
-            hasNext       = true;
 
             return true;
             

@@ -214,11 +214,11 @@ class ShuffleFlushCallable implements Callable {
 
                 List<Host> hosts = membership.getHosts( part );
                 
-                String path = String.format( "/shuffle/%s/from-partition/%s/from-chunk/%s/to-partition/%s",
+                String path = String.format( "/%s/shuffle/%s/from-partition/%s/from-chunk/%s",
+                                             part.getId(),
                                              output.name,
                                              output.chunkRef.partition.getId(),
-                                             output.chunkRef.local,
-                                             part.getId() );
+                                             output.chunkRef.local );
 
                 ChannelBufferWritable client = new RemoteChunkWriterClient( hosts, path );
                 client = new BufferedChannelBuffer( client , MAX_CHUNK_SIZE );

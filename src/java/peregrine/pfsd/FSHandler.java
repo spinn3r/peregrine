@@ -88,7 +88,7 @@ public class FSHandler extends SimpleChannelUpstreamHandler {
 
                 URI uri = new URI( request.getUri() );
 
-                if ( uri.getPath().startsWith( "/shuffle/" ) ) {
+                if ( uri.getPath().contains( "/shuffle/" ) ) {
                     upstream = new FSPutShuffleHandler( this );
                 } else {
                     upstream = new FSPutDirectHandler( this );

@@ -132,13 +132,14 @@ public class Controller {
         }
 
         ShuffleInputReference shuffleInput = (ShuffleInputReference)input.getReferences().get( 0 );
-
         System.out.printf( "using shuffle input : %s \n", shuffleInput.getName() );
         
-        Shuffler shuffler = Shuffler.getInstance( shuffleInput.getName() );
         
         Membership partitionMembership = config.getPartitionMembership();
 
+
+        Shuffler shuffler = Shuffler.getInstance( shuffleInput.getName() );
+        
         Collection<MapOutputIndex> mapOutputIndexes = shuffler.getMapOutput();
 
         List<Callable> callables = new ArrayList();
@@ -156,6 +157,8 @@ public class Controller {
 
         }
 
+
+        
         waitFor( callables );
 
         Shuffler.getInstance().reset();

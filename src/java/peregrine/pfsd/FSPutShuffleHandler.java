@@ -32,7 +32,7 @@ public class FSPutShuffleHandler extends FSPutBaseHandler {
     private static final Logger log = Logger.getLogger();
 
     private static Pattern PATH_REGEX =
-        Pattern.compile( "/shuffle/([a-zA-Z0-9]+)/from-partition/([0-9]+)/from-chunk/([0-9]+)/to-partition/([0-9]+)" );
+        Pattern.compile( "/([0-9]+)/shuffle/([a-zA-Z0-9]+)/from-partition/([0-9]+)/from-chunk/([0-9]+)" );
 
     private FSHandler handler;
 
@@ -55,10 +55,10 @@ public class FSPutShuffleHandler extends FSPutBaseHandler {
         if ( ! m.find() )
             throw new IOException( "The path specified is not a shuffle URL: " + path );
 
-        this.name           = m.group( 1 );
-        this.from_partition = Integer.parseInt( m.group( 2 ) );
-        this.from_chunk     = Integer.parseInt( m.group( 3 ) );
-        this.to_partition   = Integer.parseInt( m.group( 4 ) );
+        this.to_partition   = Integer.parseInt( m.group( 1 ) );
+        this.name           = m.group( 2 );
+        this.from_partition = Integer.parseInt( m.group( 3 ) );
+        this.from_chunk     = Integer.parseInt( m.group( 4 ) );
 
         this.shuffler = handler.daemon.shufflerFactory.getInstance( this.name );
         
