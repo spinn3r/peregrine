@@ -20,7 +20,7 @@ import peregrine.util.*;
  * HTTP client that supports chunked PUT to a remote PFS node.
  * 
  */
-public class RemoteChunkWriterClient extends BaseOutputStream {
+public class RemoteChunkWriterClient extends BaseOutputStream implements ChannelBufferWritable {
 
     private static NioClientSocketChannelFactory socketChannelFactory =
         new NioClientSocketChannelFactory( Executors.newCachedThreadPool( new DefaultThreadFactory( RemoteChunkWriterClient.class ) ), 

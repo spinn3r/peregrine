@@ -132,7 +132,7 @@ public class TestNewReduceCode extends peregrine.BaseTest {
 
         // now see if I can reduce over the output data.
 
-        File file = new File( "/tmp/peregrine-dfs//localhost/11112/0/shuffle/default-0.tmp" );
+        File file = new File( "/tmp/peregrine-dfs/localhost/11112/0/shuffle/default-0.tmp" );
 
         ShuffleInputReader reader = new ShuffleInputReader( file.getPath(), 0 );
 
@@ -152,6 +152,8 @@ public class TestNewReduceCode extends peregrine.BaseTest {
         TestNewReduceCode test = new TestNewReduceCode();
         test.setUp();
         test.test1();
+
+        Thread.sleep( 5000L) ;
         
     }
 
