@@ -30,15 +30,15 @@ public class LocalReducer {
     
     public void sort() throws Exception {
 
-        //FIXME: this implements the DEFAULT sort everything approach not the
-        //hinted pre-sorted approach which in some applications would be MUCH
-        //faster for the reduce operation.
-
         ChunkSorter sorter = new ChunkSorter();
 
         List<ChunkReader> sorted = new ArrayList();
 
+        // FIXME: these need to go to disk.. 
+        
         for ( ChunkReader reader : input ) {
+
+            System.out.printf( "SORTED\n" );
             sorted.add( sorter.sort( reader ) );
         }
 

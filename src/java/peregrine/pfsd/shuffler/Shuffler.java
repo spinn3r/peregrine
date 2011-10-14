@@ -52,10 +52,10 @@ public class Shuffler {
             Partition part = new Partition( to_partition );
             Host host = config.getHost();
 
-            String path = config.getPFSPath( part, host, String.format( "/shuffle/%s-%s.tmp", name, idx++ ) );
-
             rollover();
-            
+
+            String path = config.getPFSPath( part, host, String.format( "/shuffle/%s/%010d.tmp", name, idx++ ) );
+
             writer = new ShuffleOutputWriter( config, path );
 
         }

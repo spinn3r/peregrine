@@ -12,32 +12,35 @@ import peregrine.values.*;
 import peregrine.util.*;
 import peregrine.map.*;
 import peregrine.io.*;
+import peregrine.io.chunk.*;
+
+import peregrine.pfsd.shuffler.ShuffleInputChunkReader;
 
 public class ReducerTask extends BaseOutputTask implements Callable {
     
     private Input input = null;
 
-    private MapOutputIndex mapOutputIndex = null;
-
     private Reducer reducer;
 
     private Class reducer_class = null;
 
+    private ShuffleInputReference shuffleInput;
+
     private Host host = null;
     
     public ReducerTask( Config config,
-                        MapOutputIndex mapOutputIndex,
-                        Host host,
-                        Class reducer_class )
+                        Partition partition,
+                        Class reducer_class,
+                        ShuffleInputReference shuffleInput )
         throws Exception {
 
-        super.init( mapOutputIndex.partition );
+        super.init( partition );
 
         this.config = config;
-        this.mapOutputIndex = mapOutputIndex;
-        this.host = host;
         this.reducer_class = reducer_class;
-
+        this.shuffleInput = shuffleInput;
+        this.host = config.getHost();
+        
     }
 
     public Object call() throws Exception {
@@ -80,19 +83,28 @@ public class ReducerTask extends BaseOutputTask implements Callable {
             new ReducerTaskSortListener( reducer );
         
         LocalReducer reducer = new LocalReducer( listener );
-        
-        Collection<MapOutputBuffer> mapOutputBuffers = mapOutputIndex.getMapOutput();
 
-        int nr_readers = 0;
-        for ( MapOutputBuffer mapOutputBuffer : mapOutputBuffers ) {
-            reducer.add( mapOutputBuffer.getChunkReader() );
-            ++nr_readers;
+        String shuffle_dir = config.getPFSPath( partition,
+                                                config.getHost(),
+                                                String.format( "/shuffle/%s/", shuffleInput.getName() ) );
+
+        System.out.printf( "Trying to find suffle files in: %s\n", shuffle_dir );
+        
+        File[] files = new File( shuffle_dir ).listFiles();
+
+        for( File file : files ) {
+            ChunkReader reader = new ShuffleInputChunkReader( file.getPath(), partition.getId() );
+
+            System.out.printf( "FIXME: %s for partition : %s\n", reader, partition.getId() );
+            reducer.add( reader );
         }
+        
+        int nr_readers = files.length;
 
         reducer.sort();
 
         System.out.printf( "Sorted %,d entries in %,d chunk readers for partition %s \n",
-                           listener.nr_tuples , nr_readers, mapOutputIndex.partition );
+                           listener.nr_tuples , nr_readers, partition );
 
         // we have to close ALL of our output streams now.
 

@@ -133,23 +133,18 @@ public class Controller {
 
         ShuffleInputReference shuffleInput = (ShuffleInputReference)input.getReferences().get( 0 );
         System.out.printf( "using shuffle input : %s \n", shuffleInput.getName() );
-        
-        
+
         Membership partitionMembership = config.getPartitionMembership();
 
+        // get the local partitions we are hosting...         
 
-        Shuffler shuffler = Shuffler.getInstance( shuffleInput.getName() );
-        
-        Collection<MapOutputIndex> mapOutputIndexes = shuffler.getMapOutput();
+        List<Partition> partitions = partitionMembership.getPartitions( config.getHost() );
 
         List<Callable> callables = new ArrayList();
+        
+        for ( Partition part : partitions ) {
 
-        for( MapOutputIndex mapOutputIndex : mapOutputIndexes ) {
-
-            //FIXME: this is a lame way to get the host
-            Host host = partitionMembership.getHosts( mapOutputIndex.partition ).get( 0 );
-            
-            ReducerTask task = new ReducerTask( config, mapOutputIndex, host, reducer );
+            ReducerTask task = new ReducerTask( config, part, reducer, shuffleInput );
             task.setInput( input );
             task.setOutput( output );
 
@@ -157,8 +152,6 @@ public class Controller {
 
         }
 
-
-        
         waitFor( callables );
 
         Shuffler.getInstance().reset();

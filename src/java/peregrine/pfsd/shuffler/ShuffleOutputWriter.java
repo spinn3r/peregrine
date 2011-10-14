@@ -56,6 +56,11 @@ public class ShuffleOutputWriter {
         this.index = new ShufflePacket[ (int)(COMMIT_SIZE / MAX_CHUNK_SIZE) ];
         this.path = path;
         this.config = config;
+
+        // FIXME: this does IO to disk which should really be done in a
+        // dedicated thread.
+
+        new File( new File( path ).getParent() ).mkdirs();
         
     }
     

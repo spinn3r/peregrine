@@ -37,6 +37,8 @@ public class TestNewReduceCode extends peregrine.BaseTest {
         @Override
         public void reduce( byte[] key, List<byte[]> values ) {
 
+            System.out.printf( "YAY... in reduce() \n" );
+            
             ++count;
 
             List<Integer> ints = new ArrayList();
@@ -57,7 +59,7 @@ public class TestNewReduceCode extends peregrine.BaseTest {
         public void cleanup() {
 
             if ( count == 0 )
-                throw new RuntimeException();
+                throw new RuntimeException( "no results reduced.... " );
             
         }
 
@@ -132,7 +134,7 @@ public class TestNewReduceCode extends peregrine.BaseTest {
 
         // now see if I can reduce over the output data.
 
-        String shuffle_file = "/tmp/peregrine-dfs/localhost/11112/0/shuffle/default-0.tmp";
+        String shuffle_file = "/tmp/peregrine-dfs/localhost/11112/0/shuffle/default/0000000000.tmp";
 
         ShuffleInputChunkReader chunkReader = new ShuffleInputChunkReader( shuffle_file, 0 );
 
@@ -150,6 +152,8 @@ public class TestNewReduceCode extends peregrine.BaseTest {
         System.out.printf( "Read: %,d entries\n", count );
 
         assertEquals( 20000, count );
+
+        controller.reduce( Reduce.class, null, new Output( output ) );
         
     }
 

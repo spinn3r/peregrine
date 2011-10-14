@@ -1,5 +1,13 @@
 
 
+-     public String getPFSRoot( Partition partition, Host host )
+
+    and misc functions should NOT take Host
+
+
+
+- there are excessive passing around of Host when config.getHost() would work fine.
+
 - The current status is that HTTP requests are dying after say 100 or
   so.... What I need to do is FIX this bug and then close out shuffling sorting
   and I'm pretty much done.  
