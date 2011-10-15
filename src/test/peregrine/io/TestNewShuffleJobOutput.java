@@ -20,7 +20,17 @@ import peregrine.pfsd.*;
 
 public class TestNewShuffleJobOutput extends peregrine.BaseTest {
 
+    public static int MAX_EMITS = 1;
+
+    public static int ITERATIONS = 20;
+    
+    // FIXME: this should extend a common config.
+
     protected Config config;
+
+    protected Config config0;
+    protected Config config1;
+    protected Config config2;
 
     protected FSDaemon daemon0;
     protected FSDaemon daemon1;
@@ -30,12 +40,17 @@ public class TestNewShuffleJobOutput extends peregrine.BaseTest {
 
         super.setUp();
 
-        config = getConfig( 11112 );
+        config0 = getConfig( 11112 );
+        config1 = getConfig( 11113 );
+        config2 = getConfig( 11114 );
 
-        daemon0 = new FSDaemon( config );
-        daemon1 = new FSDaemon( getConfig( 11113 ) );
-        daemon2 = new FSDaemon( getConfig( 11114 ) );
+        daemon0 = new FSDaemon( config0 );
+        daemon1 = new FSDaemon( config1 );
+        daemon2 = new FSDaemon( config2 );
 
+        // run with the first config.
+        config = config0;
+        
     }
 
     private Config getConfig( int port ) {
@@ -55,11 +70,8 @@ public class TestNewShuffleJobOutput extends peregrine.BaseTest {
         return config;
         
     }
-    
-    /**
-     * test running with two lists which each have different values.
-     */
-    public void test1() throws Exception {
+
+    private void doTest() throws Exception {
 
         ShuffleJobOutput output = new ShuffleJobOutput( config );
 
@@ -68,7 +80,7 @@ public class TestNewShuffleJobOutput extends peregrine.BaseTest {
 
         output.onChunk( chunkRef );
 
-        for ( int i = 0; i < 100; ++i ) {
+        for ( int i = 0; i < MAX_EMITS; ++i ) {
 
             byte[] key = new StructWriter()
                 .writeHashcode( "" + i )
@@ -85,16 +97,25 @@ public class TestNewShuffleJobOutput extends peregrine.BaseTest {
 
         output.close();
 
-        // now try to read the entries back out once it is shuffled...
+        Controller controller = new Controller( config );
 
-        daemon0.shufflerFactory.getInstance( "default" ).close();
-        daemon1.shufflerFactory.getInstance( "default" ).close();
-        daemon2.shufflerFactory.getInstance( "default" ).close();
+        controller.flushAllShufflers();
 
-        daemon0.shufflerFactory.getInstance( "default" ).close();
-        daemon1.shufflerFactory.getInstance( "default" ).close();
-        daemon2.shufflerFactory.getInstance( "default" ).close();
+    }
+    
+    /**
+     * test running with two lists which each have different values.
+     */
+    public void test1() throws Exception {
 
+        assertEquals( config.getHosts().size(), 3 );
+
+        System.out.printf( "Running with %,d hosts.\n", config.getHosts().size() );
+        
+        for( int i = 0; i < ITERATIONS; ++i ) {
+            doTest();
+        }
+        
     }
 
     public static void main( String[] args ) throws Exception {

@@ -16,7 +16,7 @@ import peregrine.util.*;
 /**
  * 
  */
-public class TestFullOuterJoin extends junit.framework.TestCase {
+public class TestFullOuterJoin extends peregrine.BaseTest {
 
     protected Config config;
     

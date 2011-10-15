@@ -139,7 +139,7 @@ public class Controller {
             throw new IOException( "Reducer requires at least one shuffle input." );
         }
 
-        flushShufflers();
+        flushAllShufflers();
         
         ShuffleInputReference shuffleInput = (ShuffleInputReference)input.getReferences().get( 0 );
         System.out.printf( "using shuffle input : %s \n", shuffleInput.getName() );
@@ -170,7 +170,7 @@ public class Controller {
         
     }
 
-    private void flushShufflers() throws Exception {
+    public void flushAllShufflers() throws Exception {
 
         // flush all the shufflers on ALL hosts....
 
@@ -178,11 +178,13 @@ public class Controller {
         encoder.addParam( "action", "flush" );
         String message = encoder.toString();
 
-        log.info( "Flushing all shufflers with message: %s" , message );
+        log.info( "Flushing all %,d shufflers with message: %s" , config.getHosts().size(), message );
         
         for ( Host host : config.getHosts() ) {
 
             URI uri = new URI( String.format( "http://%s:%s/shuffler/RPC2", host.getName(), host.getPort() ) );
+
+            log.info( "Flushing %s ..." , uri );
             
             RemoteChunkWriterClient client = new RemoteChunkWriterClient( uri );
 

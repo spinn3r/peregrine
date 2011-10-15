@@ -15,7 +15,7 @@ import peregrine.shuffle.*;
 import peregrine.io.*;
 import peregrine.io.chunk.*;
 
-public class TestChunkSorter extends junit.framework.TestCase {
+public class TestChunkSorter extends peregrine.BaseTest {
 
     /**
      * test running with two lists which each have different values.

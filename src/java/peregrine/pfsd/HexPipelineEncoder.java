@@ -23,7 +23,7 @@ public class HexPipelineEncoder implements ChannelUpstreamHandler, ChannelDownst
      * When true dump all packets sent over the wire to stdout for debug
      * purposes.
      */
-    public static boolean ENABLED = true;
+    public static boolean ENABLED = false;
     
     public void handleUpstream( ChannelHandlerContext ctx, ChannelEvent evt) throws Exception {
 

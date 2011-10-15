@@ -16,7 +16,7 @@ import peregrine.io.*;
 
 import junit.framework.*;
 
-public class TestReduceSort extends TestCase {
+public class TestReduceSort extends peregrine.BaseTest {
 
     /**
      * test running with two lists which each have different values.
