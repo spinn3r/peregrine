@@ -176,28 +176,39 @@ public class Controller {
 
     public void flushAllShufflers() throws Exception {
 
-        // flush all the shufflers on ALL hosts....
-
-        QueryStringEncoder encoder = new QueryStringEncoder( "" );
-        encoder.addParam( "action", "flush" );
-        String message = encoder.toString();
+        Map<String,String> message = new HashMap();
+        message.put( "action", "flush" );
 
         log.info( "Flushing all %,d shufflers with message: %s" , config.getHosts().size(), message );
         
         for ( Host host : config.getHosts() ) {
 
-            URI uri = new URI( String.format( "http://%s:%s/shuffler/RPC", host.getName(), host.getPort() ) );
-
-            log.info( "Flushing %s ..." , uri );
-            
-            RemoteChunkWriterClient client = new RemoteChunkWriterClient( uri );
-
-            client.setMethod( HttpMethod.POST );
-            client.write( message.getBytes() );
-            client.close();
+            sendRPC( host, "shuffler", message );
 
         }
         
+    }
+
+    public void sendRPC( Host host, String service, Map<String,String> message ) throws Exception {
+
+        QueryStringEncoder encoder = new QueryStringEncoder( "" );
+
+        for( String key : message.keySet() ) {
+            encoder.addParam( key, message.get( key ) );
+        }
+
+        String data = encoder.toString();
+
+        URI uri = new URI( String.format( "http://%s:%s/%s/RPC", host.getName(), host.getPort(), service ) );
+
+        log.info( "Sending RPC %s %s ..." , data, uri );
+        
+        RemoteChunkWriterClient client = new RemoteChunkWriterClient( uri );
+
+        client.setMethod( HttpMethod.POST );
+        client.write( data.getBytes() );
+        client.close();
+
     }
 
     public void shutdown() {
