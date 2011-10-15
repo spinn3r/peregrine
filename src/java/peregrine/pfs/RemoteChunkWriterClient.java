@@ -99,7 +99,7 @@ public class RemoteChunkWriterClient extends BaseOutputStream implements Channel
             this.uri = new URI( String.format( "http://%s%s", hosts.get(0), path ) );
 
             init();
-            
+
             String x_pipeline = "";
             
             for( int i = 1; i < hosts.size(); ++i ) {
@@ -126,7 +126,7 @@ public class RemoteChunkWriterClient extends BaseOutputStream implements Channel
         this.uri = uri;
     }
 
-    private void init() {
+    public void init() {
 
         String host = uri.getHost();
 
@@ -137,11 +137,12 @@ public class RemoteChunkWriterClient extends BaseOutputStream implements Channel
         request.setHeader( HttpHeaders.Names.HOST, host );
         request.setHeader( HttpHeaders.Names.TRANSFER_ENCODING, "chunked" );
 
+        inited = true;
+        
     }
 
     private void initWhenNecessary() {
-        init();
-        inited = true;
+        if ( ! inited ) init();
     }
 
     private void open() throws IOException {
