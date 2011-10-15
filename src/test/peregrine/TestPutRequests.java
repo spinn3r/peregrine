@@ -51,7 +51,7 @@ public class TestPutRequests extends peregrine.BaseTest {
         
     }
 
-    public void doTest( int max ) {
+    public void doTest( int max ) throws Exception {
 
         for( int i = 0; i < max; ++i ) {
 
