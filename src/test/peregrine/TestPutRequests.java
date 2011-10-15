@@ -50,11 +50,9 @@ public class TestPutRequests extends peregrine.BaseTest {
         return config;
         
     }
-    
-    public void test1() throws Exception {
 
-        int max = 1000;
-        
+    public void doTest( int max ) {
+
         for( int i = 0; i < max; ++i ) {
 
             System.out.printf( "Writing %,d out of %,d\n", i , max );
@@ -66,7 +64,19 @@ public class TestPutRequests extends peregrine.BaseTest {
             client.close();
             
         }
+
+    }
+    
+    public void test1() throws Exception {
+
+        doTest( 1000 );
+    }
+
+    public void test1WithHexPipeline() throws Exception {
+
+        HexPipelineEncoder.ENABLED = true;
         
+        doTest( 1000 );
     }
 
     public void test2() throws Exception {
