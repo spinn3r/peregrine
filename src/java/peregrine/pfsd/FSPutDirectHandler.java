@@ -69,8 +69,6 @@ public class FSPutDirectHandler extends FSPutBaseHandler {
 
                 HttpResponse response = new DefaultHttpResponse( HTTP_1_1, OK );
 
-                Channel ch = e.getChannel();
-
                 ctx.getChannel().write(response).addListener(ChannelFutureListener.CLOSE);
 
             }

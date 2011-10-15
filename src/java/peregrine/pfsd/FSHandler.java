@@ -259,12 +259,14 @@ public class FSHandler extends SimpleChannelUpstreamHandler {
 
         HttpResponse response = new DefaultHttpResponse(HTTP_1_1, status);
 
+        /*
         response.setHeader(CONTENT_TYPE, "text/plain; charset=UTF-8");
 
         String msg = "Failure: " + status.toString() + "\r\n";
 
         response.setContent( ChannelBuffers.copiedBuffer( msg, CharsetUtil.UTF_8));
-
+        */
+        
         // Close the connection as soon as the error message is sent.
         ctx.getChannel().write(response).addListener(ChannelFutureListener.CLOSE);
 

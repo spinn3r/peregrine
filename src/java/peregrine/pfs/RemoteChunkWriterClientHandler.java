@@ -33,14 +33,14 @@ public class RemoteChunkWriterClientHandler extends SimpleChannelUpstreamHandler
             HttpResponse response = (HttpResponse) e.getMessage();
             
             log.info( "Received HTTP response: %s for %s", response.getStatus(), client.uri );
-            
+
+            System.out.printf( "FIXME102 HERE\n" );
+
             client.channelState = RemoteChunkWriterClient.CLOSED;
             
             if ( response.getStatus().getCode() != OK.getCode() ) {
-                
                 client.setCause( new IOException( response.getStatus().toString() ) );
                 return;
-                
             }
             
             client.success();
