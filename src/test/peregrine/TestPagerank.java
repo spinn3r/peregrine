@@ -36,6 +36,8 @@ public class TestPagerank extends peregrine.TestWithTwoPartitions {
         controller.map( Mapper.class, "/pr/test.graph" );
         controller.reduce( Reducer.class, null, new Output( "/pr/test.graph_by_source" ) );
 
+        System.out.printf( "FIXME: GOING TO START MERGER CREATING nr_nodes ============================================\n" );
+
         //now create node metadata...
         controller.merge( NodeMetadataJob.Map.class,
                           new Input( "/pr/tmp/node_indegree", "/pr/test.graph_by_source" ),
@@ -45,6 +47,8 @@ public class TestPagerank extends peregrine.TestWithTwoPartitions {
                                       new BroadcastOutputReference( "nr_nodes" ),
                                       new BroadcastOutputReference( "nr_dangling" ) ) );
 
+        System.out.printf( "FIXME: GOING TO START REDUCING nr_nodes ============================================\n" );
+        
         controller.reduce( NodeMetadataJob.Reduce.class,
                            new Input( new ShuffleInputReference( "nr_nodes" ) ),
                            new Output( "/pr/out/nr_nodes" ) );

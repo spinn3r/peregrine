@@ -36,5 +36,10 @@ public class BroadcastShuffleJobOutput extends ShuffleJobOutput {
 
     }
 
+    @Override
+    public String toString() {
+        return String.format( "%s:%s@%s", getClass().getName(), name, Integer.toHexString(hashCode()) );
+    }
+    
 }
 

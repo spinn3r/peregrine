@@ -29,15 +29,15 @@ public class ShuffleOutputExtent {
 
     protected ChannelBuffer buff = ChannelBuffers.buffer( ShuffleJobOutput.EXTENT_SIZE );
 
-    protected int count = 0;
-
-    public void write( int to_partition, int length, byte[] key, byte[] value ) {
+    protected int emits = 0;
+    
+    public void emit( int to_partition, int length, byte[] key, byte[] value ) {
 
         buff.writeInt( to_partition );
         buff.writeInt( length );
         DefaultChunkWriter.write( buff, key, value );
 
-        ++count;
+        ++emits;
         
     }
 

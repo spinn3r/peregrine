@@ -142,7 +142,8 @@ public class Controller {
         flushAllShufflers();
         
         ShuffleInputReference shuffleInput = (ShuffleInputReference)input.getReferences().get( 0 );
-        System.out.printf( "using shuffle input : %s \n", shuffleInput.getName() );
+
+        log.info( "Using shuffle input : %s ", shuffleInput.getName() );
 
         Membership partitionMembership = config.getPartitionMembership();
 

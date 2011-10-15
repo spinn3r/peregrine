@@ -54,7 +54,7 @@ public class ShuffleJobOutput implements JobOutput, LocalPartitionReaderListener
 
     protected Config config;
 
-    protected int emitted = 0;
+    protected int emits = 0;
     
     public ShuffleJobOutput( Config config ) {
         this( config, "default" );
@@ -86,12 +86,14 @@ public class ShuffleJobOutput implements JobOutput, LocalPartitionReaderListener
     }
 
     protected void emit( int to_partition, byte[] key , byte[] value ) {
-        shuffleOutput.write( to_partition, key, value );
-        ++emitted;
+        shuffleOutput.emit( to_partition, key, value );
+        ++emits;
     }
 
     @Override 
     public void onChunk( ChunkReference chunkRef ) {
+
+        System.out.printf( "FIXME: got onChunk for chunk %s for name %s emits: %,d\n", chunkRef, name, emits );
 
         this.chunkRef = chunkRef;
 
@@ -102,14 +104,11 @@ public class ShuffleJobOutput implements JobOutput, LocalPartitionReaderListener
     @Override 
     public void onChunkEnd( ChunkReference ref ) {
         
-        try {
-        
-            if ( future != null )
-                future.get();
+        System.out.printf( "FIXME: got onChunkEnd for chunk %s for name %s with job output having %,d emits and shuffleOutput having %,d emits\n", ref, name, emits, shuffleOutput.emits );
 
-            future = executors.submit( new ShuffleFlushCallable( config, shuffleOutput ) );
-            
-        } catch ( Exception e ) {
+        try {
+            flush();
+        } catch ( IOException e ) {
             throw new RuntimeException( e );
         }
 
@@ -118,18 +117,32 @@ public class ShuffleJobOutput implements JobOutput, LocalPartitionReaderListener
     @Override 
     public void close() throws IOException {
 
-        log.info( "Closing... emitted: %,d" , emitted );
-        
-        try {
-            
-            if ( future != null ) 
-                future.get();
-            
-        } catch ( Exception e ) {
-            throw new IOException( e );
-        }
+        log.info( "Closing %s... emits: %,d" , name, emits );
+
+        // the first flush will trigger pending output to be async written to disk.
+        flush();
+
+        // the second flush will block until the prev finishs and then not do
+        // anything else as no more emits are present.
+        flush();
         
     }
 
+    private void flush() throws IOException {
+
+        try {
+
+            if ( future != null )
+                future.get();
+
+            if ( shuffleOutput.emits > 0 )
+                future = executors.submit( new ShuffleFlushCallable( config, shuffleOutput ) );
+
+        } catch ( Exception e ) {
+            throw new IOException( e );
+        }
+
+    }
+    
 }
 

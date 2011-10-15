@@ -86,16 +86,24 @@ public class NodeMetadataJob {
             if ( nrNodes == 0 )
                 throw new RuntimeException();
 
-            byte[] key = new StructWriter()
-                .writeHashcode( "nrNodes" )
-                .toBytes();
+            // *** broadcast nr dangling.
 
-            byte[] value = new StructWriter()
-                .writeVarint( nrNodes )
-                .toBytes();
+            nrNodesBroadcastOutput.emit( new StructWriter()
+                                             .writeHashcode( "id" )
+                                             .toBytes(),
+                                         new StructWriter()
+                                             .writeVarint( nrNodes )
+                                             .toBytes() );
 
-            nrNodesBroadcastOutput.emit( key, value );
-            
+            // *** broadcast nr dangling.
+
+            nrDanglingBroadcastOutput.emit( new StructWriter()
+                                                .writeHashcode( "id" )
+                                                .toBytes() ,
+                                            new StructWriter()
+                                                .writeVarint( nrDangling )
+                                                .toBytes() );
+
         }
 
     }

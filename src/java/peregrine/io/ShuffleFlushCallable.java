@@ -61,7 +61,7 @@ public class ShuffleFlushCallable implements Callable {
             
             ChannelBuffer buff = extent.buff;
 
-            for ( int i = 0; i < extent.count; ++i ) {
+            for ( int i = 0; i < extent.emits; ++i ) {
 
                 int to_partition = buff.readInt();
                 int length       = buff.readInt();

@@ -112,8 +112,11 @@ public abstract class BaseMapperTask extends BaseOutputTask implements Callable 
 
         for( ShuffleJobOutput current : shuffleJobOutput ) {
             
-            if ( current instanceof LocalPartitionReaderListener )
+            if ( current instanceof LocalPartitionReaderListener ) {
+                System.out.printf( "FIXME: adding listener for: %s\n", current );
+                
                 listeners.add( (LocalPartitionReaderListener) current );
+            }
             
         }
         

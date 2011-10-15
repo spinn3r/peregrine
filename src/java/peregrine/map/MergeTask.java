@@ -13,8 +13,12 @@ import peregrine.map.*;
 import peregrine.io.*;
 import peregrine.io.partition.*;
 
+import com.spinn3r.log5j.*;
+
 public class MergeTask extends BaseMapperTask {
-    
+
+    private static final Logger log = Logger.getLogger();
+
     private Merger merger;
 
     public Object call() throws Exception {
@@ -40,7 +44,7 @@ public class MergeTask extends BaseMapperTask {
 
     private void doCall() throws Exception {
 
-        System.out.printf( "Running merge jobs on host: %s\n", host );
+        log.info( "Running merge jobs on host: %s", host );
         
         List<LocalPartitionReader> readers = getLocalPartitionReaders();
 

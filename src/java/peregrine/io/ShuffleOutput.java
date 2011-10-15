@@ -43,6 +43,8 @@ public class ShuffleOutput {
     protected String name = null;
 
     protected boolean flushing = false;
+
+    protected int emits = 0;
     
     public ShuffleOutput( ChunkReference chunkRef, String name ) {
 
@@ -53,9 +55,9 @@ public class ShuffleOutput {
 
     }
     
-    public void write( int to_partition, byte[] key, byte[] value ) {
+    public void emit( int to_partition, byte[] key, byte[] value ) {
 
-        // the max width that this write could consume.  2 ints for the
+        // the max width that this emit could consume.  2 ints for the
         // partition and the width of the value and then the length of the key
         // and the lenght of the value + two ints for the varints.
 
@@ -66,18 +68,20 @@ public class ShuffleOutput {
             value.length
             ;
         
-        int write_width =
+        int emit_width =
             IntBytes.LENGTH +
             IntBytes.LENGTH +
             key_value_length
             ;
 
-        if ( extent.writerIndex() + write_width > ShuffleJobOutput.EXTENT_SIZE ) {
+        if ( extent.writerIndex() + emit_width > ShuffleJobOutput.EXTENT_SIZE ) {
             rollover();
         }
 
-        extent.write( to_partition, key_value_length, key, value );
+        extent.emit( to_partition, key_value_length, key, value );
 
+        ++emits;
+        
     }
 
     private void rollover() {
