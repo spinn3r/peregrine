@@ -165,8 +165,6 @@ public class Controller {
 
         waitFor( callables );
 
-        Shuffler.getInstance().reset();
-
         System.out.printf( "Finished reducer: %s\n", reducer.getName() );
         
     }
