@@ -16,7 +16,11 @@ import peregrine.pfs.*;
 
 import org.jboss.netty.handler.codec.http.*;
 
+import com.spinn3r.log5j.*;
+
 public class Controller {
+
+    private static final Logger log = Logger.getLogger();
 
     private Config config = null;
 
@@ -174,6 +178,8 @@ public class Controller {
         encoder.addParam( "action", "flush" );
         String message = encoder.toString();
 
+        log.info( "Flushing all shufflers with message: %s" , message );
+        
         for ( Host host : config.getHosts() ) {
 
             URI uri = new URI( String.format( "http://%s:%s/shuffler/RPC2", host.getName(), host.getPort() ) );

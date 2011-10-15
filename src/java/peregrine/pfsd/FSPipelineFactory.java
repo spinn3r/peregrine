@@ -54,7 +54,7 @@ public class FSPipelineFactory implements ChannelPipelineFactory {
         // Create a default pipeline implementation.
         ChannelPipeline pipeline = pipeline();
 
-        pipeline.addLast("hex",            new MyHexEncoder());
+        pipeline.addLast("hex",            new HexPipelineEncoder());
         pipeline.addLast("decoder",        new HttpRequestDecoder( MAX_INITIAL_LINE_LENGTH ,
                                                                    MAX_HEADER_SIZE,
                                                                    MAX_CHUNK_SIZE ) );
@@ -63,31 +63,6 @@ public class FSPipelineFactory implements ChannelPipelineFactory {
         pipeline.addLast("handler",        new FSHandler( config, daemon ));
         
         return pipeline;
-
-    }
-
-}
-
-class MyHexEncoder implements ChannelUpstreamHandler {
-
-    public void handleUpstream( ChannelHandlerContext ctx, ChannelEvent evt) throws Exception {
-
-        try {
-            
-            if ( evt instanceof MessageEvent ) {
-                
-                MessageEvent e = (MessageEvent) evt;
-
-                if ( e.getMessage() instanceof ChannelBuffer ) {
-                    ChannelBuffer buff = (ChannelBuffer) e.getMessage();
-                    System.out.printf( "%s\n", Hex.pretty( buff.array() ) );
-                }
-                
-            }
-            
-        } finally {
-            ctx.sendUpstream( evt );
-        }
 
     }
 
