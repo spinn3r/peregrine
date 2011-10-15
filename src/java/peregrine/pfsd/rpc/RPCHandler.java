@@ -21,4 +21,5 @@ public abstract class RPCHandler {
     public abstract void handleMessage( FSDaemon daemon, Map<String,List<String>> message )
         throws Exception;
     
+    
 }
