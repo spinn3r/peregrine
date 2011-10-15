@@ -113,7 +113,9 @@ public class FSPostDirectHandler extends SimpleChannelUpstreamHandler {
     }
 
     static {
-        handlers.put( "/shuffler/RPC", new ShufflerHandler() );
+        handlers.put( "/shuffler/RPC",    new ShufflerHandler() );
+        handlers.put( "/controller/RPC",  new ControllerHandler() );
+        handlers.put( "/mapper/RPC",      new MapperHandler() );
     }
     
 }
