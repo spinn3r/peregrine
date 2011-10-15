@@ -32,6 +32,8 @@ public class Shuffler {
     private Future future = null;
 
     private Config config = null;
+
+    private int accepted = 0;
     
     public Shuffler( Config config, String name ) {
 
@@ -63,6 +65,7 @@ public class Shuffler {
         }
 
         writer.accept( from_partition, from_chunk, to_partition, data );
+        ++accepted;
         
     }
 
@@ -99,6 +102,11 @@ public class Shuffler {
             if ( future != null )
                 future.get();
 
+            if ( accepted == 0 )
+                log.warn( "Accepted no output for %s ", name );
+            else 
+                log.info( "Accepted %,d entries for %s ", accepted, name );
+            
         } catch ( IOException e ) {
             throw e;
         } catch ( Exception e ) {

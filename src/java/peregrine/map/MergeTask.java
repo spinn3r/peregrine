@@ -41,10 +41,8 @@ public class MergeTask extends BaseMapperTask {
     private void doCall() throws Exception {
 
         System.out.printf( "Running merge jobs on host: %s\n", host );
-
-        LocalPartitionReaderListener listener = new MapperChunkRolloverListener( this );
         
-        List<LocalPartitionReader> readers = getLocalPartitionReaders( listener );
+        List<LocalPartitionReader> readers = getLocalPartitionReaders();
 
         LocalMerger localMerger = new LocalMerger( readers );
 

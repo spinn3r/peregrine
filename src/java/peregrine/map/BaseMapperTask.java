@@ -102,31 +102,13 @@ public abstract class BaseMapperTask extends BaseOutputTask implements Callable 
 
     }
 
-    protected void fireOnChunk( ChunkReference chunkRef ) {
-
-        for( ShuffleJobOutput current : shuffleJobOutput ) {
-            current.onChunk( chunkRef );
-        }
-        
-    }
-
-    protected void fireOnChunkEnd( ChunkReference chunkRef ) {
-
-        for( ShuffleJobOutput current : shuffleJobOutput ) {
-            current.onChunkEnd( chunkRef );
-        }
-        
-    }
-
     /**
      * Construct a set of partition readers from the input.
      */
-    protected List<LocalPartitionReader> getLocalPartitionReaders( LocalPartitionReaderListener listener )
+    protected List<LocalPartitionReader> getLocalPartitionReaders()
         throws IOException {
 
         List<LocalPartitionReaderListener> listeners = new ArrayList();
-
-        listeners.add( listener );
 
         for( ShuffleJobOutput current : shuffleJobOutput ) {
             
@@ -152,27 +134,4 @@ public abstract class BaseMapperTask extends BaseOutputTask implements Callable 
         
     }
     
-}
-
-/**
- * Used so that tasks can listen to map job progress and broadcast output.
- */
-class MapperChunkRolloverListener implements LocalPartitionReaderListener {
-
-    private BaseMapperTask task = null;
-    
-    public MapperChunkRolloverListener( BaseMapperTask task ) {
-        this.task = task;
-    }
-
-    @Override
-    public void onChunk( ChunkReference ref ) {
-        task.fireOnChunk( ref );
-    }
-
-    @Override
-    public void onChunkEnd( ChunkReference ref ) {
-        task.fireOnChunkEnd( ref );
-    }
-
 }

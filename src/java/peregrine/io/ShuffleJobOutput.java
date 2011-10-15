@@ -53,6 +53,8 @@ public class ShuffleJobOutput implements JobOutput, LocalPartitionReaderListener
     protected Future future = null;
 
     protected Config config;
+
+    protected int emitted = 0;
     
     public ShuffleJobOutput( Config config ) {
         this( config, "default" );
@@ -85,20 +87,7 @@ public class ShuffleJobOutput implements JobOutput, LocalPartitionReaderListener
 
     protected void emit( int to_partition, byte[] key , byte[] value ) {
         shuffleOutput.write( to_partition, key, value );
-    }
-
-    @Override 
-    public void close() throws IOException {
-
-        try {
-            
-            if ( future != null ) 
-                future.get();
-            
-        } catch ( Exception e ) {
-            throw new IOException( e );
-        }
-        
+        ++emitted;
     }
 
     @Override 
@@ -120,208 +109,29 @@ public class ShuffleJobOutput implements JobOutput, LocalPartitionReaderListener
 
             future = executors.submit( new ShuffleFlushCallable( config, shuffleOutput ) );
 
+            System.out.printf( "FIXME: on job end for shuffler... \n" );
+            
         } catch ( Exception e ) {
             throw new RuntimeException( e );
         }
 
     }
-    
-}
 
-class ShuffleFlushCallable implements Callable {
+    @Override 
+    public void close() throws IOException {
 
-    private static final Logger log = Logger.getLogger();
-
-    private ShuffleOutput output = null;
-
-    private Config config = null;
-    
-    public ShuffleFlushCallable( Config config, ShuffleOutput output ) {
-        this.config = config;
-        this.output = output;
-    }
-    
-    public Object call() throws Exception {
-
-        // FIXME: dont allow us to close somethin out TWICE
-
-        if ( output.flushing )
-            return null;
-
-        output.flushing = true;
+        log.info( "Closing... emitted: %,d" , emitted );
         
-        log.info( "Closing shuffle job output for chunk: %s", output.chunkRef );
-
-        Map<Integer,ChannelBufferWritable> partitionOutput = getPartitionOutput();
-
-        // now read the data and write it to all clients .. 
-
-        int count = 0;
-
-        // FIXME: ANY of these writes can fail and if they do we need to
-        // continue and just gossip that they have failed...  this includes
-        // write() AND close()
-
-        for( ShuffleOutputExtent extent : output.extents ) {
-
-            ChannelBuffer buff = extent.buff;
-
-            for ( int i = 0; i < extent.count; ++i ) {
-
-                int to_partition = buff.readInt();
-                int length       = buff.readInt();
-
-                ChannelBuffer slice = buff.slice( buff.readerIndex() , length );
-
-                ChannelBufferWritable client = partitionOutput.get( to_partition );
-
-                if ( client == null )
-                    throw new Exception( "NO client for partition: " + to_partition );
-                
-                client.write( slice );
-
-                // bump up the writer index now for the next reader.
-                buff.readerIndex( buff.readerIndex() + length );
-                
-                ++count;
-                
-            }
-
-        }
-        
-        // now close all clients and we are done.
-        
-        for( ChannelBufferWritable client : partitionOutput.values() ) {
-            client.close();
-        }
-
-        log.info( "Shuffled %,d entries.", count );
-
-        return null;
-        
-    }
-
-    private Map<Integer,ChannelBufferWritable> getPartitionOutput() {
-
         try {
-
-            Map<Integer,ChannelBufferWritable> clients = new HashMap();
-
-            Membership membership = config.getPartitionMembership();
             
-            Set<Partition> partitions = membership.getPartitions();
-            
-            for( Partition part : partitions ) {
-
-                List<Host> hosts = membership.getHosts( part );
-                
-                String path = String.format( "/%s/shuffle/%s/from-partition/%s/from-chunk/%s",
-                                             part.getId(),
-                                             output.name,
-                                             output.chunkRef.partition.getId(),
-                                             output.chunkRef.local );
-
-                System.out.printf( "FIXME: hosts: %s, part: %s\n", hosts , part );
-                
-                ChannelBufferWritable client = new RemoteChunkWriterClient( hosts, path );
-                client = new BufferedChannelBuffer( client , MAX_CHUNK_SIZE );
-                
-                clients.put( part.getId(), client );
-                
-            }
-
-            return clients;
+            if ( future != null ) 
+                future.get();
             
         } catch ( Exception e ) {
-            // This should be ok as it will cause the map job to fail which will
-            // then be caught by gossip.
-            throw new RuntimeException( e );
+            throw new IOException( e );
         }
-
+        
     }
-    
+
 }
 
-/**
- * 
- */
-class ShuffleOutput {
-
-    private static final Logger log = Logger.getLogger();
-
-    List<ShuffleOutputExtent> extents = new ArrayList();
-
-    ShuffleOutputExtent extent = null;
-
-    protected int partitions;
-
-    protected ChunkReference chunkRef = null;
-
-    protected String name = null;
-
-    protected boolean flushing = false;
-    
-    public ShuffleOutput( ChunkReference chunkRef, String name ) {
-
-        this.chunkRef = chunkRef;
-        this.name = name;
-        
-        rollover();
-
-    }
-    
-    public void write( int to_partition, byte[] key, byte[] value ) {
-
-        // the max width that this write could consume.  2 ints for the
-        // partition and the width of the value and then the length of the key
-        // and the lenght of the value + two ints for the varints.
-
-        int key_value_length =
-            VarintWriter.sizeof( key.length ) +
-            key.length +
-            VarintWriter.sizeof( value.length ) +
-            value.length
-            ;
-        
-        int write_width =
-            IntBytes.LENGTH +
-            IntBytes.LENGTH +
-            key_value_length
-            ;
-
-        if ( extent.writerIndex() + write_width > ShuffleJobOutput.EXTENT_SIZE ) {
-            rollover();
-        }
-
-        extent.write( to_partition, key_value_length, key, value );
-        
-    }
-
-    private void rollover() {
-        extent = new ShuffleOutputExtent();
-        extents.add( extent );
-    }
-    
-}
-
-class ShuffleOutputExtent {
-
-    protected ChannelBuffer buff = ChannelBuffers.buffer( ShuffleJobOutput.EXTENT_SIZE );
-
-    protected int count = 0;
-    
-    public void write( int to_partition, int length, byte[] key, byte[] value ) {
-
-        buff.writeInt( to_partition );
-        buff.writeInt( length );
-        DefaultChunkWriter.write( buff, key, value );
-
-        ++count;
-        
-    }
-
-    public int writerIndex() {
-        return buff.writerIndex();
-    }
-    
-}

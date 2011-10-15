@@ -79,7 +79,6 @@ public class FSPutShuffleHandler extends FSPutBaseHandler {
 
                 ChannelBuffer content = chunk.getContent();
                 byte[] data = content.array();
-
                 shuffler.accept( from_partition, from_chunk, to_partition, data );
                 
             } else {

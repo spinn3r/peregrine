@@ -57,9 +57,6 @@ public class ShuffleOutputWriter {
         this.path = path;
         this.config = config;
 
-        // FIXME: this does IO to disk which should really be done in a
-        // dedicated thread.
-
         new File( new File( path ).getParent() ).mkdirs();
         
     }

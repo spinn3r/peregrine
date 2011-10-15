@@ -36,14 +36,14 @@ public class MapperTask extends BaseMapperTask {
             mapper.cleanup();
             teardown();
         }
+
+        System.out.printf( "FIXME: ==========================================\n" );
         
         return null;
         
     }
 
     private void doCall() throws Exception {
-
-        LocalPartitionReaderListener listener = new MapperChunkRolloverListener( this );
 
         // note a map job with ZERO input files is acceptable.  This would be
         // used for some generator that just emits values on init.
@@ -52,7 +52,7 @@ public class MapperTask extends BaseMapperTask {
             throw new Exception( "Map jobs must not have more than one input." );
         }
 
-        List<LocalPartitionReader> readers = getLocalPartitionReaders( listener );
+        List<LocalPartitionReader> readers = getLocalPartitionReaders();
 
         if ( readers.size() == 0 )
             return;
