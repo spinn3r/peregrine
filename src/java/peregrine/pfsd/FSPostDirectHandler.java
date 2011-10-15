@@ -42,7 +42,7 @@ public class FSPostDirectHandler extends SimpleChannelUpstreamHandler {
 
     private Channel channel;
 
-    private Map<String,List<String>> message;
+    private Map<String,String> message;
     
     public FSPostDirectHandler( FSHandler handler ) {
         this.handler = handler;
@@ -64,8 +64,14 @@ public class FSPostDirectHandler extends SimpleChannelUpstreamHandler {
                 ChannelBuffer content = chunk.getContent();
                 byte[] data = content.array();
                 
-                this.message = new QueryStringDecoder( new String( data ) ).getParameters();
+                Map<String,List<String>> decoded = new QueryStringDecoder( new String( data ) ).getParameters();
 
+                this.message = new HashMap();
+
+                for( String key : decoded.keySet() ) {
+                    this.message.put( key , decoded.get( key ).get(0) );
+                }
+                
             } else {
 
                 doHandleMessage();
@@ -125,10 +131,10 @@ abstract class AsyncAction implements Runnable {
     private static final Logger log = Logger.getLogger();
 
     private Channel channel;
-    private Map<String,List<String>> message;
+    private Map<String,String> message;
     
     public AsyncAction( Channel channel,
-                        Map<String,List<String>> message ) {
+                        Map<String,String> message ) {
         this.channel = channel;
         this.message = message;
     }

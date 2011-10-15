@@ -18,7 +18,7 @@ public abstract class RPCHandler {
 
     private static final Logger log = Logger.getLogger();
 
-    public abstract void handleMessage( FSDaemon daemon, Map<String,List<String>> message )
+    public abstract void handleMessage( FSDaemon daemon, Map<String,String> message )
         throws Exception;
     
     

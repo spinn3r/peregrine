@@ -16,5 +16,10 @@ public final class BroadcastOutputReference implements OutputReference {
         return name;
     }
 
+    @Override
+    public String toString() {
+        return "broadcast:" + getName();
+    }
+    
 }
     

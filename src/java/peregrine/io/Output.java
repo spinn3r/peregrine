@@ -10,6 +10,8 @@ public final class Output {
 
     private List<OutputReference> references = new ArrayList();
 
+    public Output() { }
+
     public Output( String... paths ) {
         for( String path : paths ) {
             add( new FileOutputReference( path ) );
@@ -33,5 +35,10 @@ public final class Output {
     public List<OutputReference> getReferences() {
         return references;
     }
-    
+
+    @Override
+    public String toString() {
+        return references.toString();
+    }
+
 }

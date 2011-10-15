@@ -14,6 +14,7 @@ import peregrine.shuffle.*;
 import peregrine.io.*;
 import peregrine.pfs.*;
 import peregrine.pfsd.*;
+import peregrine.task.*;
 
 import org.jboss.netty.handler.codec.http.*;
 
@@ -35,24 +36,67 @@ public class Controller {
         this.daemon = new FSDaemon( config );
     }
 
-    public void map( Class mapper, String... paths ) throws Exception {
+    public void map( Class mapper,
+                     String... paths ) throws Exception {
         map( mapper, new Input( paths ) );
     }
 
-    public void map( final Class mapper, final Input input ) throws Exception {
+    public void map( final Class mapper,
+                     final Input input ) throws Exception {
         map( mapper, input, null );
     }
         
     /**
      * Run map jobs on all chunks on the given path.
      */
-    public void map( final Class mapper, final Input input,
-                      final Output output ) throws Exception {
+    public void map( final Class mapper,
+                     final Input input,
+                     final Output output ) throws Exception {
 
         System.out.printf( "Starting mapper: %s\n", mapper.getName() );
 
         final Membership partitionMembership = config.getPartitionMembership();
-        
+
+        Scheduler scheduler = new Scheduler( config ) {
+
+                public void invoke( Host host, Partition part ) throws Exception {
+
+                    int idx;
+
+                    Map<String,String> message = new HashMap();
+                    message.put( "action",     "map" );
+                    message.put( "partition",  Integer.toString( part.getId() ) );
+                    message.put( "mapper",     mapper.getName() );
+                    
+                    if ( input != null ) {
+                    
+                        idx = 0;
+                        for( InputReference ref : input.getReferences() ) {
+                            message.put( "input." + idx++, ref.toString() );
+                        }
+
+                    }
+
+                    if ( output != null ) {
+                        
+                        idx = 0;
+                        for( OutputReference ref : output.getReferences() ) {
+                            message.put( "output." + idx++, ref.toString() );
+                        }
+
+                    }
+
+                    new RPC().invoke( host, "mapper", message );
+                    
+                }
+                
+            };
+
+        scheduler.init();
+
+        scheduler.waitForCompletion();
+
+        /*
         runCallables( new CallableFactory() {
 
                 public Callable newCallable( Partition part, Host host ) {
@@ -70,6 +114,8 @@ public class Controller {
                 
             }, partitionMembership );
 
+        */
+            
         System.out.printf( "Finished mapper: %s\n", mapper.getName() );
 
     }
@@ -183,32 +229,10 @@ public class Controller {
         
         for ( Host host : config.getHosts() ) {
 
-            sendRPC( host, "shuffler", message );
+            new RPC().invoke( host, "shuffler", message );
 
         }
         
-    }
-
-    public void sendRPC( Host host, String service, Map<String,String> message ) throws Exception {
-
-        QueryStringEncoder encoder = new QueryStringEncoder( "" );
-
-        for( String key : message.keySet() ) {
-            encoder.addParam( key, message.get( key ) );
-        }
-
-        String data = encoder.toString();
-
-        URI uri = new URI( String.format( "http://%s:%s/%s/RPC", host.getName(), host.getPort(), service ) );
-
-        log.info( "Sending RPC %s %s ..." , data, uri );
-        
-        RemoteChunkWriterClient client = new RemoteChunkWriterClient( uri );
-
-        client.setMethod( HttpMethod.POST );
-        client.write( data.getBytes() );
-        client.close();
-
     }
 
     public void shutdown() {

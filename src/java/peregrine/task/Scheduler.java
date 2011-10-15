@@ -42,13 +42,20 @@ public abstract class Scheduler {
         this.membership = config.getPartitionMembership();
     }
     
-    public void init() {
+    public void init() throws Exception {
 
+        log.info( "init()" );
+        
         // for each host, schedule a unit of work
+        Set<Host> hosts = config.getHosts();
+
+        for( Host host : hosts ) {
+            schedule( host );
+        }
         
     }
 
-    public void schedule( Host host ) {
+    public void schedule( Host host ) throws Exception {
 
         List<Partition> partitions = membership.getPartitions( host );
 
@@ -57,15 +64,25 @@ public abstract class Scheduler {
             if ( completion.isComplete( part ) )
                 continue;
 
+            log.info( "Scheduling %s on %s", part, host );
+            
             invoke( host, part );
 
             return;
 
         }
 
+        try {
+            
+            result.put( Boolean.TRUE );
+
+        } catch ( InterruptedException e) {
+            throw new RuntimeException( e );
+        }
+        
     }
 
-    public abstract void invoke( Host host, Partition part );
+    public abstract void invoke( Host host, Partition part ) throws Exception;
     
     public void markComplete( Partition partition ) {
         completion.markComplete( partition );
@@ -73,7 +90,10 @@ public abstract class Scheduler {
 
     public void waitForCompletion() {
 
+        log.info( "Waiting for completion." );
+        
         try {
+            
             Object took = result.take();
 
             return;

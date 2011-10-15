@@ -18,10 +18,10 @@ public class ShufflerHandler extends RPCHandler {
 
     private static final Logger log = Logger.getLogger();
 
-    public void handleMessage( FSDaemon daemon, Map<String,List<String>> message )
+    public void handleMessage( FSDaemon daemon, Map<String,String> message )
         throws Exception {
 
-        String action = message.get( "action" ).get( 0 );
+        String action = message.get( "action" );
 
         if ( "flush".equals( action ) ) {
             

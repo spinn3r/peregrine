@@ -34,8 +34,11 @@ public class FSDaemon {
      */
     public ShufflerFactory shufflerFactory;
 
+    public Config config;
+    
     public FSDaemon( Config config ) {
 
+        this.config = config;
         this.port = config.getHost().getPort();
         this.shufflerFactory = new ShufflerFactory( config ); 
         

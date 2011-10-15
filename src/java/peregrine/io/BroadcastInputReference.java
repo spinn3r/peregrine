@@ -6,14 +6,21 @@ import peregrine.keys.*;
 
 public final class BroadcastInputReference implements InputReference {
 
-    private String path;
+    private String name;
     
-    public BroadcastInputReference( String path ) {
-        this.path = path;
+    public BroadcastInputReference() {}
+
+    public BroadcastInputReference( String name ) {
+        this.name = name;
     }
 
-    public String getPath() {
-        return path;
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public String toString() {
+        return "broadcast:" + getName();
     }
 
 }

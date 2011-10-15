@@ -23,12 +23,13 @@ public final class FileOutputReference implements OutputReference {
         return this.path;
     }
 
-    public String toString() {
-        return getPath();
-    }
-
     public boolean getAppend() { 
         return this.append;
+    }
+
+    @Override
+    public String toString() {
+        return String.format( "file:%s:%s", getPath(), append );
     }
 
 }

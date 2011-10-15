@@ -36,4 +36,9 @@ public final class Input {
         return references;
     }
 
+    @Override
+    public String toString() {
+        return references.toString();
+    }
+    
 }

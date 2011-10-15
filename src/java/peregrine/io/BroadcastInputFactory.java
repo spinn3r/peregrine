@@ -26,7 +26,7 @@ public class BroadcastInputFactory {
                 
                 BroadcastInputReference bir = (BroadcastInputReference) in;
                 
-                BroadcastInput bi = new BroadcastInput( config, part, host, bir.getPath() );
+                BroadcastInput bi = new BroadcastInput( config, part, host, bir.getName() );
                 
                 result.add( bi );
                 

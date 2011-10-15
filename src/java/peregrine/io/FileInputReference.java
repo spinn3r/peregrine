@@ -16,9 +16,10 @@ public final class FileInputReference implements InputReference {
         return this.path;
     }
 
+    @Override
     public String toString() {
-        return getPath();
+        return "file:" + getPath();
     }
-    
+
 }
     
