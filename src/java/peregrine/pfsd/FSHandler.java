@@ -242,7 +242,7 @@ public class FSHandler extends SimpleChannelUpstreamHandler {
         if ( request == null )
             log.error( "Could not handle initial request: ", cause );
         else
-            log.error( "Could not handle request: %s", request.getUri() , cause );
+            log.error( "Could not handle request: " + request.getUri() , cause );
 
         if (cause instanceof TooLongFrameException) {
             sendError(ctx, BAD_REQUEST);

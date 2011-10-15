@@ -26,20 +26,26 @@ public class RemoteChunkWriterClientHandler extends SimpleChannelUpstreamHandler
     @Override
     public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
 
-        HttpResponse response = (HttpResponse) e.getMessage();
-
-        log.info( "Received HTTP response: %s for %s", response.getStatus(), client.uri );
-
-        client.channelState = RemoteChunkWriterClient.CLOSED;
-
-        if ( response.getStatus().getCode() != OK.getCode() ) {
-
-            client.setCause( new IOException( response.getStatus().toString() ) );
-            return;
+        Object message = e.getMessage();
+        
+        if ( message instanceof HttpResponse ) {
+        
+            HttpResponse response = (HttpResponse) e.getMessage();
+            
+            log.info( "Received HTTP response: %s for %s", response.getStatus(), client.uri );
+            
+            client.channelState = RemoteChunkWriterClient.CLOSED;
+            
+            if ( response.getStatus().getCode() != OK.getCode() ) {
+                
+                client.setCause( new IOException( response.getStatus().toString() ) );
+                return;
+                
+            }
+            
+            client.success();
 
         }
-
-        client.success();
         
     }
 
