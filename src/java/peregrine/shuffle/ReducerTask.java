@@ -84,11 +84,9 @@ public class ReducerTask extends BaseOutputTask implements Callable {
         
         LocalReducer reducer = new LocalReducer( listener );
 
-        String shuffle_dir = config.getPFSPath( partition,
-                                                config.getHost(),
-                                                String.format( "/shuffle/%s/", shuffleInput.getName() ) );
+        String shuffle_dir = config.getShuffleDir( shuffleInput.getName() );
 
-        System.out.printf( "Trying to find suffle files in: %s\n", shuffle_dir );
+        System.out.printf( "Trying to find shuffle files in: %s\n", shuffle_dir );
 
         File shuffle_dir_file = new File( shuffle_dir );
 

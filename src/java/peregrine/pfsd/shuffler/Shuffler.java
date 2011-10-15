@@ -58,7 +58,7 @@ public class Shuffler {
 
             rollover();
 
-            String path = config.getPFSPath( part, host, String.format( "/shuffle/%s/%010d.tmp", name, idx++ ) );
+            String path = String.format( "%s/%010d.tmp", config.getShuffleDir( name ), idx++ );
 
             writer = new ShuffleOutputWriter( config, path );
 

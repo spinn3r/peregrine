@@ -31,17 +31,6 @@ public class ShuffleOutputExtent {
 
     protected int count = 0;
 
-    /**
-     * 
-     * 
-     *
-     */
-    public ShuffleOutputExtent() {
-        System.out.printf( "FIXME10 new extent created: %s\n", this );
-
-        new Exception().printStackTrace();
-    }
-
     public void write( int to_partition, int length, byte[] key, byte[] value ) {
 
         buff.writeInt( to_partition );

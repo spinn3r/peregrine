@@ -106,6 +106,10 @@ public class Config {
         return String.format( "%s%s" , getPFSRoot( partition, host ), path );
     }
 
+    public String getShuffleDir( String name ) {
+        return String.format( "%s/tmp/shuffle/%s", getRoot(), name);
+    }
+
     /**
      * For a given key, in bytes, route it to the correct partition/partition.
      */
