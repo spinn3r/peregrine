@@ -54,8 +54,9 @@ public class BufferedChannelBuffer implements ChannelBufferWritable {
     @Override
     public void close() throws IOException {
 
-        flush();
-        
+        if ( length > 0 )
+            flush();
+
         delegate.close();
         
     }

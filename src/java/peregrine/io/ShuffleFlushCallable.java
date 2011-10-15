@@ -40,8 +40,6 @@ public class ShuffleFlushCallable implements Callable {
     
     public Object call() throws Exception {
 
-        // FIXME: dont allow us to close somethin out TWICE
-
         if ( output.flushing )
             return null;
 
@@ -58,12 +56,8 @@ public class ShuffleFlushCallable implements Callable {
         // FIXME: ANY of these writes can fail and if they do we need to
         // continue and just gossip that they have failed...  this includes
         // write() AND close()
-
-        System.out.printf( "FIXME9 We have %,d extendt\n", output.extents.size() );
         
         for( ShuffleOutputExtent extent : output.extents ) {
-
-            System.out.printf( "FIXME13: working on extent %s... with count %s\n", extent, extent.count );
             
             ChannelBuffer buff = extent.buff;
 
@@ -122,8 +116,6 @@ public class ShuffleFlushCallable implements Callable {
                                              output.chunkRef.partition.getId(),
                                              output.chunkRef.local );
 
-                System.out.printf( "FIXME: hosts: %s, part: %s\n", hosts , part );
-                
                 ChannelBufferWritable client = new RemoteChunkWriterClient( hosts, path );
                 client = new BufferedChannelBuffer( client , MAX_CHUNK_SIZE );
                 

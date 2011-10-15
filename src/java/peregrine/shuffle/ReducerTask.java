@@ -16,8 +16,12 @@ import peregrine.io.chunk.*;
 
 import peregrine.pfsd.shuffler.ShuffleInputChunkReader;
 
+import com.spinn3r.log5j.Logger;
+
 public class ReducerTask extends BaseOutputTask implements Callable {
-    
+
+    private static final Logger log = Logger.getLogger();
+
     private Input input = null;
 
     private Reducer reducer;
@@ -86,7 +90,7 @@ public class ReducerTask extends BaseOutputTask implements Callable {
 
         String shuffle_dir = config.getShuffleDir( shuffleInput.getName() );
 
-        System.out.printf( "Trying to find shuffle files in: %s\n", shuffle_dir );
+        log.info( "Trying to find shuffle files in: %s", shuffle_dir );
 
         File shuffle_dir_file = new File( shuffle_dir );
 
@@ -99,7 +103,6 @@ public class ReducerTask extends BaseOutputTask implements Callable {
         for( File file : files ) {
             ChunkReader reader = new ShuffleInputChunkReader( file.getPath(), partition.getId() );
 
-            System.out.printf( "FIXME: %s for partition : %s\n", reader, partition.getId() );
             reducer.add( reader );
         }
         
@@ -107,8 +110,8 @@ public class ReducerTask extends BaseOutputTask implements Callable {
 
         reducer.sort();
 
-        System.out.printf( "Sorted %,d entries in %,d chunk readers for partition %s \n",
-                           listener.nr_tuples , nr_readers, partition );
+        log.info( "Sorted %,d entries in %,d chunk readers for partition %s",
+                  listener.nr_tuples , nr_readers, partition );
 
         // we have to close ALL of our output streams now.
 

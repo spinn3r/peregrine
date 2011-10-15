@@ -36,8 +36,6 @@ public class MapperTask extends BaseMapperTask {
             mapper.cleanup();
             teardown();
         }
-
-        System.out.printf( "FIXME: ==========================================\n" );
         
         return null;
         

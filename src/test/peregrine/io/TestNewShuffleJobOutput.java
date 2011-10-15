@@ -20,10 +20,6 @@ import peregrine.pfsd.*;
 
 public class TestNewShuffleJobOutput extends peregrine.BaseTest {
 
-    public static int MAX_EMITS = 1;
-
-    public static int ITERATIONS = 20;
-    
     // FIXME: this should extend a common config.
 
     protected Config config;
@@ -71,7 +67,7 @@ public class TestNewShuffleJobOutput extends peregrine.BaseTest {
         
     }
 
-    private void doTest() throws Exception {
+    private void doTestIter( int max_emits ) throws Exception {
 
         ShuffleJobOutput output = new ShuffleJobOutput( config );
 
@@ -80,7 +76,7 @@ public class TestNewShuffleJobOutput extends peregrine.BaseTest {
 
         output.onChunk( chunkRef );
 
-        for ( int i = 0; i < MAX_EMITS; ++i ) {
+        for ( int i = 0; i < max_emits; ++i ) {
 
             byte[] key = new StructWriter()
                 .writeHashcode( "" + i )
@@ -102,20 +98,22 @@ public class TestNewShuffleJobOutput extends peregrine.BaseTest {
         controller.flushAllShufflers();
 
     }
-    
-    /**
-     * test running with two lists which each have different values.
-     */
-    public void test1() throws Exception {
+
+    public void doTest( int iterations, int max_emits ) throws Exception {
 
         assertEquals( config.getHosts().size(), 3 );
 
         System.out.printf( "Running with %,d hosts.\n", config.getHosts().size() );
         
-        for( int i = 0; i < ITERATIONS; ++i ) {
-            doTest();
+        for( int i = 0; i < iterations; ++i ) {
+            doTestIter( max_emits );
         }
-        
+
+    }
+    
+    public void test1() throws Exception {
+        doTest( 20, 1 );
+        doTest( 100, 3 );
     }
 
     public static void main( String[] args ) throws Exception {

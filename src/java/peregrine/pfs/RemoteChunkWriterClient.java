@@ -463,8 +463,6 @@ class CloseFutureListener implements ChannelFutureListener {
     public void operationComplete( ChannelFuture future ) 
         throws Exception {
 
-        System.out.printf( "FIXME101 HERE\n" );
-        
         Throwable cause = future.getCause();
 
         if ( cause != null ) {

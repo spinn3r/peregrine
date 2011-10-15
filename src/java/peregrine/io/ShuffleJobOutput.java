@@ -108,8 +108,6 @@ public class ShuffleJobOutput implements JobOutput, LocalPartitionReaderListener
                 future.get();
 
             future = executors.submit( new ShuffleFlushCallable( config, shuffleOutput ) );
-
-            System.out.printf( "FIXME: on job end for shuffler... \n" );
             
         } catch ( Exception e ) {
             throw new RuntimeException( e );
