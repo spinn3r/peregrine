@@ -10,23 +10,10 @@ import peregrine.values.*;
 import peregrine.util.*;
 import peregrine.pagerank.*;
 
-public class TestPagerank extends junit.framework.TestCase {
-
-    protected Config config;
-    
-    public void setUp() {
-        
-        config = new Config();
-        config.setHost( new Host( "localhost" ) );
-
-    }
+public class TestPagerank extends peregrine.TestWithTwoPartitions {
 
     public void test1() throws Exception {
 
-        // TRY with three partitions... 
-        config.addPartitionMembership( 0, "localhost" );
-        config.addPartitionMembership( 1, "localhost" );
-        
         String path = "/pr/test.graph";
         
         ExtractWriter writer = new ExtractWriter( config, path );
@@ -153,7 +140,7 @@ public class TestPagerank extends junit.framework.TestCase {
     }
 
     public static void main( String[] args ) throws Exception {
-        new TestPagerank().test1();
+        org.junit.runner.JUnitCore.main( TestPagerank.class.getName() );
     }
 
 }

@@ -38,8 +38,6 @@ public class ShuffleOutputExtent {
         DefaultChunkWriter.write( buff, key, value );
 
         ++count;
-
-        System.out.printf( "FIXME12 GOT ONE EXTENT WRITE: %s\n", this );
         
     }
 

@@ -46,8 +46,6 @@ public class ShuffleOutput {
     
     public ShuffleOutput( ChunkReference chunkRef, String name ) {
 
-        System.out.printf( "FIXME: 16 creating new shuffle output for: %s\n", name );
-        
         this.chunkRef = chunkRef;
         this.name = name;
         
@@ -75,19 +73,15 @@ public class ShuffleOutput {
             ;
 
         if ( extent.writerIndex() + write_width > ShuffleJobOutput.EXTENT_SIZE ) {
-            System.out.printf( "ROLLING OVER because we ran out of space\n" );
             rollover();
         }
 
         extent.write( to_partition, key_value_length, key, value );
 
-        System.out.printf( "FIXME: GOT AN EXTENT WRITE \n" );
-
     }
 
     private void rollover() {
 
-        System.out.printf( "FIXME11 ROLLING\n" );
         extent = new ShuffleOutputExtent();
         extents.add( extent );
     }
