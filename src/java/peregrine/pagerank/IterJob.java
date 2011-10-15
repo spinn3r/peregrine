@@ -127,6 +127,8 @@ public class IterJob {
         @Override
         public void init( JobOutput... output ) {
 
+            super.init( output );
+            
             BroadcastInput nrNodesBroadcastInput = getBroadcastInput().get( 0 );
             
             nr_nodes = new StructReader( nrNodesBroadcastInput.getValue() )

@@ -29,11 +29,19 @@ public class TestPagerank extends peregrine.BaseTestWithTwoPartitions {
         //it.
 
         Controller controller = new Controller( config );
-        
-        controller.map( NodeIndegreeJob.Map.class, path );
-        controller.reduce( NodeIndegreeJob.Reduce.class, null, new Output( "/pr/tmp/node_indegree" ) );
 
-        controller.map( Mapper.class, "/pr/test.graph" );
+        // FIXME: I think I can elide this and the next step by reading the
+        // input once and writing two two destinations.
+        
+        controller.map( NodeIndegreeJob.Map.class,
+                        path );
+
+        controller.reduce( NodeIndegreeJob.Reduce.class,
+                           null,
+                           new Output( "/pr/tmp/node_indegree" ) );
+
+        // sort the graph by source.. 
+        controller.map( Mapper.class, path );
         controller.reduce( Reducer.class, null, new Output( "/pr/test.graph_by_source" ) );
 
         //now create node metadata...
@@ -63,17 +71,18 @@ public class TestPagerank extends peregrine.BaseTestWithTwoPartitions {
 
         // FIXME: add nonlinked... 
         
-        // controller.merge( IterJob.Map.class,
-        //                   new Input( new FileInputReference( "/pr/test.graph_by_source" ),
-        //                              new FileInputReference( "/pr/out/rank_vector" ),
-        //                              new FileInputReference( "/pr/out/dangling" ),
-        //                              new FileInputReference( "/pr/out/nonlinked" ),
-        //                              new BroadcastInputReference( "/pr/out/nr_nodes" ) ),
-        //                   new Output( new BroadcastOutputReference( "dangling_rank_sum" ) ) );
+        controller.merge( IterJob.Map.class,
+                          new Input( new FileInputReference( "/pr/test.graph_by_source" ),
+                                     new FileInputReference( "/pr/out/rank_vector" ),
+                                     new FileInputReference( "/pr/out/dangling" ),
+                                     new FileInputReference( "/pr/out/nonlinked" ),
+                                     new BroadcastInputReference( "/pr/out/nr_nodes" ) ),
+                          new Output( new BroadcastOutputReference( "dangling_rank_sum" ) ) );
 
-        // controller.reduce( IterJob.Reduce.class,
-        //                    null,
-        //                    new Output( "/pr/out/rank_vector_new" ) );
+        controller.reduce( IterJob.Reduce.class,
+                           new Input( new ShuffleInputReference(),
+                                      new BroadcastInputReference( "/pr/out/nr_nodes" ) ),
+                           new Output( "/pr/out/rank_vector_new" ) );
 
         // // now compute the dangling rank sum.. 
 
