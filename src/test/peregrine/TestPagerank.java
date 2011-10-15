@@ -36,8 +36,6 @@ public class TestPagerank extends peregrine.TestWithTwoPartitions {
         controller.map( Mapper.class, "/pr/test.graph" );
         controller.reduce( Reducer.class, null, new Output( "/pr/test.graph_by_source" ) );
 
-        System.out.printf( "FIXME: GOING TO START MERGER CREATING nr_nodes ============================================\n" );
-
         //now create node metadata...
         controller.merge( NodeMetadataJob.Map.class,
                           new Input( "/pr/tmp/node_indegree", "/pr/test.graph_by_source" ),
@@ -46,8 +44,6 @@ public class TestPagerank extends peregrine.TestWithTwoPartitions {
                                       new FileOutputReference( "/pr/out/nonlinked" ),
                                       new BroadcastOutputReference( "nr_nodes" ),
                                       new BroadcastOutputReference( "nr_dangling" ) ) );
-
-        System.out.printf( "FIXME: GOING TO START REDUCING nr_nodes ============================================\n" );
         
         controller.reduce( NodeMetadataJob.Reduce.class,
                            new Input( new ShuffleInputReference( "nr_nodes" ) ),
@@ -67,24 +63,24 @@ public class TestPagerank extends peregrine.TestWithTwoPartitions {
 
         // FIXME: add nonlinked... 
         
-        controller.merge( IterJob.Map.class,
-                          new Input( new FileInputReference( "/pr/test.graph_by_source" ),
-                                     new FileInputReference( "/pr/out/rank_vector" ),
-                                     new FileInputReference( "/pr/out/dangling" ),
-                                     new FileInputReference( "/pr/out/nonlinked" ),
-                                     new BroadcastInputReference( "/pr/out/nr_nodes" ) ),
-                          new Output( new BroadcastOutputReference( "dangling_rank_sum" ) ) );
+        // controller.merge( IterJob.Map.class,
+        //                   new Input( new FileInputReference( "/pr/test.graph_by_source" ),
+        //                              new FileInputReference( "/pr/out/rank_vector" ),
+        //                              new FileInputReference( "/pr/out/dangling" ),
+        //                              new FileInputReference( "/pr/out/nonlinked" ),
+        //                              new BroadcastInputReference( "/pr/out/nr_nodes" ) ),
+        //                   new Output( new BroadcastOutputReference( "dangling_rank_sum" ) ) );
 
-        controller.reduce( IterJob.Reduce.class,
-                           null,
-                           new Output( "/pr/out/rank_vector_new" ) );
+        // controller.reduce( IterJob.Reduce.class,
+        //                    null,
+        //                    new Output( "/pr/out/rank_vector_new" ) );
 
-        // now compute the dangling rank sum.. 
+        // // now compute the dangling rank sum.. 
 
-        controller.reduce( TeleportationGrantJob.Reduce.class, 
-                           new Input( new ShuffleInputReference( "dangling_rank_sum" ),
-                                      new BroadcastInputReference( "/pr/out/nr_nodes" ) ),
-                           new Output( "/pr/out/teleportation_rant" ) );
+        // controller.reduce( TeleportationGrantJob.Reduce.class, 
+        //                    new Input( new ShuffleInputReference( "dangling_rank_sum" ),
+        //                               new BroadcastInputReference( "/pr/out/nr_nodes" ) ),
+        //                    new Output( "/pr/out/teleportation_rant" ) );
         
     }
 

@@ -31,6 +31,16 @@ public class TestPutRequests extends peregrine.BaseTest {
 
     }
 
+    public void tearDown() {
+
+        for( FSDaemon daemon : daemons ) {
+            daemon.shutdown();
+        }
+        
+        super.tearDown();
+
+    }
+    
     private Config newConfig( String host, int port ) {
 
         Config config = new Config( host, port );

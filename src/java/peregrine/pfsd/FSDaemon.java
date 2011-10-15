@@ -7,7 +7,8 @@ import java.net.InetSocketAddress;
 import java.util.concurrent.*;
 
 import org.jboss.netty.logging.*;
-import org.jboss.netty.bootstrap.ServerBootstrap;
+import org.jboss.netty.bootstrap.*;
+import org.jboss.netty.channel.*;
 import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
 
 import peregrine.*;
@@ -26,11 +27,13 @@ public class FSDaemon {
 
     private int port;
 
+    private Channel channel;
+    
     /**
      * Each daemon can only have one shuffle instance.
      */
     public ShufflerFactory shufflerFactory;
-    
+
     public FSDaemon( Config config ) {
 
         this.port = config.getHost().getPort();
@@ -57,13 +60,16 @@ public class FSDaemon {
         log.info( "Starting on port %s.  Using root: %s" , port, root );
         
         // Bind and start to accept incoming connections.
-        bootstrap.bind( new InetSocketAddress( port ) );
+        channel = bootstrap.bind( new InetSocketAddress( port ) );
 
     }
 
     public void shutdown() {
 
         log.info( "Shutting down on port: %s", port );
+
+        channel.close().awaitUninterruptibly();
+        
         bootstrap.releaseExternalResources();
         
     }
