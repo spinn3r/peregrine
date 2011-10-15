@@ -11,7 +11,7 @@ import peregrine.values.*;
 import peregrine.util.*;
 import peregrine.pagerank.*;
 
-public class TestEmptyWrites extends peregrine.TestWithTwoPartitions {
+public class TestEmptyWrites extends peregrine.BaseTestWithTwoPartitions {
 
     public void test1() throws Exception {
 

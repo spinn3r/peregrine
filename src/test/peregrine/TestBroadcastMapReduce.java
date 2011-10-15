@@ -11,7 +11,7 @@ import peregrine.util.*;
 import peregrine.pagerank.*;
 import peregrine.io.partition.*;
 
-public class TestBroadcastMapReduce extends peregrine.TestWithTwoPartitions {
+public class TestBroadcastMapReduce extends peregrine.BaseTestWithTwoPartitions {
 
     public static class Map extends Mapper {
 

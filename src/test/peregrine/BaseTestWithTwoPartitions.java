@@ -20,7 +20,7 @@ import peregrine.io.chunk.*;
 import peregrine.pfs.*;
 import peregrine.pfsd.*;
 
-public class TestWithTwoPartitions extends peregrine.BaseTest {
+public class BaseTestWithTwoPartitions extends peregrine.BaseTest {
 
     protected Config config;
 

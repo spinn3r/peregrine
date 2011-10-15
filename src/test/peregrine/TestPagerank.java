@@ -10,7 +10,7 @@ import peregrine.values.*;
 import peregrine.util.*;
 import peregrine.pagerank.*;
 
-public class TestPagerank extends peregrine.TestWithTwoPartitions {
+public class TestPagerank extends peregrine.BaseTestWithTwoPartitions {
 
     public void test1() throws Exception {
 
