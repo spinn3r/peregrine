@@ -42,7 +42,7 @@ public class BaseTestWithTwoDaemons extends peregrine.BaseTest {
         
     }
 
-    private Config newConfig( String host, int port ) {
+    protected Config newConfig( String host, int port ) {
 
         Config config = new Config( host, port );
 

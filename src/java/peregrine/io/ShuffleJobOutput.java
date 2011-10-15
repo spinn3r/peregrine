@@ -135,7 +135,7 @@ public class ShuffleJobOutput implements JobOutput, LocalPartitionReaderListener
             if ( future != null )
                 future.get();
 
-            if ( shuffleOutput.emits > 0 )
+            if ( shuffleOutput != null && shuffleOutput.emits > 0 )
                 future = executors.submit( new ShuffleFlushCallable( config, shuffleOutput ) );
 
         } catch ( Exception e ) {

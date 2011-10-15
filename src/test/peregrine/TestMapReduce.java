@@ -13,7 +13,7 @@ import peregrine.pagerank.*;
 import peregrine.io.partition.*;
 import peregrine.pfsd.*;
 
-public class TestMapReduce extends peregrine.BaseTestWithTwoPartitions {
+public class TestMapReduce extends peregrine.BaseTestWithTwoDaemons {
 
     public static class Map extends Mapper {
 
@@ -62,6 +62,11 @@ public class TestMapReduce extends peregrine.BaseTestWithTwoPartitions {
 
     }
 
+    public void setUp() {
+        super.setUp();
+        config = newConfig( "localhost", 11111 );
+    }
+    
     public void test1() throws Exception {
 
         String path = String.format( "/test/%s/test1.in", getClass().getName() );
@@ -122,6 +127,8 @@ public class TestMapReduce extends peregrine.BaseTestWithTwoPartitions {
         controller.map( Map.class, path );
         controller.reduce( Reduce.class, null, new Output( output ) );
 
+        controller.shutdown();
+        
     }
 
     public static void main( String[] args ) throws Exception {

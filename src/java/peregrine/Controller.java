@@ -13,6 +13,7 @@ import peregrine.map.*;
 import peregrine.shuffle.*;
 import peregrine.io.*;
 import peregrine.pfs.*;
+import peregrine.pfsd.*;
 
 import org.jboss.netty.handler.codec.http.*;
 
@@ -24,12 +25,16 @@ public class Controller {
 
     private Config config = null;
 
+    private FSDaemon daemon = null;
+
     public Controller( Config config ) {
         this.config = config;
+
+        // FIXME: we should not startup an ORDINARY daemon... it should be JUST
+        // for RPC.... 
+        this.daemon = new FSDaemon( config );
     }
-    
-    // FIXME: a lot of this class is boilerplate and could be refactored.
-    
+
     public void map( Class mapper, String... paths ) throws Exception {
         map( mapper, new Input( paths ) );
     }
@@ -193,6 +198,10 @@ public class Controller {
 
         }
         
+    }
+
+    public void shutdown() {
+        daemon.shutdown();
     }
     
     private static void runCallables( CallableFactory callableFactory,
