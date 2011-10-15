@@ -130,12 +130,7 @@ public class TestNewReduceCode extends peregrine.BaseTest {
     }
 
     public static void main( String[] args ) throws Exception {
-        TestNewReduceCode test = new TestNewReduceCode();
-        test.setUp();
-        test.test1();
-
-        Thread.sleep( 5000L) ;
-        
+        runTests();
     }
 
 }

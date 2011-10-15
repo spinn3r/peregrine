@@ -109,14 +109,7 @@ public class TestRemotePartitionWriterDelegate extends peregrine.PFSTest {
     }
 
     public static void main( String[] args ) throws Exception {
-
-        TestRemotePartitionWriterDelegate t = new TestRemotePartitionWriterDelegate();
-        t.setUp();
-        t.test1();
-        t.tearDown();
-
-        Thread.sleep( 2000L );
-        
+        runTests();
     }
 
 }

@@ -239,10 +239,12 @@ public class FSHandler extends SimpleChannelUpstreamHandler {
         Channel ch = e.getChannel();
         Throwable cause = e.getCause();
 
+        String tag = request.getHeader( RemoteChunkWriterClient.X_TAG );
+        
         if ( request == null )
-            log.error( "Could not handle initial request: ", cause );
+            log.error( String.format( "Could not handle initial request (tag=%s): ", tag ), cause );
         else
-            log.error( "Could not handle request: " + request.getUri() , cause );
+            log.error( String.format( "Could not handle request (tag=%s): %s", tag, request.getUri() ) , cause );
 
         if (cause instanceof TooLongFrameException) {
             sendError(ctx, BAD_REQUEST);

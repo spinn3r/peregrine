@@ -77,12 +77,7 @@ public class TestRemoteChunkWriterClient extends peregrine.PFSTest {
     }
 
     public static void main( String[] args ) throws Exception {
-
-        TestRemoteChunkWriterClient t = new TestRemoteChunkWriterClient();
-        t.setUp();
-        t.test1();
-        t.tearDown();
-        
+        runTests();
     }
 
 }

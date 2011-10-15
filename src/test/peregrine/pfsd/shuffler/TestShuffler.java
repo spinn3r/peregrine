@@ -55,12 +55,7 @@ public class TestShuffler extends peregrine.BaseTest {
     }
 
     public static void main( String[] args ) throws Exception {
-
-        TestShuffler test = new TestShuffler();
-        test.setUp();
-        test.test1();
-        test.tearDown();
-        
+        runTests();
     }
 
 }

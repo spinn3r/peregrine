@@ -140,7 +140,7 @@ public class TestPagerank extends peregrine.TestWithTwoPartitions {
     }
 
     public static void main( String[] args ) throws Exception {
-        org.junit.runner.JUnitCore.main( TestPagerank.class.getName() );
+        runTests();
     }
 
 }

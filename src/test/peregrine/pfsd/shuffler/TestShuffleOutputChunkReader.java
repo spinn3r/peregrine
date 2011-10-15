@@ -72,15 +72,8 @@ public class TestShuffleOutputChunkReader extends peregrine.BaseTest {
 
     }
 
-    /*
-    public static void main( string[] args ) throws exception {
-
-        testshuffleoutputchunkreader test = new testshuffleoutputchunkreader();
-        test.setup();
-        test.test1();
-        test.tearDown();
-        
+    public static void main( String[] args ) throws Exception {
+        runTests();
     }
-    */
-    
+
 }

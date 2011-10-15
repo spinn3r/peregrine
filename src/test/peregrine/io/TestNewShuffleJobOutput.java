@@ -98,14 +98,7 @@ public class TestNewShuffleJobOutput extends peregrine.BaseTest {
     }
 
     public static void main( String[] args ) throws Exception {
-
-        TestNewShuffleJobOutput t = new TestNewShuffleJobOutput();
-        t.setUp();
-        t.test1();
-        //t.tearDown();
-
-        //Thread.sleep( 5000L );
-        
+        runTests();
     }
 
 }

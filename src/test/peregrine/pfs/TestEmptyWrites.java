@@ -23,7 +23,7 @@ public class TestEmptyWrites extends peregrine.TestWithTwoPartitions {
     }
 
     public static void main( String[] args ) throws Exception {
-        org.junit.runner.JUnitCore.main( TestEmptyWrites.class.getName() );
+        runTests();
     }
 
 }

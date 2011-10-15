@@ -64,16 +64,7 @@ public class TestExtractWriter extends peregrine.BaseTest {
     }
 
     public static void main( String[] args ) throws Exception {
-
-        TestExtractWriter t = new TestExtractWriter();
-        //System.out.printf( "%s\n", t.run() );
-
-        t.setUp();
-        t.test1();
-        //t.tearDown();
-        
-        //t.test1();
-        
+        runTests();
     }
 
 }

@@ -26,6 +26,8 @@ public class RemoteChunkWriterClient extends BaseOutputStream implements Channel
         new NioClientSocketChannelFactory( Executors.newCachedThreadPool( new DefaultThreadFactory( RemoteChunkWriterClient.class ) ), 
                                            Executors.newCachedThreadPool( new DefaultThreadFactory( RemoteChunkWriterClient.class ) ) );
 
+    public static final String X_TAG = "X-tag";
+    
     public static final int PENDING  = -1;
     public static final int CLOSED   = 0;
     public static final int OPEN     = 1;
@@ -38,6 +40,11 @@ public class RemoteChunkWriterClient extends BaseOutputStream implements Channel
 
     public static final byte[] EOF = new byte[0];
 
+    /**
+     * Request tag which enables us to track down requests if they should fail.
+     */
+    public static long tag = 0;
+    
     public static int LIMIT = 10;
 
     protected int channelState = PENDING;
@@ -150,6 +157,8 @@ public class RemoteChunkWriterClient extends BaseOutputStream implements Channel
         request.setHeader( HttpHeaders.Names.HOST, host );
         request.setHeader( HttpHeaders.Names.TRANSFER_ENCODING, "chunked" );
 
+        request.setHeader( X_TAG, "" + tag++ );
+        
         inited = true;
         
     }

@@ -98,12 +98,7 @@ public class TestPipelineWrites extends peregrine.BaseTest {
     }
 
     public static void main( String[] args ) throws Exception {
-
-        TestPipelineWrites t = new TestPipelineWrites();
-        t.setUp();
-        t.test1();
-        t.tearDown();
-        
+        runTests();
     }
 
 }

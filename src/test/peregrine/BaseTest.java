@@ -76,4 +76,16 @@ public abstract class BaseTest extends junit.framework.TestCase {
         
     }
 
+    /**
+     * Method to allow ALL junit classes to be called from the command line
+     * which allows for us having less main() methods cluttering up the test
+     * suite.
+     */
+    public static void runTests() throws Exception {
+
+        String classname = Thread.currentThread().getStackTrace()[2].getClassName();
+        org.junit.runner.JUnitCore.main( classname );
+
+    }
+
 }

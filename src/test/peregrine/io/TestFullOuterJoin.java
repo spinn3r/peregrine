@@ -98,10 +98,7 @@ public class TestFullOuterJoin extends junit.framework.TestCase {
     }
 
     public static void main( String[] args ) throws Exception {
-
-        TestFullOuterJoin t = new TestFullOuterJoin();
-        t.test1();
-        
+        runTests();
     }
 
 }

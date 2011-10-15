@@ -57,13 +57,6 @@ public class TestChunkMerger extends junit.framework.TestCase {
 
     }
 
-    public static void main( String[] args ) throws Exception {
-
-        TestChunkMerger t = new TestChunkMerger();
-        t.test1();
-        
-    }
-
     public static ChunkReader makeTestSortChunk( int[] input ) throws IOException {
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -87,6 +80,10 @@ public class TestChunkMerger extends junit.framework.TestCase {
 
         return new DefaultChunkReader( out.toByteArray() );
         
+    }
+
+    public static void main( String[] args ) throws Exception {
+        runTests();
     }
 
 }

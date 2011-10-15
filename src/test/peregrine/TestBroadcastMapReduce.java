@@ -168,9 +168,7 @@ public class TestBroadcastMapReduce extends peregrine.TestWithTwoPartitions {
     }
     
     public static void main( String[] args ) throws Exception {
-        TestBroadcastMapReduce test = new TestBroadcastMapReduce();
-        test.setUp();
-        test.test1();
+        runTests();
     }
 
 }

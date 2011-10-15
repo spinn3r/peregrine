@@ -74,13 +74,4 @@ public class TestShuffleOutputWriter extends peregrine.BaseTest {
 
     }
 
-    public static void main( String[] args ) throws Exception {
-
-        TestShuffleOutputWriter test = new TestShuffleOutputWriter();
-        test.setUp();
-        test.test1();
-        test.tearDown();
-        
-    }
-
 }

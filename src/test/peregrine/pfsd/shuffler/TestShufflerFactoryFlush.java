@@ -60,13 +60,4 @@ public class TestShufflerFactoryFlush extends peregrine.BaseTest {
         
     }
 
-    public static void main( String[] args ) throws Exception {
-        TestShufflerFactoryFlush test = new TestShufflerFactoryFlush();
-        test.setUp();
-        test.test1();
-
-        Thread.sleep( 5000L) ;
-        
-    }
-
 }

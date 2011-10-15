@@ -92,15 +92,6 @@ public class TestChunkSorter extends junit.framework.TestCase {
         
     }
 
-    public static void main( String[] args ) throws Exception {
-
-        TestChunkSorter t = new TestChunkSorter();
-
-        t.test2();
-        //t.test1();
-        
-    }
-
     public static ChunkReader makeRandomSortChunk( int nr_values ) throws IOException {
 
         int[] values = new int[nr_values];
@@ -140,6 +131,10 @@ public class TestChunkSorter extends junit.framework.TestCase {
 
         return new DefaultChunkReader( out.toByteArray() );
         
+    }
+
+    public static void main( String[] args ) throws Exception {
+        runTests();
     }
 
 }

@@ -48,11 +48,7 @@ public class TestReduceSort extends TestCase {
     }
 
     public static void main( String[] args ) throws Exception {
-
-        TestReduceSort t = new TestReduceSort();
-
-        t.test1();
-        
+        runTests();
     }
 
 }

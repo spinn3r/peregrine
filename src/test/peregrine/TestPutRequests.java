@@ -82,11 +82,7 @@ public class TestPutRequests extends peregrine.BaseTest {
     }
 
     public static void main( String[] args ) throws Exception {
-        TestPutRequests test = new TestPutRequests();
-        test.setUp();
-        test.test1();
-        //test.test2queue.();
-        
+        runTests();
     }
 
 }

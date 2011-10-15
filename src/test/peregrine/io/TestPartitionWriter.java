@@ -213,16 +213,7 @@ public class TestPartitionWriter extends peregrine.BaseTest {
     }
 
     public static void main( String[] args ) throws Exception {
-
-        TestPartitionWriter t = new TestPartitionWriter();
-        //System.out.printf( "%s\n", t.run() );
-
-        t.setUp();
-        t.test3();
-        //t.tearDown();
-        
-        //t.test1();
-        
+        runTests();
     }
 
 }
