@@ -52,7 +52,7 @@ public class TestShufflerFactoryFlush extends peregrine.BaseTest {
         encoder.addParam( "action", "flush" );
         String query = encoder.toString();
 
-        RemoteChunkWriterClient client = new RemoteChunkWriterClient( new URI( "http://localhost:11112/shuffler/RPC2" ) );
+        RemoteChunkWriterClient client = new RemoteChunkWriterClient( new URI( "http://localhost:11112/shuffler/RPC" ) );
 
         client.setMethod( HttpMethod.POST );
         client.write( query.getBytes() );

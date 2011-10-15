@@ -183,7 +183,7 @@ public class Controller {
         
         for ( Host host : config.getHosts() ) {
 
-            URI uri = new URI( String.format( "http://%s:%s/shuffler/RPC2", host.getName(), host.getPort() ) );
+            URI uri = new URI( String.format( "http://%s:%s/shuffler/RPC", host.getName(), host.getPort() ) );
 
             log.info( "Flushing %s ..." , uri );
             

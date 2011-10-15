@@ -13,7 +13,7 @@ import peregrine.pagerank.*;
 import peregrine.io.partition.*;
 import peregrine.pfsd.*;
 
-public class TestMapReduce extends peregrine.BaseTest {
+public class TestMapReduce extends peregrine.BaseTestWithTwoPartitions {
 
     public static class Map extends Mapper {
 
@@ -62,35 +62,6 @@ public class TestMapReduce extends peregrine.BaseTest {
 
     }
 
-    protected Config config;
-
-    protected List<FSDaemon> daemons = new ArrayList();
-    
-    public void setUp() {
-
-        super.setUp();
-        
-        Config config0 = newConfig( "localhost", 11112 );
-        //Config config1 = newConfig( "localhost", 11113 );
-
-        daemons.add( new FSDaemon( config0 ) );
-        //new FSDaemon( config1 );
-
-        config = config0;
-        
-    }
-
-    private Config newConfig( String host, int port ) {
-
-        Config config = new Config( host, port );
-
-        config.addPartitionMembership( 0, new Host( "localhost", 11112 ) );
-        //config.addPartitionMembership( 1, new Host( "localhost", 11113 ) );
-
-        return config;
-        
-    }
-    
     public void test1() throws Exception {
 
         String path = String.format( "/test/%s/test1.in", getClass().getName() );
@@ -149,11 +120,6 @@ public class TestMapReduce extends peregrine.BaseTest {
         Controller controller = new Controller( config );
         
         controller.map( Map.class, path );
-
-        for( FSDaemon daemon : daemons ) {
-            daemon.shufflerFactory.flush();
-        }
-        
         controller.reduce( Reduce.class, null, new Output( output ) );
 
     }

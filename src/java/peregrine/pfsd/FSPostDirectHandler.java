@@ -23,6 +23,7 @@ import peregrine.*;
 import peregrine.io.async.*;
 import peregrine.io.partition.*;
 import peregrine.util.*;
+import peregrine.pfsd.rpc.*;
 
 import com.spinn3r.log5j.*;
 
@@ -34,6 +35,8 @@ public class FSPostDirectHandler extends SimpleChannelUpstreamHandler {
 
     private static ExecutorService executors =
         Executors.newCachedThreadPool( new DefaultThreadFactory( FSPostDirectHandler.class) );
+
+    private static Map<String,RPCHandler> handlers = new HashMap();
     
     private FSHandler handler;
 
@@ -65,7 +68,7 @@ public class FSPostDirectHandler extends SimpleChannelUpstreamHandler {
 
             } else {
 
-                handleMessage();
+                doHandleMessage();
 
             }
                 
@@ -73,33 +76,44 @@ public class FSPostDirectHandler extends SimpleChannelUpstreamHandler {
         
     }
 
-    private void handleMessage() {
+    private void doHandleMessage() {
 
-        String action = message.get( "action" ).get( 0 );
-
-        if ( "flush".equals( action ) ) {
-
-            // we don't need to wait until this stops.
-            executors.submit( new AsyncAction( channel, message ) {
-
-                    public void doAction() throws Exception {
-
-                        handler.daemon.shufflerFactory.flush();
-
-                    }
-                    
-                } );
-
-            return;
+        try {
             
+            URI uri = new URI( handler.request.getUri() );
+
+            String path = uri.getPath();
+
+            final RPCHandler rpcHandler = handlers.get( path );
+
+            if ( rpcHandler != null ) {
+
+                executors.submit( new AsyncAction( channel, message ) {
+
+                        public void doAction() throws Exception {
+                            rpcHandler.handleMessage( handler.daemon, message );
+                        }
+                        
+                    } );
+
+                return;
+                
+            } else {
+                log.warn( "No handler for with message %s at URI %s", message, uri );
+            }
+
+        } catch ( Exception e ) {
+            log.error( "Could not handle RPC call: " , e );
         }
 
-        log.warn( "No handler for action %s with message %s", action, message );
-        
         HttpResponse response = new DefaultHttpResponse( HTTP_1_1, INTERNAL_SERVER_ERROR );
         channel.write(response).addListener(ChannelFutureListener.CLOSE);
         return;
 
+    }
+
+    static {
+        handlers.put( "/shuffler/RPC", new ShufflerHandler() );
     }
     
 }
@@ -128,6 +142,7 @@ abstract class AsyncAction implements Runnable {
             channel.write(response).addListener(ChannelFutureListener.CLOSE);
 
         } catch ( Exception e ) {
+            
             log.error( "Unable handle message: " + message, e );
 
             HttpResponse response = new DefaultHttpResponse( HTTP_1_1, INTERNAL_SERVER_ERROR );
