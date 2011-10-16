@@ -50,11 +50,11 @@ public class Controller {
     /**
      * Run map jobs on all chunks on the given path.
      */
-    public void map( final Class mapper,
+    public void map( final Class delegate,
                      final Input input,
                      final Output output ) throws Exception {
 
-        System.out.printf( "Starting mapper: %s\n", mapper.getName() );
+        log.info( "Starting mapper: %s", delegate.getName() );
 
         final Membership partitionMembership = config.getPartitionMembership();
 
@@ -62,8 +62,7 @@ public class Controller {
 
                 public void invoke( Host host, Partition part ) throws Exception {
 
-                    Message message = createSchedulerMessage( "map", part, input, output );
-                    message.put( "mapper", mapper.getName() );
+                    Message message = createSchedulerMessage( "exec", delegate, part, input, output );
 
                     new Client().invoke( host, "mapper", message );
                     
@@ -79,7 +78,7 @@ public class Controller {
 
         daemon.setScheduler( null );
 
-        System.out.printf( "Finished mapper: %s\n", mapper.getName() );
+        log.info( "Finished mapper: %s", delegate.getName() );
 
     }
     
@@ -163,9 +162,7 @@ public class Controller {
 
                 public void invoke( Host host, Partition part ) throws Exception {
 
-                    Message message = createSchedulerMessage( "exec", part, input, output );
-                    message.put( "delegate", delegate.getName() );
-
+                    Message message = createSchedulerMessage( "exec", delegate, part, input, output );
                     new Client().invoke( host, "reducer", message );
                     
                 }
@@ -200,6 +197,7 @@ public class Controller {
     }
 
     private Message createSchedulerMessage( String action,
+                                            Class delegate,
                                             Partition partition,
                                             Input input,
                                             Output output ) {
@@ -209,7 +207,8 @@ public class Controller {
         Message message = new Message();
         message.put( "action",     action );
         message.put( "partition",  partition.getId() );
-        
+        message.put( "delegate",   delegate.getName() );
+    
         if ( input != null ) {
         
             idx = 0;

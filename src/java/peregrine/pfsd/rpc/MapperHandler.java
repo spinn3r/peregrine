@@ -30,27 +30,17 @@ public class MapperHandler extends RPCHandler {
 
         String action = message.get( "action" );
 
-        if ( "map".equals( action ) ) {
+        if ( "exec".equals( action ) ) {
 
             log.info( "Going to map from action: %s", message );
 
             Input input            = readInput( message );
             Output output          = readOutput( message );
-            Partition partition    = new Partition( Integer.parseInt( message.get( "partition" ) ) );
-            Class mapper           = Class.forName( message.get( "mapper" ) );
+            Partition partition    = new Partition( message.getInt( "partition" ) );
+            Class delegate         = Class.forName( message.get( "delegate" ) );
+            Config config          = daemon.config;
 
-            MapperTask task = new MapperTask();
-
-            Config config = daemon.config;
-            
-            task.init( config, config.getPartitionMembership(), partition, config.getHost(), mapper );
-
-            task.setInput( input );
-            task.setOutput( output );
-
-            log.info( "Running mapper %s with input %s and output %s", mapper.getName(), input, output );
-
-            executors.submit( task );
+            exec( delegate, config, partition, input, output );
             
             return;
 
@@ -60,6 +50,22 @@ public class MapperHandler extends RPCHandler {
 
     }
 
+    protected void exec( Class delegate, Config config, Partition partition, Input input, Output output )
+        throws Exception {
+
+        MapperTask task = new MapperTask();
+        
+        task.init( config, config.getPartitionMembership(), partition, config.getHost(), delegate );
+        
+        task.setInput( input );
+        task.setOutput( output );
+
+        log.info( "Running delegate %s with input %s and output %s", delegate.getName(), input, output );
+
+        executors.submit( task );
+
+    }
+    
     protected Input readInput( Message message ) {
 
         Input input = new Input();
