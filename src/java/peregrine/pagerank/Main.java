@@ -36,8 +36,8 @@ public class Main {
         //values are unique.... on stage two we won't be able to join against
         //it.
 
-        Controller controller = new Controller( config );
         config.getHost().setPort( 11111 );
+        Controller controller = new Controller( config );
         
         // FIXME: I think I can elide this and the next step by reading the
         // input once and writing two two destinations.
