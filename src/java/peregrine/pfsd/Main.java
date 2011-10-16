@@ -26,9 +26,10 @@ public class Main {
         Properties props = new Properties();
         props.load( new FileInputStream( "conf/peregrine.conf" ) );
 
-        String root = props.get( "root" ).toString();
-        int port    = Integer.parseInt( props.get( "port" ).toString() );
-
+        String root        = props.get( "root" ).toString();
+        int port           = Integer.parseInt( props.get( "port" ).toString() );
+        String controller  = props.get( "controller" ).toString();
+        
         if ( args.length == 2 ) {
 
             root = args[0];
@@ -40,14 +41,15 @@ public class Main {
 
         if ( hostname == null )
             hostname = "localhost";
-        
-        log.info( "Starting on %s on port %s" , hostname, port );
-        
+
         Config config = new Config();
 
         config.setRoot( root );
         config.setHost( new Host( hostname, port ) );
-        
+        config.setController( Host.parse( controller ) );
+
+        log.info( "Starting on %s on port %s with controller: %s" , hostname, port, controller );
+
         new FSDaemon( config );
 
         Thread.sleep( Long.MAX_VALUE );
