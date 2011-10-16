@@ -106,32 +106,32 @@ public class Controller {
      * will be produced in the result set (containing fields populated from both
      * tables)
      */
-    public void merge( final Class mapper,
+    public void merge( final Class delegate,
                        final Input input,
                        final Output output ) throws Exception {
 
-        log.info( "Starting mapper: %s", mapper.getName() );
+        log.info( "Starting merger: %s", delegate.getName() );
 
-        final Membership partitionMembership = config.getPartitionMembership();
-        
-        runCallables( new CallableFactory() {
+        Scheduler scheduler = new Scheduler( config ) {
 
-                public Callable newCallable( Partition part, Host host ) {
+                public void invoke( Host host, Partition part ) throws Exception {
 
-                    MergeTask task = new MergeTask();
-
-                    task.init( config, partitionMembership, part, host, mapper );
-
-                    task.setInput( input );
-                    task.setOutput( output );
-                    
-                    return task;
+                    Message message = createSchedulerMessage( "exec", delegate, part, input, output );
+                    new Client().invoke( host, "merger", message );
                     
                 }
                 
-            }, partitionMembership );
+            };
 
-        log.info( "Finished mapper: %s", mapper.getName() );
+        daemon.setScheduler( scheduler );
+
+        scheduler.init();
+
+        scheduler.waitForCompletion();
+
+        daemon.setScheduler( null );
+
+        log.info( "Finished merger: %s", delegate.getName() );
 
     }
     
@@ -233,68 +233,6 @@ public class Controller {
 
     public void shutdown() {
         daemon.shutdown();
-    }
-    
-    private static void runCallables( CallableFactory callableFactory,
-                                      Membership partitionMembership ) 
-        throws InterruptedException, ExecutionException {
-
-        List<Callable> callables = new ArrayList( partitionMembership.size() );
-
-        int nr_partitions = partitionMembership.size();
-        
-        for ( Partition part : partitionMembership.getPartitions() ) {
-
-            List<Host> hosts = partitionMembership.getHosts( part );
-
-            for( Host host : hosts ) {
-
-                Callable callable = callableFactory.newCallable( part, host );
-
-                callables.add( callable );
-
-            }
-            
-        }
-
-        waitFor( callables );
-
-    }
-                                 
-    private static void waitFor( List<Callable> callables )
-        throws InterruptedException, ExecutionException {
-
-        List<Future> futures = new ArrayList( callables.size() );
-
-        ExecutorService es = getExecutorService();
-
-        for( Callable callable : callables ) {
-
-            Future future = es.submit( callable );
-            futures.add( future );
-            
-        }
-
-        try {
-
-            for( Future future : futures ) {
-                future.get();
-            }
-
-        } finally {
-            es.shutdown();
-        }
-
-    }
-    
-    private static ExecutorService getExecutorService() {
-        
-        //ExecutorService es = Executors.newCachedThreadPool() ;
-        
-        ExecutorService es = Executors.newSingleThreadExecutor() ;
-
-        return es;
-        
     }
     
 }
