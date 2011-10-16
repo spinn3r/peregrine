@@ -166,6 +166,11 @@ class SimpleBlockingQueue<T> {
             throw new RuntimeException( e );
         }
     }
+
+    @Override
+    public String toString() {
+        return delegate.toString();
+    }
     
 }
 

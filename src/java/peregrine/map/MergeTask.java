@@ -44,7 +44,7 @@ public class MergeTask extends BaseMapperTask {
 
     private void doCall() throws Exception {
 
-        log.info( "Running merge jobs on host: %s", host );
+        log.info( "Running merge jobs on host: %s ...", host );
         
         List<LocalPartitionReader> readers = getLocalPartitionReaders();
 
@@ -60,6 +60,8 @@ public class MergeTask extends BaseMapperTask {
             this.merger.map( joined.key, joined.values );
             
         }
+
+        log.info( "Running merge jobs on host: %s ... done", host );
 
     }
     
