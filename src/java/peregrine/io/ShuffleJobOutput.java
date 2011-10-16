@@ -40,7 +40,7 @@ public class ShuffleJobOutput implements JobOutput, LocalPartitionReaderListener
     
     protected ChunkReference chunkRef = null;
 
-    protected peregrine.pfsd.shuffler.Shuffler shuffler = null;
+    protected Shuffler shuffler = null;
 
     protected ShuffleOutput shuffleOutput;
 
@@ -87,20 +87,18 @@ public class ShuffleJobOutput implements JobOutput, LocalPartitionReaderListener
 
         this.chunkRef = chunkRef;
 
-        this.shuffleOutput = new ShuffleOutput( chunkRef, name );
-        
-    }
-
-    @Override 
-    public void onChunkEnd( ChunkReference ref ) {
-
         try {
             flush();
         } catch ( IOException e ) {
             throw new RuntimeException( e );
         }
 
+        this.shuffleOutput = new ShuffleOutput( chunkRef, name );
+        
     }
+
+    @Override 
+    public void onChunkEnd( ChunkReference chunkRef ) { }
 
     @Override 
     public void close() throws IOException {
@@ -108,23 +106,37 @@ public class ShuffleJobOutput implements JobOutput, LocalPartitionReaderListener
         log.info( "Closing %s... emits: %,d" , name, emits );
 
         // the first flush will trigger pending output to be async written to disk.
-        flush();
+        flush( true );
 
         // the second flush will block until the prev finishs and then not do
         // anything else as no more emits are present.
-        flush();
+        flush( true );
         
     }
 
     private void flush() throws IOException {
+        flush( false );
+    }
+    
+    private void flush( boolean force ) throws IOException {
 
         try {
 
+            // FIXME: only flush every 100MB written (or so) and also have a
+            // forced flush on close... 
+            
             if ( future != null )
                 future.get();
 
-            if ( shuffleOutput != null && shuffleOutput.emits > 0 )
-                future = executors.submit( new ShuffleFlushCallable( config, shuffleOutput ) );
+            if ( shuffleOutput != null ) {
+
+                boolean trigger = force || shuffleOutput.length > DefaultPartitionWriter.CHUNK_SIZE;
+                
+                if ( trigger ) {
+                    future = executors.submit( new ShuffleFlushCallable( config, shuffleOutput ) );
+                }
+
+            }
 
         } catch ( Exception e ) {
             throw new IOException( e );

@@ -45,6 +45,8 @@ public class ShuffleOutput {
     protected boolean flushing = false;
 
     protected int emits = 0;
+
+    protected long length = 0;
     
     public ShuffleOutput( ChunkReference chunkRef, String name ) {
 
@@ -74,6 +76,8 @@ public class ShuffleOutput {
             key_value_length
             ;
 
+        length += emit_width;
+        
         if ( extent.writerIndex() + emit_width > ShuffleJobOutput.EXTENT_SIZE ) {
             rollover();
         }

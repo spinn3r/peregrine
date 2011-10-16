@@ -65,10 +65,8 @@ public class ReducerTask extends BaseOutputTask implements Callable {
             log.error( "Task failed: ", t );
             sendFailedToController( t );
         } finally {
-
             reducer.cleanup();
             teardown();
-
         }
 
         return null;

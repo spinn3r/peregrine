@@ -16,7 +16,11 @@ import peregrine.io.partition.*;
 import peregrine.map.*;
 import peregrine.shuffle.*;
 
+import com.spinn3r.log5j.*;
+
 public class MapperTask extends BaseMapperTask {
+
+    private static final Logger log = Logger.getLogger();
 
     private Mapper mapper;
 

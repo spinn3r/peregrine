@@ -37,8 +37,6 @@ public class LocalReducer {
         // FIXME: these need to go to disk.. 
         
         for ( ChunkReader reader : input ) {
-
-            System.out.printf( "SORTED\n" );
             sorted.add( sorter.sort( reader ) );
         }
 
