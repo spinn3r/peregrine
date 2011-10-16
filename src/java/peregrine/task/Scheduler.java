@@ -31,58 +31,48 @@ public abstract class Scheduler {
      * more work we verify that we aren't scheduling work form completed
      * partitions.
      */
-    protected Completion<Partition> completion = new Completion();
+    protected Progress<Partition> completed = new Progress();
 
-    protected BlockingQueue result = new LinkedBlockingDeque();
-    
+    protected Progress<Partition> pending = new Progress();
+
+    protected SimpleBlockingQueue<Host> idleHosts = new SimpleBlockingQueue();
+
     public Scheduler( Config config ) {
+
         this.config = config;
         this.membership = config.getMembership();
+
+        for( Host host : config.getHosts() ) {
+            idleHosts.put( host );
+        }
+
     }
     
-    public void init() throws Exception {
-
-        log.info( "init()" );
-        
-        // for each host, schedule a unit of work
-        Set<Host> hosts = config.getHosts();
-
-        for( Host host : hosts ) {
-            schedule( host );
-        }
-        
-    }
-
     public void schedule( Host host ) throws Exception {
 
         List<Partition> partitions = membership.getPartitions( host );
 
         for( Partition part : partitions ) {
 
-            if ( completion.isComplete( part ) )
+            if ( completed.contains( part ) )
+                continue;
+
+            if ( pending.contains( part ) )
                 continue;
 
             log.info( "Scheduling %s on %s", part, host );
             
             invoke( host, part );
 
+            // mark this host as pending so that work doesn't get executed again
+            // until we want to do speculative execution
+
+            pending.mark( part );
+            
             return;
 
         }
 
-        // this HOST complete.  Let's see if all the partitions complete.
-        
-        try {
-
-            if ( completion.size() == membership.size() ) {
-                log.info( "FIXME: completion %s vs membership: %s" , completion, membership );
-                result.put( Boolean.TRUE );
-            }
-
-        } catch ( InterruptedException e) {
-            throw new RuntimeException( e );
-        }
-        
     }
 
     /**
@@ -98,17 +88,11 @@ public abstract class Scheduler {
 
         log.info( "Marking partition %s complete from host: %s", partition, host );
 
-        completion.markComplete( partition );
+        completed.mark( partition );
 
-        try {
+        // add this to the list of idle hosts so that we can schedule additional work.peregrine.task
+        idleHosts.put( host );
 
-            //FIXME: this machine may be down and we should gossip about this
-            
-            schedule( host );
-        } catch ( Exception e ) {
-            log.error( "Unable to schedule more work: ", e );
-        }
-        
     }
 
     /**
@@ -116,31 +100,74 @@ public abstract class Scheduler {
      */
     public void waitForCompletion() {
 
-        log.info( "Waiting for completion." );
+        log.info( "Waiting on completion ... " );
         
-        try {
+        while( true ) {
+        
+            if ( completed.size() == membership.size() ) {
+                break;
+            }
+
+            Host idle = idleHosts.poll( 1000, TimeUnit.MILLISECONDS );
             
-            Object took = result.take();
+            if ( idle != null ) {
+                
+                log.info( "Scheduling work on: %s", idle );
 
-            return;
+                try {
+                    schedule( idle );
+                } catch ( Exception e ) {
+                    //FIXME: we need to gossip about this.
+                    log.error( "Unable to schedule work on host: " + idle, e );
+                }
 
-        } catch ( InterruptedException e ) {
-            throw new RuntimeException( e );
+            }
+
         }
-        
+            
     }
 
 }
 
-class Completion<T> {
+class SimpleBlockingQueue<T> {
+
+    LinkedBlockingQueue<T> delegate = new LinkedBlockingQueue();
+
+    public T poll( long timeout, TimeUnit unit ) {
+        try {
+            return delegate.poll( timeout, unit );
+        } catch ( InterruptedException e ) {
+            throw new RuntimeException( e );
+        }
+    }
+    
+    public T take() {
+        try {
+            return delegate.take();
+        } catch ( InterruptedException e ) {
+            throw new RuntimeException( e );
+        }
+    }
+
+    public void put( T value ) {
+        try {
+            delegate.put( value );
+        } catch ( InterruptedException e ) {
+            throw new RuntimeException( e );
+        }
+    }
+    
+}
+
+class Progress<T> {
 
     Map<T,T> set = new ConcurrentHashMap();
 
-    public void markComplete( T entry ) {
+    public void mark( T entry ) {
         set.put( entry, entry );
     }
 
-    public boolean isComplete( T entry ) {
+    public boolean contains( T entry ) {
         return set.get( entry ) != null;
     }
 

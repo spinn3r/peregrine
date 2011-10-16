@@ -74,8 +74,6 @@ public class Controller {
 
         daemon.setScheduler( scheduler );
 
-        scheduler.init();
-
         scheduler.waitForCompletion();
 
         daemon.setScheduler( null );
@@ -127,8 +125,6 @@ public class Controller {
 
         daemon.setScheduler( scheduler );
 
-        scheduler.init();
-
         scheduler.waitForCompletion();
 
         daemon.setScheduler( null );
@@ -172,8 +168,6 @@ public class Controller {
             };
 
         daemon.setScheduler( scheduler );
-
-        scheduler.init();
 
         scheduler.waitForCompletion();
 
