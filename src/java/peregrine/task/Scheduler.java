@@ -74,8 +74,10 @@ public abstract class Scheduler {
         
         try {
 
-            if ( completion.size() == membership.size() )
+            if ( completion.size() == membership.size() ) {
+                log.info( "FIXME: completion %s vs membership: %s" , completion, membership );
                 result.put( Boolean.TRUE );
+            }
 
         } catch ( InterruptedException e) {
             throw new RuntimeException( e );
@@ -144,6 +146,10 @@ class Completion<T> {
 
     public int size() {
         return set.size();
+    }
+
+    public String toString() {
+        return set.toString();
     }
     
 }
