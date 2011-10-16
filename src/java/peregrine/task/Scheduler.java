@@ -72,9 +72,12 @@ public abstract class Scheduler {
 
         }
 
+        // this HOST complete.  Let's see if all the partitions complete.
+        
         try {
-            
-            result.put( Boolean.TRUE );
+
+            if ( completion.size() == membership.size() )
+                result.put( Boolean.TRUE );
 
         } catch ( InterruptedException e) {
             throw new RuntimeException( e );
@@ -84,8 +87,16 @@ public abstract class Scheduler {
 
     public abstract void invoke( Host host, Partition part ) throws Exception;
     
-    public void markComplete( Partition partition ) {
+    public void markComplete( Host host, Partition partition ) {
+
         completion.markComplete( partition );
+
+        try {
+            schedule( host );
+        } catch ( Exception e ) {
+            log.error( "Unable to schedule more work: ", e );
+        }
+        
     }
 
     public void waitForCompletion() {
@@ -118,4 +129,8 @@ class Completion<T> {
         return set.contains( entry );
     }
 
+    public int size() {
+        return set.size();
+    }
+    
 }

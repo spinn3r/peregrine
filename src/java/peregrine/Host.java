@@ -69,5 +69,16 @@ public class Host {
     public String toString() {
         return String.format( "%s:%s", name, port );
     }
-    
+
+    /**
+     * Parse a host:port pair and return a new Host.
+     */
+    public static Host parse( String value ) {
+
+        String[] split = value.split( ":" );
+
+        return new Host( split[0], Integer.parseInt( split[1] ) );
+        
+    }
+
 }

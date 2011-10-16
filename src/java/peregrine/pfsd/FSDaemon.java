@@ -14,6 +14,7 @@ import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
 import peregrine.*;
 import peregrine.util.*;
 import peregrine.pfsd.shuffler.*;
+import peregrine.task.*;
 
 import com.spinn3r.log5j.Logger;
 
@@ -35,7 +36,9 @@ public class FSDaemon {
     public ShufflerFactory shufflerFactory;
 
     public Config config;
-    
+
+    private Scheduler scheduler = null;
+
     public FSDaemon( Config config ) {
 
         this.config = config;
@@ -65,6 +68,14 @@ public class FSDaemon {
         // Bind and start to accept incoming connections.
         channel = bootstrap.bind( new InetSocketAddress( port ) );
 
+    }
+
+    public Scheduler getScheduler() { 
+        return this.scheduler;
+    }
+
+    public void setScheduler( Scheduler scheduler ) { 
+        this.scheduler = scheduler;
     }
 
     public void shutdown() {

@@ -23,6 +23,7 @@ import peregrine.*;
 import peregrine.io.async.*;
 import peregrine.io.partition.*;
 import peregrine.util.*;
+import peregrine.rpc.*;
 import peregrine.pfsd.rpc.*;
 
 import com.spinn3r.log5j.*;
@@ -42,7 +43,7 @@ public class FSPostDirectHandler extends SimpleChannelUpstreamHandler {
 
     private Channel channel;
 
-    private Map<String,String> message;
+    private Message message;
     
     public FSPostDirectHandler( FSHandler handler ) {
         this.handler = handler;
@@ -63,14 +64,8 @@ public class FSPostDirectHandler extends SimpleChannelUpstreamHandler {
 
                 ChannelBuffer content = chunk.getContent();
                 byte[] data = content.array();
-                
-                Map<String,List<String>> decoded = new QueryStringDecoder( new String( data ) ).getParameters();
 
-                this.message = new HashMap();
-
-                for( String key : decoded.keySet() ) {
-                    this.message.put( key , decoded.get( key ).get(0) );
-                }
+                this.message = new Message( new String( data ) );
                 
             } else {
 
@@ -105,7 +100,7 @@ public class FSPostDirectHandler extends SimpleChannelUpstreamHandler {
                 return;
                 
             } else {
-                log.warn( "No handler for with message %s at URI %s", message, uri );
+                log.warn( "No handler for message %s at URI %s", message, uri );
             }
 
         } catch ( Exception e ) {
@@ -131,10 +126,10 @@ abstract class AsyncAction implements Runnable {
     private static final Logger log = Logger.getLogger();
 
     private Channel channel;
-    private Map<String,String> message;
+    private Message message;
     
     public AsyncAction( Channel channel,
-                        Map<String,String> message ) {
+                        Message message ) {
         this.channel = channel;
         this.message = message;
     }

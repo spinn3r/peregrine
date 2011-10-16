@@ -7,12 +7,14 @@ import java.util.concurrent.*;
 import java.lang.reflect.*;
 
 import peregrine.*;
-import peregrine.keys.*;
-import peregrine.values.*;
-import peregrine.util.*;
-import peregrine.map.*;
 import peregrine.io.*;
+import peregrine.keys.*;
+import peregrine.map.*;
+import peregrine.rpc.*;
+import peregrine.pfs.*;
 import peregrine.shuffle.*;
+import peregrine.util.*;
+import peregrine.values.*;
 
 public abstract class BaseOutputTask {
 
@@ -59,6 +61,23 @@ public abstract class BaseOutputTask {
             current.close();
         }
         
+        sendMapCompleteToController();
+        
     }
-    
+
+    /**
+     * Mark the partition for this task complete.  
+     */
+    protected void sendMapCompleteToController() throws IOException {
+
+        Message message = new Message();
+
+        message.put( "action" ,   "map_complete" );
+        message.put( "host",      config.getHost().toString() );
+        message.put( "partition", partition.getId() );
+        
+        new Client().invoke( config.getController(), "controller", message );
+
+    }
+
 }

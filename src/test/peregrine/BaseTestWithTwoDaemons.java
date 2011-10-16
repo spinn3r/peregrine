@@ -22,7 +22,10 @@ import peregrine.pfsd.*;
 
 public class BaseTestWithTwoDaemons extends peregrine.BaseTest {
 
+    protected Host controller;
+
     protected Config config;
+
     protected Config config0;
     protected Config config1;
 
@@ -31,6 +34,9 @@ public class BaseTestWithTwoDaemons extends peregrine.BaseTest {
     public void setUp() {
 
         super.setUp();
+
+        controller = new Host( "localhost", 11111 );
+        config = newConfig( "localhost", 11111 );
         
         config0 = newConfig( "localhost", 11112 );
         config1 = newConfig( "localhost", 11113 );
@@ -38,14 +44,14 @@ public class BaseTestWithTwoDaemons extends peregrine.BaseTest {
         daemons.add( new FSDaemon( config0 ) );
         daemons.add( new FSDaemon( config1 ) );
 
-        config = config0;
-        
     }
 
     protected Config newConfig( String host, int port ) {
 
         Config config = new Config( host, port );
 
+        config.setController( controller );
+        
         config.addPartitionMembership( 0, new Host( "localhost", 11112 ) );
         config.addPartitionMembership( 1, new Host( "localhost", 11113 ) );
 

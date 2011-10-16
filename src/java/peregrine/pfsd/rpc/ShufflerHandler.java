@@ -12,13 +12,15 @@ import peregrine.util.*;
 
 import com.spinn3r.log5j.*;
 
+import peregrine.rpc.*;
+
 /**
  */
 public class ShufflerHandler extends RPCHandler {
 
     private static final Logger log = Logger.getLogger();
 
-    public void handleMessage( FSDaemon daemon, Map<String,String> message )
+    public void handleMessage( FSDaemon daemon, Message message )
         throws Exception {
 
         String action = message.get( "action" );

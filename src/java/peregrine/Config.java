@@ -27,6 +27,11 @@ public class Config {
      */
     public Host host = null;
 
+    /**
+     * The controller coordinating job tasks in the cluster.  
+     */
+    public Host controller = null;
+    
     public Set<Host> hosts = new HashSet();
     
     public Config() { }
@@ -81,7 +86,16 @@ public class Config {
     }
 
     public Config setHost( Host _host ) {
-        host = _host;
+        this.host = _host;
+        return this;
+    }
+
+    public Host getController() {
+        return controller;
+    }
+
+    public Config setController( Host _controller ) {
+        controller = _controller;
         return this;
     }
 

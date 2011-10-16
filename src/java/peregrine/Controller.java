@@ -12,6 +12,7 @@ import peregrine.util.*;
 import peregrine.map.*;
 import peregrine.shuffle.*;
 import peregrine.io.*;
+import peregrine.rpc.*;
 import peregrine.pfs.*;
 import peregrine.pfsd.*;
 import peregrine.task.*;
@@ -63,9 +64,9 @@ public class Controller {
 
                     int idx;
 
-                    Map<String,String> message = new HashMap();
+                    Message message = new Message();
                     message.put( "action",     "map" );
-                    message.put( "partition",  Integer.toString( part.getId() ) );
+                    message.put( "partition",  part.getId() );
                     message.put( "mapper",     mapper.getName() );
                     
                     if ( input != null ) {
@@ -86,7 +87,7 @@ public class Controller {
 
                     }
 
-                    new RPC().invoke( host, "mapper", message );
+                    new Client().invoke( host, "mapper", message );
                     
                 }
                 
@@ -94,7 +95,11 @@ public class Controller {
 
         scheduler.init();
 
+        daemon.setScheduler( scheduler );
+        
         scheduler.waitForCompletion();
+
+        daemon.setScheduler( null );
 
         /*
         runCallables( new CallableFactory() {
@@ -222,14 +227,14 @@ public class Controller {
 
     public void flushAllShufflers() throws Exception {
 
-        Map<String,String> message = new HashMap();
+        Message message = new Message();
         message.put( "action", "flush" );
 
         log.info( "Flushing all %,d shufflers with message: %s" , config.getHosts().size(), message );
         
         for ( Host host : config.getHosts() ) {
 
-            new RPC().invoke( host, "shuffler", message );
+            new Client().invoke( host, "shuffler", message );
 
         }
         

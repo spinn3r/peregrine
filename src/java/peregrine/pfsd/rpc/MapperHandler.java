@@ -14,6 +14,8 @@ import peregrine.util.*;
 
 import com.spinn3r.log5j.*;
 
+import peregrine.rpc.*;
+
 /**
  */
 public class MapperHandler extends RPCHandler {
@@ -23,7 +25,7 @@ public class MapperHandler extends RPCHandler {
     private static ExecutorService executors =
         Executors.newCachedThreadPool( new DefaultThreadFactory( MapperHandler.class) );
 
-    public void handleMessage( FSDaemon daemon, Map<String,String> message )
+    public void handleMessage( FSDaemon daemon, Message message )
         throws Exception {
 
         String action = message.get( "action" );
@@ -58,7 +60,7 @@ public class MapperHandler extends RPCHandler {
 
     }
 
-    private Input readInput( Map<String,String> message ) {
+    private Input readInput( Message message ) {
 
         Input input = new Input();
 
@@ -81,7 +83,7 @@ public class MapperHandler extends RPCHandler {
         
     }
 
-    private Output readOutput( Map<String,String> message ) {
+    private Output readOutput( Message message ) {
 
         Output output = new Output();
 
@@ -106,7 +108,7 @@ public class MapperHandler extends RPCHandler {
 
     }
 
-    private List<String> readList( Map<String,String> message, String prefix ) {
+    private List<String> readList( Message message, String prefix ) {
 
         List<String> result = new ArrayList();
     

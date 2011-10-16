@@ -1,4 +1,4 @@
-package peregrine.pfs;
+package peregrine.rpc;
 
 import java.io.*;
 import java.net.*;
@@ -13,6 +13,7 @@ import org.jboss.netty.handler.codec.http.*;
 
 import peregrine.*;
 import peregrine.io.async.*;
+import peregrine.pfs.*;
 import peregrine.pfsd.*;
 import peregrine.util.*;
 
@@ -22,21 +23,15 @@ import com.spinn3r.log5j.*;
  * 
  * 
  */
-public class RPC {
+public class Client {
 
     private static final Logger log = Logger.getLogger();
 
-    public void invoke( Host host, String service, Map<String,String> message ) throws IOException {
+    public void invoke( Host host, String service, Message message ) throws IOException {
 
         try {
-        
-            QueryStringEncoder encoder = new QueryStringEncoder( "" );
 
-            for( String key : message.keySet() ) {
-                encoder.addParam( key, message.get( key ) );
-            }
-
-            String data = encoder.toString();
+            String data = message.toString();
 
             URI uri = new URI( String.format( "http://%s:%s/%s/RPC", host.getName(), host.getPort(), service ) );
 

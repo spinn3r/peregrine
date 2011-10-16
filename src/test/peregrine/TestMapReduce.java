@@ -62,11 +62,6 @@ public class TestMapReduce extends peregrine.BaseTestWithTwoDaemons {
 
     }
 
-    public void setUp() {
-        super.setUp();
-        config = newConfig( "localhost", 11111 );
-    }
-    
     public void test1() throws Exception {
 
         String path = String.format( "/test/%s/test1.in", getClass().getName() );
