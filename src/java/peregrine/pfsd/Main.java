@@ -23,7 +23,6 @@ public class Main {
     public static void main(String[] args) throws Exception {
 
         DOMConfigurator.configure( "conf/log4j.xml" );
-
         Config config = Config.parse( "conf/peregrine.conf", "conf/peregrine.hosts" );
         
         if ( args.length == 2 ) {
