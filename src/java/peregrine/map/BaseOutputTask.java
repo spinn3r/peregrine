@@ -61,18 +61,18 @@ public abstract class BaseOutputTask {
             current.close();
         }
         
-        sendMapCompleteToController();
+        sendCompleteToController();
         
     }
 
     /**
      * Mark the partition for this task complete.  
      */
-    protected void sendMapCompleteToController() throws IOException {
+    protected void sendCompleteToController() throws IOException {
 
         Message message = new Message();
 
-        message.put( "action" ,   "map_complete" );
+        message.put( "action" ,   "complete" );
         message.put( "host",      config.getHost().toString() );
         message.put( "partition", partition.getId() );
         

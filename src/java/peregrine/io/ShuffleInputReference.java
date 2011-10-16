@@ -20,8 +20,9 @@ public final class ShuffleInputReference implements InputReference {
         return this.name;
     }
 
+    @Override
     public String toString() {
-        return getName();
+        return "shuffle:" + getName();
     }
     
 }

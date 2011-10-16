@@ -37,7 +37,7 @@ public class TestPagerank extends peregrine.BaseTestWithTwoPartitions {
                         path );
 
         controller.reduce( NodeIndegreeJob.Reduce.class,
-                           null,
+                           new Input(),
                            new Output( "/pr/tmp/node_indegree" ) );
 
         // sort the graph by source.. 

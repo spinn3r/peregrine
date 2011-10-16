@@ -22,17 +22,15 @@ public abstract class Scheduler {
 
     private static final Logger log = Logger.getLogger();
 
+    protected Config config;
+
+    protected Membership membership;
+
     /**
      * The list of partitions that are completed.  When a new MapperTask needs
      * more work we verify that we aren't scheduling work form completed
      * partitions.
      */
-    protected Set<Partition> completed = new HashSet();
-
-    protected Config config;
-
-    protected Membership membership;
-
     protected Completion<Partition> completion = new Completion();
 
     protected BlockingQueue result = new LinkedBlockingDeque();
@@ -85,13 +83,25 @@ public abstract class Scheduler {
         
     }
 
+    /**
+     * Must be implemented by schedulers to hand out work correctly.
+     */
     public abstract void invoke( Host host, Partition part ) throws Exception;
-    
+
+    /**
+     * Mark a job as complete.  The RPC service calls this method when we are
+        List<Partition> partitions = config..getMembership()done with a job.
+     */
     public void markComplete( Host host, Partition partition ) {
+
+        log.info( "Marking partition %s complete from host: %s", partition, host );
 
         completion.markComplete( partition );
 
         try {
+
+            //FIXME: this machine may be down and we should gossip about this
+            
             schedule( host );
         } catch ( Exception e ) {
             log.error( "Unable to schedule more work: ", e );
@@ -99,6 +109,9 @@ public abstract class Scheduler {
         
     }
 
+    /**
+     * Wait for all jobs to be complete.
+     */
     public void waitForCompletion() {
 
         log.info( "Waiting for completion." );
@@ -119,14 +132,14 @@ public abstract class Scheduler {
 
 class Completion<T> {
 
-    Set<T> set = new HashSet();
+    Map<T,T> set = new ConcurrentHashMap();
 
     public void markComplete( T entry ) {
-        set.add( entry );
+        set.put( entry, entry );
     }
 
     public boolean isComplete( T entry ) {
-        return set.contains( entry );
+        return set.get( entry ) != null;
     }
 
     public int size() {

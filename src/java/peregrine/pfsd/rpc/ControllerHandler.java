@@ -25,14 +25,12 @@ public class ControllerHandler extends RPCHandler {
 
         String action = message.get( "action" );
 
-        if ( "map_complete".equals( action ) ) {
+        if ( "complete".equals( action ) ) {
 
             Host host    = Host.parse( message.get( "host" ) );
             int part     = message.getInt( "partition" );
             Partition partition = new Partition( part );
 
-            log.info( "Marking partition %s complete from host: %s", partition, host );
-            
             daemon.getScheduler().markComplete( host, partition );
 
             return;

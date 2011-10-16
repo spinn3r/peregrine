@@ -60,7 +60,7 @@ public class MapperHandler extends RPCHandler {
 
     }
 
-    private Input readInput( Message message ) {
+    protected Input readInput( Message message ) {
 
         Input input = new Input();
 
@@ -68,6 +68,9 @@ public class MapperHandler extends RPCHandler {
             
             String[] split = val.split( ":" );
 
+            if ( split.length < 2 )
+                throw new RuntimeException( "Unable to split arg: " + val );
+            
             String type      = split[0];
             String arg       = split[1];
 
@@ -77,13 +80,16 @@ public class MapperHandler extends RPCHandler {
             if ( "file".equals( type ) )
                 input.add( new FileInputReference( arg ) );
 
+            if ( "shuffle".equals( type ) )
+                input.add( new ShuffleInputReference( arg ) );
+
         }
 
         return input;
         
     }
 
-    private Output readOutput( Message message ) {
+    protected Output readOutput( Message message ) {
 
         Output output = new Output();
 
@@ -108,7 +114,7 @@ public class MapperHandler extends RPCHandler {
 
     }
 
-    private List<String> readList( Message message, String prefix ) {
+    protected List<String> readList( Message message, String prefix ) {
 
         List<String> result = new ArrayList();
     

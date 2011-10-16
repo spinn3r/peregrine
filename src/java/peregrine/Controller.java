@@ -62,30 +62,8 @@ public class Controller {
 
                 public void invoke( Host host, Partition part ) throws Exception {
 
-                    int idx;
-
-                    Message message = new Message();
-                    message.put( "action",     "map" );
-                    message.put( "partition",  part.getId() );
-                    message.put( "mapper",     mapper.getName() );
-                    
-                    if ( input != null ) {
-                    
-                        idx = 0;
-                        for( InputReference ref : input.getReferences() ) {
-                            message.put( "input." + idx++, ref.toString() );
-                        }
-
-                    }
-
-                    if ( output != null ) {
-                        
-                        idx = 0;
-                        for( OutputReference ref : output.getReferences() ) {
-                            message.put( "output." + idx++, ref.toString() );
-                        }
-
-                    }
+                    Message message = createSchedulerMessage( "map", part, input, output );
+                    message.put( "mapper", mapper.getName() );
 
                     new Client().invoke( host, "mapper", message );
                     
@@ -93,38 +71,18 @@ public class Controller {
                 
             };
 
+        daemon.setScheduler( scheduler );
+
         scheduler.init();
 
-        daemon.setScheduler( scheduler );
-        
         scheduler.waitForCompletion();
 
         daemon.setScheduler( null );
 
-        /*
-        runCallables( new CallableFactory() {
-
-                public Callable newCallable( Partition part, Host host ) {
-
-                    MapperTask task = new MapperTask();
-
-                    task.init( config, partitionMembership, part, host, mapper );
-
-                    task.setInput( input );
-                    task.setOutput( output );
-                    
-                    return task;
-                    
-                }
-                
-            }, partitionMembership );
-
-        */
-            
         System.out.printf( "Finished mapper: %s\n", mapper.getName() );
 
     }
-
+    
     public void merge( Class mapper,
                        String... paths ) throws Exception {
 
@@ -153,7 +111,7 @@ public class Controller {
                        final Input input,
                        final Output output ) throws Exception {
 
-        System.out.printf( "Starting mapper: %s\n", mapper.getName() );
+        log.info( "Starting mapper: %s", mapper.getName() );
 
         final Membership partitionMembership = config.getPartitionMembership();
         
@@ -174,20 +132,24 @@ public class Controller {
                 
             }, partitionMembership );
 
-        System.out.printf( "Finished mapper: %s\n", mapper.getName() );
+        log.info( "Finished mapper: %s", mapper.getName() );
 
     }
     
-    public void reduce( Class reducer, Input input, Output output ) 
+    public void reduce( final Class delegate,
+                        final Input input,
+                        final Output output ) 
         throws Exception {
 
-        System.out.printf( "Starting reducer: %s\n", reducer.getName() );
+        log.info( "Starting reducer: %s\n", delegate.getName() );
 
         // we need to support reading input from the shuffler.  If the user
         // doesn't specify input, use the default shuffler.
+
+        if ( input == null )
+            throw new Exception( "Input may not be null" );
         
-        if ( input == null || input.getReferences().size() == 0 ) {
-            input = new Input();
+        if ( input.getReferences().size() == 0 ) {
             input.add( new ShuffleInputReference() );
         }
 
@@ -196,33 +158,30 @@ public class Controller {
         }
 
         flushAllShufflers();
-        
-        ShuffleInputReference shuffleInput = (ShuffleInputReference)input.getReferences().get( 0 );
 
-        log.info( "Using shuffle input : %s ", shuffleInput.getName() );
+        Scheduler scheduler = new Scheduler( config ) {
 
-        Membership partitionMembership = config.getPartitionMembership();
+                public void invoke( Host host, Partition part ) throws Exception {
 
-        // get the local partitions we are hosting...         
+                    Message message = createSchedulerMessage( "exec", part, input, output );
+                    message.put( "delegate", delegate.getName() );
 
-        List<Partition> partitions = partitionMembership.getPartitions( config.getHost() );
+                    new Client().invoke( host, "reducer", message );
+                    
+                }
+                
+            };
 
-        List<Callable> callables = new ArrayList();
-        
-        for ( Partition part : partitions ) {
+        daemon.setScheduler( scheduler );
 
-            ReducerTask task = new ReducerTask( config, part, reducer, shuffleInput );
-            task.setInput( input );
-            task.setOutput( output );
+        scheduler.init();
 
-            callables.add( task );
+        scheduler.waitForCompletion();
 
-        }
+        daemon.setScheduler( null );
 
-        waitFor( callables );
+        log.info( "Finished reducer: %s", delegate.getName() );
 
-        System.out.printf( "Finished reducer: %s\n", reducer.getName() );
-        
     }
 
     public void flushAllShufflers() throws Exception {
@@ -237,6 +196,39 @@ public class Controller {
             new Client().invoke( host, "shuffler", message );
 
         }
+        
+    }
+
+    private Message createSchedulerMessage( String action,
+                                            Partition partition,
+                                            Input input,
+                                            Output output ) {
+
+        int idx;
+
+        Message message = new Message();
+        message.put( "action",     action );
+        message.put( "partition",  partition.getId() );
+        
+        if ( input != null ) {
+        
+            idx = 0;
+            for( InputReference ref : input.getReferences() ) {
+                message.put( "input." + idx++, ref.toString() );
+            }
+
+        }
+
+        if ( output != null ) {
+            
+            idx = 0;
+            for( OutputReference ref : output.getReferences() ) {
+                message.put( "output." + idx++, ref.toString() );
+            }
+
+        }
+
+        return message;
         
     }
 
