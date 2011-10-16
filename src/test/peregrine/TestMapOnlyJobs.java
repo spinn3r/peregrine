@@ -11,7 +11,7 @@ import peregrine.util.*;
 import peregrine.pagerank.*;
 import peregrine.io.partition.*;
 
-public class TestMapOnlyJobs extends junit.framework.TestCase {
+public class TestMapOnlyJobs extends peregrine.BaseTestWithTwoDaemons {
 
     public static class Map extends Mapper {
 
@@ -25,21 +25,8 @@ public class TestMapOnlyJobs extends junit.framework.TestCase {
 
     }
 
-    protected Config config;
-    
-    public void setUp() {
-        
-        config = new Config();
-        config.setHost( new Host( "localhost" ) );
-
-    }
-
     public void test1() throws Exception {
 
-        // TRY with three partitions... 
-        config.addPartitionMembership( 0, "localhost" );
-        config.addPartitionMembership( 1, "localhost" );
-        
         String path = "/test/map.only/test1";
         
         ExtractWriter writer = new ExtractWriter( config, path );
@@ -66,14 +53,17 @@ public class TestMapOnlyJobs extends junit.framework.TestCase {
         
         controller.map( Map.class, new Input( path ), new Output( output ) );
 
-        Partition part = new Partition( 0 );
-        Host host = new Host( "localhost", 0  );
+        Partition part = new Partition( 1 );
 
-        LocalPartitionReader reader = new LocalPartitionReader( config, part, host, output );
+        LocalPartitionReader reader = new LocalPartitionReader( config1, part, config1.getHost(), output );
 
         if ( reader.hasNext() == false )
             throw new IOException( "nothing written" );
 
+    }
+
+    public static void main( String[] args ) throws Exception {
+        runTests();
     }
 
 }
