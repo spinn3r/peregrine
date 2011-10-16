@@ -44,7 +44,7 @@ public class TestPartitionWriter extends peregrine.BaseTest {
         Partition part = new Partition( 0 );
         Host host = config.getHost();
 
-        List<ChunkReader> readers = LocalPartition.getChunkReaders( config, part, host, path );
+        List<ChunkReader> readers = LocalPartition.getChunkReaders( config, part, path );
 
         assertEquals( readers.size(), 1 ) ;
 
@@ -86,7 +86,7 @@ public class TestPartitionWriter extends peregrine.BaseTest {
 
         // STEP 2: make sure we have LOTS of chunks.
         
-        List<ChunkReader> readers = LocalPartition.getChunkReaders( config, part, host, path );
+        List<ChunkReader> readers = LocalPartition.getChunkReaders( config, part, path );
 
         System.out.printf( "We have %,d readers\n", readers.size() );
         
@@ -98,7 +98,7 @@ public class TestPartitionWriter extends peregrine.BaseTest {
         writer = new DefaultPartitionWriter( config, new Partition( 0 ), path );
         writer.close();
 
-        readers = LocalPartition.getChunkReaders( config, part, host, path );
+        readers = LocalPartition.getChunkReaders( config, part, path );
 
         System.out.printf( "We have %,d readers\n", readers.size() );
         
@@ -150,7 +150,7 @@ public class TestPartitionWriter extends peregrine.BaseTest {
         writer.close();
 
         System.out.printf( "BEFORE had %,d chunks\n",
-                           LocalPartition.getChunkFiles( config, part, host, path ).size() );
+                           LocalPartition.getChunkFiles( config, part, path ).size() );
         
         System.out.printf( "step2..\n" );
         
@@ -174,13 +174,13 @@ public class TestPartitionWriter extends peregrine.BaseTest {
         writer.close();
 
         System.out.printf( "AFTER had %,d chunks\n",
-                           LocalPartition.getChunkFiles( config, part, host, path ).size() );
+                           LocalPartition.getChunkFiles( config, part, path ).size() );
 
         // **** STEP 3 ok.... now READ all the values out and make sure we have 2 x 
 
         System.out.printf( "going to read now.\n" );
         
-        LocalPartitionReader reader = new LocalPartitionReader( config, part, host, path );
+        LocalPartitionReader reader = new LocalPartitionReader( config, part, path );
 
         int count = 0;
         while( reader.hasNext() ) {

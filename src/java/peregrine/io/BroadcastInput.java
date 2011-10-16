@@ -14,10 +14,9 @@ public final class BroadcastInput {
 
     public BroadcastInput( Config config,
                            Partition part,
-                           Host host,
                            String path ) throws IOException {
         
-        LocalPartitionReader reader = new LocalPartitionReader( config, part, host, path );
+        LocalPartitionReader reader = new LocalPartitionReader( config, part, path );
 
         if ( reader.hasNext() == false )
             throw new IOException( "No broadcast file for: " + path );

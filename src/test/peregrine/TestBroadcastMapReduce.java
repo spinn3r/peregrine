@@ -133,7 +133,7 @@ public class TestBroadcastMapReduce extends peregrine.BaseTestWithTwoDaemons {
 
             for( Host host : membership.getHosts( part ) ) {
 
-                LocalPartitionReader reader = new LocalPartitionReader( config, part, host, path );
+                LocalPartitionReader reader = new LocalPartitionReader( config, part, path );
 
                 if ( reader.hasNext() == false )
                     throw new Exception( "No values" );

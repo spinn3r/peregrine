@@ -98,7 +98,7 @@ public abstract class BaseMapperTask extends BaseOutputTask implements Callable 
 
         // setup broadcast input... 
 
-        broadcastInput = BroadcastInputFactory.getBroadcastInput( config, getInput(), partition, host );
+        broadcastInput = BroadcastInputFactory.getBroadcastInput( config, getInput(), partition );
 
     }
 
@@ -127,7 +127,7 @@ public abstract class BaseMapperTask extends BaseOutputTask implements Callable 
             
             FileInputReference file = (FileInputReference) ref;
 
-            readers.add( new LocalPartitionReader( config, partition, host, file.getPath(), listeners ) );
+            readers.add( new LocalPartitionReader( config, partition, file.getPath(), listeners ) );
             
         }
 

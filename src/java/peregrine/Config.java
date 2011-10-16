@@ -136,22 +136,12 @@ public class Config {
         return this;
     }
     
-    public String getPFSRoot( Partition partition, Host host ) {
-
-        if ( ! host.equals( getHost() ) ) {
-            throw new RuntimeException();
-        }
-        
+    public String getRoot( Partition partition ) {
         return String.format( "%s/%s" , root , partition.getId() );
     }
         
-    public String getPFSPath( Partition partition, Host host, String path ) {
-
-        if ( ! host.equals( getHost() ) ) {
-            throw new RuntimeException();
-        }
-
-        return String.format( "%s%s" , getPFSRoot( partition, host ), path );
+    public String getPath( Partition partition, String path ) {
+        return String.format( "%s%s" , getRoot( partition ), path );
     }
 
     public String getShuffleDir( String name ) {

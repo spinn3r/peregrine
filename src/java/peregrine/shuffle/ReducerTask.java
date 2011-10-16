@@ -58,7 +58,7 @@ public class ReducerTask extends BaseOutputTask implements Callable {
 
             setup();
 
-            reducer.setBroadcastInput( BroadcastInputFactory.getBroadcastInput( config, getInput(), partition, host ) );
+            reducer.setBroadcastInput( BroadcastInputFactory.getBroadcastInput( config, getInput(), partition ) );
 
             reducer.init( getJobOutput() );
 

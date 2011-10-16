@@ -66,8 +66,8 @@ public class TestFullOuterJoin extends peregrine.BaseTest {
 
         List<LocalPartitionReader> readers = new ArrayList();
         
-        readers.add( new LocalPartitionReader( config, part, config.getHost(), "/tmp/left" ) );
-        readers.add( new LocalPartitionReader( config, part, config.getHost(), "/tmp/right" ) );
+        readers.add( new LocalPartitionReader( config, part, "/tmp/left" ) );
+        readers.add( new LocalPartitionReader( config, part, "/tmp/right" ) );
         
         LocalMerger merger = new LocalMerger( readers );
 

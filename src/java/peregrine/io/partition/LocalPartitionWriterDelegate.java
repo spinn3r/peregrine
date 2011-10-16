@@ -30,7 +30,7 @@ public class LocalPartitionWriterDelegate extends BasePartitionWriterDelegate {
     @Override
     public int append() throws IOException {
 
-        List<File> chunks = LocalPartition.getChunkFiles( config, partition, host, path );
+        List<File> chunks = LocalPartition.getChunkFiles( config, partition, path );
 
         return chunks.size();
 
@@ -39,7 +39,7 @@ public class LocalPartitionWriterDelegate extends BasePartitionWriterDelegate {
     @Override
     public void erase() throws IOException {
 
-        List<File> chunks = LocalPartition.getChunkFiles( config, partition, host, path );
+        List<File> chunks = LocalPartition.getChunkFiles( config, partition, path );
 
         for ( File chunk : chunks ) {
             
@@ -55,7 +55,7 @@ public class LocalPartitionWriterDelegate extends BasePartitionWriterDelegate {
 
         // FIXME: move this to LocalPartition.getChunkFile
         
-        String local = config.getPFSPath( partition, host, path );
+        String local = config.getPath( partition, path );
 
         String chunk_name = LocalPartition.getFilenameForChunkID( chunk_id );
         String chunk_path = new File( local, chunk_name ).getPath();

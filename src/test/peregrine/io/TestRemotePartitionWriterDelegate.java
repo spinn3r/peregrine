@@ -75,7 +75,7 @@ public class TestRemotePartitionWriterDelegate extends peregrine.PFSTest {
 
         // now use the chunk reader to find out what was written.
 
-        File chunk = LocalPartition.getChunkFile( config, part, config.getHost(), path, chunk_id );
+        File chunk = LocalPartition.getChunkFile( config, part, path, chunk_id );
 
         assertEquals( length, chunk.length() );
 

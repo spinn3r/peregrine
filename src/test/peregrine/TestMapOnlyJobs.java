@@ -55,7 +55,7 @@ public class TestMapOnlyJobs extends peregrine.BaseTestWithTwoDaemons {
 
         Partition part = new Partition( 1 );
 
-        LocalPartitionReader reader = new LocalPartitionReader( config1, part, config1.getHost(), output );
+        LocalPartitionReader reader = new LocalPartitionReader( config1, part, output );
 
         if ( reader.hasNext() == false )
             throw new IOException( "nothing written" );

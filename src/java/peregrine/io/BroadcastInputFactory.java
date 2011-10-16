@@ -15,8 +15,7 @@ public class BroadcastInputFactory {
 
     public static List<BroadcastInput> getBroadcastInput( Config config,
                                                           Input input,
-                                                          Partition part,
-                                                          Host host ) throws IOException {
+                                                          Partition part ) throws IOException {
 
         List<BroadcastInput> result = new ArrayList();
         
@@ -26,7 +25,7 @@ public class BroadcastInputFactory {
                 
                 BroadcastInputReference bir = (BroadcastInputReference) in;
                 
-                BroadcastInput bi = new BroadcastInput( config, part, host, bir.getName() );
+                BroadcastInput bi = new BroadcastInput( config, part, bir.getName() );
                 
                 result.add( bi );
                 

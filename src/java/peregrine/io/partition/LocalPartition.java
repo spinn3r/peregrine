@@ -44,11 +44,10 @@ public class LocalPartition {
     
     public static List<ChunkReader> getChunkReaders( Config config,
                                                      Partition part,
-                                                     Host host,
                                                      String path )
         throws IOException {
     
-        List<File> chunks = LocalPartition.getChunkFiles( config, part, host, path );
+        List<File> chunks = LocalPartition.getChunkFiles( config, part, path );
 
         List<ChunkReader> chunkReaders = new ArrayList();
         
@@ -62,10 +61,9 @@ public class LocalPartition {
 
     public static List<File> getChunkFiles( Config config,
                                             Partition part,
-                                            Host host,
                                             String path ) {
 
-        String dir = config.getPFSPath( part, host, path );
+        String dir = config.getPath( part, path );
 
         return getChunkFiles( dir );
 
@@ -73,11 +71,10 @@ public class LocalPartition {
 
     public static File getChunkFile( Config config,
                                      Partition part,
-                                     Host host,
                                      String path,
                                      int chunk_id ) {
 
-        String local = config.getPFSPath( part, host, path );
+        String local = config.getPath( part, path );
         
         String chunk_name = LocalPartition.getFilenameForChunkID( chunk_id );
 

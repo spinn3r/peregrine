@@ -33,20 +33,18 @@ public class LocalPartitionReader {
     
     public LocalPartitionReader( Config config,
                                  Partition partition,
-                                 Host host, 
                                  String path ) throws IOException {
         
-        this( config, partition, host, path, new ArrayList() );
+        this( config, partition, path, new ArrayList() );
         
     }
 
     public LocalPartitionReader( Config config,
                                  Partition partition,
-                                 Host host, 
                                  String path,
                                  LocalPartitionReaderListener listener ) throws IOException {
 
-        this( config, partition, host, path, new ArrayList() );
+        this( config, partition, path, new ArrayList() );
 
         listeners.add( listener );
         
@@ -54,11 +52,10 @@ public class LocalPartitionReader {
     
     public LocalPartitionReader( Config config,
                                  Partition partition,
-                                 Host host, 
                                  String path,
                                  List<LocalPartitionReaderListener> listeners ) throws IOException {
 
-        this.chunkReaders = LocalPartition.getChunkReaders( config, partition, host, path );
+        this.chunkReaders = LocalPartition.getChunkReaders( config, partition, path );
         this.iterator = chunkReaders.iterator();
         this.listeners = listeners;
         this.path = path;
