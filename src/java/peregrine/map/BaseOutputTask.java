@@ -16,7 +16,11 @@ import peregrine.shuffle.*;
 import peregrine.util.*;
 import peregrine.values.*;
 
+import com.spinn3r.log5j.*;
+
 public abstract class BaseOutputTask {
+
+    private static final Logger log = Logger.getLogger();
 
     protected Output output = null;
 
