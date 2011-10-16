@@ -7,10 +7,12 @@ import java.net.InetSocketAddress;
 import java.util.concurrent.Executors;
 
 import org.jboss.netty.logging.*;
-import org.jboss.netty.bootstrap.ServerBootstrap;
-import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
+import org.jboss.netty.bootstrap.*;
+import org.jboss.netty.channel.socket.nio.*;
 
 import peregrine.*;
+
+import org.apache.log4j.xml.DOMConfigurator;
 
 import com.spinn3r.log5j.Logger;
 
@@ -20,7 +22,7 @@ public class Main {
 
     public static void main(String[] args) throws Exception {
 
-        org.apache.log4j.xml.DOMConfigurator.configure( "conf/log4j.xml" );
+        DOMConfigurator.configure( "conf/log4j.xml" );
 
         Config config = Config.parse( new File( "conf/peregrine.conf" ) );
         
