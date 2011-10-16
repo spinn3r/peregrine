@@ -75,6 +75,8 @@ public abstract class BaseOutputTask {
         message.put( "action" ,   "complete" );
         message.put( "host",      config.getHost().toString() );
         message.put( "partition", partition.getId() );
+
+        log.info( "Sending complete message to controller: %s", message );
         
         new Client().invoke( config.getController(), "controller", message );
 
