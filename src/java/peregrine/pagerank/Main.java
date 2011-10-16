@@ -37,7 +37,8 @@ public class Main {
         //it.
 
         Controller controller = new Controller( config );
-
+        config.setPort( 11111 );
+        
         // FIXME: I think I can elide this and the next step by reading the
         // input once and writing two two destinations.
         

@@ -33,8 +33,10 @@ public class Controller {
         this.config = config;
 
         // FIXME: we should not startup an ORDINARY daemon... it should be JUST
-        // for RPC.... 
+        // for RPC and minimum services.  Nothing else.
+        
         this.daemon = new FSDaemon( config );
+
     }
 
     public void map( Class mapper,
