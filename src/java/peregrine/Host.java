@@ -7,7 +7,7 @@ import java.util.*;
 import peregrine.util.*;
 import peregrine.pfsd.*;
 
-public class Host {
+public class Host implements Comparable<Host> {
 
     private static int sequence = 0;
 
@@ -65,11 +65,17 @@ public class Host {
     public int getPartitionMemberId() {
         return partitionMemberId;
     }
-    
+
+    @Override
     public String toString() {
         return String.format( "%s:%s", name, port );
     }
 
+    @Override
+    public int compareTo(Host o) {
+        return toString().compareTo( o.toString() );
+    }
+    
     /**
      * Parse a host:port pair and return a new Host.
      */

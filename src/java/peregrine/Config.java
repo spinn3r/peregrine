@@ -7,15 +7,22 @@ import peregrine.util.*;
 import peregrine.pfsd.*;
 
 /**
+ *
  * 
  * @author Kevin Burton 
  */
 public class Config {
 
     public static String DEFAULT_ROOT = "/tmp/peregrine-dfs";
-    
+
+    /**
+     * The root for storing data.
+     */
     public String root = DEFAULT_ROOT;
 
+    /**
+     * Partition membership.
+     */
     private Membership membership = new Membership();
 
     /**
@@ -37,10 +44,14 @@ public class Config {
     public Config() { }
 
     public Config( String host, int port ) {
-        setHost( new Host( host, port ) );
-        setRoot( String.format( "%s/%s/%s", DEFAULT_ROOT, host, port ) );
+        this( new Host( host, port ) );
     }
 
+    public Config( Host host ) {
+        setHost( host );
+        setRoot( String.format( "%s/%s/%s", DEFAULT_ROOT, host.getName(), host.getPort() ) );
+    }
+    
     public void addMembership( int partition, List<Host> hosts ) {
 
         membership.setPartition( new Partition( partition ), hosts );
@@ -81,12 +92,14 @@ public class Config {
         return membership;
     }
 
+    /**
+     */
     public Host getHost() {
         return host;
     }
 
-    public Config setHost( Host _host ) {
-        this.host = _host;
+    public Config setHost( Host host ) {
+        this.host = host;
         return this;
     }
 
@@ -94,8 +107,8 @@ public class Config {
         return controller;
     }
 
-    public Config setController( Host _controller ) {
-        controller = _controller;
+    public Config setController( Host controller ) {
+        this.controller = controller;
         return this;
     }
 
@@ -127,18 +140,20 @@ public class Config {
     /**
      * For a given key, in bytes, route it to the correct partition/partition.
      */
-    public static Partition route( byte[] key_bytes,
-                                   int nr_partitions,
-                                   boolean keyIsHashcode ) {
+    public Partition route( byte[] key_bytes,
+                            boolean keyIsHashcode ) {
 
-        //FIXME: we need to build out an entirely new router which we can
-        //replace with a custom partitioning system.
+        int nr_partitions = membership.size();
         
-        //TODO: we only need a FEW bytes to route a key , not the WHOLE thing if
-        //it is a hashcode.  For example... we can route to 255 partitions with
-        //just one byte... that IS if it is a hashode.  with just TWO bytes we
-        //can route to 65536 partitions which is probably fine for all users for
-        //a LONG time.
+        // TODO: we should to build out an entirely new router which we can
+        // replace with a custom partitioning system if the user decides that
+        // there may be a smarter partitioning system they can use.
+        
+        // TODO: we only need a FEW bytes to route a key , not the WHOLE thing
+        // if it is a hashcode.  For example... we can route to 255 partitions
+        // with just one byte... that IS if it is a hashode.  with just TWO
+        // bytes we can route to 65536 partitions which is probably fine for all
+        // users for a LONG time.
         
         int partition = -1;
 
@@ -153,15 +168,14 @@ public class Config {
             partition = (int)( value % nr_partitions);
 
         }
-        
-        //FIXME: read these from a cached list by lookup for performance reasons
-        //(GC and new object creation).  It just seems ugly to create these for
-        //every route.
-        
+
         return new Partition( partition );
         
     }
 
+    /**
+     * Parse a config file from disk.
+     */
     public static Config parse( File file ) throws IOException {
 
         Properties props = new Properties();

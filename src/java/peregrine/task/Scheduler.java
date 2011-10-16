@@ -147,3 +147,4 @@ class Completion<T> {
     }
     
 }
+Process bsh exited abnormally with code 143

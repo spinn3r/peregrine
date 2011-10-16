@@ -36,6 +36,7 @@ public class BaseTestWithTwoDaemons extends peregrine.BaseTest {
         super.setUp();
 
         controller = new Host( "localhost", 11111 );
+
         config = newConfig( "localhost", 11111 );
         
         config0 = newConfig( "localhost", 11112 );

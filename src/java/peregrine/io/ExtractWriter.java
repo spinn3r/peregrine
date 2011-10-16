@@ -7,6 +7,8 @@ import peregrine.*;
 import peregrine.util.*;
 import peregrine.io.partition.*;
 
+import com.spinn3r.log5j.Logger;
+
 /**
  * Take a given stream of input in the form of (K,V) and route it and write the
  * data to the correct partition.  If your data is already partitioned, with the correct
@@ -14,25 +16,26 @@ import peregrine.io.partition.*;
  */
 public class ExtractWriter {
 
+    private static final Logger log = Logger.getLogger();
+
     private List<PartitionWriter> output;
 
     private String path;
 
-    private int nr_partitions = -1;
+    private Config config;
     
     public ExtractWriter( Config config, String path ) throws IOException {
 
+        this.config = config;
         this.path = path;
 
         Membership membership = config.getMembership();
         
-        nr_partitions = membership.size();
-
-        output = new ArrayList( nr_partitions );
+        output = new ArrayList( membership.size() );
         
         for( Partition partition : membership.getPartitions() ) {
 
-            System.out.printf( "Creating writer for partition: %s\n", partition );
+            log.info( "Creating writer for partition: %s\n", partition );
 
             DefaultPartitionWriter writer = new DefaultPartitionWriter( config, partition, path );
             output.add( writer );
@@ -68,7 +71,7 @@ public class ExtractWriter {
     public void write( byte[] key, byte[] value, boolean keyIsHashcode )
         throws IOException {
 
-        Partition partition = Config.route( key, nr_partitions, keyIsHashcode );
+        Partition partition = config.route( key, keyIsHashcode );
         
         write( partition, key, value );
         

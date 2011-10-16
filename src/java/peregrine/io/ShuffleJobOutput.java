@@ -21,9 +21,9 @@ import peregrine.io.async.*;
 import peregrine.pfs.*;
 import peregrine.pfsd.shuffler.*;
 
-import com.spinn3r.log5j.Logger;
-
 import static peregrine.pfsd.FSPipelineFactory.*;
+
+import com.spinn3r.log5j.Logger;
 
 public class ShuffleJobOutput implements JobOutput, LocalPartitionReaderListener {
 
@@ -38,13 +38,9 @@ public class ShuffleJobOutput implements JobOutput, LocalPartitionReaderListener
      */
     public static final int EXTENT_SIZE = 2097152;
     
-    private int partitions = 0;
-
     protected ChunkReference chunkRef = null;
 
     protected peregrine.pfsd.shuffler.Shuffler shuffler = null;
-
-    protected Membership membership;
 
     protected ShuffleOutput shuffleOutput;
 
@@ -64,17 +60,13 @@ public class ShuffleJobOutput implements JobOutput, LocalPartitionReaderListener
 
         this.config = config;
         this.name = name;
-        
-        this.membership = config.getMembership();
 
-        this.partitions = membership.size();
-        
     }
     
     @Override
     public void emit( byte[] key , byte[] value ) {
 
-        Partition target = Config.route( key, partitions, true );
+        Partition target = config.route( key, true );
 
         int from_partition  = chunkRef.partition.getId();
         int from_chunk      = chunkRef.local;
@@ -93,8 +85,6 @@ public class ShuffleJobOutput implements JobOutput, LocalPartitionReaderListener
     @Override 
     public void onChunk( ChunkReference chunkRef ) {
 
-        System.out.printf( "FIXME: got onChunk for chunk %s for name %s emits: %,d\n", chunkRef, name, emits );
-
         this.chunkRef = chunkRef;
 
         this.shuffleOutput = new ShuffleOutput( chunkRef, name );
@@ -103,8 +93,6 @@ public class ShuffleJobOutput implements JobOutput, LocalPartitionReaderListener
 
     @Override 
     public void onChunkEnd( ChunkReference ref ) {
-        
-        System.out.printf( "FIXME: got onChunkEnd for chunk %s for name %s with job output having %,d emits and shuffleOutput having %,d emits\n", ref, name, emits, shuffleOutput.emits );
 
         try {
             flush();
