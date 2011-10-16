@@ -254,8 +254,9 @@ public class Config {
 
         config.membership = membership;
         config.hosts.addAll( hosts );
-        
-        log.info( "Running with partition layout: \n%s\n", membership.toMatrix() );
+
+        log.info( "Using controller: %s", config.getController() );
+        log.info( "Running with partition layout: \n%s", membership.toMatrix() );
 
         return config;
         

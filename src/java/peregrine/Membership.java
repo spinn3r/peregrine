@@ -17,8 +17,6 @@ public class Membership {
 
     public Membership( List<Host> hosts ) {
 
-        
-        
     }
     
     /**
@@ -66,7 +64,7 @@ public class Membership {
         
         for( Host host : hosts ) {
 
-            buff.append( String.format( "%10s: ", host.getName() ) );
+            buff.append( String.format( "%35s: ", host.getName() ) );
 
             List<Partition> partitions = reverse.get( host );
 
@@ -80,7 +78,8 @@ public class Membership {
             
         }
 
-        return buff.toString();
+        String result = buff.toString();
+        return result.substring( 0, result.length() - 1);
 
     }
 
