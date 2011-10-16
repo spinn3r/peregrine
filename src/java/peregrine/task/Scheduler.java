@@ -90,7 +90,7 @@ public abstract class Scheduler {
 
     /**
      * Mark a job as complete.  The RPC service calls this method when we are
-        List<Partition> partitions = config..getMembership()done with a job.
+     * List<Partition> partitions = config..getMembership()done with a job.
      */
     public void markComplete( Host host, Partition partition ) {
 
@@ -147,4 +147,3 @@ class Completion<T> {
     }
     
 }
-Process bsh exited abnormally with code 143
