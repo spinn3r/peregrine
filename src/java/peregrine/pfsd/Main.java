@@ -20,35 +20,18 @@ public class Main {
 
     public static void main(String[] args) throws Exception {
 
-        // init log4j ... 
         org.apache.log4j.xml.DOMConfigurator.configure( "conf/log4j.xml" );
 
-        Properties props = new Properties();
-        props.load( new FileInputStream( "conf/peregrine.conf" ) );
-
-        String root        = props.get( "root" ).toString();
-        int port           = Integer.parseInt( props.get( "port" ).toString() );
-        String controller  = props.get( "controller" ).toString();
+        Config config = Config.parse( new File( "conf/peregrine.conf" ) );
         
         if ( args.length == 2 ) {
 
-            root = args[0];
-            port = Integer.parseInt( args[1] );
+            config.setRoot( args[0] );
+            config.getHost().setPort( Integer.parseInt( args[1] ) );
             
         }
 
-        String hostname = System.getenv( "HOSTNAME" );
-
-        if ( hostname == null )
-            hostname = "localhost";
-
-        Config config = new Config();
-
-        config.setRoot( root );
-        config.setHost( new Host( hostname, port ) );
-        config.setController( Host.parse( controller ) );
-
-        log.info( "Starting on %s on port %s with controller: %s" , hostname, port, controller );
+        log.info( "Starting on %s with controller: %s" , config.getHost(), config.getController() );
 
         new FSDaemon( config );
 

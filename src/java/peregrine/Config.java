@@ -162,4 +162,28 @@ public class Config {
         
     }
 
+    public static Config parse( File file ) throws IOException {
+
+        Properties props = new Properties();
+        props.load( new FileInputStream( file ) );
+
+        String root        = props.get( "root" ).toString();
+        int port           = Integer.parseInt( props.get( "port" ).toString() );
+        String controller  = props.get( "controller" ).toString();
+
+        String hostname = System.getenv( "HOSTNAME" );
+
+        if ( hostname == null )
+            hostname = "localhost";
+
+        Config config = new Config();
+
+        config.setRoot( root );
+        config.setHost( new Host( hostname, port ) );
+        config.setController( Host.parse( controller ) );
+
+        return config;
+        
+    }
+
 }
