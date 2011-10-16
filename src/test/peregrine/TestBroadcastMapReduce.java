@@ -85,8 +85,6 @@ public class TestBroadcastMapReduce extends peregrine.BaseTestWithTwoDaemons {
      */
      public void test1() throws Exception {
 
-         System.out.printf( "FIXME: partitions: %s\n" , config.getMembership().getPartitions() );
-         
          String path = String.format( "/test/%s/test1.in", getClass().getName() );
         
          ExtractWriter writer = new ExtractWriter( config, path );

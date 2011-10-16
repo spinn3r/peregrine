@@ -37,7 +37,7 @@ public class TestParallelFileSystemWrites extends peregrine.BaseTest {
 
         long before = System.currentTimeMillis();
         
-        int port = FSDaemon.PORT;
+        int port = Config.DEFAULT_PORT;
         int nr_replicas = 3;
 
         if ( hosts == null ) {

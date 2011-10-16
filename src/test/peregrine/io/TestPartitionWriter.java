@@ -42,7 +42,7 @@ public class TestPartitionWriter extends peregrine.BaseTest {
         writer.close();
 
         Partition part = new Partition( 0 );
-        Host host = new Host( "localhost", 0 );
+        Host host = config.getHost();
 
         List<ChunkReader> readers = LocalPartition.getChunkReaders( config, part, host, path );
 
@@ -59,7 +59,7 @@ public class TestPartitionWriter extends peregrine.BaseTest {
         remove( config.getRoot() );
 
         Partition part = new Partition( 0 );
-        Host host = new Host( "localhost", 0 );
+        Host host = config.getHost();
 
         String path = "/tmp/test";
 
@@ -122,7 +122,7 @@ public class TestPartitionWriter extends peregrine.BaseTest {
         remove( config.getRoot() );
 
         Partition part = new Partition( 0 );
-        Host host = new Host( "localhost", 0 );
+        Host host = config.getHost();
 
         String path = "/tmp/test";
 

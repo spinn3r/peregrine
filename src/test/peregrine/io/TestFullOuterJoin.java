@@ -39,7 +39,6 @@ public class TestFullOuterJoin extends peregrine.BaseTest {
         //join are applied correctly
 
         Partition part = new Partition( 0 );
-        Host host = new Host( "localhost", 0 );
         
         PartitionWriter writer;
 
@@ -67,8 +66,8 @@ public class TestFullOuterJoin extends peregrine.BaseTest {
 
         List<LocalPartitionReader> readers = new ArrayList();
         
-        readers.add( new LocalPartitionReader( config, part, host, "/tmp/left" ) );
-        readers.add( new LocalPartitionReader( config, part, host, "/tmp/right" ) );
+        readers.add( new LocalPartitionReader( config, part, config.getHost(), "/tmp/left" ) );
+        readers.add( new LocalPartitionReader( config, part, config.getHost(), "/tmp/right" ) );
         
         LocalMerger merger = new LocalMerger( readers );
 
