@@ -6,13 +6,24 @@ import java.util.*;
 import peregrine.util.*;
 import peregrine.pfsd.*;
 
+import com.spinn3r.log5j.Logger;
+
 /**
  *
  * 
- * @author Kevin Burton 
  */
 public class Config {
 
+    private static final Logger log = Logger.getLogger();
+
+    /**
+     * Default port for serving requests.
+     */
+    public static int DEFAULT_PORT = 11112;
+
+    /**
+     * Default root dir for serving files.
+     */
     public static String DEFAULT_ROOT = "/tmp/peregrine-dfs";
 
     /**
@@ -81,7 +92,7 @@ public class Config {
 
         for( int i = 0; i < hosts.length; ++i ) {
             String host = hosts[i];
-            list.add( new Host( host, i, FSDaemon.PORT ) );
+            list.add( new Host( host, i, DEFAULT_PORT ) );
         }
 
         addMembership( partition, list );
@@ -197,6 +208,53 @@ public class Config {
         config.setController( Host.parse( controller ) );
 
         return config;
+        
+    }
+
+    public static List<Host> readHosts() throws IOException {
+        File file = new File( "conf/peregrine.hosts" );
+        return readHosts( file );
+    }
+    
+    public static List<Host> readHosts( File file ) throws IOException {
+
+        FileInputStream fis = new FileInputStream( file );
+
+        byte[] data = new byte[ (int)file.length() ];
+        fis.read( data );
+
+        String[] lines = new String( data ).split( "\n" );
+
+        List<Host> hosts = new ArrayList();
+
+        for( String line : lines ) {
+
+            line = line.trim();
+            
+            if ( "".equals( line ) )
+                continue;
+
+            if ( line.startsWith( "#" ) )
+                continue;
+
+            String hostname = line;
+            int port = DEFAULT_PORT;
+            
+            if ( line.contains( ":" ) ) {
+
+                String[] split = line.split( ":" );
+
+                hostname = split[0];
+                port     = Integer.parseInt( split[1] );
+
+            }
+
+            Host host = new Host( hostname, port );
+            hosts.add( host);
+            
+        }
+
+        return hosts;
         
     }
 

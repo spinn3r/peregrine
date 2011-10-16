@@ -19,7 +19,7 @@ public class Host implements Comparable<Host> {
     protected int port;
 
     public Host( String name ) {
-        this( name, FSDaemon.PORT );
+        this( name, Config.DEFAULT_PORT );
     }
 
     public Host( String name, int port ) {

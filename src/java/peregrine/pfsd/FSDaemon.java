@@ -22,8 +22,6 @@ public class FSDaemon {
 
     private static final Logger log = Logger.getLogger();
 
-    public static int PORT = 11112;
-
     private ServerBootstrap bootstrap = null;
 
     private int port;
