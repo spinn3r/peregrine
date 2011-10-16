@@ -37,6 +37,11 @@ public abstract class Scheduler {
 
     protected SimpleBlockingQueue<Host> idleHosts = new SimpleBlockingQueue();
 
+    /**
+     * Hosts available for additional work for speculative execution.
+     */
+    protected SimpleBlockingQueue<Host> spareHosts = new SimpleBlockingQueue();
+
     public Scheduler( Config config ) {
 
         this.config = config;
@@ -73,6 +78,8 @@ public abstract class Scheduler {
 
         }
 
+        spareHosts.put( host );
+        
     }
 
     /**
@@ -122,6 +129,9 @@ public abstract class Scheduler {
                 }
 
             }
+
+            log.info( "pending: %s, completed: %s, idleHosts: %s, spareHosts: %s",
+                      pending, completed, idleHosts, spareHosts );
 
         }
             
