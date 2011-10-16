@@ -54,12 +54,14 @@ public class IterJob {
             byte[] dangling         = values[2];
             byte[] nonlinked        = values[3];
 
+            /*
             System.out.printf( "key: %s , graph_by_source: %s, rank_vector: %s, dangling=%s, nonlinked=%s\n",
                                Hex.encode( key ),
                                Hex.encode( graph_by_source ),
                                Hex.encode( rank_vector ),
                                Hex.encode( dangling ),
                                Hex.encode( nonlinked ) );
+            */
 
             // for the first pass, the rank_vector will be null.
             // TODO expand this in the future to support iter > 0 
