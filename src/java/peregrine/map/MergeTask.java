@@ -45,7 +45,7 @@ public class MergeTask extends BaseMapperTask {
 
         } catch ( Throwable t ) {
             log.error( "Unable to merge: ", t );
-            throw new Exception( e );
+            throw new Exception( t );
         }
             
     }
