@@ -169,29 +169,29 @@ class SimpleBlockingQueue<T> {
 
     @Override
     public String toString() {
-        return delegate.keySet().toString();
+        return delegate.toString();
     }
     
 }
 
 class Progress<T> {
 
-    Map<T,T> set = new ConcurrentHashMap();
+    Map<T,T> map = new ConcurrentHashMap();
 
     public void mark( T entry ) {
-        set.put( entry, entry );
+        map.put( entry, entry );
     }
 
     public boolean contains( T entry ) {
-        return set.get( entry ) != null;
+        return map.get( entry ) != null;
     }
 
     public int size() {
-        return set.size();
+        return map.size();
     }
 
     public String toString() {
-        return set.toString();
+        return map.keySet().toString();
     }
     
 }
