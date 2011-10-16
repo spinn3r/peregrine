@@ -11,7 +11,7 @@ import peregrine.util.*;
 import peregrine.pagerank.*;
 import peregrine.io.partition.*;
 
-public class TestBroadcastMapReduce extends peregrine.BaseTestWithTwoPartitions {
+public class TestBroadcastMapReduce extends peregrine.BaseTestWithTwoDaemons {
 
     public static class Map extends Mapper {
 
@@ -21,10 +21,8 @@ public class TestBroadcastMapReduce extends peregrine.BaseTestWithTwoPartitions 
         
         @Override
         public void init( JobOutput... output ) {
-            super.init( output );
 
-            System.out.printf( "FIXME: init on Thread: %s\n", Thread.currentThread() );
-            
+            super.init( output );
             countBroadcast = output[0];
             
         }
@@ -37,11 +35,8 @@ public class TestBroadcastMapReduce extends peregrine.BaseTestWithTwoPartitions 
 
         @Override
         public void cleanup() {
-
-            System.out.printf( "FIXME: within cleanup()\n" );
             
             if ( count == 0 ) {
-                System.out.printf( "FIXME failing! \n" );
                 throw new RuntimeException();
             }
 
@@ -55,8 +50,6 @@ public class TestBroadcastMapReduce extends peregrine.BaseTestWithTwoPartitions 
                 .writeVarint( count )
                 .toBytes();
 
-            System.out.printf( "FIXME: CLEANUP will emit %,d \n", count );
-            
             countBroadcast.emit( key, value );
             
         }
