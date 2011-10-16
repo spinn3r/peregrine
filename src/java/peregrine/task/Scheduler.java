@@ -169,7 +169,7 @@ class SimpleBlockingQueue<T> {
 
     @Override
     public String toString() {
-        return delegate.toString();
+        return delegate.keySet().toString();
     }
     
 }
