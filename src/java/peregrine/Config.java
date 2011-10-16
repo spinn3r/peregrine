@@ -13,7 +13,7 @@ import com.spinn3r.log5j.Logger;
  * 
  */
 public class Config {
-
+    
     private static final Logger log = Logger.getLogger();
 
     /**
@@ -34,7 +34,7 @@ public class Config {
     /**
      * Partition membership.
      */
-    private Membership membership = new Membership();
+    protected Membership membership = new Membership();
 
     /**
      * The current 'host' that we are running on.  This is used so that we can
@@ -43,14 +43,27 @@ public class Config {
      * machine and would have performance issues though we should still perform
      * correctly.
      */
-    public Host host = null;
+    protected Host host = null;
 
     /**
      * The controller coordinating job tasks in the cluster.  
      */
-    public Host controller = null;
-    
-    public Set<Host> hosts = new HashSet();
+    protected Host controller = null;
+
+    /**
+     * Unique index of hosts. 
+     */
+    protected Set<Host> hosts = new HashSet();
+
+    /**
+     * The number of partitions per host.
+     */
+    protected int partitions_per_host;
+
+    /**
+     * The number of replicas per file we are configured for.  Usually 2 or 3.
+     */
+    protected int replicas;
     
     public Config() { }
 
@@ -135,7 +148,23 @@ public class Config {
         this.root = root;
         return this;
     }
-    
+
+    public int getPartitionsPerHost() {
+        return partitions_per_host;
+    }
+
+    public void setPartitionsPerHost( int partitions_per_host ) {
+        this.partitions_per_host = partitions_per_host;
+    }
+
+    public int getReplicas() { 
+        return this.replicas;
+    }
+
+    public void setReplicas( int replicas ) { 
+        this.replicas = replicas;
+    }
+
     public String getRoot( Partition partition ) {
         return String.format( "%s/%s" , root , partition.getId() );
     }
@@ -184,17 +213,22 @@ public class Config {
         
     }
 
+    public static Config parse( String conf, String hosts ) throws IOException {
+        return parse( new File( conf ), new File( hosts ) );
+    }
+
     /**
      * Parse a config file from disk.
      */
-    public static Config parse( File file ) throws IOException {
+    public static Config parse( File conf_file, File hosts_file ) throws IOException {
 
         Properties props = new Properties();
-        props.load( new FileInputStream( file ) );
+        props.load( new FileInputStream( conf_file ) );
 
-        String root        = props.get( "root" ).toString();
-        int port           = Integer.parseInt( props.get( "port" ).toString() );
-        String controller  = props.get( "controller" ).toString();
+        StructMap struct = new StructMap( props );
+        
+        String root        = struct.get( "root" );
+        int port           = struct.getInt( "port" );
 
         String hostname = System.getenv( "HOSTNAME" );
 
@@ -205,17 +239,28 @@ public class Config {
 
         config.setRoot( root );
         config.setHost( new Host( hostname, port ) );
-        config.setController( Host.parse( controller ) );
+        config.setController( Host.parse( struct.get( "controller" ) ) );
+
+        config.setPartitionsPerHost( struct.getInt( "partitions_per_host" ) );
+        config.setReplicas( struct.getInt( "replicas" ) );
+        
+        // now read the hosts file...
+        List<Host> hosts = readHosts( hosts_file );
+
+        PartitionLayoutEngine engine = new PartitionLayoutEngine( config, hosts );
+        engine.build();
+
+        Membership membership = engine.toMembership();
+
+        config.membership = membership;
+        config.hosts.addAll( hosts );
+        
+        log.info( "Running with partition layout: \n%s\n", membership.toMatrix() );
 
         return config;
         
     }
 
-    public static List<Host> readHosts() throws IOException {
-        File file = new File( "conf/peregrine.hosts" );
-        return readHosts( file );
-    }
-    
     public static List<Host> readHosts( File file ) throws IOException {
 
         FileInputStream fis = new FileInputStream( file );

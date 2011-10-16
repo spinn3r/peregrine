@@ -6,10 +6,14 @@ import java.util.*;
 import peregrine.*;
 import java.nio.charset.Charset;
 
+import com.spinn3r.log5j.Logger;
+
 /**
  * Manages layout for the partition system.
  */
 public class PartitionLayoutEngine {
+
+    private static final Logger log = Logger.getLogger();
 
     Membership membership = new Membership();
 
@@ -32,30 +36,31 @@ public class PartitionLayoutEngine {
 
     Host current_host;
     
-    public PartitionLayoutEngine( int nr_partitions,
-                                  int nr_replicas,
+    public PartitionLayoutEngine( Config config,
                                   List<Host> hosts ) {
         
         this.nr_hosts = hosts.size();
-        this.nr_partitions = nr_partitions;
-        this.nr_replicas = nr_replicas;
+        this.nr_partitions = config.getPartitionsPerHost();
+        this.nr_replicas = config.getReplicas();
         this.hosts = hosts;
         
     }
 
-    public void build() throws Exception {
+    public void build() {
 
+        log.info( "Building partition layout with %,d partitions_per_host and %s replicas." , nr_partitions, nr_replicas );
+        
         // I think the last partition will have (nr_hosts * nr_partitions) %
         // nr_replicas copies and we can just evenly hand these out to
         // additional hosts
         
         if ( nr_hosts < nr_replicas )
-            throw new Exception();
+            throw new RuntimeException( "Incorrect number of hosts." );
 
         if ( nr_hosts <= (2 * nr_partitions) ) {
 
             // FIXME: log.warn this.
-            System.out.printf( "For maximum parallel recovery, your nr_hosts should be > 2 * nr_partitions\n" );
+            log.info( "For maximum parallel recovery, your nr_hosts should be > 2 * nr_partitions\n" );
         }
 
         // init the matrix

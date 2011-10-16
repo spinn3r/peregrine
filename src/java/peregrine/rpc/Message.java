@@ -19,13 +19,9 @@ import peregrine.util.*;
 
 import com.spinn3r.log5j.*;
 
-public class Message {
+public class Message extends StructMap {
 
-    public Map<String,String> delegate = new HashMap();
-
-    public Message() {
-
-    }
+    public Message() { }
 
     public Message( String data ) {
 
@@ -37,33 +33,13 @@ public class Message {
         }
 
     }
-    
-    public void put( String key, String value ) {
-        delegate.put( key, value );
-    }
-
-    public void put( String key, int value ) {
-        delegate.put( key, ""+value );
-    }
-
-    public String get( String key ) {
-        return delegate.get( key );
-    }
-    
-    public String getString( String key ) {
-        return get( key );
-    }
-
-    public int getInt( String key ) {
-        return Integer.parseInt( delegate.get( key ) );
-    }
 
     public String toString() {
 
         QueryStringEncoder encoder = new QueryStringEncoder( "" );
 
-        for( String key : delegate.keySet() ) {
-            encoder.addParam( key, delegate.get( key ) );
+        for( Object key : delegate.keySet() ) {
+            encoder.addParam( key.toString(), delegate.get( key ).toString() );
         }
 
         return encoder.toString();

@@ -24,7 +24,7 @@ public class Main {
 
         DOMConfigurator.configure( "conf/log4j.xml" );
 
-        Config config = Config.parse( new File( "conf/peregrine.conf" ) );
+        Config config = Config.parse( "conf/peregrine.conf", "conf/peregrine.hosts" );
         
         if ( args.length == 2 ) {
 
