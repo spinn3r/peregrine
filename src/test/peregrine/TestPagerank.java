@@ -10,7 +10,7 @@ import peregrine.values.*;
 import peregrine.util.*;
 import peregrine.pagerank.*;
 
-public class TestPagerank extends peregrine.BaseTestWithTwoPartitions {
+public class TestPagerank extends peregrine.BaseTestWithTwoDaemons {
 
     public void test1() throws Exception {
 
@@ -42,7 +42,7 @@ public class TestPagerank extends peregrine.BaseTestWithTwoPartitions {
 
         // sort the graph by source.. 
         controller.map( Mapper.class, path );
-        controller.reduce( Reducer.class, null, new Output( "/pr/test.graph_by_source" ) );
+        controller.reduce( Reducer.class, new Input(), new Output( "/pr/test.graph_by_source" ) );
 
         //now create node metadata...
         controller.merge( NodeMetadataJob.Map.class,
