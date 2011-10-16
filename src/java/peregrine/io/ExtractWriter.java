@@ -24,13 +24,13 @@ public class ExtractWriter {
 
         this.path = path;
 
-        Membership partitionMembership = config.getPartitionMembership();
+        Membership membership = config.getMembership();
         
-        nr_partitions = partitionMembership.size();
+        nr_partitions = membership.size();
 
         output = new ArrayList( nr_partitions );
         
-        for( Partition partition : partitionMembership.getPartitions() ) {
+        for( Partition partition : membership.getPartitions() ) {
 
             System.out.printf( "Creating writer for partition: %s\n", partition );
 

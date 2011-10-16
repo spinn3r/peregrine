@@ -69,7 +69,7 @@ public class TestParallelFileSystemWrites extends peregrine.BaseTest {
         Config config = new Config();
         config.setHost( new Host( "localhost" ) );
         
-        config.addPartitionMembership( 0, hosts );
+        config.addMembership( 0, hosts );
 
         Partition part = new Partition( 0 );
         

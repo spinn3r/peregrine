@@ -60,9 +60,9 @@ public class DefaultPartitionWriter implements PartitionWriter {
         this.partition = partition;
         this.path = path;
 
-        Membership partitionMembership = config.getPartitionMembership();
+        Membership membership = config.getMembership();
 
-        List<Host> hosts = partitionMembership.getHosts( partition );
+        List<Host> hosts = membership.getHosts( partition );
 
         partitionWriterDelegates = new ArrayList();
 

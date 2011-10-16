@@ -91,7 +91,7 @@ public class TestMapReduce extends peregrine.BaseTestWithTwoDaemons {
         // int count = 0;
         
         // //make sure too many values weren't written.
-        // Membership membership = config.getPartitionMembership();
+        // Membership membership = config.getMembership();
 
         // for( Partition part : membership.getPartitions() ) {
 

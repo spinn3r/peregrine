@@ -22,8 +22,8 @@ public class TestShuffler extends peregrine.BaseTest {
         config.setHost( new Host( "localhost" ) );
 
         // TRY with three partitions... 
-        config.addPartitionMembership( 0, "localhost" );
-        config.addPartitionMembership( 1, "localhost" );
+        config.addMembership( 0, "localhost" );
+        config.addMembership( 1, "localhost" );
 
     }
     
@@ -34,7 +34,7 @@ public class TestShuffler extends peregrine.BaseTest {
         Shuffler shuffler = factory.getInstance( "default" );
 
         int max_writes = 1000;
-        int max_partitions = config.getPartitionMembership().size();
+        int max_partitions = config.getMembership().size();
 
         for( int i = 0; i < max_writes; ++i ) {
         

@@ -26,8 +26,8 @@ public class TestPartitionWriter extends peregrine.BaseTest {
         
         config.setHost( new Host( "localhost" ) );
 
-        config.addPartitionMembership( 0, "localhost" );
-        config.addPartitionMembership( 1, "localhost" );
+        config.addMembership( 0, "localhost" );
+        config.addMembership( 1, "localhost" );
 
     }
 

@@ -41,7 +41,7 @@ public class Config {
         setRoot( String.format( "%s/%s/%s", DEFAULT_ROOT, host, port ) );
     }
 
-    public void addPartitionMembership( int partition, List<Host> hosts ) {
+    public void addMembership( int partition, List<Host> hosts ) {
 
         membership.setPartition( new Partition( partition ), hosts );
 
@@ -52,7 +52,7 @@ public class Config {
         
     }
 
-    public void addPartitionMembership( int partition, Host... hosts ) {
+    public void addMembership( int partition, Host... hosts ) {
 
         List<Host> list = new ArrayList();
 
@@ -60,11 +60,11 @@ public class Config {
             list.add( host );
         }
 
-        addPartitionMembership( partition, list );
+        addMembership( partition, list );
         
     }
     
-    public void addPartitionMembership( int partition, String... hosts ) {
+    public void addMembership( int partition, String... hosts ) {
 
         List<Host> list = new ArrayList();
 
@@ -73,11 +73,11 @@ public class Config {
             list.add( new Host( host, i, FSDaemon.PORT ) );
         }
 
-        addPartitionMembership( partition, list );
+        addMembership( partition, list );
 
     }
 
-    public Membership getPartitionMembership() {
+    public Membership getMembership() {
         return membership;
     }
 

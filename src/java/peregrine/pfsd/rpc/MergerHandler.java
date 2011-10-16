@@ -34,7 +34,7 @@ public class MergerHandler extends MapperHandler {
 
         MergeTask task = new MergeTask();
 
-        task.init( config, config.getPartitionMembership(), partition, config.getHost(), delegate );
+        task.init( config, config.getMembership(), partition, config.getHost(), delegate );
 
         task.setInput( input );
         task.setOutput( output );

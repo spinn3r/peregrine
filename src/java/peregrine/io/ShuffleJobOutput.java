@@ -44,7 +44,7 @@ public class ShuffleJobOutput implements JobOutput, LocalPartitionReaderListener
 
     protected peregrine.pfsd.shuffler.Shuffler shuffler = null;
 
-    protected Membership partitionMembership;
+    protected Membership membership;
 
     protected ShuffleOutput shuffleOutput;
 
@@ -65,9 +65,9 @@ public class ShuffleJobOutput implements JobOutput, LocalPartitionReaderListener
         this.config = config;
         this.name = name;
         
-        this.partitionMembership = config.getPartitionMembership();
+        this.membership = config.getMembership();
 
-        this.partitions = partitionMembership.size();
+        this.partitions = membership.size();
         
     }
     

@@ -33,7 +33,7 @@ public class TestFullOuterJoin extends peregrine.BaseTest {
         //write keys to two files but where there isn't a 100%
         //intersection... then try to join against these files. 
 
-        config.addPartitionMembership( 0, "localhost" );
+        config.addMembership( 0, "localhost" );
 
         //now test writing two regions to a file and see if both sides of the
         //join are applied correctly

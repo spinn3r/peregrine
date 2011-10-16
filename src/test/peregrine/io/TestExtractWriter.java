@@ -30,8 +30,8 @@ public class TestExtractWriter extends peregrine.BaseTest {
         config.setHost( new Host( "localhost" ) );
 
         //PartitionWriter 
-        config.addPartitionMembership( 0, "localhost" );
-        config.addPartitionMembership( 1, "localhost" );
+        config.addMembership( 0, "localhost" );
+        config.addMembership( 1, "localhost" );
 
     }
     

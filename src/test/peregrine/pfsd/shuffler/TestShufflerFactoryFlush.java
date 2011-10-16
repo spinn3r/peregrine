@@ -38,7 +38,7 @@ public class TestShufflerFactoryFlush extends peregrine.BaseTest {
 
         Config config = new Config( host, port );
 
-        config.addPartitionMembership( 0, new Host( "localhost", 11112 ) );
+        config.addMembership( 0, new Host( "localhost", 11112 ) );
 
         return config;
         

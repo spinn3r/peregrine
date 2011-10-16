@@ -86,7 +86,7 @@ public class ShuffleOutputWriter {
         // we are done working with this buffer.  serialize it to disk now and
         // close it out.
 
-        List<Partition> partitions = config.getPartitionMembership().getPartitions( config.getHost() );
+        List<Partition> partitions = config.getMembership().getPartitions( config.getHost() );
 
         log.info( "Going to write shuffle for %s to %s", partitions , path );
         

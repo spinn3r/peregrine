@@ -28,9 +28,9 @@ public class BroadcastShuffleJobOutput extends ShuffleJobOutput {
     @Override
     public void emit( byte[] key , byte[] value ) {
 
-        Membership partitionMembership = config.getPartitionMembership();
+        Membership membership = config.getMembership();
 
-        for ( Partition target : partitionMembership.getPartitions() ) {
+        for ( Partition target : membership.getPartitions() ) {
             emit( target.getId() , key, value );
         }
 

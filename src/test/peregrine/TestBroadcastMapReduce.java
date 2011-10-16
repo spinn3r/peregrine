@@ -85,7 +85,7 @@ public class TestBroadcastMapReduce extends peregrine.BaseTestWithTwoDaemons {
      */
      public void test1() throws Exception {
 
-         System.out.printf( "FIXME: partitions: %s\n" , config.getPartitionMembership().getPartitions() );
+         System.out.printf( "FIXME: partitions: %s\n" , config.getMembership().getPartitions() );
          
          String path = String.format( "/test/%s/test1.in", getClass().getName() );
         
@@ -129,7 +129,7 @@ public class TestBroadcastMapReduce extends peregrine.BaseTestWithTwoDaemons {
 
     public static void assertValueOnAllPartitions( Config config, String path, int value ) throws Exception {
 
-        Membership membership = config.getPartitionMembership();
+        Membership membership = config.getMembership();
         
         for( Partition part : membership.getPartitions() ) {
 

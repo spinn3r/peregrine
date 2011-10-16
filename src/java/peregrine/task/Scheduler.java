@@ -37,7 +37,7 @@ public abstract class Scheduler {
     
     public Scheduler( Config config ) {
         this.config = config;
-        this.membership = config.getPartitionMembership();
+        this.membership = config.getMembership();
     }
     
     public void init() throws Exception {

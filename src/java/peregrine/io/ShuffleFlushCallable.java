@@ -102,7 +102,7 @@ public class ShuffleFlushCallable implements Callable {
 
             Map<Integer,ChannelBufferWritable> clients = new HashMap();
 
-            Membership membership = config.getPartitionMembership();
+            Membership membership = config.getMembership();
             
             Set<Partition> partitions = membership.getPartitions();
             

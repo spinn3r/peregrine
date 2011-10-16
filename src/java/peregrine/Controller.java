@@ -56,7 +56,7 @@ public class Controller {
 
         log.info( "Starting mapper: %s", delegate.getName() );
 
-        final Membership partitionMembership = config.getPartitionMembership();
+        final Membership membership = config.getMembership();
 
         Scheduler scheduler = new Scheduler( config ) {
 

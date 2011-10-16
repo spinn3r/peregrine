@@ -55,7 +55,7 @@ public class MapperHandler extends RPCHandler {
 
         MapperTask task = new MapperTask();
         
-        task.init( config, config.getPartitionMembership(), partition, config.getHost(), delegate );
+        task.init( config, config.getMembership(), partition, config.getHost(), delegate );
         
         task.setInput( input );
         task.setOutput( output );

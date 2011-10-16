@@ -22,8 +22,8 @@ public class TestShuffleOutputChunkReader extends peregrine.BaseTest {
         config.setHost( new Host( "localhost" ) );
         
         // TRY with three partitions... 
-        config.addPartitionMembership( 0, "localhost" );
-        config.addPartitionMembership( 1, "localhost" );
+        config.addMembership( 0, "localhost" );
+        config.addMembership( 1, "localhost" );
 
     }
     
@@ -34,7 +34,7 @@ public class TestShuffleOutputChunkReader extends peregrine.BaseTest {
         ShuffleOutputWriter buff = new ShuffleOutputWriter( config, path );
 
         int max_writes = 10;
-        int max_partitions = config.getPartitionMembership().size();
+        int max_partitions = config.getMembership().size();
 
         byte[] value = new byte[] { (byte)6, (byte)7, (byte)8, (byte)9 };
 
