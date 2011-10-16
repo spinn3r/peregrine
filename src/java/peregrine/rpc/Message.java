@@ -38,8 +38,8 @@ public class Message extends StructMap {
 
         QueryStringEncoder encoder = new QueryStringEncoder( "" );
 
-        for( Object key : delegate.keySet() ) {
-            encoder.addParam( key.toString(), delegate.get( key ).toString() );
+        for( String key : keys ) {
+            encoder.addParam( key, delegate.get( key ).toString() );
         }
 
         return encoder.toString();

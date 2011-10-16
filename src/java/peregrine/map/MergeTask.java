@@ -41,13 +41,13 @@ public class MergeTask extends BaseMapperTask {
                 teardown();
             }
 
-            return null;
-
         } catch ( Throwable t ) {
-            log.error( "Unable to merge: ", t );
-            throw new Exception( t );
+            log.error( "Task failed: ", t );
+            sendFailedToController( t );
         }
-            
+
+        return null;
+
     }
 
     private void doCall() throws Exception {

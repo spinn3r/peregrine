@@ -57,6 +57,11 @@ public class ShuffleOutput {
     
     public void emit( int to_partition, byte[] key, byte[] value ) {
 
+        if ( flushing ) {
+            log.error( "Thread tried to write during a flush: %s" , Thread.currentThread() );
+            return;
+        }
+        
         // the max width that this emit could consume.  2 ints for the
         // partition and the width of the value and then the length of the key
         // and the lenght of the value + two ints for the varints.

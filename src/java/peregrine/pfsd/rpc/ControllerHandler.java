@@ -27,12 +27,23 @@ public class ControllerHandler extends RPCHandler {
 
         if ( "complete".equals( action ) ) {
 
-            Host host    = Host.parse( message.get( "host" ) );
-            int part     = message.getInt( "partition" );
-            Partition partition = new Partition( part );
+            Host host       = Host.parse( message.get( "host" ) );
+            Partition part  = new Partition( message.getInt( "partition" ) );
 
-            daemon.getScheduler().markComplete( host, partition );
+            daemon.getScheduler().markComplete( host, part );
 
+            return;
+
+        }
+
+        if ( "failed".equals( action ) ) {
+
+            Host host       = Host.parse( message.get( "host" ) );
+            Partition part  = new Partition( message.getInt( "partition" ) );
+            String cause    = message.get( "cause" );
+
+            log.error( "Host %s has failed with cause '%s'", host, cause );
+            
             return;
 
         }

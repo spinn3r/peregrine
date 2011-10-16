@@ -11,6 +11,8 @@ public class StructMap {
 
     protected Map delegate = new HashMap();
 
+    protected List<String> keys = new ArrayList();
+    
     public StructMap() {}
     
     public StructMap( Map delegate ) {
@@ -18,10 +20,12 @@ public class StructMap {
     }
 
     public void put( String key, String value ) {
+        keys.add( key );
         delegate.put( key, value );
     }
 
     public void put( String key, int value ) {
+        keys.add( key );
         delegate.put( key, ""+value );
     }
 

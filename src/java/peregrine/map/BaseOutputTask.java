@@ -86,4 +86,24 @@ public abstract class BaseOutputTask {
 
     }
 
+    /**
+     * Tell the controller tha twe failed (be a good citizen if we can).
+     */
+    protected void sendFailedToController( Throwable cause ) throws IOException {
+
+        Message message = new Message();
+
+        message.put( "action" ,   "failed" );
+        message.put( "host",      config.getHost().toString() );
+        message.put( "partition", partition.getId() );
+        message.put( "cause",     cause.getMessage() );
+
+        // TODO: consider including the full stack trace as 'trace'
+        
+        log.info( "Sending failed message to controller: %s", message );
+        
+        new Client().invoke( config.getController(), "controller", message );
+
+    }
+
 }
