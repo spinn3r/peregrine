@@ -32,6 +32,9 @@ public class MapperTask extends BaseMapperTask {
             
             doCall();
             
+        } catch ( Throwable t ) { 
+            log.error( "Task failed: ", t );
+            sendFailedToController( t );
         } finally {
             mapper.cleanup();
             teardown();

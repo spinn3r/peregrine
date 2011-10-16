@@ -48,6 +48,18 @@ public class ControllerHandler extends RPCHandler {
 
         }
 
+        if ( "progress".equals( action ) ) {
+
+            Host host       = Host.parse( message.get( "host" ) );
+            Partition part  = new Partition( message.getInt( "partition" ) );
+            String cause    = message.get( "cause" );
+
+            log.error( "Host %s has failed with cause '%s'", host, cause );
+            
+            return;
+
+        }
+
         throw new Exception( String.format( "No handler for action %s with message %s", action, message ) );
 
     }

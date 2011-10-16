@@ -24,26 +24,22 @@ public class MergeTask extends BaseMapperTask {
 
     public Object call() throws Exception {
 
+        merger = (Merger)super.newMapper();
+
         try {
             
-            merger = (Merger)super.newMapper();
+            setup();
+            merger.setBroadcastInput( getBroadcastInput() );
+            merger.init( getJobOutput() );
+            
+            doCall();
 
-            try {
-                
-                setup();
-                merger.setBroadcastInput( getBroadcastInput() );
-                merger.init( getJobOutput() );
-                
-                doCall();
-                
-            } finally {
-                merger.cleanup();
-                teardown();
-            }
-
-        } catch ( Throwable t ) {
+        } catch ( Throwable t ) { 
             log.error( "Task failed: ", t );
             sendFailedToController( t );
+        } finally {
+            merger.cleanup();
+            teardown();
         }
 
         return null;

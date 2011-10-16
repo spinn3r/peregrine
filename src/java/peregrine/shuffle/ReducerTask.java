@@ -30,8 +30,6 @@ public class ReducerTask extends BaseOutputTask implements Callable {
 
     private ShuffleInputReference shuffleInput;
 
-    private Host host = null;
-    
     public ReducerTask( Config config,
                         Partition partition,
                         Class reducer_class,
@@ -43,7 +41,6 @@ public class ReducerTask extends BaseOutputTask implements Callable {
         this.config = config;
         this.reducer_class = reducer_class;
         this.shuffleInput = shuffleInput;
-        this.host = config.getHost();
         
     }
 
@@ -64,6 +61,9 @@ public class ReducerTask extends BaseOutputTask implements Callable {
 
             doCall();
 
+        } catch ( Throwable t ) { 
+            log.error( "Task failed: ", t );
+            sendFailedToController( t );
         } finally {
 
             reducer.cleanup();
