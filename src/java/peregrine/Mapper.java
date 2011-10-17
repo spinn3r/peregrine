@@ -7,7 +7,7 @@ import java.util.concurrent.*;
 import peregrine.keys.*;
 import peregrine.values.*;
 import peregrine.util.*;
-import peregrine.shuffle.*;
+import peregrine.reduce.*;
 import peregrine.map.BaseMapper;
 
 public class Mapper extends BaseMapper {

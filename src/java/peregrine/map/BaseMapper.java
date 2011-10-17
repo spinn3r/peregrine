@@ -8,7 +8,7 @@ import peregrine.*;
 import peregrine.keys.*;
 import peregrine.values.*;
 import peregrine.util.*;
-import peregrine.shuffle.*;
+import peregrine.reduce.*;
 import peregrine.io.*;
 
 public abstract class BaseMapper {

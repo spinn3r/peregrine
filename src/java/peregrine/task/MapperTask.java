@@ -13,7 +13,7 @@ import peregrine.util.*;
 import peregrine.io.*;
 import peregrine.io.partition.*;
 import peregrine.map.*;
-import peregrine.shuffle.*;
+import peregrine.reduce.*;
 
 import com.spinn3r.log5j.*;
 

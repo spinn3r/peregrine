@@ -11,7 +11,7 @@ import peregrine.io.*;
 import peregrine.io.async.*;
 import peregrine.io.partition.*;
 import peregrine.util.*;
-import peregrine.shuffle.*;
+import peregrine.reduce.*;
 import peregrine.task.*;
 
 import com.spinn3r.log5j.*;

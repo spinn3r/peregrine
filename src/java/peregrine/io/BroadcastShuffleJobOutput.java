@@ -11,7 +11,7 @@ import peregrine.values.*;
 import peregrine.util.*;
 import peregrine.map.*;
 import peregrine.io.*;
-import peregrine.shuffle.*;
+import peregrine.reduce.*;
 
 public class BroadcastShuffleJobOutput extends ShuffleJobOutput {
 

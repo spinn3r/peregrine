@@ -1,5 +1,5 @@
 
-package peregrine.shuffle;
+package peregrine.reduce;
 
 import java.io.*;
 import java.util.*;

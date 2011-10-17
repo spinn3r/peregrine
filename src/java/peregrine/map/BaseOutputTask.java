@@ -12,7 +12,7 @@ import peregrine.keys.*;
 import peregrine.map.*;
 import peregrine.rpc.*;
 import peregrine.pfs.*;
-import peregrine.shuffle.*;
+import peregrine.reduce.*;
 import peregrine.util.*;
 import peregrine.values.*;
 

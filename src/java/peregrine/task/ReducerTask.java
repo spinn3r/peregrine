@@ -13,7 +13,7 @@ import peregrine.util.*;
 import peregrine.map.*;
 import peregrine.io.*;
 import peregrine.io.chunk.*;
-import peregrine.shuffle.*;
+import peregrine.reduce.*;
 
 import peregrine.pfsd.shuffler.ShuffleInputChunkReader;
 

@@ -1,4 +1,4 @@
-package peregrine.shuffle;
+package peregrine.reduce;
 
 import java.util.*;
 

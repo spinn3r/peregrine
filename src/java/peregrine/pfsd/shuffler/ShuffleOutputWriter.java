@@ -28,7 +28,7 @@ public class ShuffleOutputWriter {
 
     /**
      * Magic number for this file.  Right now it is 'PSO1' which stands for
-     * Peregrine Shuffle Output version 1.
+     * Peregrine.Reduce Output version 1.
      */
     public static final byte[] MAGIC =
         new byte[] { (byte)'P', (byte)'S', (byte)'O', (byte)'1' };

@@ -8,7 +8,7 @@ import java.util.concurrent.atomic.*;
 import peregrine.*;
 import peregrine.io.*;
 import peregrine.util.*;
-import peregrine.shuffle.*;
+import peregrine.reduce.*;
 import peregrine.keys.*;
 import peregrine.io.partition.*;
 

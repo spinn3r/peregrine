@@ -9,7 +9,7 @@ import java.util.concurrent.*;
 import peregrine.*;
 import peregrine.util.*;
 import peregrine.map.*;
-import peregrine.shuffle.*;
+import peregrine.reduce.*;
 import peregrine.io.*;
 import peregrine.pfs.*;
 import peregrine.pfsd.*;
