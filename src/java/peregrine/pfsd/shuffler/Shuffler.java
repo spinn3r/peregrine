@@ -59,7 +59,7 @@ public class Shuffler {
 
             synchronized( this ) {
 
-                if ( writer == null || writer.hasCapacity() ) {
+                if ( writer == null || writer.hasCapacity() == false ) {
 
                     rollover();
                     
