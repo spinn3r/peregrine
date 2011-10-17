@@ -28,7 +28,7 @@ public class ShuffleInputReader {
 
     private StructReader struct;
 
-    private int idx = 0;
+    private int packet_idx = 0;
 
     private int partition;
 
@@ -37,6 +37,8 @@ public class ShuffleInputReader {
     protected int nr_packets = 0;
 
     protected int count = 0;
+
+    protected List<Header> headers = new ArrayList();
     
     public ShuffleInputReader( String path, int partition ) throws IOException {
 
@@ -70,22 +72,31 @@ public class ShuffleInputReader {
         
         for ( int i = 0; i < size; ++i ) {
 
-            int part         = struct.readInt();
-            int off          = struct.readInt();
-            this.nr_packets  = struct.readInt();
-            this.count       = struct.readInt();
+            Header header = new Header();
+            
+            header.partition    = struct.readInt();
+            header.offset       = struct.readInt();
+            header.nr_packets   = struct.readInt();
+            header.count        = struct.readInt();
 
+            // record this for usage later if necessary.
+            headers.add( header );
+            
             point += IntBytes.LENGTH * 4;
             
-            if ( part == partition ) {
-                start = off;
+            if ( header.partition == partition ) {
+                start = header.offset;
+
+                this.nr_packets = header.nr_packets;
+                this.count      = header.count;
+
                 break;
             }
 
             // read everything.
             if ( partition == -1 ) {
                 start = point;
-                this.nr_packets += nr_packets;
+                this.nr_packets += header.nr_packets;
             }
             
         }
@@ -102,15 +113,15 @@ public class ShuffleInputReader {
     }
 
     public boolean hasNext() throws IOException {
-        return idx < nr_packets;
+        return packet_idx < nr_packets;
     }
     
     public ShufflePacket next() throws IOException {
 
-        if ( idx >= nr_packets )
+        if ( packet_idx >= nr_packets )
             return null;
 
-        ++idx;
+        ++packet_idx;
 
         int from_partition  = struct.readInt();
         int from_chunk      = struct.readInt();
@@ -141,6 +152,11 @@ public class ShuffleInputReader {
         
         ShuffleInputReader reader = new ShuffleInputReader( path, -1 );
 
+        System.out.printf( "Headers: \n" );
+        for( Header header : reader.headers ) {
+            System.out.printf( "\t%s\n", header );
+        }
+        
         while( reader.hasNext() ) {
 
             ShufflePacket pack = reader.next();
@@ -153,5 +169,22 @@ public class ShuffleInputReader {
         }
 
     }
+
+    class Header {
+
+        int partition;
+        int offset;
+        int nr_packets;
+        int count;
+
+        public String toString() {
+            
+            return String.format( "partition: %s, offset: %,d, nr_packets: %s, count: %,d" ,
+                                  partition, offset, nr_packets, count );
+            
+        }
+        
+    }
     
 }
+
