@@ -1,4 +1,4 @@
-package peregrine.io;
+package peregrine.shuffle.sender;
 
 import java.io.*;
 import java.lang.reflect.*;
@@ -19,7 +19,6 @@ import peregrine.values.*;
 import peregrine.io.chunk.*;
 import peregrine.io.async.*;
 import peregrine.pfs.*;
-import peregrine.pfsd.shuffler.*;
 
 import static peregrine.pfsd.FSPipelineFactory.*;
 
@@ -40,7 +39,7 @@ public class ShuffleJobOutput implements JobOutput, LocalPartitionReaderListener
     
     protected ChunkReference chunkRef = null;
 
-    protected ShuffleOutput shuffleOutput;
+    protected ShuffleSenderBuffer shuffleSenderBuffer;
 
     protected String name;
 
@@ -76,7 +75,7 @@ public class ShuffleJobOutput implements JobOutput, LocalPartitionReaderListener
     }
 
     protected void emit( int to_partition, byte[] key , byte[] value ) {
-        shuffleOutput.emit( to_partition, key, value );
+        shuffleSenderBuffer.emit( to_partition, key, value );
         ++emits;
     }
 
@@ -91,7 +90,7 @@ public class ShuffleJobOutput implements JobOutput, LocalPartitionReaderListener
             throw new RuntimeException( e );
         }
 
-        this.shuffleOutput = new ShuffleOutput( chunkRef, name );
+        this.shuffleSenderBuffer = new ShuffleSenderBuffer( chunkRef, name );
         
     }
 
@@ -126,12 +125,12 @@ public class ShuffleJobOutput implements JobOutput, LocalPartitionReaderListener
             if ( future != null )
                 future.get();
 
-            if ( shuffleOutput != null ) {
+            if ( shuffleSenderBuffer != null ) {
 
-                boolean trigger = force || shuffleOutput.length > DefaultPartitionWriter.CHUNK_SIZE;
+                boolean trigger = force || shuffleSenderBuffer.length > DefaultPartitionWriter.CHUNK_SIZE;
                 
                 if ( trigger ) {
-                    future = executors.submit( new ShuffleFlushCallable( config, shuffleOutput ) );
+                    future = executors.submit( new ShuffleSenderFlushCallable( config, shuffleSenderBuffer ) );
                 }
 
             }

@@ -1,4 +1,4 @@
-package peregrine.io;
+package peregrine.shuffle.sender;
 
 import java.io.*;
 import java.lang.reflect.*;
@@ -19,7 +19,6 @@ import peregrine.values.*;
 import peregrine.io.chunk.*;
 import peregrine.io.async.*;
 import peregrine.pfs.*;
-import peregrine.pfsd.shuffler.*;
 
 import com.spinn3r.log5j.Logger;
 
@@ -28,13 +27,13 @@ import static peregrine.pfsd.FSPipelineFactory.*;
 /**
  * 
  */
-public class ShuffleOutput {
+public class ShuffleSenderBuffer {
 
     private static final Logger log = Logger.getLogger();
 
-    private ShuffleOutputExtent extent = null;
+    private ShuffleSenderExtent extent = null;
 
-    protected List<ShuffleOutputExtent> extents = new ArrayList();
+    protected List<ShuffleSenderExtent> extents = new ArrayList();
 
     protected int partitions;
 
@@ -50,7 +49,7 @@ public class ShuffleOutput {
 
     protected Map<Integer,Integer> partitionCount = new ConcurrentHashMap();
     
-    public ShuffleOutput( ChunkReference chunkRef, String name ) {
+    public ShuffleSenderBuffer( ChunkReference chunkRef, String name ) {
 
         this.chunkRef = chunkRef;
         this.name = name;
@@ -92,7 +91,7 @@ public class ShuffleOutput {
 
     private void rollover() {
 
-        extent = new ShuffleOutputExtent();
+        extent = new ShuffleSenderExtent();
         extents.add( extent );
     }
     

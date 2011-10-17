@@ -21,7 +21,6 @@ import org.jboss.netty.util.*;
 import peregrine.*;
 import peregrine.io.async.*;
 import peregrine.util.*;
-import peregrine.pfsd.shuffler.*;
 import peregrine.shuffle.receiver.*;
 
 import com.spinn3r.log5j.*;

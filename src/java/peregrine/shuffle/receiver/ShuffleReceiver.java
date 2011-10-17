@@ -9,7 +9,7 @@ import java.util.concurrent.atomic.*;
 import peregrine.*;
 import peregrine.util.*;
 import peregrine.io.async.*;
-import peregrine.pfsd.shuffler.*;
+import peregrine.shuffle.*;
 
 import com.spinn3r.log5j.Logger;
 

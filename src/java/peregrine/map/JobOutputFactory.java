@@ -12,6 +12,7 @@ import peregrine.util.*;
 import peregrine.map.*;
 import peregrine.io.*;
 import peregrine.io.partition.*;
+import peregrine.shuffle.sender.*;
 
 public class JobOutputFactory {
 
@@ -36,7 +37,7 @@ public class JobOutputFactory {
 
                 BroadcastOutputReference bcast = (BroadcastOutputReference) ref;
                 
-                jobOutput[idx++] = new BroadcastShuffleJobOutput( config, bcast.getName() );
+                jobOutput[idx++] = new BroadcastJobOutput( config, bcast.getName() );
                 
             } else {
                 //FIXME: right now we only support file output... 

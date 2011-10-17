@@ -15,7 +15,7 @@ import peregrine.io.*;
 import peregrine.io.chunk.*;
 import peregrine.reduce.*;
 
-import peregrine.pfsd.shuffler.ShuffleInputChunkReader;
+import peregrine.shuffle.ShuffleInputChunkReader;
 
 import com.spinn3r.log5j.Logger;
 

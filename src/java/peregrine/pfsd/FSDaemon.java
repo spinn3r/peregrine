@@ -13,7 +13,6 @@ import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
 
 import peregrine.*;
 import peregrine.util.*;
-import peregrine.pfsd.shuffler.*;
 import peregrine.task.*;
 import peregrine.shuffle.receiver.*;
 

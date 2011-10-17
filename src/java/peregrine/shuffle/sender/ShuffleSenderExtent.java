@@ -1,4 +1,4 @@
-package peregrine.io;
+package peregrine.shuffle.sender;
 
 import java.io.*;
 import java.lang.reflect.*;
@@ -19,13 +19,12 @@ import peregrine.values.*;
 import peregrine.io.chunk.*;
 import peregrine.io.async.*;
 import peregrine.pfs.*;
-import peregrine.pfsd.shuffler.*;
 
 import com.spinn3r.log5j.Logger;
 
 import static peregrine.pfsd.FSPipelineFactory.*;
 
-public class ShuffleOutputExtent {
+public class ShuffleSenderExtent {
 
     protected ChannelBuffer buff = ChannelBuffers.buffer( ShuffleJobOutput.EXTENT_SIZE );
 

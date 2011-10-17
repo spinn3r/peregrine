@@ -1,4 +1,4 @@
-package peregrine.io;
+package peregrine.shuffle.sender;
 
 import java.io.*;
 import java.lang.reflect.*;
@@ -19,21 +19,20 @@ import peregrine.values.*;
 import peregrine.io.chunk.*;
 import peregrine.io.async.*;
 import peregrine.pfs.*;
-import peregrine.pfsd.shuffler.*;
 
 import com.spinn3r.log5j.Logger;
 
 import static peregrine.pfsd.FSPipelineFactory.*;
 
-public class ShuffleFlushCallable implements Callable {
+public class ShuffleSenderFlushCallable implements Callable {
 
     private static final Logger log = Logger.getLogger();
 
-    private ShuffleOutput output = null;
+    private ShuffleSenderBuffer output = null;
 
     private Config config = null;
     
-    public ShuffleFlushCallable( Config config, ShuffleOutput output ) {
+    public ShuffleSenderFlushCallable( Config config, ShuffleSenderBuffer output ) {
         this.config = config;
         this.output = output;
     }
@@ -57,7 +56,7 @@ public class ShuffleFlushCallable implements Callable {
         // continue and just gossip that they have failed...  this includes
         // write() AND close()
         
-        for( ShuffleOutputExtent extent : output.extents ) {
+        for( ShuffleSenderExtent extent : output.extents ) {
             
             ChannelBuffer buff = extent.buff;
 

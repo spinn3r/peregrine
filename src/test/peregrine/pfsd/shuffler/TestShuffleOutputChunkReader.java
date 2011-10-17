@@ -11,7 +11,7 @@ import peregrine.values.*;
 import peregrine.util.*;
 import peregrine.pagerank.*;
 import peregrine.io.partition.*;
-import peregrine.pfsd.shuffler.*;
+import peregrine.shuffle.*;
 
 public class TestShuffleOutputChunkReader extends peregrine.BaseTest {
 

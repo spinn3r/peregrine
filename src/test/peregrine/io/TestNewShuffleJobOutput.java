@@ -17,6 +17,7 @@ import peregrine.io.async.*;
 import peregrine.io.partition.*;
 import peregrine.io.chunk.*;
 import peregrine.pfsd.*;
+import peregrine.shuffle.sender.*;
 
 public class TestNewShuffleJobOutput extends peregrine.BaseTestWithTwoDaemons {
 

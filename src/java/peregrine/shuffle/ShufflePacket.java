@@ -1,4 +1,4 @@
-package peregrine.pfsd.shuffler;
+package peregrine.shuffle;
 
 public class ShufflePacket {
 

@@ -1,4 +1,4 @@
-package peregrine.io;
+package peregrine.shuffle.sender;
 
 import java.io.*;
 import java.util.*;
@@ -13,13 +13,13 @@ import peregrine.map.*;
 import peregrine.io.*;
 import peregrine.reduce.*;
 
-public class BroadcastShuffleJobOutput extends ShuffleJobOutput {
+public class BroadcastJobOutput extends ShuffleJobOutput {
 
-    public BroadcastShuffleJobOutput( Config config ) {
+    public BroadcastJobOutput( Config config ) {
         this( config, "default" );
     }
         
-    public BroadcastShuffleJobOutput( Config config, String name ) {
+    public BroadcastJobOutput( Config config, String name ) {
 
         super( config, name );
 
