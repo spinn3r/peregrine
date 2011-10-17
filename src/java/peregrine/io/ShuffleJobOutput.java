@@ -130,7 +130,7 @@ public class ShuffleJobOutput implements JobOutput, LocalPartitionReaderListener
 
             if ( shuffleOutput != null ) {
 
-                boolean trigger = force || shuffleOutput.length > (DefaultPartitionWriter.CHUNK_SIZE * 0.8);
+                boolean trigger = force || shuffleOutput.length > DefaultPartitionWriter.CHUNK_SIZE;
                 
                 if ( trigger ) {
                     future = executors.submit( new ShuffleFlushCallable( config, shuffleOutput ) );

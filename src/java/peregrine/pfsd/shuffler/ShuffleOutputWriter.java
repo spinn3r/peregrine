@@ -77,8 +77,10 @@ public class ShuffleOutputWriter {
 
     }
 
-    public int length() {
-        return this.length;
+    public boolean hasCapacity() {
+
+        return ptr.get() < index.length && length > COMMIT_SIZE;
+        
     }
 
     private Map<Integer,List<ShufflePacket>> buildLookup() throws IOException {

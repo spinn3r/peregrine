@@ -51,16 +51,25 @@ public class Shuffler {
                         int to_partition,
                         byte[] data ) throws IOException {
         
-        if ( writer == null || writer.length() > ShuffleOutputWriter.COMMIT_SIZE ) {
+        if ( writer == null || writer.hasCapacity() ) {
 
-            Partition part = new Partition( to_partition );
-            Host host = config.getHost();
+            // this must be synchronous on rollover or some other way to handle
+            // data loss as we would quickly create a number of smaller
+            // ShufflerOutputWriters.
 
-            rollover();
+            synchronized( this ) {
 
-            String path = String.format( "%s/%010d.tmp", config.getShuffleDir( name ), idx++ );
+                if ( writer == null || writer.hasCapacity() ) {
 
-            writer = new ShuffleOutputWriter( config, path );
+                    rollover();
+                    
+                    String path = String.format( "%s/%010d.tmp", config.getShuffleDir( name ), idx++ );
+                    
+                    writer = new ShuffleOutputWriter( config, path );
+
+                }
+
+            }
 
         }
 
