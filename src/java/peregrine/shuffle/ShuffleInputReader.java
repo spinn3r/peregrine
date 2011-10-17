@@ -84,7 +84,7 @@ public class ShuffleInputReader {
                  header.nr_packets  < 0 ||
                  header.count       > 0 ) {
                 
-                throw new IOException( "Header corrupted: %s", header );
+                throw new IOException( "Header corrupted: " + header );
                 
             }
 
