@@ -112,6 +112,9 @@ public class ShuffleOutputWriter {
             if ( shuffleOutputPartition == null )
                 throw new IOException( "No locally defined partition for: " + current.to_partition );
 
+            if ( current.count < 0 )
+                throw new IOException( "count < 0" );
+            
             shuffleOutputPartition.count += current.count;
             
             shuffleOutputPartition.packets.add( current );
