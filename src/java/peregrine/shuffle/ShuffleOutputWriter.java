@@ -161,6 +161,7 @@ public class ShuffleOutputWriter {
 
             int nr_packets = shuffleOutputPartition.packets.size();
 
+            //TODO: make sure ALL of these are acceptable.
             if ( shuffleOutputPartition.count < 0 )
                 throw new IOException( "Header corrupted: count < 0" );
             
