@@ -34,10 +34,16 @@ public class MapperTask extends BaseMapperTask {
             mapper.init( getJobOutput() );
             
             doCall();
-            
+
+            setStatus( TaskStatus.COMPLETE );
+
         } catch ( Throwable t ) { 
+
             log.error( "Task failed: ", t );
-            sendFailedToController( t );
+
+            setStatus( TaskStatus.FAILED );
+            setCause( t );
+
         } finally {
             mapper.cleanup();
             teardown();

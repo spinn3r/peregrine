@@ -15,6 +15,7 @@ import peregrine.pfs.*;
 import peregrine.reduce.*;
 import peregrine.util.*;
 import peregrine.values.*;
+import peregrine.task.*;
 
 import com.spinn3r.log5j.*;
 
@@ -29,6 +30,10 @@ public abstract class BaseOutputTask {
     protected Partition partition = null;
 
     protected Config config = null;
+
+    protected TaskStatus status = TaskStatus.UNKNOWN;
+
+    protected Throwable cause = null;
     
     protected void init( Partition partition ) {
         this.partition = partition;
@@ -49,6 +54,14 @@ public abstract class BaseOutputTask {
     public void setJobOutput( JobOutput[] jobOutput ) {
         this.jobOutput = jobOutput;
     }
+
+    public void setStatus( TaskStatus status ) {
+        this.status = status;
+    }
+
+    public void setCause( Throwable cause ) {
+        this.cause = cause;
+    }
     
     public void setup() throws IOException {
 
@@ -59,13 +72,18 @@ public abstract class BaseOutputTask {
     public void teardown() throws IOException {
 
         //FIXME: close ALL of these even if one of them fails and then throw
-        //ALL exceptions.
+        //ALL exceptions.  Also we need to gossip here.
         
         for( JobOutput current : jobOutput ) {
             current.close();
         }
-        
-        sendCompleteToController();
+
+        if ( status == TaskStatus.COMPLETE )
+            sendCompleteToController();
+        else if ( status == TaskStatus.FAILED )
+            sendFailedToController( cause );
+        else
+            throw new RuntimeException( "Wrong status: " + status );
         
     }
 

@@ -15,7 +15,6 @@ import peregrine.io.partition.*;
 
 import com.spinn3r.log5j.*;
 
-// FIXME: this should be remamed MergerTask like MapperTask and ReducerTask
 public class MergerTask extends BaseMapperTask {
 
     private static final Logger log = Logger.getLogger();
@@ -34,9 +33,15 @@ public class MergerTask extends BaseMapperTask {
             
             doCall();
 
+            setStatus( TaskStatus.COMPLETE );
+
         } catch ( Throwable t ) { 
+
             log.error( "Task failed: ", t );
-            sendFailedToController( t );
+
+            setStatus( TaskStatus.FAILED );
+            setCause( t );
+            
         } finally {
             merger.cleanup();
             teardown();

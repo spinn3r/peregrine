@@ -62,9 +62,15 @@ public class ReducerTask extends BaseOutputTask implements Callable {
 
             doCall();
 
+            setStatus( TaskStatus.COMPLETE );
+            
         } catch ( Throwable t ) { 
+
             log.error( "Task failed: ", t );
-            sendFailedToController( t );
+
+            setStatus( TaskStatus.FAILED );
+            setCause( t );
+
         } finally {
             reducer.cleanup();
             teardown();
@@ -150,3 +156,4 @@ class ReducerTaskSortListener implements SortListener {
     }
 
 }
+

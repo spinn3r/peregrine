@@ -5,7 +5,8 @@ import java.lang.reflect.*;
 import java.util.*;
 import java.net.*;
 import java.util.concurrent.*;
-
+import java.util.concurrent.atomic.*;
+    
 import org.jboss.netty.buffer.*;
 
 import peregrine.*;
@@ -47,12 +48,16 @@ public class ShuffleSenderBuffer {
 
     protected long length = 0;
 
-    protected Map<Integer,Integer> partitionCount = new ConcurrentHashMap();
+    protected Map<Integer,AtomicInteger> partitionCount = new HashMap();
     
-    public ShuffleSenderBuffer( ChunkReference chunkRef, String name ) {
+    public ShuffleSenderBuffer( Config config, ChunkReference chunkRef, String name ) {
 
         this.chunkRef = chunkRef;
         this.name = name;
+
+        for( Partition part : config.getMembership().getPartitions() ) {
+            partitionCount.put( part.getId(), new AtomicInteger() );
+        }
         
         rollover();
 
@@ -85,6 +90,9 @@ public class ShuffleSenderBuffer {
 
         extent.emit( to_partition, key_value_length, key, value );
 
+        // bump up the number of items on this partition.
+        partitionCount.get( to_partition ).getAndIncrement();
+        
         ++emits;
         
     }

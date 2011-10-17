@@ -90,7 +90,7 @@ public class ShuffleJobOutput implements JobOutput, LocalPartitionReaderListener
             throw new RuntimeException( e );
         }
 
-        this.shuffleSenderBuffer = new ShuffleSenderBuffer( chunkRef, name );
+        this.shuffleSenderBuffer = new ShuffleSenderBuffer( config, chunkRef, name );
         
     }
 
@@ -119,14 +119,14 @@ public class ShuffleJobOutput implements JobOutput, LocalPartitionReaderListener
 
         try {
 
-            // FIXME: only flush every 100MB written (or so) and also have a
-            // forced flush on close... 
             
             if ( future != null )
                 future.get();
 
             if ( shuffleSenderBuffer != null ) {
 
+                // only flush every 100MB written (or so) and also have a forced
+                // flush on close...
                 boolean trigger = force || shuffleSenderBuffer.length > DefaultPartitionWriter.CHUNK_SIZE;
                 
                 if ( trigger ) {
