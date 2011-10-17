@@ -36,11 +36,12 @@ public class FSPutShuffleHandler extends FSPutBaseHandler {
 
     private FSHandler handler;
 
-    private int from_partition;
-    private int from_chunk;
     private int to_partition;
     private String name;
-
+    private int from_partition;
+    private int from_chunk;
+    private int count;
+    
     private ShuffleReceiver shuffleReceiver = null;
     
     public FSPutShuffleHandler( FSHandler handler ) throws Exception {
@@ -59,6 +60,7 @@ public class FSPutShuffleHandler extends FSPutBaseHandler {
         this.name           = m.group( 2 );
         this.from_partition = Integer.parseInt( m.group( 3 ) );
         this.from_chunk     = Integer.parseInt( m.group( 4 ) );
+        this.count          = Integer.parseInt( m.group( 5 ) );
 
         this.shuffleReceiver = handler.daemon.shuffleReceiverFactory.getInstance( this.name );
         
@@ -79,14 +81,13 @@ public class FSPutShuffleHandler extends FSPutBaseHandler {
 
                 ChannelBuffer content = chunk.getContent();
                 byte[] data = content.array();
-                shuffleReceiver.accept( from_partition, from_chunk, to_partition, data );
+                shuffleReceiver.accept( from_partition, from_chunk, to_partition, count, data );
                 
             } else {
                 
                 HttpResponse response = new DefaultHttpResponse( HTTP_1_1, OK );
 
                 ctx.getChannel().write(response).addListener(ChannelFutureListener.CLOSE);
-                //ctx.getChannel().write(response).addListener(;
                 
             }
 

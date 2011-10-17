@@ -50,6 +50,7 @@ public class ShuffleReceiver {
     public void accept( int from_partition,
                         int from_chunk,
                         int to_partition,
+                        int count,
                         byte[] data ) throws IOException {
         
         if ( writer == null || writer.hasCapacity() ) {
@@ -74,7 +75,7 @@ public class ShuffleReceiver {
 
         }
 
-        writer.accept( from_partition, from_chunk, to_partition, data );
+        writer.accept( from_partition, from_chunk, to_partition, count, data );
         ++accepted;
         
     }

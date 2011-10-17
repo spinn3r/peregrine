@@ -120,7 +120,7 @@ public class ShuffleInputReader {
         byte[] data = new byte[ len ];
         data = struct.read( data );
         
-        ShufflePacket pack = new ShufflePacket( from_partition, from_chunk, to_partition, data );
+        ShufflePacket pack = new ShufflePacket( from_partition, from_chunk, to_partition, -1, data );
 
         return pack;
         

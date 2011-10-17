@@ -45,7 +45,7 @@ public class TestShuffler extends peregrine.BaseTest {
                 int from_chunk = i;
                 int to_partition = j;
                 
-                shuffleReceiver.accept( from_partition, from_chunk, to_partition, new byte[2048] );
+                shuffleReceiver.accept( from_partition, from_chunk, to_partition, 1, new byte[2048] );
 
             }
 

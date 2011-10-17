@@ -61,12 +61,13 @@ public class ShuffleOutputWriter {
     public void accept( int from_partition,
                         int from_chunk,
                         int to_partition,
+                        int count,
                         byte[] data ) throws IOException {
 
         if ( closed )
             throw new IOException( "closed" );
         
-        ShufflePacket pack = new ShufflePacket( from_partition, from_chunk, to_partition, data );
+        ShufflePacket pack = new ShufflePacket( from_partition, from_chunk, to_partition, count, data );
 
         this.length += data.length;
         
@@ -80,7 +81,7 @@ public class ShuffleOutputWriter {
         
     }
 
-    private Map<Integer,List<ShufflePacket>> buildLookup() throws IOException {
+    private Map<Integer,ShuffleOutputPartition> buildLookup() throws IOException {
 
         // we are done working with this buffer.  serialize it to disk now and
         // close it out.
@@ -92,21 +93,23 @@ public class ShuffleOutputWriter {
         if ( partitions == null || partitions.size() == 0 )
             throw new IOException( "No partitions defined for: " + config.getHost() );
 
-        Map<Integer,List<ShufflePacket>> lookup = new HashMap();
+        Map<Integer,ShuffleOutputPartition> lookup = new HashMap();
 
         // init the lookup with one ArrayList per partition.
         for( Partition part : partitions ) {
-            lookup.put( part.getId(), new ArrayList() );
+            lookup.put( part.getId(), new ShuffleOutputPartition() );
         }
 
         for( ShufflePacket current : index ) {
 
-            List<ShufflePacket> packets = lookup.get( current.to_partition );
+            ShuffleOutputPartition shuffleOutputPartition = lookup.get( current.to_partition );
 
-            if ( packets == null )
+            if ( shuffleOutputPartition == null )
                 throw new IOException( "No locally defined partition for: " + current.to_partition );
+
+            shuffleOutputPartition.count += current.count;
             
-            packets.add( current );
+            shuffleOutputPartition.packets.add( current );
             
         }
 
@@ -118,7 +121,7 @@ public class ShuffleOutputWriter {
 
         closed = true;
 
-        Map<Integer,List<ShufflePacket>> lookup = buildLookup();
+        Map<Integer,ShuffleOutputPartition> lookup = buildLookup();
 
         log.info( "Going write output buffer with %,d entries.", lookup.size() );
         
@@ -138,11 +141,11 @@ public class ShuffleOutputWriter {
 
         for( int part : lookup.keySet() ) {
 
-            List<ShufflePacket> packets = lookup.get( part );
+            ShuffleOutputPartition shuffleOutputPartition = lookup.get( part );
 
             int width = 0;
 
-            for( ShufflePacket pack : packets ) {
+            for( ShufflePacket pack : shuffleOutputPartition.packets ) {
 
                 int integers_per_shuffle_packet = 4;
                 
@@ -151,7 +154,7 @@ public class ShuffleOutputWriter {
                 
             }
 
-            int count = packets.size();
+            int count = shuffleOutputPartition.packets.size();
             
             out.write( IntBytes.toByteArray( part ) );
             out.write( IntBytes.toByteArray( off ) );
@@ -163,9 +166,9 @@ public class ShuffleOutputWriter {
         
         for( int part : lookup.keySet() ) {
 
-            List<ShufflePacket> packets = lookup.get( part );
+            ShuffleOutputPartition shuffleOutputPartition = lookup.get( part );
 
-            for( ShufflePacket pack : packets ) {
+            for( ShufflePacket pack : shuffleOutputPartition.packets ) {
                 out.write( IntBytes.toByteArray( pack.from_partition ) );
                 out.write( IntBytes.toByteArray( pack.from_chunk ) );
                 out.write( IntBytes.toByteArray( pack.to_partition ) );
@@ -178,5 +181,13 @@ public class ShuffleOutputWriter {
         out.close();
         
     }
+    
+}
+
+class ShuffleOutputPartition {
+
+    public int count = 0;
+
+    public List<ShufflePacket> packets = new ArrayList();
     
 }

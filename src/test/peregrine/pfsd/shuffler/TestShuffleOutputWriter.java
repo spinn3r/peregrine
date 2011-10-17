@@ -46,7 +46,7 @@ public class TestShuffleOutputWriter extends peregrine.BaseTest {
                 int from_chunk = i;
                 int to_partition = j;
 
-                buff.accept( from_partition, from_chunk, to_partition, value );
+                buff.accept( from_partition, from_chunk, to_partition, 1, value );
                 
             }
 
@@ -72,7 +72,7 @@ public class TestShuffleOutputWriter extends peregrine.BaseTest {
 
         }
         
-        assertEquals( (max_writes / 2), count );
+        assertEquals( max_writes, count );
 
     }
 
