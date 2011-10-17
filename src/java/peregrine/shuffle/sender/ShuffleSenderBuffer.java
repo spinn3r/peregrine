@@ -92,7 +92,7 @@ public class ShuffleSenderBuffer {
 
         // bump up the number of items on this partition.
         partitionCount.get( to_partition ).getAndIncrement();
-        
+
         ++emits;
         
     }

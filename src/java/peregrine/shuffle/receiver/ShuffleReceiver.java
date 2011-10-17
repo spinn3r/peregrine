@@ -35,7 +35,7 @@ public class ShuffleReceiver {
     private Config config = null;
 
     private int accepted = 0;
-    
+
     public ShuffleReceiver( Config config, String name ) {
 
         this.name = name;
