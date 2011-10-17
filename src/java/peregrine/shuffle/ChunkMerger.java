@@ -90,10 +90,15 @@ public class ChunkMerger {
     
     public void merge( List<ChunkReader> input, LocalChunkWriter writer ) throws IOException {
 
-        //FIXME: if the input length is zero or one then we are done but
+        //TODO: if the input length is zero or one then we are done, however
         //everything will need to be written to the writer first which is
         //somewhat inefficient so we should try to reference the original file
-        //that was supplied.
+        //that was supplied and just return that directly.  In practice though
+        //this will only be a single 100MB file so this is not the end of the
+        //world.
+
+        if ( input.size() == 0 )
+            return;
         
         PartitionPriorityQueue queue = new PartitionPriorityQueue( input );
         

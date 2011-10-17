@@ -33,8 +33,6 @@ public class LocalReducer {
         ChunkSorter sorter = new ChunkSorter();
 
         List<ChunkReader> sorted = new ArrayList();
-
-        // FIXME: these need to go to disk.. 
         
         for ( ChunkReader reader : input ) {
             sorted.add( sorter.sort( reader ) );

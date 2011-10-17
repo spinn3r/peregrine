@@ -1,4 +1,4 @@
-package peregrine.map;
+package peregrine.task;
 
 import java.io.*;
 import java.util.*;
@@ -16,7 +16,7 @@ import peregrine.io.partition.*;
 import com.spinn3r.log5j.*;
 
 // FIXME: this should be remamed MergerTask like MapperTask and ReducerTask
-public class MergeTask extends BaseMapperTask {
+public class MergerTask extends BaseMapperTask {
 
     private static final Logger log = Logger.getLogger();
 

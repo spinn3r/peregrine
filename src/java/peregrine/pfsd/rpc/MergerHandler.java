@@ -12,6 +12,7 @@ import peregrine.io.async.*;
 import peregrine.io.partition.*;
 import peregrine.util.*;
 import peregrine.shuffle.*;
+import peregrine.task.*;
 
 import com.spinn3r.log5j.*;
 
@@ -32,7 +33,7 @@ public class MergerHandler extends MapperHandler {
 
         log.info( "Running %s with input %s and output %s", delegate.getName(), input, output );
 
-        MergeTask task = new MergeTask();
+        MergerTask task = new MergerTask();
 
         task.init( config, config.getMembership(), partition, config.getHost(), delegate );
 

@@ -47,6 +47,8 @@ public class ShuffleOutput {
     protected int emits = 0;
 
     protected long length = 0;
+
+    protected Map<Integer,Integer> partitionCount = new ConcurrentHashMap();
     
     public ShuffleOutput( ChunkReference chunkRef, String name ) {
 

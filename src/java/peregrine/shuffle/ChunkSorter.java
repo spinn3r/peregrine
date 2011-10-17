@@ -31,7 +31,9 @@ public class ChunkSorter {
     private int id = -1;
     
     public ChunkReader sort( ChunkReader input ) throws IOException {
-        
+
+        // FIXME: these need to go to disk.. 
+
         ++id;
 
         List<Tuple> tuples = new ArrayList();

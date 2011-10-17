@@ -1,5 +1,5 @@
 
-package peregrine.map;
+package peregrine.task;
 
 import java.io.*;
 import java.util.*;
@@ -12,7 +12,6 @@ import peregrine.values.*;
 import peregrine.util.*;
 import peregrine.io.*;
 import peregrine.io.partition.*;
-
 import peregrine.map.*;
 import peregrine.shuffle.*;
 
