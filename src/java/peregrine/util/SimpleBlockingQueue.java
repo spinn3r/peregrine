@@ -26,6 +26,14 @@ public class SimpleBlockingQueue<T> {
 
     LinkedBlockingQueue<T> delegate = new LinkedBlockingQueue();
 
+    public T peek() {
+        return delegate.peek();
+    }
+
+    public T poll() {
+        return delegate.poll();
+    }
+
     public T poll( long timeout, TimeUnit unit ) {
         try {
             return delegate.poll( timeout, unit );

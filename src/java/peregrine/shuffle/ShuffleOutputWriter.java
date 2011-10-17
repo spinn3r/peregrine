@@ -33,7 +33,7 @@ public class ShuffleOutputWriter {
     public static final byte[] MAGIC =
         new byte[] { (byte)'P', (byte)'S', (byte)'O', (byte)'1' };
     
-    private SimpleBlockingQueue<ShufflePacket> index = new SimpleBlockingQueue();
+    private List<ShufflePacket> index = new ArrayList();
 
     /**
      * Path to store this output buffer once closed.
@@ -70,7 +70,7 @@ public class ShuffleOutputWriter {
 
         this.length += data.length;
         
-        index.put( pack );
+        index.add( pack );
 
     }
 
@@ -99,12 +99,7 @@ public class ShuffleOutputWriter {
             lookup.put( part.getId(), new ArrayList() );
         }
 
-        for( int i = 0; i < index.size(); ++i ) {
-
-            ShufflePacket current = index.take();
-
-            if ( current == null )
-                continue;
+        for( ShufflePacket current : index ) {
 
             List<ShufflePacket> packets = lookup.get( current.to_partition );
 

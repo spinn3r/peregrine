@@ -26,7 +26,8 @@ public class ShufflerHandler extends RPCHandler {
         String action = message.get( "action" );
 
         if ( "flush".equals( action ) ) {
-            
+
+            //FIXME: this should probably be async... 
             daemon.shuffleReceiverFactory.flush();
             return;
 

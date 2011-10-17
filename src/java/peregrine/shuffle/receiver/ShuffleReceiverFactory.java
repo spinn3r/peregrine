@@ -74,7 +74,7 @@ public class ShuffleReceiverFactory {
         // now throw the current instances away because we can't use them any
         // more.
         instances = new HashMap();
-        
+            
     }
 
     public long lastFlushed() {
