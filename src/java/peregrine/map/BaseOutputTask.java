@@ -111,13 +111,18 @@ public abstract class BaseOutputTask {
 
         Message message = new Message();
 
-        message.put( "action" ,   "failed" );
-        message.put( "host",      config.getHost().toString() );
-        message.put( "partition", partition.getId() );
-        message.put( "cause",     cause.getMessage() );
+        // include the full stack trace 
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        cause.printStackTrace( new PrintStream( out ) );
 
-        // TODO: consider including the full stack trace as 'trace'
+        String stacktrace = new String( out.toByteArray() );
         
+        message.put( "action" ,     "failed" );
+        message.put( "host",        config.getHost().toString() );
+        message.put( "partition",   partition.getId() );
+        message.put( "cause",       cause.getMessage() );
+        message.put( "stacktrace",  stacktrace );
+
         log.info( "Sending failed message to controller: %s", message );
         
         new Client().invoke( config.getController(), "controller", message );

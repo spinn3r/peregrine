@@ -38,11 +38,16 @@ public class ControllerHandler extends RPCHandler {
 
         if ( "failed".equals( action ) ) {
 
-            Host host       = Host.parse( message.get( "host" ) );
-            Partition part  = new Partition( message.getInt( "partition" ) );
-            String cause    = message.get( "cause" );
+            Host host          = Host.parse( message.get( "host" ) );
+            Partition part     = new Partition( message.getInt( "partition" ) );
+            String cause       = message.get( "cause" );
+            String stacktrace  = message.get( "stacktrace" );
 
-            log.error( "Host %s has failed with cause '%s'", host, cause );
+            if ( stacktrace != null ) {
+                log.error( "Host %s has failed with cause '%s' and trace: \n %s", host, cause, stacktrace );
+            } else {
+                log.error( "Host %s has failed with cause '%s'", host, cause );
+            }
             
             return;
 
