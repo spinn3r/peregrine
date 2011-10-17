@@ -110,8 +110,10 @@ public class ShuffleInputReader {
             
         }
 
-        if ( start == -1 )
-            throw new IOException( "Unable to find start for partition: " + partition );
+        if ( start == -1 ) {
+            throw new IOException( String.format( "Unable to find start for partition %s in file %s",
+                                                  partition, path ) );
+        }
         
         in.skip( start - point );
 

@@ -35,22 +35,29 @@ public abstract class Scheduler {
 
     protected Progress<Partition> pending = new Progress();
 
-    protected SimpleBlockingQueue<Host> idleHosts = new SimpleBlockingQueue();
+    /**
+     * Hosts which are available for additional work.  
+     */
+    protected SimpleBlockingQueue<Host> availableHosts = new SimpleBlockingQueue();
 
     /**
      * Hosts available for additional work for speculative execution.
      */
     protected SimpleBlockingQueue<Host> spareHosts = new SimpleBlockingQueue();
 
+    protected Concurrency<Host> concurrency;
+    
     public Scheduler( Config config ) {
 
         this.config = config;
         this.membership = config.getMembership();
 
         for( Host host : config.getHosts() ) {
-            idleHosts.put( host );
+            availableHosts.put( host );
         }
 
+        concurrency = new Concurrency( config.getHosts() );
+        
     }
     
     public void schedule( Host host ) throws Exception {
@@ -65,7 +72,12 @@ public abstract class Scheduler {
             if ( pending.contains( part ) )
                 continue;
 
-            log.info( "Scheduling %s on %s", part, host );
+            if ( concurrency.get( host ) > config.getConcurrency() ) {
+                return;
+            }
+            
+            log.info( "Scheduling %s on %s with current concurrency: %,d of %,d",
+                      part, host, concurrency.get( host ), config.getConcurrency() );
             
             invoke( host, part );
 
@@ -73,8 +85,10 @@ public abstract class Scheduler {
             // until we want to do speculative execution
 
             pending.mark( part );
+
+            concurrency.incr( host );
             
-            return;
+            continue;
 
         }
 
@@ -105,7 +119,7 @@ public abstract class Scheduler {
         pending.clear( partition );
 
         // add this to the list of idle hosts so that we can schedule additional work.peregrine.task
-        idleHosts.put( host );
+        availableHosts.put( host );
 
     }
 
@@ -122,7 +136,7 @@ public abstract class Scheduler {
                 break;
             }
 
-            Host idle = idleHosts.poll( 1000, TimeUnit.MILLISECONDS );
+            Host idle = availableHosts.poll( 1000, TimeUnit.MILLISECONDS );
             
             if ( idle != null ) {
                 
@@ -137,8 +151,8 @@ public abstract class Scheduler {
 
             }
 
-            log.info( "pending: %s, completed: %s, idleHosts: %s, spareHosts: %s",
-                      pending, completed, idleHosts, spareHosts );
+            log.info( "pending: %s, completed: %s, availableHosts: %s, spareHosts: %s",
+                      pending, completed, availableHosts, spareHosts );
 
         }
             
@@ -168,6 +182,50 @@ class Progress<T> {
 
     public String toString() {
         return map.keySet().toString();
+    }
+    
+}
+
+class Concurrency<T> {
+
+    Map<T,MutableInteger> map = new HashMap();
+
+    public Concurrency( Set<T> list ) {
+
+        for( T key : list ) {
+            map.put( key, new MutableInteger() );
+        }
+        
+    }
+    
+    public void incr( T key ) {
+        map.get( key ).incr();
+    }
+
+    public void decr( T key ) {
+        map.get( key ).decr();
+    }
+
+    public int get( T key ) {
+        return map.get( key ).value();
+    }
+    
+}
+
+class MutableInteger {
+
+    private int value = 0;
+
+    public void incr() {
+        ++value;
+    }
+
+    public void decr() {
+        --value;
+    }
+
+    public int value() {
+        return value;
     }
     
 }

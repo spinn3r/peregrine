@@ -64,6 +64,12 @@ public class Config {
      * The number of replicas per file we are configured for.  Usually 2 or 3.
      */
     protected int replicas;
+
+    /**
+     * The concurrency on a per host basis.  How many mappers and reducers each
+     * can run.
+     */
+    protected int concurrency;
     
     public Config() { }
 
@@ -165,6 +171,14 @@ public class Config {
         this.replicas = replicas;
     }
 
+    public int getConcurrency() { 
+        return this.concurrency;
+    }
+
+    public void setConcurrency( int concurrency ) { 
+        this.concurrency = concurrency;
+    }
+
     public String getRoot( Partition partition ) {
         return String.format( "%s/%s" , root , partition.getId() );
     }
@@ -243,6 +257,7 @@ public class Config {
 
         config.setPartitionsPerHost( struct.getInt( "partitions_per_host" ) );
         config.setReplicas( struct.getInt( "replicas" ) );
+        config.setConcurrency( struct.getInt( "concurrency" ) );
         
         // now read the hosts file...
         List<Host> hosts = readHosts( hosts_file );
