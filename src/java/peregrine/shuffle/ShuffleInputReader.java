@@ -79,6 +79,15 @@ public class ShuffleInputReader {
             header.nr_packets   = struct.readInt();
             header.count        = struct.readInt();
 
+            if ( header.partition   < 0 ||
+                 header.offset      < 0 ||
+                 header.nr_packets  < 0 ||
+                 header.count       > 0 ) {
+                
+                throw new IOException( "Header corrupted: %s", header );
+                
+            }
+
             // record this for usage later if necessary.
             headers.add( header );
             
@@ -179,7 +188,7 @@ public class ShuffleInputReader {
 
         public String toString() {
             
-            return String.format( "partition: %s, offset: %,d, nr_packets: %s, count: %,d" ,
+            return String.format( "partition: %10s  offset: %,15d  nr_packets: %,15d  count: %,15d" ,
                                   partition, offset, nr_packets, count );
             
         }
