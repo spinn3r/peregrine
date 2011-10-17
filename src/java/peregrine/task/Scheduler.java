@@ -97,6 +97,13 @@ public abstract class Scheduler {
 
         completed.mark( partition );
 
+        // clear the pending status for this partition. Note that we need to do
+        // this AFTER marking it complete because if we don't then it may be
+        // possible to read both completed and pending at the same time and both
+        // would be clear.
+
+        pending.clear( partition );
+
         // add this to the list of idle hosts so that we can schedule additional work.peregrine.task
         idleHosts.put( host );
 
@@ -147,6 +154,10 @@ class Progress<T> {
         map.put( entry, entry );
     }
 
+    public void clear( T entry ) {
+        map.remove( entry );
+    }
+    
     public boolean contains( T entry ) {
         return map.get( entry ) != null;
     }
