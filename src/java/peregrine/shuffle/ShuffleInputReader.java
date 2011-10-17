@@ -188,7 +188,7 @@ public class ShuffleInputReader {
 
         public String toString() {
             
-            return String.format( "partition: %10s  offset: %,15d  nr_packets: %,15d  count: %,15d" ,
+            return String.format( "partition: %s, offset: %,d, nr_packets: %,d, count: %,d" ,
                                   partition, offset, nr_packets, count );
             
         }
