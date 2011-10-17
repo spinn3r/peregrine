@@ -40,8 +40,6 @@ public class ShuffleJobOutput implements JobOutput, LocalPartitionReaderListener
     
     protected ChunkReference chunkRef = null;
 
-    protected Shuffler shuffler = null;
-
     protected ShuffleOutput shuffleOutput;
 
     protected String name;

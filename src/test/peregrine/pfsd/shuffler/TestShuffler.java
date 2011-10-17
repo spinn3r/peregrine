@@ -12,6 +12,7 @@ import peregrine.util.*;
 import peregrine.pagerank.*;
 import peregrine.io.partition.*;
 import peregrine.pfsd.shuffler.*;
+import peregrine.shuffle.receiver.*;
 
 public class TestShuffler extends peregrine.BaseTest {
 
@@ -29,9 +30,9 @@ public class TestShuffler extends peregrine.BaseTest {
     
     public void test1() throws IOException {
 
-        ShufflerFactory factory = new ShufflerFactory( config );
+        ShuffleReceiverFactory factory = new ShuffleReceiverFactory( config );
         
-        Shuffler shuffler = factory.getInstance( "default" );
+        ShuffleReceiver shuffleReceiver = factory.getInstance( "default" );
 
         int max_writes = 1000;
         int max_partitions = config.getMembership().size();
@@ -44,13 +45,13 @@ public class TestShuffler extends peregrine.BaseTest {
                 int from_chunk = i;
                 int to_partition = j;
                 
-                shuffler.accept( from_partition, from_chunk, to_partition, new byte[2048] );
+                shuffleReceiver.accept( from_partition, from_chunk, to_partition, new byte[2048] );
 
             }
 
         }
 
-        shuffler.close();
+        shuffleReceiver.close();
 
     }
 

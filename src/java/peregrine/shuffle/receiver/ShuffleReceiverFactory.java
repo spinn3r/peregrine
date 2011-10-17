@@ -1,4 +1,4 @@
-package peregrine.pfsd.shuffler;
+package peregrine.shuffle.receiver;
 
 import java.io.*;
 import java.nio.*;
@@ -15,36 +15,36 @@ import com.spinn3r.log5j.Logger;
  * Handles accepting shuffle data and rolling over shuffle files when buffers
  * are full.
  */
-public class ShufflerFactory {
+public class ShuffleReceiverFactory {
 
     private static final Logger log = Logger.getLogger();
 
-    private Map<String,Shuffler> instances = new HashMap();
+    private Map<String,ShuffleReceiver> instances = new HashMap();
 
     protected Config config;
 
     public long lastFlushed = -1;
     
-    public ShufflerFactory( Config config ) {
+    public ShuffleReceiverFactory( Config config ) {
         this.config = config;
     }
     
-    public Shuffler getInstance( String name ) {
+    public ShuffleReceiver getInstance( String name ) {
 
-        Shuffler shuffler = instances.get( name );
+        ShuffleReceiver result = instances.get( name );
 
         // double check idiom.  this doesn't happen very often so this should be
         // fine and won't impact performance.
-        if ( shuffler == null ) {
+        if ( result == null ) {
 
             synchronized( instances ) {
 
-                shuffler = instances.get( name );
+                result = instances.get( name );
 
-                if ( shuffler == null ) {
+                if ( result == null ) {
 
-                    shuffler = new Shuffler( config, name );
-                    instances.put( name, shuffler );
+                    result = new ShuffleReceiver( config, name );
+                    instances.put( name, result );
                     
                 } 
 
@@ -52,7 +52,7 @@ public class ShufflerFactory {
             
         }
 
-        return shuffler;
+        return result;
         
     }
 
@@ -63,7 +63,7 @@ public class ShufflerFactory {
 
         log.info( "Flushing %,d shufflers...", instances.size() );
 
-        for( Shuffler current : instances.values() ) {
+        for( ShuffleReceiver current : instances.values() ) {
             current.close();
         }
 

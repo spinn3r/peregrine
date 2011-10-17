@@ -22,6 +22,7 @@ import peregrine.*;
 import peregrine.io.async.*;
 import peregrine.util.*;
 import peregrine.pfsd.shuffler.*;
+import peregrine.shuffle.receiver.*;
 
 import com.spinn3r.log5j.*;
 
@@ -41,7 +42,7 @@ public class FSPutShuffleHandler extends FSPutBaseHandler {
     private int to_partition;
     private String name;
 
-    private Shuffler shuffler = null;
+    private ShuffleReceiver shuffleReceiver = null;
     
     public FSPutShuffleHandler( FSHandler handler ) throws Exception {
         super( handler );
@@ -60,7 +61,7 @@ public class FSPutShuffleHandler extends FSPutBaseHandler {
         this.from_partition = Integer.parseInt( m.group( 3 ) );
         this.from_chunk     = Integer.parseInt( m.group( 4 ) );
 
-        this.shuffler = handler.daemon.shufflerFactory.getInstance( this.name );
+        this.shuffleReceiver = handler.daemon.shuffleReceiverFactory.getInstance( this.name );
         
     }
 
@@ -79,7 +80,7 @@ public class FSPutShuffleHandler extends FSPutBaseHandler {
 
                 ChannelBuffer content = chunk.getContent();
                 byte[] data = content.array();
-                shuffler.accept( from_partition, from_chunk, to_partition, data );
+                shuffleReceiver.accept( from_partition, from_chunk, to_partition, data );
                 
             } else {
                 

@@ -15,6 +15,7 @@ import peregrine.*;
 import peregrine.util.*;
 import peregrine.pfsd.shuffler.*;
 import peregrine.task.*;
+import peregrine.shuffle.receiver.*;
 
 import com.spinn3r.log5j.Logger;
 
@@ -31,7 +32,7 @@ public class FSDaemon {
     /**
      * Each daemon can only have one shuffle instance.
      */
-    public ShufflerFactory shufflerFactory;
+    public ShuffleReceiverFactory shuffleReceiverFactory;
 
     public Config config;
 
@@ -41,7 +42,7 @@ public class FSDaemon {
 
         this.config = config;
         this.port = config.getHost().getPort();
-        this.shufflerFactory = new ShufflerFactory( config ); 
+        this.shuffleReceiverFactory = new ShuffleReceiverFactory( config ); 
         
         String root = config.getRoot();
         

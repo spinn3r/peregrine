@@ -1,4 +1,4 @@
-package peregrine.pfsd.shuffler;
+package peregrine.shuffle.receiver;
 
 import java.io.*;
 import java.nio.*;
@@ -9,6 +9,7 @@ import java.util.concurrent.atomic.*;
 import peregrine.*;
 import peregrine.util.*;
 import peregrine.io.async.*;
+import peregrine.pfsd.shuffler.*;
 
 import com.spinn3r.log5j.Logger;
 
@@ -16,7 +17,7 @@ import com.spinn3r.log5j.Logger;
  * Handles accepting shuffle data and rolling over shuffle files when buffers
  * are full.
  */
-public class Shuffler {
+public class ShuffleReceiver {
 
     private static final Logger log = Logger.getLogger();
 
@@ -35,7 +36,7 @@ public class Shuffler {
 
     private int accepted = 0;
     
-    public Shuffler( Config config, String name ) {
+    public ShuffleReceiver( Config config, String name ) {
 
         this.name = name;
         this.config = config;
@@ -55,7 +56,7 @@ public class Shuffler {
 
             // this must be synchronous on rollover or some other way to handle
             // data loss as we would quickly create a number of smaller
-            // ShufflerOutputWriters.
+            // ShuffleReceiverOutputWriters.
 
             synchronized( this ) {
 
@@ -94,7 +95,7 @@ public class Shuffler {
 
         if ( last != null ) {
             // ok we have to flush this to disk this now....
-            this.future = executors.submit( new ShufflerFlushCallable( last ) );
+            this.future = executors.submit( new ShuffleReceiverFlushCallable( last ) );
         }
 
     }
@@ -126,11 +127,11 @@ public class Shuffler {
 
 }
 
-class ShufflerFlushCallable implements Callable {
+class ShuffleReceiverFlushCallable implements Callable {
 
     private ShuffleOutputWriter writer;
     
-    ShufflerFlushCallable( ShuffleOutputWriter writer ) {
+    ShuffleReceiverFlushCallable( ShuffleOutputWriter writer ) {
         this.writer = writer;
     }
 

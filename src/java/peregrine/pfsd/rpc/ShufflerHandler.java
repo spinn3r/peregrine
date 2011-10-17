@@ -27,7 +27,7 @@ public class ShufflerHandler extends RPCHandler {
 
         if ( "flush".equals( action ) ) {
             
-            daemon.shufflerFactory.flush();
+            daemon.shuffleReceiverFactory.flush();
             return;
 
         }
