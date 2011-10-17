@@ -79,7 +79,7 @@ public class ShuffleOutputWriter {
 
     public boolean hasCapacity() {
 
-        return ptr.get() < index.length && length < COMMIT_SIZE;
+        return (ptr.get() + 1) < index.length && length < COMMIT_SIZE;
         
     }
 
