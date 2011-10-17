@@ -135,9 +135,9 @@ public class ShuffleOutputWriter {
         // the offset in this chunk to start reading the data from this
         // partition and chunk.
 
-        int nr_bytes_per_header = 3;
+        int nr_integers_per_header = 4;
         
-        int off = MAGIC.length + IntBytes.LENGTH + (lookup.size() * IntBytes.LENGTH * nr_bytes_per_header);
+        int off = MAGIC.length + IntBytes.LENGTH + (lookup.size() * IntBytes.LENGTH * nr_integers_per_header);
 
         for( int part : lookup.keySet() ) {
 
@@ -154,11 +154,12 @@ public class ShuffleOutputWriter {
                 
             }
 
-            int count = shuffleOutputPartition.packets.size();
+            int nr_packets = shuffleOutputPartition.packets.size();
             
             out.write( IntBytes.toByteArray( part ) );
             out.write( IntBytes.toByteArray( off ) );
-            out.write( IntBytes.toByteArray( count ) );
+            out.write( IntBytes.toByteArray( nr_packets ) );
+            out.write( IntBytes.toByteArray( shuffleOutputPartition.count ) );
             
             off += width;
                 

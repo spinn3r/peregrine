@@ -28,13 +28,15 @@ public class ShuffleInputReader {
 
     private StructReader struct;
 
-    private int count;
-
     private int idx = 0;
 
     private int partition;
 
     private InputStream in;
+
+    protected int nr_packets = 0;
+
+    protected int count = 0;
     
     public ShuffleInputReader( String path, int partition ) throws IOException {
 
@@ -68,21 +70,22 @@ public class ShuffleInputReader {
         
         for ( int i = 0; i < size; ++i ) {
 
-            int part   = struct.readInt();
-            int off    = struct.readInt();
-            int count  = struct.readInt();
+            int part         = struct.readInt();
+            int off          = struct.readInt();
+            this.nr_packets  = struct.readInt();
+            this.count       = struct.readInt();
 
-            point += IntBytes.LENGTH * 3;
+            point += IntBytes.LENGTH * 4;
             
             if ( part == partition ) {
-                start      = off;
-                this.count = count;
+                start = off;
+                break;
             }
 
             // read everything.
             if ( partition == -1 ) {
-                start       = point;
-                this.count += count;
+                start = point;
+                this.nr_packets += nr_packets;
             }
             
         }
@@ -99,12 +102,12 @@ public class ShuffleInputReader {
     }
 
     public boolean hasNext() throws IOException {
-        return idx < count;
+        return idx < nr_packets;
     }
     
     public ShufflePacket next() throws IOException {
 
-        if ( idx >= count )
+        if ( idx >= nr_packets )
             return null;
 
         ++idx;

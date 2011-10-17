@@ -116,7 +116,7 @@ public class ShuffleInputChunkReader implements ChunkReader {
     
     @Override
     public int size() throws IOException {
-        throw new IOException();
+        return reader.count;
     }
 
     @Override

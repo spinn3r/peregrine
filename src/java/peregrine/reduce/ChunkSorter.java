@@ -18,8 +18,6 @@ import peregrine.io.chunk.*;
  */
 public class ChunkSorter {
 
-    public static int DEFAULT_PARTITION_WIDTH = 25;
-
     private IntermediateChunkHelper intermediateChunkHelper
         = new IntermediateChunkHelper();
 
