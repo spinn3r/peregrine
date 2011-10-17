@@ -72,7 +72,7 @@ public class ShuffleReceiverFactory {
         log.info( "Flushing %,d shufflers...done", instances.size() );
 
         // now throw the current instances away because we can't use them any
-        // more.
+        // more and this will also free up memory.
         instances = new HashMap();
             
     }

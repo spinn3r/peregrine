@@ -26,17 +26,7 @@ import peregrine.shuffle.sender.*;
  */
 public class TestFullShufflePath extends peregrine.BaseTestWithTwoDaemons {
 
-    private void doTestIter( int max_emits ) throws Exception {
-
-        Controller controller = new Controller( config );
-
-        ShuffleJobOutput output = new ShuffleJobOutput( config );
-
-        ChunkReference chunkRef = new ChunkReference( new Partition( 0  ) );
-        chunkRef.local = 0;
-
-        // we need to call onChunk to init the shuffle job output.
-        output.onChunk( chunkRef );
+    private void doTestIter( ShuffleJobOutput output, int max_emits ) throws Exception {
 
         for ( int i = 0; i < max_emits; ++i ) {
 
@@ -48,10 +38,33 @@ public class TestFullShufflePath extends peregrine.BaseTestWithTwoDaemons {
             byte[] value = key;
 
             output.emit( key, value );
-            
         }
 
-        output.onChunkEnd( chunkRef );
+    }
+
+    public void doTest( int iterations, int max_emits ) throws Exception {
+
+        assertEquals( config.getHosts().size(), 2 );
+
+        System.out.printf( "Running with %,d hosts.\n", config.getHosts().size() );
+
+        Controller controller = new Controller( config );
+
+        ShuffleJobOutput output = new ShuffleJobOutput( config );
+
+        for( int i = 0; i < iterations; ++i ) {
+
+            ChunkReference chunkRef = new ChunkReference( new Partition( 0  ) );
+            chunkRef.local = i;
+
+            // we need to call onChunk to init the shuffle job output.
+            output.onChunk( chunkRef );
+
+            doTestIter( output, max_emits );
+
+            output.onChunkEnd( chunkRef );
+
+        }
 
         output.close();
 
@@ -60,23 +73,11 @@ public class TestFullShufflePath extends peregrine.BaseTestWithTwoDaemons {
         // now the data should be on disk... try to read it back out.
 
         controller.shutdown();
-        
-    }
-
-    public void doTest( int iterations, int max_emits ) throws Exception {
-
-        assertEquals( config.getHosts().size(), 2 );
-
-        System.out.printf( "Running with %,d hosts.\n", config.getHosts().size() );
-        
-        for( int i = 0; i < iterations; ++i ) {
-            doTestIter( max_emits );
-        }
 
     }
     
     public void test1() throws Exception {
-        doTest( 20, 1 );
+        doTest( 10, 8000000 );
         //doTest( 100, 3 );
     }
 

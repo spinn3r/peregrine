@@ -52,8 +52,8 @@ public class ShuffleReceiver {
                         int to_partition,
                         int count,
                         byte[] data ) throws IOException {
-        
-        if ( writer == null || writer.hasCapacity() ) {
+
+        if ( needsRollover() ) {
 
             // this must be synchronous on rollover or some other way to handle
             // data loss as we would quickly create a number of smaller
@@ -61,10 +61,10 @@ public class ShuffleReceiver {
 
             synchronized( this ) {
 
-                if ( writer == null || writer.hasCapacity() == false ) {
-
-                    rollover();
+                if ( needsRollover() ) {
                     
+                    rollover();
+
                     String path = String.format( "%s/%010d.tmp", config.getShuffleDir( name ), idx++ );
                     
                     writer = new ShuffleOutputWriter( config, path );
@@ -80,6 +80,10 @@ public class ShuffleReceiver {
         
     }
 
+    private boolean needsRollover() {
+        return writer == null || writer.hasCapacity() == false;
+    }
+    
     public void rollover() throws IOException {
 
         if ( this.future != null ) {
@@ -117,7 +121,7 @@ public class ShuffleReceiver {
                 log.warn( "Accepted no output for %s ", name );
             else 
                 log.info( "Accepted %,d entries for %s ", accepted, name );
-            
+
         } catch ( IOException e ) {
             throw e;
         } catch ( Exception e ) {
