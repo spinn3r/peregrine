@@ -102,6 +102,11 @@ public class ShuffleOutputWriter {
 
         for( ShufflePacket current : index ) {
 
+            if ( current == null ) {
+                log.error( "Skipping null packet." );
+                continue;
+            }
+            
             ShuffleOutputPartition shuffleOutputPartition = lookup.get( current.to_partition );
 
             if ( shuffleOutputPartition == null )
