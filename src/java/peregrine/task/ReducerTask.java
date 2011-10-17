@@ -91,7 +91,7 @@ public class ReducerTask extends BaseOutputTask implements Callable {
         ReducerTaskSortListener listener =
             new ReducerTaskSortListener( reducer );
         
-        LocalReducer reducer = new LocalReducer( listener );
+        LocalReducer reducer = new LocalReducer( config, partition, listener );
 
         String shuffle_dir = config.getShuffleDir( shuffleInput.getName() );
 
@@ -107,7 +107,6 @@ public class ReducerTask extends BaseOutputTask implements Callable {
 
         for( File file : files ) {
             ChunkReader reader = new ShuffleInputChunkReader( file.getPath(), partition.getId() );
-
             reducer.add( reader );
         }
         

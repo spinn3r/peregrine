@@ -19,9 +19,17 @@ public class LocalReducer {
     private List<ChunkReader> input = new ArrayList();
 
     private SortListener listener = null;
+    private Config config;
+    private Partition partition;
+    
+    public LocalReducer( Config config,
+                         Partition partition,
+                         SortListener listener ) {
 
-    public LocalReducer( SortListener listener ) {
+        this.config = config;
+        this.partition = partition;
         this.listener = listener;
+
     }
 
     public void add( ChunkReader reader ) {
@@ -30,7 +38,7 @@ public class LocalReducer {
     
     public void sort() throws Exception {
 
-        ChunkSorter sorter = new ChunkSorter();
+        ChunkSorter sorter = new ChunkSorter( config , partition );
 
         List<ChunkReader> sorted = new ArrayList();
         

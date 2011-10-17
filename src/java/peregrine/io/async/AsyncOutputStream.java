@@ -10,9 +10,9 @@ import java.util.concurrent.*;
  */
 public class AsyncOutputStream extends BaseAsyncOutputStream {
     
-    public AsyncOutputStream( String dest ) {
+    public AsyncOutputStream( String path ) {
 
-        AsyncOutputStreamCallable callable = new AsyncOutputStreamCallable( dest, getQueue() );
+        AsyncOutputStreamCallable callable = new AsyncOutputStreamCallable( path, getQueue() );
 
         init( AsyncOutputStreamService.submit( callable ) );
         

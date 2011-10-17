@@ -11,29 +11,39 @@ import peregrine.values.*;
 import peregrine.util.*;
 import peregrine.map.*;
 import peregrine.io.*;
+import peregrine.io.async.*;
 import peregrine.io.chunk.*;
+
+import com.spinn3r.log5j.Logger;
 
 /**
  * 
  */
 public class ChunkSorter {
 
-    private IntermediateChunkHelper intermediateChunkHelper
-        = new IntermediateChunkHelper();
+    private static final Logger log = Logger.getLogger();
 
     private SortEntryFactory defaultSortEntryFactory = new DefaultSortEntryFactory();
 
     private SortEntryFactory topLevelSortEntryFactory = new TopLevelSortEntryFactory();
 
     //keeps track of the current input we're sorting.
-    private int id = -1;
-    
+    private int id = 0;
+
+    private Config config;
+    private Partition partition;
+
+    public ChunkSorter( Config config, Partition partition ) {
+        this.config = config;
+        this.partition = partition;
+    }
+
     public ChunkReader sort( ChunkReader input ) throws IOException {
 
-        // FIXME: these need to go to disk.. 
+        String path = config.getPath( partition, String.format( "/tmp/sort-%s.tmp" , id++ ) );
 
-        ++id;
-
+        log.info( "Writing temporary sort file %s", path );
+        
         List<Tuple> tuples = new ArrayList();
         
         while ( input.hasNext() ) {
@@ -51,14 +61,19 @@ public class ChunkSorter {
         
         sort( data, dest , new FullTupleComparator() );
 
-        TupleArrayChunkReader result = new TupleArrayChunkReader( dest );
+        File file = new File( path );
 
-        // TODO: this seems to add about 15-30% more CPU time to the job based
-        // on my benchmarks.
-
-        //writer.close();
+        OutputStream out = new AsyncOutputStream( path );
         
-        return result;
+        DefaultChunkWriter writer = new DefaultChunkWriter( out );
+
+        for( Tuple t : dest ) {
+            writer.write( t.key, t.value );
+        }
+
+        writer.close();
+        
+        return new DefaultChunkReader( file );
         
     }
 

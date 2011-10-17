@@ -16,7 +16,7 @@ import peregrine.io.*;
 
 import junit.framework.*;
 
-public class TestReduceSort extends peregrine.BaseTest {
+public class TestReduceSort extends peregrine.BaseTestWithTwoDaemons {
 
     /**
      * test running with two lists which each have different values.
@@ -35,7 +35,7 @@ public class TestReduceSort extends peregrine.BaseTest {
                 
             };
 
-        LocalReducer sorter = new LocalReducer( listener );
+        LocalReducer sorter = new LocalReducer( config, new Partition( 0 ), listener );
 
         sorter.add( TestChunkSorter.makeRandomSortChunk( 500 ) );
         sorter.add( TestChunkSorter.makeRandomSortChunk( 200 ) );

@@ -15,7 +15,7 @@ import peregrine.reduce.*;
 import peregrine.io.*;
 import peregrine.io.chunk.*;
 
-public class TestChunkSorter extends peregrine.BaseTest {
+public class TestChunkSorter extends peregrine.BaseTestWithTwoDaemons {
 
     /**
      * test running with two lists which each have different values.
@@ -84,7 +84,7 @@ public class TestChunkSorter extends peregrine.BaseTest {
     
     private ChunkReader _test( ChunkReader reader ) throws Exception {
 
-        ChunkSorter sorter = new ChunkSorter();
+        ChunkSorter sorter = new ChunkSorter( config , new Partition( 0 ) );
 
         ChunkReader result = sorter.sort( reader );
 
