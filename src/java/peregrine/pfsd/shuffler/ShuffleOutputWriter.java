@@ -33,9 +33,7 @@ public class ShuffleOutputWriter {
     public static final byte[] MAGIC =
         new byte[] { (byte)'P', (byte)'S', (byte)'O', (byte)'1' };
     
-    private AtomicInteger ptr = new AtomicInteger();
-
-    private ShufflePacket[] index;
+    private SimpleBlockingQueue<ShufflePacket> index = new SimpleBlockingQueue();
 
     /**
      * Path to store this output buffer once closed.
@@ -53,7 +51,6 @@ public class ShuffleOutputWriter {
     
     public ShuffleOutputWriter( Config config, String path ) {
 
-        this.index = new ShufflePacket[ (int)(COMMIT_SIZE / MAX_CHUNK_SIZE) ];
         this.path = path;
         this.config = config;
 
@@ -73,13 +70,13 @@ public class ShuffleOutputWriter {
 
         this.length += data.length;
         
-        index[ ptr.getAndIncrement() ] = pack;
+        index.put( pack );
 
     }
 
     public boolean hasCapacity() {
 
-        return (ptr.get() + 1) < index.length && length < COMMIT_SIZE;
+        return length < COMMIT_SIZE;
         
     }
 
@@ -102,15 +99,12 @@ public class ShuffleOutputWriter {
             lookup.put( part.getId(), new ArrayList() );
         }
 
-        for( int i = 0; i < index.length; ++i ) {
+        for( int i = 0; i < index.size(); ++i ) {
 
-            ShufflePacket current = index[i];
+            ShufflePacket current = index.take();
 
             if ( current == null )
                 continue;
-
-            if ( i > ptr.get() )
-                break;
 
             List<ShufflePacket> packets = lookup.get( current.to_partition );
 

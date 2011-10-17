@@ -139,41 +139,6 @@ public abstract class Scheduler {
 
 }
 
-class SimpleBlockingQueue<T> {
-
-    LinkedBlockingQueue<T> delegate = new LinkedBlockingQueue();
-
-    public T poll( long timeout, TimeUnit unit ) {
-        try {
-            return delegate.poll( timeout, unit );
-        } catch ( InterruptedException e ) {
-            throw new RuntimeException( e );
-        }
-    }
-    
-    public T take() {
-        try {
-            return delegate.take();
-        } catch ( InterruptedException e ) {
-            throw new RuntimeException( e );
-        }
-    }
-
-    public void put( T value ) {
-        try {
-            delegate.put( value );
-        } catch ( InterruptedException e ) {
-            throw new RuntimeException( e );
-        }
-    }
-
-    @Override
-    public String toString() {
-        return delegate.toString();
-    }
-    
-}
-
 class Progress<T> {
 
     Map<T,T> map = new ConcurrentHashMap();

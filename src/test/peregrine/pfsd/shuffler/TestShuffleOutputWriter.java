@@ -54,6 +54,8 @@ public class TestShuffleOutputWriter extends peregrine.BaseTest {
 
         buff.close();
 
+        System.out.printf( "Reading from path: %s\n", path );
+        
         ShuffleInputReader reader = new ShuffleInputReader( path, 1 );
 
         int count = 0;
@@ -70,8 +72,12 @@ public class TestShuffleOutputWriter extends peregrine.BaseTest {
 
         }
         
-        assertEquals( max_writes, count );
+        assertEquals( (max_writes / 2), count );
 
+    }
+
+    public static void main( String[] args ) throws Exception {
+        runTests();
     }
 
 }
