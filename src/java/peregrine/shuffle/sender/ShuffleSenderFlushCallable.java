@@ -49,7 +49,6 @@ public class ShuffleSenderFlushCallable implements Callable {
         Map<Integer,ChannelBufferWritable> partitionOutput = getPartitionOutput();
 
         // now read the data and write it to all clients .. 
-
         int count = 0;
 
         // FIXME: ANY of these writes can fail and if they do we need to
@@ -109,15 +108,27 @@ public class ShuffleSenderFlushCallable implements Callable {
 
                 List<Host> hosts = membership.getHosts( part );
 
-                String path = String.format( "/%s/shuffle/%s/from-partition/%s/from-chunk/%s/count/%s",
+                String path = String.format( "/%s/shuffle/%s/from-partition/%s/from-chunk/%s",
                                              part.getId(),
                                              output.name,
                                              output.chunkRef.partition.getId(),
-                                             output.chunkRef.local,
-                                             output.partitionCount.get( part.getId() ) );
+                                             output.chunkRef.local );
 
                 ChannelBufferWritable client = new RemoteChunkWriterClient( hosts, path );
-                client = new BufferedChannelBuffer( client , MAX_CHUNK_SIZE );
+                client = new BufferedChannelBuffer( client , MAX_CHUNK_SIZE - IntBytes.LENGTH ) {
+
+                        @Override
+                        public void preFlush() throws IOException {
+
+                            
+                            // add the number of entries written to this buffer 
+                            byte[] data = IntBytes.toByteArray( this.buffers.size() );
+
+                            this.buffers.add( ChannelBuffers.wrappedBuffer( data ) );
+                            
+                        }
+
+                    };
                 
                 clients.put( part.getId(), client );
                 

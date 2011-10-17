@@ -32,7 +32,7 @@ public class FSPutShuffleHandler extends FSPutBaseHandler {
     private static final Logger log = Logger.getLogger();
 
     private static Pattern PATH_REGEX =
-        Pattern.compile( "/([0-9]+)/shuffle/([a-zA-Z0-9_-]+)/from-partition/([0-9]+)/from-chunk/([0-9]+)/count/([0-9]+)" );
+        Pattern.compile( "/([0-9]+)/shuffle/([a-zA-Z0-9_-]+)/from-partition/([0-9]+)/from-chunk/([0-9]+)" );
 
     private FSHandler handler;
 
@@ -40,7 +40,6 @@ public class FSPutShuffleHandler extends FSPutBaseHandler {
     private String name;
     private int from_partition;
     private int from_chunk;
-    private int count;
     
     private ShuffleReceiver shuffleReceiver = null;
     
@@ -60,7 +59,6 @@ public class FSPutShuffleHandler extends FSPutBaseHandler {
         this.name           = m.group( 2 );
         this.from_partition = Integer.parseInt( m.group( 3 ) );
         this.from_chunk     = Integer.parseInt( m.group( 4 ) );
-        this.count          = Integer.parseInt( m.group( 5 ) );
 
         this.shuffleReceiver = handler.daemon.shuffleReceiverFactory.getInstance( this.name );
         
@@ -80,7 +78,17 @@ public class FSPutShuffleHandler extends FSPutBaseHandler {
             if ( ! chunk.isLast() ) {
 
                 ChannelBuffer content = chunk.getContent();
-                byte[] data = content.array();
+
+                // the split pointer of before and after the suffix.
+                int suffix_idx = content.writerIndex() - IntBytes.LENGTH;
+                
+                // get the last 4 bytes to parse the count.
+                int count = content.getInt( suffix_idx );
+
+                // now read the data sans suffix.
+                byte[] data = new byte[ suffix_idx ];
+                content.getBytes( 0, data );
+
                 shuffleReceiver.accept( from_partition, from_chunk, to_partition, count, data );
                 
             } else {

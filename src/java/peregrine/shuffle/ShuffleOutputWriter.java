@@ -115,9 +115,6 @@ public class ShuffleOutputWriter {
             if ( current.count < 0 )
                 throw new IOException( "count < 0" );
 
-
-            System.out.printf( "FIXME: shuffleOutputPartition.count: %,d , current.count: %,d \n", shuffleOutputPartition.count, current.count );
-            
             shuffleOutputPartition.count += current.count;
             
             shuffleOutputPartition.packets.add( current );

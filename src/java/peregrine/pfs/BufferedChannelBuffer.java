@@ -16,12 +16,13 @@ public class BufferedChannelBuffer implements ChannelBufferWritable {
 
     public List<ChannelBuffer> buffers = new ArrayList();
 
-    private int length = 0;
+    /**
+     * The length, in bytes, for the pending write.
+     */
+    private int writeLength = 0;
 
     private int capacity;
 
-    private int size;
-    
     private ChannelBufferWritable delegate;
     
     public BufferedChannelBuffer( ChannelBufferWritable delegate,
@@ -38,23 +39,31 @@ public class BufferedChannelBuffer implements ChannelBufferWritable {
         }
 
         buffers.add( buff );
-        length += buff.writerIndex();
+        writeLength += buff.writerIndex();
 
     }
 
+    /**
+     * Perform an action preFlush.  This could be used for example to add
+     * additional metadata to a write before we flush the data.
+     */
+    public void preFlush() throws IOException { }
+    
     public void flush() throws IOException {
 
+        preFlush();
+        
         delegate.write( getChannelBuffer() );
         
         buffers = new ArrayList();
-        length = 0;
+        writeLength = 0;
 
     }
     
     @Override
     public void close() throws IOException {
 
-        if ( length > 0 )
+        if ( writeLength > 0 )
             flush();
 
         delegate.close();
@@ -80,7 +89,7 @@ public class BufferedChannelBuffer implements ChannelBufferWritable {
      */
     protected boolean hasCapacity( ChannelBuffer buff ) {
 
-        int newCapacity = length + buff.writerIndex() + RemoteChunkWriterClient.CHUNK_OVERHEAD;
+        int newCapacity = writeLength + buff.writerIndex() + RemoteChunkWriterClient.CHUNK_OVERHEAD;
         
         return newCapacity < capacity;
 
