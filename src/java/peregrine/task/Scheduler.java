@@ -47,6 +47,8 @@ public abstract class Scheduler {
     protected SimpleBlockingQueue<Host> spare = new SimpleBlockingQueue();
 
     protected Concurrency<Host> concurrency;
+
+    protected ChangedMessage changedMessage = new ChangedMessage();
     
     public Scheduler( Config config ) {
 
@@ -154,8 +156,14 @@ public abstract class Scheduler {
 
             }
 
-            log.info( "pending: %s, completed: %s, available: %s, spare: %s",
-                      pending, completed, available, spare );
+            String message = String.format( "pending: %s, completed: %s, available: %s, spare: %s",
+                                            pending, completed, available, spare );
+
+            if ( changedMessage.hasChanged( message ) ) {
+                log.info( message );
+            }
+
+            changedMessage.update( message );
 
         }
             
@@ -165,7 +173,7 @@ public abstract class Scheduler {
 
 class Progress<T> {
 
-    Map<T,T> map = new ConcurrentHashMap();
+    ConcurrentHashMap<T,T> map = new ConcurrentHashMap();
 
     public void mark( T entry ) {
         map.put( entry, entry );
@@ -174,7 +182,7 @@ class Progress<T> {
     public void clear( T entry ) {
         map.remove( entry );
     }
-    
+
     public boolean contains( T entry ) {
         return map.get( entry ) != null;
     }
@@ -186,7 +194,7 @@ class Progress<T> {
     public String toString() {
         return map.keySet().toString();
     }
-    
+
 }
 
 class Concurrency<T> {
@@ -212,14 +220,65 @@ class Concurrency<T> {
     public int get( T key ) {
         return map.get( key ).get();
     }
+
+}
+
+class Failure extends Progress<Fail> {
+
+    /**
+     * Allows us to clear work from a failure structure so that we can start
+     * fresh.
+     */
+    public void clear() {
+        map.clear();
+    }
+
+    /**
+     * Used so that speculative execution can enumerate all failures to schedule
+     * additional work.
+     */
+    public Enumeration<Fail> elements() {
+        return map.elements();
+    }
     
 }
 
-class Failure {
+class Fail {
 
-    protected Host;
-    protected Partition;
+    protected Host host;
+    protected Partition partition;
 
-    //public 
+    public Fail( Host host, Partition partition ) {
+        this.host = host;
+        this.partition = partition;
+    }
     
+    public int hashCode() {
+        return host.hashCode() + partition.hashCode();
+    }
+    
+    public boolean equals( Object o ) {
+
+        Fail f = (Fail)o;
+        
+        return host.equals( f.host ) && partition.equals( f.partition );
+    }
+    
+}
+
+/**
+ * A message which returns true if it is different from the previous message.
+ */
+class ChangedMessage {
+
+    public String last = null;
+
+    public boolean hasChanged( String message ) {
+        return ! message.equals( last );
+    }
+
+    public void update( String message ) {
+        last = message;
+    }
+
 }

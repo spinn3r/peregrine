@@ -63,12 +63,12 @@ public class ShuffleOutputWriter {
                         int to_partition,
                         int count,
                         byte[] data ) throws IOException {
-
+        
         if ( closed )
             throw new IOException( "closed" );
         
         ShufflePacket pack = new ShufflePacket( from_partition, from_chunk, to_partition, count, data );
-
+        
         this.length += data.length;
         
         index.add( pack );
@@ -192,7 +192,18 @@ public class ShuffleOutputWriter {
         }
 
         out.close();
+
+        index = null; // This is required for the JVM to more aggresively
+                      // recover memory.  I did extensive testing with this and
+                      // without setting index to null the JVM does not recover
+                      // memory and it eventually leaks.  I don't think anything
+                      // could be holding a reference to this though but this is
+                      // a good pragmatic defense and solved the problem.
         
+    }
+
+    public String toString() {
+        return String.format( "%s:%s", getClass().getSimpleName() , path );
     }
     
 }

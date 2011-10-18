@@ -62,6 +62,8 @@ public class ShuffleReceiver {
             synchronized( this ) {
 
                 if ( needsRollover() ) {
+
+                    log.info( "Rolling over %s " , writer );
                     
                     rollover();
 
@@ -87,17 +89,17 @@ public class ShuffleReceiver {
     public void rollover() throws IOException {
 
         if ( this.future != null ) {
-
+            
             try {
                 this.future.get();
             } catch ( Exception e ) {
                 throw new IOException( "Failed to close writer: " , e );
             }
-
+            
         }
-
+        
         last = writer;
-
+        
         if ( last != null ) {
             // ok we have to flush this to disk this now....
             this.future = executors.submit( new ShuffleReceiverFlushCallable( last ) );
@@ -130,24 +132,4 @@ public class ShuffleReceiver {
         
     }
 
-}
-
-class ShuffleReceiverFlushCallable implements Callable {
-
-    private ShuffleOutputWriter writer;
-    
-    ShuffleReceiverFlushCallable( ShuffleOutputWriter writer ) {
-        this.writer = writer;
-    }
-
-    @Override
-    public Object call() throws Exception {
-
-        // close this in a background task since this blocks.
-        this.writer.close();
-        
-        return null;
-        
-    }
-    
 }
