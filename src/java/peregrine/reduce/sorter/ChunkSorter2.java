@@ -1,5 +1,5 @@
 
-package peregrine.reduce;
+package peregrine.reduce.sorter;
 
 import java.io.*;
 import java.util.*;
@@ -106,92 +106,19 @@ public class ChunkSorter2 {
             // size the intermediate by looking at the size of the left and
             // right values which we can easily measure.
 
+            /*
             int length = ((ChunkReaderSlice)left).length +
                          ((ChunkReaderSlice)right).length
                 ; 
             
             result = new ChunkWriterIntermediate( length );
+            */
+            result = new ChunkWriterIntermediate();
 
         }
 
         return result;
         
-    }
-    
-}
-
-class ChunkReaderSlice implements ChunkReader {
-
-    private int size = 0;
-
-    private int idx = 0;
-
-    // approx length in bytes of this slice.
-    protected int length = 0;
-    
-    private ChunkReader delegate;
-    
-    public ChunkReaderSlice( ChunkReader delegate , int size ) {
-        this.delegate = delegate;
-        this.size = size;
-    }
-
-    @Override
-    public boolean hasNext() throws IOException {
-        return idx < size;
-    }
-
-    @Override
-    public byte[] key() throws IOException {
-        byte[] result = delegate.key();
-        length += result.length + IntBytes.LENGTH;
-        return result;
-    }
-
-    @Override
-    public byte[] value() throws IOException {
-
-        // bump up pointer.
-        ++idx;
-
-        byte[] result = delegate.value();
-        length += result.length + IntBytes.LENGTH;
-        return result;
-
-    }
-
-    @Override
-    public int size() throws IOException {
-        return size;
-    }
-
-    @Override
-    public void close() throws IOException {
-        // noop
-    }
-
-}
-
-class ChunkWriterIntermediate extends DefaultChunkWriter {
-
-    public ChunkWriterIntermediate( int length ) throws IOException {
-        super( new ByteArrayOutputStream( length ) );
-    }
-
-    public ChunkWriterIntermediate() throws IOException {
-        this( 512 ) ;
-    }
-
-    public ChunkReader getChunkReader() throws IOException {
-
-        close();
-        
-        ByteArrayOutputStream bos = (ByteArrayOutputStream)out;
-
-        // FIXME ChannelBuffers would be WAY better because I don't have to call
-        // toByteArray each time.
-        return new DefaultChunkReader( bos.toByteArray() );
-
     }
     
 }
