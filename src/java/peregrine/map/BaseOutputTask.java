@@ -127,7 +127,6 @@ public abstract class BaseOutputTask {
         message.put( "action" ,     "failed" );
         message.put( "host",        config.getHost().toString() );
         message.put( "partition",   partition.getId() );
-        message.put( "cause",       cause.getMessage() );
         message.put( "stacktrace",  stacktrace );
 
         log.info( "Sending failed message to controller: %s", message );
