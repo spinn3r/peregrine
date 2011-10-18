@@ -52,7 +52,7 @@ public class DefaultChunkReader implements ChunkReader {
         try {
 
             if ( this.length < IntBytes.LENGTH )
-                throw new IOException( "File %s is too short (%,d bytes)", file.getPath(), length );
+                throw new IOException( String.format( "File %s is too short (%,d bytes)", file.getPath(), length ) );
             
             raf.seek( this.length - IntBytes.LENGTH );
             
