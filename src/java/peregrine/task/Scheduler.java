@@ -147,7 +147,7 @@ public abstract class Scheduler {
             if ( failure.size() > 0 ) {
 
                 // log all root causes.
-                for( Fail fail : failure.elements() ) {
+                for( Fail fail : failure.values() ) {
                     log.error( "Failed to handle task: %s \n %s" + fail , fail.stacktrace );
                 }
 
@@ -184,8 +184,11 @@ public abstract class Scheduler {
             
     }
 
-    public void markFailed( Host host, Partition partition ) {
-        failure.mark( new Fail( host, partition ) );
+    public void markFailed( Host host,
+                            Partition partition,
+                            String cause,
+                            String stacktrace ) {
+        failure.mark( new Fail( host, partition, cause, stacktrace ) );
     }
 }
 
@@ -255,8 +258,8 @@ class Failure extends Progress<Fail> {
      * Used so that speculative execution can enumerate all failures to schedule
      * additional work.
      */
-    public Enumeration<Fail> elements() {
-        return map.elements();
+    public Collection<Fail> values() {
+        return map.values();
     }
     
 }
