@@ -13,6 +13,7 @@ import peregrine.util.*;
 import peregrine.map.*;
 import peregrine.io.*;
 import peregrine.io.chunk.*;
+import peregrine.reduce.merger.*;
 
 public class LocalReducer {
 

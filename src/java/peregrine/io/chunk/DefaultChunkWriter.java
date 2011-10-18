@@ -25,7 +25,7 @@ public class DefaultChunkWriter implements ChunkWriter {
     
     private static VarintWriter varintWriter = new VarintWriter();
 
-    private OutputStream out = null;
+    protected OutputStream out = null;
 
     private int count = 0;
 

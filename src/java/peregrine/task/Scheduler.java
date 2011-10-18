@@ -187,8 +187,11 @@ public abstract class Scheduler {
     public void markFailed( Host host,
                             Partition partition,
                             String stacktrace ) {
+        
         failure.mark( new Fail( host, partition, stacktrace ) );
+        
     }
+    
 }
 
 class Progress<T> {
