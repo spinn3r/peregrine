@@ -67,11 +67,11 @@ public class ShuffleOutputWriter {
         if ( closed )
             throw new IOException( "closed" );
         
-        ShufflePacket pack = new ShufflePacket( from_partition, from_chunk, to_partition, count, data );
+//        ShufflePacket pack = new ShufflePacket( from_partition, from_chunk, to_partition, count, data );
 
-        this.length += data.length;
+//        this.length += data.length;
         
-        index.add( pack );
+//        index.add( pack );
 
     }
 
