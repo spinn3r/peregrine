@@ -15,6 +15,8 @@ import peregrine.pfsd.*;
 
 public class TestMapReduce extends peregrine.BaseTestWithTwoDaemons {
 
+    public static int MAX = 30000000;
+    
     public static class Map extends Mapper {
 
         @Override
@@ -67,7 +69,8 @@ public class TestMapReduce extends peregrine.BaseTestWithTwoDaemons {
         // 100000000 * 32 == 3.2GB
         // 10000000 * 32 == 320MB
         
-        doTest( 30000000 );
+        doTest( MAX );
+        
     }
 
     private void doTest( int max ) throws Exception {
@@ -122,7 +125,12 @@ public class TestMapReduce extends peregrine.BaseTestWithTwoDaemons {
     }
 
     public static void main( String[] args ) throws Exception {
+
+        if ( args.length > 0 )
+            MAX = Integer.parseInt( args[0] );
+
         runTests();
+
     }
 
 }

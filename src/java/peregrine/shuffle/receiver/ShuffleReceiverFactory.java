@@ -19,7 +19,7 @@ public class ShuffleReceiverFactory {
 
     private static final Logger log = Logger.getLogger();
 
-    private Map<String,ShuffleReceiver> instances = new ConcurrentHashMap();
+    private Map<String,ShuffleReceiver> instances = new HashMap();
 
     protected Config config;
 
