@@ -49,6 +49,8 @@ public abstract class Scheduler {
     protected Concurrency<Host> concurrency;
 
     protected ChangedMessage changedMessage = new ChangedMessage();
+
+    protected Failure failure = new Failure();
     
     public Scheduler( Config config ) {
 
@@ -131,7 +133,7 @@ public abstract class Scheduler {
     /**
      * Wait for all jobs to be complete.
      */
-    public void waitForCompletion() {
+    public void waitForCompletion() throws Exception {
 
         log.info( "Waiting on completion ... " );
         
@@ -139,6 +141,19 @@ public abstract class Scheduler {
         
             if ( completed.size() == membership.size() ) {
                 break;
+            }
+
+            // right now , if ANYTHING has failed, we can not continue.
+            if ( failure.size() > 0 ) {
+
+                // log all root causes.
+                for( Fail fail : failure.elements() ) {
+                    log.error( "Failed to handle task: %s \n %s" + fail , fail.stacktrace );
+                }
+
+                // throw the current position.
+                throw new Exception( "Failed: " + failure );
+                
             }
 
             Host idle = available.poll( 1000, TimeUnit.MILLISECONDS );
@@ -169,6 +184,9 @@ public abstract class Scheduler {
             
     }
 
+    public void markFailed( Host host, Partition partition ) {
+        failure.mark( new Fail( host, partition ) );
+    }
 }
 
 class Progress<T> {
@@ -248,9 +266,19 @@ class Fail {
     protected Host host;
     protected Partition partition;
 
-    public Fail( Host host, Partition partition ) {
+    protected String cause;
+    protected String stacktrace;
+    
+    public Fail( Host host,
+                 Partition partition,
+                 String cause,
+                 String stacktrace ) {
+        
         this.host = host;
         this.partition = partition;
+        this.cause = cause;
+        this.stacktrace = stacktrace;
+        
     }
     
     public int hashCode() {
@@ -262,6 +290,10 @@ class Fail {
         Fail f = (Fail)o;
         
         return host.equals( f.host ) && partition.equals( f.partition );
+    }
+
+    public String toString() {
+        return String.format( "%s:%s", host, partition );
     }
     
 }

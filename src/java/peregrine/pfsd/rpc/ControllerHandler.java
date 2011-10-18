@@ -48,6 +48,8 @@ public class ControllerHandler extends RPCHandler {
             } else {
                 log.error( "Host %s has failed with cause '%s'", host, cause );
             }
+
+            daemon.getScheduler().markFailed( host, part, cause, stacktrace );
             
             return;
 
