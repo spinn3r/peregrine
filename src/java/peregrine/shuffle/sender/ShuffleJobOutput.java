@@ -63,14 +63,14 @@ public class ShuffleJobOutput implements JobOutput, LocalPartitionReaderListener
     @Override
     public void emit( byte[] key , byte[] value ) {
 
-        // Partition target = config.route( key, true );
+        Partition target = config.route( key, true );
 
-        // int from_partition  = chunkRef.partition.getId();
-        // int from_chunk      = chunkRef.local;
+        int from_partition  = chunkRef.partition.getId();
+        int from_chunk      = chunkRef.local;
 
-        // int to_partition    = target.getId();
+        int to_partition    = target.getId();
 
-        // emit( to_partition, key, value );
+        emit( to_partition, key, value );
         
     }
 
@@ -124,13 +124,13 @@ public class ShuffleJobOutput implements JobOutput, LocalPartitionReaderListener
 
             if ( shuffleSenderBuffer != null ) {
 
-                // only flush every 100MB written (or so) and also have a forced
-                // flush on close...
-                boolean trigger = force || shuffleSenderBuffer.length > DefaultPartitionWriter.CHUNK_SIZE;
+                // // only flush every 100MB written (or so) and also have a forced
+                // // flush on close...
+                // boolean trigger = force || shuffleSenderBuffer.length > DefaultPartitionWriter.CHUNK_SIZE;
                 
-                if ( trigger ) {
-                    future = executors.submit( new ShuffleSenderFlushCallable( config, shuffleSenderBuffer ) );
-                }
+                // if ( trigger ) {
+                //     future = executors.submit( new ShuffleSenderFlushCallable( config, shuffleSenderBuffer ) );
+                // }
 
             }
 
