@@ -32,8 +32,12 @@ public class MapperTask extends BaseMapperTask {
             setup();
             mapper.setBroadcastInput( getBroadcastInput() );
             mapper.init( getJobOutput() );
-            
-            doCall();
+
+            try {
+                doCall();
+            } finally {
+                mapper.cleanup();
+            }
 
             setStatus( TaskStatus.COMPLETE );
 
@@ -45,7 +49,6 @@ public class MapperTask extends BaseMapperTask {
             setCause( t );
 
         } finally {
-            mapper.cleanup();
             teardown();
         }
         

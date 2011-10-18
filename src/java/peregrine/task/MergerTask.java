@@ -30,8 +30,12 @@ public class MergerTask extends BaseMapperTask {
             setup();
             merger.setBroadcastInput( getBroadcastInput() );
             merger.init( getJobOutput() );
-            
-            doCall();
+
+            try {
+                doCall();
+            } finally {
+                merger.cleanup();
+            }
 
             setStatus( TaskStatus.COMPLETE );
 
@@ -43,7 +47,6 @@ public class MergerTask extends BaseMapperTask {
             setCause( t );
             
         } finally {
-            merger.cleanup();
             teardown();
         }
 

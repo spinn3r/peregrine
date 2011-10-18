@@ -27,20 +27,20 @@ public class ReducerTask extends BaseOutputTask implements Callable {
 
     private Reducer reducer;
 
-    private Class reducer_class = null;
+    private Class delegate_class = null;
 
     private ShuffleInputReference shuffleInput;
 
     public ReducerTask( Config config,
                         Partition partition,
-                        Class reducer_class,
+                        Class delegate_class,
                         ShuffleInputReference shuffleInput )
         throws Exception {
 
         super.init( partition );
 
         this.config = config;
-        this.reducer_class = reducer_class;
+        this.delegate_class = delegate_class;
         this.shuffleInput = shuffleInput;
         
     }
@@ -50,7 +50,7 @@ public class ReducerTask extends BaseOutputTask implements Callable {
         if ( output.getReferences().size() == 0 )
             throw new IOException( "Reducer tasks require output." );
 
-        this.reducer = (Reducer)reducer_class.newInstance();
+        this.reducer = (Reducer)delegate_class.newInstance();
 
         try {
 
@@ -60,20 +60,24 @@ public class ReducerTask extends BaseOutputTask implements Callable {
 
             reducer.init( getJobOutput() );
 
-            doCall();
+            try {
+                doCall();
+            } finally {
+                reducer.cleanup();
+            }
 
             setStatus( TaskStatus.COMPLETE );
             
         } catch ( Throwable t ) { 
 
             log.error( "Task failed: ", t );
-
             setStatus( TaskStatus.FAILED );
             setCause( t );
 
         } finally {
-            reducer.cleanup();
+
             teardown();
+
         }
 
         return null;

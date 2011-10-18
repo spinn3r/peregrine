@@ -43,7 +43,6 @@ public class LocalReducer {
         List<ChunkReader> sorted = new ArrayList();
         
         for ( ChunkReader reader : input ) {
-            sorter.sort( reader );
             sorted.add( sorter.sort( reader ) );
         }
 

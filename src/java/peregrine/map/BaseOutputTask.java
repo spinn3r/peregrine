@@ -71,19 +71,26 @@ public abstract class BaseOutputTask {
 
     public void teardown() throws IOException {
 
-        //FIXME: close ALL of these even if one of them fails and then throw
-        //ALL exceptions.  Also we need to gossip here.
-        
+        //FIXME: close ALL of these jobs even if one of them fails and then
+        //throw ALL exceptions.  Also we need to gossip here.
+
+        log.info( "Closing job output..." );
+
         for( JobOutput current : jobOutput ) {
             current.close();
         }
 
-        if ( status == TaskStatus.COMPLETE )
+        log.info( "Closing job output...done" );
+
+        if ( status == TaskStatus.COMPLETE ) {
             sendCompleteToController();
-        else if ( status == TaskStatus.FAILED )
+        } else if ( status == TaskStatus.FAILED ) {
             sendFailedToController( cause );
-        else
-            throw new RuntimeException( "Wrong status: " + status );
+        } else {
+            String msg = String.format( "Wrong status code: %s" , status );
+            log.error( msg );
+            throw new RuntimeException( msg );
+        }
         
     }
 
