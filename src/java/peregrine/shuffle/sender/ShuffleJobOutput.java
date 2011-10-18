@@ -63,14 +63,14 @@ public class ShuffleJobOutput implements JobOutput, LocalPartitionReaderListener
     @Override
     public void emit( byte[] key , byte[] value ) {
 
-        Partition target = config.route( key, true );
+        // Partition target = config.route( key, true );
 
-        int from_partition  = chunkRef.partition.getId();
-        int from_chunk      = chunkRef.local;
+        // int from_partition  = chunkRef.partition.getId();
+        // int from_chunk      = chunkRef.local;
 
-        int to_partition    = target.getId();
+        // int to_partition    = target.getId();
 
-        emit( to_partition, key, value );
+        // emit( to_partition, key, value );
         
     }
 
