@@ -50,8 +50,11 @@ public class DefaultChunkReader implements ChunkReader {
         RandomAccessFile raf = new RandomAccessFile( file , "r" );
 
         try {
-        
-            raf.seek( file.length() - IntBytes.LENGTH );
+
+            if ( this.length < IntBytes.LENGTH )
+                throw new IOException( "File %s is too short (%,d bytes)", file.getPath(), length );
+            
+            raf.seek( this.length - IntBytes.LENGTH );
             
             byte[] size_bytes = new byte[ IntBytes.LENGTH ];
             raf.read( size_bytes );

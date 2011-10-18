@@ -93,7 +93,7 @@ public class TestMapReduce extends peregrine.BaseTestWithTwoDaemons {
         // keys were read.
 
         controller.map( Map.class, path );
-        controller.reduce( Reduce.class, new Input(), new Output( output ) );
+        //controller.reduce( Reduce.class, new Input(), new Output( output ) );
 
         controller.shutdown();
         

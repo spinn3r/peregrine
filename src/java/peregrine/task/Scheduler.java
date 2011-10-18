@@ -39,12 +39,12 @@ public abstract class Scheduler {
     /**
      * Hosts which are available for additional work.  
      */
-    protected SimpleBlockingQueue<Host> availableHosts = new SimpleBlockingQueue();
+    protected SimpleBlockingQueue<Host> available = new SimpleBlockingQueue();
 
     /**
      * Hosts available for additional work for speculative execution.
      */
-    protected SimpleBlockingQueue<Host> spareHosts = new SimpleBlockingQueue();
+    protected SimpleBlockingQueue<Host> spare = new SimpleBlockingQueue();
 
     protected Concurrency<Host> concurrency;
     
@@ -54,7 +54,7 @@ public abstract class Scheduler {
         this.membership = config.getMembership();
 
         for( Host host : config.getHosts() ) {
-            availableHosts.put( host );
+            available.put( host );
         }
 
         concurrency = new Concurrency( config.getHosts() );
@@ -93,7 +93,7 @@ public abstract class Scheduler {
 
         }
 
-        spareHosts.put( host );
+        spare.put( host );
         
     }
 
@@ -120,7 +120,7 @@ public abstract class Scheduler {
         pending.clear( partition );
 
         // add this to the list of idle hosts so that we can schedule additional work.peregrine.task
-        availableHosts.put( host );
+        available.put( host );
 
         concurrency.decr( host );
         
@@ -139,7 +139,7 @@ public abstract class Scheduler {
                 break;
             }
 
-            Host idle = availableHosts.poll( 1000, TimeUnit.MILLISECONDS );
+            Host idle = available.poll( 1000, TimeUnit.MILLISECONDS );
             
             if ( idle != null ) {
                 
@@ -154,8 +154,8 @@ public abstract class Scheduler {
 
             }
 
-            log.info( "pending: %s, completed: %s, availableHosts: %s, spareHosts: %s",
-                      pending, completed, availableHosts, spareHosts );
+            log.info( "pending: %s, completed: %s, available: %s, spare: %s",
+                      pending, completed, available, spare );
 
         }
             
