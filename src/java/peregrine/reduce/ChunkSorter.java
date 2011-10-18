@@ -44,36 +44,38 @@ public class ChunkSorter {
 
         log.info( "Writing temporary sort file %s", path );
 
-        Tuple[] data = new Tuple[ input.size() ];
-        Tuple[] dest = new Tuple[ input.size() ];
+//        Tuple[] data = new Tuple[ input.size() ];
+//        Tuple[] dest = new Tuple[ input.size() ];
 
         int idx = 0;
         while ( input.hasNext() ) {
             
             Tuple t = new Tuple( input.key(), input.value() );
 
-            data[idx] = t;
-            dest[idx] = t;
+//            data[idx] = t;
+//            dest[idx] = t;
             
             ++idx;
             
         }
 
-        sort( data, dest , new FullTupleComparator() );
+//        sort( data, dest , new FullTupleComparator() );
 
-        File file = new File( path );
+        // File file = new File( path );
 
-        OutputStream out = new AsyncOutputStream( path );
+        // OutputStream out = new AsyncOutputStream( path );
         
-        DefaultChunkWriter writer = new DefaultChunkWriter( out );
+        // DefaultChunkWriter writer = new DefaultChunkWriter( out );
 
-        for( Tuple t : dest ) {
-            writer.write( t.key, t.value );
-        }
+        // for( Tuple t : dest ) {
+        //     writer.write( t.key, t.value );
+        // }
 
-        writer.close();
+        // writer.close();
         
-        return new DefaultChunkReader( file );
+        // return new DefaultChunkReader( file );
+
+        return null;
         
     }
 

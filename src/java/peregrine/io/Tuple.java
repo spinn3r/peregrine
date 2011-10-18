@@ -8,8 +8,6 @@ public final class Tuple {
 
     public byte[] key = null;
     public byte[] value = null;
-
-    public long keycmp;
     
     public Tuple( byte[] key, byte[] value ) {
 
