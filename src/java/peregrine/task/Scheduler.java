@@ -165,7 +165,7 @@ public abstract class Scheduler {
 
 class Progress<T> {
 
-    Map<T,T> map = new ConcurrentHashMap();
+    ConcurrentHashMap<T,T> map = new ConcurrentHashMap();
 
     public void mark( T entry ) {
         map.put( entry, entry );
@@ -174,7 +174,7 @@ class Progress<T> {
     public void clear( T entry ) {
         map.remove( entry );
     }
-    
+
     public boolean contains( T entry ) {
         return map.get( entry ) != null;
     }
@@ -186,7 +186,7 @@ class Progress<T> {
     public String toString() {
         return map.keySet().toString();
     }
-    
+
 }
 
 class Concurrency<T> {
@@ -212,15 +212,35 @@ class Concurrency<T> {
     public int get( T key ) {
         return map.get( key ).get();
     }
+
+}
+
+class Failure extends Progress<Fail> {
+
+    /**
+     * Allows us to clear work from a failure structure so that we can start
+     * fresh.
+     */
+    public void clear() {
+        map.clear();
+    }
+
+    /**
+     * Used so that speculative execution can enumerate all failures to schedule
+     * additional work.
+     */
+    public Enumeration<Fail> elements() {
+        return map.elements();
+    }
     
 }
 
-class Failure {
+class Fail {
 
     protected Host host;
     protected Partition partition;
 
-    public Failure( Host host, Partition partition ) {
+    public Fail( Host host, Partition partition ) {
         this.host = host;
         this.partition = partition;
     }
@@ -230,7 +250,10 @@ class Failure {
     }
     
     public boolean equals( Object o ) {
-        return host.equals( o.host ) && partition.equals( o.partition );
+
+        Fail f = (Fail)o;
+        
+        return host.equals( f.host ) && partition.equals( f.partition );
     }
     
 }
