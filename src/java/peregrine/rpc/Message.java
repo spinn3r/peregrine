@@ -39,7 +39,12 @@ public class Message extends StructMap {
         QueryStringEncoder encoder = new QueryStringEncoder( "" );
 
         for( String key : keys ) {
-            encoder.addParam( key, delegate.get( key ).toString() );
+
+            Object value = delegate.get( key );
+
+            if( value != null )
+                encoder.addParam( key, value.toString() );
+            
         }
 
         return encoder.toString();
