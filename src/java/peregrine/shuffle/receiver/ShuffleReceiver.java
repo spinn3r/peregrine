@@ -53,30 +53,30 @@ public class ShuffleReceiver {
                         int count,
                         byte[] data ) throws IOException {
 
-        // if ( needsRollover() ) {
+        if ( needsRollover() ) {
 
-        //     // this must be synchronous on rollover or some other way to handle
-        //     // data loss as we would quickly create a number of smaller
-        //     // ShuffleReceiverOutputWriters.
+            // this must be synchronous on rollover or some other way to handle
+            // data loss as we would quickly create a number of smaller
+            // ShuffleReceiverOutputWriters.
 
-        //     synchronized( this ) {
+            synchronized( this ) {
 
-        //         if ( needsRollover() ) {
+                if ( needsRollover() ) {
                     
-        //             rollover();
+                    rollover();
 
-        //             String path = String.format( "%s/%010d.tmp", config.getShuffleDir( name ), idx++ );
+                    String path = String.format( "%s/%010d.tmp", config.getShuffleDir( name ), idx++ );
                     
-        //             writer = new ShuffleOutputWriter( config, path );
+                    writer = new ShuffleOutputWriter( config, path );
 
-        //         }
+                }
 
-        //     }
+            }
 
-        // }
+        }
 
-        // writer.accept( from_partition, from_chunk, to_partition, count, data );
-        // ++accepted;
+        writer.accept( from_partition, from_chunk, to_partition, count, data );
+        ++accepted;
         
     }
 
