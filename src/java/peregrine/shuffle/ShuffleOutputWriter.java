@@ -195,7 +195,7 @@ public class ShuffleOutputWriter {
         
     }
 
-    public String toString {
+    public String toString() {
         return String.format( "%s:%s", getClass().getSimpleName() , path );
     }
     
