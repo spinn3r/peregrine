@@ -38,13 +38,13 @@ public class LocalReducer {
     
     public void sort() throws Exception {
 
-        // ChunkSorter sorter = new ChunkSorter( config , partition );
+        ChunkSorter sorter = new ChunkSorter( config , partition );
 
-        // List<ChunkReader> sorted = new ArrayList();
+        List<ChunkReader> sorted = new ArrayList();
         
-        // for ( ChunkReader reader : input ) {
-        //     sorted.add( sorter.sort( reader ) );
-        // }
+        for ( ChunkReader reader : input ) {
+            sorted.add( sorter.sort( reader ) );
+        }
 
         // final AtomicInteger nr_tuples = new AtomicInteger();
 
