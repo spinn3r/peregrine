@@ -63,7 +63,7 @@ public class TestMapReduce extends peregrine.BaseTestWithTwoDaemons {
     }
 
     public void test1() throws Exception {
-        doTest( 10000000 );
+        doTest( 1000 );
     }
 
     private void doTest( int max ) throws Exception {
