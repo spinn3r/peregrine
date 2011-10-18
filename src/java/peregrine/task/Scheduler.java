@@ -217,8 +217,8 @@ class Concurrency<T> {
 
 class Failure {
 
-    protected Host;
-    protected Partition;
+    protected Host host;
+    protected Partition partition;
 
     //public 
     
