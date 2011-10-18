@@ -35,7 +35,7 @@ public class TestReduceSort extends peregrine.BaseTestWithTwoDaemons {
                 
             };
 
-        LocalReducer sorter = new LocalReducer( config, new Partition( 0 ), listener );
+        LocalReducer sorter = new LocalReducer( config, new Partition( 0 ), listener, new ShuffleInputReference( "default" ) );
 
         sorter.add( TestChunkSorter.makeRandomSortChunk( 500 ) );
         sorter.add( TestChunkSorter.makeRandomSortChunk( 200 ) );

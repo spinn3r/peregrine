@@ -148,7 +148,7 @@ public abstract class Scheduler {
 
                 // log all root causes.
                 for( Fail fail : failure.values() ) {
-                    log.error( "Failed to handle task: %s \n %s" + fail , fail.stacktrace );
+                    log.error( "Failed to handle task: %s \n %s" , fail , fail.stacktrace );
                 }
 
                 // throw the current position.
