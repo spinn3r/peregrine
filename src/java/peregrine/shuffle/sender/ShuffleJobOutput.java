@@ -124,13 +124,13 @@ public class ShuffleJobOutput implements JobOutput, LocalPartitionReaderListener
 
             if ( shuffleSenderBuffer != null ) {
 
-                // // only flush every 100MB written (or so) and also have a forced
-                // // flush on close...
-                // boolean trigger = force || shuffleSenderBuffer.length > DefaultPartitionWriter.CHUNK_SIZE;
+                // only flush every 100MB written (or so) and also have a forced
+                // flush on close...
+                boolean trigger = force || shuffleSenderBuffer.length > DefaultPartitionWriter.CHUNK_SIZE;
                 
-                // if ( trigger ) {
-                //     future = executors.submit( new ShuffleSenderFlushCallable( config, shuffleSenderBuffer ) );
-                // }
+                if ( trigger ) {
+                    future = executors.submit( new ShuffleSenderFlushCallable( config, shuffleSenderBuffer ) );
+                }
 
             }
 
