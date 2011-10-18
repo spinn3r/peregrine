@@ -220,6 +220,17 @@ class Failure {
     protected Host host;
     protected Partition partition;
 
-    //public 
+    public Failure( Host host, Partition partition ) {
+        this.host = host;
+        this.partition = partition;
+    }
+    
+    public int hashCode() {
+        return host.hashCode() + partition.hashCode();
+    }
+    
+    public boolean equals( Object o ) {
+        return host.equals( o.host ) && partition.equals( o.partition );
+    }
     
 }
