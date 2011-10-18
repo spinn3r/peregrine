@@ -82,10 +82,6 @@ public class ReducerTask extends BaseOutputTask implements Callable {
 
     private void doCall() throws Exception {
 
-        //FIXME: this implements the DEFAULT sort everything approach not the
-        //hinted pre-sorted approach which in some applications would be MUCH
-        //faster for the reduce operation.
-
         final AtomicInteger nr_tuples = new AtomicInteger();
 
         ReducerTaskSortListener listener =

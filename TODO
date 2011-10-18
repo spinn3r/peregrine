@@ -1,4 +1,11 @@
 
+- Write MEMORY benchmarks... that measure heap BEFORE and AFTER each test so that
+  I can prevent memory leaks.
+
+  - Constrain the JVM memory that is forked from <junit> so that I can verify
+    that the memory NEVER goes above a certain lower bound.
+
+
 - If the ExtractWriter does NOT write to all hosts the HTTP server is still
   written to and then creates a fucked up chunk.  One way to test this is to
   write ONE key so that not every host has a value and peregrine will then die.
