@@ -214,3 +214,12 @@ class Concurrency<T> {
     }
     
 }
+
+class Failure {
+
+    protected Host;
+    protected Partition;
+
+    //public 
+    
+}

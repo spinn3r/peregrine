@@ -119,7 +119,6 @@ public class ShuffleJobOutput implements JobOutput, LocalPartitionReaderListener
 
         try {
 
-            
             if ( future != null )
                 future.get();
 
