@@ -45,22 +45,22 @@ public class ChunkSorter {
         String path = config.getPath( partition, String.format( "/tmp/sort-%s.tmp" , id++ ) );
 
         log.info( "Writing temporary sort file %s", path );
-        
-        Tuple[] data = new Tuple[ input.size() ];
-        Tuple[] dest = new Tuple[ input.size() ];
 
-        int idx = 0;
+        List<Tuple> tuples = new ArrayList();
+
         while ( input.hasNext() ) {
             
             Tuple t = new Tuple( input.key(), input.value() );
-            
-            data[idx] = t;
-            dest[idx] = t;
-            
-            ++idx;
+            tuples.add( t );
             
         }
 
+        Tuple[] data = new Tuple[ tuples.size() ];
+        Tuple[] dest = new Tuple[ tuples.size() ];
+
+        tuples.toArray( data );
+        tuples.toArray( dest );
+        
         sort( data, dest , new FullTupleComparator() );
 
         File file = new File( path );
