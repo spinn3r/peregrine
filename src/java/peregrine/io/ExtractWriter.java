@@ -35,7 +35,7 @@ public class ExtractWriter {
         
         for( Partition partition : membership.getPartitions() ) {
 
-            log.info( "Creating writer for partition: %s\n", partition );
+            log.info( "Creating writer for partition: %s", partition );
 
             DefaultPartitionWriter writer = new DefaultPartitionWriter( config, partition, path );
             output.add( writer );

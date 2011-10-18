@@ -108,9 +108,9 @@ public class TestMapReduce extends peregrine.BaseTestWithTwoDaemons {
 
         // FIXME: flag the mapper and reducer to verify that the right number of
         // keys were read.
-
+        
         controller.map( Map.class, path );
-        //controller.reduce( Reduce.class, new Input(), new Output( output ) );
+        controller.reduce( Reduce.class, new Input(), new Output( output ) );
 
         System.gc();
 
