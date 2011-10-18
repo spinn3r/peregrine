@@ -39,56 +39,56 @@ public class ShuffleSenderFlushCallable implements Callable {
     
     public Object call() throws Exception {
 
-        // if ( output.flushing )
-        //     return null;
+        if ( output.flushing )
+            return null;
 
-        // output.flushing = true;
+        output.flushing = true;
         
-        // log.info( "Closing shuffle job output for chunk: %s", output.chunkRef );
+        log.info( "Closing shuffle job output for chunk: %s", output.chunkRef );
 
-        // Map<Integer,ChannelBufferWritable> partitionOutput = getPartitionOutput();
+        Map<Integer,ChannelBufferWritable> partitionOutput = getPartitionOutput();
 
-        // // now read the data and write it to all clients .. 
-        // int count = 0;
+        // now read the data and write it to all clients .. 
+        int count = 0;
 
-        // // FIXME: ANY of these writes can fail and if they do we need to
-        // // continue and just gossip that they have failed...  this includes
-        // // write() AND close()
+        // FIXME: ANY of these writes can fail and if they do we need to
+        // continue and just gossip that they have failed...  this includes
+        // write() AND close()
         
-        // for( ShuffleSenderExtent extent : output.extents ) {
+        for( ShuffleSenderExtent extent : output.extents ) {
             
-        //     ChannelBuffer buff = extent.buff;
+            ChannelBuffer buff = extent.buff;
 
-        //     for ( int i = 0; i < extent.emits; ++i ) {
+            for ( int i = 0; i < extent.emits; ++i ) {
 
-        //         int to_partition = buff.readInt();
-        //         int length       = buff.readInt();
+                int to_partition = buff.readInt();
+                int length       = buff.readInt();
 
-        //         ChannelBuffer slice = buff.slice( buff.readerIndex() , length );
+                ChannelBuffer slice = buff.slice( buff.readerIndex() , length );
 
-        //         ChannelBufferWritable client = partitionOutput.get( to_partition );
+                ChannelBufferWritable client = partitionOutput.get( to_partition );
 
-        //         if ( client == null )
-        //             throw new Exception( "NO client for partition: " + to_partition );
+                if ( client == null )
+                    throw new Exception( "NO client for partition: " + to_partition );
                 
-        //         client.write( slice );
+                client.write( slice );
 
-        //         // bump up the writer index now for the next reader.
-        //         buff.readerIndex( buff.readerIndex() + length );
+                // bump up the writer index now for the next reader.
+                buff.readerIndex( buff.readerIndex() + length );
                 
-        //         ++count;
+                ++count;
                 
-        //     }
+            }
 
-        // }
+        }
         
-        // // now close all clients and we are done.
+        // now close all clients and we are done.
         
-        // for( ChannelBufferWritable client : partitionOutput.values() ) {
-        //     client.close();
-        // }
+        for( ChannelBufferWritable client : partitionOutput.values() ) {
+            client.close();
+        }
 
-        // log.info( "Shuffled %,d entries.", count );
+        log.info( "Shuffled %,d entries.", count );
 
         output = null;
         
