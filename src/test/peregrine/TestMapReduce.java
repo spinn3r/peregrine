@@ -63,12 +63,14 @@ public class TestMapReduce extends peregrine.BaseTestWithTwoDaemons {
     }
 
     public void test1() throws Exception {
+        doTest( 10000000 );
+    }
+
+    private void doTest( int max ) throws Exception {
 
         String path = String.format( "/test/%s/test1.in", getClass().getName() );
         
         ExtractWriter writer = new ExtractWriter( config, path );
-
-        int max = 1000;
         
         for( int i = 0; i < max; ++i ) {
 
@@ -87,38 +89,14 @@ public class TestMapReduce extends peregrine.BaseTestWithTwoDaemons {
         }
 
         writer.close();
-
-        // int count = 0;
-        
-        // //make sure too many values weren't written.
-        // Membership membership = config.getMembership();
-
-        // for( Partition part : membership.getPartitions() ) {
-
-        //     for( Host host : membership.getHosts( part ) ) {
-
-        //         LocalPartitionReader reader = new LocalPartitionReader( config, part, host, path );
-
-        //         while( reader.hasNext() ) {
-
-        //             byte[] key = reader.key();
-        //             byte[] value = reader.value();
-
-        //             ++count ;
-                    
-        //         }
-                
-        //     }
-            
-        // }
-
-        // //FIXME: read the value off BOTH partitions / hosts.
-        // assertTrue( count > 0 );
         
         String output = String.format( "/test/%s/test1.out", getClass().getName() );
 
         Controller controller = new Controller( config );
-        
+
+        // FIXME: flag the mapper and reducer to verify that the right number of
+        // keys were read.
+
         controller.map( Map.class, path );
         controller.reduce( Reduce.class, new Input(), new Output( output ) );
 

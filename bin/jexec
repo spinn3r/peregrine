@@ -40,7 +40,7 @@ fi
 
 export PROFILER_ENABLED=false
 
-export PROFILER_PATH="/opt/jprofiler"
+export PROFILER_PATH="/usr/local/jprofiler"
 export PROFILER_OPTS="-agentlib:jprofilerti=port=8849 \
                       -Xint \
                       -Xbootclasspath/a:$PROFILER_PATH/bin/agent.jar"

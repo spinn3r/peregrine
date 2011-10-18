@@ -24,7 +24,7 @@ public class Config {
     /**
      * Default root dir for serving files.
      */
-    public static String DEFAULT_ROOT = "/tmp/peregrine-dfs";
+    public static String DEFAULT_ROOT = "/tmp/peregrine-fs";
 
     /**
      * The root for storing data.
