@@ -51,6 +51,8 @@ public class ShuffleInputChunkReader implements ChunkReader {
     @Override
     public boolean hasNext() throws IOException {
 
+        // FIXME: hasNext shouldn't perform any state mutation
+        
         while( true ) {
 
             if ( pack != null && idx < pack.data.length ) {

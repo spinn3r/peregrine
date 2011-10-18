@@ -55,6 +55,9 @@ public class ChunkSorter {
             
         }
 
+        if ( tuples.size() == 0 )
+            return null;
+        
         Tuple[] data = new Tuple[ tuples.size() ];
         Tuple[] dest = new Tuple[ tuples.size() ];
 

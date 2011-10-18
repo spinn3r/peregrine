@@ -43,7 +43,12 @@ public class LocalReducer {
         List<ChunkReader> sorted = new ArrayList();
         
         for ( ChunkReader reader : input ) {
-            sorted.add( sorter.sort( reader ) );
+
+            ChunkReader result = sorter.sort( reader );
+
+            if ( result != null )
+                sorted.add( result );
+
         }
 
         final AtomicInteger nr_tuples = new AtomicInteger();

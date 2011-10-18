@@ -104,9 +104,7 @@ public class DefaultChunkReader implements ChunkReader {
     }
 
     public byte[] key() throws IOException {
-
         ++idx;
-        
         return readBytes( varintReader.read() );
         
     }
