@@ -62,6 +62,8 @@ public class ShuffleReceiver {
             synchronized( this ) {
 
                 if ( needsRollover() ) {
+
+                    log.info( "Rolling over %s " , writer );
                     
                     rollover();
 
@@ -98,10 +100,10 @@ public class ShuffleReceiver {
 
         last = writer;
 
-        if ( last != null ) {
-            // ok we have to flush this to disk this now....
-            this.future = executors.submit( new ShuffleReceiverFlushCallable( last ) );
-        }
+        // if ( last != null ) {
+        //     // ok we have to flush this to disk this now....
+        //     this.future = executors.submit( new ShuffleReceiverFlushCallable( last ) );
+        // }
 
     }
 
