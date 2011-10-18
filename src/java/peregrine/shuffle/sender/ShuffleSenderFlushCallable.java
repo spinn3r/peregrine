@@ -90,6 +90,8 @@ public class ShuffleSenderFlushCallable implements Callable {
 
         log.info( "Shuffled %,d entries.", count );
 
+        output = null;
+        
         return null;
         
     }
