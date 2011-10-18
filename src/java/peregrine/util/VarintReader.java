@@ -8,10 +8,6 @@ public class VarintReader {
     protected ByteReader byteReader;
     
     public VarintReader() {}
-    
-    public VarintReader( byte[] data, int index ) {
-        this.byteReader = new ByteArrayByteReader( data, index );
-    }
 
     public VarintReader( InputStream is ) {
         this.byteReader = new InputStreamByteReader( is );
@@ -19,22 +15,6 @@ public class VarintReader {
 
     public int read() {
         return read1() - 1;
-    }
-    
-    public int read( byte[] data ) {
-        return read( data, 0 );
-    }
-
-    public int read( byte[] data, int index ) {
-
-        this.byteReader = new ByteArrayByteReader( data, index );
-
-        //NOTE that all varints are incremented by one.  See emitVarint in the
-        //encoder for more details.
-
-        int result = read1() - 1;
-        return result;
-        
     }
 
     private int read1() {
@@ -102,29 +82,6 @@ class InputStreamByteReader implements ByteReader {
         } catch ( IOException e ) {
             throw new RuntimeException( e );
         }
-
-    }
-
-}
-
-class ByteArrayByteReader implements ByteReader {
-
-    private int index = 0;
-
-    private byte[] data;
-    
-    public ByteArrayByteReader( byte[] data, int index ) {
-        this.data = data;
-        this.index = index;
-    }
-
-    @Override
-    public byte readByte() {
-
-        byte b = data[index];
-
-        ++index;
-        return b;
 
     }
 

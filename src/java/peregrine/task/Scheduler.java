@@ -5,6 +5,7 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.*;
 
 import peregrine.*;
 import peregrine.util.*;
@@ -121,6 +122,8 @@ public abstract class Scheduler {
         // add this to the list of idle hosts so that we can schedule additional work.peregrine.task
         availableHosts.put( host );
 
+        concurrency.decr( host );
+        
     }
 
     /**
@@ -188,44 +191,26 @@ class Progress<T> {
 
 class Concurrency<T> {
 
-    Map<T,MutableInteger> map = new HashMap();
+    Map<T,AtomicInteger> map = new ConcurrentHashMap();
 
     public Concurrency( Set<T> list ) {
 
         for( T key : list ) {
-            map.put( key, new MutableInteger() );
+            map.put( key, new AtomicInteger() );
         }
         
     }
     
     public void incr( T key ) {
-        map.get( key ).incr();
+        map.get( key ).getAndIncrement();
     }
 
     public void decr( T key ) {
-        map.get( key ).decr();
+        map.get( key ).getAndDecrement();
     }
 
     public int get( T key ) {
-        return map.get( key ).value();
-    }
-    
-}
-
-class MutableInteger {
-
-    private int value = 0;
-
-    public void incr() {
-        ++value;
-    }
-
-    public void decr() {
-        --value;
-    }
-
-    public int value() {
-        return value;
+        return map.get( key ).get();
     }
     
 }

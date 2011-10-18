@@ -61,7 +61,7 @@ public class FSDaemon {
         // Set up the event pipeline factory.
         bootstrap.setPipelineFactory( new FSPipelineFactory( config, this ) );
 
-        log.info( "Starting on port %s.  Using root: %s" , port, root );
+        log.info( "Starting up... port: %s, root: %s" , port, root );
         
         // Bind and start to accept incoming connections.
         channel = bootstrap.bind( new InetSocketAddress( port ) );

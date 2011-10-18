@@ -103,14 +103,14 @@ public class ReducerTask extends BaseOutputTask implements Callable {
             throw new IOException( "Shuffle output does not exist: " + shuffleInput.getName() );
         }
 
-        File[] files = shuffle_dir_file.listFiles();
+        File[] shuffles = shuffle_dir_file.listFiles();
 
-        for( File file : files ) {
-            ChunkReader reader = new ShuffleInputChunkReader( file.getPath(), partition.getId() );
+        for( File shuffle : shuffles ) {
+            ChunkReader reader = new ShuffleInputChunkReader( shuffle.getPath(), partition.getId() );
             reducer.add( reader );
         }
         
-        int nr_readers = files.length;
+        int nr_readers = shuffles.length;
 
         reducer.sort();
 
@@ -118,6 +118,9 @@ public class ReducerTask extends BaseOutputTask implements Callable {
                   listener.nr_tuples , nr_readers, partition );
 
         // we have to close ALL of our output streams now.
+        for( File shuffle : shuffles ) {
+            shuffle.delete();
+        }
 
     }
 

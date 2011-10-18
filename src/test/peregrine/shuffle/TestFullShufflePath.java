@@ -77,8 +77,8 @@ public class TestFullShufflePath extends peregrine.BaseTestWithTwoDaemons {
     }
     
     public void test1() throws Exception {
-        doTest( 10, 8000000 );
-        //doTest( 100, 3 );
+        doTest( 10, 3 );
+        doTest( 3, 100 );
     }
 
     public static void main( String[] args ) throws Exception {

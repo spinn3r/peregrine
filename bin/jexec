@@ -36,7 +36,7 @@ if [ "$MAX_MEMORY" = "" ]; then
     export MAX_MEMORY=1500M
 fi
 
-#ssh -L 8849:ssd0006.wdc.sl.spinn3r.com:8849 root@ssd0006.wdc.sl.spinn3r.com
+#ssh -L 8849:example.com:8849 root@example.com
 
 export PROFILER_ENABLED=false
 
@@ -54,23 +54,12 @@ if [ "$PROFILER_ENABLED" = "true" ]; then
 
 fi
 
-# FIXME: Fri Jun 09 2006 10:22 PM (burton@tailrank.com): for some reason bash
-# has problem passing arguments with spaces.  I've never really been able to
-# figure this out.  Is it possible to roll these up into an array and then pass
-# the array?
-
 if [ "$JAVA" = "" ]; then
     #use the default Java VM.
     JAVA=java
 fi
 
 if [ "$2" != "" ]; then
-
-#     $JAVA -Djava.awt.headless=true \
-#         -Xms$MIN_MEMORY \
-#         -Xmx$MAX_MEMORY \
-#         $JAVA_OPTS \
-#         $CLASSNAME "$2" "$3" "$4" "$5" "$6" "$7" "$8" "$9" "${10}" "${11}" "${12}" "${13}" "${14}" "${15}" "${16}" "${17}" "${18}" "${19}" "${20}"
 
     shift
 
@@ -92,13 +81,5 @@ fi
 result=$?
 
 set +bx
-
-if [ "$JEXEC_REPORT" != "" ]; then
-
-    echo Sending report via email to $JEXEC_REPORT...
-    echo | mail $JEXEC_REPORT -s "Java command finished on $(date) on $(cat /etc/rolename)" -a 'From: jexec-noreply@tailrank.com'
-    echo Sending report via email... $JEXEC_REPORT done
-    
-fi
 
 exit $result
