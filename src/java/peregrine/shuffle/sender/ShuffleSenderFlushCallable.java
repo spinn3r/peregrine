@@ -90,7 +90,14 @@ public class ShuffleSenderFlushCallable implements Callable {
 
         log.info( "Shuffled %,d entries.", count );
 
-        output = null;
+        output = null; // This is required for the JVM to more aggresively
+                       // recover memory.  I did extensive testing with this and
+                       // without setting index to null the JVM does not recover
+                       // memory and it eventually leaks.  I don't think
+                       // anything could be holding a reference to this though
+                       // but this is a good pragmatic defense and solved the
+                       // problem.
+
         
         return null;
         
