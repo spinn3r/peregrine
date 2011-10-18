@@ -63,15 +63,15 @@ public class ShuffleOutputWriter {
                         int to_partition,
                         int count,
                         byte[] data ) throws IOException {
-
+        
         if ( closed )
             throw new IOException( "closed" );
         
-       ShufflePacket pack = new ShufflePacket( from_partition, from_chunk, to_partition, count, data );
-
-       this.length += data.length;
+        ShufflePacket pack = new ShufflePacket( from_partition, from_chunk, to_partition, count, data );
         
-       index.add( pack );
+        this.length += data.length;
+        
+        index.add( pack );
 
     }
 

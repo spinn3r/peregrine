@@ -89,20 +89,20 @@ public class ShuffleReceiver {
     public void rollover() throws IOException {
 
         if ( this.future != null ) {
-
+            
             try {
                 this.future.get();
             } catch ( Exception e ) {
                 throw new IOException( "Failed to close writer: " , e );
             }
-
+            
         }
-
+        
         last = writer;
-
+        
         if ( last != null ) {
-           // ok we have to flush this to disk this now....
-           this.future = executors.submit( new ShuffleReceiverFlushCallable( last ) );
+            // ok we have to flush this to disk this now....
+            this.future = executors.submit( new ShuffleReceiverFlushCallable( last ) );
         }
 
     }
