@@ -56,23 +56,8 @@ public class ChunkSorter2 {
         // just write the results to disk.  Writing to memory and THEN writing
         // to disk would just waste CPU time.
 
-        ChunkWriterIntermediate merge = null;
-        
-        if ( depth == 0 ) {
-            merge = new ChunkWriterIntermediate();
-        } else {
+        ChunkWriterIntermediate merge = getChunkWriterIntermediate( depth, left, right );
 
-            // size the intermediate by looking at the size of the left and
-            // right values which we can easily measure.
-
-            int length = ((ChunkReaderSlice)left).length +
-                         ((ChunkReaderSlice)right).length
-                ; 
-            
-            merge = new ChunkWriterIntermediate( length );
-
-        }
-        
         return merge( left, right, merge );
         
     }
@@ -107,6 +92,32 @@ public class ChunkSorter2 {
         
     }
 
+    protected ChunkWriterIntermediate getChunkWriterIntermediate( int depth,
+                                                                  ChunkReader left,
+                                                                  ChunkReader right )
+        throws IOException {
+
+        ChunkWriterIntermediate result = null;
+        
+        if ( depth == 0 ) {
+            result = new ChunkWriterIntermediate();
+        } else {
+
+            // size the intermediate by looking at the size of the left and
+            // right values which we can easily measure.
+
+            int length = ((ChunkReaderSlice)left).length +
+                         ((ChunkReaderSlice)right).length
+                ; 
+            
+            result = new ChunkWriterIntermediate( length );
+
+        }
+
+        return result;
+        
+    }
+    
 }
 
 class ChunkReaderSlice implements ChunkReader {
