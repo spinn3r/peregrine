@@ -26,7 +26,8 @@ public class Main {
         
         ExtractWriter writer = new ExtractWriter( config, path );
 
-        buildRandomGraph( writer, 500000 , 200 );
+        //buildRandomGraph( writer, 500000 , 200 );
+        buildRandomGraph( writer, 5000 , 100 );
         
         writer.close();
 
