@@ -44,15 +44,15 @@ public class LocalReducer {
         
         for ( ChunkReader reader : input ) {
             sorter.sort( reader );
-//            sorted.add( sorter.sort( reader ) );
+            sorted.add( sorter.sort( reader ) );
         }
 
-//      final AtomicInteger nr_tuples = new AtomicInteger();
-
-//      ChunkMerger merger = new ChunkMerger( listener );
-
-//      merger.merge( sorted );
-
+        final AtomicInteger nr_tuples = new AtomicInteger();
+        
+        ChunkMerger merger = new ChunkMerger( listener );
+        
+        merger.merge( sorted );
+     
     }
 
 }
