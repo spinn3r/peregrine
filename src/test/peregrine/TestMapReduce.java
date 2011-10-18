@@ -72,14 +72,18 @@ public class TestMapReduce extends peregrine.BaseTestWithTwoDaemons {
         
         ExtractWriter writer = new ExtractWriter( config, path );
 
-        byte[] key = Hashcode.getHashcode( "hello" );
-        byte[] value = key;
-
         for( int i = 0; i < max; ++i ) {
+
+            byte[] key = LongBytes.toByteArray( i );
+            byte[] value = key;
+
             writer.write( key, value );
         }
 
         for( int i = 0; i < max; ++i ) {
+            byte[] key = LongBytes.toByteArray( i );
+            byte[] value = key;
+
             writer.write( key, value );
         }
 

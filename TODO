@@ -1,4 +1,13 @@
 
+- If the ExtractWriter does NOT write to all hosts the HTTP server is still
+  written to and then creates a fucked up chunk.  One way to test this is to
+  write ONE key so that not every host has a value and peregrine will then die.
+
+- The PUT handler should ONLY return HTTP 200 OK once the file is WRITEN and
+  should NOT leave a temp file in its place... 
+
+- peregrin fails to handle disks filling up...... 
+
 - log output should be written to /var/log/peregrine-port/
 
 - some items in StructReader and StructWriter need to be lenght prefixed.  For
