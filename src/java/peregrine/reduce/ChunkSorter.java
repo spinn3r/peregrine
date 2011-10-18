@@ -32,17 +32,21 @@ public class ChunkSorter {
 
     private Config config;
     private Partition partition;
+    private ShuffleInputReference shuffleInput;
 
-    public ChunkSorter( Config config, Partition partition ) {
+    public ChunkSorter( Config config,
+                        Partition partition,
+                        ShuffleInputReference shuffleInput ) {
         this.config = config;
         this.partition = partition;
+        this.shuffleInput = shuffleInput;
     }
 
     public ChunkReader sort( ChunkReader input ) throws IOException {
 
         //FIXME: we have to use the name of the shuffle here in the path.
         
-        String path = config.getPath( partition, String.format( "/tmp/sort-%s.tmp" , id++ ) );
+        String path = config.getPath( partition, String.format( "/tmp/%s/sort-%s.tmp" , shuffleInput.getName(), id++ ) );
 
         log.info( "Writing temporary sort file %s", path );
 

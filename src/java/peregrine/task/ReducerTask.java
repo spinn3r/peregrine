@@ -91,7 +91,7 @@ public class ReducerTask extends BaseOutputTask implements Callable {
         ReducerTaskSortListener listener =
             new ReducerTaskSortListener( reducer );
         
-        LocalReducer reducer = new LocalReducer( config, partition, listener );
+        LocalReducer reducer = new LocalReducer( config, partition, listener, shuffleInput );
 
         String shuffle_dir = config.getShuffleDir( shuffleInput.getName() );
 

@@ -21,14 +21,17 @@ public class LocalReducer {
     private SortListener listener = null;
     private Config config;
     private Partition partition;
-    
+    private ShuffleInputReference shuffleInput;
+
     public LocalReducer( Config config,
                          Partition partition,
-                         SortListener listener ) {
+                         SortListener listener,
+                         ShuffleInputReference shuffleInput ) {
 
         this.config = config;
         this.partition = partition;
         this.listener = listener;
+        this.shuffleInput = shuffleInput;
 
     }
 
@@ -38,7 +41,7 @@ public class LocalReducer {
     
     public void sort() throws Exception {
 
-        ChunkSorter sorter = new ChunkSorter( config , partition );
+        ChunkSorter sorter = new ChunkSorter( config , partition, shuffleInput );
 
         List<ChunkReader> sorted = new ArrayList();
         
