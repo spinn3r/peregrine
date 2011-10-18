@@ -76,8 +76,6 @@ public class ChunkSorter {
         writer.close();
         
         return new DefaultChunkReader( file );
-
-        return null;
         
     }
 
