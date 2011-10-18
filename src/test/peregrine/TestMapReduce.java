@@ -63,11 +63,21 @@ public class TestMapReduce extends peregrine.BaseTestWithTwoDaemons {
     }
 
     public void test1() throws Exception {
-        doTest( 100000000 );
+
+        // 100000000 * 32 == 3.2GB
+        // 10000000 * 32 == 320MB
+        
+        doTest( 30000000 );
     }
 
     private void doTest( int max ) throws Exception {
 
+        System.gc();
+
+        Runtime runtime = Runtime.getRuntime();
+        
+        long before = runtime.totalMemory() - runtime.freeMemory();
+        
         String path = String.format( "/test/%s/test1.in", getClass().getName() );
         
         ExtractWriter writer = new ExtractWriter( config, path );
@@ -99,6 +109,14 @@ public class TestMapReduce extends peregrine.BaseTestWithTwoDaemons {
         controller.map( Map.class, path );
         //controller.reduce( Reduce.class, new Input(), new Output( output ) );
 
+        System.gc();
+
+        long after = runtime.totalMemory() - runtime.freeMemory();
+
+        long used = after - before ;
+        
+        System.out.printf( "Memory footprint before = %,d bytes, after = %,d bytes, diff = %,d bytes\n", before, after, used );
+        
         controller.shutdown();
         
     }

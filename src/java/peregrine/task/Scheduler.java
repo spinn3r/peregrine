@@ -47,6 +47,8 @@ public abstract class Scheduler {
     protected SimpleBlockingQueue<Host> spare = new SimpleBlockingQueue();
 
     protected Concurrency<Host> concurrency;
+
+    protected ChangedMessage changedMessage = new ChangedMessage();
     
     public Scheduler( Config config ) {
 
@@ -154,8 +156,14 @@ public abstract class Scheduler {
 
             }
 
-            log.info( "pending: %s, completed: %s, available: %s, spare: %s",
-                      pending, completed, available, spare );
+            String message = String.format( "pending: %s, completed: %s, available: %s, spare: %s",
+                                            pending, completed, available, spare );
+
+            if ( changedMessage.hasChanged( message ) ) {
+                log.info( message );
+            }
+
+            changedMessage.update( message );
 
         }
             
@@ -256,4 +264,21 @@ class Fail {
         return host.equals( f.host ) && partition.equals( f.partition );
     }
     
+}
+
+/**
+ * A message which returns true if it is different from the previous message.
+ */
+class ChangedMessage {
+
+    public String last = null;
+
+    public boolean hasChanged( String message ) {
+        return ! message.equals( last );
+    }
+
+    public void update( String message ) {
+        last = message;
+    }
+
 }
