@@ -17,10 +17,14 @@ import peregrine.reduce.merger.*;
 
 import org.jboss.netty.buffer.*;
 
+import com.spinn3r.log5j.Logger;
+
 /**
  * 
  */
 public class ChunkSorter2 {
+
+    private static final Logger log = Logger.getLogger();
 
     public static int EXTENT_LENGTH = 4194304;
     
@@ -45,6 +49,8 @@ public class ChunkSorter2 {
     public ChunkReader sort( ChunkReader input )
         throws IOException {
 
+        log.info( "Going to sort: %s", input );
+        
         ChannelBuffer buff  = threadLocal.get();
         
         return sort( input, buff, 0 );
@@ -57,7 +63,7 @@ public class ChunkSorter2 {
         throws IOException {
 
         if ( input.size() <= 1 ) {
-
+            
             SorterIntermediate inter = new ChannelBufferSorterIntermediate( buff );
 
             ChunkWriter writer = inter.getChunkWriter();
@@ -74,7 +80,7 @@ public class ChunkSorter2 {
         }
 
         int middle = input.size() / 2; 
-        
+
         ChunkReader left  = new ChunkReaderSlice( input, middle );
         ChunkReader right = new ChunkReaderSlice( input, input.size() - middle );
 
@@ -105,14 +111,14 @@ public class ChunkSorter2 {
         MergerPriorityQueue queue = new MergerPriorityQueue( list );
 
         ChunkWriter writer = merge.getChunkWriter();
-        
+
         while( true ) {
             
             MergeQueueEntry entry = queue.poll();
 
             if ( entry == null )
                 break;
-
+            
             writer.write( entry.key, entry.value );
 
         }

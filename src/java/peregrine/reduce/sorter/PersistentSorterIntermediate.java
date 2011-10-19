@@ -16,7 +16,11 @@ import peregrine.reduce.merger.*;
 
 import org.jboss.netty.buffer.*;
 
+import com.spinn3r.log5j.Logger;
+
 public class PersistentSorterIntermediate implements SorterIntermediate {
+
+    private static final Logger log = Logger.getLogger();
 
     private String path;
     
@@ -26,6 +30,9 @@ public class PersistentSorterIntermediate implements SorterIntermediate {
 
     @Override
     public ChunkWriter getChunkWriter() throws IOException {
+
+        log.info( "Writing temporary sort file %s", path );
+
         return new DefaultChunkWriter( new File( path ) );
     }
     

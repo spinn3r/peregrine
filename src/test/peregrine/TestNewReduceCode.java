@@ -13,6 +13,7 @@ import peregrine.pagerank.*;
 import peregrine.io.partition.*;
 import peregrine.pfsd.*;
 import peregrine.pfsd.shuffler.*;
+import peregrine.task.*;
 
 public class TestNewReduceCode extends peregrine.BaseTestWithTwoDaemons {
 
@@ -63,6 +64,11 @@ public class TestNewReduceCode extends peregrine.BaseTestWithTwoDaemons {
 
     }
 
+    public void setUp() {
+        super.setUp();
+        ReducerTask.DELETE_SHUFFLE_FILES=false;
+    }
+    
     public void test1() throws Exception {
 
         String path = String.format( "/test/%s/test1.in", getClass().getName() );

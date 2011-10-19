@@ -23,6 +23,13 @@ public class ReducerTask extends BaseOutputTask implements Callable {
 
     private static final Logger log = Logger.getLogger();
 
+    /**
+     * When true, we should delete the on disk shuffle files after reduce runs
+     * to free up disk space.  This should be enabled in production but in test
+     * environments disabling this can enable us to run unit testing, etc.
+     */
+    public static boolean DELETE_SHUFFLE_FILES = true;
+    
     private Input input = null;
 
     private Reducer reducer;
@@ -117,9 +124,13 @@ public class ReducerTask extends BaseOutputTask implements Callable {
         log.info( "Sorted %,d entries in %,d chunk readers for partition %s",
                   listener.nr_tuples , nr_readers, partition );
 
-        // we have to close ALL of our output streams now.
-        for( File shuffle : shuffles ) {
-            shuffle.delete();
+        if ( DELETE_SHUFFLE_FILES ) {
+            
+            // we have to close ALL of our output streams now.
+            for( File shuffle : shuffles ) {
+                shuffle.delete();
+            }
+
         }
 
     }

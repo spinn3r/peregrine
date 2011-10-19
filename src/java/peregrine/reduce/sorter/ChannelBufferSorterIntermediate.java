@@ -66,6 +66,7 @@ class ChannelBufferChunkWriter implements ChunkWriter {
         buff.writeBytes( key );
         buff.writeInt( value.length );
         buff.writeBytes( value );
+        ++count;
     }
 
     /**
