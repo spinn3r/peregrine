@@ -34,16 +34,12 @@ public class ChunkReaderSlice implements ChunkReader {
 
     @Override
     public boolean hasNext() throws IOException {
-        return idx < size;
+        return idx < size && delegate.hasNext();
     }
 
     @Override
     public byte[] key() throws IOException {
         byte[] result = delegate.key();
-
-        if ( result == null )
-            throw new NullPointerException( "FIXME: delegate returned null: " + delegate.getClass().getName() );
-        
         length += result.length + IntBytes.LENGTH;
         return result;
     }

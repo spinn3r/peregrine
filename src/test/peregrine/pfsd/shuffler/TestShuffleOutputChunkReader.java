@@ -68,7 +68,7 @@ public class TestShuffleOutputChunkReader extends peregrine.BaseTest {
             ++count;
         }
 
-        //assertEquals( max_writes, count );
+        assertEquals( max_writes, count );
 
     }
 

@@ -16,7 +16,11 @@ import peregrine.io.chunk.*;
 import peregrine.reduce.sorter.*;
 import peregrine.reduce.merger.*;
 
+import com.spinn3r.log5j.Logger;
+
 public class LocalReducer {
+
+    private static final Logger log = Logger.getLogger();
 
     private List<ChunkReader> input = new ArrayList();
 
@@ -43,17 +47,23 @@ public class LocalReducer {
     
     public void sort() throws Exception {
 
-        ChunkSorter sorter = new ChunkSorter( config , partition, shuffleInput );
-        //ChunkSorter2 sorter = new ChunkSorter2( config , partition, shuffleInput );
+        //ChunkSorter sorter = new ChunkSorter( config , partition, shuffleInput );
+        ChunkSorter2 sorter = new ChunkSorter2( config , partition, shuffleInput );
         
         List<ChunkReader> sorted = new ArrayList();
         
         for ( ChunkReader reader : input ) {
 
-            ChunkReader result = sorter.sort( reader );
+            try {
 
-            if ( result != null )
-                sorted.add( result );
+                ChunkReader result = sorter.sort( reader );
+                
+                if ( result != null )
+                    sorted.add( result );
+
+            } catch ( Exception e ) {
+                throw new Exception( "Unable to sort input: " + reader, e );
+            }
 
         }
 

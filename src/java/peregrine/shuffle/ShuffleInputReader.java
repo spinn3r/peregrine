@@ -154,14 +154,38 @@ public class ShuffleInputReader {
     public void close() throws IOException {
         in.close();
     }
-    
+
+    class Header {
+
+        int partition;
+        int offset;
+        int nr_packets;
+        int count;
+
+        public String toString() {
+            
+            return String.format( "partition: %s, offset: %,d, nr_packets: %,d, count: %,d" ,
+                                  partition, offset, nr_packets, count );
+            
+        }
+        
+    }
+
     public static void main( String[] args ) throws IOException {
 
         String path = args[0];
+
+        int partition = -1;
+        
+        if ( args.length == 2 ) {
+            partition = Integer.parseInt( args[1] );
+        }
+
+        System.out.printf( "Reading from partition: %s\n", partition );
         
         // debug code to dump a shuffle.
         
-        ShuffleInputReader reader = new ShuffleInputReader( path, -1 );
+        ShuffleInputReader reader = new ShuffleInputReader( path, partition );
 
         System.out.printf( "Headers: \n" );
         for( Header header : reader.headers ) {
@@ -181,21 +205,5 @@ public class ShuffleInputReader {
 
     }
 
-    class Header {
-
-        int partition;
-        int offset;
-        int nr_packets;
-        int count;
-
-        public String toString() {
-            
-            return String.format( "partition: %s, offset: %,d, nr_packets: %,d, count: %,d" ,
-                                  partition, offset, nr_packets, count );
-            
-        }
-        
-    }
-    
 }
 

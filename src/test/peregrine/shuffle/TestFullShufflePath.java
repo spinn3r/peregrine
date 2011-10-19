@@ -70,15 +70,49 @@ public class TestFullShufflePath extends peregrine.BaseTestWithTwoDaemons {
 
         controller.flushAllShufflers();
 
-        // now the data should be on disk... try to read it back out.
-
         controller.shutdown();
 
+        // now the data should be on disk... try to read it back out wth a ShuffleInputChunkReader
+
+        int count = 0;
+        
+        count += readShuffle( "/tmp/peregrine-fs/localhost/11112/tmp/shuffle/default/0000000000.tmp", 0 );
+        count += readShuffle( "/tmp/peregrine-fs/localhost/11113/tmp/shuffle/default/0000000000.tmp", 1 );
+
+        assertEquals( count, max_emits );
+        
+    }
+
+    private int readShuffle( String path, int partition ) throws IOException {
+
+        ShuffleInputChunkReader reader = new ShuffleInputChunkReader( path, partition );
+
+        assertTrue( reader.size() > 0 );
+
+        int count = 0;
+        while( reader.hasNext() ) {
+
+            reader.key();
+            reader.value();
+
+            ++count;
+
+        }
+
+        assertEquals( reader.size(), count );
+
+        System.out.printf( "Read count: %,d\n", count );
+
+        return count;
+        
     }
     
     public void test1() throws Exception {
-        doTest( 10, 3 );
-        doTest( 3, 100 );
+
+        doTest( 2, 5000000 );
+
+        //doTest( 10, 3 );
+        //doTest( 3, 100 );
     }
 
     public static void main( String[] args ) throws Exception {

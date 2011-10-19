@@ -62,7 +62,7 @@ public class ChunkSorter2 {
 
             ChunkWriter writer = inter.getChunkWriter();
             
-            if ( input.size() == 1 ) {
+            if ( input.size() == 1 && input.hasNext() ) {
                 writer.write( input.key(), input.value () );
             }
 
@@ -72,9 +72,9 @@ public class ChunkSorter2 {
             return inter.getChunkReader();
             
         }
-        
-        int middle = input.size() / 2; 
 
+        int middle = input.size() / 2; 
+        
         ChunkReader left  = new ChunkReaderSlice( input, middle );
         ChunkReader right = new ChunkReaderSlice( input, input.size() - middle );
 
