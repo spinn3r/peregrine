@@ -19,29 +19,16 @@ import peregrine.io.*;
  */
 public class LocalChunkWriter implements ChunkWriter {
 
-    public static boolean USE_ASYNC = true;
-
     private DefaultChunkWriter delegate = null;
     
     public LocalChunkWriter( String path ) throws IOException {
 
-        this.delegate = new DefaultChunkWriter( getOutputStream( path ) );
+        File file = new File( path );
         
-    }
-
-    public static OutputStream getOutputStream( String path ) throws IOException {
-
         // make sure the parent directories exist.
-        new File( new File( path ).getParent() ).mkdirs();
+        new File( file.getParent() ).mkdirs();
 
-        OutputStream out;
-        
-        if ( USE_ASYNC )
-            out = new AsyncOutputStream( path );
-        else 
-            out = new FileOutputStream( path );
- 
-        return out;
+        this.delegate = new DefaultChunkWriter( file );
         
     }
 

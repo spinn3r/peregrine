@@ -22,7 +22,7 @@ public class TestChunkSorter extends peregrine.BaseTestWithTwoDaemons {
      */
     public void test1() throws Exception {
 
-        ChunkReader reader = _test( makeRandomSortChunk( 500 ) );
+        ChunkReader reader = _test( makeRandomSortChunk( 50000 ) );
 
         Tuple last = null;
 
@@ -35,8 +35,6 @@ public class TestChunkSorter extends peregrine.BaseTestWithTwoDaemons {
 
             Tuple t = new Tuple( key, value );
             
-            System.out.printf( "READ: %s\n", Hex.encode( key ) );
-            
             if ( last != null && comparator.compare( last, t ) > 0 )
                 throw new RuntimeException();
 
@@ -46,13 +44,10 @@ public class TestChunkSorter extends peregrine.BaseTestWithTwoDaemons {
         
     }
 
+    /*
     public void test2() throws Exception {
 
-        System.out.printf( "test2\n" );
-        
         int max = 10;
-
-        System.out.printf( "writing to array: \n" );
 
         Tuple[] array = new Tuple[max];
 
@@ -60,8 +55,6 @@ public class TestChunkSorter extends peregrine.BaseTestWithTwoDaemons {
             array[i] = new Tuple( new byte[0], new byte[0] );
         }
 
-        System.out.printf( "reading from it.\n" );
-        
         TupleArrayChunkReader reader = new TupleArrayChunkReader( array ) ;
 
         int count = 0;
@@ -72,15 +65,12 @@ public class TestChunkSorter extends peregrine.BaseTestWithTwoDaemons {
 
             ++count;
 
-            System.out.printf( "." );
-            
         }
 
-        System.out.printf( "\n" );
-        
         assertEquals( count, max );
         
     }
+    */
     
     private ChunkReader _test( ChunkReader reader ) throws Exception {
 
@@ -119,8 +109,6 @@ public class TestChunkSorter extends peregrine.BaseTestWithTwoDaemons {
             
             byte[] hash = Hashcode.getHashcode( "" + val );
             
-            System.out.printf( "%d encodes as: %s\n", val, Hex.encode( hash ) );
-            
             ByteArrayKey key = new ByteArrayKey( hash );
 
             writer.write( key.toBytes(), new IntValue( input[i] ).toBytes() );
@@ -129,7 +117,11 @@ public class TestChunkSorter extends peregrine.BaseTestWithTwoDaemons {
 
         writer.close();
 
-        return new DefaultChunkReader( out.toByteArray() );
+        byte[] data = out.toByteArray();
+        
+        System.out.printf( "Working with chunk of %,d bytes\n", data.length );
+        
+        return new DefaultChunkReader( data );
         
     }
 

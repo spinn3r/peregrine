@@ -62,7 +62,7 @@ public class LocalPartitionWriterDelegate extends BasePartitionWriterDelegate {
 
         log.info( "Creating new local chunk writer: %s" , chunk_path );
 
-        return LocalChunkWriter.getOutputStream( chunk_path );
+        return DefaultChunkWriter.getOutputStream( chunk_path );
         
     }
 

@@ -21,6 +21,8 @@ import org.jboss.netty.buffer.*;
  */
 public class DefaultChunkWriter implements ChunkWriter {
 
+    public static boolean USE_ASYNC = true;
+
     public static int BUFFER_SIZE = 16384;
     
     private static VarintWriter varintWriter = new VarintWriter();
@@ -33,15 +35,32 @@ public class DefaultChunkWriter implements ChunkWriter {
 
     private boolean closed = false;
 
-    private ChannelBuffer buff;
-    
+    //FIXME: this should be thread local 
+    private ChannelBuffer buff = ChannelBuffers.buffer( BUFFER_SIZE );
+
     public DefaultChunkWriter( OutputStream out ) throws IOException {
         this.out = out;
-
-        this.buff = ChannelBuffers.buffer( BUFFER_SIZE );
-
     }
 
+    public DefaultChunkWriter( File file ) throws IOException {
+
+        this.out = getOutputStream( file.getPath() );
+        
+    }
+
+    public static OutputStream getOutputStream( String path ) throws IOException {
+
+        OutputStream out;
+        
+        if ( USE_ASYNC )
+            out = new AsyncOutputStream( path );
+        else 
+            out = new FileOutputStream( path );
+
+        return out;
+        
+    }
+    
     @Override
     public void write( byte[] key, byte[] value )
         throws IOException {

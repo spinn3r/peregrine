@@ -22,7 +22,7 @@ public class TestChunkSorter extends peregrine.BaseTestWithTwoDaemons {
      */
     public void test1() throws Exception {
 
-        ChunkReader reader = _test( makeRandomSortChunk( 500 ) );
+        ChunkReader reader = _test( makeRandomSortChunk( 50000 ) );
 
         Tuple last = null;
 
@@ -46,9 +46,9 @@ public class TestChunkSorter extends peregrine.BaseTestWithTwoDaemons {
 
     private ChunkReader _test( ChunkReader reader ) throws Exception {
 
-        ChunkSorter2 sorter = new ChunkSorter2();
+        ChunkSorter2 sorter = new ChunkSorter2( config , new Partition( 0 ), new ShuffleInputReference( "default" ) );
 
-        ChunkReader result = sorter.sort( reader );
+        ChunkReader result = sorter.sort( reader, null );
 
         return result;
         
@@ -89,7 +89,11 @@ public class TestChunkSorter extends peregrine.BaseTestWithTwoDaemons {
 
         writer.close();
 
-        return new DefaultChunkReader( out.toByteArray() );
+        byte[] data = out.toByteArray();
+
+        System.out.printf( "Working with chunk of %,d bytes\n", data.length );
+        
+        return new DefaultChunkReader( data );
         
     }
 

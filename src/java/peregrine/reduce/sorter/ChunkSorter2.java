@@ -12,6 +12,7 @@ import peregrine.util.*;
 import peregrine.map.*;
 import peregrine.io.*;
 import peregrine.io.chunk.*;
+import peregrine.io.partition.*;
 import peregrine.reduce.merger.*;
 
 import org.jboss.netty.buffer.*;
@@ -21,23 +22,48 @@ import org.jboss.netty.buffer.*;
  */
 public class ChunkSorter2 {
 
-    public ChunkReader sort( ChunkReader input )
+    //keeps track of the current input we're sorting.
+    private int id = 0;
+
+    private Config config;
+    private Partition partition;
+    private ShuffleInputReference shuffleInput;
+
+    public ChunkSorter2( Config config,
+                         Partition partition,
+                         ShuffleInputReference shuffleInput ) {
+        this.config = config;
+        this.partition = partition;
+        this.shuffleInput = shuffleInput;
+    }
+
+    public ChunkReader sort( ChunkReader input, ChunkWriter output )
         throws IOException {
+
+        // FIXME: this should be cached and reused... 
+        ChannelBuffer buff  = ChannelBuffers.buffer( (int)DefaultPartitionWriter.CHUNK_SIZE );
         
-        return sort( input, 0 );
+        return sort( input, output, buff, 0 );
         
     }
 
-    public ChunkReader sort( ChunkReader input, int depth )
+    public ChunkReader sort( ChunkReader input,
+                             ChunkWriter output,
+                             ChannelBuffer buff,
+                             int depth )
         throws IOException {
 
         if ( input.size() <= 1 ) {
 
-            ChunkWriterIntermediate inter = new ChunkWriterIntermediate();
+            SorterIntermediate inter = new ChannelBufferSorterIntermediate( buff );
 
+            ChunkWriter writer = inter.getChunkWriter();
+            
             if ( input.size() == 1 ) {
-                inter.write( input.key(), input.value () );
+                writer.write( input.key(), input.value () );
             }
+
+            writer.close();
                 
             // away with you scoundrel! 
             return inter.getChunkReader();
@@ -49,14 +75,14 @@ public class ChunkSorter2 {
         ChunkReader left  = new ChunkReaderSlice( input, middle );
         ChunkReader right = new ChunkReaderSlice( input, input.size() - middle );
 
-        left  = sort( left , depth + 1);
-        right = sort( right, depth + 1 );
+        left  = sort( left  , output, buff , depth + 1 );
+        right = sort( right , output, buff , depth + 1 );
 
         // Determine which merge structure to use... if this is the LAST merger
         // just write the results to disk.  Writing to memory and THEN writing
         // to disk would just waste CPU time.
 
-        ChunkWriterIntermediate merge = getChunkWriterIntermediate( depth, left, right );
+        SorterIntermediate merge = getSorterIntermediate( buff, depth );
 
         return merge( left, right, merge );
         
@@ -64,7 +90,7 @@ public class ChunkSorter2 {
 
     protected ChunkReader merge( ChunkReader left,
                                  ChunkReader right,
-                                 ChunkWriterIntermediate merge )
+                                 SorterIntermediate merge )
         throws IOException {
 
         // now merge both left and right and we're done.
@@ -75,8 +101,8 @@ public class ChunkSorter2 {
 
         MergerPriorityQueue queue = new MergerPriorityQueue( list );
 
-        ChunkWriterIntermediate merged = new ChunkWriterIntermediate();
-
+        ChunkWriter writer = merge.getChunkWriter();
+        
         while( true ) {
             
             MergeQueueEntry entry = queue.poll();
@@ -84,37 +110,31 @@ public class ChunkSorter2 {
             if ( entry == null )
                 break;
 
-            merged.write( entry.key, entry.value );
+            writer.write( entry.key, entry.value );
 
         }
 
-        return merged.getChunkReader();
+        writer.close();
+        
+        return merge.getChunkReader();
         
     }
 
-    protected ChunkWriterIntermediate getChunkWriterIntermediate( int depth,
-                                                                  ChunkReader left,
-                                                                  ChunkReader right )
+    protected SorterIntermediate getSorterIntermediate( ChannelBuffer buff, int depth )
         throws IOException {
 
-        ChunkWriterIntermediate result = null;
+        SorterIntermediate result = null;
         
         if ( depth == 0 ) {
-            result = new ChunkWriterIntermediate();
-        } else {
 
-            // size the intermediate by looking at the size of the left and
-            // right values which we can easily measure.
-
-            /*
-            int length = ((ChunkReaderSlice)left).length +
-                         ((ChunkReaderSlice)right).length
-                ; 
+            String relative = String.format( "/tmp/%s/sort-%s.tmp" , shuffleInput.getName(), id++ );
             
-            result = new ChunkWriterIntermediate( length );
-            */
-            result = new ChunkWriterIntermediate();
+            String path = config.getPath( partition, relative );
 
+            result = new PersistentSorterIntermediate( path );
+            
+        } else {
+            result = new ChannelBufferSorterIntermediate( buff );
         }
 
         return result;
