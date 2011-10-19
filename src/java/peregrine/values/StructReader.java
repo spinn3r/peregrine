@@ -49,10 +49,6 @@ public class StructReader {
         byte[] data = new byte[4];
         unsafe.read( data );
 
-        if ( debug ) {
-            System.out.printf( "readInt: %s\n", Hex.encode( data, 0 ) );
-        }
-
         return IntBytes.toInt( data );
 
     }

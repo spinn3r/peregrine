@@ -22,18 +22,21 @@ public class TestChunkSorter extends peregrine.BaseTestWithTwoDaemons {
      */
     public void test1() throws Exception {
 
-        ChunkReader reader = _test( makeRandomSortChunk( 50000 ) );
+        int max = 2;
+        
+        ChunkReader reader = _test( makeRandomSortChunk( max ) );
 
         Tuple last = null;
 
         FullTupleComparator comparator = new FullTupleComparator();
-        
+
+        int count = 0;
         while( reader.hasNext() ) {
 
             byte[] key = reader.key();
             byte[] value = reader.value();
 
-            System.out.printf( "%s\n", Hex.encode( key , 0 ) );
+            System.out.printf( "%s\n", Hex.encode( key ) );
 
             Tuple t = new Tuple( key, value );
 
@@ -41,8 +44,11 @@ public class TestChunkSorter extends peregrine.BaseTestWithTwoDaemons {
                 throw new RuntimeException();
 
             last = t;
+            ++count;
             
         }
+
+        assertEquals( max, count );
         
     }
 

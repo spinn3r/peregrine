@@ -41,7 +41,7 @@ public class ChannelBufferSorterIntermediate implements SorterIntermediate {
         // bytes.
         region = region.duplicate();
         
-        return new ChannelBufferChunkReader( region , chunkWriter.count );
+        return new ChannelBufferChunkReader( region , chunkWriter.count() );
         
     }
         
@@ -51,7 +51,7 @@ class ChannelBufferChunkWriter implements ChunkWriter {
 
     ChannelBuffer buff;
 
-    int count = 0;
+    private int count = 0;
     
     public ChannelBufferChunkWriter( ChannelBuffer buff ) {
         this.buff = buff;

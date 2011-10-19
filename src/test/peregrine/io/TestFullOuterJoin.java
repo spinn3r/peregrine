@@ -81,7 +81,7 @@ public class TestFullOuterJoin extends peregrine.BaseTest {
                 break;
 
             System.out.printf( "joined: %s, left=%s, right=%s\n",
-                               Hex.encode( joined.key, 0 ), Hex.encode( joined.values[0], 0 ), Hex.encode( joined.values[1], 0 ) );
+                               Hex.encode( joined.key ), Hex.encode( joined.values[0] ), Hex.encode( joined.values[1] ) );
             
         }
 

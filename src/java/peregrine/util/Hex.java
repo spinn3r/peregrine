@@ -7,26 +7,7 @@ import org.jboss.netty.buffer.*;
 public class Hex {
 
     public static String encode( byte[] input ) {
-        return encode( input, 128 );
-    }
-
-    public static String encode( byte[] input , int offset ) {
-
-        if ( input == null )
-            return "null";
-        
-        StringBuffer buff = new StringBuffer();
-        
-        for( byte b : input ) {
-
-            int i = ((int)b) + offset;
-            
-            buff.append( String.format( "%02x ", i ) );
-
-        }
-
-        return buff.toString().trim();
-        
+        return encode( ChannelBuffers.wrappedBuffer( input ) );
     }
 
     public static String encode( ChannelBuffer buff ) {
