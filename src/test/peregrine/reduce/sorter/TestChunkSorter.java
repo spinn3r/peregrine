@@ -33,8 +33,10 @@ public class TestChunkSorter extends peregrine.BaseTestWithTwoDaemons {
             byte[] key = reader.key();
             byte[] value = reader.value();
 
+            System.out.printf( "%s\n", Hex.encode( key , 0 ) );
+
             Tuple t = new Tuple( key, value );
-            
+
             if ( last != null && comparator.compare( last, t ) > 0 )
                 throw new RuntimeException();
 
