@@ -43,9 +43,9 @@ public class LocalReducer {
     
     public void sort() throws Exception {
 
-        //ChunkSorter sorter = new ChunkSorter( config , partition, shuffleInput );
-        ChunkSorter2 sorter = new ChunkSorter2( config , partition, shuffleInput );
-
+        ChunkSorter sorter = new ChunkSorter( config , partition, shuffleInput );
+        //ChunkSorter2 sorter = new ChunkSorter2( config , partition, shuffleInput );
+        
         List<ChunkReader> sorted = new ArrayList();
         
         for ( ChunkReader reader : input ) {

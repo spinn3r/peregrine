@@ -11,14 +11,14 @@ import org.jboss.netty.buffer.*;
  */
 public class ThreadLocalChannelBuffer extends ThreadLocal<ChannelBuffer> {
 
-    ChannelBufferFactory factory;
+    SimpleChannelBufferFactory factory;
     
     public ThreadLocalChannelBuffer( int capacity ) {
-        this.factory = new DefaultChannelBufferFactory( capacity );
+        this.factory = new DefaultSimpleChannelBufferFactory( capacity );
     }
 
     public ThreadLocalChannelBuffer( int initialCapacity, int extentLength ) {
-        this.factory = new ExtendedChannelBufferFactory( initialCapacity, extentLength );
+        this.factory = new ExtendedSimpleChannelBufferFactory( initialCapacity, extentLength );
     }
 
     @Override
@@ -40,17 +40,17 @@ public class ThreadLocalChannelBuffer extends ThreadLocal<ChannelBuffer> {
     
 }
 
-interface ChannelBufferFactory {
+interface SimpleChannelBufferFactory {
 
     public ChannelBuffer newChannelBuffer();
     
 }
 
-class DefaultChannelBufferFactory implements ChannelBufferFactory {
+class DefaultSimpleChannelBufferFactory implements SimpleChannelBufferFactory {
 
     private int capacity;
     
-    public DefaultChannelBufferFactory( int capacity ) {
+    public DefaultSimpleChannelBufferFactory( int capacity ) {
         this.capacity = capacity;
     }
 
@@ -60,12 +60,12 @@ class DefaultChannelBufferFactory implements ChannelBufferFactory {
     
 }
 
-class ExtendedChannelBufferFactory implements ChannelBufferFactory {
+class ExtendedSimpleChannelBufferFactory implements SimpleChannelBufferFactory {
 
     private int initialCapacity;
     private int extentLength;
     
-    public ExtendedChannelBufferFactory( int initialCapacity, int extentLength ) {
+    public ExtendedSimpleChannelBufferFactory( int initialCapacity, int extentLength ) {
         this.initialCapacity = initialCapacity;
         this.extentLength = extentLength;
     }
