@@ -23,14 +23,11 @@ public class StructWriter {
 
     private static VarintWriter varintWriter = new VarintWriter();
 
-    private static ThreadLocalChannelBuffer threadLocal = new ThreadLocalChannelBuffer();
+    private static ThreadLocalChannelBuffer threadLocal =
+        new ThreadLocalChannelBuffer( BUFFER_SIZE );
 
     public StructWriter() {
-
         buff = threadLocal.get();
-        buff.resetWriterIndex();
-        buff.resetReaderIndex();
-        
     }
 
     public StructWriter writeVarint( int value ) {
@@ -74,14 +71,4 @@ public class StructWriter {
         UTF8 = Charset.forName( "UTF-8" );
     }
 
-}
-
-class ThreadLocalChannelBuffer extends ThreadLocal<ChannelBuffer> {
-
-    public ChannelBuffer initialValue() {
-
-        ChannelBuffer buff = ChannelBuffers.buffer( StructWriter.BUFFER_SIZE );
-        return buff;
-    }
-    
 }

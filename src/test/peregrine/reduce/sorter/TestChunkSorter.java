@@ -48,7 +48,7 @@ public class TestChunkSorter extends peregrine.BaseTestWithTwoDaemons {
 
         ChunkSorter2 sorter = new ChunkSorter2( config , new Partition( 0 ), new ShuffleInputReference( "default" ) );
 
-        ChunkReader result = sorter.sort( reader, null );
+        ChunkReader result = sorter.sort( reader );
 
         return result;
         

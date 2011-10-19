@@ -22,6 +22,11 @@ import org.jboss.netty.buffer.*;
  */
 public class ChunkSorter2 {
 
+    public static int EXTENT_LENGTH = 4194304;
+    
+    private static ThreadLocalChannelBuffer threadLocal =
+        new ThreadLocalChannelBuffer( (int)DefaultPartitionWriter.CHUNK_SIZE, EXTENT_LENGTH );
+
     //keeps track of the current input we're sorting.
     private int id = 0;
 
@@ -37,18 +42,16 @@ public class ChunkSorter2 {
         this.shuffleInput = shuffleInput;
     }
 
-    public ChunkReader sort( ChunkReader input, ChunkWriter output )
+    public ChunkReader sort( ChunkReader input )
         throws IOException {
 
-        // FIXME: this should be cached and reused... 
-        ChannelBuffer buff  = ChannelBuffers.buffer( (int)DefaultPartitionWriter.CHUNK_SIZE );
+        ChannelBuffer buff  = threadLocal.get();
         
-        return sort( input, output, buff, 0 );
+        return sort( input, buff, 0 );
         
     }
 
     public ChunkReader sort( ChunkReader input,
-                             ChunkWriter output,
                              ChannelBuffer buff,
                              int depth )
         throws IOException {
@@ -75,8 +78,8 @@ public class ChunkSorter2 {
         ChunkReader left  = new ChunkReaderSlice( input, middle );
         ChunkReader right = new ChunkReaderSlice( input, input.size() - middle );
 
-        left  = sort( left  , output, buff , depth + 1 );
-        right = sort( right , output, buff , depth + 1 );
+        left  = sort( left  , buff , depth + 1 );
+        right = sort( right , buff , depth + 1 );
 
         // Determine which merge structure to use... if this is the LAST merger
         // just write the results to disk.  Writing to memory and THEN writing

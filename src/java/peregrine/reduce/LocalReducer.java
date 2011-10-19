@@ -13,6 +13,7 @@ import peregrine.util.*;
 import peregrine.map.*;
 import peregrine.io.*;
 import peregrine.io.chunk.*;
+import peregrine.reduce.sorter.*;
 import peregrine.reduce.merger.*;
 
 public class LocalReducer {
@@ -42,7 +43,8 @@ public class LocalReducer {
     
     public void sort() throws Exception {
 
-        ChunkSorter sorter = new ChunkSorter( config , partition, shuffleInput );
+        //ChunkSorter sorter = new ChunkSorter( config , partition, shuffleInput );
+        ChunkSorter2 sorter = new ChunkSorter2( config , partition, shuffleInput );
 
         List<ChunkReader> sorted = new ArrayList();
         
