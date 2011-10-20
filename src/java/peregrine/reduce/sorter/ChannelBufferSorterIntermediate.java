@@ -21,9 +21,12 @@ public class ChannelBufferSorterIntermediate implements SorterIntermediate {
     ChannelBuffer buff;
 
     ChannelBufferChunkWriter chunkWriter = null;
+
+    int startIndex;
     
     public ChannelBufferSorterIntermediate( ChannelBuffer buff ) {
         this.buff = buff;
+        this.startIndex = buff.writerIndex();
     }
 
     @Override
@@ -34,15 +37,8 @@ public class ChannelBufferSorterIntermediate implements SorterIntermediate {
     
     @Override
     public ChunkReader getChunkReader() throws IOException {
-
-        ChannelBuffer region = buff.slice( 0, buff.writerIndex() );
-
-        // we need to duplicate this because we can't let anyone write on these
-        // bytes.
-        region = region.duplicate();
-        
-        return new ChannelBufferChunkReader( region , chunkWriter.count() );
-        
+        ChannelBuffer slice = buff.slice( startIndex, buff.writerIndex() );
+        return new ChannelBufferChunkReader( slice , chunkWriter.count() );
     }
         
 }
@@ -95,7 +91,6 @@ class ChannelBufferChunkReader implements ChunkReader {
     ChannelBuffer buff;
 
     int size = 0;
-
     int idx = 0;
     
     public ChannelBufferChunkReader( ChannelBuffer buff, int size ) {
@@ -110,7 +105,8 @@ class ChannelBufferChunkReader implements ChunkReader {
 
     @Override
     public byte[] key() throws IOException {
-        return read();
+        byte[] key = read();
+        return key;
     }
 
     @Override
@@ -133,7 +129,14 @@ class ChannelBufferChunkReader implements ChunkReader {
 
     @Override
     public void close() throws IOException {
-        //noop
+        //  noop
     }
 
+    public ChannelBufferChunkReader duplicate() {
+
+        ChannelBuffer copy = buff.duplicate();
+        return new ChannelBufferChunkReader( copy, size );
+        
+    }
+    
 }

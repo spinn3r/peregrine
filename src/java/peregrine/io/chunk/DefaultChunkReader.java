@@ -129,6 +129,16 @@ public class DefaultChunkReader implements ChunkReader {
         
     }
 
+    @Override
+    public String toString() {
+
+        if ( file != null )
+            return file.getPath();
+
+        return super.toString();
+        
+    }
+    
     public static void main( String[] args ) throws Exception {
 
         ChunkReader reader = new DefaultChunkReader( new File( args[0] ) );

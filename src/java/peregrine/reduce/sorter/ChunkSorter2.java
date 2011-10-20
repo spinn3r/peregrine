@@ -38,38 +38,61 @@ public class ChunkSorter2 {
     private Partition partition;
     private ShuffleInputReference shuffleInput;
 
+    private ChannelBuffer buffer;
+    
     public ChunkSorter2( Config config,
                          Partition partition,
                          ShuffleInputReference shuffleInput ) {
+
         this.config = config;
         this.partition = partition;
         this.shuffleInput = shuffleInput;
+
+        this.buffer   = threadLocal.initialValue();
+
     }
 
     public ChunkReader sort( ChunkReader input )
         throws IOException {
 
-        log.info( "Going to sort: %s", input );
+        try {
         
-        ChannelBuffer buff  = threadLocal.get();
-        
-        return sort( input, buff, 0 );
-        
+            log.info( "Going to sort: %s", input );
+            
+            ChunkReader result = sort( input, 0, 0 );
+            
+            log.info( "Sort output file %s has %,d entries.", result, result.size() );
+
+            return result;
+
+        } catch ( Throwable t ) {
+            t.printStackTrace();
+            throw new IOException( t );
+                
+        }
+
     }
 
-    public ChunkReader sort( ChunkReader input,
-                             ChannelBuffer buff,
-                             int depth )
+    private ChunkReader sort( ChunkReader input, int depth, int index )
         throws IOException {
 
+        // FIXME: what I should do is EACH STEP after this I should hex dump the
+        // FULL array so I can understand what is being written into it... AND
+        // the pointers of the chunk readers.... so that I can look at their raw
+        // values in the given range.
+        
         if ( input.size() <= 1 ) {
             
-            SorterIntermediate inter = new ChannelBufferSorterIntermediate( buff );
+            SorterIntermediate inter = new ChannelBufferSorterIntermediate( buffer );
 
             ChunkWriter writer = inter.getChunkWriter();
             
             if ( input.size() == 1 && input.hasNext() ) {
-                writer.write( input.key(), input.value () );
+
+                byte[] key   = input.key();
+                byte[] value = input.value();
+
+                writer.write( key, value );
             }
 
             writer.close();
@@ -84,22 +107,33 @@ public class ChunkSorter2 {
         ChunkReader left  = new ChunkReaderSlice( input, middle );
         ChunkReader right = new ChunkReaderSlice( input, input.size() - middle );
 
-        left  = sort( left  , buff , depth + 1 );
-        right = sort( right , buff , depth + 1 );
+        left  = sort( left  , depth + 1, buffer.writerIndex() );
+        right = sort( right , depth + 1, buffer.writerIndex() );
 
+        dump( "left",  left );
+        dump( "right", right );
+        
         // Determine which merge structure to use... if this is the LAST merger
         // just write the results to disk.  Writing to memory and THEN writing
         // to disk would just waste CPU time.
 
-        SorterIntermediate merge = getSorterIntermediate( buff, depth );
+        SorterIntermediate merge = getSorterIntermediate( buffer, depth );
 
-        return merge( left, right, merge );
+        ChunkReader merged = merge( left, right, merge, depth );
+
+        dump( "merged", merged );
+
+        buffer.readerIndex( index );
+        buffer.writerIndex( index );
+        
+        return merged;
         
     }
 
     protected ChunkReader merge( ChunkReader left,
                                  ChunkReader right,
-                                 SorterIntermediate merge )
+                                 SorterIntermediate merge,
+                                 int depth )
         throws IOException {
 
         // now merge both left and right and we're done.
@@ -111,7 +145,7 @@ public class ChunkSorter2 {
         MergerPriorityQueue queue = new MergerPriorityQueue( list );
 
         ChunkWriter writer = merge.getChunkWriter();
-
+        
         while( true ) {
             
             MergeQueueEntry entry = queue.poll();
@@ -149,5 +183,29 @@ public class ChunkSorter2 {
         return result;
         
     }
-    
+
+    private void dump( String name, ChunkReader reader ) throws IOException {
+
+        if ( reader instanceof ChannelBufferChunkReader ) {
+
+            reader = ((ChannelBufferChunkReader)reader).duplicate();
+            
+            System.out.printf( "%s:\n", name );
+            
+            while( reader.hasNext() ) {
+
+                byte[] key = reader.key();
+                byte[] value = reader.value();
+
+                System.out.printf( "dump(): key: %s\n", Hex.encode( key ) );
+                
+            }
+            
+            // so something else can look at it.
+            reader.close();
+
+        }
+
+    }
+
 }

@@ -22,9 +22,26 @@ public class TestChunkSorter extends peregrine.BaseTestWithTwoDaemons {
      */
     public void test1() throws Exception {
 
-        int max = 2;
+        // this actually does break us.. interesting.
+        //int max = 500000;
+
+        int max = 4;
         
-        ChunkReader reader = _test( makeRandomSortChunk( max ) );
+        assertResults( _test( makeRandomSortChunk( max ) ), max );
+        
+    }
+
+    /*
+    public void test2() throws Exception {
+
+        for( int i = 0; i < 1024; ++i ) {
+            assertResults( _test( makeRandomSortChunk( i ) ), i );
+        }
+        
+    }
+
+    */
+    public static void assertResults( ChunkReader reader, int max ) throws Exception {
 
         Tuple last = null;
 
@@ -37,21 +54,31 @@ public class TestChunkSorter extends peregrine.BaseTestWithTwoDaemons {
             byte[] value = reader.value();
 
             System.out.printf( "%s\n", Hex.encode( key ) );
-
+            
             Tuple t = new Tuple( key, value );
 
             if ( last != null && comparator.compare( last, t ) > 0 )
-                throw new RuntimeException();
+                throw new RuntimeException( "value is NOT less than last value" );
 
+            // now make sure it's the RIGHT value.
+            byte[] correct = LongBytes.toByteArray( count );
+
+            if ( last != null && comparator.compare( last, new Tuple( correct, correct ) ) == 0 ) {
+
+                String message = "value is NOT correct";
+                
+                throw new RuntimeException( message );
+            }
+            
             last = t;
             ++count;
             
         }
 
         assertEquals( max, count );
-        
-    }
 
+    }
+    
     private ChunkReader _test( ChunkReader reader ) throws Exception {
 
         ChunkSorter2 sorter = new ChunkSorter2( config , new Partition( 0 ), new ShuffleInputReference( "default" ) );
@@ -83,15 +110,12 @@ public class TestChunkSorter extends peregrine.BaseTestWithTwoDaemons {
 
         for( int i = 0; i < input.length; ++i ) {
 
-            long val = input[i];
-            
-            byte[] hash = Hashcode.getHashcode( "" + val );
-            
-            //System.out.printf( "%d encodes as: %s\n", val, Hex.encode( hash ) );
-            
-            ByteArrayKey key = new ByteArrayKey( hash );
+            byte[] key = LongBytes.toByteArray( i );
 
-            writer.write( key.toBytes(), new IntValue( input[i] ).toBytes() );
+            // set the value to 'x' so that I don't accidentally read the key.
+            byte[] value = new byte[] { (byte)'x', (byte)'x', (byte)'x', (byte)'x', (byte)'x', (byte)'x', (byte)'x' };
+            
+            writer.write( key, value );
             
         }
 

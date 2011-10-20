@@ -43,34 +43,6 @@ public class TestChunkSorter extends peregrine.BaseTestWithTwoDaemons {
         }
         
     }
-
-    /*
-    public void test2() throws Exception {
-
-        int max = 10;
-
-        Tuple[] array = new Tuple[max];
-
-        for( int i = 0; i < 10; ++i ) {
-            array[i] = new Tuple( new byte[0], new byte[0] );
-        }
-
-        TupleArrayChunkReader reader = new TupleArrayChunkReader( array ) ;
-
-        int count = 0;
-        while( reader.hasNext() ) {
-
-            byte[] key = reader.key();
-            byte[] value = reader.value();
-
-            ++count;
-
-        }
-
-        assertEquals( count, max );
-        
-    }
-    */
     
     private ChunkReader _test( ChunkReader reader ) throws Exception {
 
@@ -105,13 +77,9 @@ public class TestChunkSorter extends peregrine.BaseTestWithTwoDaemons {
 
         for( int i = 0; i < input.length; ++i ) {
 
-            long val = input[i];
+            byte[] key = LongBytes.toByteArray( i );
             
-            byte[] hash = Hashcode.getHashcode( "" + val );
-            
-            ByteArrayKey key = new ByteArrayKey( hash );
-
-            writer.write( key.toBytes(), new IntValue( input[i] ).toBytes() );
+            writer.write( key, key );
             
         }
 
