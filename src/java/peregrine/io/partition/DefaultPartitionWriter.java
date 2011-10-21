@@ -24,7 +24,7 @@ public class DefaultPartitionWriter implements PartitionWriter {
     /**
      * Chunk size for rollover files.
      */
-    public static long CHUNK_SIZE = 134217728;
+    public static long CHUNK_SIZE = (long) Math.pow(2, 27); // 128MB
 
     protected String path;
 

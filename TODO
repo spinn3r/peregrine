@@ -1,17 +1,38 @@
 
+- O_NOATIME on files ... 
+
+- to pin pages into memory what I should probably do is mmap the file
+  TWICE... once with MLOCK and then with the normal java APIs and then close
+  them both.
+
+- use     public static final long MAX_BYTES_IN_PAGE_CACHE = (long) Math.pow(2, 27); // 128mb
+
+    instead of 128MB 
+
+- we should support fadvising away files once we've processed them to avoid VFS
+  page cache insanity.  ESPECIALLY some of the temporary sort files.  
+
+- suppprt fixed width input formats.  There are a LOT of advantages to doing
+  this:
+
+    - I don't have to read varints when parsing the key list
+    - I can store the key list and value list side by side.
+
+    - when sorting, within the intermediate files, I can JUST write a new key
+      list and then keep the values in the same spot on disk.
+
 - Write MEMORY benchmarks... that measure heap BEFORE and AFTER each test so that
   I can prevent memory leaks.
 
   - Constrain the JVM memory that is forked from <junit> so that I can verify
     that the memory NEVER goes above a certain lower bound.
 
-
 - If the ExtractWriter does NOT write to all hosts the HTTP server is still
   written to and then creates a fucked up chunk.  One way to test this is to
   write ONE key so that not every host has a value and peregrine will then die.
 
 - The PUT handler should ONLY return HTTP 200 OK once the file is WRITEN and
-  should NOT leave a temp file in its place... 
+  should NOT leave a temp file in its place...
 
 - peregrin fails to handle disks filling up...... 
 

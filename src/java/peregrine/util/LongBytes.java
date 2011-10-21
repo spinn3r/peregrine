@@ -5,9 +5,11 @@ import java.util.*;
 
 public class LongBytes {
 
+    public static final int LENGTH = 8;
+
     public static byte[] toByteArray( long value ) {
 
-        byte[] b = new byte[8];
+        byte[] b = new byte[LENGTH];
 
         b[7] = (byte)((value >> 0 ) & 0xFF);
         b[6] = (byte)((value >> 8 ) & 0xFF);

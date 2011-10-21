@@ -3,6 +3,8 @@ package peregrine.util;
 import java.io.*;
 import java.util.*;
 
+import org.jboss.netty.buffer.*;
+
 public class VarintReader {
 
     protected ByteReader byteReader;
@@ -13,6 +15,10 @@ public class VarintReader {
         this.byteReader = new InputStreamByteReader( is );
     }
 
+    public VarintReader( ChannelBuffer buff ) {
+        this( new ChannelBufferInputStream( buff ) );
+    }
+    
     public int read() {
         return read1() - 1;
     }

@@ -9,6 +9,8 @@ import peregrine.util.*;
 import peregrine.keys.*;
 import peregrine.values.*;
 
+import org.jboss.netty.buffer.*;
+
 public class DefaultChunkReader implements ChunkReader {
 
     public static int BUFFER_SIZE = 8192;
@@ -51,9 +53,7 @@ public class DefaultChunkReader implements ChunkReader {
 
         try {
 
-            if ( this.length < IntBytes.LENGTH )
-                throw new IOException( String.format( "File %s is too short (%,d bytes)", file.getPath(), length ) );
-            
+            assertLength();
             raf.seek( this.length - IntBytes.LENGTH );
             
             byte[] size_bytes = new byte[ IntBytes.LENGTH ];
@@ -69,9 +69,24 @@ public class DefaultChunkReader implements ChunkReader {
         
     }
 
+    public DefaultChunkReader( File file, ChannelBuffer buff )
+        throws IOException {
+
+        this.file = file;
+        this.input = new ChannelBufferInputStream( buff );
+        this.varintReader = new VarintReader( this.input );
+        this.length = file.length();
+
+        assertLength();
+        setSize( buff.getInt( (int)(length - 4) ) );
+        
+    }
+    
     public DefaultChunkReader( byte[] data )
         throws IOException {
 
+        //FIXME: refactor this to use a ChannelBuffer ... via ChannelBuffers.wrapped()
+        
         this.length = data.length;
 
         byte[] size_bytes = new byte[ IntBytes.LENGTH ];
@@ -84,12 +99,17 @@ public class DefaultChunkReader implements ChunkReader {
 
     }
 
+    private void assertLength() throws IOException {
+        if ( this.length < IntBytes.LENGTH )
+            throw new IOException( String.format( "File %s is too short (%,d bytes)", file.getPath(), length ) );
+    }
+
     private void setSize( int size ) throws IOException {
 
         if ( size < 0 ) {
             throw new IOException( "Invalid size: " + size );
         }
-        
+
         this.size = size;
     }
 
@@ -111,6 +131,14 @@ public class DefaultChunkReader implements ChunkReader {
 
     public byte[] value() throws IOException {
         return readBytes( varintReader.read() );
+    }
+
+    /**
+     * skip the currnent key or value by reading the varint and the skipping
+     * over it in the input stream.
+     */
+    public void skip() throws IOException {
+        input.skip( varintReader.read() );        
     }
     
     public void close() throws IOException {

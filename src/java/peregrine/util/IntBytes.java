@@ -12,16 +12,11 @@ public class IntBytes {
      */
     public static byte[] toByteArray( int value ) {
 
-        byte b0 = (byte)(( value >> 24 ) & 0xFF);
-        byte b1 = (byte)(( value >> 16 ) & 0xFF);
-        byte b2 = (byte)(( value >> 8  ) & 0xFF);
-        byte b3 = (byte)(( value >> 0  ) & 0xFF);
-
-        byte[] b = new byte[4];
-        b[0] = b0;
-        b[1] = b1;
-        b[2] = b2;
-        b[3] = b3;
+        byte[] b = new byte[LENGTH];
+        b[0] = (byte)(( value >> 24 ) & 0xFF);
+        b[1] = (byte)(( value >> 16 ) & 0xFF);
+        b[2] = (byte)(( value >> 8  ) & 0xFF);
+        b[3] = (byte)(( value >> 0  ) & 0xFF);
 
         return b;
         
