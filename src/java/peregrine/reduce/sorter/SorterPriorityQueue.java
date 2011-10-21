@@ -1,5 +1,5 @@
 
-package peregrine.reduce.sorter3;
+package peregrine.reduce.sorter;
 
 import java.io.*;
 import java.util.*;
