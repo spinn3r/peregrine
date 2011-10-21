@@ -129,8 +129,6 @@ public class BaseChunkSorter {
 
         KeyLookup merged = merge( left, right, depth );
 
-        input.dump( "FIXME: merged" );
-
         return merged;
         
     }

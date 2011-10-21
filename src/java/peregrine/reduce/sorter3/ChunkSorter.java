@@ -59,11 +59,8 @@ public class ChunkSorter extends BaseChunkSorter {
 
             DefaultChunkReader reader = new DefaultChunkReader( input, buffer );
 
-            System.out.printf( "FIXME: reader size: %s\n", reader.size() );
             lookup = new KeyLookup( reader, buffer );
 
-            System.out.printf( "lookup: %s\n" , lookup.size );
-            
             int key_start = 0;
             int key_end   = reader.size() - 1;
 
