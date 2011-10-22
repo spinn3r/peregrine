@@ -2,10 +2,11 @@
 package peregrine.reduce.sorter;
 
 import java.io.*;
-import java.nio.*;
-import java.nio.channels.*;
 import java.util.*;
 import java.util.concurrent.*;
+
+import java.nio.*;
+import java.nio.channels.*;
 
 import peregrine.*;
 import peregrine.keys.*;

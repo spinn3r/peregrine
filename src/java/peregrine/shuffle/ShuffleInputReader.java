@@ -5,10 +5,15 @@ import java.nio.*;
 import java.util.*;
 import java.util.concurrent.atomic.*;
 
+import java.nio.*;
+import java.nio.channels.*;
+
 import peregrine.*;
 import peregrine.util.*;
 import peregrine.values.*;
 import peregrine.io.async.*;
+
+import org.jboss.netty.buffer.*;
 
 import com.spinn3r.log5j.Logger;
 
@@ -26,13 +31,9 @@ public class ShuffleInputReader {
 
     private String path;
 
-    private StructReader struct;
-
     private int packet_idx = 0;
 
     private int partition;
-
-    private InputStream in;
 
     /**
      * ALL known headers in this shuffle file.
@@ -43,6 +44,10 @@ public class ShuffleInputReader {
      * The currently parsed header information for the given partition.
      */
     protected Header header = null;
+
+    protected ChannelBuffer buffer = null;
+
+    protected FileInputStream in = null;
     
     public ShuffleInputReader( String path, int partition ) throws IOException {
 
@@ -63,7 +68,7 @@ public class ShuffleInputReader {
         // data but in practice this may be a premature optimization.
         
         in = new FileInputStream( file );
-        this.struct = new StructReader( in );
+        StructReader struct = new StructReader( in );
 
         // read the magic.
         byte[] magic = struct.read( new byte[ ShuffleOutputWriter.MAGIC.length ] );
@@ -101,9 +106,6 @@ public class ShuffleInputReader {
 
             // record this for usage later if necessary.
             headers.add( current );
-
-            //FIXME: I think THIS is the bug... what's happening is that we're
-            //jumping BEFORE two of the packets which is the problem.
             
             point += ShuffleOutputWriter.LOOKUP_HEADER_SIZE;
 
@@ -114,11 +116,8 @@ public class ShuffleInputReader {
                                                   partition, path ) );
         }
 
-        in.skip( start - point );
-
-        // now switched to buffered reads... 
-        in = new BufferedInputStream( in , BUFFER_SIZE );
-        this.struct = new StructReader( in );
+        MappedByteBuffer map = in.getChannel().map( FileChannel.MapMode.READ_ONLY, header.offset, header.length );
+        this.buffer = ChannelBuffers.wrappedBuffer( map );
 
     }
     
@@ -137,16 +136,16 @@ public class ShuffleInputReader {
 
         ++packet_idx;
 
-        int from_partition  = struct.readInt();
-        int from_chunk      = struct.readInt();
-        int to_partition    = struct.readInt();
-        int len             = struct.readInt();
+        int from_partition  = buffer.readInt();
+        int from_chunk      = buffer.readInt();
+        int to_partition    = buffer.readInt();
+        int len             = buffer.readInt();
 
         if ( to_partition != this.partition )
            throw new IOException( "Read invalid partition data: " + to_partition );
         
         byte[] data = new byte[ len ];
-        data = struct.read( data );
+        buffer.readBytes( data );
 
         // TODO: why is count -1 here?  That makes NO sense.
         int count = -1;
