@@ -9,14 +9,15 @@ import java.nio.*;
 import java.nio.channels.*;
 
 import peregrine.*;
-import peregrine.keys.*;
-import peregrine.values.*;
-import peregrine.util.*;
-import peregrine.map.*;
 import peregrine.io.*;
 import peregrine.io.chunk.*;
 import peregrine.io.partition.*;
+import peregrine.keys.*;
+import peregrine.map.*;
 import peregrine.reduce.merger.*;
+import peregrine.shuffle.*;
+import peregrine.util.*;
+import peregrine.values.*;
 
 import org.jboss.netty.buffer.*;
 
@@ -28,8 +29,6 @@ import com.spinn3r.log5j.Logger;
 public class ChunkSorter extends BaseChunkSorter {
 
     private static final Logger log = Logger.getLogger();
-
-    protected ChannelBuffer buffer = null;
 
     public ChunkSorter( Config config,
                         Partition partition,
@@ -49,19 +48,16 @@ public class ChunkSorter extends BaseChunkSorter {
         
             log.info( "Going to sort: %s", input );
 
-            MappedByteBuffer inputMap  = inputChannel.map(  FileChannel.MapMode.READ_ONLY,  0, input.length() );
-
-            // we prefer the channel buffer interface.
-            buffer = ChannelBuffers.wrappedBuffer( inputMap );
-
             // TODO: do this async so that we can read from disk and compute at
             // the same time... we need a background thread to trigger the
             // pre-read.
 
-            DefaultChunkReader reader = new DefaultChunkReader( input, buffer );
+            ShuffleInputChunkReader reader = new ShuffleInputChunkReader( input.getPath(), partition.getId() );
+
+            ChannelBuffer buffer = reader.getShuffleInputReader().getBuffer();
 
             lookup = new KeyLookup( reader, buffer );
-
+            
             int key_start = 0;
             int key_end   = reader.size() - 1;
 
@@ -70,7 +66,7 @@ public class ChunkSorter extends BaseChunkSorter {
             ChunkReader result = null;
 
             lookup = sort( lookup, depth );
-
+            
             //parse this into the final ChunkWriter now.
 
             VarintReader varintReader = new VarintReader( buffer );
@@ -92,17 +88,20 @@ public class ChunkSorter extends BaseChunkSorter {
                 int end = buffer.readerIndex();
 
                 int count = (end - start) + 1;
+
+                start += reader.getShuffleInputReader().getHeader().offset;
                 
                 transferTo( inputChannel, outputChannel, start, count );
                 
             }
 
-            // now write out the length and we are done
-            transferTo( inputChannel, outputChannel, input.length() - 4, IntBytes.LENGTH );
-
+            ChannelBuffer size = ChannelBuffers.buffer( IntBytes.LENGTH );
+            size.writeInt( lookup.size );
+            outputChannel.write( size.toByteBuffer() );
+            
             log.info( "Sort output file %s has %,d entries.", output, reader.size() );
 
-            // FIXME cloe both mmap regions.
+            result = new DefaultChunkReader( output );
             
             return result;
 

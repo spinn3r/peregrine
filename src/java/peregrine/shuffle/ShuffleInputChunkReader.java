@@ -100,6 +100,18 @@ public class ShuffleInputChunkReader {
         }
 
     }
+
+    public ShufflePacket2 getShufflePacket() {
+        return pack;
+    }
+    
+    public int keyOffset() {
+        return key_offset;
+    }
+
+    public int keyLength() {
+        return key_length;
+    }
     
     public byte[] key() throws IOException {
         return readBytes( key_offset, key_length );
@@ -122,8 +134,8 @@ public class ShuffleInputChunkReader {
         return String.format( "%s:%s:%s" , getClass().getName(), path, partition );
     }
 
-    public ChannelBuffer getBuffer() {
-        return reader.getBuffer();
+    public ShuffleInputReader getShuffleInputReader() {
+        return reader;
     }
     
     private byte[] readBytes( int offset, int length ) throws IOException {

@@ -78,8 +78,10 @@ public class Hex {
                 result.append( ' ' );
             }
             
-            for( byte b : slice.array() ) {
+            for( int j = 0; j < slice.capacity(); ++j ) {
 
+                byte b = slice.getByte( j );
+                
                 if ( b >= 32 )
                     result.append( (char)b );
                 else

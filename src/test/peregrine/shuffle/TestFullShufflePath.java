@@ -88,9 +88,14 @@ public class TestFullShufflePath extends peregrine.BaseTestWithTwoDaemons {
             
         }
 
-        //ChunkSorter sorter = new ChunkSorter( config , new Partition( 0 ), new ShuffleInputReference( "default" ) );
+        ChunkSorter sorter = new ChunkSorter( config , new Partition( 0 ), new ShuffleInputReference( "default" ) );
 
-        //ChunkReader result = sorter.sort( reader );
+        File file_input = new File( "/tmp/peregrine-fs/localhost/11112/tmp/shuffle/default/0000000000.tmp" );
+        File file_output = new File( "/tmp/test.out" );
+
+        System.out.printf( "===============================\n" );
+        
+        ChunkReader result = sorter.sort( file_input, file_output );
 
         //eregrine.reduce.sorter.TestChunkSorter.assertResults( result, max_emits );
 
@@ -105,7 +110,8 @@ public class TestFullShufflePath extends peregrine.BaseTestWithTwoDaemons {
         int count = 0;
         while( reader.hasNext() ) {
 
-            System.out.printf( "key: %s, value: %s\n", Hex.encode( reader.key() ), Hex.encode( reader.value() ) );
+            System.out.printf( "readShuffle: partition: %s, key: %s, value: %s\n",
+                               partition, Hex.encode( reader.key() ), Hex.encode( reader.value() ) );
 
             ++count;
 

@@ -144,21 +144,22 @@ public class ShuffleInputReader {
         int from_chunk      = buffer.readInt();
         int to_partition    = buffer.readInt();
         int len             = buffer.readInt();
+        int offset          = buffer.readerIndex();
 
         if ( to_partition != this.partition )
            throw new IOException( "Read invalid partition data: " + to_partition );
 
-        // FIXME: this should be a channel buffer slice.
-
         ChannelBuffer data = buffer.slice( buffer.readerIndex(), len );
 
+        System.out.printf( "ShuffleInputReader: FIXME: packet data: \n%s\n", Hex.pretty( data ) );
+        
         // now update the reader index so we can skip over this data.
         buffer.readerIndex( buffer.readerIndex() + len );
         
         // TODO: why is count -1 here?  That makes NO sense.
         int count = -1;
         
-        ShufflePacket2 pack = new ShufflePacket2( from_partition, from_chunk, to_partition, count, data );
+        ShufflePacket2 pack = new ShufflePacket2( from_partition, from_chunk, to_partition, offset, count, data );
 
         return pack;
         
@@ -168,13 +169,13 @@ public class ShuffleInputReader {
         in.close();
     }
 
-    class Header {
+    public class Header {
 
-        int partition;
-        int offset;
-        int nr_packets;
-        int count;
-        int length;
+        public int partition;
+        public int offset;
+        public int nr_packets;
+        public int count;
+        public int length;
         
         public String toString() {
             

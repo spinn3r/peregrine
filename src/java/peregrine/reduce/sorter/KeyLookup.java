@@ -16,6 +16,7 @@ import peregrine.io.*;
 import peregrine.io.chunk.*;
 import peregrine.io.partition.*;
 import peregrine.reduce.merger.*;
+import peregrine.shuffle.*;
 
 import org.jboss.netty.buffer.*;
 
@@ -56,21 +57,17 @@ public class KeyLookup {
         this( new int[size], buffer );
     }
 
-    public KeyLookup( DefaultChunkReader reader,
+    public KeyLookup( ShuffleInputChunkReader reader, 
                       ChannelBuffer buffer )
         throws IOException {
 
         this( reader.size(), buffer );
 
-        for( int i = 0; i < reader.size(); ++i ) {
+        while ( reader.hasNext() ) {
 
             next();
-            set( buffer.readerIndex() + 1 );
+            set( reader.getShufflePacket().offset + reader.keyOffset() );
 
-            // we don't actually need to read the key or value right now.
-            reader.skip();
-            reader.skip();
-            
         }
 
         reset();

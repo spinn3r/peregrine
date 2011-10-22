@@ -49,56 +49,6 @@ public class BaseChunkSorter {
 
     }
 
-    public ChunkReader sort( File input )
-        throws IOException {
-
-        try {
-        
-            log.info( "Going to sort: %s", input );
-
-            FileInputStream fis = new FileInputStream( input );
-            
-            MappedByteBuffer map = fis.getChannel().map( FileChannel.MapMode.READ_ONLY, 0, input.length() );
-
-            // FIXME: do this async so that we can read from disk and compute at
-            // the same time.
-            
-            // force it into memory...
-            map.load();
-
-            // we prefer the channel buffer interface.
-            buffer = ChannelBuffers.wrappedBuffer( map );
-
-            DefaultChunkReader reader = new DefaultChunkReader( input, buffer );
-            
-            lookup = new KeyLookup( reader, buffer );
-
-            int key_start = 0;
-            int key_end   = reader.size() - 1;
-
-            int depth = 0;
-
-            ChunkReader result = null;
-
-            //FIXME parse this into the final ChunkWriter now.
-            lookup = sort( lookup, depth );
-
-            while( lookup.hasNext() ) {
-
-            }
-
-            log.info( "Sort output file %s has %,d entries.", result, result.size() );
-
-            return result;
-
-        } catch ( Throwable t ) {
-            t.printStackTrace();
-            throw new IOException( t );
-                
-        }
-
-    }
-
     public KeyLookup sort( KeyLookup input ) 
         throws IOException {
 
