@@ -18,13 +18,13 @@ import com.spinn3r.log5j.Logger;
  * ChunkSorter to manage the data and then reduce over it.
  * 
  */
-public class ShuffleInputChunkReader implements ChunkReader {
+public class ShuffleInputChunkReader {
 
     ShuffleInputReader reader;
 
     ShufflePacket pack = null;
 
-    int idx = 0;
+    int packet_idx = 0;
 
     VarintReader varintReader;
 
@@ -55,15 +55,18 @@ public class ShuffleInputChunkReader implements ChunkReader {
         
         while( true ) {
 
-            if ( pack != null && idx < pack.data.length ) {
+            if ( pack != null && packet_idx < pack.data.length ) {
 
                 key   = readBytes( varintReader.read() );
                 value = readBytes( varintReader.read() );
 
-                idx += VarintWriter.sizeof( key.length ) +
-                       key.length + 
-                       VarintWriter.sizeof( value.length ) +
-                       value.length
+                // TODO: underlying reader is now a ChannelBuffer and we can use
+                // this.
+
+                packet_idx += VarintWriter.sizeof( key.length ) +
+                              key.length +
+                              VarintWriter.sizeof( value.length ) +
+                              value.length
                     ;
 
                 return true;
@@ -81,14 +84,6 @@ public class ShuffleInputChunkReader implements ChunkReader {
             
     }
 
-    private byte[] readBytes( int len ) throws IOException {
-
-        byte[] data = new byte[len];
-        is.read( data );
-        return data;
-        
-    }
-
     private boolean nextShufflePacket() throws IOException {
 
         if ( reader.hasNext() ) {
@@ -96,7 +91,7 @@ public class ShuffleInputChunkReader implements ChunkReader {
             pack          = reader.next();
             is            = new ByteArrayInputStream( pack.data );
             varintReader  = new VarintReader( is );
-            idx           = 0;
+            packet_idx    = 0;
 
             return true;
             
@@ -105,7 +100,7 @@ public class ShuffleInputChunkReader implements ChunkReader {
         }
 
     }
-
+    
     @Override
     public byte[] key() throws IOException {
         return key;
@@ -130,5 +125,17 @@ public class ShuffleInputChunkReader implements ChunkReader {
     public String toString() {
         return String.format( "%s:%s:%s" , getClass().getName(), path, partition );
     }
+
+    public ChannelBuffer getBuffer() {
+        return reader.getBuffer();
+    }
     
+    private byte[] readBytes( int len ) throws IOException {
+
+        byte[] data = new byte[len];
+        is.read( data );
+        return data;
+        
+    }
+
 }

@@ -85,7 +85,9 @@ public class DefaultChunkReader implements ChunkReader {
     public DefaultChunkReader( byte[] data )
         throws IOException {
 
-        //FIXME: refactor this to use a ChannelBuffer ... via ChannelBuffers.wrapped()
+        //FIXME: refactor this to use a ChannelBuffer ... via
+        //ChannelBuffers.wrapped() ... but I need to get unit tests working
+        //again.
         
         this.length = data.length;
 
@@ -97,6 +99,49 @@ public class DefaultChunkReader implements ChunkReader {
         this.input = new ByteArrayInputStream( data );
         this.varintReader = new VarintReader( this.input );
 
+    }
+
+    @Override
+    public boolean hasNext() throws IOException {
+
+        if( idx < size ) {
+            return true;
+        } else {
+            return false;
+        }
+
+    }
+
+    @Override
+    public byte[] key() throws IOException {
+        ++idx;
+        return readBytes( varintReader.read() );
+        
+    }
+
+    @Override
+    public byte[] value() throws IOException {
+        return readBytes( varintReader.read() );
+    }
+
+    @Override
+    public void close() throws IOException {
+        this.input.close();
+    }
+
+    @Override
+    public int size() throws IOException {
+        return this.size;
+    }
+
+    @Override
+    public String toString() {
+
+        if ( file != null )
+            return file.getPath();
+
+        return super.toString();
+        
     }
 
     private void assertLength() throws IOException {
@@ -113,57 +158,19 @@ public class DefaultChunkReader implements ChunkReader {
         this.size = size;
     }
 
-    public boolean hasNext() throws IOException {
-
-        if( idx < size ) {
-            return true;
-        } else {
-            return false;
-        }
-
-    }
-
-    public byte[] key() throws IOException {
-        ++idx;
-        return readBytes( varintReader.read() );
-        
-    }
-
-    public byte[] value() throws IOException {
-        return readBytes( varintReader.read() );
-    }
-
     /**
-     * skip the currnent key or value by reading the varint and the skipping
+     * Skip the currnent key or value by reading the length and the skipping
      * over it in the input stream.
      */
     public void skip() throws IOException {
         input.skip( varintReader.read() );        
     }
-    
-    public void close() throws IOException {
-        this.input.close();
-    }
 
-    public int size() throws IOException {
-        return this.size;
-    }
-    
     private byte[] readBytes( int len ) throws IOException {
 
         byte[] data = new byte[len];
         input.read( data );
         return data;
-        
-    }
-
-    @Override
-    public String toString() {
-
-        if ( file != null )
-            return file.getPath();
-
-        return super.toString();
         
     }
     

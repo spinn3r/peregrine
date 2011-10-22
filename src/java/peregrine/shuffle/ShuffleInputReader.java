@@ -120,6 +120,10 @@ public class ShuffleInputReader {
         this.buffer = ChannelBuffers.wrappedBuffer( map );
 
     }
+
+    public ChannelBuffer getBuffer() {
+        return buffer;
+    }
     
     public Header getHeader() {
         return header;
@@ -143,6 +147,8 @@ public class ShuffleInputReader {
 
         if ( to_partition != this.partition )
            throw new IOException( "Read invalid partition data: " + to_partition );
+
+        // FIXME: this should be a channel buffer slice.
         
         byte[] data = new byte[ len ];
         buffer.readBytes( data );
