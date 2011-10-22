@@ -19,6 +19,8 @@ import static peregrine.pfsd.FSPipelineFactory.MAX_CHUNK_SIZE;
  */
 public class ShuffleOutputWriter {
 
+    public static final int HEADER_SIZE = IntBytes.LENGTH * 5;
+
     private static final Logger log = Logger.getLogger();
 
     /**
@@ -142,23 +144,25 @@ public class ShuffleOutputWriter {
         
         // the offset in this chunk to start reading the data from this
         // partition and chunk.
-
-        int nr_integers_per_header = 4;
         
-        int off = MAGIC.length + IntBytes.LENGTH + (lookup.size() * IntBytes.LENGTH * nr_integers_per_header);
+        int offset = MAGIC.length + IntBytes.LENGTH + (lookup.size() * HEADER_SIZE);
+
+        // TODO: these should be stored in the primary order that they will be
+        // reduce by priority on this box.
+
+        // *** STEP 1 .. write the header information
 
         for( int part : lookup.keySet() ) {
 
             ShuffleOutputPartition shuffleOutputPartition = lookup.get( part );
 
-            int width = 0;
+            // the length of ALL the data for this partition.
+            int length = 0;
 
             for( ShufflePacket pack : shuffleOutputPartition.packets ) {
-
-                int integers_per_shuffle_packet = 4;
                 
-                width += (IntBytes.LENGTH * integers_per_shuffle_packet);
-                width += pack.data.length;
+                length += HEADER_SIZE;
+                length += pack.data.length;
                 
             }
 
@@ -167,21 +171,28 @@ public class ShuffleOutputWriter {
             //TODO: make sure ALL of these are acceptable.
             if ( shuffleOutputPartition.count < 0 )
                 throw new IOException( "Header corrupted: count < 0" );
+
+            int count = shuffleOutputPartition.count;
             
             out.write( IntBytes.toByteArray( part ) );
-            out.write( IntBytes.toByteArray( off ) );
+            out.write( IntBytes.toByteArray( offset ) );
             out.write( IntBytes.toByteArray( nr_packets ) );
-            out.write( IntBytes.toByteArray( shuffleOutputPartition.count ) );
+            out.write( IntBytes.toByteArray( count ) );
+            out.write( IntBytes.toByteArray( length ) );
             
-            off += width;
+            offset += length;
                 
         }
+
+        // *** STEP 2 .. write the actual data packets
         
         for( int part : lookup.keySet() ) {
 
             ShuffleOutputPartition shuffleOutputPartition = lookup.get( part );
 
             for( ShufflePacket pack : shuffleOutputPartition.packets ) {
+
+                System.out.printf( "FIXME to_partition: %s\n", pack.to_partition );
                 out.write( IntBytes.toByteArray( pack.from_partition ) );
                 out.write( IntBytes.toByteArray( pack.from_chunk ) );
                 out.write( IntBytes.toByteArray( pack.to_partition ) );

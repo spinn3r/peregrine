@@ -34,11 +34,15 @@ public class ShuffleInputReader {
 
     private InputStream in;
 
-    protected int nr_packets = 0;
-
-    protected int count = 0;
-
+    /**
+     * ALL known headers in this shuffle file.
+     */
     protected List<Header> headers = new ArrayList();
+
+    /**
+     * The currently parsed header information for the given partition.
+     */
+    protected Header header = null;
     
     public ShuffleInputReader( String path, int partition ) throws IOException {
 
@@ -78,6 +82,7 @@ public class ShuffleInputReader {
             header.offset       = struct.readInt();
             header.nr_packets   = struct.readInt();
             header.count        = struct.readInt();
+            header.length       = struct.readInt();
 
             if ( header.partition   < 0 ||
                  header.offset      < 0 ||
@@ -88,26 +93,16 @@ public class ShuffleInputReader {
                 
             }
 
+            if ( header.partition == partition ) {
+                this.header = header;
+                start = header.offset;
+            }
+
             // record this for usage later if necessary.
             headers.add( header );
-            
-            point += IntBytes.LENGTH * 4;
-            
-            if ( header.partition == partition ) {
-                start = header.offset;
 
-                this.nr_packets = header.nr_packets;
-                this.count      = header.count;
+            point += ShuffleOutputWriter.HEADER_SIZE;
 
-                break;
-            }
-
-            // read everything.
-            if ( partition == -1 ) {
-                start = point;
-                this.nr_packets += header.nr_packets;
-            }
-            
         }
 
         if ( start == -1 ) {
@@ -122,14 +117,20 @@ public class ShuffleInputReader {
         this.struct = new StructReader( in );
 
     }
-
+    
+    public Header getHeader() {
+        return header;
+    }
+    
     public boolean hasNext() throws IOException {
-        return packet_idx < nr_packets;
+        return packet_idx < header.nr_packets;
     }
     
     public ShufflePacket next() throws IOException {
 
-        if ( packet_idx >= nr_packets )
+        System.out.printf( "FIXME: packet_idx=%s nr_packets=%s\n" , packet_idx, header.nr_packets);
+        
+        if ( packet_idx >= header.nr_packets )
             return null;
 
         ++packet_idx;
@@ -138,14 +139,17 @@ public class ShuffleInputReader {
         int from_chunk      = struct.readInt();
         int to_partition    = struct.readInt();
         int len             = struct.readInt();
-        
-        if ( this.partition != -1 && to_partition != this.partition )
+
+        if ( to_partition != this.partition )
            throw new IOException( "Read invalid partition data: " + to_partition );
         
         byte[] data = new byte[ len ];
         data = struct.read( data );
+
+        // TODO: why is count -1 here?  That makes NO sense.
+        int count = -1;
         
-        ShufflePacket pack = new ShufflePacket( from_partition, from_chunk, to_partition, -1, data );
+        ShufflePacket pack = new ShufflePacket( from_partition, from_chunk, to_partition, count, data );
 
         return pack;
         
@@ -161,7 +165,8 @@ public class ShuffleInputReader {
         int offset;
         int nr_packets;
         int count;
-
+        int length;
+        
         public String toString() {
             
             return String.format( "partition: %s, offset: %,d, nr_packets: %,d, count: %,d" ,

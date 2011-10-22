@@ -41,13 +41,13 @@ public class ChunkSorter extends BaseChunkSorter {
     public ChunkReader sort( File input, File output )
         throws IOException {
 
+        FileChannel inputChannel  = new FileInputStream( input  ).getChannel();
+        FileChannel outputChannel = new FileOutputStream( output ).getChannel();
+
         try {
         
             log.info( "Going to sort: %s", input );
 
-            FileChannel inputChannel  = new FileInputStream( input  ).getChannel();
-            FileChannel outputChannel = new FileOutputStream( output ).getChannel();
-            
             MappedByteBuffer inputMap  = inputChannel.map(  FileChannel.MapMode.READ_ONLY,  0, input.length() );
 
             // we prefer the channel buffer interface.
@@ -101,12 +101,17 @@ public class ChunkSorter extends BaseChunkSorter {
 
             log.info( "Sort output file %s has %,d entries.", output, reader.size() );
 
+            // FIXME cloe both mmap regions.
+            
             return result;
 
         } catch ( Throwable t ) {
             t.printStackTrace();
             throw new IOException( t );
                 
+        } finally {
+            inputChannel.close();
+            outputChannel.close();
         }
 
     }

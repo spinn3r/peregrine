@@ -114,7 +114,7 @@ public class ReducerTask extends BaseOutputTask implements Callable {
 
         for( File shuffle : shuffles ) {
             ChunkReader reader = new ShuffleInputChunkReader( shuffle.getPath(), partition.getId() );
-            reducer.add( reader );
+            //FIXME: reducer.add( reader );
         }
         
         int nr_readers = shuffles.length;
