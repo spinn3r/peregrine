@@ -93,6 +93,7 @@ public class ReducerTask extends BaseOutputTask implements Callable {
 
     private void doCall() throws Exception {
 
+        /*
         final AtomicInteger nr_tuples = new AtomicInteger();
 
         ReducerTaskSortListener listener =
@@ -133,6 +134,7 @@ public class ReducerTask extends BaseOutputTask implements Callable {
 
         }
 
+        */
     }
 
     public void setInput( Input input ) { 

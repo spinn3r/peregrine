@@ -11,6 +11,8 @@ import peregrine.values.*;
 import peregrine.io.async.*;
 import peregrine.io.chunk.*;
 
+import org.jboss.netty.buffer.*;
+
 import com.spinn3r.log5j.Logger;
 
 /**
@@ -22,13 +24,9 @@ public class ShuffleInputChunkReader {
 
     ShuffleInputReader reader;
 
-    ShufflePacket pack = null;
-
-    int packet_idx = 0;
+    ShufflePacket2 pack = null;
 
     VarintReader varintReader;
-
-    InputStream is = null;
 
     String path;
 
@@ -37,6 +35,12 @@ public class ShuffleInputChunkReader {
     byte[] value = null;
 
     int partition;
+
+    int key_offset;
+    int key_length;
+
+    int value_offset;
+    int value_length;
     
     public ShuffleInputChunkReader( String path , int partition ) throws IOException {
 
@@ -48,26 +52,23 @@ public class ShuffleInputChunkReader {
         
     }
 
-    @Override
     public boolean hasNext() throws IOException {
 
         // FIXME: hasNext shouldn't perform any state mutation
         
         while( true ) {
 
-            if ( pack != null && packet_idx < pack.data.length ) {
+            if ( pack != null && pack.data.readerIndex() < pack.data.capacity() ) {
 
-                key   = readBytes( varintReader.read() );
-                value = readBytes( varintReader.read() );
+                this.key_length     = varintReader.read();
+                this.key_offset     = pack.data.readerIndex();
 
-                // TODO: underlying reader is now a ChannelBuffer and we can use
-                // this.
+                pack.data.readerIndex( pack.data.readerIndex() + key_length );
+                
+                this.value_length   = varintReader.read();
+                this.value_offset   = pack.data.readerIndex();
 
-                packet_idx += VarintWriter.sizeof( key.length ) +
-                              key.length +
-                              VarintWriter.sizeof( value.length ) +
-                              value.length
-                    ;
+                pack.data.readerIndex( pack.data.readerIndex() + value_length ); 
 
                 return true;
                 
@@ -89,10 +90,9 @@ public class ShuffleInputChunkReader {
         if ( reader.hasNext() ) {
 
             pack          = reader.next();
-            is            = new ByteArrayInputStream( pack.data );
-            varintReader  = new VarintReader( is );
-            packet_idx    = 0;
-
+            varintReader  = new VarintReader( pack.data );
+            pack.data.readerIndex( 0 );
+            
             return true;
             
         } else {
@@ -101,27 +101,23 @@ public class ShuffleInputChunkReader {
 
     }
     
-    @Override
     public byte[] key() throws IOException {
-        return key;
+        return readBytes( key_offset, key_length );
+        
     }
 
-    @Override
     public byte[] value() throws IOException {
-        return value;
+        return readBytes( value_offset, value_length );
     }
     
-    @Override
     public int size() throws IOException {
         return reader.getHeader().count;
     }
 
-    @Override
     public void close() throws IOException {
         reader.close();
     }
 
-    @Override
     public String toString() {
         return String.format( "%s:%s:%s" , getClass().getName(), path, partition );
     }
@@ -130,10 +126,11 @@ public class ShuffleInputChunkReader {
         return reader.getBuffer();
     }
     
-    private byte[] readBytes( int len ) throws IOException {
+    private byte[] readBytes( int offset, int length ) throws IOException {
 
-        byte[] data = new byte[len];
-        is.read( data );
+        byte[] data = new byte[ length ];
+        pack.data.getBytes( offset, data );
+
         return data;
         
     }

@@ -32,37 +32,37 @@ public class Hex {
     public static String pretty( String input ) {
         return pretty( input.getBytes() );
     }
-    
+
     public static String pretty( byte[] input ) {
+
+        return pretty( ChannelBuffers.wrappedBuffer( input ) );
+
+    }
+    
+    public static String pretty( ChannelBuffer buff ) {
 
         int width = 16;
         
         StringBuffer result = new StringBuffer();
 
-        int nr_blocks = (int)Math.ceil( input.length / (double)width );
+        int nr_blocks = (int)Math.ceil( buff.capacity() / (double)width );
 
-        ChannelBuffer buff = ChannelBuffers.wrappedBuffer( input );
-        
         for( int i = 0; i < nr_blocks; ++i ) {
 
             int start = i * width;
             int end = start + width;
 
-            if ( end >= input.length )
-                end = input.length;
+            if ( end >= buff.capacity() )
+                end = buff.capacity();
 
             int len = end - start;
-            
-            byte[] block = new byte[ len ];
 
-            ChannelBuffer index = ChannelBuffers.buffer( 4 );
+            ChannelBuffer index = ChannelBuffers.buffer( IntBytes.LENGTH );
             index.writeInt( start );
             
             // step 0 include the start
             result.append( encode( index ) );
             result.append( ": " );
-            
-            System.arraycopy( input, start, block, 0, len );
 
             ChannelBuffer slice = buff.slice( start, len );
             
@@ -78,7 +78,7 @@ public class Hex {
                 result.append( ' ' );
             }
             
-            for( byte b : block ) {
+            for( byte b : slice.array() ) {
 
                 if ( b >= 32 )
                     result.append( (char)b );
