@@ -54,6 +54,7 @@ public class TestShuffleOutputChunkReader extends peregrine.BaseTest {
 
         buff.close();
 
+        //FIXME: read both zero and one... 
         ShuffleInputReader reader = new ShuffleInputReader( path, 1 );
 
         int count = 0;

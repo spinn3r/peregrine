@@ -19,7 +19,8 @@ import static peregrine.pfsd.FSPipelineFactory.MAX_CHUNK_SIZE;
  */
 public class ShuffleOutputWriter {
 
-    public static final int HEADER_SIZE = IntBytes.LENGTH * 5;
+    public static final int LOOKUP_HEADER_SIZE = IntBytes.LENGTH * 5;
+    public static final int PACKET_HEADER_SIZE = IntBytes.LENGTH * 4;
 
     private static final Logger log = Logger.getLogger();
 
@@ -145,7 +146,8 @@ public class ShuffleOutputWriter {
         // the offset in this chunk to start reading the data from this
         // partition and chunk.
         
-        int offset = MAGIC.length + IntBytes.LENGTH + (lookup.size() * HEADER_SIZE);
+        int offset =
+            MAGIC.length + IntBytes.LENGTH + (lookup.size() * LOOKUP_HEADER_SIZE);
 
         // TODO: these should be stored in the primary order that they will be
         // reduce by priority on this box.
@@ -161,7 +163,7 @@ public class ShuffleOutputWriter {
 
             for( ShufflePacket pack : shuffleOutputPartition.packets ) {
                 
-                length += HEADER_SIZE;
+                length += PACKET_HEADER_SIZE;
                 length += pack.data.length;
                 
             }
@@ -192,7 +194,6 @@ public class ShuffleOutputWriter {
 
             for( ShufflePacket pack : shuffleOutputPartition.packets ) {
 
-                System.out.printf( "FIXME to_partition: %s\n", pack.to_partition );
                 out.write( IntBytes.toByteArray( pack.from_partition ) );
                 out.write( IntBytes.toByteArray( pack.from_chunk ) );
                 out.write( IntBytes.toByteArray( pack.to_partition ) );

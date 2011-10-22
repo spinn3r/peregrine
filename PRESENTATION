@@ -1,3 +1,10 @@
+- Influenced by:
+    - Cassandra
+    - GFS
+    - MapReduceMerge
+    - Twiter
+    - Pig 
+
 
 
 - The block replication scheme in Hadoop means that there are MORE 3 machine

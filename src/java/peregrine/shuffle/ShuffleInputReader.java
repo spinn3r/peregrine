@@ -68,40 +68,44 @@ public class ShuffleInputReader {
         // read the magic.
         byte[] magic = struct.read( new byte[ ShuffleOutputWriter.MAGIC.length ] );
 
-        int size = struct.readInt();
+        int nr_partitions = struct.readInt();
 
         int start = -1;
 
         int point = ShuffleOutputWriter.MAGIC.length + IntBytes.LENGTH;
         
-        for ( int i = 0; i < size; ++i ) {
+        for ( int i = 0; i < nr_partitions; ++i ) {
 
-            Header header = new Header();
+            Header current = new Header();
             
-            header.partition    = struct.readInt();
-            header.offset       = struct.readInt();
-            header.nr_packets   = struct.readInt();
-            header.count        = struct.readInt();
-            header.length       = struct.readInt();
+            current.partition    = struct.readInt();
+            current.offset       = struct.readInt();
+            current.nr_packets   = struct.readInt();
+            current.count        = struct.readInt();
+            current.length       = struct.readInt();
 
-            if ( header.partition   < 0 ||
-                 header.offset      < 0 ||
-                 header.nr_packets  < 0 ||
-                 header.count       < 0 ) {
+            if ( current.partition   < 0 ||
+                 current.offset      < 0 ||
+                 current.nr_packets  < 0 ||
+                 current.count       < 0 ||
+                 current.length      < 0 ) {
                 
-                throw new IOException( "Header corrupted: " + header );
+                throw new IOException( "Header corrupted: " + current );
                 
             }
 
-            if ( header.partition == partition ) {
-                this.header = header;
-                start = header.offset;
+            if ( current.partition == partition ) {
+                this.header = current;
+                start = current.offset;
             }
 
             // record this for usage later if necessary.
-            headers.add( header );
+            headers.add( current );
 
-            point += ShuffleOutputWriter.HEADER_SIZE;
+            //FIXME: I think THIS is the bug... what's happening is that we're
+            //jumping BEFORE two of the packets which is the problem.
+            
+            point += ShuffleOutputWriter.LOOKUP_HEADER_SIZE;
 
         }
 
@@ -109,7 +113,7 @@ public class ShuffleInputReader {
             throw new IOException( String.format( "Unable to find start for partition %s in file %s",
                                                   partition, path ) );
         }
-        
+
         in.skip( start - point );
 
         // now switched to buffered reads... 
@@ -128,8 +132,6 @@ public class ShuffleInputReader {
     
     public ShufflePacket next() throws IOException {
 
-        System.out.printf( "FIXME: packet_idx=%s nr_packets=%s\n" , packet_idx, header.nr_packets);
-        
         if ( packet_idx >= header.nr_packets )
             return null;
 
@@ -169,8 +171,8 @@ public class ShuffleInputReader {
         
         public String toString() {
             
-            return String.format( "partition: %s, offset: %,d, nr_packets: %,d, count: %,d" ,
-                                  partition, offset, nr_packets, count );
+            return String.format( "partition: %s, offset: %,d, nr_packets: %,d, count: %,d, length: %,d" ,
+                                  partition, offset, nr_packets, count, length );
             
         }
         
