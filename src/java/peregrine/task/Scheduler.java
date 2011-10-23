@@ -130,6 +130,16 @@ public abstract class Scheduler {
         
     }
 
+    public void markFailed( Host host,
+                            Partition partition,
+                            String stacktrace ) {
+
+        log.error( "Host %s has failed on %s with trace: \n %s", host, partition, stacktrace );
+
+        failure.mark( new Fail( host, partition, stacktrace ) );
+        
+    }
+
     /**
      * Wait for all jobs to be complete.
      */
@@ -184,14 +194,6 @@ public abstract class Scheduler {
             
     }
 
-    public void markFailed( Host host,
-                            Partition partition,
-                            String stacktrace ) {
-        
-        failure.mark( new Fail( host, partition, stacktrace ) );
-        
-    }
-    
 }
 
 class Progress<T> {

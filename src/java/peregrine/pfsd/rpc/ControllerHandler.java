@@ -42,8 +42,6 @@ public class ControllerHandler extends RPCHandler {
             Partition part     = new Partition( message.getInt( "partition" ) );
             String stacktrace  = message.get( "stacktrace" );
 
-            log.error( "Host %s has failed with trace: \n %s", host, stacktrace );
-
             daemon.getScheduler().markFailed( host, part, stacktrace );
             
             return;
@@ -52,11 +50,13 @@ public class ControllerHandler extends RPCHandler {
 
         if ( "progress".equals( action ) ) {
 
+            /*
             Host host       = Host.parse( message.get( "host" ) );
             Partition part  = new Partition( message.getInt( "partition" ) );
             String cause    = message.get( "cause" );
 
             log.error( "Host %s has failed with cause '%s'", host, cause );
+            */
             
             return;
 

@@ -1,4 +1,7 @@
 
+- code which tests for off by one errors by looking at the size of buffers and
+  changing their inputs to see if rolling over breaks.
+
 - migrate AsyncOutputStream to use mmap and then force() so that I can write
   ChannelBuffers to it.. by calling toByteBuffer on it... 
 
