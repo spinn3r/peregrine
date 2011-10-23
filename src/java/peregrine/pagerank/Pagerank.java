@@ -90,6 +90,8 @@ public class Pagerank {
         //                    new Input( new ShuffleInputReference( "dangling_rank_sum" ),
         //                               new BroadcastInputReference( "/pr/out/nr_nodes" ) ),
         //                    new Output( "/pr/out/teleportation_rant" ) );
+
+        controller.shutdown();
         
     }
 

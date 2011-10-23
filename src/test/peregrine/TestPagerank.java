@@ -12,7 +12,7 @@ import peregrine.pagerank.*;
 
 public class TestPagerank extends peregrine.BaseTestWithTwoDaemons {
 
-    public void test1() throws Exception {
+    public void _test1() throws Exception {
 
         // only 0 and 1 should be dangling.
 
@@ -30,6 +30,22 @@ public class TestPagerank extends peregrine.BaseTestWithTwoDaemons {
         GraphBuilder.addRecord( writer, 9, 2, 3 );
         GraphBuilder.addRecord( writer, 10, 2, 3 );
         GraphBuilder.addRecord( writer, 11, 2, 3 );
+
+        writer.close();
+
+        new Pagerank( config ).exec( path );
+
+    }
+
+    public void test2() throws Exception {
+
+        // only 0 and 1 should be dangling.
+
+        String path = "/pr/test.graph";
+        
+        ExtractWriter writer = new ExtractWriter( config, path );
+
+        GraphBuilder.buildRandomGraph( writer, 500 , 10 );
 
         writer.close();
 
