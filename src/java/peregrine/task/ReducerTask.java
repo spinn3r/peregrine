@@ -93,7 +93,6 @@ public class ReducerTask extends BaseOutputTask implements Callable {
 
     private void doCall() throws Exception {
 
-        /*
         final AtomicInteger nr_tuples = new AtomicInteger();
 
         ReducerTaskSortListener listener =
@@ -114,8 +113,7 @@ public class ReducerTask extends BaseOutputTask implements Callable {
         File[] shuffles = shuffle_dir_file.listFiles();
 
         for( File shuffle : shuffles ) {
-            ChunkReader reader = new ShuffleInputChunkReader( shuffle.getPath(), partition.getId() );
-            //FIXME: reducer.add( reader );
+            reducer.add( shuffle );
         }
         
         int nr_readers = shuffles.length;
@@ -125,6 +123,9 @@ public class ReducerTask extends BaseOutputTask implements Callable {
         log.info( "Sorted %,d entries in %,d chunk readers for partition %s",
                   listener.nr_tuples , nr_readers, partition );
 
+        // FIXME: we can't delete these until ALL reduces are done because we
+        // may do speculative execution and need this data again.
+        
         if ( DELETE_SHUFFLE_FILES ) {
             
             // we have to close ALL of our output streams now.
@@ -134,7 +135,6 @@ public class ReducerTask extends BaseOutputTask implements Callable {
 
         }
 
-        */
     }
 
     public void setInput( Input input ) { 

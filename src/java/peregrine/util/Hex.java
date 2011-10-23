@@ -7,7 +7,12 @@ import org.jboss.netty.buffer.*;
 public class Hex {
 
     public static String encode( byte[] input ) {
+
+        if ( input == null )
+            return null;
+
         return encode( ChannelBuffers.wrappedBuffer( input ) );
+        
     }
 
     public static String encode( ChannelBuffer buff ) {
@@ -30,10 +35,17 @@ public class Hex {
     }
     
     public static String pretty( String input ) {
+
+        if ( input == null )
+            return null;
+
         return pretty( input.getBytes() );
     }
 
     public static String pretty( byte[] input ) {
+
+        if ( input == null )
+            return null;
 
         return pretty( ChannelBuffers.wrappedBuffer( input ) );
 

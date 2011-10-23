@@ -62,12 +62,15 @@ public class LocalReducer {
         List<ChunkReader> sorted = new ArrayList();
 
         int id = 0;
+
+        String sort_dir = config.getPath( partition, String.format( "/tmp/%s" , shuffleInput.getName() ) );
+
+        new File( sort_dir ).mkdirs();
         
         for ( File in : input ) {
 
-            String relative = String.format( "/tmp/%s/sort-%s.tmp" , shuffleInput.getName(), id++ );
-            String path     = config.getPath( partition, relative );
-            File out        = new File( path );
+            String path = String.format( "%s/sort-%s.tmp" , sort_dir, id++ );
+            File out    = new File( path );
             
             log.info( "Writing temporary sort file %s", path );
 

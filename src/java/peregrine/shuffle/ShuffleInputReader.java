@@ -150,8 +150,6 @@ public class ShuffleInputReader {
            throw new IOException( "Read invalid partition data: " + to_partition );
 
         ChannelBuffer data = buffer.slice( buffer.readerIndex(), len );
-
-        System.out.printf( "ShuffleInputReader: FIXME: packet data: \n%s\n", Hex.pretty( data ) );
         
         // now update the reader index so we can skip over this data.
         buffer.readerIndex( buffer.readerIndex() + len );
