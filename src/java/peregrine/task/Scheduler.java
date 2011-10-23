@@ -166,6 +166,7 @@ public abstract class Scheduler {
                 
             }
 
+            // TODO: make this a constant.
             Host idle = available.poll( 1000, TimeUnit.MILLISECONDS );
             
             if ( idle != null ) {

@@ -97,7 +97,50 @@ public class TestFullShufflePath extends peregrine.BaseTestWithTwoDaemons {
         
         ChunkReader result = sorter.sort( file_input, file_output );
 
-        //eregrine.reduce.sorter.TestChunkSorter.assertResults( result, max_emits );
+        assertResults( result, max_emits );
+
+    }
+
+    public static void assertResults( ChunkReader reader, int max ) throws Exception {
+
+        Tuple last = null;
+
+        FullTupleComparator comparator = new FullTupleComparator();
+
+        int count = 0;
+        while( reader.hasNext() ) {
+
+            byte[] key = reader.key();
+            byte[] value = reader.value();
+
+            System.out.printf( "%s\n", Hex.encode( key ) );
+            
+            Tuple t = new Tuple( key, value );
+
+            if ( last != null && comparator.compare( last, t ) > 0 )
+                throw new RuntimeException( "value is NOT less than last value" );
+
+            // now make sure it's the RIGHT value.
+            byte[] correct = LongBytes.toByteArray( count );
+
+            /*
+            if ( last != null && comparator.compare( last, new Tuple( correct, correct ) ) == 0 ) {
+
+                String message = "value is NOT correct";
+                
+                throw new RuntimeException( message );
+            }
+            */
+            
+            last = t;
+            ++count;
+            
+        }
+
+        assertTrue( count > 0 );
+        assertEquals( reader.size(), count );
+        
+        //assertEquals( max, count );
 
     }
 
@@ -127,10 +170,18 @@ public class TestFullShufflePath extends peregrine.BaseTestWithTwoDaemons {
     
     public void test1() throws Exception {
 
-        for( int i = 5; i < 10; ++i ) {
-            doTest( 2, i );
-        }
+        // FIXME sort BOTH partitions and make sure the counts are right.
+        // 
         
+        //doTest( 2, 0 );  FIXME: this doesn't work.
+        //doTest( 2, 1 );
+        doTest( 2, 3 );
+        doTest( 2, 10 );
+        doTest( 2, 100 );
+        doTest( 2, 1000 );
+        doTest( 2, 10000 );
+        doTest( 2, 100000 );
+
         //doTest( 3, 100 );
 
         //doTest( 2, 5000000 );
