@@ -9,6 +9,8 @@ import peregrine.*;
 import peregrine.util.*;
 import peregrine.io.async.*;
 
+import org.jboss.netty.buffer.*;
+
 import com.spinn3r.log5j.Logger;
 
 import static peregrine.pfsd.FSPipelineFactory.MAX_CHUNK_SIZE;
@@ -36,7 +38,7 @@ public class ShuffleOutputWriter {
     public static final byte[] MAGIC =
         new byte[] { (byte)'P', (byte)'S', (byte)'O', (byte)'1' };
     
-    private List<ShufflePacket> index = new ArrayList();
+    private List<ShufflePacket2> index = new ArrayList();
 
     /**
      * Path to store this output buffer once closed.
@@ -65,14 +67,16 @@ public class ShuffleOutputWriter {
                         int from_chunk,
                         int to_partition,
                         int count,
-                        byte[] data ) throws IOException {
+                        byte[] raw ) throws IOException {
         
         if ( closed )
             throw new IOException( "closed" );
+
+        ChannelBuffer data = ChannelBuffers.wrappedBuffer( raw );
         
-        ShufflePacket pack = new ShufflePacket( from_partition, from_chunk, to_partition, count, data );
+        ShufflePacket2 pack = new ShufflePacket2( from_partition, from_chunk, to_partition, -1, count, data );
         
-        this.length += data.length;
+        this.length += data.capacity();
         
         index.add( pack );
 
@@ -103,7 +107,7 @@ public class ShuffleOutputWriter {
             lookup.put( part.getId(), new ShuffleOutputPartition() );
         }
 
-        for( ShufflePacket current : index ) {
+        for( ShufflePacket2 current : index ) {
 
             if ( current == null ) {
                 log.error( "Skipping null packet." );
@@ -161,10 +165,10 @@ public class ShuffleOutputWriter {
             // the length of ALL the data for this partition.
             int length = 0;
 
-            for( ShufflePacket pack : shuffleOutputPartition.packets ) {
+            for( ShufflePacket2 pack : shuffleOutputPartition.packets ) {
                 
                 length += PACKET_HEADER_SIZE;
-                length += pack.data.length;
+                length += pack.data.capacity();
                 
             }
 
@@ -192,13 +196,13 @@ public class ShuffleOutputWriter {
 
             ShuffleOutputPartition shuffleOutputPartition = lookup.get( part );
 
-            for( ShufflePacket pack : shuffleOutputPartition.packets ) {
+            for( ShufflePacket2 pack : shuffleOutputPartition.packets ) {
 
                 out.write( IntBytes.toByteArray( pack.from_partition ) );
                 out.write( IntBytes.toByteArray( pack.from_chunk ) );
                 out.write( IntBytes.toByteArray( pack.to_partition ) );
-                out.write( IntBytes.toByteArray( pack.data.length ) );
-                out.write( pack.data );
+                out.write( IntBytes.toByteArray( pack.data.capacity() ) );
+                out.write( pack.data.array() );
             }
             
         }
@@ -224,6 +228,6 @@ class ShuffleOutputPartition {
 
     public int count = 0;
 
-    public List<ShufflePacket> packets = new ArrayList();
+    public List<ShufflePacket2> packets = new ArrayList();
     
 }
