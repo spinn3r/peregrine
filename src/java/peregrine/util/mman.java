@@ -22,6 +22,9 @@ public class mman {
     // http://linux.die.net/include/sys/mman.h
     // http://linux.die.net/include/bits/mman.h
 
+
+    // off_t = 8
+    // size_t = 8
     public static long mmap( long addr, long len, int prot, int flags, int fildes, long off ) {
         return delegate.mmap( addr, len, prot, flags, fildes, off );
     }
