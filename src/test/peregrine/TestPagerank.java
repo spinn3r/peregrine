@@ -12,7 +12,7 @@ import peregrine.pagerank.*;
 
 public class TestPagerank extends peregrine.BaseTestWithTwoDaemons {
 
-    public void _test1() throws Exception {
+    public void test1() throws Exception {
 
         // only 0 and 1 should be dangling.
 
