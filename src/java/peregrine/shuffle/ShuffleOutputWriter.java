@@ -13,6 +13,8 @@ import org.jboss.netty.buffer.*;
 
 import com.spinn3r.log5j.Logger;
 
+import org.jboss.netty.buffer.*;
+
 import static peregrine.pfsd.FSPipelineFactory.MAX_CHUNK_SIZE;
 
 /**
@@ -67,13 +69,11 @@ public class ShuffleOutputWriter {
                         int from_chunk,
                         int to_partition,
                         int count,
-                        byte[] raw ) throws IOException {
+                        ChannelBuffer data ) throws IOException {
         
         if ( closed )
             throw new IOException( "closed" );
 
-        ChannelBuffer data = ChannelBuffers.wrappedBuffer( raw );
-        
         ShufflePacket2 pack = new ShufflePacket2( from_partition, from_chunk, to_partition, -1, count, data );
         
         this.length += data.capacity();
@@ -202,7 +202,15 @@ public class ShuffleOutputWriter {
                 out.write( IntBytes.toByteArray( pack.from_chunk ) );
                 out.write( IntBytes.toByteArray( pack.to_partition ) );
                 out.write( IntBytes.toByteArray( pack.data.capacity() ) );
-                out.write( pack.data.array() );
+
+                // TODO: migrate this to using a zero copy system and write it
+                // directly to disk and avoid this copy.
+                
+                byte[] data = new byte[ pack.data.capacity() ];
+                pack.data.getBytes( 0, data );
+                
+                out.write( data );
+
             }
             
         }

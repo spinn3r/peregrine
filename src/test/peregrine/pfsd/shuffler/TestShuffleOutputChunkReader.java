@@ -13,6 +13,8 @@ import peregrine.pagerank.*;
 import peregrine.io.partition.*;
 import peregrine.shuffle.*;
 
+import org.jboss.netty.buffer.*;
+
 public class TestShuffleOutputChunkReader extends peregrine.BaseTest {
 
     protected Config config;
@@ -46,7 +48,7 @@ public class TestShuffleOutputChunkReader extends peregrine.BaseTest {
                 int from_chunk = i;
                 int to_partition = j;
 
-                buff.accept( from_partition, from_chunk, to_partition, 1, value );
+                buff.accept( from_partition, from_chunk, to_partition, 1, ChannelBuffers.wrappedBuffer( value ) );
                 
             }
 

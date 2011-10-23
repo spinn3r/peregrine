@@ -11,6 +11,8 @@ import peregrine.util.*;
 import peregrine.io.async.*;
 import peregrine.shuffle.*;
 
+import org.jboss.netty.buffer.*;
+
 import com.spinn3r.log5j.Logger;
 
 /**
@@ -51,7 +53,7 @@ public class ShuffleReceiver {
                         int from_chunk,
                         int to_partition,
                         int count,
-                        byte[] data ) throws IOException {
+                        ChannelBuffer data ) throws IOException {
 
         if ( needsRollover() ) {
 

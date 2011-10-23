@@ -1,4 +1,7 @@
 
+- migrate AsyncOutputStream to use mmap and then force() so that I can write
+  ChannelBuffers to it.. by calling toByteBuffer on it... 
+
 - O_NOATIME on files ... 
 
 - to pin pages into memory what I should probably do is mmap the file
