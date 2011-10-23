@@ -21,6 +21,8 @@ import org.jboss.netty.buffer.*;
  */
 public class DefaultChunkWriter implements ChunkWriter {
 
+    public static int MAX_LENGTH_WIDTH = 2 * IntBytes.LENGTH;
+    
     public static boolean USE_ASYNC = true;
 
     public static int BUFFER_SIZE = 16384;
@@ -71,9 +73,9 @@ public class DefaultChunkWriter implements ChunkWriter {
         // the max write width ... the key length and value length and the max
         // potential value of both keys.
 
-        int write_width = key.length + value.length + 8;
+        int write_width = key.length + value.length + MAX_LENGTH_WIDTH;
 
-        if ( buff.writerIndex() + write_width >= buff.capacity() ) {
+        if ( buff.writerIndex() + write_width >= (buff.capacity() - 1) ) {
             flushChannelBuffer();
         }
 
@@ -107,7 +109,8 @@ public class DefaultChunkWriter implements ChunkWriter {
         
         byte[] result = new byte[ len ];
         System.arraycopy( backing, 0, result, 0, len );
-        
+
+        // FIXME: this should not use a copy here... 
         out.write( result );
 
         buff.resetReaderIndex();
