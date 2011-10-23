@@ -17,10 +17,6 @@ public class ThreadLocalChannelBuffer extends ThreadLocal<ChannelBuffer> {
         this.factory = new DefaultSimpleChannelBufferFactory( capacity );
     }
 
-    public ThreadLocalChannelBuffer( int initialCapacity, int extentLength ) {
-        this.factory = new ExtendedSimpleChannelBufferFactory( initialCapacity, extentLength );
-    }
-
     @Override
     public ChannelBuffer get() {
 
@@ -56,22 +52,6 @@ class DefaultSimpleChannelBufferFactory implements SimpleChannelBufferFactory {
 
     public ChannelBuffer newChannelBuffer() {
         return ChannelBuffers.buffer( capacity );
-    }
-    
-}
-
-class ExtendedSimpleChannelBufferFactory implements SimpleChannelBufferFactory {
-
-    private int initialCapacity;
-    private int extentLength;
-    
-    public ExtendedSimpleChannelBufferFactory( int initialCapacity, int extentLength ) {
-        this.initialCapacity = initialCapacity;
-        this.extentLength = extentLength;
-    }
-
-    public ChannelBuffer newChannelBuffer() {
-        return new ExtendedChannelBuffer( initialCapacity, extentLength );
     }
     
 }
