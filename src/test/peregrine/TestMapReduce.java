@@ -15,7 +15,7 @@ import peregrine.pfsd.*;
 
 public class TestMapReduce extends peregrine.BaseTestWithTwoDaemons {
 
-    public static int MAX = 300000;
+    public static int MAX = 9000000;
     
     public static class Map extends Mapper {
 
@@ -57,6 +57,7 @@ public class TestMapReduce extends peregrine.BaseTestWithTwoDaemons {
         @Override
         public void cleanup() {
 
+ //     FIXME: add this back in
 //            if ( count == 0 )
 //                throw new RuntimeException();
             

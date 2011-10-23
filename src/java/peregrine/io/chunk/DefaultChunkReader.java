@@ -115,13 +115,12 @@ public class DefaultChunkReader implements ChunkReader {
     @Override
     public byte[] key() throws IOException {
         ++idx;
-        return readBytes( varintReader.read() );
-        
+        return readEntry();
     }
 
     @Override
     public byte[] value() throws IOException {
-        return readBytes( varintReader.read() );
+        return readEntry();
     }
 
     @Override
@@ -166,6 +165,18 @@ public class DefaultChunkReader implements ChunkReader {
         input.skip( varintReader.read() );        
     }
 
+    private byte[] readEntry() throws IOException {
+
+        try {
+
+            return readBytes( varintReader.read() );
+            
+        } catch ( Throwable t ) {
+            throw new IOException( "Unable to parse: " + toString() , t );
+        }
+        
+    }
+    
     private byte[] readBytes( int len ) throws IOException {
 
         byte[] data = new byte[len];

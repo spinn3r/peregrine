@@ -153,8 +153,8 @@ public class TestFullShufflePath extends peregrine.BaseTestWithTwoDaemons {
         int count = 0;
         while( reader.hasNext() ) {
 
-            System.out.printf( "readShuffle: partition: %s, key: %s, value: %s\n",
-                               partition, Hex.encode( reader.key() ), Hex.encode( reader.value() ) );
+            //System.out.printf( "readShuffle: partition: %s, key: %s, value: %s\n",
+            //                   partition, Hex.encode( reader.key() ), Hex.encode( reader.value() ) );
 
             ++count;
 
@@ -175,12 +175,14 @@ public class TestFullShufflePath extends peregrine.BaseTestWithTwoDaemons {
         
         //doTest( 2, 0 );  FIXME: this doesn't work.
         //doTest( 2, 1 );
-        doTest( 2, 3 );
-        doTest( 2, 10 );
-        doTest( 2, 100 );
-        doTest( 2, 1000 );
-        doTest( 2, 10000 );
+        //doTest( 2, 2 );
+        // doTest( 2, 3 );
+        // doTest( 2, 10 );
+        // doTest( 2, 100 );
+        // doTest( 2, 1000 );
+        // doTest( 2, 10000 );
         doTest( 2, 100000 );
+        // doTest( 2, 10000000 );
 
         //doTest( 3, 100 );
 
@@ -188,6 +190,9 @@ public class TestFullShufflePath extends peregrine.BaseTestWithTwoDaemons {
 
         //doTest( 10, 3 );
         //doTest( 3, 100 );
+
+        Thread.sleep( 10000L );
+        
     }
 
     public static void main( String[] args ) throws Exception {
