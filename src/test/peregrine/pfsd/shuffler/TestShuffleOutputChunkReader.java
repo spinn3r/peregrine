@@ -61,7 +61,7 @@ public class TestShuffleOutputChunkReader extends peregrine.BaseTest {
 
         int count = 0;
         while( reader.hasNext() ) {
-            ShufflePacket2 pack = reader.next();
+            ShufflePacket pack = reader.next();
 
             System.out.printf( "from_partition: %s, from_chunk: %s, to_partition: %s, data length: %,d, data: %s \n",
                                pack.from_partition, pack.from_chunk, pack.to_partition, pack.data.capacity(), Hex.encode( pack.data ) );

@@ -133,7 +133,7 @@ public class ShuffleInputReader {
         return packet_idx < header.nr_packets;
     }
     
-    public ShufflePacket2 next() throws IOException {
+    public ShufflePacket next() throws IOException {
 
         if ( packet_idx >= header.nr_packets )
             return null;
@@ -157,7 +157,7 @@ public class ShuffleInputReader {
         // TODO: why is count -1 here?  That makes NO sense.
         int count = -1;
         
-        ShufflePacket2 pack = new ShufflePacket2( from_partition, from_chunk, to_partition, offset, count, data );
+        ShufflePacket pack = new ShufflePacket( from_partition, from_chunk, to_partition, offset, count, data );
 
         return pack;
         
@@ -207,7 +207,7 @@ public class ShuffleInputReader {
         
         while( reader.hasNext() ) {
 
-            ShufflePacket2 pack = reader.next();
+            ShufflePacket pack = reader.next();
 
             System.out.printf( "from_partition: %s, from_chunk: %s, to_partition: %s, data length: %,d\n",
                                pack.from_partition, pack.from_chunk, pack.to_partition, pack.data.capacity() );

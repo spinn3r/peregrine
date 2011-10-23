@@ -24,7 +24,7 @@ public class ShuffleInputChunkReader {
 
     ShuffleInputReader reader;
 
-    ShufflePacket2 pack = null;
+    ShufflePacket pack = null;
 
     VarintReader varintReader;
 
@@ -101,7 +101,7 @@ public class ShuffleInputChunkReader {
 
     }
 
-    public ShufflePacket2 getShufflePacket() {
+    public ShufflePacket getShufflePacket() {
         return pack;
     }
     

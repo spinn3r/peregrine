@@ -8,10 +8,6 @@
   TWICE... once with MLOCK and then with the normal java APIs and then close
   them both.
 
-- use     public static final long MAX_BYTES_IN_PAGE_CACHE = (long) Math.pow(2, 27); // 128mb
-
-    instead of 128MB 
-
 - we should support fadvising away files once we've processed them to avoid VFS
   page cache insanity.  ESPECIALLY some of the temporary sort files.  
 

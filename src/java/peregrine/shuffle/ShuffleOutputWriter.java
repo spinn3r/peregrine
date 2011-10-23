@@ -40,7 +40,7 @@ public class ShuffleOutputWriter {
     public static final byte[] MAGIC =
         new byte[] { (byte)'P', (byte)'S', (byte)'O', (byte)'1' };
     
-    private List<ShufflePacket2> index = new ArrayList();
+    private List<ShufflePacket> index = new ArrayList();
 
     /**
      * Path to store this output buffer once closed.
@@ -74,7 +74,7 @@ public class ShuffleOutputWriter {
         if ( closed )
             throw new IOException( "closed" );
 
-        ShufflePacket2 pack = new ShufflePacket2( from_partition, from_chunk, to_partition, -1, count, data );
+        ShufflePacket pack = new ShufflePacket( from_partition, from_chunk, to_partition, -1, count, data );
         
         this.length += data.capacity();
         
@@ -107,7 +107,7 @@ public class ShuffleOutputWriter {
             lookup.put( part.getId(), new ShuffleOutputPartition() );
         }
 
-        for( ShufflePacket2 current : index ) {
+        for( ShufflePacket current : index ) {
 
             if ( current == null ) {
                 log.error( "Skipping null packet." );
@@ -165,7 +165,7 @@ public class ShuffleOutputWriter {
             // the length of ALL the data for this partition.
             int length = 0;
 
-            for( ShufflePacket2 pack : shuffleOutputPartition.packets ) {
+            for( ShufflePacket pack : shuffleOutputPartition.packets ) {
                 
                 length += PACKET_HEADER_SIZE;
                 length += pack.data.capacity();
@@ -196,7 +196,7 @@ public class ShuffleOutputWriter {
 
             ShuffleOutputPartition shuffleOutputPartition = lookup.get( part );
 
-            for( ShufflePacket2 pack : shuffleOutputPartition.packets ) {
+            for( ShufflePacket pack : shuffleOutputPartition.packets ) {
 
                 out.write( IntBytes.toByteArray( pack.from_partition ) );
                 out.write( IntBytes.toByteArray( pack.from_chunk ) );
@@ -236,6 +236,6 @@ class ShuffleOutputPartition {
 
     public int count = 0;
 
-    public List<ShufflePacket2> packets = new ArrayList();
+    public List<ShufflePacket> packets = new ArrayList();
     
 }
