@@ -249,6 +249,9 @@ public class Config {
         if ( hostname == null )
             hostname = "localhost";
 
+        if ( port <= 0 )
+            port = DEFAULT_PORT;
+        
         Config config = new Config();
 
         config.setRoot( root );
