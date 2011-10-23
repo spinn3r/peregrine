@@ -88,6 +88,9 @@ public class FSPutShuffleHandler extends FSPutBaseHandler {
                 // now slice the data sans suffix.
                 ChannelBuffer data = content.slice( 0, suffix_idx );
 
+                //byte[] data = new byte[ suffix_idx ];
+                //content.getBytes( 0, data );
+                
                 shuffleReceiver.accept( from_partition, from_chunk, to_partition, count, data );
                 
             } else {
