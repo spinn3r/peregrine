@@ -253,8 +253,7 @@ public class Test {
         long length = 5;
         int fd = Native.getFd( fis.getFD() );
         
-        //long result = mman.mmap( 0, length, mman.PROT_READ, mman.MAP_LOCKED, fd, 0 );
-        long result = mman.mmap( 0, length, 0, 0, fd, 0 );
+        long result = mman.mmap( 0, length, mman.PROT_READ, mman.MAP_SHARED | mman.MAP_LOCKED, fd, 0 );
 
         if ( result == -1 ) {
             System.out.printf( "FIXME: %s\n", errno.strerror() );

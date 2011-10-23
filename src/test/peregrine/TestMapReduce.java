@@ -57,6 +57,7 @@ public class TestMapReduce extends peregrine.BaseTestWithTwoDaemons {
         @Override
         public void cleanup() {
 
+ //     FIXME: add this back in
 //            if ( count == 0 )
 //                throw new RuntimeException();
             
