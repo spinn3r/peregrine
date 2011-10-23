@@ -14,6 +14,8 @@ import peregrine.io.partition.*;
 import peregrine.pfsd.shuffler.*;
 import peregrine.shuffle.receiver.*;
 
+import org.jboss.netty.buffer.*;
+
 public class TestShuffler extends peregrine.BaseTest {
 
     protected Config config;
@@ -45,7 +47,7 @@ public class TestShuffler extends peregrine.BaseTest {
                 int from_chunk = i;
                 int to_partition = j;
                 
-                shuffleReceiver.accept( from_partition, from_chunk, to_partition, 1, new byte[2048] );
+                shuffleReceiver.accept( from_partition, from_chunk, to_partition, 1, ChannelBuffers.wrappedBuffer( new byte[2048] ) );
 
             }
 
