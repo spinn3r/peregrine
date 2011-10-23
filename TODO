@@ -1,4 +1,7 @@
 
+- on startup verify that we have enough memory... this should be done in the
+  controller and the FS daemon. 
+
 - code which tests for off by one errors by looking at the size of buffers and
   changing their inputs to see if rolling over breaks.
 
