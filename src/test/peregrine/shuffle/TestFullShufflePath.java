@@ -191,8 +191,6 @@ public class TestFullShufflePath extends peregrine.BaseTestWithTwoDaemons {
         //doTest( 10, 3 );
         //doTest( 3, 100 );
 
-        Thread.sleep( 10000L );
-        
     }
 
     public static void main( String[] args ) throws Exception {

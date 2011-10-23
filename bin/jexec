@@ -11,6 +11,11 @@ ulimit -n 1000000 2> /dev/null
 
 CLASSNAME=$1
 
+# allows us to use bash completion to pick a .java file and then run it directly.
+CLASSNAME=$(echo $CLASSNAME | sed 's/src\/test\///g' | sed 's/src\/java\///g' | sed  's/.java//g' | sed 's/\//./g' )
+
+echo $CLASSNAME
+
 if [ "$JAVA_HOME" = "" ]; then
 
     if [ -d "/usr/local/java/jdk-LATEST" ]; then

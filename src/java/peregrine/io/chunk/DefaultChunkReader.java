@@ -169,7 +169,9 @@ public class DefaultChunkReader implements ChunkReader {
 
         try {
 
-            return readBytes( varintReader.read() );
+            int len = varintReader.read();
+        
+            return readBytes( len );
             
         } catch ( Throwable t ) {
             throw new IOException( "Unable to parse: " + toString() , t );

@@ -37,7 +37,8 @@ public class TestPagerank extends peregrine.BaseTestWithTwoDaemons {
 
     }
 
-    public void test2() throws Exception {
+    private void doRandomTest( int nr_nodes,
+                               int max_edges_per_node ) throws Exception {
 
         // only 0 and 1 should be dangling.
 
@@ -45,11 +46,24 @@ public class TestPagerank extends peregrine.BaseTestWithTwoDaemons {
         
         ExtractWriter writer = new ExtractWriter( config, path );
 
-        GraphBuilder.buildRandomGraph( writer, 500 , 10 );
+        GraphBuilder.buildRandomGraph( writer, nr_nodes , max_edges_per_node );
 
         writer.close();
 
         new Pagerank( config ).exec( path );
+
+    }
+    
+    public void test2() throws Exception {
+        doRandomTest( 500, 10 );
+        doRandomTest( 600, 10 );
+        doRandomTest( 700, 10 );
+        doRandomTest( 800, 10 );
+        doRandomTest( 900, 10 );
+        doRandomTest( 1000, 100 );
+        // doRandomTest( 2000, 100 );
+        // doRandomTest( 3000, 100 );
+        // doRandomTest( 4000, 100 );
 
     }
 

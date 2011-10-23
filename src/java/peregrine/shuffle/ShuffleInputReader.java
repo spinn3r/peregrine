@@ -174,6 +174,10 @@ public class ShuffleInputReader {
         public int nr_packets;
         public int count;
         public int length;
+
+        public int getOffset() {
+            return offset;
+        }
         
         public String toString() {
             

@@ -40,7 +40,7 @@ public class ChunkSorter extends BaseChunkSorter {
 
     public ChunkReader sort( File input, File output )
         throws IOException {
-
+        
         FileChannel inputChannel  = new FileInputStream( input  ).getChannel();
         FileChannel outputChannel = new FileOutputStream( output ).getChannel();
 
@@ -70,6 +70,8 @@ public class ChunkSorter extends BaseChunkSorter {
             //parse this into the final ChunkWriter now.
 
             VarintReader varintReader = new VarintReader( buffer );
+
+            ChunkWriter writer = new DefaultChunkWriter( output );
             
             while( lookup.hasNext() ) {
 
@@ -79,25 +81,19 @@ public class ChunkSorter extends BaseChunkSorter {
                 int start = lookup.get() - 1;
                 buffer.readerIndex( start );
 
-                //jump past the key
-                buffer.readerIndex( buffer.readerIndex() + varintReader.read() + 1 );
-                //jump past the value
-                buffer.readerIndex( buffer.readerIndex() + varintReader.read() );
+                int key_length = varintReader.read();
+                byte[] key = new byte[ key_length ];
+                buffer.readBytes( key );
 
-                //now read the range inclusive
-                int end = buffer.readerIndex();
+                int value_length = varintReader.read();
+                byte[] value = new byte[ value_length ];
+                buffer.readBytes( value );
 
-                int count = (end - start) + 1;
+                writer.write( key, value );
 
-                start += reader.getShuffleInputReader().getHeader().offset;
-                
-                transferTo( inputChannel, outputChannel, start, count );
-                
             }
 
-            ChannelBuffer size = ChannelBuffers.buffer( IntBytes.LENGTH );
-            size.writeInt( lookup.size );
-            outputChannel.write( size.toByteBuffer() );
+            writer.close();
             
             log.info( "Sort output file %s has %,d entries.", output, reader.size() );
 
