@@ -74,9 +74,8 @@ public abstract class BaseOutputTask {
         //FIXME: close ALL of these jobs even if one of them fails and then
         //throw ALL exceptions.  Also we need to gossip here.
 
-        log.info( "Closing job output..." );
-
         for( JobOutput current : jobOutput ) {
+            log.info( "Closing job output: %s" , current );
             current.close();
         }
 
