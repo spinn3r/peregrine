@@ -88,21 +88,12 @@ public class NodeMetadataJob {
 
             // *** broadcast nr dangling.
 
-            nrNodesBroadcastOutput.emit( new StructWriter()
-                                             .writeHashcode( "id" )
-                                             .toBytes(),
-                                         new StructWriter()
-                                             .writeVarint( nrNodes )
-                                             .toBytes() );
+            byte[] key = Hashcode.getHashcode( "id" );
+            
+            nrNodesBroadcastOutput.emit( key, IntBytes.toByteArray( nrNodes ) );
 
             // *** broadcast nr dangling.
-
-            nrDanglingBroadcastOutput.emit( new StructWriter()
-                                                .writeHashcode( "id" )
-                                                .toBytes() ,
-                                            new StructWriter()
-                                                .writeVarint( nrDangling )
-                                                .toBytes() );
+            nrDanglingBroadcastOutput.emit( key, IntBytes.toByteArray( nrDangling ) );
 
         }
 

@@ -92,10 +92,10 @@ public class ChunkSorter extends BaseChunkSorter {
                 byte[] value = new byte[ value_length ];
                 buffer.readBytes( value );
 
-                System.out.printf( "working on key: %s\n", Hex.encode( key ) );
+                //FIXME: remove System.out.printf( "working on key: %s\n", Hex.encode( key ) );
                 
                 if ( key_length != 8 )
-                    throw new RuntimeException( String.format( "Key length is incorrect for %s on partition %s (%s,%s)",
+                    throw new RuntimeException( String.format( "FIXME: remove Key length is incorrect for %s on partition %s (%s,%s)",
                                                                input, partition, Hex.encode( key ), Hex.encode( value ) ) );
 
                 writer.write( key, value );
