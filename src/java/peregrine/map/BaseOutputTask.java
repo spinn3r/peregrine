@@ -94,6 +94,7 @@ public abstract class BaseOutputTask {
 
         // now measure memory usage for debug purposes
 
+        Runtime runtime  = Runtime.getRuntime();
         long freeMemory  = runtime.freeMemory();
         long totalMemory = runtime.totalMemory();
         long usedMemory  = totalMemory - freeMemory;
