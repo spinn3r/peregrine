@@ -94,6 +94,10 @@ public abstract class BaseOutputTask {
 
         // now measure memory usage for debug purposes
 
+        System.gc(); /* Running GC at the end of tasks isn't going to kill
+                        performance.  We might want to make this a configurable
+                        though. */
+        
         Runtime runtime  = Runtime.getRuntime();
         long freeMemory  = runtime.freeMemory();
         long totalMemory = runtime.totalMemory();
