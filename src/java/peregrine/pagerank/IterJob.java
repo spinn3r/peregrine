@@ -37,9 +37,7 @@ public class IterJob {
             
             BroadcastInput nrNodesBroadcastInput = getBroadcastInput().get( 0 );
             
-            nr_nodes = new StructReader( nrNodesBroadcastInput.getValue() )
-                .readVarint()
-                ;
+            nr_nodes = IntBytes.toInt( nrNodesBroadcastInput.getValue() );
 
             System.out.printf( "Working with nr_nodes: %,d\n", nr_nodes );
             
@@ -132,10 +130,8 @@ public class IterJob {
             super.init( output );
             
             BroadcastInput nrNodesBroadcastInput = getBroadcastInput().get( 0 );
-            
-            nr_nodes = new StructReader( nrNodesBroadcastInput.getValue() )
-                .readVarint()
-                ;
+
+            nr_nodes = IntBytes.toInt( nrNodesBroadcastInput.getValue() );
 
             // for iter 0 teleport_grant would be:
 

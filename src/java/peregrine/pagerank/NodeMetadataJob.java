@@ -107,15 +107,10 @@ public class NodeMetadataJob {
             int count = 0;
             
             for( byte[] val : values ) {
-                count += new StructReader( val )
-                    .readVarint();
+                count += IntBytes.toInt( val );
             }
 
-            byte[] value = new StructWriter()
-                .writeVarint( count )
-                .toBytes();
-
-            emit( key, value );
+            emit( key, IntBytes.toInt( count ) );
 
         }
 
