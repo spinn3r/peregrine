@@ -15,7 +15,7 @@ import peregrine.pfsd.*;
 
 public class TestMapReduce extends peregrine.BaseTestWithTwoDaemons {
 
-    public static int MAX = 900000;
+    public static int MAX = 9000000;
     
     public static class Map extends Mapper {
 
@@ -68,9 +68,25 @@ public class TestMapReduce extends peregrine.BaseTestWithTwoDaemons {
 
         // 100000000 * 32 == 3.2GB
         // 10000000 * 32 == 320MB
-        
-        doTest( MAX );
-        
+
+        for( int i = 0; i < 10; ++i ) {
+            
+            Runtime runtime = Runtime.getRuntime();
+            
+            System.gc() ;
+
+            long before = runtime.totalMemory() - runtime.freeMemory();
+
+            doTest( MAX );
+
+            System.gc() ;
+
+            long after = runtime.totalMemory() - runtime.freeMemory();
+
+            System.out.printf( "memory: used: %,d, diff: %,d\n", after, (after-before) );
+
+        }
+            
     }
 
     private void doTest( int max ) throws Exception {

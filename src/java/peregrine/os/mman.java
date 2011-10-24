@@ -1,4 +1,4 @@
-package peregrine.util;
+package peregrine.os;
 
 import com.sun.jna.Library;
 import com.sun.jna.Native;

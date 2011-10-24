@@ -246,11 +246,8 @@ public class Test {
 
     public static void main( String[] args ) throws Exception {
 
-        Config config = new Config();
-        
-        ChunkSorter sorter = new ChunkSorter( config , new Partition( 6 ), new ShuffleInputReference( "default" ) );
 
-        sorter.sort( new File( "/projects/peregrine/0000000000.tmp" ), new File( "/tmp/sort.out" ) );
+        // prevent the GC from removing this.
 
         // FileInputStream fis = new FileInputStream( "./test.txt" );
 

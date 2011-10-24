@@ -1,4 +1,7 @@
 
+- our async output stream support is lame because we should REALLY be using
+  direct DMA zerocopy right to the disk.
+
 - stability bugs:
 
     - we need to use ChannelBuffers everywhere
@@ -16,13 +19,13 @@
 - migrate AsyncOutputStream to use mmap and then force() so that I can write
   ChannelBuffers to it.. by calling toByteBuffer on it... 
 
-- O_NOATIME on files ... 
+- O_NOATIME on files ... ?
 
 - to pin pages into memory what I should probably do is mmap the file
   TWICE... once with MLOCK and then with the normal java APIs and then close
   them both.
 
-- we should support fadvising away files once we've processed them to avoid VFS
+- We should support fadvising away files once we've processed them to avoid VFS
   page cache insanity.  ESPECIALLY some of the temporary sort files.  
 
 - suppprt fixed width input formats.  There are a LOT of advantages to doing
@@ -47,7 +50,7 @@
 - The PUT handler should ONLY return HTTP 200 OK once the file is WRITEN and
   should NOT leave a temp file in its place...
 
-- peregrin fails to handle disks filling up...... 
+- fails to handle disks filling up...... 
 
 - log output should be written to /var/log/peregrine-port/
 

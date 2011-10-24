@@ -1,5 +1,4 @@
-
-package peregrine.util;
+package peregrine.os;
 
 import java.util.*;
 import java.lang.reflect.*;

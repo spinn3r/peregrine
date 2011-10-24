@@ -72,7 +72,8 @@ public abstract class BaseOutputTask {
     public void teardown() throws IOException {
 
         //FIXME: close ALL of these jobs even if one of them fails and then
-        //throw ALL exceptions.  Also we need to gossip here.
+        //throw ALL exceptions.  Also we need to gossip here if it is failing
+        //talking to a remote host.
 
         for( JobOutput current : jobOutput ) {
             log.info( "Closing job output: %s" , current );
@@ -90,7 +91,16 @@ public abstract class BaseOutputTask {
             log.error( msg );
             throw new RuntimeException( msg );
         }
+
+        // now measure memory usage for debug purposes
+
+        long freeMemory  = runtime.freeMemory();
+        long totalMemory = runtime.totalMemory();
+        long usedMemory  = totalMemory - freeMemory;
         
+        System.out.printf( "Memory footprint: used=%,d , free=%,d , total=%,d \n",
+                           usedMemory, freeMemory, totalMemory );
+
     }
 
     /**
