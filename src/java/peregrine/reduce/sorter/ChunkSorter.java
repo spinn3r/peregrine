@@ -67,7 +67,7 @@ public class ChunkSorter extends BaseChunkSorter {
 
             lookup = sort( lookup, depth );
 
-            lookup.dump( "FIXME: result: " );
+            //lookup.dump( "FIXME: result: " );
             
             //parse this into the final ChunkWriter now.
 
