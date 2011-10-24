@@ -1,4 +1,10 @@
 
+- stability bugs:
+
+    - we need to use ChannelBuffers everywhere
+    - some of the thread local bugs are problematic with StructWriter
+    - 
+
 - on startup verify that we have enough memory... this should be done in the
   controller and the FS daemon. 
 

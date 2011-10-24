@@ -134,7 +134,7 @@ public class LocalPartitionReader {
     }
 
     public String toString() {
-        return this.path;
+        return String.format( "%s:%s", this.path, this.chunkReaders );
     }
     
 }

@@ -77,7 +77,7 @@ public class ReducerTask extends BaseOutputTask implements Callable {
             
         } catch ( Throwable t ) { 
 
-            log.error( "Task failed: ", t );
+            log.error( "Task failed for partition: " + partition, t );
             setStatus( TaskStatus.FAILED );
             setCause( t );
 

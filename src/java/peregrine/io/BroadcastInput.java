@@ -19,7 +19,7 @@ public final class BroadcastInput {
         LocalPartitionReader reader = new LocalPartitionReader( config, part, path );
 
         if ( reader.hasNext() == false )
-            throw new IOException( "No broadcast file for: " + path );
+            throw new IOException( "No broadcast values found at: " + reader );
 
         byte[] key   = reader.key();
         byte[] value = reader.value();

@@ -31,10 +31,8 @@ public class StructWriter {
     }
 
     public StructWriter writeVarint( int value ) {
-
         varintWriter.write( buff, value );
         return this;
-        
     }
 
     public StructWriter writeDouble( double value ) {
