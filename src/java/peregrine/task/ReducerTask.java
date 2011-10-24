@@ -28,7 +28,7 @@ public class ReducerTask extends BaseOutputTask implements Callable {
      * to free up disk space.  This should be enabled in production but in test
      * environments disabling this can enable us to run unit testing, etc.
      */
-    public static boolean DELETE_SHUFFLE_FILES = true;
+    public static boolean DELETE_SHUFFLE_FILES = false;
     
     private Input input = null;
 
@@ -125,7 +125,7 @@ public class ReducerTask extends BaseOutputTask implements Callable {
 
         // FIXME: we can't delete these until ALL reduces are done because we
         // may do speculative execution and need this data again.
-        
+
         if ( DELETE_SHUFFLE_FILES ) {
             
             // we have to close ALL of our output streams now.
