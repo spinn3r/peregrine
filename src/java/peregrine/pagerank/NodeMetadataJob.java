@@ -110,7 +110,7 @@ public class NodeMetadataJob {
                 count += IntBytes.toInt( val );
             }
 
-            emit( key, IntBytes.toInt( count ) );
+            emit( key, IntBytes.toByteArray( count ) );
 
         }
 
