@@ -82,6 +82,10 @@ public class ChunkSorter extends BaseChunkSorter {
                 buffer.readerIndex( start );
 
                 int key_length = varintReader.read();
+
+                if ( key_length != 8 )
+                    throw new RuntimeException( "Key length is incorrect" );
+                
                 byte[] key = new byte[ key_length ];
                 buffer.readBytes( key );
 
