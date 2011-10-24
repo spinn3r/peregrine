@@ -84,7 +84,7 @@ public class ChunkSorter extends BaseChunkSorter {
                 int key_length = varintReader.read();
 
                 if ( key_length != 8 )
-                    throw new RuntimeException( "Key length is incorrect" );
+                    throw new RuntimeException( String.format( "Key length is incorrect for %s on partition %s", input, partition ) );
                 
                 byte[] key = new byte[ key_length ];
                 buffer.readBytes( key );
