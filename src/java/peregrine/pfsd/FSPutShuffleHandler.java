@@ -87,6 +87,9 @@ public class FSPutShuffleHandler extends FSPutBaseHandler {
 
                 // now slice the data sans suffix.
                 ChannelBuffer data = content.slice( 0, suffix_idx );
+
+                if ( data.capacity() <= 8 )
+                    throw new RuntimeException( "FIXME: valid packet"  );
                 
                 shuffleReceiver.accept( from_partition, from_chunk, to_partition, count, data );
                 

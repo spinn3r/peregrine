@@ -26,6 +26,8 @@ import static peregrine.pfsd.FSPipelineFactory.*;
 
 public class ShuffleSenderExtent {
 
+    public static final int HEADER_SIZE = 2 * IntBytes.LENGTH;
+    
     protected ChannelBuffer buff = ChannelBuffers.buffer( ShuffleJobOutput.EXTENT_SIZE );
 
     protected int emits = 0;

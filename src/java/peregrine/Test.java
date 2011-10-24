@@ -246,20 +246,26 @@ public class Test {
 
     public static void main( String[] args ) throws Exception {
 
-        FileInputStream fis = new FileInputStream( "./test.txt" );
-
-        System.out.printf( "%s\n", Native.getFd( fis.getFD() ) );
-
-        long length = 5;
-        int fd = Native.getFd( fis.getFD() );
+        Config config = new Config();
         
-        long result = mman.mmap( 0, length, mman.PROT_READ, mman.MAP_SHARED | mman.MAP_LOCKED, fd, 0 );
+        ChunkSorter sorter = new ChunkSorter( config , new Partition( 6 ), new ShuffleInputReference( "default" ) );
 
-        if ( result == -1 ) {
-            System.out.printf( "FIXME: %s\n", errno.strerror() );
-        }
+        sorter.sort( new File( "/projects/peregrine/0000000000.tmp" ), new File( "/tmp/sort.out" ) );
+
+        // FileInputStream fis = new FileInputStream( "./test.txt" );
+
+        // System.out.printf( "%s\n", Native.getFd( fis.getFD() ) );
+
+        // long length = 5;
+        // int fd = Native.getFd( fis.getFD() );
         
-        System.out.printf( "result: %s\n", result );
+        // long result = mman.mmap( 0, length, mman.PROT_READ, mman.MAP_SHARED | mman.MAP_LOCKED, fd, 0 );
+
+        // if ( result == -1 ) {
+        //     System.out.printf( "FIXME: %s\n", errno.strerror() );
+        // }
+        
+        // System.out.printf( "result: %s\n", result );
         
         // int size = 4;
 

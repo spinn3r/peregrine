@@ -66,6 +66,8 @@ public class ChunkSorter extends BaseChunkSorter {
             ChunkReader result = null;
 
             lookup = sort( lookup, depth );
+
+            lookup.dump( "FIXME: result: " );
             
             //parse this into the final ChunkWriter now.
 
@@ -83,15 +85,18 @@ public class ChunkSorter extends BaseChunkSorter {
 
                 int key_length = varintReader.read();
 
-                if ( key_length != 8 )
-                    throw new RuntimeException( String.format( "Key length is incorrect for %s on partition %s", input, partition ) );
-                
                 byte[] key = new byte[ key_length ];
                 buffer.readBytes( key );
 
                 int value_length = varintReader.read();
                 byte[] value = new byte[ value_length ];
                 buffer.readBytes( value );
+
+                System.out.printf( "working on key: %s\n", Hex.encode( key ) );
+                
+                if ( key_length != 8 )
+                    throw new RuntimeException( String.format( "Key length is incorrect for %s on partition %s (%s,%s)",
+                                                               input, partition, Hex.encode( key ), Hex.encode( value ) ) );
 
                 writer.write( key, value );
 

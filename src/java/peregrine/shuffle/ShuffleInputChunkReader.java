@@ -89,6 +89,8 @@ public class ShuffleInputChunkReader {
 
         if ( reader.hasNext() ) {
 
+            System.out.printf( "----\n" );
+            
             pack          = reader.next();
             varintReader  = new VarintReader( pack.data );
             pack.data.readerIndex( 0 );
@@ -144,6 +146,18 @@ public class ShuffleInputChunkReader {
         pack.data.getBytes( offset, data );
 
         return data;
+        
+    }
+
+    public static void main( String[] args ) throws Exception {
+
+        ShuffleInputChunkReader reader = new ShuffleInputChunkReader( args[0], Integer.parseInt( args[1] ) );
+
+        while( reader.hasNext() ) {
+
+            System.out.printf( "%s = %s\n", Hex.encode( reader.key() ), Hex.encode( reader.value() ) );
+
+        }
         
     }
 
