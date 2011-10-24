@@ -5,6 +5,8 @@
     - some of the thread local bugs are problematic with StructWriter
     - 
 
+- potentially support fallocate so that I can clean up after ... 
+    
 - on startup verify that we have enough memory... this should be done in the
   controller and the FS daemon. 
 
