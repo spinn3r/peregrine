@@ -60,7 +60,7 @@ public class ShuffleSenderBuffer {
     public void emit( int to_partition, byte[] key, byte[] value ) {
 
         if ( key.length != 8 ) {
-            throw new RuntimeException( "FIXME: Invalid key length" );
+            throw new RuntimeException( "FIXME: Invalid key length: " + key.length );
         }
         
         // the max width that this emit could consume.  2 ints for the
