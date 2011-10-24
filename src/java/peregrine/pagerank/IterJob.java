@@ -98,7 +98,7 @@ public class IterJob {
         public void cleanup() {
 
             byte[] key = Hashcode.getHashcode( "id" );
-            byte[] value = DoubleBytes.toBytes( dangling_rank_sum );
+            byte[] value = DoubleBytes.toByteArray( dangling_rank_sum );
 
             danglingRankSumBroadcast.emit( key, value );
             
