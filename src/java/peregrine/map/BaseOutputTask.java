@@ -103,8 +103,7 @@ public abstract class BaseOutputTask {
         long totalMemory = runtime.totalMemory();
         long usedMemory  = totalMemory - freeMemory;
         
-        System.out.printf( "Memory footprint: used=%,d , free=%,d , total=%,d \n",
-                           usedMemory, freeMemory, totalMemory );
+        log.info( "Memory footprint: used=%,d , free=%,d , total=%,d", usedMemory, freeMemory, totalMemory );
 
     }
 
