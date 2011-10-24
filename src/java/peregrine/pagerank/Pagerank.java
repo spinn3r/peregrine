@@ -46,6 +46,8 @@ public class Pagerank {
 
         peregrine.shuffle.sender.ShuffleJobOutput.DISABLED = true;
 
+        System.out.printf( "==================== BEGINNING MERGE \n" );
+        
         //now create node metadata...
         controller.merge( NodeMetadataJob.Map.class,
                           new Input( "/pr/tmp/node_indegree", "/pr/test.graph_by_source" ),

@@ -65,9 +65,6 @@ public class ShuffleJobOutput implements JobOutput, LocalPartitionReaderListener
     @Override
     public void emit( byte[] key , byte[] value ) {
 
-        if ( DISABLED )
-            return;
-        
         Partition target = config.route( key, true );
 
         int from_partition  = chunkRef.partition.getId();
@@ -80,6 +77,10 @@ public class ShuffleJobOutput implements JobOutput, LocalPartitionReaderListener
     }
 
     protected void emit( int to_partition, byte[] key , byte[] value ) {
+
+        if ( DISABLED )
+            return;
+
         shuffleSenderBuffer.emit( to_partition, key, value );
         ++emits;
     }
