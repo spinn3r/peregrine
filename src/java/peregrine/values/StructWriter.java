@@ -27,7 +27,11 @@ public class StructWriter {
         new ThreadLocalChannelBuffer( BUFFER_SIZE );
 
     public StructWriter() {
-        buff = threadLocal.get();
+        //TODO: I should probably make this an extent based buffer so that we
+        //don't accidentally blow up in the future.  Also, this need to be
+        //thread local but there was a RARE race conditition that I need to
+        //track down.
+        buff = ChannelBuffers.buffer( BUFFER_SIZE );
     }
 
     public StructWriter writeVarint( int value ) {
