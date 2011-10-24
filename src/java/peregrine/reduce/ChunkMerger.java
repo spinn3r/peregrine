@@ -90,42 +90,48 @@ public class ChunkMerger {
     
     public void merge( List<ChunkReader> input, LocalChunkWriter writer ) throws IOException {
 
-        //TODO: if the input length is zero or one then we are done, however
-        //everything will need to be written to the writer first which is
-        //somewhat inefficient so we should try to reference the original file
-        //that was supplied and just return that directly.  In practice though
-        //this will only be a single 100MB file so this is not the end of the
-        //world.
-
-        if ( input.size() == 0 )
-            return;
-        
-        PartitionPriorityQueue queue = new PartitionPriorityQueue( input );
-        
-        SortListener sortListener = null;
-
-        if ( input.size() <= DEFAULT_PARTITION_WIDTH ) 
-            sortListener = listener;
+        try {
             
-        SortResult result = new SortResult( writer, sortListener );
+            //TODO: if the input length is zero or one then we are done, however
+            //everything will need to be written to the writer first which is
+            //somewhat inefficient so we should try to reference the original file
+            //that was supplied and just return that directly.  In practice though
+            //this will only be a single 100MB file so this is not the end of the
+            //world.
 
-        while( true ) {
+            if ( input.size() == 0 )
+                return;
             
-            QueueEntry entry = queue.poll();
-
-            if ( entry == null )
-                break;
-
-            ++tuples;
+            PartitionPriorityQueue queue = new PartitionPriorityQueue( input );
             
-            result.accept( topLevelSortEntryFactory.newSortEntry( entry.key, entry.value ) );
+            SortListener sortListener = null;
 
+            if ( input.size() <= DEFAULT_PARTITION_WIDTH ) 
+                sortListener = listener;
+                
+            SortResult result = new SortResult( writer, sortListener );
+
+            while( true ) {
+                
+                QueueEntry entry = queue.poll();
+
+                if ( entry == null )
+                    break;
+
+                ++tuples;
+                
+                result.accept( topLevelSortEntryFactory.newSortEntry( entry.key, entry.value ) );
+
+            }
+
+            result.close();
+
+            if ( writer != null )         
+                writer.close();
+
+        } catch ( Throwable t ) {
+            throw new IOException( "Unable to merge chunks: " + input, t );
         }
-
-        result.close();
-
-        if ( writer != null )         
-            writer.close();
         
     }
 
