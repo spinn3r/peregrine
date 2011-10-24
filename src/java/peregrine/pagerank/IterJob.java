@@ -97,13 +97,8 @@ public class IterJob {
         @Override
         public void cleanup() {
 
-            byte[] key = new StructWriter()
-                .writeHashcode( "dangling_rank_sum" )
-                .toBytes();
-
-            byte[] value = new StructWriter()
-                .writeDouble( dangling_rank_sum )
-                .toBytes();
+            byte[] key = Hashcode.getHashcode( "id" );
+            byte[] value = DoubleBytes.toBytes( dangling_rank_sum );
 
             danglingRankSumBroadcast.emit( key, value );
             
