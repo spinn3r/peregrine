@@ -16,6 +16,7 @@ public class TestPagerank extends peregrine.BaseTestWithTwoDaemons {
 
         // only 0 and 1 should be dangling.
 
+/*        
         String path = "/pr/test.graph";
         
         ExtractWriter writer = new ExtractWriter( config, path );
@@ -35,6 +36,8 @@ public class TestPagerank extends peregrine.BaseTestWithTwoDaemons {
 
         new Pagerank( config ).exec( path );
 
+*/        
+        
     }
 
     private void doRandomTest( int nr_nodes,
@@ -55,6 +58,10 @@ public class TestPagerank extends peregrine.BaseTestWithTwoDaemons {
     }
     
     public void test2() throws Exception {
+
+        doRandomTest( 500000 , 100 );
+
+/*        
         doRandomTest( 500, 10 );
         doRandomTest( 600, 10 );
         doRandomTest( 700, 10 );
@@ -62,6 +69,8 @@ public class TestPagerank extends peregrine.BaseTestWithTwoDaemons {
         doRandomTest( 900, 10 );
         doRandomTest( 1000, 100 );
         doRandomTest( 5000, 100 );
+
+*/
         // doRandomTest( 2000, 100 );
         // doRandomTest( 3000, 100 );
         // doRandomTest( 4000, 100 );

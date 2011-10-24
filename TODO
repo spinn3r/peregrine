@@ -1,4 +1,9 @@
 
+
+- ChunkMerger, ChunkSorter, and LocalMerger all use a nearly identical priority
+  queue merging system and this will need to be cleaned up... 
+
+
 - our async output stream support is lame because we should REALLY be using
   direct DMA zerocopy right to the disk.
 

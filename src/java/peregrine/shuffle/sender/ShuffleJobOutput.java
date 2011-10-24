@@ -36,6 +36,8 @@ public class ShuffleJobOutput implements JobOutput, LocalPartitionReaderListener
      * potentially wasted which would be at most 2%.
      */
     public static final int EXTENT_SIZE = 2097152;
+
+    public static boolean DISABLED = false;
     
     protected ChunkReference chunkRef = null;
 
@@ -63,6 +65,9 @@ public class ShuffleJobOutput implements JobOutput, LocalPartitionReaderListener
     @Override
     public void emit( byte[] key , byte[] value ) {
 
+        if ( DISABLED )
+            return;
+        
         Partition target = config.route( key, true );
 
         int from_partition  = chunkRef.partition.getId();
