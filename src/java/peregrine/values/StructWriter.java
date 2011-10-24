@@ -38,10 +38,8 @@ public class StructWriter {
     }
 
     public StructWriter writeDouble( double value ) {
-
         buff.writeBytes( LongBytes.toByteArray( Double.doubleToLongBits( value ) ) );
         return this;
-
     }
     
     public StructWriter writeHashcode( String key ) {

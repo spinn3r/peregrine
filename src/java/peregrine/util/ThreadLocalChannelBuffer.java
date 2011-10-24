@@ -22,8 +22,8 @@ public class ThreadLocalChannelBuffer extends ThreadLocal<ChannelBuffer> {
 
         ChannelBuffer result = super.get();
 
-        result.resetWriterIndex();
-        result.resetReaderIndex();
+        result.writerIndex( 0 );
+        result.readerIndex( 0 );
 
         return result;
         
