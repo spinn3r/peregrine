@@ -18,6 +18,8 @@ public class Host implements Comparable<Host> {
 
     protected int port;
 
+    protected String ref;
+    
     public Host( String name ) {
         this( name, Config.DEFAULT_PORT );
     }
@@ -25,26 +27,14 @@ public class Host implements Comparable<Host> {
     public Host( String name, int port ) {
         this.name = name;
         this.port = port;
-        this.id = LongBytes.toLong( Hashcode.getHashcode( String.format( "%s:%s", name, port ) ) );
+        this.id   = LongBytes.toLong( Hashcode.getHashcode( String.format( "%s:%s", name, port ) ) );
+        this.ref  = String.format( "%s:%s", name, port );
     }
 
     public Host( String name, int partitionMemberId, int port ) {
         this( name, port );
         this.partitionMemberId = partitionMemberId;
     }
-
-    public boolean equals( Object obj ) {
-
-        if ( obj == null )
-            return false;
-        
-        return id == ((Host)obj).id;
-        
-    }
-
-    public int hashCode() {
-        return name.hashCode() + port;
-    } 
 
     public String getName() {
         return name;
@@ -57,18 +47,29 @@ public class Host implements Comparable<Host> {
     public int getPort() {
         return port;
     }
-
-    public void setPort( int port ) {
-        this.port = port;
-    }
     
     public int getPartitionMemberId() {
         return partitionMemberId;
     }
 
     @Override
+    public boolean equals( Object obj ) {
+
+        if ( obj == null )
+            return false;
+        
+        return id == ((Host)obj).id;
+        
+    }
+
+    @Override
+    public int hashCode() {
+        return ref.hashCode();
+    } 
+
+    @Override
     public String toString() {
-        return String.format( "%s:%s", name, port );
+        return ref;
     }
 
     @Override

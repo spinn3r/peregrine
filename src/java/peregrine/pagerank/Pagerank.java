@@ -33,8 +33,7 @@ public class Pagerank {
         // FIXME: I think I can elide this and the next step by reading the
         // input once and writing two two destinations.
         
-        controller.map( NodeIndegreeJob.Map.class,
-                        path );
+        controller.map( NodeIndegreeJob.Map.class, path );
 
         controller.reduce( NodeIndegreeJob.Reduce.class,
                            new Input(),

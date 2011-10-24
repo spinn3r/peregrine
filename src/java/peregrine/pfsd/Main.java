@@ -24,13 +24,6 @@ public class Main {
 
         DOMConfigurator.configure( "conf/log4j.xml" );
         Config config = Config.parse( "conf/peregrine.conf", "conf/peregrine.hosts" );
-        
-        if ( args.length == 2 ) {
-
-            config.setRoot( args[0] );
-            config.getHost().setPort( Integer.parseInt( args[1] ) );
-            
-        }
 
         log.info( "Starting on %s with controller: %s" , config.getHost(), config.getController() );
 

@@ -36,10 +36,6 @@ fi
 
 export CLASSPATH=$NEW_CLASSPATH
 
-if [ "$MIN_MEMORY" = "" ]; then
-    export MIN_MEMORY=32M
-fi
-
 if [ "$MAX_MEMORY" = "" ]; then
     export MAX_MEMORY=1500M
 fi
@@ -72,7 +68,7 @@ if [ "$2" != "" ]; then
 
     set -x
     $JAVA -Djava.awt.headless=true \
-      -Xms$MIN_MEMORY \
+      -Xms$MAX_MEMORY \
       -Xmx$MAX_MEMORY \
       $JAVA_OPTS \
       $CLASSNAME "$@"
@@ -80,7 +76,7 @@ if [ "$2" != "" ]; then
 else
     set -x
     $JAVA -Djava.awt.headless=true \
-        -Xms$MIN_MEMORY \
+        -Xms$MAX_MEMORY \
         -Xmx$MAX_MEMORY \
         $JAVA_OPTS \
         $CLASSNAME 
