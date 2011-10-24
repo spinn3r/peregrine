@@ -88,8 +88,6 @@ public class ShuffleInputChunkReader {
     private boolean nextShufflePacket() throws IOException {
 
         if ( reader.hasNext() ) {
-
-            System.out.printf( "----\n" );
             
             pack          = reader.next();
             varintReader  = new VarintReader( pack.data );
