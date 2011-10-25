@@ -98,8 +98,6 @@ public class RemoteChunkWriterClient extends BaseOutputStream implements Channel
     protected HttpMethod method = HttpMethod.PUT;
 
     protected boolean inited = false;
-
-    protected StringBuffer log = new StringBuffer();
     
     public RemoteChunkWriterClient( List<Host> hosts, String path ) throws IOException {
 
@@ -345,9 +343,8 @@ public class RemoteChunkWriterClient extends BaseOutputStream implements Channel
             if ( cause != null ) 
                 throw new IOException( cause );
             
-            throw new IOException( String.format( "Write after closed: closed=%s, isChannelStateClosed: %s %s",
-                                                  closed, isChannelStateClosed(),
-                                                  log ) );
+            throw new IOException( String.format( "Write after closed: closed=%s, isChannelStateClosed: %s ",
+                                                  closed, isChannelStateClosed() ) );
 
         }
         
@@ -387,89 +384,84 @@ public class RemoteChunkWriterClient extends BaseOutputStream implements Channel
 
     }
 
-}
+    class WriteFutureListener implements ChannelFutureListener {
 
-class WriteFutureListener implements ChannelFutureListener {
-
-    private RemoteChunkWriterClient client;
-    
-    public WriteFutureListener( RemoteChunkWriterClient client ) {
-        this.client = client;
-    }
-
-    public void operationComplete( ChannelFuture future ) 
-        throws Exception {
-
-        Channel channel = future.getChannel();
+        private RemoteChunkWriterClient client;
         
-        if ( client.queue.peek() != null ) {
+        public WriteFutureListener( RemoteChunkWriterClient client ) {
+            this.client = client;
+        }
 
-             ChannelBuffer data = client.queue.take();
+        public void operationComplete( ChannelFuture future ) 
+            throws Exception {
 
-            // NOTE that even if the last response was written here we MUST wait
-            // until we get the HTTP response.
-
-             client.log.append( String.format( "writing %,d bytes\n", data.writerIndex() ) );
-
-             channel.write( data ).addListener( this );
-
-             return;
+            Channel channel = future.getChannel();
             
+            if ( client.queue.peek() != null ) {
+
+                 ChannelBuffer data = client.queue.take();
+
+                // NOTE that even if the last response was written here we MUST wait
+                // until we get the HTTP response.
+
+                 channel.write( data ).addListener( this );
+
+                 return;
+                
+            }
+
+            // the queue was drained so the next packet should be sent direc
+
+            client.clear = true;
+
         }
 
-        // the queue was drained so the next packet should be sent direc
-
-        client.clear = true;
-
     }
 
-}
+    class ConnectFutureListener implements ChannelFutureListener {
 
-class ConnectFutureListener implements ChannelFutureListener {
+        private RemoteChunkWriterClient client;
 
-    private RemoteChunkWriterClient client;
-
-    public ConnectFutureListener( RemoteChunkWriterClient client ) {
-        this.client = client;
-    }
-
-    public void operationComplete( ChannelFuture future ) 
-        throws Exception {
-
-        client.log.append( "CONNECTED\n" );
-        
-        client.channel = future.getChannel();
-
-        client.channelState = RemoteChunkWriterClient.OPEN;
-
-        // we need to find out when we are closed now.
-        client.channel.getCloseFuture().addListener( new CloseFutureListener( client ) );
-
-        client.log.append( String.format( "writing request: %s\n", client.request ) );
-        client.channel.write( client.request ).addListener( new WriteFutureListener( client ) );
-
-    }
-        
-}
-
-class CloseFutureListener implements ChannelFutureListener {
-
-    private RemoteChunkWriterClient client;
-    
-    public CloseFutureListener( RemoteChunkWriterClient client ) {
-        this.client = client;
-    }
-
-    public void operationComplete( ChannelFuture future ) 
-        throws Exception {
-
-        Throwable cause = future.getCause();
-
-        if ( cause != null ) {
-            client.setCause( cause );
+        public ConnectFutureListener( RemoteChunkWriterClient client ) {
+            this.client = client;
         }
 
-        client.channelState = RemoteChunkWriterClient.CLOSED;
+        public void operationComplete( ChannelFuture future ) 
+            throws Exception {
+            
+            client.channel = future.getChannel();
+
+            client.channelState = RemoteChunkWriterClient.OPEN;
+
+            // we need to find out when we are closed now.
+            client.channel.getCloseFuture().addListener( new CloseFutureListener( client ) );
+
+            client.channel.write( client.request ).addListener( new WriteFutureListener( client ) );
+
+        }
+            
+    }
+
+    class CloseFutureListener implements ChannelFutureListener {
+
+        private RemoteChunkWriterClient client;
+        
+        public CloseFutureListener( RemoteChunkWriterClient client ) {
+            this.client = client;
+        }
+
+        public void operationComplete( ChannelFuture future ) 
+            throws Exception {
+
+            Throwable cause = future.getCause();
+
+            if ( cause != null ) {
+                client.setCause( cause );
+            }
+
+            client.channelState = RemoteChunkWriterClient.CLOSED;
+
+        }
 
     }
 
