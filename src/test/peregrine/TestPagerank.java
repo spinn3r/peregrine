@@ -10,7 +10,7 @@ import peregrine.values.*;
 import peregrine.util.*;
 import peregrine.pagerank.*;
 
-public class TestPagerank extends peregrine.BaseTestWithTwoDaemons {
+public class TestPagerank extends peregrine.BaseTestWithOneDaemon {
 
     public void test1() throws Exception {
 
@@ -59,8 +59,9 @@ public class TestPagerank extends peregrine.BaseTestWithTwoDaemons {
     
     public void test2() throws Exception {
 
-        doRandomTest( 500000 , 100 );
+        //doRandomTest( 500000 , 100 );
         //doRandomTest( 500, 10 );
+        doRandomTest( 5000000, 10 );
         
 /*        
         doRandomTest( 500, 10 );

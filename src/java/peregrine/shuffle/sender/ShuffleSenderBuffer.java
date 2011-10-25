@@ -91,6 +91,10 @@ public class ShuffleSenderBuffer {
         
     }
 
+    public long capacity() {
+        return extents.size() * ShuffleJobOutput.EXTENT_SIZE;
+    }
+    
     private void rollover() {
 
         extent = new ShuffleSenderExtent();

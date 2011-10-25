@@ -55,8 +55,6 @@ public class Pagerank {
                                       new FileOutputReference( "/pr/out/nonlinked" ),
                                       new BroadcastOutputReference( "nr_nodes" ),
                                       new BroadcastOutputReference( "nr_dangling" ) ) );
-
-/*
         
         controller.reduce( NodeMetadataJob.Reduce.class,
                            new Input( new ShuffleInputReference( "nr_nodes" ) ),
@@ -95,8 +93,6 @@ public class Pagerank {
         //                    new Input( new ShuffleInputReference( "dangling_rank_sum" ),
         //                               new BroadcastInputReference( "/pr/out/nr_nodes" ) ),
         //                    new Output( "/pr/out/teleportation_rant" ) );
-
-*/
         
         controller.shutdown();
         

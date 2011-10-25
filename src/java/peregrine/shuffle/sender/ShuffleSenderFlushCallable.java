@@ -43,6 +43,8 @@ public class ShuffleSenderFlushCallable implements Callable {
             return null;
 
         output.flushing = true;
+
+        log.info( "Flushing %,d bytes in shuffle heap memory.", output.capacity() );
         
         log.info( "Closing shuffle job output for chunk: %s", output.chunkRef );
 
