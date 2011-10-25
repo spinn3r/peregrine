@@ -172,7 +172,7 @@ public class IterJob {
                 ;
             */
                 
-            double value = DoubleBytes.toByteArray( rank );
+            byte[] value = DoubleBytes.toByteArray( rank );
             
             emit( key, value );
             
