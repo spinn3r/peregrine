@@ -82,9 +82,13 @@ public class IterJob {
                 
                 for ( byte[] target : outbound.getValues() ) {
 
+                    /*
                     byte[] value = new StructWriter()
                         .writeDouble( grant )
                         .toBytes();
+                    */
+
+                    byte[] value = DoubleBytes.toByteArray( grant );
                     
                     emit( target, value );
 
@@ -161,11 +165,15 @@ public class IterJob {
 
             double rank = (DAMPENING * rank_sum) + teleport_grant;
 
+            /*
             byte[] value = new StructWriter()
                 .writeDouble( rank )
                 .toBytes()
                 ;
-
+            */
+                
+            double value = DoubleBytes.toByteArray( rank );
+            
             emit( key, value );
             
         }
