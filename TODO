@@ -1,4 +1,7 @@
 
+- I need to work on the ChunkMerger system so that it can use more memory NOT
+  just the size of chunk files. 
+
 
 - ChunkMerger, ChunkSorter, and LocalMerger all use a nearly identical priority
   queue merging system and this will need to be cleaned up... 

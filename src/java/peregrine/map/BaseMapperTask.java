@@ -27,6 +27,11 @@ public abstract class BaseMapperTask extends BaseOutputTask implements Callable 
 
     protected List<BroadcastInput> broadcastInput = new ArrayList();
 
+    /**
+     * This tasks partition listeners.
+     */
+    protected List<LocalPartitionReaderListener> listeners = new ArrayList();
+
     private Input input = null;
 
     public void init( Config config, 
@@ -108,8 +113,6 @@ public abstract class BaseMapperTask extends BaseOutputTask implements Callable 
      */
     protected List<LocalPartitionReader> getLocalPartitionReaders()
         throws IOException {
-
-        List<LocalPartitionReaderListener> listeners = new ArrayList();
 
         for( ShuffleJobOutput current : shuffleJobOutput ) {
             

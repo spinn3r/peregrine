@@ -11,6 +11,7 @@ import peregrine.values.*;
 import peregrine.util.*;
 import peregrine.map.*;
 import peregrine.io.*;
+import peregrine.io.chunk.*;
 import peregrine.io.partition.*;
 
 import com.spinn3r.log5j.*;
@@ -57,6 +58,8 @@ public class MergerTask extends BaseMapperTask {
     private void doCall() throws Exception {
 
         log.info( "Running merge jobs on host: %s ...", host );
+
+        listeners.add( new MergerLocalPartitionListener() );
         
         List<LocalPartitionReader> readers = getLocalPartitionReaders();
 
@@ -77,4 +80,21 @@ public class MergerTask extends BaseMapperTask {
 
     }
     
+}
+
+/**
+ * Used so that we can keep track of progress.
+ */
+class MergerLocalPartitionListener implements LocalPartitionReaderListener {
+
+    private static final Logger log = Logger.getLogger();
+
+    @Override
+    public void onChunk( ChunkReference ref ) {
+        log.info( "Merging chunk: %s" , ref );
+    }
+
+    @Override
+    public void onChunkEnd( ChunkReference ref ) {}
+
 }
