@@ -20,7 +20,7 @@ public abstract class BaseTest extends junit.framework.TestCase {
     public void setUp() {
 
         remove( Config.DEFAULT_ROOT );
-
+        
         // init log4j ... 
         org.apache.log4j.xml.DOMConfigurator.configure( "conf/log4j.xml" );
 

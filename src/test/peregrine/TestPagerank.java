@@ -46,13 +46,13 @@ public class TestPagerank extends peregrine.BaseTestWithOneDaemon {
         // only 0 and 1 should be dangling.
 
         String path = "/pr/test.graph";
-        
+
         ExtractWriter writer = new ExtractWriter( config, path );
 
         GraphBuilder.buildRandomGraph( writer, nr_nodes , max_edges_per_node );
 
         writer.close();
-
+        
         new Pagerank( config ).exec( path );
 
     }

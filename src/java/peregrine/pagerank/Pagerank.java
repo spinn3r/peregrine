@@ -43,8 +43,6 @@ public class Pagerank {
         controller.map( Mapper.class, path );
         controller.reduce( Reducer.class, new Input(), new Output( "/pr/test.graph_by_source" ) );
 
-        peregrine.shuffle.sender.ShuffleJobOutput.DISABLED = true;
-
         System.out.printf( "==================== BEGINNING MERGE \n" );
         
         //now create node metadata...
@@ -55,7 +53,7 @@ public class Pagerank {
                                       new FileOutputReference( "/pr/out/nonlinked" ),
                                       new BroadcastOutputReference( "nr_nodes" ),
                                       new BroadcastOutputReference( "nr_dangling" ) ) );
-        
+
         controller.reduce( NodeMetadataJob.Reduce.class,
                            new Input( new ShuffleInputReference( "nr_nodes" ) ),
                            new Output( "/pr/out/nr_nodes" ) );
@@ -93,7 +91,7 @@ public class Pagerank {
         //                    new Input( new ShuffleInputReference( "dangling_rank_sum" ),
         //                               new BroadcastInputReference( "/pr/out/nr_nodes" ) ),
         //                    new Output( "/pr/out/teleportation_rant" ) );
-        
+
         controller.shutdown();
         
     }
