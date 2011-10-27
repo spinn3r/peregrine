@@ -18,6 +18,7 @@ import peregrine.io.partition.*;
 import peregrine.shuffle.*;
 import peregrine.reduce.sorter.*;
 import peregrine.task.*;
+import peregrine.pfs.*;
 
 public class Test {
 
@@ -246,6 +247,32 @@ public class Test {
 
     public static void main( String[] args ) throws Exception {
 
+        RemoteChunkWriterClient client = new RemoteChunkWriterClient( "http://localhost:11112/foo/bar" );
+
+        client.write( "hello world".getBytes() );
+        client.write( "hello world".getBytes() );
+        client.write( "hello world".getBytes() );
+        client.write( "hello world".getBytes() );
+        client.write( "hello world".getBytes() );
+        client.write( "hello world".getBytes() );
+        client.write( "hello world".getBytes() );
+        client.write( "hello world".getBytes() );
+        client.write( "hello world".getBytes() );
+        client.write( "hello world".getBytes() );
+        client.write( "hello world".getBytes() );
+        client.write( "hello world".getBytes() );
+        client.write( "hello world".getBytes() );
+        client.write( "hello world".getBytes() );
+        client.write( "hello world".getBytes() );
+        client.write( "hello world".getBytes() );
+        client.write( "hello world".getBytes() );
+        client.write( "hello world".getBytes() );
+        client.write( "hello world".getBytes() );
+        client.write( "hello world".getBytes() );
+        client.write( "hello world".getBytes() );
+        client.write( "hello world".getBytes() );
+
+        client.close();
 
         // prevent the GC from removing this.
 

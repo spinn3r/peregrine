@@ -1,4 +1,9 @@
 
+-
+  http://docs.jboss.org/netty/3.2/api/org/jboss/netty/channel/socket/SocketChannelConfig.html
+
+  - log those on startup
+
 - I need to work on the ChunkMerger system so that it can use more memory NOT
   just the size of chunk files. 
 

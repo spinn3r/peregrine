@@ -403,8 +403,8 @@ public class RemoteChunkWriterClient extends BaseOutputStream implements Channel
 
                 // NOTE that even if the last response was written here we MUST wait
                 // until we get the HTTP response.
-
-                 channel.write( data ).addListener( this );
+                 
+                 channel.write( data ).addListener( new WriteFutureListener( client ) );
 
                  return;
                 
