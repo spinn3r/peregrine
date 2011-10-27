@@ -47,8 +47,13 @@ public class LocalReducer {
     
     public void sort() throws Exception {
 
-        ChunkSorter sorter = new ChunkSorter( config , partition, shuffleInput );
+        // The input list should first be sorted so that we sort by the order of
+        // the shuffle files and not an arbitrary order
+
+        Collections.sort( input );
         
+        ChunkSorter sorter = new ChunkSorter( config , partition, shuffleInput );
+
         List<ChunkReader> sorted = sort( input );
         
         ChunkMerger merger = new ChunkMerger( listener );

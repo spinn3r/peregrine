@@ -208,9 +208,7 @@ public class RemoteChunkWriterClient extends BaseOutputStream implements Channel
     }
     
     public void write( byte[] data ) throws IOException {
-
         write( ChannelBuffers.wrappedBuffer( data ) );
-        
     }
 
     public void setCause( Throwable throwable ) throws Exception {

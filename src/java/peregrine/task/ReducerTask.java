@@ -112,6 +112,7 @@ public class ReducerTask extends BaseOutputTask implements Callable {
 
         File[] shuffles = shuffle_dir_file.listFiles();
 
+        //TODO: we should probably make sure these look like shuffle files.
         for( File shuffle : shuffles ) {
             reducer.add( shuffle );
         }
