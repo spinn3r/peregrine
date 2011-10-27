@@ -397,8 +397,8 @@ public class RemoteChunkWriterClient extends BaseOutputStream implements Channel
 
             Channel channel = future.getChannel();
 
-            if ( channel.isConnected() == false )
-                return;
+            if ( channel.isConnected() == false ) 
+                return; // the close future will handle proper shutdown.
             
             if ( client.queue.peek() != null ) {
 

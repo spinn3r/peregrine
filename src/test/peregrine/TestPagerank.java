@@ -61,7 +61,7 @@ public class TestPagerank extends peregrine.BaseTestWithOneDaemon {
 
         //doRandomTest( 500000 , 100 );
         //doRandomTest( 500, 10 );
-        doRandomTest( 5000000, 10 );
+        doRandomTest( 50000000, 10 );
         
 /*        
         doRandomTest( 500, 10 );
