@@ -396,6 +396,9 @@ public class RemoteChunkWriterClient extends BaseOutputStream implements Channel
             throws Exception {
 
             Channel channel = future.getChannel();
+
+            if ( channel.isConnected() == false )
+                return;
             
             if ( client.queue.peek() != null ) {
 
