@@ -46,7 +46,6 @@ public class JobOutputFactory {
                 jobOutput[idx++] = new ShuffleJobOutput( config, sref.getName() );
 
             } else {
-                //FIXME: right now we only support file output... 
                 throw new IOException( "ref not supported: " + ref.getClass().getName() );
             }
 

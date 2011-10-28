@@ -115,6 +115,9 @@ public class MapperHandler extends RPCHandler {
                 output.add( new FileOutputReference( arg, append ) );
             }
 
+            if ( "shuffle".equals( type ) )
+                output.add( new ShuffleOutputReference( arg ) );
+
         }
 
         return output;
