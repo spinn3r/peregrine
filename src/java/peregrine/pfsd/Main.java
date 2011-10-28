@@ -20,10 +20,10 @@ public class Main {
 
     private static final Logger log = Logger.getLogger();
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args ) throws Exception {
 
         DOMConfigurator.configure( "conf/log4j.xml" );
-        Config config = Config.parse( "conf/peregrine.conf", "conf/peregrine.hosts" );
+        Config config = Config.load( args );
 
         log.info( "Starting on %s with controller: %s" , config.getHost(), config.getController() );
 

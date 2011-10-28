@@ -154,7 +154,7 @@ public class Controller {
                         final Output output ) 
         throws Exception {
 
-        log.info( "Starting reducer: %s\n", delegate.getName() );
+        log.info( "Starting reducer: %s", delegate.getName() );
 
         // we need to support reading input from the shuffler.  If the user
         // doesn't specify input, use the default shuffler.

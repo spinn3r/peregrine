@@ -227,14 +227,43 @@ public class Config {
         
     }
 
-    public static Config parse( String conf, String hosts ) throws IOException {
-        return parse( new File( conf ), new File( hosts ) );
+    /**
+     * Load the given configuration.
+     */
+    public static Config load( String[] args ) throws IOException {
+
+        String conf = "conf/peregrine.conf";
+        String hosts = "conf/peregrine.hosts";
+
+        // we should probably convert to getopts for this.... 
+        for ( String arg : args ) {
+
+            if ( arg.startsWith( "-c=" ) ) {
+                conf = arg.split( "=" )[1];
+                continue;
+            }
+
+            if ( arg.startsWith( "-h=" ) ) {
+                hosts = arg.split( "=" )[1];
+                continue;
+            }
+
+            throw new IOException( "Unknown argument: " + arg );
+            
+        }
+        
+        return load( conf, hosts );
+
+    }
+
+    public static Config load( String conf, String hosts ) throws IOException {
+        return load( new File( conf ), new File( hosts ) );
     }
 
     /**
      * Parse a config file from disk.
      */
-    public static Config parse( File conf_file, File hosts_file ) throws IOException {
+    public static Config load( File conf_file, File hosts_file ) throws IOException {
 
         Properties props = new Properties();
         props.load( new FileInputStream( conf_file ) );

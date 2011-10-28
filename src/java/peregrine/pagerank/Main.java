@@ -28,7 +28,7 @@ public class Main {
         System.out.printf( "Running with nr_nodes: %,d , max_edges_per_node: %,d\n", nr_nodes, max_edges_per_node );
         
         DOMConfigurator.configure( "conf/log4j.xml" );
-        Config config = Config.parse( "conf/peregrine.conf", "conf/peregrine.hosts" );
+        Config config = Config.load( args );
 
         String path = "/pr/test.graph";
         
