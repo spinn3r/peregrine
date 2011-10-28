@@ -83,7 +83,9 @@ public class MergerTask extends BaseMapperTask {
 }
 
 /**
- * Used so that we can keep track of progress.
+ * Used so that we can keep track of progress as we execute jobs. Multiple
+ * chunks will be used to we need to keep track of which ones we're running
+ * over.
  */
 class MergerLocalPartitionListener implements LocalPartitionReaderListener {
 

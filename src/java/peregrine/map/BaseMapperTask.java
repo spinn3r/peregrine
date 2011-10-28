@@ -119,7 +119,7 @@ public abstract class BaseMapperTask extends BaseOutputTask implements Callable 
             if ( current instanceof LocalPartitionReaderListener ) {
                 listeners.add( (LocalPartitionReaderListener) current );
             }
-            
+
         }
         
         List<LocalPartitionReader> readers = new ArrayList();

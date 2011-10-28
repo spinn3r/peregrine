@@ -78,7 +78,8 @@ public class Pagerank {
                                      new FileInputReference( "/pr/out/dangling" ),
                                      new FileInputReference( "/pr/out/nonlinked" ),
                                      new BroadcastInputReference( "/pr/out/nr_nodes" ) ),
-                          new Output( new BroadcastOutputReference( "dangling_rank_sum" ) ) );
+                          new Output( new ShuffleOutputReference(),
+                                      new BroadcastOutputReference( "dangling_rank_sum" ) ) );
 
         controller.reduce( IterJob.Reduce.class,
                            new Input( new ShuffleInputReference(),

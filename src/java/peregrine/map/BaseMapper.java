@@ -10,6 +10,7 @@ import peregrine.values.*;
 import peregrine.util.*;
 import peregrine.reduce.*;
 import peregrine.io.*;
+import peregrine.shuffle.sender.*;
 
 public abstract class BaseMapper {
 
@@ -24,6 +25,10 @@ public abstract class BaseMapper {
         if ( output.length > 0 )
             this.stdout = output[0];
 
+        if ( this.stdout instanceof BroadcastJobOutput ) {
+            throw new RuntimeException( "Standard out may not be a broadcast reference: " + this.stdout );
+        }
+        
     }
 
     public final void emit( byte[] key,

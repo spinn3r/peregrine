@@ -38,7 +38,13 @@ public class JobOutputFactory {
                 BroadcastOutputReference bcast = (BroadcastOutputReference) ref;
                 
                 jobOutput[idx++] = new BroadcastJobOutput( config, bcast.getName() );
+
+            } else if ( ref instanceof ShuffleOutputReference ) {
+
+                ShuffleOutputReference sref = (ShuffleOutputReference) ref;
                 
+                jobOutput[idx++] = new ShuffleJobOutput( config, sref.getName() );
+
             } else {
                 //FIXME: right now we only support file output... 
                 throw new IOException( "ref not supported: " + ref.getClass().getName() );
