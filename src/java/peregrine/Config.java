@@ -248,8 +248,6 @@ public class Config {
                 continue;
             }
 
-            throw new IOException( "Unknown argument: " + arg );
-            
         }
         
         return load( conf, hosts );
