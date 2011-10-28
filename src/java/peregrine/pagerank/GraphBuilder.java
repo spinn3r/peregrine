@@ -83,16 +83,15 @@ public class GraphBuilder {
 
         boolean keyIsHashcode = true;
 
-        byte[] hash = Hashcode.getHashcode( ""+source );
-            
+        //byte[] hash = Hashcode.getHashcode( ""+source );
+
+        byte[] hash = LongBytes.toByteArray( source );
         ByteArrayKey key = new ByteArrayKey( hash );
 
         HashSetValue value = new HashSetValue();
         for ( int target : targets ) {
-            // first get the target in bytes.
-            byte[] target_bytes = IntBytes.toByteArray( target );
-            byte[] data = Hashcode.getHashcode( target_bytes );
-            value.add( data );
+            byte[] target_key = LongBytes.toByteArray( target );
+            value.add( target_key );
         }
         
         writer.write( key, value, keyIsHashcode );
