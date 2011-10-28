@@ -59,9 +59,11 @@ public class TestPagerank extends peregrine.BaseTestWithOneDaemon {
     
     public void test2() throws Exception {
 
-        //doRandomTest( 500000 , 100 );
+        doRandomTest( 50000 , 100 );
         //doRandomTest( 500, 10 );
-        doRandomTest( 50000000, 10 );
+
+        //FIXME: this is the main test... 
+        //doRandomTest( 50000000, 10 );
         
 /*        
         doRandomTest( 500, 10 );
