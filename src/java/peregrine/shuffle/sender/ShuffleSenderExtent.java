@@ -28,9 +28,13 @@ public class ShuffleSenderExtent {
 
     public static final int HEADER_SIZE = 2 * IntBytes.LENGTH;
     
-    protected ChannelBuffer buff = ChannelBuffers.buffer( ShuffleJobOutput.EXTENT_SIZE );
+    protected ChannelBuffer buff = null;
 
     protected int emits = 0;
+
+    public ShuffleSenderExtent( int extent_size ) {
+        this.buff = ChannelBuffers.buffer( extent_size );
+    }
     
     public void emit( int to_partition, int length, byte[] key, byte[] value ) {
 

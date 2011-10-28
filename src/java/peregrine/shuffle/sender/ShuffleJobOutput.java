@@ -31,12 +31,6 @@ public class ShuffleJobOutput implements JobOutput, LocalPartitionReaderListener
     private static ExecutorService executors =
         Executors.newFixedThreadPool( 1, new DefaultThreadFactory( ShuffleJobOutput.class) );
 
-    /**
-     * Write in 2MB chunks at ~100MB output this is only 2MB extra memory
-     * potentially wasted which would be at most 2%.
-     */
-    public static final int EXTENT_SIZE = 2097152;
-
     public static boolean DISABLED = false;
     
     protected ChunkReference chunkRef = null;

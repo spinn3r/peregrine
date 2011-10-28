@@ -69,8 +69,6 @@ public class NodeMetadataJob {
                 nonlinkedOutput.emit( key, BooleanValue.TRUE );
             }
 
-            // now emit key, [indegree, outdegree]
-
             nodeMetadataOutput.emit( key, new Struct()
                                      .write( indegree )
                                      .write( outdegree )
