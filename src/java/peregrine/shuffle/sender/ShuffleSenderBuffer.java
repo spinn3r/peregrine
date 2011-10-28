@@ -108,11 +108,14 @@ public class ShuffleSenderBuffer {
         extents.add( extent );
 
         if ( (extents.size() + 1) % EXTENT_LOG_INTERVAL == 0 ) {
-
-            log.info( "Now using %,d bytes for buffer.", capacity() );
-            
+            log.info( "Now using %,d bytes for buffer %s", capacity(), toString() );
         }
 
+    }
+
+    @Override
+    public String toString() {
+        return String.format( "%s:%s", name, super.toString() );
     }
     
 }

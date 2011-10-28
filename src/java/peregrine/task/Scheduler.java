@@ -80,7 +80,7 @@ public abstract class Scheduler {
             if ( pending.contains( part ) )
                 continue;
 
-            if ( concurrency.get( host ) > config.getConcurrency() ) {
+            if ( concurrency.get( host ) >= config.getConcurrency() ) {
                 return;
             }
             
