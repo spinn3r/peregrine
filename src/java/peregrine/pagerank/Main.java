@@ -16,8 +16,10 @@ public class Main {
 
     public static void main( String[] args ) throws Exception {
 
-        //FIXME: make sure this machine is either the controller box or in the
-        //list of hosts configured.  Otherwise it's pointless to run.
+        int nr_nodes = Integer.parseInt( args[0] );
+        int max_edges_per_node = Integer.parseInt( args[1] );
+
+        System.out.printf( "Running with nr_nodes: %,d , max_edges_per_node: %,d\n", nr_nodes, max_edges_per_node );
         
         DOMConfigurator.configure( "conf/log4j.xml" );
         Config config = Config.parse( "conf/peregrine.conf", "conf/peregrine.hosts" );
@@ -26,7 +28,7 @@ public class Main {
         
         ExtractWriter writer = new ExtractWriter( config, path );
 
-        GraphBuilder.buildRandomGraph( writer, 500000 , 100 );
+        GraphBuilder.buildRandomGraph( writer, nr_nodes , max_edges_per_node );
         
         writer.close();
 
