@@ -1,4 +1,8 @@
 
+- Make sure the controller and the slaves ALL have the same partitioning
+  config...  I imagine this could JUST be a hash of the config and or
+  partitioning setup.
+
 
 - FIXME: make sure this machine is either the controller box or in the list of
   hosts configured.  Otherwise it's pointless to run.

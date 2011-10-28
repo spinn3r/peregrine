@@ -69,6 +69,9 @@ public abstract class Scheduler {
 
         List<Partition> partitions = membership.getPartitions( host );
 
+        if ( partitions == null )
+            throw new Exception( "No partitions defined for host: " + host );
+        
         for( Partition part : partitions ) {
 
             if ( completed.contains( part ) )
