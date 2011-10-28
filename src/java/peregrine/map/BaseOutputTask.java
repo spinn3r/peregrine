@@ -67,6 +67,10 @@ public abstract class BaseOutputTask {
 
         this.jobOutput = JobOutputFactory.getJobOutput( config, partition, output );
 
+        for( int i = 0; i < jobOutput.length; ++i ) {
+            log.info( "Job output %,d is %s" , i , jobOutput[i] ):
+        }
+        
     }
 
     public void teardown() throws IOException {
