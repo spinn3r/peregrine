@@ -20,6 +20,10 @@ import com.spinn3r.log5j.Logger;
 
 public class FSDaemon {
 
+    public static boolean TCP_NODELAY = true;
+
+    public static long CONNECT_TIMEOUT_MILLIS = 5000;
+    
     private static final Logger log = Logger.getLogger();
 
     private ServerBootstrap bootstrap = null;
@@ -58,6 +62,10 @@ public class FSDaemon {
         bootstrap = new ServerBootstrap( new NioServerSocketChannelFactory( Executors.newCachedThreadPool( tf ),
                                                                             Executors.newCachedThreadPool( tf ) ) );
 
+        // set options 
+        bootstrap.setOption( "tcpNoDelay", TCP_NODELAY );
+        bootstrap.setOption( "connectTimeoutMillis", CONNECT_TIMEOUT_MILLIS );
+        
         // Set up the event pipeline factory.
         bootstrap.setPipelineFactory( new FSPipelineFactory( config, this ) );
 

@@ -34,6 +34,22 @@ public class Controller {
 
         // FIXME: we should not startup an ORDINARY daemon... it should be JUST
         // for RPC and minimum services.  Nothing else.
+
+
+        // verify that we aren't running on the right host.  Starting up a
+        // controller on the wrong machine doesn't make sense and the job won't
+        // work.
+        
+        String hostname = config.getHost().getName();
+        String controllername = config.getController().getName();
+
+        if ( ! hostname.equals( controllername ) ) {
+            throw new RuntimeException( String.format( "Starting controller on incorrect host( %s vs %s )",
+                                                       hostname, controllername ) );
+        }
+
+        // make sure to set the host to the controller so we use the right port.
+        config.setHost( config.getController() );
         
         this.daemon = new FSDaemon( config );
 
