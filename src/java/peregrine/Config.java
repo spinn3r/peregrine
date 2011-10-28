@@ -144,6 +144,10 @@ public class Config {
         return this;
     }
 
+    public boolean isController() {
+        return this.controller.getName().equals( getHost().getName() );
+    }
+    
     public Set<Host> getHosts() {
         return hosts;
     }
@@ -302,8 +306,9 @@ public class Config {
         config.membership = membership;
         config.hosts.addAll( hosts );
 
-        if ( ! config.hosts.contains( config.getHost() ) ) {
-            throw new IOException( "Host is not define in hosts file: " + config.getHost() );
+        if ( ! config.hosts.contains( config.getHost() ) &&
+             ! config.isController() ) {
+            throw new IOException( "Host is not define in hosts file nor is it the controller: " + config.getHost() );
         }
         
         log.info( "Using controller: %s", config.getController() );
