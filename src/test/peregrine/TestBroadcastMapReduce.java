@@ -105,7 +105,8 @@ public class TestBroadcastMapReduce extends peregrine.BaseTestWithOneDaemon {
 
          controller.map( Map.class,
                          new Input( path ),
-                         new Output( new BroadcastOutputReference( "count" ) ) );
+                         new Output( new ShuffleOutputReference(),
+                                     new BroadcastOutputReference( "count" ) ) );
 
          String count_out = String.format( "/test/%s/test1.count", getClass().getName() );
          

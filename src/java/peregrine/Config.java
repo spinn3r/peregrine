@@ -21,6 +21,8 @@ public class Config {
      */
     public static int DEFAULT_PORT = 11112;
 
+    public static int DEFAULT_CONCURRENCY = 1;
+    
     /**
      * Default root dir for serving files.
      */
@@ -69,7 +71,7 @@ public class Config {
      * The concurrency on a per host basis.  How many mappers and reducers each
      * can run.
      */
-    protected int concurrency;
+    protected int concurrency = DEFAULT_CONCURRENCY;
     
     public Config() { }
 
