@@ -273,6 +273,10 @@ public class Config {
         config.membership = membership;
         config.hosts.addAll( hosts );
 
+        if ( ! config.hosts().contains( config.getHost() ) ) {
+            throw new IOException( "Host is not define in hosts file: " + config.getHost() );
+        }
+        
         log.info( "Using controller: %s", config.getController() );
         log.info( "Running with partition layout: \n%s", membership.toMatrix() );
 
