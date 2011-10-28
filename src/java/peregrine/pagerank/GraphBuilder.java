@@ -89,7 +89,9 @@ public class GraphBuilder {
 
         HashSetValue value = new HashSetValue();
         for ( int target : targets ) {
-            byte[] data = Hashcode.getHashcode( Integer.toString( target ) );
+            // first get the target in bytes.
+            byte[] target_bytes = IntBytes.toByteArray( target );
+            byte[] data = Hashcode.getHashcode( target_bytes );
             value.add( data );
         }
         
