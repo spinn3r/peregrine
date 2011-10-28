@@ -245,34 +245,84 @@ public class Test {
 
     }
 
+    public static void test8() throws Exception {
+
+        System.gc();
+        
+        System.out.printf( "-------- test8 (SHA1)\n" );
+
+        byte[] data = new byte[10048576];
+        
+        long before = System.currentTimeMillis();
+
+        for( int i = 0; i < MAX; ++i ) {
+            SHA1.encode( data );
+        }
+        
+        long after = System.currentTimeMillis();
+
+        System.out.printf( "duration: %,d\n", (after-before) );
+
+    }
+
+    public static void test9() throws Exception {
+
+        System.gc();
+        
+        System.out.printf( "-------- test9 (MD5)\n" );
+
+        byte[] data = new byte[10048576];
+        
+        long before = System.currentTimeMillis();
+
+        for( int i = 0; i < MAX; ++i ) {
+            MD5.encode( data );
+        }
+        
+        long after = System.currentTimeMillis();
+
+        System.out.printf( "duration: %,d\n", (after-before) );
+
+    }
+
+    public static int MAX = 100;
+    
     public static void main( String[] args ) throws Exception {
 
-        RemoteChunkWriterClient client = new RemoteChunkWriterClient( "http://localhost:11112/foo/bar" );
+        test8();
+        test8();
+        test8();
 
-        client.write( "hello world".getBytes() );
-        client.write( "hello world".getBytes() );
-        client.write( "hello world".getBytes() );
-        client.write( "hello world".getBytes() );
-        client.write( "hello world".getBytes() );
-        client.write( "hello world".getBytes() );
-        client.write( "hello world".getBytes() );
-        client.write( "hello world".getBytes() );
-        client.write( "hello world".getBytes() );
-        client.write( "hello world".getBytes() );
-        client.write( "hello world".getBytes() );
-        client.write( "hello world".getBytes() );
-        client.write( "hello world".getBytes() );
-        client.write( "hello world".getBytes() );
-        client.write( "hello world".getBytes() );
-        client.write( "hello world".getBytes() );
-        client.write( "hello world".getBytes() );
-        client.write( "hello world".getBytes() );
-        client.write( "hello world".getBytes() );
-        client.write( "hello world".getBytes() );
-        client.write( "hello world".getBytes() );
-        client.write( "hello world".getBytes() );
+        test9();
+        test9();
+        test9();
 
-        client.close();
+        // RemoteChunkWriterClient client = new RemoteChunkWriterClient( "http://localhost:11112/foo/bar" );
+
+        // client.write( "hello world".getBytes() );
+        // client.write( "hello world".getBytes() );
+        // client.write( "hello world".getBytes() );
+        // client.write( "hello world".getBytes() );
+        // client.write( "hello world".getBytes() );
+        // client.write( "hello world".getBytes() );
+        // client.write( "hello world".getBytes() );
+        // client.write( "hello world".getBytes() );
+        // client.write( "hello world".getBytes() );
+        // client.write( "hello world".getBytes() );
+        // client.write( "hello world".getBytes() );
+        // client.write( "hello world".getBytes() );
+        // client.write( "hello world".getBytes() );
+        // client.write( "hello world".getBytes() );
+        // client.write( "hello world".getBytes() );
+        // client.write( "hello world".getBytes() );
+        // client.write( "hello world".getBytes() );
+        // client.write( "hello world".getBytes() );
+        // client.write( "hello world".getBytes() );
+        // client.write( "hello world".getBytes() );
+        // client.write( "hello world".getBytes() );
+        // client.write( "hello world".getBytes() );
+
+        // client.close();
 
         // prevent the GC from removing this.
 
