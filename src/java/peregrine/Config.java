@@ -238,7 +238,7 @@ public class Config {
      */
     public static Config load( String[] args ) throws IOException {
 
-        String conf = "conf/peregrine.conf";
+        String conf  = "conf/peregrine.conf";
         String hosts = "conf/peregrine.hosts";
 
         // we should probably convert to getopts for this.... 
