@@ -273,7 +273,7 @@ public class Config {
         config.membership = membership;
         config.hosts.addAll( hosts );
 
-        if ( ! config.hosts().contains( config.getHost() ) ) {
+        if ( ! config.hosts.contains( config.getHost() ) ) {
             throw new IOException( "Host is not define in hosts file: " + config.getHost() );
         }
         
