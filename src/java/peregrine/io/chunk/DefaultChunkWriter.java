@@ -37,7 +37,6 @@ public class DefaultChunkWriter implements ChunkWriter {
 
     private boolean closed = false;
 
-    //FIXME: this should be thread local 
     private ChannelBuffer buff = ChannelBuffers.buffer( BUFFER_SIZE );
 
     public DefaultChunkWriter( OutputStream out ) throws IOException {

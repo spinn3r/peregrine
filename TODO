@@ -1,25 +1,46 @@
 
+- I think ALL buffers should be done with mmap:
+
+    - creating a buffer() and then mlocking the buffer into memory for shuffle
+      sorting would be ideal.
+
+    - the buffer extent system would all be done outside of java
+
+    - I would need SOME way to keep track of memory and which structures are
+      using memory ... java wouldn't give this to me (including jprofiler)
+
+    - transferTo would make read and sorting faster
+
+    - all network IO could use transferTo as well... 
+      
+- AH!!!!! the problem now is that I'm reading the SAME data N times when in FACT
+  I should be reading it ONE time and handing it out to ALL partitions.... THIS
+  is a big problem.... and it's not even doing sequential reads of the data.
+  Hm...  Is this true?  The issue is that I"m reading from 8 shuffle files ...
+
+  2011-10-28 23:21:39,699  INFO [peregrine.pfsd.ReducerHandler:2] peregrine.reduce.sorter.ChunkSorter Going to sort: /d2/peregrine-fs/tmp/shuffle/default/0000000327.tmp
+
+    how am I going to fix that.
+
 - Make sure the controller and the slaves ALL have the same partitioning
   config...  I imagine this could JUST be a hash of the config and or
   partitioning setup.
 
-
-- FIXME: make sure this machine is either the controller box or in the list of
-  hosts configured.  Otherwise it's pointless to run.
-
 - we're at 100% CPU in the extract / init phase of our pagerank tests.
 
-  http://docs.jboss.org/netty/3.2/api/org/jboss/netty/channel/socket/SocketChannelConfig.html
+-
 
-    - log those on startup
+    - log these setting on startup
 
+        - http://docs.jboss.org/netty/3.2/api/org/jboss/netty/channel/socket/SocketChannelConfig.html
+
+    
 - I need to work on the ChunkMerger system so that it can use more memory NOT
   just the size of chunk files. 
 
-
 - ChunkMerger, ChunkSorter, and LocalMerger all use a nearly identical priority
-  queue merging system and this will need to be cleaned up... 
-
+  queue merging system and this will need to be cleaned up to reduce the amount
+  of code (and potential bugs)
 
 - our async output stream support is lame because we should REALLY be using
   direct DMA zerocopy right to the disk.
@@ -28,15 +49,16 @@
 
     - we need to use ChannelBuffers everywhere
     - some of the thread local bugs are problematic with StructWriter
-    - 
-
-- potentially support fallocate so that I can clean up after ... 
+    -
+    
+- Potentially support fallocate so that I can allocate files in extents of say
+  10MB.
     
 - on startup verify that we have enough memory... this should be done in the
   controller and the FS daemon. 
 
-- code which tests for off by one errors by looking at the size of buffers and
-  changing their inputs to see if rolling over breaks.
+- test code which tests for off by one errors by looking at the size of buffers
+  and changing their inputs to see if rolling over breaks.
 
 - migrate AsyncOutputStream to use mmap and then force() so that I can write
   ChannelBuffers to it.. by calling toByteBuffer on it... 
@@ -59,22 +81,9 @@
     - when sorting, within the intermediate files, I can JUST write a new key
       list and then keep the values in the same spot on disk.
 
-- Write MEMORY benchmarks... that measure heap BEFORE and AFTER each test so that
-  I can prevent memory leaks.
 
-  - Constrain the JVM memory that is forked from <junit> so that I can verify
-    that the memory NEVER goes above a certain lower bound.
-
-- If the ExtractWriter does NOT write to all hosts the HTTP server is still
-  written to and then creates a fucked up chunk.  One way to test this is to
-  write ONE key so that not every host has a value and peregrine will then die.
-
-- The PUT handler should ONLY return HTTP 200 OK once the file is WRITEN and
-  should NOT leave a temp file in its place...
-
-- fails to handle disks filling up...... 
-
-- log output should be written to /var/log/peregrine-port/
+- right now we fail to handle disks filling up..  We need test for all file
+  writes.
 
 - some items in StructReader and StructWriter need to be lenght prefixed.  For
   example byte[] and String.  However, this is redundand if they're the only
@@ -118,8 +127,3 @@
 
         - 1000 partitions... writing to us in chunks
 
-- support for doing a 'cat' of a file and factoring in the toString() methods of
-  the underlying type... this will be used for debug purposes.
-
-- It COULD be that MapOutputIndex is being corrupted... try to make THAT
-  synchronous ... 

@@ -77,7 +77,6 @@ public class ChunkSorter extends BaseChunkSorter {
 
                 lookup.next();
 
-                // TODO: this would be BAD if the key size was > 8 bytes. 
                 int start = lookup.get() - 1;
                 buffer.readerIndex( start );
 
@@ -89,12 +88,6 @@ public class ChunkSorter extends BaseChunkSorter {
                 int value_length = varintReader.read();
                 byte[] value = new byte[ value_length ];
                 buffer.readBytes( value );
-
-                //FIXME: remove System.out.printf( "working on key: %s\n", Hex.encode( key ) );
-                
-                if ( key_length != 8 )
-                    throw new RuntimeException( String.format( "FIXME: remove Key length is incorrect for %s on partition %s (%s,%s)",
-                                                               input, partition, Hex.encode( key ), Hex.encode( value ) ) );
 
                 writer.write( key, value );
 
