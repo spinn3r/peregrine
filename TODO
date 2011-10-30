@@ -1,4 +1,13 @@
 
+- I need a way to keep track of which machines are responsible for running
+  reduces over which partitions.
+
+    - what do we call these?  Masters? Primary?
+
+- If the CPU performance of performing a sort is MUCH slower than the disk
+  perforamnce, we can go ahead and replicate the sort temporary files so that
+  hte other replicas can resume if necessary.
+
 - I think ALL buffers should be done with mmap:
 
     - creating a buffer() and then mlocking the buffer into memory for shuffle

@@ -35,7 +35,6 @@ public class Controller {
         // FIXME: we should not startup an ORDINARY daemon... it should be JUST
         // for RPC and minimum services.  Nothing else.
 
-
         // verify that we aren't running on the right host.  Starting up a
         // controller on the wrong machine doesn't make sense and the job won't
         // work.
@@ -50,6 +49,8 @@ public class Controller {
 
         // make sure to set the host to the controller so we use the right port.
         config.setHost( config.getController() );
+
+        log.info( "Starting controller: %s", config.getController() );
         
         this.daemon = new FSDaemon( config );
 
@@ -72,7 +73,7 @@ public class Controller {
                      final Input input,
                      final Output output ) throws Exception {
 
-        log.info( "Starting mapper: %s", delegate.getName() );
+        log.info( "STARTING map %s for input %s and output %s ", delegate.getName(), input, output );
 
         final Membership membership = config.getMembership();
 
@@ -94,7 +95,7 @@ public class Controller {
 
         daemon.setScheduler( null );
 
-        log.info( "Finished mapper: %s", delegate.getName() );
+        log.info( "COMPLETED map %s for input %s and output %s ", delegate.getName(), input, output );
 
     }
     
@@ -126,7 +127,7 @@ public class Controller {
                        final Input input,
                        final Output output ) throws Exception {
 
-        log.info( "Starting merger: %s", delegate.getName() );
+        log.info( "STARTING merge %s for input %s and output %s ", delegate.getName(), input, output );
 
         Scheduler scheduler = new Scheduler( config ) {
 
@@ -145,7 +146,7 @@ public class Controller {
 
         daemon.setScheduler( null );
 
-        log.info( "Finished merger: %s", delegate.getName() );
+        log.info( "COMPLETED merge %s for input %s and output %s ", delegate.getName(), input, output );
 
     }
     
@@ -154,7 +155,7 @@ public class Controller {
                         final Output output ) 
         throws Exception {
 
-        log.info( "Starting reducer: %s", delegate.getName() );
+        log.info( "STARTING reduce %s for input %s and output %s ", delegate.getName(), input, output );
 
         // we need to support reading input from the shuffler.  If the user
         // doesn't specify input, use the default shuffler.
@@ -189,7 +190,7 @@ public class Controller {
 
         daemon.setScheduler( null );
 
-        log.info( "Finished reducer: %s", delegate.getName() );
+        log.info( "COMPLETED reduce %s for input %s and output %s ", delegate.getName(), input, output );
 
     }
 

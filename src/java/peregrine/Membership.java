@@ -13,21 +13,21 @@ public class Membership {
 
     protected Map<Host,List<Partition>> reverse = new HashMap();
 
+    protected Map<Host,List<Replica>> replicas = new HashMap();
+
     public Membership() {}
-
-    public Membership( List<Host> hosts ) {
-
-    }
     
     /**
      * Create new membership from an explicit mapping.
      */
     public Membership( Map<Partition,List<Host>> forward,
-                       Map<Host,List<Partition>> reverse ) {
+                       Map<Host,List<Partition>> reverse,
+                       Map<Host,List<Replica>> replicas ) {
 
         this.forward = forward;
         this.reverse = reverse;
-
+        this.replicas = replicas;
+        
     }
     
     public Set<Partition> getPartitions() {
@@ -39,11 +39,13 @@ public class Membership {
     }
 
     public List<Partition> getPartitions( Host host ) {
-        
         return reverse.get( host );
-        
     }
-    
+
+    public List<Replica> getReplicas( Host host ) {
+        return replicas.get( host );
+    }
+
     public void setPartition( Partition part, List<Host> hosts ) {
         forward.put( part, hosts );
         updateReverseMapping( part, hosts );
@@ -54,7 +56,7 @@ public class Membership {
     }
 
     public String toMatrix() {
-
+        
         StringBuffer buff = new StringBuffer();
 
         List<Host> hosts = new ArrayList();

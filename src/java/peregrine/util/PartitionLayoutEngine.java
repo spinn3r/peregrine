@@ -15,7 +15,15 @@ public class PartitionLayoutEngine {
 
     private static final Logger log = Logger.getLogger();
 
-    Membership membership = new Membership();
+    /**
+     * The host to partition matrix.
+     */
+    Map<Host,List<Partition>> matrix = new HashMap();
+
+    /**
+     * The replica lookup.
+     */
+    Map<Host,List<Replica>> replicas = new HashMap();
 
     int nr_hosts;
     int nr_partitions;
@@ -26,18 +34,18 @@ public class PartitionLayoutEngine {
     // hosts.
     
     int last_allocated_partition = 0;
+
+    /**
+     * Used with redistribute() so that we can keep track of the last host that
+     * had a partition given to it.
+     */
     int current_granted_host_idx = 0;
 
     int current_host_idx = 0;
 
-    Map<Host,List<Partition>> matrix = new HashMap();
-
     List<Host> hosts;
-
-    Host current_host;
     
-    public PartitionLayoutEngine( Config config,
-                                  List<Host> hosts ) {
+    public PartitionLayoutEngine( Config config, List<Host> hosts ) {
         
         this.nr_hosts = hosts.size();
         this.nr_partitions = config.getPartitionsPerHost();
@@ -57,15 +65,14 @@ public class PartitionLayoutEngine {
         if ( nr_hosts < nr_replicas )
             throw new RuntimeException( "Incorrect number of hosts." );
 
-        if ( nr_hosts <= (2 * nr_partitions) ) {
-
-            // FIXME: log.warn this.
-            log.info( "For maximum parallel recovery, your nr_hosts should be > 2 * nr_partitions\n" );
+        if ( nr_hosts <= (nr_replicas * nr_partitions) ) {
+            log.warn( "For maximum parallel recovery, your nr_hosts should be > nr_replicas * nr_partitions\n" );
         }
 
-        // init the matrix
+        // init the matrix and replicas
         for( Host host : hosts ) {
             matrix.put( host, new ArrayList() ); 
+            replicas.put( host, new ArrayList() ); 
         }
 
         for( ; current_host_idx < nr_hosts; ++current_host_idx ) {
@@ -91,32 +98,6 @@ public class PartitionLayoutEngine {
         fixRemainder();
 
     }
-
-    public Membership toMembership() {
-
-        Map<Partition,List<Host>> forward = new HashMap();
-        
-        // make sure there is an entry per partition
-        for( Host host : matrix.keySet() ) {
-
-            for( Partition part : matrix.get( host ) ) {
-
-                List<Host> hosts = forward.get( part );
-
-                if ( hosts == null ) {
-                    hosts = new ArrayList();
-                    forward.put( part, hosts );
-                }
-                
-                hosts.add( host );
-
-            }
-            
-        }
-
-        return new Membership( forward, matrix );
-
-    }
     
     private void redistribute( List<Partition> granted ) {
 
@@ -134,7 +115,9 @@ public class PartitionLayoutEngine {
                     continue;
                 }
 
-                List<Partition> potential = matrix.get( hosts.get( current_granted_host_idx ) );
+                Host host = hosts.get( current_granted_host_idx );
+                
+                List<Partition> potential = matrix.get( host );
 
                 if ( potential.size() == nr_partitions ) {
 
@@ -143,7 +126,9 @@ public class PartitionLayoutEngine {
                     
                     continue;
                 }
-                
+
+                Replica replica = new Replica( grant, replica_count );
+
                 potential.add( grant );
                 
                 ++replica_count;
@@ -172,5 +157,31 @@ public class PartitionLayoutEngine {
         }
 
     }
-    
+
+    public Membership toMembership() {
+
+        Map<Partition,List<Host>> forward = new HashMap();
+        
+        // make sure there is an entry per partition
+        for( Host host : matrix.keySet() ) {
+
+            for( Partition part : matrix.get( host ) ) {
+
+                List<Host> hosts = forward.get( part );
+
+                if ( hosts == null ) {
+                    hosts = new ArrayList();
+                    forward.put( part, hosts );
+                }
+                
+                hosts.add( host );
+
+            }
+            
+        }
+
+        return new Membership( forward, matrix, replicas );
+
+    }
+
 }

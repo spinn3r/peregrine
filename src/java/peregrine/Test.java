@@ -289,13 +289,48 @@ public class Test {
     
     public static void main( String[] args ) throws Exception {
 
-        test8();
-        test8();
-        test8();
+        Config config = new Config();
 
-        test9();
-        test9();
-        test9();
+        config.setPartitionsPerHost( 4 );
+        config.setReplicas( 2 );
+        
+        List<Host> hosts = new ArrayList();
+
+        int nr_hosts = 10;
+        
+        for( int i = 0; i < nr_hosts; ++i ) {
+            hosts.add( new Host( "node" + i ) );
+            
+        }
+
+        PartitionLayoutEngine layout = new PartitionLayoutEngine( config, hosts );
+        layout.build();
+        
+        Membership membership = layout.toMembership();
+
+        System.out.printf( "%s\n", membership.toMatrix() );
+
+        for( Host host : hosts ) {
+
+            List<Replica> replicas = membership.getReplicas( host );
+
+            System.out.printf( "%s: ", host );
+            
+            for( Replica replica : replicas ) {
+                System.out.printf( "%s: ", replica );
+            }
+
+            System.out.printf( "\n" );
+            
+        }
+        
+        // test8();
+        // test8();
+        // test8();
+
+        // test9();
+        // test9();
+        // test9();
 
         // RemoteChunkWriterClient client = new RemoteChunkWriterClient( "http://localhost:11112/foo/bar" );
 
