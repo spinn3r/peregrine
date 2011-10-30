@@ -286,8 +286,8 @@ public class Test {
     }
 
     public static int MAX = 100;
-    
-    public static void main( String[] args ) throws Exception {
+
+    public static void layout0() throws Exception {
 
         Config config = new Config();
 
@@ -296,10 +296,10 @@ public class Test {
         
         List<Host> hosts = new ArrayList();
 
-        int nr_hosts = 10;
+        int nr_hosts = 12;
         
         for( int i = 0; i < nr_hosts; ++i ) {
-            hosts.add( new Host( "node" + i ) );
+            hosts.add( new Host( String.format( "node%02d", i ) ) );
             
         }
 
@@ -310,20 +310,41 @@ public class Test {
 
         System.out.printf( "%s\n", membership.toMatrix() );
 
-        for( Host host : hosts ) {
+    }
 
-            List<Replica> replicas = membership.getReplicas( host );
+    public static void layout1() throws Exception {
 
-            System.out.printf( "%s: ", host );
-            
-            for( Replica replica : replicas ) {
-                System.out.printf( "%s: ", replica );
-            }
+        Config config = new Config();
 
-            System.out.printf( "\n" );
+        config.setPartitionsPerHost( 2 );
+        config.setReplicas( 1 );
+        
+        List<Host> hosts = new ArrayList();
+
+        int nr_hosts = 12;
+        
+        for( int i = 0; i < nr_hosts; ++i ) {
+            hosts.add( new Host( String.format( "node%02d", i ) ) );
             
         }
+
+        PartitionLayoutEngine layout = new PartitionLayoutEngine( config, hosts );
+        layout.build();
         
+        Membership membership = layout.toMembership();
+
+        System.out.printf( "%s\n", membership.toMatrix() );
+
+    }
+
+    public static void main( String[] args ) throws Exception {
+
+        layout0();
+
+        System.out.printf( "====================\n" );
+        
+        layout1();
+
         // test8();
         // test8();
         // test8();

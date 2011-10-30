@@ -13,7 +13,7 @@ public class Membership {
 
     protected Map<Host,List<Partition>> reverse = new HashMap();
 
-    protected Map<Host,List<Replica>> replicas = new HashMap();
+    protected Map<Host,List<Partition>> primary = new HashMap();
 
     public Membership() {}
     
@@ -22,11 +22,11 @@ public class Membership {
      */
     public Membership( Map<Partition,List<Host>> forward,
                        Map<Host,List<Partition>> reverse,
-                       Map<Host,List<Replica>> replicas ) {
+                       Map<Host,List<Partition>> primary ) {
 
         this.forward = forward;
         this.reverse = reverse;
-        this.replicas = replicas;
+        this.primary = primary;
         
     }
     
@@ -42,8 +42,8 @@ public class Membership {
         return reverse.get( host );
     }
 
-    public List<Replica> getReplicas( Host host ) {
-        return replicas.get( host );
+    public List<Partition> getPrimary( Host host ) {
+        return primary.get( host );
     }
 
     public void setPartition( Partition part, List<Host> hosts ) {

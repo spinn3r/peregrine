@@ -21,9 +21,9 @@ public class PartitionLayoutEngine {
     Map<Host,List<Partition>> matrix = new HashMap();
 
     /**
-     * The replica lookup.
+     * The primary partition lookup.
      */
-    Map<Host,List<Replica>> replicas = new HashMap();
+    Map<Host,List<Partition>> primary = new HashMap();
 
     int nr_hosts;
     int nr_partitions;
@@ -57,7 +57,7 @@ public class PartitionLayoutEngine {
     public void build() {
 
         log.info( "Building partition layout with %,d partitions_per_host and %s replicas." , nr_partitions, nr_replicas );
-        
+
         // I think the last partition will have (nr_hosts * nr_partitions) %
         // nr_replicas copies and we can just evenly hand these out to
         // additional hosts
@@ -65,14 +65,20 @@ public class PartitionLayoutEngine {
         if ( nr_hosts < nr_replicas )
             throw new RuntimeException( "Incorrect number of hosts." );
 
+        if ( nr_partitions % nr_replicas != 0 ) {
+            throw new RuntimeException( "nr_partitions % nr_replicas must equal zero" );
+        }
+        
         if ( nr_hosts <= (nr_replicas * nr_partitions) ) {
-            log.warn( "For maximum parallel recovery, your nr_hosts should be > nr_replicas * nr_partitions\n" );
+            log.warn( "For maximum parallel recovery, your nr_hosts should be > nr_replicas * nr_partitions" );
         }
 
-        // init the matrix and replicas
+        int nr_primary_per_host = nr_partitions / nr_replicas;
+
+        // init the matrix and primary partitions
         for( Host host : hosts ) {
             matrix.put( host, new ArrayList() ); 
-            replicas.put( host, new ArrayList() ); 
+            primary.put( host, new ArrayList() ); 
         }
 
         for( ; current_host_idx < nr_hosts; ++current_host_idx ) {
@@ -89,6 +95,13 @@ public class PartitionLayoutEngine {
                 Partition part = new Partition( last_allocated_partition++ );
                 partitions.add( part );
                 granted.add( part );
+
+                if ( granted.size() <= nr_primary_per_host ) {
+
+                    primary.get( current_host ).add( part );
+                    
+                }
+                
             }
 
             redistribute( granted );
@@ -126,8 +139,6 @@ public class PartitionLayoutEngine {
                     
                     continue;
                 }
-
-                Replica replica = new Replica( grant, replica_count );
 
                 potential.add( grant );
                 
@@ -180,7 +191,7 @@ public class PartitionLayoutEngine {
             
         }
 
-        return new Membership( forward, matrix, replicas );
+        return new Membership( forward, matrix, primary );
 
     }
 
