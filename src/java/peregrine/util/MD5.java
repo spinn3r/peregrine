@@ -25,5 +25,9 @@ public class MD5 {
         return delegate.encode( bytes );
     }
 
+    public static MessageDigest getMessageDigest() {
+        return delegate.getMessageDigest();
+    }
+
 }
 

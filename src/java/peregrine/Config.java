@@ -162,11 +162,7 @@ public class Config {
     }
 
     public int getPartitionsPerHost() {
-        return partitions_per_host;
-    }
-
-    public void setPartitionsPerHost( int partitions_per_host ) {
-        this.partitions_per_host = partitions_per_host;
+        return this.replicas * this.concurrency;
     }
 
     public int getReplicas() { 

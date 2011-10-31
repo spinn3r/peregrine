@@ -21,6 +21,10 @@ public class SHA1 {
     public static byte[] encode( final byte[] bytes ) {
         return delegate.encode( bytes );
     }
-    
+
+    public static MessageDigest getMessageDigest() {
+        return delegate.getMessageDigest();
+    }
+
 }
 

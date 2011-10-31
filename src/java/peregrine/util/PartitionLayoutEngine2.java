@@ -18,9 +18,9 @@ public class PartitionLayoutEngine2 {
     /**
      * The host to partition matrix.
      */
-    Map<Host,List<Partition>> matrix = new HashMap();
+    Map<Host,List<Partition>> partitionsByHost = new HashMap();
 
-    Map<Partition,List<Host>> forward = new HashMap();
+    Map<Partition,List<Host>> hostsByPartition = new HashMap();
 
     protected Map<Host,List<Replica>> replicasByHost = new HashMap();
     
@@ -70,19 +70,19 @@ public class PartitionLayoutEngine2 {
 
         log.info( "nr_partitions_per_host: %,d", nr_partitions_per_host );
         
-        // init the matrix.
+        // init the partitionsByHost.
         for( Host host : hosts ) {
-            matrix.put( host, new ArrayList() ); 
+            partitionsByHost.put( host, new ArrayList() ); 
             replicasByHost.put( host, new ArrayList() ); 
         }
 
-        // init the forward lookup... 
+        // init the hostsByPartition lookup... 
         int nr_partitions = nr_primary_per_host * nr_hosts;
 
         log.info( "Number of unique partitions: %,d", nr_partitions );
         
         for( int i = 0; i < nr_partitions; ++i ) {
-            forward.put( new Partition( i ), new ArrayList() ); 
+            hostsByPartition.put( new Partition( i ), new ArrayList() ); 
             replicasByPartition.put( new Partition( i ), new ArrayList() ); 
         }
 
@@ -150,7 +150,7 @@ public class PartitionLayoutEngine2 {
 
         for( Host host: replicasByHost.keySet() ) {
 
-            List<Partition> partitions = matrix.get( host );
+            List<Partition> partitions = partitionsByHost.get( host );
 
             Set<Host> hosts = new HashSet();
 
@@ -180,12 +180,12 @@ public class PartitionLayoutEngine2 {
     
     /**
      * Associate a given partition with a given host.  This will perform the
-     * forward and reverse lookups.
+     * hostsByPartition and reverse lookups.
      */
     private void associate( Host host, Partition partition, int priority ) {
         
-        matrix.get( host ).add( partition );
-        forward.get( partition ).add( host );
+        partitionsByHost.get( host ).add( partition );
+        hostsByPartition.get( partition ).add( host );
 
         // now create a Replica for this partition.
 
@@ -198,7 +198,7 @@ public class PartitionLayoutEngine2 {
 
     public Membership toMembership() {
 
-        return new Membership( forward, matrix, replicasByHost );
+        return new Membership( hostsByPartition, partitionsByHost, replicasByHost );
 
     }
 

@@ -291,7 +291,7 @@ public class Test {
 
         Config config = new Config();
 
-        config.setPartitionsPerHost( 4 );
+        config.setConcurrency( 2 );
         config.setReplicas( 2 );
         
         List<Host> hosts = new ArrayList();
@@ -316,7 +316,7 @@ public class Test {
 
         Config config = new Config();
 
-        config.setPartitionsPerHost( 12 );
+        config.setConcurrency( 4 );
         config.setReplicas( 3 );
         
         List<Host> hosts = new ArrayList();

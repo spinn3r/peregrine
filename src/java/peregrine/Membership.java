@@ -9,50 +9,50 @@ public class Membership {
     
     private int nr_hosts;
 
-    protected Map<Partition,List<Host>> forward = new HashMap();
+    protected Map<Partition,List<Host>> hostsByPartition = new HashMap();
 
-    protected Map<Host,List<Partition>> reverse = new HashMap();
+    protected Map<Host,List<Partition>> partitionsByHost = new HashMap();
 
-    protected Map<Host,List<Replica>> replicas = new HashMap();
+    protected Map<Host,List<Replica>> replicasByHost = new HashMap();
 
     public Membership() {}
     
     /**
      * Create new membership from an explicit mapping.
      */
-    public Membership( Map<Partition,List<Host>> forward,
-                       Map<Host,List<Partition>> reverse,
-                       Map<Host,List<Replica>> replicas ) {
+    public Membership( Map<Partition,List<Host>> hostsByPartition,
+                       Map<Host,List<Partition>> partitionsByHost,
+                       Map<Host,List<Replica>> replicasByHost ) {
 
-        this.forward = forward;
-        this.reverse = reverse;
-        this.replicas = replicas;
+        this.hostsByPartition = hostsByPartition;
+        this.partitionsByHost = partitionsByHost;
+        this.replicasByHost = replicasByHost;
         
     }
     
     public Set<Partition> getPartitions() {
-        return forward.keySet();
+        return hostsByPartition.keySet();
     }
 
     public List<Host> getHosts( Partition part ) {
-        return forward.get( part );
+        return hostsByPartition.get( part );
     }
 
     public List<Partition> getPartitions( Host host ) {
-        return reverse.get( host );
+        return partitionsByHost.get( host );
     }
 
     public List<Replica> getReplicas( Host host ) {
-        return replicas.get( host );
+        return replicasByHost.get( host );
     }
 
     public void setPartition( Partition part, List<Host> hosts ) {
-        forward.put( part, hosts );
-        updateReverseMapping( part, hosts );
+        hostsByPartition.put( part, hosts );
+        updatePartitionsByHostMapping( part, hosts );
     }
 
     public int size() {
-        return forward.size();
+        return hostsByPartition.size();
     }
 
     public String toMatrix() {
@@ -60,7 +60,7 @@ public class Membership {
         StringBuffer buff = new StringBuffer();
 
         List<Host> hosts = new ArrayList();
-        hosts.addAll( reverse.keySet() );
+        hosts.addAll( partitionsByHost.keySet() );
 
         Collections.sort( hosts );
         
@@ -68,7 +68,7 @@ public class Membership {
 
             buff.append( String.format( "%35s: ", host.getName() ) );
 
-            List<Partition> partitions = reverse.get( host );
+            List<Partition> partitions = partitionsByHost.get( host );
 
             for( Partition part : partitions ) {
 
@@ -85,15 +85,15 @@ public class Membership {
 
     }
 
-    private void updateReverseMapping( Partition part, List<Host> hosts ) {
+    private void updatePartitionsByHostMapping( Partition part, List<Host> hosts ) {
 
         for( Host host : hosts ) {
 
-            List<Partition> partitions = reverse.get( host );
+            List<Partition> partitions = partitionsByHost.get( host );
 
             if ( partitions == null ) {
                 partitions = new ArrayList();
-                reverse.put( host, partitions );
+                partitionsByHost.put( host, partitions );
             }
 
             partitions.add( part );

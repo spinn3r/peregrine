@@ -71,7 +71,6 @@ public class ConfigParser {
         config.setHost( new Host( hostname, port ) );
         config.setController( Host.parse( struct.get( "controller" ) ) );
 
-        config.setPartitionsPerHost( struct.getInt( "partitions_per_host" ) );
         config.setReplicas( struct.getInt( "replicas" ) );
         config.setConcurrency( struct.getInt( "concurrency" ) );
         
