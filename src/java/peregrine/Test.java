@@ -303,7 +303,7 @@ public class Test {
             
         }
 
-        PartitionLayoutEngine layout = new PartitionLayoutEngine( config, hosts );
+        PartitionLayoutEngine2 layout = new PartitionLayoutEngine2( config, hosts );
         layout.build();
         
         Membership membership = layout.toMembership();
@@ -316,19 +316,19 @@ public class Test {
 
         Config config = new Config();
 
-        config.setPartitionsPerHost( 2 );
-        config.setReplicas( 1 );
+        config.setPartitionsPerHost( 12 );
+        config.setReplicas( 3 );
         
         List<Host> hosts = new ArrayList();
 
-        int nr_hosts = 12;
+        int nr_hosts = 16;
         
         for( int i = 0; i < nr_hosts; ++i ) {
             hosts.add( new Host( String.format( "node%02d", i ) ) );
             
         }
 
-        PartitionLayoutEngine layout = new PartitionLayoutEngine( config, hosts );
+        PartitionLayoutEngine2 layout = new PartitionLayoutEngine2( config, hosts );
         layout.build();
         
         Membership membership = layout.toMembership();
@@ -339,7 +339,9 @@ public class Test {
 
     public static void main( String[] args ) throws Exception {
 
-        layout0();
+        org.apache.log4j.xml.DOMConfigurator.configure( "conf/log4j.xml" );
+
+        //layout0();
 
         System.out.printf( "====================\n" );
         

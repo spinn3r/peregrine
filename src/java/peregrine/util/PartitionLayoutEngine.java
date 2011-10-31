@@ -197,7 +197,7 @@ public class PartitionLayoutEngine {
             
         }
 
-        return new Membership( forward, matrix, primary );
+        return new Membership( forward, matrix, null );
 
     }
 
