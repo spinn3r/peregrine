@@ -1,5 +1,5 @@
 
-package peregrine.util;
+package peregrine.config;
 
 import java.util.*;
 

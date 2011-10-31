@@ -19,6 +19,7 @@ import peregrine.shuffle.*;
 import peregrine.reduce.sorter.*;
 import peregrine.task.*;
 import peregrine.pfs.*;
+import peregrine.config.*;
 
 public class Test {
 
@@ -303,7 +304,7 @@ public class Test {
             
         }
 
-        PartitionLayoutEngine2 layout = new PartitionLayoutEngine2( config, hosts );
+        PartitionLayoutEngine layout = new PartitionLayoutEngine( config, hosts );
         layout.build();
         
         Membership membership = layout.toMembership();
@@ -328,7 +329,7 @@ public class Test {
             
         }
 
-        PartitionLayoutEngine2 layout = new PartitionLayoutEngine2( config, hosts );
+        PartitionLayoutEngine layout = new PartitionLayoutEngine( config, hosts );
         layout.build();
         
         Membership membership = layout.toMembership();
