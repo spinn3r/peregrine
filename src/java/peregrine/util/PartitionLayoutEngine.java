@@ -18,39 +18,26 @@ public class PartitionLayoutEngine {
     /**
      * The host to partition matrix.
      */
-    Map<Host,List<Partition>> matrix = new HashMap();
+    Map<Host,List<Partition>> partitionsByHost = new HashMap();
 
-    /**
-     * The primary partition lookup.
-     */
-    Map<Host,List<Partition>> primary = new HashMap();
+    Map<Partition,List<Host>> hostsByPartition = new HashMap();
+
+    protected Map<Host,List<Replica>> replicasByHost = new HashMap();
+    
+    protected Map<Partition,List<Replica>> replicasByPartition = new HashMap();
 
     int nr_hosts;
     int nr_partitions_per_host;
     int nr_replicas;
 
-    // there are two pointers here.  One 'allocates' partitions horizontally
-    // and another 'grants' the allocated partitions to additional replica
-    // hosts.
-    
-    int last_allocated_partition = 0;
-
-    /**
-     * Used with redistribute() so that we can keep track of the last host that
-     * had a partition given to it.
-     */
-    int current_granted_host_idx = 0;
-
-    int current_host_idx = 0;
-
     List<Host> hosts;
     
     public PartitionLayoutEngine( Config config, List<Host> hosts ) {
         
-        this.nr_hosts = hosts.size();
-        this.nr_partitions_per_host = config.getPartitionsPerHost();
-        this.nr_replicas = config.getReplicas();
-        this.hosts = hosts;
+        this.nr_hosts                = hosts.size();
+        this.nr_partitions_per_host  = config.getPartitionsPerHost();
+        this.nr_replicas             = config.getReplicas();
+        this.hosts                   = hosts;
         
     }
 
@@ -81,123 +68,137 @@ public class PartitionLayoutEngine {
         
         int nr_primary_per_host = nr_partitions_per_host / nr_replicas;
 
-        // init the matrix and primary partitions
+        log.info( "nr_partitions_per_host: %,d", nr_partitions_per_host );
+        
+        // init the partitionsByHost.
         for( Host host : hosts ) {
-            matrix.put( host, new ArrayList() ); 
-            primary.put( host, new ArrayList() ); 
+            partitionsByHost.put( host, new ArrayList() ); 
+            replicasByHost.put( host, new ArrayList() ); 
         }
 
-        for( ; current_host_idx < nr_hosts; ++current_host_idx ) {
+        // init the hostsByPartition lookup... 
+        int nr_partitions = nr_primary_per_host * nr_hosts;
 
-            Host current_host = hosts.get( current_host_idx );
+        log.info( "Number of unique partitions: %,d", nr_partitions );
+        
+        for( int i = 0; i < nr_partitions; ++i ) {
+            hostsByPartition.put( new Partition( i ), new ArrayList() ); 
+            replicasByPartition.put( new Partition( i ), new ArrayList() ); 
+        }
 
-            List<Partition> partitions = matrix.get( current_host );
+        // now create the replicas... 
+        for( int i = 0; i < nr_replicas; ++i ) {
 
-            // the new partitions that we granted to this box which we have to
-            // distribute to other nodes now.
-            List<Partition> granted = new ArrayList();
-            
-            for( int j = partitions.size() ; j < nr_partitions_per_host; ++j ) {
-                Partition part = new Partition( last_allocated_partition++ );
-                partitions.add( part );
-                granted.add( part );
+            if ( i % 2 == 0 ) {
 
-                if ( granted.size() <= nr_primary_per_host ) {
+                int host_offset = (i * nr_primary_per_host) + i;
 
-                    primary.get( current_host ).add( part );
+                if ( host_offset != 0 )
+                    --host_offset;
+
+                for( int j = 0; j < nr_partitions; ++j ) {
+
+                    int host_id = (j % nr_hosts) + host_offset;
+
+                    if ( host_id >= nr_hosts )
+                        host_id = host_id - nr_hosts;
                     
+                    Host host = hosts.get( host_id );
+                    
+                    associate( host, new Partition( j ), i );
+
+                }
+
+            } else { 
+            
+                // we don't start at the first host to avoid placing
+                // the same partitions that it currently hosts on it.
+
+                int nr_columns = nr_primary_per_host;
+                
+                for( int j = 0; j < nr_columns; ++j ) {
+
+                    int host_id = j + 1;
+
+                    for( int k = 0; k < nr_hosts ; ++k ) {
+                        
+                        Host host = hosts.get( host_id );
+
+                        associate( host, new Partition( (j * nr_hosts) + k ), i );
+
+                        host_id = (host_id == nr_hosts - 1) ? 0 : host_id + 1;
+                        
+                    }
+                        
+                }
+
+            }
+                
+        }
+
+        assertCorrectLayout();
+        
+    }
+
+    /**
+     * Assert that we're running with the correct partition layout.  If not then
+     * we need to throw an exception as we can't run with an incorrect config.
+     * Since these are TWO different algorithms the chances of catching bugs is
+     * much higher.
+     */
+    private void assertCorrectLayout() {
+
+        for( Host host: replicasByHost.keySet() ) {
+
+            List<Partition> partitions = partitionsByHost.get( host );
+
+            Set<Host> hosts = new HashSet();
+
+            for( Partition partition : partitions ) {
+
+                List<Replica> replicas = replicasByPartition.get( partition );
+
+                for( Replica replica : replicas ) {
+
+                    // replicas for this host don't count.
+                    if( replica.getHost().equals( host ) )
+                        continue;
+
+                    hosts.add( replica.getHost() );
+
                 }
                 
             }
 
-            redistribute( granted );
+            if ( hosts.size() < nr_partitions_per_host ) {
+                throw new RuntimeException( String.format( "Replica config for %s is too small: %s", host, hosts ) );
+            }
             
         }
-
-        fixRemainder();
-
+        
     }
     
-    private void redistribute( List<Partition> granted ) {
-
-        // now redistribute the granted partitions to other hosts.
-        for( Partition grant : granted ) {
-
-            int replica_count = 1;
-
-            while( replica_count < nr_replicas ) {
-                
-                ++current_granted_host_idx;
-
-                if ( current_granted_host_idx >= nr_hosts ) {
-                    current_granted_host_idx = current_host_idx;
-                    continue;
-                }
-
-                Host host = hosts.get( current_granted_host_idx );
-                
-                List<Partition> potential = matrix.get( host );
-
-                if ( potential.size() == nr_partitions_per_host ) {
-
-                    if ( current_granted_host_idx == nr_hosts - 1)
-                        break;
-                    
-                    continue;
-                }
-
-                potential.add( grant );
-                
-                ++replica_count;
-                
-            }
-            
-        }
-
-    }
-
-    private void fixRemainder() {
-
-        // now we need to make sure we have everything balanced with no
-        // partitions having fewer than the required replicas.
-
-        int required_extra_partitions = nr_replicas - ((nr_hosts * nr_partitions_per_host) % nr_replicas);
-
-        if ( required_extra_partitions != nr_replicas ) {
+    /**
+     * Associate a given partition with a given host.  This will perform the
+     * hostsByPartition and reverse lookups.
+     */
+    private void associate( Host host, Partition partition, int priority ) {
         
-            Partition last = new Partition( last_allocated_partition - 1 );
-            
-            for( int i = 0; i < required_extra_partitions; ++i ) {
-                matrix.get( hosts.get( i ) ).add( last );
-            }
+        partitionsByHost.get( host ).add( partition );
+        hostsByPartition.get( partition ).add( host );
 
-        }
+        // now create a Replica for this partition.
 
+        Replica replica = new Replica( host, partition, priority );
+        
+        replicasByHost.get( host ).add( replica );
+        replicasByPartition.get( partition ).add( replica );
+        
     }
 
     public Membership toMembership() {
 
-        Map<Partition,List<Host>> forward = new HashMap();
-        
-        // make sure there is an entry per partition
-        for( Host host : matrix.keySet() ) {
-
-            for( Partition part : matrix.get( host ) ) {
-
-                List<Host> hosts = forward.get( part );
-
-                if ( hosts == null ) {
-                    hosts = new ArrayList();
-                    forward.put( part, hosts );
-                }
-                
-                hosts.add( host );
-
-            }
-            
-        }
-
-        return new Membership( forward, matrix, null );
+        return new Membership( hostsByPartition, partitionsByHost, replicasByHost );
 
     }
 
