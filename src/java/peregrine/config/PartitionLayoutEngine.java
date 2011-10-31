@@ -34,14 +34,23 @@ public class PartitionLayoutEngine {
 
     Config config;
     
-    public PartitionLayoutEngine( Config config, List<Host> hosts ) {
-        
+    public PartitionLayoutEngine( Config config ) {
+
+        // build the hosts index
+        this.hosts = new ArrayList();
+        this.hosts.addAll( config.getHosts() );
+
         this.nr_hosts                = hosts.size();
         this.nr_partitions_per_host  = config.getPartitionsPerHost();
         this.nr_replicas             = config.getReplicas();
-        this.hosts                   = hosts;
         this.config                  = config;
-        
+
+        if ( nr_hosts == 0 )
+            throw new RuntimeException( "No hosts defined." );
+
+        if ( nr_replicas == 0 || nr_replicas > 3 )
+            throw new RuntimeException( "Invalid nr_replicas defined: " + nr_replicas );
+
     }
 
     public void build() {

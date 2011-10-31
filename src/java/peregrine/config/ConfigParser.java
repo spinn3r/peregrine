@@ -75,29 +75,15 @@ public class ConfigParser {
         config.setConcurrency( struct.getInt( "concurrency" ) );
         
         // now read the hosts file...
-        List<Host> hosts = readHosts( hosts_file );
+        config.setHosts( readHosts( hosts_file ) );
 
-        PartitionLayoutEngine engine = new PartitionLayoutEngine( config, hosts );
-        engine.build();
-
-        Membership membership = engine.toMembership();
-
-        config.membership = membership;
-        config.hosts.addAll( hosts );
-
-        if ( ! config.hosts.contains( config.getHost() ) &&
-             ! config.isController() ) {
-            throw new IOException( "Host is not define in hosts file nor is it the controller: " + config.getHost() );
-        }
-        
-        log.info( "Using controller: %s", config.getController() );
-        log.info( "Running with partition layout: \n%s", membership.toMatrix() );
+        config.init();
 
         return config;
         
     }
 
-    public static List<Host> readHosts( File file ) throws IOException {
+    public static Set<Host> readHosts( File file ) throws IOException {
 
         FileInputStream fis = new FileInputStream( file );
 
@@ -106,7 +92,7 @@ public class ConfigParser {
 
         String[] lines = new String( data ).split( "\n" );
 
-        List<Host> hosts = new ArrayList();
+        Set<Host> hosts = new HashSet();
 
         for( String line : lines ) {
 

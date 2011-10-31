@@ -50,7 +50,16 @@ public class Membership {
      * Return replicas for this host, sorted by priority.
      */
     public List<Replica> getReplicas( Host host ) {
+
+        if ( replicasByHost.size() == 0 )
+            throw new RuntimeException( "No replicas defined." );
+        
+        if ( ! replicasByHost.containsKey( host ) ) {
+            throw new RuntimeException( "Unknown host with no replicas: " + host );
+        }
+        
         return replicasByHost.get( host );
+
     }
 
     public void setPartition( Partition part, List<Host> hosts ) {
@@ -64,7 +73,7 @@ public class Membership {
 
     public String toMatrix() {
 
-        String host_format = "%35s: ";
+        String host_format = "%35s ";
         
         StringBuffer buff = new StringBuffer();
 
@@ -85,7 +94,7 @@ public class Membership {
         
         for( Host host : hosts ) {
 
-            buff.append( String.format( host_format, host.getName() ) );
+            buff.append( String.format( host_format, host ) );
 
             List<Replica> replicas = replicasByHost.get( host );
 

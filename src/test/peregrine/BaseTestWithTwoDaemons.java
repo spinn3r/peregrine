@@ -52,10 +52,11 @@ public class BaseTestWithTwoDaemons extends peregrine.BaseTest {
         Config config = new Config( host, port );
 
         config.setController( controller );
-        
-        config.addMembership( 0, new Host( "localhost", 11112 ) );
-        config.addMembership( 1, new Host( "localhost", 11113 ) );
 
+        config.getHosts().add( new Host( "localhost", 11112 ) );
+        config.getHosts().add( new Host( "localhost", 11113 ) );
+        config.init();
+        
         return config;
         
     }

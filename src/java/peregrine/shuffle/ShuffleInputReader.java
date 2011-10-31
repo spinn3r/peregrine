@@ -112,8 +112,8 @@ public class ShuffleInputReader {
         }
 
         if ( start == -1 ) {
-            throw new IOException( String.format( "Unable to find start for partition %s in file %s",
-                                                  partition, path ) );
+            throw new IOException( String.format( "Unable to find start for partition %s in file %s with headers %s",
+                                                  partition, path, headers ) );
         }
 
         MappedByteBuffer map = in.getChannel().map( FileChannel.MapMode.READ_ONLY, header.offset, header.length );

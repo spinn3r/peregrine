@@ -295,7 +295,7 @@ public class Test {
         config.setConcurrency( 2 );
         config.setReplicas( 2 );
         
-        List<Host> hosts = new ArrayList();
+        Set<Host> hosts = new HashSet();
 
         int nr_hosts = 12;
         
@@ -304,7 +304,9 @@ public class Test {
             
         }
 
-        PartitionLayoutEngine layout = new PartitionLayoutEngine( config, hosts );
+        config.setHosts( hosts );
+        
+        PartitionLayoutEngine layout = new PartitionLayoutEngine( config );
         layout.build();
         
         Membership membership = layout.toMembership();
@@ -320,7 +322,7 @@ public class Test {
         config.setConcurrency( 4 );
         config.setReplicas( 3 );
         
-        List<Host> hosts = new ArrayList();
+        Set<Host> hosts = new HashSet();
 
         int nr_hosts = 16;
         
@@ -329,7 +331,9 @@ public class Test {
             
         }
 
-        PartitionLayoutEngine layout = new PartitionLayoutEngine( config, hosts );
+        config.setHosts( hosts );
+
+        PartitionLayoutEngine layout = new PartitionLayoutEngine( config );
         layout.build();
         
         Membership membership = layout.toMembership();

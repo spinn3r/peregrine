@@ -83,9 +83,7 @@ public class ShuffleOutputWriter {
     }
 
     public boolean hasCapacity() {
-
         return length < COMMIT_SIZE;
-        
     }
 
     private Map<Integer,ShuffleOutputPartition> buildLookup() throws IOException {

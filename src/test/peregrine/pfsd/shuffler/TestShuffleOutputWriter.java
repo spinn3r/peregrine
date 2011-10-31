@@ -20,13 +20,18 @@ public class TestShuffleOutputWriter extends peregrine.BaseTest {
     protected Config config;
     public void setUp() {
 
+        super.setUp();
+        
         config = new Config();
         config.setHost( new Host( "localhost" ) );
+
+        config.setConcurrency( 2 );
         
         // TRY with three partitions... 
-        config.addMembership( 0, "localhost" );
-        config.addMembership( 1, "localhost" );
+        config.getHosts().add( new Host( "localhost" ) );
 
+        config.init();
+        
     }
     
     public void test1() throws IOException {

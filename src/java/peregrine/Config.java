@@ -5,6 +5,7 @@ import java.util.*;
 
 import peregrine.util.*;
 import peregrine.pfsd.*;
+import peregrine.config.*;
 
 import com.spinn3r.log5j.Logger;
 
@@ -28,6 +29,11 @@ public class Config {
      */
     public static String DEFAULT_ROOT = "/tmp/peregrine-fs";
 
+    /**
+     * Default number of replicas.
+     */
+    public static int DEFAULT_REPLICAS = 1;
+    
     /**
      * The root for storing data.
      */
@@ -55,17 +61,12 @@ public class Config {
     /**
      * Unique index of hosts. 
      */
-    public Set<Host> hosts = new HashSet();
-
-    /**
-     * The number of partitions per host.
-     */
-    protected int partitions_per_host;
+    protected Set<Host> hosts = new HashSet();
 
     /**
      * The number of replicas per file we are configured for.  Usually 2 or 3.
      */
-    protected int replicas;
+    protected int replicas = DEFAULT_REPLICAS;
 
     /**
      * The concurrency on a per host basis.  How many mappers and reducers each
@@ -120,6 +121,26 @@ public class Config {
 
     }
 
+    /**
+     * Init this config including partition layout and any other necesssary
+     * tasks.
+     */
+    public void init() {
+
+        PartitionLayoutEngine engine = new PartitionLayoutEngine( this );
+        engine.build();
+
+        this.membership = engine.toMembership();
+
+        if ( ! hosts.contains( getHost() ) && ! isController() ) {
+            throw new RuntimeException( "Host is not define in hosts file nor is it the controller: " + getHost() );
+        }
+        
+        log.info( "Using controller: %s", getController() );
+        log.info( "Running with partition layout: \n%s", membership.toMatrix() );
+
+    }
+    
     public Membership getMembership() {
         return membership;
     }
@@ -150,6 +171,10 @@ public class Config {
     
     public Set<Host> getHosts() {
         return hosts;
+    }
+
+    public void setHosts( Set<Host> hosts ) {
+        this.hosts = hosts;
     }
     
     public String getRoot() {
