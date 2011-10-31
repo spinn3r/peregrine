@@ -66,6 +66,9 @@ public class PartitionLayoutEngine {
         }
 
         int extra_hosts = nr_hosts - nr_partitions_per_host;
+
+        // On startup... We need to print the number of machines we can handle
+        // failing without falling below the minimum number of replicas...
         
         log.info( "%,d hosts can fail before you risk partition lost due to nr_replicas." , extra_hosts );
         
