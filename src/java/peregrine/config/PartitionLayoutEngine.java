@@ -170,7 +170,7 @@ public class PartitionLayoutEngine {
                 
             }
 
-            if ( hosts.size() < nr_partitions_per_host ) {
+            if ( nr_replicas > 1 && hosts.size() < nr_partitions_per_host ) {
                 throw new RuntimeException( String.format( "Replica config for %s is too small: %s", host, hosts ) );
             }
             
