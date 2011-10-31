@@ -22,7 +22,9 @@ public class PartitionLayoutEngine2 {
 
     Map<Partition,List<Host>> forward = new HashMap();
 
-    protected Map<Host,List<Replica>> replicas = new HashMap();
+    protected Map<Host,List<Replica>> replicasByHost = new HashMap();
+    
+    protected Map<Partition,List<Replica>> replicasByPartition = new HashMap();
 
     int nr_hosts;
     int nr_partitions_per_host;
@@ -71,6 +73,7 @@ public class PartitionLayoutEngine2 {
         // init the matrix.
         for( Host host : hosts ) {
             matrix.put( host, new ArrayList() ); 
+            replicasByHost.put( host, new ArrayList() ); 
         }
 
         // init the forward lookup... 
@@ -80,6 +83,7 @@ public class PartitionLayoutEngine2 {
         
         for( int i = 0; i < nr_partitions; ++i ) {
             forward.put( new Partition( i ), new ArrayList() ); 
+            replicasByPartition.put( new Partition( i ), new ArrayList() ); 
         }
 
         // now create the replicas... 
@@ -101,7 +105,7 @@ public class PartitionLayoutEngine2 {
                     
                     Host host = hosts.get( host_id );
                     
-                    associate( host, new Partition( j ) );
+                    associate( host, new Partition( j ), i );
 
                 }
 
@@ -120,7 +124,7 @@ public class PartitionLayoutEngine2 {
                         
                         Host host = hosts.get( host_id );
 
-                        associate( host, new Partition( (j * nr_hosts) + k ) );
+                        associate( host, new Partition( (j * nr_hosts) + k ), i );
 
                         host_id = (host_id == nr_hosts - 1) ? 0 : host_id + 1;
                         
@@ -131,7 +135,9 @@ public class PartitionLayoutEngine2 {
             }
                 
         }
-            
+
+        assertCorrectLayout();
+        
     }
 
     /**
@@ -142,42 +148,37 @@ public class PartitionLayoutEngine2 {
      */
     private void assertCorrectLayout() {
 
+        /*
+        for( Host host : replicas.keySet() ) {
+
+            List<Replica> replicas = replicas.get( host );
+
+        }
+        */
+        
     }
     
     /**
      * Associate a given partition with a given host.  This will perform the
      * forward and reverse lookups.
      */
-    private void associate( Host host, Partition partition ) {
+    private void associate( Host host, Partition partition, int priority ) {
         
         matrix.get( host ).add( partition );
         forward.get( partition ).add( host );
+
+        // now create a Replica for this partition.
+
+        Replica replica = new Replica( host, partition, priority );
+        
+        replicasByHost.get( host ).add( replica );
+        replicasByPartition.get( partition ).add( replica );
         
     }
 
     public Membership toMembership() {
 
-        Map<Partition,List<Host>> forward = new HashMap();
-        
-        // make sure there is an entry per partition
-        for( Host host : matrix.keySet() ) {
-
-            for( Partition part : matrix.get( host ) ) {
-
-                List<Host> hosts = forward.get( part );
-
-                if ( hosts == null ) {
-                    hosts = new ArrayList();
-                    forward.put( part, hosts );
-                }
-                
-                hosts.add( host );
-
-            }
-            
-        }
-
-        return new Membership( forward, matrix, null );
+        return new Membership( forward, matrix, replicasByHost );
 
     }
 

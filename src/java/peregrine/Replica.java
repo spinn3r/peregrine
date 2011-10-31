@@ -6,17 +6,24 @@ import java.util.*;
 
 public class Replica implements Comparable<Replica> {
     
-    protected Partition partition = null;
+    protected Partition partition;
 
     protected int priority = 0;
 
-    public Replica( Partition partition ) {
-        this( partition, 0 );
+    protected Host host;
+    
+    public Replica( Host host, Partition partition ) {
+        this( host, partition, 0 );
     }
 
-    public Replica( Partition partition, int priority ) {
+    public Replica( Host host, Partition partition, int priority ) {
+        this.host = host;
         this.partition = partition;
         this.priority = priority;
+    }
+
+    public Host getHost() { 
+        return this.host;
     }
 
     public Partition getPartition() { 
