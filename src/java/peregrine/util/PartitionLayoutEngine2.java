@@ -148,13 +148,33 @@ public class PartitionLayoutEngine2 {
      */
     private void assertCorrectLayout() {
 
-        /*
-        for( Host host : replicas.keySet() ) {
+        for( Host host: replicasByHost.keySet() ) {
 
-            List<Replica> replicas = replicas.get( host );
+            List<Partition> partitions = matrix.get( host );
 
+            Set<Host> hosts = new HashSet();
+
+            for( Partition partition : partitions ) {
+
+                List<Replica> replicas = replicasByPartition.get( partition );
+
+                for( Replica replica : replicas ) {
+
+                    // replicas for this host don't count.
+                    if( replica.getHost().equals( host ) )
+                        continue;
+
+                    hosts.add( replica.getHost() );
+
+                }
+                
+            }
+
+            if ( hosts.size() < nr_partitions_per_host ) {
+                throw new RuntimeException( String.format( "Replica config for %s is too small: %s", host, hosts ) );
+            }
+            
         }
-        */
         
     }
     

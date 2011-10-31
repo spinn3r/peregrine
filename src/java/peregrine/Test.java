@@ -341,7 +341,7 @@ public class Test {
 
         org.apache.log4j.xml.DOMConfigurator.configure( "conf/log4j.xml" );
 
-        //layout0();
+        layout0();
 
         System.out.printf( "====================\n" );
         
