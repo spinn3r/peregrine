@@ -65,7 +65,7 @@ public class PartitionLayoutEngine {
             log.warn( "For maximum parallel recovery, your nr_hosts should be > nr_replicas * nr_partitions_per_host" );
         }
 
-        int extra_hosts = nr_hosts - min_hosts;
+        int extra_hosts = nr_hosts - nr_partitions_per_host;
         
         log.info( "%,d hosts can fail before you risk partition lost due to nr_replicas." , extra_hosts );
         
