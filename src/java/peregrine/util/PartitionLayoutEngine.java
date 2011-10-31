@@ -26,7 +26,7 @@ public class PartitionLayoutEngine {
     Map<Host,List<Partition>> primary = new HashMap();
 
     int nr_hosts;
-    int nr_partitions;
+    int nr_partitions_per_host;
     int nr_replicas;
 
     // there are two pointers here.  One 'allocates' partitions horizontally
@@ -48,7 +48,7 @@ public class PartitionLayoutEngine {
     public PartitionLayoutEngine( Config config, List<Host> hosts ) {
         
         this.nr_hosts = hosts.size();
-        this.nr_partitions = config.getPartitionsPerHost();
+        this.nr_partitions_per_host = config.getPartitionsPerHost();
         this.nr_replicas = config.getReplicas();
         this.hosts = hosts;
         
@@ -56,24 +56,30 @@ public class PartitionLayoutEngine {
 
     public void build() {
 
-        log.info( "Building partition layout with %,d partitions_per_host and %s replicas." , nr_partitions, nr_replicas );
+        log.info( "Building partition layout with %,d partitions_per_host and %s replicas." , nr_partitions_per_host, nr_replicas );
 
-        // I think the last partition will have (nr_hosts * nr_partitions) %
+        // I think the last partition will have (nr_hosts * nr_partitions_per_host) %
         // nr_replicas copies and we can just evenly hand these out to
         // additional hosts
         
         if ( nr_hosts < nr_replicas )
             throw new RuntimeException( "Incorrect number of hosts." );
 
-        if ( nr_partitions % nr_replicas != 0 ) {
-            throw new RuntimeException( "nr_partitions % nr_replicas must equal zero" );
-        }
-        
-        if ( nr_hosts <= (nr_replicas * nr_partitions) ) {
-            log.warn( "For maximum parallel recovery, your nr_hosts should be > nr_replicas * nr_partitions" );
+        if ( nr_partitions_per_host % nr_replicas != 0 ) {
+            throw new RuntimeException( "nr_partitions_per_host % nr_replicas must equal zero to fit partitions correctly." );
         }
 
-        int nr_primary_per_host = nr_partitions / nr_replicas;
+        int min_hosts = nr_replicas * nr_partitions_per_host;
+        
+        if ( nr_hosts <= min_hosts ) {
+            log.warn( "For maximum parallel recovery, your nr_hosts should be > nr_replicas * nr_partitions_per_host" );
+        }
+
+        int extra_hosts = nr_hosts - min_hosts;
+        
+        log.info( "%,d hosts can fail before you risk partition lost due to nr_replicas." , extra_hosts );
+        
+        int nr_primary_per_host = nr_partitions_per_host / nr_replicas;
 
         // init the matrix and primary partitions
         for( Host host : hosts ) {
@@ -91,7 +97,7 @@ public class PartitionLayoutEngine {
             // distribute to other nodes now.
             List<Partition> granted = new ArrayList();
             
-            for( int j = partitions.size() ; j < nr_partitions; ++j ) {
+            for( int j = partitions.size() ; j < nr_partitions_per_host; ++j ) {
                 Partition part = new Partition( last_allocated_partition++ );
                 partitions.add( part );
                 granted.add( part );
@@ -132,7 +138,7 @@ public class PartitionLayoutEngine {
                 
                 List<Partition> potential = matrix.get( host );
 
-                if ( potential.size() == nr_partitions ) {
+                if ( potential.size() == nr_partitions_per_host ) {
 
                     if ( current_granted_host_idx == nr_hosts - 1)
                         break;
@@ -155,7 +161,7 @@ public class PartitionLayoutEngine {
         // now we need to make sure we have everything balanced with no
         // partitions having fewer than the required replicas.
 
-        int required_extra_partitions = nr_replicas - ((nr_hosts * nr_partitions) % nr_replicas);
+        int required_extra_partitions = nr_replicas - ((nr_hosts * nr_partitions_per_host) % nr_replicas);
 
         if ( required_extra_partitions != nr_replicas ) {
         
