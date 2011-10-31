@@ -11,6 +11,7 @@ import org.jboss.netty.bootstrap.*;
 import org.jboss.netty.channel.socket.nio.*;
 
 import peregrine.*;
+import peregrine.config.*;
 
 import org.apache.log4j.xml.DOMConfigurator;
 
@@ -23,7 +24,7 @@ public class Main {
     public static void main(String[] args ) throws Exception {
 
         DOMConfigurator.configure( "conf/log4j.xml" );
-        Config config = Config.load( args );
+        Config config = ConfigParser.parse( args );
 
         log.info( "Starting on %s with controller: %s" , config.getHost(), config.getController() );
 

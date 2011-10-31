@@ -9,6 +9,7 @@ import peregrine.io.*;
 import peregrine.keys.*;
 import peregrine.values.*;
 import peregrine.util.*;
+import peregrine.config.*;
 
 import org.apache.log4j.xml.DOMConfigurator;
 
@@ -28,7 +29,7 @@ public class Main {
         System.out.printf( "Running with nr_nodes: %,d , max_edges_per_node: %,d\n", nr_nodes, max_edges_per_node );
         
         DOMConfigurator.configure( "conf/log4j.xml" );
-        Config config = Config.load( args );
+        Config config = ConfigParser.parse( args );
 
         String path = "/pr/test.graph";
         

@@ -36,7 +36,7 @@ public class Config {
     /**
      * Partition membership.
      */
-    protected Membership membership = new Membership();
+    public Membership membership = new Membership();
 
     /**
      * The current 'host' that we are running on.  This is used so that we can
@@ -55,7 +55,7 @@ public class Config {
     /**
      * Unique index of hosts. 
      */
-    protected Set<Host> hosts = new HashSet();
+    public Set<Host> hosts = new HashSet();
 
     /**
      * The number of partitions per host.
@@ -230,133 +230,6 @@ public class Config {
         }
 
         return new Partition( partition );
-        
-    }
-
-    /**
-     * Load the given configuration.
-     */
-    public static Config load( String[] args ) throws IOException {
-
-        String conf  = "conf/peregrine.conf";
-        String hosts = "conf/peregrine.hosts";
-
-        // we should probably convert to getopts for this.... 
-        for ( String arg : args ) {
-
-            if ( arg.startsWith( "-c=" ) ) {
-                conf = arg.split( "=" )[1];
-                continue;
-            }
-
-            if ( arg.startsWith( "-h=" ) ) {
-                hosts = arg.split( "=" )[1];
-                continue;
-            }
-
-        }
-        
-        return load( conf, hosts );
-
-    }
-
-    public static Config load( String conf, String hosts ) throws IOException {
-        return load( new File( conf ), new File( hosts ) );
-    }
-
-    /**
-     * Parse a config file from disk.
-     */
-    public static Config load( File conf_file, File hosts_file ) throws IOException {
-
-        Properties props = new Properties();
-        props.load( new FileInputStream( conf_file ) );
-
-        StructMap struct = new StructMap( props );
-        
-        String root        = struct.get( "root" );
-        int port           = struct.getInt( "port" );
-
-        String hostname = System.getenv( "HOSTNAME" );
-
-        if ( hostname == null )
-            hostname = "localhost";
-
-        if ( port <= 0 )
-            port = DEFAULT_PORT;
-        
-        Config config = new Config();
-
-        config.setRoot( root );
-        config.setHost( new Host( hostname, port ) );
-        config.setController( Host.parse( struct.get( "controller" ) ) );
-
-        config.setPartitionsPerHost( struct.getInt( "partitions_per_host" ) );
-        config.setReplicas( struct.getInt( "replicas" ) );
-        config.setConcurrency( struct.getInt( "concurrency" ) );
-        
-        // now read the hosts file...
-        List<Host> hosts = readHosts( hosts_file );
-
-        PartitionLayoutEngine engine = new PartitionLayoutEngine( config, hosts );
-        engine.build();
-
-        Membership membership = engine.toMembership();
-
-        config.membership = membership;
-        config.hosts.addAll( hosts );
-
-        if ( ! config.hosts.contains( config.getHost() ) &&
-             ! config.isController() ) {
-            throw new IOException( "Host is not define in hosts file nor is it the controller: " + config.getHost() );
-        }
-        
-        log.info( "Using controller: %s", config.getController() );
-        log.info( "Running with partition layout: \n%s", membership.toMatrix() );
-
-        return config;
-        
-    }
-
-    public static List<Host> readHosts( File file ) throws IOException {
-
-        FileInputStream fis = new FileInputStream( file );
-
-        byte[] data = new byte[ (int)file.length() ];
-        fis.read( data );
-
-        String[] lines = new String( data ).split( "\n" );
-
-        List<Host> hosts = new ArrayList();
-
-        for( String line : lines ) {
-
-            line = line.trim();
-            
-            if ( "".equals( line ) )
-                continue;
-
-            if ( line.startsWith( "#" ) )
-                continue;
-
-            String hostname = line;
-            int port = DEFAULT_PORT;
-            
-            if ( line.contains( ":" ) ) {
-
-                String[] split = line.split( ":" );
-
-                hostname = split[0];
-                port     = Integer.parseInt( split[1] );
-
-            }
-
-            Host host = new Host( hostname, port );
-            hosts.add( host);
-            
-        }
-
-        return hosts;
         
     }
 
