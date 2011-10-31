@@ -31,6 +31,8 @@ public class PartitionLayoutEngine {
     int nr_replicas;
 
     List<Host> hosts;
+
+    Config config;
     
     public PartitionLayoutEngine( Config config, List<Host> hosts ) {
         
@@ -38,6 +40,7 @@ public class PartitionLayoutEngine {
         this.nr_partitions_per_host  = config.getPartitionsPerHost();
         this.nr_replicas             = config.getReplicas();
         this.hosts                   = hosts;
+        this.config                  = config;
         
     }
 
@@ -198,7 +201,7 @@ public class PartitionLayoutEngine {
 
     public Membership toMembership() {
 
-        return new Membership( hostsByPartition, partitionsByHost, replicasByHost );
+        return new Membership( config, hostsByPartition, partitionsByHost, replicasByHost );
 
     }
 

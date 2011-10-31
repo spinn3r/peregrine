@@ -15,15 +15,19 @@ public class Membership {
 
     protected Map<Host,List<Replica>> replicasByHost = new HashMap();
 
+    protected Config config;
+    
     public Membership() {}
     
     /**
      * Create new membership from an explicit mapping.
      */
-    public Membership( Map<Partition,List<Host>> hostsByPartition,
+    public Membership( Config config,
+                       Map<Partition,List<Host>> hostsByPartition,
                        Map<Host,List<Partition>> partitionsByHost,
                        Map<Host,List<Replica>> replicasByHost ) {
 
+        this.config = config;
         this.hostsByPartition = hostsByPartition;
         this.partitionsByHost = partitionsByHost;
         this.replicasByHost = replicasByHost;
@@ -56,6 +60,8 @@ public class Membership {
     }
 
     public String toMatrix() {
+
+        String host_format = "%35s: ";
         
         StringBuffer buff = new StringBuffer();
 
@@ -63,16 +69,26 @@ public class Membership {
         hosts.addAll( partitionsByHost.keySet() );
 
         Collections.sort( hosts );
+
+        buff.append( "Partition layout matrix.  (Partition names are in partition_id.priority format):\n" );
+        
+        buff.append( String.format( host_format, "HOST" ) );
+
+        for( int i = 0; i < config.getPartitionsPerHost(); ++i ) {
+            buff.append( String.format( "  %10s", "p" + i ) );
+        }
+        
+        buff.append( "\n" );
         
         for( Host host : hosts ) {
 
-            buff.append( String.format( "%35s: ", host.getName() ) );
+            buff.append( String.format( host_format, host.getName() ) );
 
-            List<Partition> partitions = partitionsByHost.get( host );
+            List<Replica> replicas = replicasByHost.get( host );
 
-            for( Partition part : partitions ) {
+            for( Replica replica : replicas ) {
 
-                buff.append( String.format( "%10s", part.getId() ) );
+                buff.append( String.format( "%10s.%s", replica.getPartition().getId(), replica.getPriority() ) );
 
             }
             
