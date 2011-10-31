@@ -46,6 +46,9 @@ public class Membership {
         return partitionsByHost.get( host );
     }
 
+    /**
+     * Return replicas for this host, sorted by priority.
+     */
     public List<Replica> getReplicas( Host host ) {
         return replicasByHost.get( host );
     }

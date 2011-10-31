@@ -156,10 +156,15 @@ public class ShuffleOutputWriter {
         // TODO: these should be stored in the primary order that they will be
         // reduce by priority on this box.
 
+        // *** STEP 0 .. compute the order that we should write in
+        List<Replica> replicas = config.getMembership().getReplicas( config.getHost() );
+
         // *** STEP 1 .. write the header information
 
-        for( int part : lookup.keySet() ) {
+        for( Replica replica : replicas ) {
 
+            int part = replica.getPartition().getId();
+            
             ShuffleOutputPartition shuffleOutputPartition = lookup.get( part );
 
             // the length of ALL the data for this partition.
@@ -192,7 +197,9 @@ public class ShuffleOutputWriter {
 
         // *** STEP 2 .. write the actual data packets
         
-        for( int part : lookup.keySet() ) {
+        for( Replica replica : replicas ) {
+
+            int part = replica.getPartition().getId();
 
             ShuffleOutputPartition shuffleOutputPartition = lookup.get( part );
 
