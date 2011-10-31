@@ -16,24 +16,12 @@ import peregrine.util.*;
 /**
  * 
  */
-public class TestFullOuterJoin extends peregrine.BaseTest {
-
-    protected Config config;
-    
-    public void setUp() {
-
-        config = new Config();
-        
-        config.setHost( new Host( "localhost" ) );
-
-    }
+public class TestFullOuterJoin extends peregrine.BaseTestWithTwoPartitions {
 
     public void test1() throws Exception {
 
         //write keys to two files but where there isn't a 100%
         //intersection... then try to join against these files. 
-
-        config.addMembership( 0, "localhost" );
 
         //now test writing two regions to a file and see if both sides of the
         //join are applied correctly

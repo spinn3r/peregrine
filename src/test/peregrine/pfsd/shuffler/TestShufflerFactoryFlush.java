@@ -18,31 +18,7 @@ import peregrine.pfsd.shuffler.*;
 
 import org.jboss.netty.handler.codec.http.*;
 
-public class TestShufflerFactoryFlush extends peregrine.BaseTest {
-
-    protected Config config;
-
-    protected FSDaemon daemon;
-    
-    public void setUp() {
-
-        super.setUp();
-        
-        config = newConfig( "localhost", 11112 );
-
-        daemon = new FSDaemon( config );
-        
-    }
-
-    private Config newConfig( String host, int port ) {
-
-        Config config = new Config( host, port );
-
-        config.addMembership( 0, new Host( "localhost", 11112 ) );
-
-        return config;
-        
-    }
+public class TestShufflerFactoryFlush extends peregrine.BaseTestWithTwoDaemons {
 
     public void test1() throws Exception {
 
@@ -58,6 +34,10 @@ public class TestShufflerFactoryFlush extends peregrine.BaseTest {
         client.write( query.getBytes() );
         client.close();
         
+    }
+
+    public static void main( String[] args ) throws Exception {
+        runTests();
     }
 
 }

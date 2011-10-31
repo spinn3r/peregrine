@@ -15,41 +15,7 @@ import peregrine.io.partition.*;
 import peregrine.pfs.*;
 import peregrine.pfsd.*;
 
-public class TestPutRequests extends peregrine.BaseTest {
-
-    protected Config config;
-
-    protected List<FSDaemon> daemons = new ArrayList();
-    
-    public void setUp() {
-
-        super.setUp();
-        
-        config = newConfig( "localhost", 11112 );
-
-        daemons.add( new FSDaemon( config ) );
-
-    }
-
-    public void tearDown() {
-
-        for( FSDaemon daemon : daemons ) {
-            daemon.shutdown();
-        }
-        
-        super.tearDown();
-
-    }
-    
-    private Config newConfig( String host, int port ) {
-
-        Config config = new Config( host, port );
-
-        config.addMembership( 0, new Host( "localhost", 11112 ) );
-
-        return config;
-        
-    }
+public class TestPutRequests extends peregrine.BaseTestWithTwoDaemons {
 
     public void doTest( int max ) throws Exception {
 

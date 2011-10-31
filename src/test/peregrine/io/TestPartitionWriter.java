@@ -16,20 +16,7 @@ import peregrine.io.*;
 import peregrine.io.partition.*;
 import peregrine.io.chunk.*;
 
-public class TestPartitionWriter extends peregrine.BaseTest {
-
-    protected Config config;
-    
-    public void setUp() {
-
-        config = new Config();
-        
-        config.setHost( new Host( "localhost" ) );
-
-        config.addMembership( 0, "localhost" );
-        config.addMembership( 1, "localhost" );
-
-    }
+public class TestPartitionWriter extends BaseTestWithTwoPartitions {
 
     /**
      * test running with two lists which each have different values.

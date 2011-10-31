@@ -84,42 +84,6 @@ public class Config {
         setHost( host );
         setRoot( String.format( "%s/%s/%s", DEFAULT_ROOT, host.getName(), host.getPort() ) );
     }
-    
-    public void addMembership( int partition, List<Host> hosts ) {
-
-        membership.setPartition( new Partition( partition ), hosts );
-
-        // make sure we have a hosts entry for every host.
-        for( Host host : hosts ) {
-            this.hosts.add( host );
-        }
-        
-    }
-
-    public void addMembership( int partition, Host... hosts ) {
-
-        List<Host> list = new ArrayList();
-
-        for( Host host : hosts ) {
-            list.add( host );
-        }
-
-        addMembership( partition, list );
-        
-    }
-    
-    public void addMembership( int partition, String... hosts ) {
-
-        List<Host> list = new ArrayList();
-
-        for( int i = 0; i < hosts.length; ++i ) {
-            String host = hosts[i];
-            list.add( new Host( host, i, DEFAULT_PORT ) );
-        }
-
-        addMembership( partition, list );
-
-    }
 
     /**
      * Init this config including partition layout and any other necesssary

@@ -29,21 +29,19 @@ public class BaseTestWithTwoPartitions extends peregrine.BaseTest {
     public void setUp() {
 
         super.setUp();
+
+        config = new Config();
+        config.setHost( new Host( "localhost" ) );
+
+        config.setConcurrency( 2 );
         
-        config = newConfig( "localhost", 11112 );
+        // TRY with three partitions... 
+        config.getHosts().add( new Host( "localhost" ) );
+
+        config.init();
+
         daemons.add( new FSDaemon( config ) );
 
-    }
-
-    private Config newConfig( String host, int port ) {
-
-        Config config = new Config( host, port );
-
-        config.addMembership( 0, new Host( "localhost", 11112 ) );
-        config.addMembership( 1, new Host( "localhost", 11112 ) );
-
-        return config;
-        
     }
 
     public void tearDown() {

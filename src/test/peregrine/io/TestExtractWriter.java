@@ -17,24 +17,8 @@ import peregrine.io.*;
 import peregrine.io.partition.*;
 import peregrine.io.chunk.*;
 
-public class TestExtractWriter extends peregrine.BaseTest {
+public class TestExtractWriter extends BaseTestWithTwoPartitions {
 
-    protected Config config;
-    
-    public void setUp() {
-
-        super.setUp();
-
-        config = new Config();
-        
-        config.setHost( new Host( "localhost" ) );
-
-        //PartitionWriter 
-        config.addMembership( 0, "localhost" );
-        config.addMembership( 1, "localhost" );
-
-    }
-    
     /**
      * test running with two lists which each have different values.
      */
