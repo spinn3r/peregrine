@@ -40,7 +40,7 @@ public class TestParallelShuffleInputChunkReader extends peregrine.BaseTestWithM
     }
 
     public TestParallelShuffleInputChunkReader() {
-        super( 2, 1, 5 );
+        super( 2, 2, 5 );
     }
     
     public void test1() throws Exception {
