@@ -38,14 +38,14 @@ public class ShuffleInputReader2 {
     /**
      * ALL known headers in this shuffle file.
      */
-    protected List<Header> headers = new ArrayList();
+    protected List<ShuffleHeader> headers = new ArrayList();
 
-    protected Map<Partition,Header> headersByPartition = new HashMap();
+    protected Map<Partition,ShuffleHeader> headersByPartition = new HashMap();
     
     /**
      * The currently parsed header information for the given partition.
      */
-    protected Header header = null;
+    protected ShuffleHeader header = null;
 
     protected ChannelBuffer buffer = null;
 
@@ -97,7 +97,7 @@ public class ShuffleInputReader2 {
         
         for ( int i = 0; i < nr_partitions; ++i ) {
 
-            Header current = new Header();
+            ShuffleHeader current = new ShuffleHeader();
             
             current.partition    = struct.readInt();
             current.offset       = struct.readInt();
@@ -127,7 +127,7 @@ public class ShuffleInputReader2 {
 
         for( Partition partition : partitions ) {
 
-            Header header = headersByPartition.get( partition );
+            ShuffleHeader header = headersByPartition.get( partition );
             
             if ( header == null ) {
 
@@ -156,7 +156,7 @@ public class ShuffleInputReader2 {
 
         current = partitionIterator.next();
 
-        Header header = headersByPartition.get( current );
+        ShuffleHeader header = headersByPartition.get( current );
 
         this.buffer.readerIndex( header.offset );
         
@@ -166,11 +166,11 @@ public class ShuffleInputReader2 {
         return buffer;
     }
     
-    public Header getHeader() {
+    public ShuffleHeader getHeader() {
         return header;
     }
 
-    public Header getHeader( Partition partition ) {
+    public ShuffleHeader getHeader( Partition partition ) {
         return headersByPartition.get( partition );
     }
     
@@ -215,27 +215,6 @@ public class ShuffleInputReader2 {
         in.close();
     }
 
-    public class Header {
-
-        public int partition;
-        public int offset;
-        public int nr_packets;
-        public int count;
-        public int length;
-
-        public int getOffset() {
-            return offset;
-        }
-        
-        public String toString() {
-            
-            return String.format( "partition: %s, offset: %,d, nr_packets: %,d, count: %,d, length: %,d" ,
-                                  partition, offset, nr_packets, count, length );
-            
-        }
-        
-    }
-
     public static void main( String[] args ) throws IOException {
 
         String path = args[0];
@@ -258,7 +237,7 @@ public class ShuffleInputReader2 {
         ShuffleInputReader2 reader = new ShuffleInputReader2( path, partitions );
 
         System.out.printf( "Headers: \n" );
-        for( Header header : reader.headers ) {
+        for( ShuffleHeader header : reader.headers ) {
             System.out.printf( "\t%s\n", header );
         }
         

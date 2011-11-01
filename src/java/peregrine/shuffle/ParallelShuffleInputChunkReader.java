@@ -33,7 +33,33 @@ public class ParallelShuffleInputChunkReader {
     
     private String path;
 
-    private int count;
+    /**
+     * The current shuffle packet.
+     */
+    private ShufflePacket pack = null;
+    
+    /**
+     * Our current position in the key/value stream of items.
+     */
+    private int idx = 0;
+
+    /**
+     * The index of packet reads.
+     */
+    private int packet_idx = 0;
+    
+    private int key_offset;
+    private int key_length;
+
+    private int value_offset;
+    private int value_length;
+
+    VarintReader varintReader;
+
+    /**
+     * The header for this partition.
+     */
+    private ShuffleHeader header = null;
     
     public ParallelShuffleInputChunkReader( Config config, Partition partition, String path ) {
 
@@ -46,22 +72,75 @@ public class ParallelShuffleInputChunkReader {
         // get the path that we should be working with.
         queue = prefetcher.lookup.get( partition );
 
-        count = prefetcher.reader.getHeader( partition ).count;
+        header = prefetcher.reader.getHeader( partition );
         
     }
 
-    public ShufflePacket nextShufflePacket() {
-        return queue.take();
+    public boolean nextShufflePacket() {
+
+        if ( packet_idx < header.nr_packets ) {
+            
+            pack = queue.take();
+            
+            varintReader  = new VarintReader( pack.data );
+            pack.data.readerIndex( 0 );
+
+            return true;
+            
+        } else {
+            return false;
+        }
+
+    }
+
+    public ShufflePacket getShufflePacket() {
+        return pack;
     }
 
     public boolean hasNext() {
-        return queue.size() > 0;
+        return idx < header.count;
+    }
+
+    public void next() {
+
+        while( true ) {
+
+            if ( pack != null && pack.data.readerIndex() < pack.data.capacity() ) {
+
+                this.key_length     = varintReader.read();
+                this.key_offset     = pack.data.readerIndex();
+
+                pack.data.readerIndex( pack.data.readerIndex() + key_length );
+                
+                this.value_length   = varintReader.read();
+                this.value_offset   = pack.data.readerIndex();
+
+                pack.data.readerIndex( pack.data.readerIndex() + value_length ); 
+
+                return;
+                
+            } else if ( nextShufflePacket() ) {
+
+                // we need to read the next ... 
+                continue;
+
+            } else {
+                return;
+            }
+
+        }
+
     }
     
     public int size() {
-        return count;
+        return header.count;
     }
-    
+
+    @Override
+    public String toString() {
+        return String.format( "%s:%s:%s" , getClass().getName(), path, partition );
+    }
+
     private boolean initRequired() {
         return prefetcher == null;
     }

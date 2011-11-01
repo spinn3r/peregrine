@@ -20,9 +20,6 @@ import com.spinn3r.log5j.Logger;
  */
 public interface ShuffleInputChunkReader {
 
-    // TODO: this probably isn't portable but I'm not 100% sure... 
-    //public ShuffleInputReader getShuffleInputReader();
-
     public ChannelBuffer getBuffer();
     
     public boolean hasNext() throws IOException;
