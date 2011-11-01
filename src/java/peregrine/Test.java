@@ -297,7 +297,7 @@ public class Test {
         
         Set<Host> hosts = new HashSet();
 
-        int nr_hosts = 12;
+        int nr_hosts = 5;
         
         for( int i = 0; i < nr_hosts; ++i ) {
             hosts.add( new Host( String.format( "node%02d", i ) ) );

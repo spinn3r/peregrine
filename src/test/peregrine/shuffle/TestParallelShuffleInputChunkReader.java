@@ -39,6 +39,10 @@ public class TestParallelShuffleInputChunkReader extends peregrine.BaseTestWithT
 
     }
 
+    public TestParallelShuffleInputChunkReader() {
+        super( 2, 1 );
+    }
+    
     public void test1() throws Exception {
 
         String path = "/tmp/test.in";

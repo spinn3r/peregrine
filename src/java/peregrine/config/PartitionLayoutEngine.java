@@ -78,8 +78,15 @@ public class PartitionLayoutEngine {
 
         // On startup... We need to print the number of machines we can handle
         // failing without falling below the minimum number of replicas...
-        
-        log.info( "%,d hosts can fail before you risk partition lost due to nr_replicas." , extra_hosts );
+
+        String extra_hosts_message =
+            String.format( "%,d hosts can fail before you risk partition lost due to nr_replicas." , extra_hosts );
+
+        if ( extra_hosts <= 0 ) {
+            throw new RuntimeException( extra_hosts_message );
+        } else {
+            log.info( "%s", extra_hosts_message );
+        }
         
         int nr_primary_per_host = nr_partitions_per_host / nr_replicas;
 
@@ -136,7 +143,7 @@ public class PartitionLayoutEngine {
                     int host_id = j + 1;
 
                     for( int k = 0; k < nr_hosts ; ++k ) {
-                        
+
                         Host host = hosts.get( host_id );
 
                         associate( host, new Partition( (j * nr_hosts) + k ), i );

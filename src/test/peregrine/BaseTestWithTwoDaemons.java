@@ -20,7 +20,7 @@ import peregrine.io.chunk.*;
 import peregrine.pfs.*;
 import peregrine.pfsd.*;
 
-public class BaseTestWithTwoDaemons extends peregrine.BaseTest {
+public abstract class BaseTestWithTwoDaemons extends peregrine.BaseTest {
 
     protected Host controller;
 
@@ -30,7 +30,19 @@ public class BaseTestWithTwoDaemons extends peregrine.BaseTest {
     protected Config config1;
 
     protected List<FSDaemon> daemons = new ArrayList();
+
+    private int concurrency;
+    private int replicas;
     
+    public BaseTestWithTwoDaemons() {
+        this( 1, 1 );
+    }
+
+    public BaseTestWithTwoDaemons( int concurrency, int replicas ) {
+        this.concurrency = concurrency;
+        this.replicas = replicas;
+    }
+
     public void setUp() {
 
         super.setUp();
@@ -52,7 +64,9 @@ public class BaseTestWithTwoDaemons extends peregrine.BaseTest {
         Config config = new Config( host, port );
 
         config.setController( controller );
-
+        config.setConcurrency( concurrency );
+        config.setReplicas( replicas );
+        
         config.getHosts().add( new Host( "localhost", 11112 ) );
         config.getHosts().add( new Host( "localhost", 11113 ) );
         config.init();
