@@ -33,6 +33,8 @@ public class ParallelShuffleInputChunkReader {
     
     private String path;
 
+    private int count;
+    
     public ParallelShuffleInputChunkReader( Config config, Partition partition, String path ) {
 
         this.config = config;
@@ -43,6 +45,8 @@ public class ParallelShuffleInputChunkReader {
 
         // get the path that we should be working with.
         queue = prefetcher.lookup.get( partition );
+
+        count = prefetcher.reader.getHeader( partition ).count;
         
     }
 
@@ -52,6 +56,10 @@ public class ParallelShuffleInputChunkReader {
 
     public boolean hasNext() {
         return queue.size() > 0;
+    }
+    
+    public int size() {
+        return count;
     }
     
     private boolean initRequired() {
@@ -91,6 +99,8 @@ public class ParallelShuffleInputChunkReader {
         public Map<Partition,SimpleBlockingQueue<ShufflePacket>> lookup = new HashMap();
 
         private ParallelShuffleInputChunkReader parent;
+
+        protected ShuffleInputReader2 reader = null;
         
         public PrefetchReader( ParallelShuffleInputChunkReader parent ) {
             this.parent = parent;
@@ -112,7 +122,7 @@ public class ParallelShuffleInputChunkReader {
             // now open the shuffle file and read in the shuffle packets adding
             // them to the right queues.
 
-            ShuffleInputReader2 reader = new ShuffleInputReader2( parent.path, partitions );
+            this.reader = new ShuffleInputReader2( parent.path, partitions );
 
             while( reader.hasNext() ) {
 

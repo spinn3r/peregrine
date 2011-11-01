@@ -169,6 +169,10 @@ public class ShuffleInputReader2 {
     public Header getHeader() {
         return header;
     }
+
+    public Header getHeader( Partition partition ) {
+        return headersByPartition.get( partition );
+    }
     
     public boolean hasNext() throws IOException {
         return packet_idx < nr_packets;
