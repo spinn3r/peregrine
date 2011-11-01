@@ -21,9 +21,12 @@ import com.spinn3r.log5j.Logger;
  */
 public class ParallelShuffleInputChunkReader implements ShuffleInputChunkReader {
 
+    public static int QUEUE_CAPACITY = 100;
+
     private static final Logger log = Logger.getLogger();
 
-    public static int QUEUE_CAPACITY = 100;
+    private static ExecutorService executors =
+        Executors.newCachedThreadPool( new DefaultThreadFactory( ParallelShuffleInputChunkReader.class) );
 
     private static PrefetchReader prefetcher = null;
 
@@ -75,27 +78,7 @@ public class ParallelShuffleInputChunkReader implements ShuffleInputChunkReader 
         // get the path that we should be working with.
         queue = prefetcher.lookup.get( partition );
 
-        System.out.printf( "FIXME reader: %s\n", prefetcher.reader );
-        System.out.printf( "FIXME partition: %s\n", partition );
-
         header = prefetcher.reader.getHeader( partition );
-
-    }
-
-    public boolean nextShufflePacket() {
-
-        if ( packet_idx < header.nr_packets ) {
-            
-            pack = queue.take();
-            
-            varintReader  = new VarintReader( pack.data );
-            pack.data.readerIndex( 0 );
-
-            return true;
-            
-        } else {
-            return false;
-        }
 
     }
 
@@ -126,6 +109,8 @@ public class ParallelShuffleInputChunkReader implements ShuffleInputChunkReader 
 
                 pack.data.readerIndex( pack.data.readerIndex() + value_length ); 
 
+                ++idx;
+                
                 return;
                 
             } else if ( nextShufflePacket() ) {
@@ -141,6 +126,25 @@ public class ParallelShuffleInputChunkReader implements ShuffleInputChunkReader 
 
     }
 
+    private boolean nextShufflePacket() {
+
+        if ( packet_idx < header.nr_packets ) {
+            
+            pack = queue.take();
+            
+            varintReader  = new VarintReader( pack.data );
+            pack.data.readerIndex( 0 );
+
+            ++packet_idx;
+            
+            return true;
+            
+        } else {
+            return false;
+        }
+
+    }
+
     @Override
     public ChannelBuffer getBuffer() {
         return prefetcher.reader.getBuffer();
@@ -149,6 +153,24 @@ public class ParallelShuffleInputChunkReader implements ShuffleInputChunkReader 
     @Override
     public int keyOffset() {
         return key_offset;
+    }
+
+    public byte[] key() throws IOException {
+        return readBytes( key_offset, key_length );
+        
+    }
+
+    public byte[] value() throws IOException {
+        return readBytes( value_offset, value_length );
+    }
+
+    private byte[] readBytes( int offset, int length ) throws IOException {
+
+        byte[] data = new byte[ length ];
+        pack.data.getBytes( offset, data );
+
+        return data;
+        
     }
 
     @Override
@@ -188,6 +210,8 @@ public class ParallelShuffleInputChunkReader implements ShuffleInputChunkReader 
                         prefetcher.lookup.put( part, new SimpleBlockingQueue( QUEUE_CAPACITY ) );
                     }
 
+                    executors.submit( prefetcher );
+                    
                 } 
 
             }
@@ -235,10 +259,14 @@ public class ParallelShuffleInputChunkReader implements ShuffleInputChunkReader 
 
             while( reader.hasNext() ) {
 
+                System.out.printf( "FIXME found one\n" );
+                
                 ShufflePacket pack = reader.next();
                 lookup.get( new Partition( pack.to_partition ) ).put( pack );
                 
             }
+
+            System.out.printf( "FIXME: done\n" );
             
             return null;
             
