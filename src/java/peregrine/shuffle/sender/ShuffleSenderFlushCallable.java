@@ -53,7 +53,7 @@ public class ShuffleSenderFlushCallable implements Callable {
         // now read the data and write it to all clients .. 
         int count = 0;
 
-        // FIXME: ANY of these writes can fail and if they do we need to
+        // FIXME(gossip): ANY of these writes can fail and if they do we need to
         // continue and just gossip that they have failed...  this includes
         // write() AND close()
         

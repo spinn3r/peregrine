@@ -23,14 +23,16 @@ public interface ShuffleInputChunkReader {
     // TODO: this probably isn't portable but I'm not 100% sure... 
     public ShuffleInputReader getShuffleInputReader();
     
-    public String toString();
+    public boolean hasNext() throws IOException;
+
+    public void next() throws IOException;
 
     public int size() throws IOException;
-
-    public boolean hasNext() throws IOException;
 
     public ShufflePacket getShufflePacket();
 
     public int keyOffset();
+
+    public String toString();
 
 }

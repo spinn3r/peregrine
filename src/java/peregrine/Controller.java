@@ -65,7 +65,9 @@ public class Controller {
                      final Input input ) throws Exception {
         map( mapper, input, null );
     }
-        
+
+    // FIXME: unify map, reduce, and merge bodies to use a withScheduler method ... 
+    
     /**
      * Run map jobs on all chunks on the given path.
      */
@@ -94,6 +96,8 @@ public class Controller {
         scheduler.waitForCompletion();
 
         daemon.setScheduler( null );
+
+        flushAllShufflers();
 
         log.info( "COMPLETED map %s for input %s and output %s ", delegate.getName(), input, output );
 
@@ -145,6 +149,8 @@ public class Controller {
         scheduler.waitForCompletion();
 
         daemon.setScheduler( null );
+        
+        flushAllShufflers();
 
         log.info( "COMPLETED merge %s for input %s and output %s ", delegate.getName(), input, output );
 
@@ -170,8 +176,6 @@ public class Controller {
         if ( input.getReferences().size() < 1 ) {
             throw new IOException( "Reducer requires at least one shuffle input." );
         }
-
-        flushAllShufflers();
 
         Scheduler scheduler = new Scheduler( config ) {
 
@@ -202,9 +206,7 @@ public class Controller {
         log.info( "Flushing all %,d shufflers with message: %s" , config.getHosts().size(), message );
         
         for ( Host host : config.getHosts() ) {
-
             new Client().invoke( host, "shuffler", message );
-
         }
         
     }

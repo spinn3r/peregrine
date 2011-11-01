@@ -91,6 +91,8 @@ public class Config {
      */
     public void init() {
 
+        log.info( "Using root: %s", root );
+        
         PartitionLayoutEngine engine = new PartitionLayoutEngine( this );
         engine.build();
 

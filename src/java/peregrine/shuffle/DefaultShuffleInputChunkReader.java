@@ -52,6 +52,7 @@ public class DefaultShuffleInputChunkReader implements ShuffleInputChunkReader{
         
     }
 
+    @Override
     public boolean hasNext() throws IOException {
 
         // FIXME: hasNext shouldn't perform any state mutation
@@ -85,6 +86,11 @@ public class DefaultShuffleInputChunkReader implements ShuffleInputChunkReader{
             
     }
 
+    @Override
+    public void next() throws IOException { 
+        
+    }
+    
     private boolean nextShufflePacket() throws IOException {
 
         if ( reader.hasNext() ) {

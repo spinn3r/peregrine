@@ -80,12 +80,10 @@ public class TestFullShufflePath extends peregrine.BaseTestWithTwoDaemons {
 
         assertEquals( count, max_emits );
 
-        ShuffleInputChunkReader reader = new ShuffleInputChunkReader( "/tmp/peregrine-fs/localhost/11112/tmp/shuffle/default/0000000000.tmp", 0 );
+        ShuffleInputChunkReader reader = new DefaultShuffleInputChunkReader( "/tmp/peregrine-fs/localhost/11112/tmp/shuffle/default/0000000000.tmp", 0 );
 
         while( reader.hasNext() ) {
-
-            System.out.printf( "key: %s, value: %s\n", Hex.encode( reader.key() ), Hex.encode( reader.value() ) );
-            
+            //System.out.printf( "key: %s, value: %s\n", Hex.encode( reader.key() ), Hex.encode( reader.value() ) );
         }
 
         ChunkSorter sorter = new ChunkSorter( config , new Partition( 0 ), new ShuffleInputReference( "default" ) );
@@ -146,7 +144,7 @@ public class TestFullShufflePath extends peregrine.BaseTestWithTwoDaemons {
 
     private int readShuffle( String path, int partition ) throws IOException {
 
-        ShuffleInputChunkReader reader = new ShuffleInputChunkReader( path, partition );
+        ShuffleInputChunkReader reader = new DefaultShuffleInputChunkReader( path, partition );
 
         assertTrue( reader.size() > 0 );
 
