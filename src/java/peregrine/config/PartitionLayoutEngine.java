@@ -82,7 +82,7 @@ public class PartitionLayoutEngine {
         String extra_hosts_message =
             String.format( "%,d hosts can fail before you risk partition lost due to nr_replicas." , extra_hosts );
 
-        if ( extra_hosts <= 0 ) {
+        if ( extra_hosts <= 0 && nr_hosts != 1 ) {
             throw new RuntimeException( extra_hosts_message );
         } else {
             log.info( "%s", extra_hosts_message );

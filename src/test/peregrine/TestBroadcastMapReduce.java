@@ -11,7 +11,7 @@ import peregrine.util.*;
 import peregrine.pagerank.*;
 import peregrine.io.partition.*;
 
-public class TestBroadcastMapReduce extends peregrine.BaseTestWithOneDaemon {
+public class TestBroadcastMapReduce extends peregrine.BaseTestWithTwoDaemons {
 
     public static class Map extends Mapper {
 
@@ -23,7 +23,7 @@ public class TestBroadcastMapReduce extends peregrine.BaseTestWithOneDaemon {
         public void init( JobOutput... output ) {
 
             super.init( output );
-            countBroadcast = output[0];
+            countBroadcast = output[1];
             
         }
 
@@ -40,16 +40,11 @@ public class TestBroadcastMapReduce extends peregrine.BaseTestWithOneDaemon {
                 throw new RuntimeException();
             }
 
-            System.out.printf( "Writing count: %,d\n", count );
+            System.out.printf( "Writing count: %,d to %s\n", count, countBroadcast );
 
-            byte[] key = new StructWriter()
-                .writeHashcode( "count" )
-                .toBytes();
-
-            byte[] value = new StructWriter()
-                .writeVarint( count )
-                .toBytes();
-
+            byte[] key = Hashcode.getHashcode( "id" );
+            byte[] value = IntBytes.toByteArray( count );
+            
             countBroadcast.emit( key, value );
             
         }
@@ -64,13 +59,11 @@ public class TestBroadcastMapReduce extends peregrine.BaseTestWithOneDaemon {
             int count = 0;
             
             for( byte[] val : values ) {
-                count += new StructReader( val ).readVarint();
+                count += IntBytes.toInt( val );
             }
 
-            byte[] value = new StructWriter()
-                .writeVarint( count )
-                .toBytes();
-
+            byte[] value = IntBytes.toByteArray( count );
+            
             emit( key, value );
             
         }

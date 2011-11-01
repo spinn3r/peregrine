@@ -20,7 +20,7 @@ import peregrine.io.chunk.*;
 import peregrine.pfs.*;
 import peregrine.pfsd.*;
 
-public class BaseTestWithOneDaemon extends peregrine.BaseTest {
+public abstract class BaseTestWithOneDaemon extends peregrine.BaseTest {
 
     protected Host controller;
 
