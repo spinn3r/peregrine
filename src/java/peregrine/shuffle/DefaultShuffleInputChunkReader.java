@@ -20,7 +20,7 @@ import com.spinn3r.log5j.Logger;
  * ChunkSorter to manage the data and then reduce over it.
  * 
  */
-public class DefaultShuffleInputChunkReader {
+public class DefaultShuffleInputChunkReader implements ShuffleInputChunkReader{
 
     ShuffleInputReader reader;
 

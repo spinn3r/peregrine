@@ -57,7 +57,7 @@ public class KeyLookup {
         this( new int[size], buffer );
     }
 
-    public KeyLookup( DefaultShuffleInputChunkReader reader, 
+    public KeyLookup( ShuffleInputChunkReader reader, 
                       ChannelBuffer buffer )
         throws IOException {
 

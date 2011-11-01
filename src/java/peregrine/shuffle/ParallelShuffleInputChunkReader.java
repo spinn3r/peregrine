@@ -50,6 +50,11 @@ public class ParallelShuffleInputChunkReader {
         return queue.take();
     }
 
+
+    public boolean hasNext() {
+        return queue.size() > 0;
+    }
+    
     private boolean initRequired() {
         return prefetcher == null;
     }
