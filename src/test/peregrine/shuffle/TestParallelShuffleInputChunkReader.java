@@ -25,7 +25,7 @@ import peregrine.reduce.sorter.*;
  * daemons, writing a LOT of data, and then reading it back in correctly as if
  * we were a reducer.
  */
-public class TestParallelShuffleInputChunkReader extends peregrine.BaseTestWithTwoDaemons {
+public class TestParallelShuffleInputChunkReader extends peregrine.BaseTestWithMultipleDaemons {
 
     public static class Map extends Mapper {
 
@@ -40,7 +40,7 @@ public class TestParallelShuffleInputChunkReader extends peregrine.BaseTestWithT
     }
 
     public TestParallelShuffleInputChunkReader() {
-        super( 2, 1 );
+        super( 2, 1, 5 );
     }
     
     public void test1() throws Exception {
