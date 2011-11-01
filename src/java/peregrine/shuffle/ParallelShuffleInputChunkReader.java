@@ -50,7 +50,6 @@ public class ParallelShuffleInputChunkReader {
         return queue.take();
     }
 
-
     public boolean hasNext() {
         return queue.size() > 0;
     }
@@ -99,9 +98,29 @@ public class ParallelShuffleInputChunkReader {
         
         public Object call() throws Exception {
 
+            Config config = parent.config;
+
+            // get the top priority replicas to reduce over.
+            List<Replica> replicas = config.getMembership().getReplicasByPriority( config.getHost() );
+
+            List<Partition> partitions = new ArrayList();
+
+            for( Replica replica : replicas ) {
+                partitions.add( replica.getPartition() );
+            }
+            
             // now open the shuffle file and read in the shuffle packets adding
             // them to the right queues.
 
+            ShuffleInputReader2 reader = new ShuffleInputReader2( parent.path, partitions );
+
+            while( reader.hasNext() ) {
+
+                ShufflePacket pack = reader.next();
+                lookup.get( new Partition( pack.to_partition ) ).put( pack );
+                
+            }
+            
             return null;
             
         }
