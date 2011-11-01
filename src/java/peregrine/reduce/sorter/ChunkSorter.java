@@ -54,7 +54,7 @@ public class ChunkSorter extends BaseChunkSorter {
 
             ShuffleInputChunkReader reader = new DefaultShuffleInputChunkReader( input.getPath(), partition.getId() );
 
-            ChannelBuffer buffer = reader.getShuffleInputReader().getBuffer();
+            ChannelBuffer buffer = reader.getBuffer();
 
             lookup = new KeyLookup( reader, buffer );
             

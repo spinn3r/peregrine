@@ -90,7 +90,12 @@ public class DefaultShuffleInputChunkReader implements ShuffleInputChunkReader{
     public void next() throws IOException { 
         
     }
-    
+
+    @Override
+    public ChannelBuffer getBuffer() {
+        return reader.getBuffer();
+    }
+
     private boolean nextShufflePacket() throws IOException {
 
         if ( reader.hasNext() ) {
@@ -140,10 +145,6 @@ public class DefaultShuffleInputChunkReader implements ShuffleInputChunkReader{
         return String.format( "%s:%s:%s" , getClass().getName(), path, partition );
     }
 
-    public ShuffleInputReader getShuffleInputReader() {
-        return reader;
-    }
-    
     private byte[] readBytes( int offset, int length ) throws IOException {
 
         byte[] data = new byte[ length ];
