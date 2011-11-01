@@ -246,7 +246,8 @@ public class ShuffleInputReader2 {
 
         List<Partition> partitions = new ArrayList();
 
-        partitions.add( new Partition( 1 ) );
+        partitions.add( new Partition( 2 ) );
+        partitions.add( new Partition( 7 ) );
 
         System.out.printf( "Reading from partitions: %s\n", partitions );
 
