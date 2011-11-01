@@ -28,6 +28,8 @@ public abstract class BaseTestWithMultipleDaemons extends peregrine.BaseTest {
 
     protected List<FSDaemon> daemons = new ArrayList();
 
+    protected List<Config> configs = new ArrayList();
+
     private int concurrency;
     private int replicas;
     private int nr_daemons;
@@ -52,7 +54,12 @@ public abstract class BaseTestWithMultipleDaemons extends peregrine.BaseTest {
         config = newConfig( "localhost", 11111 );
 
         for( int i = 0; i < nr_daemons; ++i ) {
-            daemons.add( new FSDaemon( newConfig( "localhost", Config.DEFAULT_PORT + i ) ) );
+
+            Config config = newConfig( "localhost", Config.DEFAULT_PORT + i );
+            configs.add( config );
+            
+            daemons.add( new FSDaemon( config ) );
+
         }
         
     }

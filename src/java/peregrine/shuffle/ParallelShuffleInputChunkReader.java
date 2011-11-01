@@ -21,6 +21,8 @@ import com.spinn3r.log5j.Logger;
  */
 public class ParallelShuffleInputChunkReader implements ShuffleInputChunkReader {
 
+    private static final Logger log = Logger.getLogger();
+
     public static int QUEUE_CAPACITY = 100;
 
     private static PrefetchReader prefetcher = null;
@@ -61,7 +63,8 @@ public class ParallelShuffleInputChunkReader implements ShuffleInputChunkReader 
      */
     private ShuffleHeader header = null;
     
-    public ParallelShuffleInputChunkReader( Config config, Partition partition, String path ) {
+    public ParallelShuffleInputChunkReader( Config config, Partition partition, String path )
+        throws IOException {
 
         this.config = config;
         this.partition = partition;
@@ -71,6 +74,9 @@ public class ParallelShuffleInputChunkReader implements ShuffleInputChunkReader 
 
         // get the path that we should be working with.
         queue = prefetcher.lookup.get( partition );
+
+        System.out.printf( "FIXME reader: %s\n", prefetcher.reader );
+        System.out.printf( "FIXME partition: %s\n", partition );
 
         header = prefetcher.reader.getHeader( partition );
 
@@ -159,7 +165,7 @@ public class ParallelShuffleInputChunkReader implements ShuffleInputChunkReader 
         return prefetcher == null;
     }
 
-    private void initWhenRequired() {
+    private void initWhenRequired() throws IOException {
         
         if( initRequired() ) {
 
@@ -175,6 +181,9 @@ public class ParallelShuffleInputChunkReader implements ShuffleInputChunkReader 
                     List<Partition> partitions =
                         config.getMembership().getPartitions( config.getHost() );
 
+                    if ( partitions == null )
+                        throw new RuntimeException( String.format( "No partitions defined for host: %s" , config.getHost() ) );
+                        
                     for( Partition part : partitions ) {
                         prefetcher.lookup.put( part, new SimpleBlockingQueue( QUEUE_CAPACITY ) );
                     }
@@ -189,23 +198,26 @@ public class ParallelShuffleInputChunkReader implements ShuffleInputChunkReader 
 
     static class PrefetchReader implements Callable {
 
+        private static final Logger log = Logger.getLogger();
+
         public Map<Partition,SimpleBlockingQueue<ShufflePacket>> lookup = new HashMap();
 
         private ParallelShuffleInputChunkReader parent;
 
         protected ShuffleInputReader2 reader = null;
         
-        public PrefetchReader( ParallelShuffleInputChunkReader parent ) {
+        public PrefetchReader( ParallelShuffleInputChunkReader parent )
+            throws IOException {
+
             this.parent = parent;
-        }
-        
-        public Object call() throws Exception {
 
             Config config = parent.config;
 
             // get the top priority replicas to reduce over.
             List<Replica> replicas = config.getMembership().getReplicasByPriority( config.getHost() );
 
+            log.info( "Working with replicas: %s", replicas );
+            
             List<Partition> partitions = new ArrayList();
 
             for( Replica replica : replicas ) {
@@ -216,6 +228,10 @@ public class ParallelShuffleInputChunkReader implements ShuffleInputChunkReader 
             // them to the right queues.
 
             this.reader = new ShuffleInputReader2( parent.path, partitions );
+
+        }
+        
+        public Object call() throws Exception {
 
             while( reader.hasNext() ) {
 
