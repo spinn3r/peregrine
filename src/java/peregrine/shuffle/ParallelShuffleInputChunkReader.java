@@ -19,7 +19,7 @@ import com.spinn3r.log5j.Logger;
 /**
  * 
  */
-public class ParallelShuffleInputChunkReader {
+public class ParallelShuffleInputChunkReader implements ShuffleInputChunkReader {
 
     public static int QUEUE_CAPACITY = 100;
 
@@ -73,7 +73,7 @@ public class ParallelShuffleInputChunkReader {
         queue = prefetcher.lookup.get( partition );
 
         header = prefetcher.reader.getHeader( partition );
-        
+
     }
 
     public boolean nextShufflePacket() {
@@ -93,14 +93,17 @@ public class ParallelShuffleInputChunkReader {
 
     }
 
+    @Override
     public ShufflePacket getShufflePacket() {
         return pack;
     }
 
+    @Override
     public boolean hasNext() {
         return idx < header.count;
     }
 
+    @Override
     public void next() {
 
         while( true ) {
@@ -131,7 +134,18 @@ public class ParallelShuffleInputChunkReader {
         }
 
     }
-    
+
+    @Override
+    public ChannelBuffer getBuffer() {
+        return prefetcher.reader.getBuffer();
+    }
+
+    @Override
+    public int keyOffset() {
+        return key_offset;
+    }
+
+    @Override
     public int size() {
         return header.count;
     }
