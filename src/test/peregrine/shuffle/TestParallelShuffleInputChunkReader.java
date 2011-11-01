@@ -67,8 +67,8 @@ public class TestParallelShuffleInputChunkReader extends peregrine.BaseTestWithM
 
         controller.shutdown();
 
-        // now create a ParallelShuffleInputChunkReader for one of the
-        // partitions so that we can see if it actually works
+        //now create a ParallelShuffleInputChunkReader for one of the
+        //partitions so that we can see if it actually works
 
         path = "/tmp/peregrine-fs/localhost/11116/tmp/shuffle/default/0000000000.tmp";
 

@@ -25,13 +25,13 @@ public class ParallelShuffleInputChunkReader implements ShuffleInputChunkReader 
 
     private static final Logger log = Logger.getLogger();
 
-    private static ExecutorService executors =
-        Executors.newCachedThreadPool( new DefaultThreadFactory( ParallelShuffleInputChunkReader.class) );
-
-    private static PrefetchReader prefetcher = null;
+    private static PrefetchReaderManager prefetchReaderManager
+        = new PrefetchReaderManager();
 
     private SimpleBlockingQueue<ShufflePacket> queue = null;
 
+    private PrefetchReader prefetcher = null;
+    
     private Config config;
 
     private Partition partition;
@@ -72,14 +72,18 @@ public class ParallelShuffleInputChunkReader implements ShuffleInputChunkReader 
         this.config = config;
         this.partition = partition;
         this.path = path;
-
-        initWhenRequired();
+        
+        prefetcher = prefetchReaderManager.getInstance( config, path );
 
         // get the path that we should be working with.
         queue = prefetcher.lookup.get( partition );
 
         header = prefetcher.reader.getHeader( partition );
 
+        if ( header == null ) {
+            throw new IOException( "Unable to find header for partition: " + partition );
+        }
+        
     }
 
     @Override
@@ -127,7 +131,7 @@ public class ParallelShuffleInputChunkReader implements ShuffleInputChunkReader 
     }
 
     private boolean nextShufflePacket() {
-
+        
         if ( packet_idx < header.nr_packets ) {
             
             pack = queue.take();
@@ -183,59 +187,26 @@ public class ParallelShuffleInputChunkReader implements ShuffleInputChunkReader 
         return String.format( "%s:%s:%s" , getClass().getName(), path, partition );
     }
 
-    private boolean initRequired() {
-        return prefetcher == null;
-    }
-
-    private void initWhenRequired() throws IOException {
-        
-        if( initRequired() ) {
-
-            synchronized( this ) {
-
-                // double check idiom
-                if( initRequired() ) {
-
-                    prefetcher = new PrefetchReader( this );
-
-                    // read all of the partitions this host is assigned.
-                    
-                    List<Partition> partitions =
-                        config.getMembership().getPartitions( config.getHost() );
-
-                    if ( partitions == null )
-                        throw new RuntimeException( String.format( "No partitions defined for host: %s" , config.getHost() ) );
-                        
-                    for( Partition part : partitions ) {
-                        prefetcher.lookup.put( part, new SimpleBlockingQueue( QUEUE_CAPACITY ) );
-                    }
-
-                    executors.submit( prefetcher );
-                    
-                } 
-
-            }
-            
-        }
-
-    }
-
     static class PrefetchReader implements Callable {
 
         private static final Logger log = Logger.getLogger();
 
         public Map<Partition,SimpleBlockingQueue<ShufflePacket>> lookup = new HashMap();
 
-        private ParallelShuffleInputChunkReader parent;
-
         protected ShuffleInputReader2 reader = null;
+
+        private Config config;
         
-        public PrefetchReader( ParallelShuffleInputChunkReader parent )
+        private String path;
+
+        private PrefetchReaderManager manager = null;
+        
+        public PrefetchReader( PrefetchReaderManager manager, Config config, String path )
             throws IOException {
 
-            this.parent = parent;
-
-            Config config = parent.config;
+            this.manager = manager;
+            this.config = config;
+            this.path = path;
 
             // get the top priority replicas to reduce over.
             List<Replica> replicas = config.getMembership().getReplicasByPriority( config.getHost() );
@@ -243,35 +214,92 @@ public class ParallelShuffleInputChunkReader implements ShuffleInputChunkReader 
             log.info( "Working with replicas: %s", replicas );
             
             List<Partition> partitions = new ArrayList();
-
+            
             for( Replica replica : replicas ) {
+
+                lookup.put( replica.getPartition(), new SimpleBlockingQueue( QUEUE_CAPACITY ) );
+
                 partitions.add( replica.getPartition() );
+                
             }
             
             // now open the shuffle file and read in the shuffle packets adding
             // them to the right queues.
 
-            this.reader = new ShuffleInputReader2( parent.path, partitions );
+            this.reader = new ShuffleInputReader2( path, partitions );
 
         }
         
         public Object call() throws Exception {
 
-            while( reader.hasNext() ) {
+            log.info( "Reading from %s ...", path );
 
-                System.out.printf( "FIXME found one\n" );
+            int count = 0;
+            
+            while( reader.hasNext() ) {
                 
                 ShufflePacket pack = reader.next();
                 lookup.get( new Partition( pack.to_partition ) ).put( pack );
+
+                ++count;
                 
             }
+            
+            log.info( "Reading from %s ...done (read %,d packets)", path, count );
 
-            System.out.printf( "FIXME: done\n" );
+            // remove thyself
+            manager.reset( path );
             
             return null;
             
         }
         
+    }
+
+    static class PrefetchReaderManager {
+
+        private static final Logger log = Logger.getLogger();
+
+        private static ExecutorService executors =
+            Executors.newCachedThreadPool( new DefaultThreadFactory( PrefetchReaderManager.class) );
+
+        static Map<String,PrefetchReader> instances = new ConcurrentHashMap();
+
+        public void reset( String path ) {
+            instances.remove( path );
+        }
+        
+        public PrefetchReader getInstance( Config config, String path )
+            throws IOException {
+
+            PrefetchReader result = instances.get( path );
+
+            if ( result == null ) {
+
+                // double check idiom.
+                synchronized( instances ) {
+
+                    result = instances.get( path );
+                    
+                    if ( result == null ) {
+
+                        log.info( "Creating new prefetch reader for path: %s", path );
+                        
+                        result = new PrefetchReader( this, config, path );
+                        instances.put( path, result );
+
+                        executors.submit( result );
+
+                    } 
+
+                }
+                
+            }
+
+            return result;
+            
+        }
+
     }
     
 }
