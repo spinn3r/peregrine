@@ -62,6 +62,30 @@ public class Membership {
 
     }
 
+    public List<Replica> getReplicasByPriority( Host host ) {
+        return getReplicasByPriority( host, 0 );
+    }
+
+    /**
+     * Get the replicas for a host, but only once of a given priority.
+     */
+    public List<Replica> getReplicasByPriority( Host host, int priority ) {
+
+        List<Replica> replicas = getReplicas( host );
+
+        List<Replica> result = new ArrayList();
+
+        for( Replica replica : replicas ) {
+
+            if ( replica.getPriority() == priority )
+                result.add( replica );
+            
+        }
+
+        return result;
+        
+    }
+
     public void setPartition( Partition part, List<Host> hosts ) {
         hostsByPartition.put( part, hosts );
         updatePartitionsByHostMapping( part, hosts );
