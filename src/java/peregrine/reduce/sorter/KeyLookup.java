@@ -65,6 +65,10 @@ public class KeyLookup {
 
         while ( reader.hasNext() ) {
 
+            // advance the reader
+            reader.next();
+
+            // advance the lookup
             next();
             set( reader.getShufflePacket().offset + reader.keyOffset() );
 
