@@ -20,7 +20,7 @@ import com.spinn3r.log5j.Logger;
  * ChunkSorter to manage the data and then reduce over it.
  * 
  */
-public class ShuffleInputChunkReader {
+public class DefaultShuffleInputChunkReader {
 
     ShuffleInputReader reader;
 
@@ -42,7 +42,7 @@ public class ShuffleInputChunkReader {
     int value_offset;
     int value_length;
     
-    public ShuffleInputChunkReader( String path , int partition ) throws IOException {
+    public DefaultShuffleInputChunkReader( String path , int partition ) throws IOException {
 
         this.path = path;
         this.partition = partition;
@@ -149,7 +149,7 @@ public class ShuffleInputChunkReader {
 
     public static void main( String[] args ) throws Exception {
 
-        ShuffleInputChunkReader reader = new ShuffleInputChunkReader( args[0], Integer.parseInt( args[1] ) );
+        DefaultShuffleInputChunkReader reader = new DefaultShuffleInputChunkReader( args[0], Integer.parseInt( args[1] ) );
 
         while( reader.hasNext() ) {
 

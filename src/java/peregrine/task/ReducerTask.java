@@ -15,8 +15,6 @@ import peregrine.io.*;
 import peregrine.io.chunk.*;
 import peregrine.reduce.*;
 
-import peregrine.shuffle.ShuffleInputChunkReader;
-
 import com.spinn3r.log5j.Logger;
 
 public class ReducerTask extends BaseOutputTask implements Callable {

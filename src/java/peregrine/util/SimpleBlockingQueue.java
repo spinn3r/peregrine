@@ -26,6 +26,12 @@ public class SimpleBlockingQueue<T> {
 
     LinkedBlockingQueue<T> delegate = new LinkedBlockingQueue();
 
+    public SimpleBlockingQueue() { }
+
+    public SimpleBlockingQueue( int capacity ) {
+        delegate = new LinkedBlockingQueue( capacity );
+    }
+    
     public T peek() {
         return delegate.peek();
     }

@@ -25,16 +25,19 @@ public class ParallelShuffleInputChunkReader {
 
     private static PrefetchReader prefetcher = null;
 
-    private BlockingQueue<ShufflePacket> queue = null;
-
-    private String path;
+    private SimpleBlockingQueue<ShufflePacket> queue = null;
 
     private Config config;
+
+    private Partition partition;
     
+    private String path;
+
     public ParallelShuffleInputChunkReader( Config config, Partition partition, String path ) {
 
-        this.path = path;
         this.config = config;
+        this.partition = partition;
+        this.path = path;
 
         initWhenRequired();
 
@@ -44,15 +47,14 @@ public class ParallelShuffleInputChunkReader {
     }
 
     public ShufflePacket nextShufflePacket() {
-        //return queue.take();
-        return null;
+        return queue.take();
     }
 
     private boolean initRequired() {
         return prefetcher == null;
     }
 
-    public void initWhenRequired() {
+    private void initWhenRequired() {
         
         if( initRequired() ) {
 
@@ -69,7 +71,7 @@ public class ParallelShuffleInputChunkReader {
                         config.getMembership().getPartitions( config.getHost() );
 
                     for( Partition part : partitions ) {
-                        prefetcher.lookup.put( part, new LinkedBlockingDeque( QUEUE_CAPACITY ) );
+                        prefetcher.lookup.put( part, new SimpleBlockingQueue( QUEUE_CAPACITY ) );
                     }
 
                 } 
@@ -82,7 +84,7 @@ public class ParallelShuffleInputChunkReader {
 
     static class PrefetchReader implements Callable {
 
-        public Map<Partition,BlockingQueue<ShufflePacket>> lookup = new HashMap();
+        public Map<Partition,SimpleBlockingQueue<ShufflePacket>> lookup = new HashMap();
 
         private ParallelShuffleInputChunkReader parent;
         
