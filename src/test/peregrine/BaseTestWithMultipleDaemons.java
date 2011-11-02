@@ -20,7 +20,11 @@ import peregrine.io.chunk.*;
 import peregrine.pfs.*;
 import peregrine.pfsd.*;
 
+import com.spinn3r.log5j.Logger;
+
 public abstract class BaseTestWithMultipleDaemons extends peregrine.BaseTest {
+
+    private static final Logger log = Logger.getLogger();
 
     protected Host controller;
 
@@ -61,6 +65,8 @@ public abstract class BaseTestWithMultipleDaemons extends peregrine.BaseTest {
             daemons.add( new FSDaemon( config ) );
 
         }
+
+        log.info( "Working with configs %s and daemons %s" , configs, daemons );
         
     }
 

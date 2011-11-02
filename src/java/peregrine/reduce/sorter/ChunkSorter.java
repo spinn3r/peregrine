@@ -52,8 +52,7 @@ public class ChunkSorter extends BaseChunkSorter {
             // the same time... we need a background thread to trigger the
             // pre-read.
 
-            //ShuffleInputChunkReader reader = new DefaultShuffleInputChunkReader( input.getPath(), partition.getId() );
-            ShuffleInputChunkReader reader = new ParallelShuffleInputChunkReader( config, partition, input.getPath() );
+            ShuffleInputChunkReader reader = new ShuffleInputChunkReader( config, partition, input.getPath() );
             
             ChannelBuffer buffer = reader.getBuffer();
 

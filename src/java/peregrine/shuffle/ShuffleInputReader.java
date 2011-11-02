@@ -33,27 +33,45 @@ public class ShuffleInputReader {
 
     private int packet_idx = 0;
 
-    private int partition;
+    private List<Partition> partitions;
 
     /**
      * ALL known headers in this shuffle file.
      */
-    protected List<Header> headers = new ArrayList();
+    protected List<ShuffleHeader> headers = new ArrayList();
 
+    protected Map<Partition,ShuffleHeader> headersByPartition = new HashMap();
+    
     /**
      * The currently parsed header information for the given partition.
      */
-    protected Header header = null;
+    protected ShuffleHeader header = null;
 
     protected ChannelBuffer buffer = null;
 
     protected FileInputStream in = null;
+
+    /**
+     * The number of packet we need to read for all given partitions.
+     */
+    protected int nr_packets = 0;
+
+    /**
+     * Used so that we can move over partitions.
+     * 
+     */
+    protected Iterator<Partition> partitionIterator = null;
+
+    /**
+     * The current partition we're working on.
+     */
+    protected Partition current = null;
     
-    public ShuffleInputReader( String path, int partition ) throws IOException {
+    public ShuffleInputReader( String path, List<Partition> partitions ) throws IOException {
 
         this.path = path;
-        this.partition = partition;
-
+        this.partitions = partitions;
+        
         // pull out the header information 
 
         File file = new File( path );
@@ -75,13 +93,11 @@ public class ShuffleInputReader {
 
         int nr_partitions = struct.readInt();
 
-        int start = -1;
-
         int point = ShuffleOutputWriter.MAGIC.length + IntBytes.LENGTH;
         
         for ( int i = 0; i < nr_partitions; ++i ) {
 
-            Header current = new Header();
+            ShuffleHeader current = new ShuffleHeader();
             
             current.partition    = struct.readInt();
             current.offset       = struct.readInt();
@@ -99,43 +115,72 @@ public class ShuffleInputReader {
                 
             }
 
-            if ( current.partition == partition ) {
-                this.header = current;
-                start = current.offset;
-            }
-
             // record this for usage later if necessary.
             headers.add( current );
+            headersByPartition.put( new Partition( current.partition ), current );
             
             point += ShuffleOutputWriter.LOOKUP_HEADER_SIZE;
 
         }
 
-        if ( start == -1 ) {
-            throw new IOException( String.format( "Unable to find start for partition %s in file %s with headers %s",
-                                                  partition, path, headers ) );
+        // make sure we have headers for ALL the partitions we requested
+
+        for( Partition partition : partitions ) {
+
+            ShuffleHeader header = headersByPartition.get( partition );
+            
+            if ( header == null ) {
+
+                throw new IOException( String.format( "Unable to find header for partition %s in file %s with headers %s",
+                                                      partition, path, headers ) );
+                
+            }
+
+            // determine the number of packets we need to read from all the partitions.
+            nr_packets += header.nr_packets;
+            
         }
 
-        MappedByteBuffer map = in.getChannel().map( FileChannel.MapMode.READ_ONLY, header.offset, header.length );
+        partitionIterator = partitions.iterator();
+        
+        // mmap the WHOLE file. We won't actually use these pages if we dont'
+        // read them so this make it less difficult to figure out what to map.
+        MappedByteBuffer map = in.getChannel().map( FileChannel.MapMode.READ_ONLY, 0, file.length() );
         this.buffer = ChannelBuffers.wrappedBuffer( map );
 
+        nextPartition();
+        
     }
 
+    private void nextPartition() {
+
+        current = partitionIterator.next();
+
+        ShuffleHeader header = headersByPartition.get( current );
+
+        this.buffer.readerIndex( header.offset );
+        
+    }
+    
     public ChannelBuffer getBuffer() {
         return buffer;
     }
     
-    public Header getHeader() {
+    public ShuffleHeader getHeader() {
         return header;
+    }
+
+    public ShuffleHeader getHeader( Partition partition ) {
+        return headersByPartition.get( partition );
     }
     
     public boolean hasNext() throws IOException {
-        return packet_idx < header.nr_packets;
+        return packet_idx < nr_packets;
     }
     
     public ShufflePacket next() throws IOException {
 
-        if ( packet_idx >= header.nr_packets )
+        if ( packet_idx >= nr_packets )
             return null;
 
         ++packet_idx;
@@ -146,9 +191,12 @@ public class ShuffleInputReader {
         int len             = buffer.readInt();
         int offset          = buffer.readerIndex();
 
-        if ( to_partition != this.partition )
-           throw new IOException( "Read invalid partition data: " + to_partition );
-
+        if ( to_partition != current.getId() ) {
+            // skip over this partition and move to the next one.
+            nextPartition();
+            return next();
+        }
+            
         ChannelBuffer data = buffer.slice( buffer.readerIndex(), len );
         
         // now update the reader index so we can skip over this data.
@@ -167,45 +215,29 @@ public class ShuffleInputReader {
         in.close();
     }
 
-    public class Header {
-
-        public int partition;
-        public int offset;
-        public int nr_packets;
-        public int count;
-        public int length;
-
-        public int getOffset() {
-            return offset;
-        }
-        
-        public String toString() {
-            
-            return String.format( "partition: %s, offset: %,d, nr_packets: %,d, count: %,d, length: %,d" ,
-                                  partition, offset, nr_packets, count, length );
-            
-        }
-        
-    }
-
     public static void main( String[] args ) throws IOException {
 
         String path = args[0];
 
-        int partition = -1;
-        
+        /*
         if ( args.length == 2 ) {
             partition = Integer.parseInt( args[1] );
         }
+        */
 
-        System.out.printf( "Reading from partition: %s\n", partition );
-        
         // debug code to dump a shuffle.
-        
-        ShuffleInputReader reader = new ShuffleInputReader( path, partition );
+
+        List<Partition> partitions = new ArrayList();
+
+        partitions.add( new Partition( 2 ) );
+        partitions.add( new Partition( 7 ) );
+
+        System.out.printf( "Reading from partitions: %s\n", partitions );
+
+        ShuffleInputReader reader = new ShuffleInputReader( path, partitions );
 
         System.out.printf( "Headers: \n" );
-        for( Header header : reader.headers ) {
+        for( ShuffleHeader header : reader.headers ) {
             System.out.printf( "\t%s\n", header );
         }
         

@@ -84,9 +84,10 @@ public class TestFullShufflePath extends peregrine.BaseTestWithMultipleDaemons {
 
         assertEquals( count, max_emits );
 
-        ShuffleInputChunkReader reader = new DefaultShuffleInputChunkReader( "/tmp/peregrine-fs/localhost/11112/tmp/shuffle/default/0000000000.tmp", 0 );
+        ShuffleInputChunkReader reader = new ShuffleInputChunkReader( configs.get( 0 ), new Partition( 0 ), "/tmp/peregrine-fs/localhost/11112/tmp/shuffle/default/0000000000.tmp" );
 
         while( reader.hasNext() ) {
+            reader.next();
             //System.out.printf( "key: %s, value: %s\n", Hex.encode( reader.key() ), Hex.encode( reader.value() ) );
         }
 
@@ -111,7 +112,7 @@ public class TestFullShufflePath extends peregrine.BaseTestWithMultipleDaemons {
 
         int count = 0;
         while( reader.hasNext() ) {
-
+            
             byte[] key = reader.key();
             byte[] value = reader.value();
 
@@ -148,13 +149,14 @@ public class TestFullShufflePath extends peregrine.BaseTestWithMultipleDaemons {
 
     private int readShuffle( String path, int partition ) throws IOException {
 
-        ShuffleInputChunkReader reader = new DefaultShuffleInputChunkReader( path, partition );
+        ShuffleInputChunkReader reader = new ShuffleInputChunkReader( configs.get( partition ), new Partition( partition ), path );
 
         assertTrue( reader.size() > 0 );
 
         int count = 0;
         while( reader.hasNext() ) {
 
+            reader.next();
             //System.out.printf( "readShuffle: partition: %s, key: %s, value: %s\n",
             //                   partition, Hex.encode( reader.key() ), Hex.encode( reader.value() ) );
 

@@ -184,6 +184,11 @@ public class Config {
         return String.format( "%s/tmp/shuffle/%s", getRoot(), name);
     }
 
+    @Override
+    public String toString() {
+        return String.format( "root=%s, host=%s", root, host );
+    }
+    
     /**
      * For a given key, in bytes, route it to the correct partition/partition.
      */

@@ -61,8 +61,10 @@ public class TestShuffleOutputChunkReader extends BaseTest {
 
         buff.close();
 
-        //FIXME: read both zero and one... 
-        ShuffleInputReader reader = new ShuffleInputReader( path, 1 );
+        List<Partition> partitions = new ArrayList();
+        partitions.add( new Partition( 1 ) ) ;
+        
+        ShuffleInputReader reader = new ShuffleInputReader( path, partitions );
 
         int count = 0;
         while( reader.hasNext() ) {
