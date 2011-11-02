@@ -58,9 +58,9 @@ public class Test {
 
         long before = System.currentTimeMillis();
 
-        int max = 100;
+        int max = 10000;
 
-        int capacity = 1000000; 
+        int capacity = 16384; 
 
         System.out.printf( "using capacity: %s\n", capacity );
 
