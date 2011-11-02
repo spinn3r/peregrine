@@ -25,8 +25,12 @@ import peregrine.reduce.sorter.*;
  * daemons, writing a LOT of data, and then reading it back in correctly as if
  * we were a reducer.
  */
-public class TestFullShufflePath extends peregrine.BaseTestWithTwoDaemons {
+public class TestFullShufflePath extends peregrine.BaseTestWithMultipleDaemons {
 
+    public TestFullShufflePath() {
+        super( 1, 1, 2 );
+    }
+    
     private void doTestIter( ShuffleJobOutput output, int max_emits ) throws Exception {
 
         for ( int i = 0; i < max_emits; ++i ) {
@@ -86,7 +90,7 @@ public class TestFullShufflePath extends peregrine.BaseTestWithTwoDaemons {
             //System.out.printf( "key: %s, value: %s\n", Hex.encode( reader.key() ), Hex.encode( reader.value() ) );
         }
 
-        ChunkSorter sorter = new ChunkSorter( config , new Partition( 0 ), new ShuffleInputReference( "default" ) );
+        ChunkSorter sorter = new ChunkSorter( configs.get( 0 ) , new Partition( 0 ), new ShuffleInputReference( "default" ) );
 
         File file_input = new File( "/tmp/peregrine-fs/localhost/11112/tmp/shuffle/default/0000000000.tmp" );
         File file_output = new File( "/tmp/test.out" );
