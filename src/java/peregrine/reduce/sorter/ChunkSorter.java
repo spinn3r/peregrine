@@ -67,7 +67,7 @@ public class ChunkSorter extends BaseChunkSorter {
 
             lookup = sort( lookup, depth );
             
-            //parse this into the final ChunkWriter now.
+            //write this into the final ChunkWriter now.
 
             VarintReader varintReader = new VarintReader( buffer );
 
