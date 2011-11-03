@@ -1,4 +1,4 @@
-package peregrine.pfsd;
+package peregrine.pfsd.rpc;
 
 import java.io.*;
 import java.net.*;
