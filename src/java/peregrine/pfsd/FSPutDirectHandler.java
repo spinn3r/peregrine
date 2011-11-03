@@ -20,13 +20,9 @@ public class FSPutDirectHandler extends FSPutBaseHandler {
 
     private OutputStream asyncOutputStream = null;
 
-    private FSHandler handler;
-    
     public FSPutDirectHandler( FSHandler handler ) {
         super( handler );
         
-        this.handler = handler;
-
         asyncOutputStream = new AsyncOutputStream( handler.path );
 
     }

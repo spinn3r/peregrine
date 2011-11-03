@@ -27,8 +27,6 @@ public class ShuffleInputChunkReader {
 
     private PrefetchReader prefetcher = null;
     
-    private Config config;
-
     private Partition partition;
     
     private String path;
@@ -64,7 +62,6 @@ public class ShuffleInputChunkReader {
     public ShuffleInputChunkReader( Config config, Partition partition, String path )
         throws IOException {
 
-        this.config = config;
         this.partition = partition;
         this.path = path;
         
@@ -184,8 +181,6 @@ public class ShuffleInputChunkReader {
 
         protected ShuffleInputReader reader = null;
 
-        private Config config;
-        
         private String path;
 
         private PrefetchReaderManager manager = null;
@@ -194,7 +189,6 @@ public class ShuffleInputChunkReader {
             throws IOException {
 
             this.manager = manager;
-            this.config = config;
             this.path = path;
 
             // get the top priority replicas to reduce over.

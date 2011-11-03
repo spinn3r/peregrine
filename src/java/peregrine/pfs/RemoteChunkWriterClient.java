@@ -224,10 +224,6 @@ public class RemoteChunkWriterClient extends BaseOutputStream implements Channel
         return channelState == CLOSED;
     }
 
-    private ChannelBuffer newChannelBuffer( byte[] data ) {
-        return newChannelBuffer( ChannelBuffers.wrappedBuffer( data ) );
-    }
-    
     private ChannelBuffer newChannelBuffer( ChannelBuffer data ) {
 
         // use Netty composite buffers to avoid copying excessive data.

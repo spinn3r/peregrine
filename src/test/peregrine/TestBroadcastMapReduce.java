@@ -93,8 +93,6 @@ public class TestBroadcastMapReduce extends peregrine.BaseTestWithTwoDaemons {
          
          writer.close();
          
-         String output = String.format( "/test/%s/test1.out", getClass().getName() );
-
          Controller controller = new Controller( config );
 
          controller.map( Map.class,

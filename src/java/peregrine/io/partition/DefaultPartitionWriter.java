@@ -30,8 +30,6 @@ public class DefaultPartitionWriter implements PartitionWriter {
 
     protected Partition partition;
     
-    private int count = 0;
-
     private List<PartitionWriterDelegate> partitionWriterDelegates;
 
     private ChunkWriter chunkWriter = null;

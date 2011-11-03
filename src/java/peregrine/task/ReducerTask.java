@@ -4,8 +4,6 @@ package peregrine.task;
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.*;
-import java.util.concurrent.atomic.*;
-
 import peregrine.*;
 import peregrine.map.*;
 import peregrine.config.Config;
@@ -88,8 +86,6 @@ public class ReducerTask extends BaseOutputTask implements Callable {
     }
 
     private void doCall() throws Exception {
-
-        final AtomicInteger nr_tuples = new AtomicInteger();
 
         ReducerTaskSortListener listener =
             new ReducerTaskSortListener( reducer );

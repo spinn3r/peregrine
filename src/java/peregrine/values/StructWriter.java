@@ -15,9 +15,9 @@ public class StructWriter {
 
     private static Charset UTF8 = null;
 
-    private static ChannelBuffer buff = null;
-
     private static VarintWriter varintWriter = new VarintWriter();
+    
+    private ChannelBuffer buff = null;
 
     private static ThreadLocalChannelBuffer threadLocal =
         new ThreadLocalChannelBuffer( BUFFER_SIZE );

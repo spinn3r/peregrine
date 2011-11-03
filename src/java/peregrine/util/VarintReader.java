@@ -55,10 +55,6 @@ public class VarintReader {
         return result;
     }
 
-    private boolean isLastVarintByte( byte b ) {
-        return (b >> 7) == 0;
-    }
-
 }
 
 interface ByteReader {

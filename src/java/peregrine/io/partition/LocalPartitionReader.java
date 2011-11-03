@@ -5,7 +5,6 @@ import java.util.*;
 
 import peregrine.config.Config;
 import peregrine.config.Partition;
-import peregrine.io.*;
 import peregrine.io.chunk.*;
 
 /**
@@ -20,8 +19,6 @@ public class LocalPartitionReader {
     private Iterator<ChunkReader> iterator = null;
 
     private ChunkReader chunkReader = null;
-
-    private Tuple t = null;
 
     private List<LocalPartitionReaderListener> listeners = new ArrayList();
 

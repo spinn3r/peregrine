@@ -60,11 +60,6 @@ public class ChunkMerger {
 
     private SortListener listener = null;
 
-    private IntermediateChunkHelper intermediateChunkHelper
-        = new IntermediateChunkHelper();
-
-    private SortEntryFactory defaultSortEntryFactory = new DefaultSortEntryFactory();
-
     public int tuples = 0;
         
     private SortEntryFactory topLevelSortEntryFactory = new TopLevelSortEntryFactory();

@@ -23,8 +23,6 @@ public class FSPutShuffleHandler extends FSPutBaseHandler {
     private static Pattern PATH_REGEX =
         Pattern.compile( "/([0-9]+)/shuffle/([a-zA-Z0-9_-]+)/from-partition/([0-9]+)/from-chunk/([0-9]+)" );
 
-    private FSHandler handler;
-
     private int to_partition;
     private String name;
     private int from_partition;
@@ -35,8 +33,6 @@ public class FSPutShuffleHandler extends FSPutBaseHandler {
     public FSPutShuffleHandler( FSHandler handler ) throws Exception {
         super( handler );
         
-        this.handler = handler;
-
         String path = handler.request.getUri();
         
         Matcher m = PATH_REGEX.matcher( path );

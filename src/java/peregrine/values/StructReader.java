@@ -10,18 +10,13 @@ public class StructReader {
 
     private UnsafeInputStream unsafe;
 
-    private boolean debug = false;
-
-    private InputStream is;
-    
-    private static VarintReader varintReader;
+    private VarintReader varintReader;
 
     public StructReader( byte[] data ) {
         this( new ByteArrayInputStream( data ) );
     }
 
     public StructReader( InputStream is ) {
-        this.is = is;
         this.unsafe = new UnsafeInputStream( is );
         this.varintReader = new VarintReader( is );
     }
@@ -60,10 +55,6 @@ public class StructReader {
 
         return result;
 
-    }
-
-    public void setDebug( boolean debug ) {
-        this.debug = debug;
     }
 
 }

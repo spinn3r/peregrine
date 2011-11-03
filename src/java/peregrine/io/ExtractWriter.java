@@ -22,15 +22,11 @@ public class ExtractWriter {
 
     private List<PartitionWriter> output;
 
-    private String path;
-
     private Config config;
     
     public ExtractWriter( Config config, String path ) throws IOException {
 
         this.config = config;
-        this.path = path;
-
         Membership membership = config.getMembership();
         
         output = new ArrayList( membership.size() );

@@ -5,8 +5,6 @@ import peregrine.util.*;
 
 public class Host implements Comparable<Host> {
 
-    private static int sequence = 0;
-
     protected long id = 0;
     protected String name = null;
 

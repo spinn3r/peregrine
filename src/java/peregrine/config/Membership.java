@@ -4,8 +4,6 @@ import java.util.*;
 
 public class Membership {
     
-    private int nr_hosts;
-
     protected Map<Partition,List<Host>> hostsByPartition = new HashMap();
 
     protected Map<Host,List<Partition>> partitionsByHost = new HashMap();

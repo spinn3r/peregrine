@@ -21,14 +21,7 @@ public class ShuffleInputReader {
 
     public static int BUFFER_SIZE = 8192;
 
-    // header lookup information for partition and where to start reading.
-    private Map<Integer,Integer> lookup = new HashMap();
-
-    private String path;
-
     private int packet_idx = 0;
-
-    private List<Partition> partitions;
 
     /**
      * ALL known headers in this shuffle file.
@@ -64,8 +57,8 @@ public class ShuffleInputReader {
     
     public ShuffleInputReader( String path, List<Partition> partitions ) throws IOException {
 
-        this.path = path;
-        this.partitions = partitions;
+        
+        
         
         // pull out the header information 
 
