@@ -11,6 +11,7 @@ import java.nio.channels.*;
 import peregrine.*;
 import peregrine.util.*;
 import peregrine.values.*;
+import peregrine.config.Partition;
 import peregrine.io.async.*;
 
 import org.jboss.netty.buffer.*;

@@ -7,6 +7,8 @@ import java.util.concurrent.*;
 import java.lang.reflect.*;
 
 import peregrine.*;
+import peregrine.config.Config;
+import peregrine.config.Partition;
 import peregrine.io.*;
 import peregrine.keys.*;
 import peregrine.map.*;

@@ -12,6 +12,7 @@ import peregrine.keys.*;
 import peregrine.values.*;
 import peregrine.util.*;
 import peregrine.reduce.*;
+import peregrine.config.Partition;
 import peregrine.io.*;
 import peregrine.io.async.*;
 import peregrine.io.partition.*;

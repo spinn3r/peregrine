@@ -9,6 +9,8 @@ import java.util.concurrent.*;
 import org.jboss.netty.buffer.*;
 
 import peregrine.*;
+import peregrine.config.Config;
+import peregrine.config.Partition;
 import peregrine.io.*;
 import peregrine.io.partition.*;
 import peregrine.keys.*;

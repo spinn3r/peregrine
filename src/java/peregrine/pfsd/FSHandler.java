@@ -18,6 +18,7 @@ import org.jboss.netty.handler.stream.*;
 import org.jboss.netty.util.*;
 
 import peregrine.*;
+import peregrine.config.Config;
 import peregrine.io.async.*;
 import peregrine.pfs.*;
 import peregrine.util.*;

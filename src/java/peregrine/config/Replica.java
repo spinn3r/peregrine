@@ -1,8 +1,9 @@
 
-package peregrine;
+package peregrine.config;
 
 import java.io.*;
 import java.util.*;
+
 
 public class Replica implements Comparable<Replica> {
     

@@ -10,6 +10,7 @@ import java.util.concurrent.atomic.*;
 import org.jboss.netty.buffer.*;
 
 import peregrine.*;
+import peregrine.config.Config;
 import peregrine.io.*;
 import peregrine.io.partition.*;
 import peregrine.keys.*;

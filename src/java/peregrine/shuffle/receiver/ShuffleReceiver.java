@@ -8,6 +8,7 @@ import java.util.concurrent.atomic.*;
 
 import peregrine.*;
 import peregrine.util.*;
+import peregrine.config.Config;
 import peregrine.io.async.*;
 import peregrine.shuffle.*;
 

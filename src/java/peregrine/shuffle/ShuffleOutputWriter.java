@@ -7,6 +7,9 @@ import java.util.concurrent.atomic.*;
 
 import peregrine.*;
 import peregrine.util.*;
+import peregrine.config.Config;
+import peregrine.config.Partition;
+import peregrine.config.Replica;
 import peregrine.io.async.*;
 
 import org.jboss.netty.buffer.*;

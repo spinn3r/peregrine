@@ -5,6 +5,9 @@ import java.util.*;
 
 import peregrine.*;
 import peregrine.util.*;
+import peregrine.config.Config;
+import peregrine.config.Membership;
+import peregrine.config.Partition;
 import peregrine.io.partition.*;
 
 import com.spinn3r.log5j.Logger;

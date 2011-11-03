@@ -9,6 +9,8 @@ import java.nio.*;
 import java.nio.channels.*;
 
 import peregrine.*;
+import peregrine.config.Config;
+import peregrine.config.Partition;
 import peregrine.io.*;
 import peregrine.io.chunk.*;
 import peregrine.io.partition.*;

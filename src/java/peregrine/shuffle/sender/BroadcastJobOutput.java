@@ -10,6 +10,9 @@ import peregrine.keys.*;
 import peregrine.values.*;
 import peregrine.util.*;
 import peregrine.map.*;
+import peregrine.config.Config;
+import peregrine.config.Membership;
+import peregrine.config.Partition;
 import peregrine.io.*;
 import peregrine.reduce.*;
 

@@ -11,6 +11,7 @@ import org.jboss.netty.handler.codec.http.HttpResponseEncoder;
 import org.jboss.netty.handler.stream.ChunkedWriteHandler;
 
 import peregrine.*;
+import peregrine.config.Config;
 import peregrine.util.*;
 
 /**

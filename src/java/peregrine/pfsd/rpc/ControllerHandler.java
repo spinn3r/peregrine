@@ -8,6 +8,8 @@ import java.util.*;
 import java.util.concurrent.*;
 
 import peregrine.*;
+import peregrine.config.Host;
+import peregrine.config.Partition;
 import peregrine.io.async.*;
 import peregrine.io.partition.*;
 import peregrine.util.*;

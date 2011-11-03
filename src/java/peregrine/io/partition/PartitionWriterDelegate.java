@@ -7,6 +7,9 @@ import peregrine.*;
 import peregrine.util.*;
 import peregrine.keys.*;
 import peregrine.values.*;
+import peregrine.config.Config;
+import peregrine.config.Host;
+import peregrine.config.Partition;
 import peregrine.io.chunk.*;
 
 /**

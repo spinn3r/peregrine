@@ -14,6 +14,7 @@ import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
 import peregrine.*;
 import peregrine.util.*;
 import peregrine.task.*;
+import peregrine.config.Config;
 import peregrine.shuffle.receiver.*;
 
 import com.spinn3r.log5j.Logger;
