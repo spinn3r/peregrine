@@ -5,6 +5,7 @@ import java.nio.*;
 import java.util.*;
 import java.nio.channels.*;
 
+import peregrine.os.MemLock;
 import peregrine.util.*;
 import peregrine.values.*;
 import peregrine.config.Partition;
@@ -51,10 +52,9 @@ public class ShuffleInputReader {
      */
     protected Partition current = null;
     
+    protected MemLock memLock = null;
+    	
     public ShuffleInputReader( String path, List<Partition> partitions ) throws IOException {
-
-        
-        
         
         // pull out the header information 
 
@@ -121,6 +121,8 @@ public class ShuffleInputReader {
         }
 
         partitionIterator = partitions.iterator();
+        
+        memLock = new MemLock( in.getFD(), 0, file.length() );
         
         // mmap the WHOLE file. We won't actually use these pages if we dont'
         // read them so this make it less difficult to figure out what to map.
@@ -192,6 +194,7 @@ public class ShuffleInputReader {
 
     public void close() throws IOException {
         in.close();
+        memLock.release();
     }
 
     public static void main( String[] args ) throws IOException {

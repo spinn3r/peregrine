@@ -13,6 +13,9 @@ public class MemLock {
     private FileDescriptor descriptor;
     
     /**
+     * Call mmap a file descriptor, then lock the pages with MAP_LOCKED.  This 
+     * will then prevent the pages from being swapped out due to VFS cache 
+     * pressure.  
      * 
      * @param descriptor The file we should mmap and MAP_LOCKED
      * @param offset
