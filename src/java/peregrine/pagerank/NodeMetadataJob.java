@@ -30,8 +30,8 @@ public class NodeMetadataJob {
         }
 
         @Override
-        public void map( byte[] key,
-                         byte[]... values ) {
+        public void merge( byte[] key,
+                           byte[]... values ) {
 
             // left should be node_indegree , right should be the graph... 
 

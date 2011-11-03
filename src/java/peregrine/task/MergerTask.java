@@ -65,7 +65,7 @@ public class MergerTask extends BaseMapperTask {
             if ( joined == null )
                 break;
             
-            this.merger.map( joined.key, joined.values );
+            this.merger.merge( joined.key, joined.values );
             
         }
 

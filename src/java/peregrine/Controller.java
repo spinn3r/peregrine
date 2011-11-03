@@ -14,6 +14,15 @@ import peregrine.task.*;
 
 import com.spinn3r.log5j.*;
 
+/**
+ * 
+ * Main interface for running a mapred job.  The controller communicated with PFS 
+ * nodes which will then in turn run jobs with your specified Mapper, Merger 
+ * and/or Reducer.
+ * 
+ * @author burton@spinn3r.com
+ * 
+ */
 public class Controller {
 
     private static final Logger log = Logger.getLogger();

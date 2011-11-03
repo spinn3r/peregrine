@@ -40,8 +40,8 @@ public class IterJob {
         }
 
         @Override
-        public void map( byte[] key,
-                         byte[]... values ) {
+        public void merge( byte[] key,
+        		           byte[]... values ) {
 
             byte[] graph_by_source  = values[0];
             byte[] dangling         = values[2];
