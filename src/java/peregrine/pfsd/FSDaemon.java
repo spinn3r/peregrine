@@ -1,8 +1,6 @@
 package peregrine.pfsd;
 
 import java.io.*;
-import java.util.*;
-
 import java.net.InetSocketAddress;
 import java.util.concurrent.*;
 
@@ -11,7 +9,6 @@ import org.jboss.netty.bootstrap.*;
 import org.jboss.netty.channel.*;
 import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
 
-import peregrine.*;
 import peregrine.util.*;
 import peregrine.task.*;
 import peregrine.config.Config;

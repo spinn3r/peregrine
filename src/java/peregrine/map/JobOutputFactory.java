@@ -1,15 +1,6 @@
 package peregrine.map;
 
 import java.io.*;
-import java.util.*;
-import java.util.concurrent.*;
-import java.lang.reflect.*;
-
-import peregrine.*;
-import peregrine.keys.*;
-import peregrine.values.*;
-import peregrine.util.*;
-import peregrine.map.*;
 import peregrine.config.Config;
 import peregrine.config.Partition;
 import peregrine.io.*;

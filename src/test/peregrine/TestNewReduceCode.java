@@ -1,18 +1,10 @@
 package peregrine;
 
-import java.io.*;
 import java.util.*;
-import java.util.concurrent.*;
-
-import peregrine.*;
 import peregrine.io.*;
 import peregrine.keys.*;
-import peregrine.values.*;
 import peregrine.util.*;
-import peregrine.pagerank.*;
 import peregrine.io.partition.*;
-import peregrine.pfsd.*;
-import peregrine.pfsd.shuffler.*;
 import peregrine.task.*;
 
 public class TestNewReduceCode extends peregrine.BaseTestWithTwoDaemons {

@@ -1,9 +1,5 @@
 package peregrine.io;
 
-import peregrine.*;
-import peregrine.util.*;
-import peregrine.keys.*;
-
 public final class BroadcastInputReference implements InputReference {
 
     private String name;

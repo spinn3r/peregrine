@@ -3,14 +3,8 @@ package peregrine.io.partition;
 import java.io.*;
 import java.util.*;
 
-import peregrine.*;
-import peregrine.util.*;
-import peregrine.keys.*;
-import peregrine.values.*;
 import peregrine.config.Config;
 import peregrine.config.Partition;
-import peregrine.io.*;
-import peregrine.io.partition.*;
 import peregrine.io.chunk.*;
 
 /**

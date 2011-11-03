@@ -1,9 +1,5 @@
 package peregrine.shuffle;
 
-import java.io.*;
-import java.nio.*;
-import java.util.*;
-
 public class ShuffleHeader {
 
     public int partition;

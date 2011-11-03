@@ -1,15 +1,9 @@
 package peregrine.shuffle.receiver;
 
 import java.io.*;
-import java.nio.*;
-import java.util.*;
 import java.util.concurrent.*;
-import java.util.concurrent.atomic.*;
-
-import peregrine.*;
 import peregrine.util.*;
 import peregrine.config.Config;
-import peregrine.io.async.*;
 import peregrine.shuffle.*;
 
 import org.jboss.netty.buffer.*;

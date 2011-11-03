@@ -2,15 +2,6 @@ package peregrine.io.async;
 
 import java.io.*;
 import java.util.*;
-import java.util.concurrent.*;
-
-import peregrine.*;
-import peregrine.io.async.*;
-import peregrine.util.*;
-import peregrine.keys.*;
-import peregrine.values.*;
-import peregrine.io.*;
-
 import com.spinn3r.log5j.*;
 
 /**

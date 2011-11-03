@@ -1,11 +1,7 @@
 package peregrine.shuffle;
 
 import java.io.*;
-import java.nio.*;
 import java.util.*;
-import java.util.concurrent.atomic.*;
-
-import peregrine.*;
 import peregrine.util.*;
 import peregrine.config.Config;
 import peregrine.config.Partition;
@@ -15,10 +11,6 @@ import peregrine.io.async.*;
 import org.jboss.netty.buffer.*;
 
 import com.spinn3r.log5j.Logger;
-
-import org.jboss.netty.buffer.*;
-
-import static peregrine.pfsd.FSPipelineFactory.MAX_CHUNK_SIZE;
 
 /**
  * Write shuffle output to disk.

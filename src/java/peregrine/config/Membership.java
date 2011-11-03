@@ -1,9 +1,6 @@
 package peregrine.config;
 
-import java.io.*;
 import java.util.*;
-
-import peregrine.util.*;
 
 public class Membership {
     

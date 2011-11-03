@@ -2,17 +2,10 @@ package peregrine.io;
 
 import java.io.*;
 import java.util.*;
-import java.util.concurrent.*;
-import java.util.concurrent.atomic.*;
-
-import java.security.*;
-
-import peregrine.*;
 import peregrine.keys.*;
 import peregrine.values.*;
 import peregrine.util.*;
 import peregrine.reduce.*;
-import peregrine.io.*;
 import peregrine.io.chunk.*;
 
 public class TestChunkMerger extends peregrine.BaseTest {

@@ -1,16 +1,8 @@
 
 package peregrine.pfsd;
 
-import static org.jboss.netty.channel.Channels.*;
-
 import org.jboss.netty.buffer.*;
 import org.jboss.netty.channel.*;
-import org.jboss.netty.handler.codec.http.HttpChunkAggregator;
-import org.jboss.netty.handler.codec.http.HttpRequestDecoder;
-import org.jboss.netty.handler.codec.http.HttpResponseEncoder;
-import org.jboss.netty.handler.stream.ChunkedWriteHandler;
-
-import peregrine.*;
 import peregrine.util.*;
 
 import com.spinn3r.log5j.*;

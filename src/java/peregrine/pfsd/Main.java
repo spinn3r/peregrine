@@ -1,16 +1,5 @@
 package peregrine.pfsd;
 
-import java.io.*;
-import java.util.*;
-
-import java.net.InetSocketAddress;
-import java.util.concurrent.Executors;
-
-import org.jboss.netty.logging.*;
-import org.jboss.netty.bootstrap.*;
-import org.jboss.netty.channel.socket.nio.*;
-
-import peregrine.*;
 import peregrine.config.*;
 
 import org.apache.log4j.xml.DOMConfigurator;

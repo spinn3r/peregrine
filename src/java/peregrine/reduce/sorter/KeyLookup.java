@@ -2,25 +2,10 @@
 package peregrine.reduce.sorter;
 
 import java.io.*;
-import java.nio.*;
-import java.nio.channels.*;
-import java.util.*;
-import java.util.concurrent.*;
-
-import peregrine.*;
-import peregrine.keys.*;
-import peregrine.values.*;
 import peregrine.util.*;
-import peregrine.map.*;
-import peregrine.io.*;
-import peregrine.io.chunk.*;
-import peregrine.io.partition.*;
-import peregrine.reduce.merger.*;
 import peregrine.shuffle.*;
 
 import org.jboss.netty.buffer.*;
-
-import com.spinn3r.log5j.Logger;
 
 /**
  * Maintains a key lookup system from the ChunkReader and backing ChannelBuffer

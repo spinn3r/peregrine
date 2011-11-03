@@ -1,13 +1,7 @@
 package peregrine;
 
-import java.io.*;
 import java.util.*;
-import java.util.concurrent.*;
-
-import peregrine.keys.*;
 import peregrine.values.*;
-import peregrine.util.*;
-import peregrine.reduce.*;
 import peregrine.io.*;
 
 public class Reducer {

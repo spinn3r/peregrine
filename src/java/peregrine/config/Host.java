@@ -1,11 +1,7 @@
 
 package peregrine.config;
 
-import java.io.*;
-import java.util.*;
-
 import peregrine.util.*;
-import peregrine.pfsd.*;
 
 public class Host implements Comparable<Host> {
 

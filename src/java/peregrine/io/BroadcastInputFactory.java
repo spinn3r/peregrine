@@ -3,12 +3,8 @@ package peregrine.io;
 import java.io.*;
 import java.util.*;
 
-import peregrine.*;
-import peregrine.util.*;
 import peregrine.config.Config;
 import peregrine.config.Partition;
-import peregrine.keys.*;
-import peregrine.values.*;
 
 /**
  * Write to a logical partition which is a stream of chunk files.... 

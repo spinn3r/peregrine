@@ -1,17 +1,7 @@
 package peregrine.shuffle.receiver;
 
-import java.io.*;
-import java.nio.*;
-import java.util.*;
 import java.util.concurrent.*;
-import java.util.concurrent.atomic.*;
-
-import peregrine.*;
-import peregrine.util.*;
-import peregrine.io.async.*;
 import peregrine.shuffle.*;
-
-import com.spinn3r.log5j.Logger;
 
 public class ShuffleReceiverFlushCallable implements Callable {
 

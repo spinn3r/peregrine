@@ -4,12 +4,6 @@ import java.io.*;
 import java.util.*;
 import java.net.*;
 
-import peregrine.*;
-import peregrine.util.*;
-import peregrine.keys.*;
-import peregrine.values.*;
-import peregrine.io.*;
-import peregrine.io.chunk.*;
 import peregrine.pfs.*;
 
 import com.spinn3r.log5j.*;

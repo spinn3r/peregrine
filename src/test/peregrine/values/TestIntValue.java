@@ -1,19 +1,5 @@
 package peregrine.values;
 
-import java.io.*;
-import java.util.*;
-import java.util.concurrent.*;
-import java.util.concurrent.atomic.*;
-
-import java.security.*;
-
-import peregrine.*;
-import peregrine.keys.*;
-import peregrine.values.*;
-import peregrine.util.*;
-import peregrine.reduce.*;
-import peregrine.io.*;
-
 public class TestIntValue extends junit.framework.TestCase {
 
     public void test1() {

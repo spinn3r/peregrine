@@ -1,15 +1,6 @@
 package peregrine.pfs;
 
-import java.io.*;
 import java.net.*;
-import java.util.*;
-import java.util.concurrent.*;
-
-import peregrine.io.*;
-import peregrine.keys.*;
-import peregrine.values.*;
-import peregrine.util.*;
-import peregrine.pagerank.*;
 
 public class TestEmptyWrites extends peregrine.BaseTestWithTwoPartitions {
 

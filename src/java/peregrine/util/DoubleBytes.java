@@ -1,8 +1,6 @@
 
 package peregrine.util;
 
-import java.util.*;
-
 public class DoubleBytes {
 
     public static final int LENGTH = 8;

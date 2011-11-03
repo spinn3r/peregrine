@@ -1,14 +1,8 @@
 package peregrine.io.chunk;
 
 import java.io.*;
-import java.util.*;
-import java.util.concurrent.atomic.*;
-
 import peregrine.*;
 import peregrine.util.*;
-import peregrine.keys.*;
-import peregrine.values.*;
-
 import org.jboss.netty.buffer.*;
 
 public class DefaultChunkReader implements ChunkReader {

@@ -1,9 +1,5 @@
 package peregrine.io;
 
-import peregrine.*;
-import peregrine.util.*;
-import peregrine.keys.*;
-
 public final class ShuffleInputReference implements InputReference {
 
     private String name;

@@ -2,8 +2,6 @@
 package peregrine.io.async;
 
 import java.io.*;
-import java.util.*;
-import java.util.concurrent.*;
 
 /**
  * Basic functionality of an output stream.

@@ -1,9 +1,6 @@
 package peregrine.pfs;
 
 import java.io.*;
-import java.net.*;
-import java.util.*;
-
 import org.jboss.netty.buffer.*;
 
 /**

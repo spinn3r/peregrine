@@ -1,8 +1,5 @@
 package peregrine.values;
 
-import java.io.*;
-import java.util.*;
-
 import peregrine.*;
 import peregrine.util.Hex;
 

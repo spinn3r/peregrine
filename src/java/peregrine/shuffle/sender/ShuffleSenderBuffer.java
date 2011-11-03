@@ -1,30 +1,10 @@
 package peregrine.shuffle.sender;
 
-import java.io.*;
-import java.lang.reflect.*;
 import java.util.*;
-import java.net.*;
-import java.util.concurrent.*;
-import java.util.concurrent.atomic.*;
-    
-import org.jboss.netty.buffer.*;
-
-import peregrine.*;
 import peregrine.config.Config;
-import peregrine.io.*;
-import peregrine.io.partition.*;
-import peregrine.keys.*;
-import peregrine.map.*;
-import peregrine.reduce.*;
 import peregrine.util.*;
-import peregrine.values.*;
 import peregrine.io.chunk.*;
-import peregrine.io.async.*;
-import peregrine.pfs.*;
-
 import com.spinn3r.log5j.Logger;
-
-import static peregrine.pfsd.FSPipelineFactory.*;
 
 /**
  * 

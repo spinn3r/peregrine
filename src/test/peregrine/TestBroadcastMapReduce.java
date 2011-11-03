@@ -2,8 +2,6 @@ package peregrine;
 
 import java.io.*;
 import java.util.*;
-import java.util.concurrent.*;
-
 import peregrine.config.Config;
 import peregrine.config.Host;
 import peregrine.config.Membership;
@@ -12,7 +10,6 @@ import peregrine.io.*;
 import peregrine.keys.*;
 import peregrine.values.*;
 import peregrine.util.*;
-import peregrine.pagerank.*;
 import peregrine.io.partition.*;
 
 public class TestBroadcastMapReduce extends peregrine.BaseTestWithTwoDaemons {

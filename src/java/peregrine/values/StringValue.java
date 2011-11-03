@@ -1,11 +1,6 @@
 package peregrine.values;
 
-import java.io.*;
-import java.util.*;
-
 import java.nio.charset.Charset;
-
-import peregrine.*;
 
 public class StringValue extends BaseValue {
 

@@ -1,15 +1,8 @@
 package peregrine.shuffle.receiver;
 
 import java.io.*;
-import java.nio.*;
 import java.util.*;
-import java.util.concurrent.atomic.*;
-
-import peregrine.*;
-import peregrine.util.*;
 import peregrine.config.Config;
-import peregrine.io.async.*;
-
 import com.spinn3r.log5j.Logger;
 
 /**

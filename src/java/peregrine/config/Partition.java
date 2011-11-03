@@ -1,9 +1,6 @@
 
 package peregrine.config;
 
-import java.io.*;
-import java.util.*;
-
 public class Partition {
 
     protected int id = 0;

@@ -2,21 +2,10 @@
 package peregrine.map;
 
 import java.io.*;
-import java.util.*;
-import java.util.concurrent.*;
-import java.lang.reflect.*;
-
-import peregrine.*;
 import peregrine.config.Config;
 import peregrine.config.Partition;
 import peregrine.io.*;
-import peregrine.keys.*;
-import peregrine.map.*;
 import peregrine.rpc.*;
-import peregrine.pfs.*;
-import peregrine.reduce.*;
-import peregrine.util.*;
-import peregrine.values.*;
 import peregrine.task.*;
 
 import com.spinn3r.log5j.*;

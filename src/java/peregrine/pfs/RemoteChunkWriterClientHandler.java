@@ -2,11 +2,8 @@ package peregrine.pfs;
 
 import java.io.*;
 
-import org.jboss.netty.buffer.*;
 import org.jboss.netty.channel.*;
 import org.jboss.netty.handler.codec.http.*;
-import org.jboss.netty.util.*;
-
 import static org.jboss.netty.handler.codec.http.HttpResponseStatus.*;
 
 import com.spinn3r.log5j.Logger;

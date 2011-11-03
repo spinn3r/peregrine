@@ -2,15 +2,7 @@ package peregrine.io;
 
 import java.io.*;
 import java.util.*;
-import java.util.concurrent.*;
-import java.util.concurrent.atomic.*;
-
-import peregrine.*;
-import peregrine.io.*;
-import peregrine.util.*;
 import peregrine.reduce.*;
-import peregrine.keys.*;
-import peregrine.io.chunk.*;
 import peregrine.io.partition.*;
 
 import com.spinn3r.log5j.*;

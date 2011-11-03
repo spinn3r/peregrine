@@ -1,25 +1,7 @@
 package peregrine;
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
-import java.util.concurrent.*;
-import java.util.concurrent.atomic.*;
-
-import java.security.*;
-
-import peregrine.*;
-import peregrine.keys.*;
-import peregrine.values.*;
-import peregrine.util.*;
-import peregrine.reduce.*;
 import peregrine.config.Config;
 import peregrine.config.Host;
-import peregrine.io.*;
-import peregrine.io.async.*;
-import peregrine.io.partition.*;
-import peregrine.io.chunk.*;
-import peregrine.pfs.*;
 import peregrine.pfsd.*;
 
 public class PFSTest extends peregrine.BaseTest {

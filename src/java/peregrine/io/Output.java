@@ -2,10 +2,6 @@ package peregrine.io;
 
 import java.util.*;
 
-import peregrine.*;
-import peregrine.util.*;
-import peregrine.keys.*;
-
 public final class Output {
 
     private List<OutputReference> references = new ArrayList();

@@ -1,22 +1,7 @@
 
 package peregrine.util;
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
 import java.util.concurrent.*;
-
-import peregrine.*;
-import peregrine.util.*;
-import peregrine.map.*;
-import peregrine.reduce.*;
-import peregrine.io.*;
-import peregrine.pfs.*;
-import peregrine.pfsd.*;
-
-import org.jboss.netty.handler.codec.http.*;
-
-import com.spinn3r.log5j.*;
 
 /**
  * Uninterruptable version of LinkedBlockingQueue.  Code should not be calling

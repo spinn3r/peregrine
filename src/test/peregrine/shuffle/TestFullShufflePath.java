@@ -1,23 +1,12 @@
 package peregrine.shuffle;
 
 import java.io.*;
-import java.util.*;
-import java.util.concurrent.*;
-import java.util.concurrent.atomic.*;
-
-import java.security.*;
-
 import peregrine.*;
-import peregrine.keys.*;
-import peregrine.values.*;
 import peregrine.util.*;
 import peregrine.reduce.*;
 import peregrine.config.Partition;
 import peregrine.io.*;
-import peregrine.io.async.*;
-import peregrine.io.partition.*;
 import peregrine.io.chunk.*;
-import peregrine.pfsd.*;
 import peregrine.shuffle.sender.*;
 import peregrine.reduce.sorter.*;
 

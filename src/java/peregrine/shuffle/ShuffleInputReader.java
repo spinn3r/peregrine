@@ -3,17 +3,11 @@ package peregrine.shuffle;
 import java.io.*;
 import java.nio.*;
 import java.util.*;
-import java.util.concurrent.atomic.*;
-
-import java.nio.*;
 import java.nio.channels.*;
 
-import peregrine.*;
 import peregrine.util.*;
 import peregrine.values.*;
 import peregrine.config.Partition;
-import peregrine.io.async.*;
-
 import org.jboss.netty.buffer.*;
 
 import com.spinn3r.log5j.Logger;

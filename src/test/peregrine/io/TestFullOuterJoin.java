@@ -2,16 +2,9 @@ package peregrine.io;
 
 import java.io.*;
 import java.util.*;
-import java.util.concurrent.*;
-import java.util.concurrent.atomic.*;
-
-import peregrine.*;
 import peregrine.config.Partition;
-import peregrine.io.*;
 import peregrine.io.partition.*;
 import peregrine.keys.*;
-import peregrine.map.*;
-import peregrine.reduce.*;
 import peregrine.util.*;
 
 /**

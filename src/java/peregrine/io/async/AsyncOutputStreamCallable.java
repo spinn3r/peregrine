@@ -2,7 +2,6 @@
 package peregrine.io.async;
 
 import java.io.*;
-import java.util.*;
 import java.util.concurrent.*;
 
 public class AsyncOutputStreamCallable implements Callable {

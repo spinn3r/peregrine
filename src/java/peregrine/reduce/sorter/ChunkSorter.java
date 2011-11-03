@@ -2,25 +2,14 @@
 package peregrine.reduce.sorter;
 
 import java.io.*;
-import java.util.*;
-import java.util.concurrent.*;
-
-import java.nio.*;
 import java.nio.channels.*;
 
-import peregrine.*;
 import peregrine.config.Config;
 import peregrine.config.Partition;
 import peregrine.io.*;
 import peregrine.io.chunk.*;
-import peregrine.io.partition.*;
-import peregrine.keys.*;
-import peregrine.map.*;
-import peregrine.reduce.merger.*;
 import peregrine.shuffle.*;
 import peregrine.util.*;
-import peregrine.values.*;
-
 import org.jboss.netty.buffer.*;
 
 import com.spinn3r.log5j.Logger;

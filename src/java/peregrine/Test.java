@@ -1,25 +1,7 @@
 package peregrine;
 
-import java.io.*;
 import java.util.*;
-import java.net.*;
-import java.nio.*;
-
-import org.jboss.netty.bootstrap.*;
 import org.jboss.netty.buffer.*;
-import org.jboss.netty.channel.*;
-import org.jboss.netty.channel.socket.nio.*;
-import org.jboss.netty.handler.codec.http.*;
-
-import peregrine.util.*;
-import peregrine.io.chunk.*;
-import peregrine.io.*;
-import peregrine.io.partition.*;
-import peregrine.shuffle.*;
-import peregrine.reduce.sorter.*;
-import peregrine.task.*;
-import peregrine.pfs.*;
-import peregrine.config.*;
 
 public class Test {
 

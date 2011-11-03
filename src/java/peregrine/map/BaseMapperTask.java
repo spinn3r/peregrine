@@ -4,21 +4,12 @@ package peregrine.map;
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.*;
-import java.lang.reflect.*;
-
-import peregrine.*;
-import peregrine.keys.*;
-import peregrine.values.*;
-import peregrine.util.*;
-import peregrine.map.*;
 import peregrine.config.Config;
 import peregrine.config.Host;
 import peregrine.config.Membership;
 import peregrine.config.Partition;
 import peregrine.io.*;
-import peregrine.reduce.*;
 import peregrine.io.partition.*;
-import peregrine.io.chunk.*;
 import peregrine.shuffle.sender.*;
 
 public abstract class BaseMapperTask extends BaseOutputTask implements Callable {

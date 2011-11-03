@@ -2,22 +2,10 @@ package peregrine.rpc;
 
 import java.io.*;
 import java.net.*;
-import java.util.*;
-import java.util.concurrent.*;
-
-import org.jboss.netty.bootstrap.*;
-import org.jboss.netty.buffer.*;
-import org.jboss.netty.channel.*;
-import org.jboss.netty.channel.socket.nio.*;
 import org.jboss.netty.handler.codec.http.*;
 
-import peregrine.*;
 import peregrine.config.Host;
-import peregrine.io.async.*;
 import peregrine.pfs.*;
-import peregrine.pfsd.*;
-import peregrine.util.*;
-
 import com.spinn3r.log5j.*;
 
 /**

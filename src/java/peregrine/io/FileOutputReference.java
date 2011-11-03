@@ -1,9 +1,5 @@
 package peregrine.io;
 
-import peregrine.*;
-import peregrine.util.*;
-import peregrine.keys.*;
-
 public final class FileOutputReference implements OutputReference {
     
     private boolean append = false;

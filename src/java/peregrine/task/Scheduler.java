@@ -1,26 +1,15 @@
 
 package peregrine.task;
 
-import java.io.*;
-import java.net.*;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.*;
 
-import peregrine.*;
 import peregrine.util.*;
-import peregrine.map.*;
-import peregrine.reduce.*;
 import peregrine.config.Config;
 import peregrine.config.Host;
 import peregrine.config.Membership;
 import peregrine.config.Partition;
-import peregrine.io.*;
-import peregrine.pfs.*;
-import peregrine.pfsd.*;
-
-import org.jboss.netty.handler.codec.http.*;
-
 import com.spinn3r.log5j.*;
 
 public abstract class Scheduler {

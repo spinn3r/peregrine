@@ -1,15 +1,8 @@
 package peregrine.io.chunk;
 
 import java.io.*;
-import java.util.*;
-import java.nio.*;
-
-import peregrine.*;
 import peregrine.io.async.*;
 import peregrine.util.*;
-import peregrine.keys.*;
-import peregrine.values.*;
-
 import org.jboss.netty.buffer.*;
 
 /**

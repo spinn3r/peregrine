@@ -1,7 +1,6 @@
 
 package peregrine.util;
 
-import java.nio.charset.*;
 import java.security.*;
 
 /**

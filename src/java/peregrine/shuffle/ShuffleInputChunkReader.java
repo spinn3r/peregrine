@@ -1,20 +1,12 @@
 package peregrine.shuffle;
 
 import java.io.*;
-import java.nio.*;
 import java.util.*;
 import java.util.concurrent.*;
-import java.util.concurrent.atomic.*;
-
-import peregrine.*;
 import peregrine.util.*;
-import peregrine.values.*;
 import peregrine.config.Config;
 import peregrine.config.Partition;
 import peregrine.config.Replica;
-import peregrine.io.async.*;
-import peregrine.io.chunk.*;
-
 import org.jboss.netty.buffer.*;
 
 import com.spinn3r.log5j.Logger;

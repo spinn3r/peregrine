@@ -1,7 +1,5 @@
 package peregrine.pfsd;
 
-import static org.jboss.netty.handler.codec.http.HttpHeaders.*;
-import static org.jboss.netty.handler.codec.http.HttpHeaders.Names.*;
 import static org.jboss.netty.handler.codec.http.HttpMethod.*;
 import static org.jboss.netty.handler.codec.http.HttpResponseStatus.*;
 import static org.jboss.netty.handler.codec.http.HttpVersion.*;
@@ -13,16 +11,8 @@ import org.jboss.netty.buffer.*;
 import org.jboss.netty.channel.*;
 import org.jboss.netty.handler.codec.frame.*;
 import org.jboss.netty.handler.codec.http.*;
-import org.jboss.netty.handler.ssl.*;
-import org.jboss.netty.handler.stream.*;
-import org.jboss.netty.util.*;
-
-import peregrine.*;
 import peregrine.config.Config;
-import peregrine.io.async.*;
 import peregrine.pfs.*;
-import peregrine.util.*;
-
 import com.spinn3r.log5j.*;
 
 /**

@@ -1,8 +1,6 @@
 package peregrine.util;
 
 import java.io.*;
-import java.util.*;
-
 import org.jboss.netty.buffer.*;
 
 public class VarintReader {

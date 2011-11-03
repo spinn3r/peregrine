@@ -1,13 +1,5 @@
 package peregrine.pfsd.rpc;
 
-import java.net.*;
-import java.util.*;
-import java.util.concurrent.*;
-
-import peregrine.*;
-import peregrine.io.async.*;
-import peregrine.io.partition.*;
-import peregrine.util.*;
 import peregrine.pfsd.*;
 
 import com.spinn3r.log5j.*;

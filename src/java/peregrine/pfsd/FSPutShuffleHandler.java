@@ -1,25 +1,14 @@
 package peregrine.pfsd;
 
-import static org.jboss.netty.handler.codec.http.HttpHeaders.*;
-import static org.jboss.netty.handler.codec.http.HttpHeaders.Names.*;
-import static org.jboss.netty.handler.codec.http.HttpMethod.*;
 import static org.jboss.netty.handler.codec.http.HttpResponseStatus.*;
 import static org.jboss.netty.handler.codec.http.HttpVersion.*;
 
 import java.io.*;
-import java.net.*;
 import java.util.regex.*;
 
 import org.jboss.netty.buffer.*;
 import org.jboss.netty.channel.*;
-import org.jboss.netty.handler.codec.frame.*;
 import org.jboss.netty.handler.codec.http.*;
-import org.jboss.netty.handler.ssl.*;
-import org.jboss.netty.handler.stream.*;
-import org.jboss.netty.util.*;
-
-import peregrine.*;
-import peregrine.io.async.*;
 import peregrine.util.*;
 import peregrine.shuffle.receiver.*;
 

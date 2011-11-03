@@ -7,14 +7,10 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.*;
 
 import peregrine.*;
-import peregrine.keys.*;
-import peregrine.values.*;
-import peregrine.util.*;
 import peregrine.map.*;
 import peregrine.config.Config;
 import peregrine.config.Partition;
 import peregrine.io.*;
-import peregrine.io.chunk.*;
 import peregrine.reduce.*;
 
 import com.spinn3r.log5j.Logger;

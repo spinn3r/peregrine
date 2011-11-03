@@ -1,11 +1,6 @@
 package peregrine.os;
 
-import java.util.*;
-import java.lang.reflect.*;
 import java.io.*;
-
-import java.nio.*;
-import java.nio.channels.*;
 
 import com.spinn3r.log5j.*;
 
@@ -14,12 +9,22 @@ public class MemLock {
     private static final Logger log = Logger.getLogger();
 
     private long pa;
-    private long offset;
     private long length;
+    private FileDescriptor descriptor;
     
+    /**
+     * 
+     * @param descriptor The file we should mmap and MAP_LOCKED
+     * @param offset
+     * @param length
+     * @see #release()
+     * @throws IOException
+     */
     public MemLock( FileDescriptor descriptor, long offset, long length ) throws IOException {
 
-        this.offset = offset;
+    	log.info( "Going to mlock %s", descriptor );
+    	
+    	this.descriptor = descriptor;
         this.length = length;
         
         int fd = Native.getFd( descriptor );
@@ -38,6 +43,8 @@ public class MemLock {
      */
     public void release() throws IOException {
 
+    	log.info( "Releasing lock %s", descriptor );
+    		
         if ( mman.munmap( pa, length ) != 0 ) {
             throw new IOException( errno.strerror() );
         }

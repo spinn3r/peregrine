@@ -3,9 +3,6 @@ package peregrine.config;
 
 import java.util.*;
 
-import peregrine.*;
-import java.nio.charset.Charset;
-
 import com.spinn3r.log5j.Logger;
 
 /**
