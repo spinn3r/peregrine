@@ -1,12 +1,8 @@
 package peregrine.config;
 
-import java.io.*;
 import java.util.*;
 
 import peregrine.util.*;
-import peregrine.pfsd.*;
-import peregrine.config.*;
-
 import com.spinn3r.log5j.Logger;
 
 /**
@@ -61,7 +57,7 @@ public class Config {
     /**
      * Unique index of hosts. 
      */
-    protected Set<Host> hosts = new HashSet();
+    protected Set<Host> hosts = new HashSet<Host>();
 
     /**
      * The number of replicas per file we are configured for.  Usually 2 or 3.

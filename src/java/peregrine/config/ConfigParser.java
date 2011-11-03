@@ -3,10 +3,7 @@ package peregrine.config;
 import java.io.*;
 import java.util.*;
 
-import peregrine.*;
 import peregrine.util.*;
-import peregrine.pfsd.*;
-
 import com.spinn3r.log5j.Logger;
 
 public class ConfigParser {

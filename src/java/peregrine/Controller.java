@@ -2,26 +2,16 @@
 package peregrine;
 
 import java.io.*;
-import java.net.*;
-import java.util.*;
 import java.util.concurrent.*;
 
-import peregrine.keys.*;
-import peregrine.values.*;
-import peregrine.util.*;
-import peregrine.map.*;
-import peregrine.reduce.*;
 import peregrine.config.Config;
 import peregrine.config.Host;
 import peregrine.config.Membership;
 import peregrine.config.Partition;
 import peregrine.io.*;
 import peregrine.rpc.*;
-import peregrine.pfs.*;
 import peregrine.pfsd.*;
 import peregrine.task.*;
-
-import org.jboss.netty.handler.codec.http.*;
 
 import com.spinn3r.log5j.*;
 
