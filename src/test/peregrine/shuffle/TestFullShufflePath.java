@@ -3,6 +3,7 @@ package peregrine.shuffle;
 import java.io.*;
 import peregrine.*;
 import peregrine.util.*;
+import peregrine.util.primitive.LongBytes;
 import peregrine.reduce.*;
 import peregrine.config.Partition;
 import peregrine.io.*;
@@ -96,9 +97,9 @@ public class TestFullShufflePath extends peregrine.BaseTestWithMultipleDaemons {
 
     public static void assertResults( ChunkReader reader, int max ) throws Exception {
 
-        Tuple last = null;
+        byte[] last = null;
 
-        FullTupleComparator comparator = new FullTupleComparator();
+        FullKeyComparator comparator = new FullKeyComparator();
 
         int count = 0;
         while( reader.hasNext() ) {
@@ -108,9 +109,7 @@ public class TestFullShufflePath extends peregrine.BaseTestWithMultipleDaemons {
 
             System.out.printf( "%s\n", Hex.encode( key ) );
             
-            Tuple t = new Tuple( key, value );
-
-            if ( last != null && comparator.compare( last, t ) > 0 )
+            if ( last != null && comparator.compare( last, value ) > 0 )
                 throw new RuntimeException( "value is NOT less than last value" );
 
             LongBytes.toByteArray( count );
@@ -124,7 +123,7 @@ public class TestFullShufflePath extends peregrine.BaseTestWithMultipleDaemons {
             }
             */
             
-            last = t;
+            last = value;
             ++count;
             
         }

@@ -5,6 +5,7 @@ import java.util.*;
 import peregrine.keys.*;
 import peregrine.values.*;
 import peregrine.util.*;
+import peregrine.util.primitive.LongBytes;
 import peregrine.reduce.*;
 import peregrine.io.chunk.*;
 

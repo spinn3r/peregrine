@@ -2,6 +2,7 @@ package peregrine.values;
 
 import java.io.*;
 import peregrine.util.*;
+import peregrine.util.primitive.*;
 
 /**
  * 

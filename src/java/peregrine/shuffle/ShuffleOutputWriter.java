@@ -3,6 +3,7 @@ package peregrine.shuffle;
 import java.io.*;
 import java.util.*;
 import peregrine.util.*;
+import peregrine.util.primitive.IntBytes;
 import peregrine.config.Config;
 import peregrine.config.Partition;
 import peregrine.config.Replica;

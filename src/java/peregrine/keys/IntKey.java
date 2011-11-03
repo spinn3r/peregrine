@@ -1,6 +1,6 @@
 package peregrine.keys;
 
-import peregrine.util.*;
+import peregrine.util.primitive.LongBytes;
 
 public class IntKey extends BaseKey {
 

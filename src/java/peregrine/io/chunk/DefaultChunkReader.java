@@ -3,6 +3,8 @@ package peregrine.io.chunk;
 import java.io.*;
 import peregrine.*;
 import peregrine.util.*;
+import peregrine.util.primitive.IntBytes;
+
 import org.jboss.netty.buffer.*;
 
 public class DefaultChunkReader implements ChunkReader {

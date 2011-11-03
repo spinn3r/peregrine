@@ -4,7 +4,7 @@ import java.util.*;
 import peregrine.io.*;
 import peregrine.keys.*;
 import peregrine.values.*;
-import peregrine.util.*;
+import peregrine.util.primitive.LongBytes;
 
 public class GraphBuilder {
 

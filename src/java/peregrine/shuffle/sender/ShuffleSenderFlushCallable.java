@@ -11,6 +11,7 @@ import peregrine.config.Host;
 import peregrine.config.Membership;
 import peregrine.config.Partition;
 import peregrine.util.*;
+import peregrine.util.primitive.IntBytes;
 import peregrine.pfs.*;
 
 import com.spinn3r.log5j.Logger;

@@ -2,6 +2,8 @@ package peregrine.util;
 
 import org.jboss.netty.buffer.*;
 
+import peregrine.util.primitive.IntBytes;
+
 public class Hex {
 
     public static String encode( byte[] input ) {

@@ -1,6 +1,7 @@
 package peregrine.values;
 
 import peregrine.util.*;
+import peregrine.util.primitive.IntBytes;
 
 public class IntValue extends BaseValue {
 

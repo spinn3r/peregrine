@@ -10,6 +10,7 @@ import peregrine.io.*;
 import peregrine.keys.*;
 import peregrine.values.*;
 import peregrine.util.*;
+import peregrine.util.primitive.IntBytes;
 import peregrine.io.partition.*;
 
 public class TestBroadcastMapReduce extends peregrine.BaseTestWithTwoDaemons {

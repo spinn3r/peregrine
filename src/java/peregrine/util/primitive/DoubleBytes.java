@@ -1,5 +1,6 @@
 
-package peregrine.util;
+package peregrine.util.primitive;
+
 
 public class DoubleBytes {
 

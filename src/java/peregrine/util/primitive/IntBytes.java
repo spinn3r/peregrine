@@ -1,5 +1,5 @@
 
-package peregrine.util;
+package peregrine.util.primitive;
 
 public class IntBytes {
 

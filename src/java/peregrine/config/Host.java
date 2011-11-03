@@ -2,6 +2,7 @@
 package peregrine.config;
 
 import peregrine.util.*;
+import peregrine.util.primitive.LongBytes;
 
 public class Host implements Comparable<Host> {
 

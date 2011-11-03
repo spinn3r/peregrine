@@ -4,6 +4,7 @@ import java.util.*;
 import peregrine.*;
 import peregrine.values.*;
 import peregrine.util.*;
+import peregrine.util.primitive.IntBytes;
 import peregrine.io.*;
 
 public class NodeMetadataJob {
