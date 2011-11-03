@@ -6,7 +6,7 @@ import peregrine.util.*;
 import com.spinn3r.log5j.Logger;
 
 /**
- *
+ * Config options.  See peregrine.conf for documentation of these variables.
  * 
  */
 public class Config {
