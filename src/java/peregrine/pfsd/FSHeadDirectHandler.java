@@ -12,13 +12,9 @@ import org.jboss.netty.handler.codec.http.*;
 import peregrine.io.partition.*;
 import peregrine.util.*;
 
-import com.spinn3r.log5j.*;
-
 /**
  */
 public class FSHeadDirectHandler extends SimpleChannelUpstreamHandler {
-
-    private static final Logger log = Logger.getLogger();
 
     private static ExecutorService executors =
         Executors.newCachedThreadPool( new DefaultThreadFactory( FSHeadDirectHandler.class) );
@@ -41,8 +37,6 @@ public class FSHeadDirectHandler extends SimpleChannelUpstreamHandler {
 }
 
 class FSHeadDirectCallable extends FSBaseDirectCallable {
-
-    private static final Logger log = Logger.getLogger();
 
     private String path;
     private Channel channel;

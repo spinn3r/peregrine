@@ -5,15 +5,11 @@ import java.util.*;
 import peregrine.reduce.*;
 import peregrine.io.partition.*;
 
-import com.spinn3r.log5j.*;
-
 /**
  *
  * 
  */
 public class LocalMerger {
-
-    private static final Logger log = Logger.getLogger();
 
     private FilePriorityQueue queue;
 

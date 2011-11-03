@@ -8,13 +8,10 @@ import org.jboss.netty.buffer.*;
 import org.jboss.netty.channel.*;
 import org.jboss.netty.handler.codec.http.*;
 import peregrine.io.async.*;
-import com.spinn3r.log5j.*;
 
 /**
  */
 public class FSPutDirectHandler extends FSPutBaseHandler {
-
-    private static final Logger log = Logger.getLogger();
 
     public static byte[] EOF = new byte[0];
 

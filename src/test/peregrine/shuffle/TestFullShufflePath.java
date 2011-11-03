@@ -113,8 +113,7 @@ public class TestFullShufflePath extends peregrine.BaseTestWithMultipleDaemons {
             if ( last != null && comparator.compare( last, t ) > 0 )
                 throw new RuntimeException( "value is NOT less than last value" );
 
-            // now make sure it's the RIGHT value.
-            byte[] correct = LongBytes.toByteArray( count );
+            LongBytes.toByteArray( count );
 
             /*
             if ( last != null && comparator.compare( last, new Tuple( correct, correct ) ) == 0 ) {

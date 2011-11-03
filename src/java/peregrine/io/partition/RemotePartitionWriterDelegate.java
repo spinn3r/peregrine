@@ -32,7 +32,7 @@ public class RemotePartitionWriterDelegate extends BasePartitionWriterDelegate {
         try {
             Map map = request( "DELETE" );
             
-            int deleted = readHeader( map, "X-deleted" );
+            readHeader( map, "X-deleted" );
             
             log.info( "Deleted %,d chunks on host: %s", host );
 

@@ -8,14 +8,10 @@ import peregrine.config.Partition;
 import peregrine.io.*;
 import org.jboss.netty.buffer.*;
 
-import com.spinn3r.log5j.Logger;
-
 /**
  * 
  */
 public class BaseChunkSorter {
-
-    private static final Logger log = Logger.getLogger();
 
     //keeps track of the current input we're sorting.
     protected int id = 0;

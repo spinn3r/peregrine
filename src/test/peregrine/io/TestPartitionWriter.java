@@ -4,7 +4,6 @@ import java.io.*;
 import java.util.*;
 import peregrine.*;
 import peregrine.values.*;
-import peregrine.config.Host;
 import peregrine.config.Partition;
 import peregrine.io.partition.*;
 import peregrine.io.chunk.*;
@@ -22,7 +21,7 @@ public class TestPartitionWriter extends BaseTestWithTwoPartitions {
         writer.close();
 
         Partition part = new Partition( 0 );
-        Host host = config.getHost();
+        config.getHost();
 
         List<ChunkReader> readers = LocalPartition.getChunkReaders( config, part, path );
 
@@ -39,7 +38,7 @@ public class TestPartitionWriter extends BaseTestWithTwoPartitions {
         remove( config.getRoot() );
 
         Partition part = new Partition( 0 );
-        Host host = config.getHost();
+        config.getHost();
 
         String path = "/tmp/test";
 
@@ -102,7 +101,7 @@ public class TestPartitionWriter extends BaseTestWithTwoPartitions {
         remove( config.getRoot() );
 
         Partition part = new Partition( 0 );
-        Host host = config.getHost();
+        config.getHost();
 
         String path = "/tmp/test";
 
@@ -167,7 +166,7 @@ public class TestPartitionWriter extends BaseTestWithTwoPartitions {
 
             try {
             
-                byte[] key = reader.key();
+                reader.key();
                 byte[] value = reader.value();
                 
                 int intval = new StructReader( value )

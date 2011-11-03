@@ -12,13 +12,9 @@ import org.jboss.netty.handler.codec.http.*;
 import peregrine.io.partition.*;
 import peregrine.util.*;
 
-import com.spinn3r.log5j.*;
-
 /**
  */
 public class FSDeleteDirectHandler extends SimpleChannelUpstreamHandler {
-
-    private static final Logger log = Logger.getLogger();
 
     private static ExecutorService executors =
         Executors.newCachedThreadPool( new DefaultThreadFactory( FSDeleteDirectHandler.class) );
@@ -41,8 +37,6 @@ public class FSDeleteDirectHandler extends SimpleChannelUpstreamHandler {
 }
 
 class FSDeleteDirectCallable extends FSBaseDirectCallable {
-
-    private static final Logger log = Logger.getLogger();
 
     private String path;
     private Channel channel;

@@ -44,7 +44,7 @@ public class LocalReducer {
 
         Collections.sort( input );
         
-        ChunkSorter sorter = new ChunkSorter( config , partition, shuffleInput );
+        new ChunkSorter( config , partition, shuffleInput );
 
         List<ChunkReader> sorted = sort( input );
         

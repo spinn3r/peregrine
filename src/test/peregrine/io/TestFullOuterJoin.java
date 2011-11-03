@@ -44,8 +44,6 @@ public class TestFullOuterJoin extends peregrine.BaseTestWithTwoPartitions {
 
         writer.close();
 
-        int nr_files = 2;
-
         List<LocalPartitionReader> readers = new ArrayList();
         
         readers.add( new LocalPartitionReader( config, part, "/tmp/left" ) );

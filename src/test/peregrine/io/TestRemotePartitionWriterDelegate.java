@@ -79,8 +79,8 @@ public class TestRemotePartitionWriterDelegate extends peregrine.PFSTest {
 
             try {
                 
-                byte[] key = reader.key();
-                byte[] value = reader.value();
+                reader.key();
+                reader.value();
                 
                 ++count;
 

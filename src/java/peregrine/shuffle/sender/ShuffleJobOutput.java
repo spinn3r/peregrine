@@ -48,9 +48,7 @@ public class ShuffleJobOutput implements JobOutput, LocalPartitionReaderListener
 
         Partition target = config.route( key, true );
 
-        int from_partition  = chunkRef.partition.getId();
-        int from_chunk      = chunkRef.local;
-
+        chunkRef.partition.getId();
         int to_partition    = target.getId();
 
         emit( to_partition, key, value );

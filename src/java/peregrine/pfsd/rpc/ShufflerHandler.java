@@ -2,15 +2,11 @@ package peregrine.pfsd.rpc;
 
 import peregrine.pfsd.*;
 
-import com.spinn3r.log5j.*;
-
 import peregrine.rpc.*;
 
 /**
  */
 public class ShufflerHandler extends RPCHandler {
-
-    private static final Logger log = Logger.getLogger();
 
     public void handleMessage( FSDaemon daemon, Message message )
         throws Exception {

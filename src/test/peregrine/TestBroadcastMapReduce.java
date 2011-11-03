@@ -131,7 +131,7 @@ public class TestBroadcastMapReduce extends peregrine.BaseTestWithTwoDaemons {
                 if ( reader.hasNext() == false )
                     throw new Exception( "No values" );
 
-                byte[] _key = reader.key();
+                reader.key();
                 byte[] _value = reader.value();
                 
                 int count = new StructReader( _value )

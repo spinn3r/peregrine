@@ -4,11 +4,8 @@ import java.io.*;
 import java.util.*;
 
 import peregrine.util.*;
-import com.spinn3r.log5j.Logger;
 
 public class ConfigParser {
-
-    private static final Logger log = Logger.getLogger();
 
     /**
      * Load the given configuration.

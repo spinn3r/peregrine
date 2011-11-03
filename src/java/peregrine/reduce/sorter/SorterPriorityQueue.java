@@ -76,7 +76,6 @@ class SortMergeComparator implements Comparator<SortQueueEntry> {
         KeyLookup lookup0 = e0.lookup;
         KeyLookup lookup1 = e1.lookup;
         
-        ChannelBuffer buff0 = lookup0.buffer;
         ChannelBuffer buff1 = lookup1.buffer;
         
         int idx0 = lookup0.get();

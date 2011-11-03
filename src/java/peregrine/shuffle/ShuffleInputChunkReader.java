@@ -18,8 +18,6 @@ public class ShuffleInputChunkReader {
 
     public static int QUEUE_CAPACITY = 100;
 
-    private static final Logger log = Logger.getLogger();
-
     private static PrefetchReaderManager prefetchReaderManager
         = new PrefetchReaderManager();
 

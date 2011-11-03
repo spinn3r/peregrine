@@ -6,7 +6,6 @@ import java.util.concurrent.*;
 
 import peregrine.config.Config;
 import peregrine.config.Host;
-import peregrine.config.Membership;
 import peregrine.config.Partition;
 import peregrine.io.*;
 import peregrine.rpc.*;
@@ -71,7 +70,7 @@ public class Controller {
 
         log.info( "STARTING map %s for input %s and output %s ", delegate.getName(), input, output );
 
-        final Membership membership = config.getMembership();
+        config.getMembership();
 
         Scheduler scheduler = new Scheduler( config ) {
 

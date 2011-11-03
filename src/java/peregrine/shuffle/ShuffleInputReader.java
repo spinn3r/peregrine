@@ -10,14 +10,10 @@ import peregrine.values.*;
 import peregrine.config.Partition;
 import org.jboss.netty.buffer.*;
 
-import com.spinn3r.log5j.Logger;
-
 /**
  * 
  */
 public class ShuffleInputReader {
-
-    private static final Logger log = Logger.getLogger();
 
     public static int BUFFER_SIZE = 8192;
 
@@ -76,13 +72,10 @@ public class ShuffleInputReader {
         in = new FileInputStream( file );
         StructReader struct = new StructReader( in );
 
-        // read the magic.
-        byte[] magic = struct.read( new byte[ ShuffleOutputWriter.MAGIC.length ] );
+        struct.read( new byte[ ShuffleOutputWriter.MAGIC.length ] );
 
         int nr_partitions = struct.readInt();
 
-        int point = ShuffleOutputWriter.MAGIC.length + IntBytes.LENGTH;
-        
         for ( int i = 0; i < nr_partitions; ++i ) {
 
             ShuffleHeader current = new ShuffleHeader();
@@ -106,8 +99,6 @@ public class ShuffleInputReader {
             // record this for usage later if necessary.
             headers.add( current );
             headersByPartition.put( new Partition( current.partition ), current );
-            
-            point += ShuffleOutputWriter.LOOKUP_HEADER_SIZE;
 
         }
 

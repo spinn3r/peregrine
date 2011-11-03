@@ -49,9 +49,6 @@ public class ChunkSorter extends BaseChunkSorter {
 
             lookup = new KeyLookup( reader, buffer );
             
-            int key_start = 0;
-            int key_end   = reader.size() - 1;
-
             int depth = 0;
 
             ChunkReader result = null;

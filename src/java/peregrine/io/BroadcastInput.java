@@ -19,7 +19,7 @@ public final class BroadcastInput {
         if ( reader.hasNext() == false )
             throw new IOException( "No broadcast values found at: " + reader );
 
-        byte[] key   = reader.key();
+        reader.key();
         byte[] value = reader.value();
 
         if ( reader.hasNext() )

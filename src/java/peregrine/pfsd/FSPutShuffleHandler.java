@@ -12,13 +12,9 @@ import org.jboss.netty.handler.codec.http.*;
 import peregrine.util.*;
 import peregrine.shuffle.receiver.*;
 
-import com.spinn3r.log5j.*;
-
 /**
  */
 public class FSPutShuffleHandler extends FSPutBaseHandler {
-
-    private static final Logger log = Logger.getLogger();
 
     private static Pattern PATH_REGEX =
         Pattern.compile( "/([0-9]+)/shuffle/([a-zA-Z0-9_-]+)/from-partition/([0-9]+)/from-chunk/([0-9]+)" );

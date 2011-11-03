@@ -4,15 +4,11 @@ import peregrine.pfsd.*;
 
 import peregrine.config.Host;
 import peregrine.config.Partition;
-import com.spinn3r.log5j.*;
-
 import peregrine.rpc.*;
 
 /**
  */
 public class ControllerHandler extends RPCHandler {
-
-    private static final Logger log = Logger.getLogger();
 
     public void handleMessage( FSDaemon daemon, Message message )
         throws Exception {
