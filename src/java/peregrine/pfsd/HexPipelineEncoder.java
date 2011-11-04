@@ -51,7 +51,7 @@ public class HexPipelineEncoder implements ChannelUpstreamHandler, ChannelDownst
 
             if ( e.getMessage() instanceof ChannelBuffer ) {
                 ChannelBuffer buff = (ChannelBuffer) e.getMessage();
-                log.info( "\n%s\n", Hex.pretty( buff.array() ) );
+                log.info( "\n%s\n", Hex.pretty( buff ) );
             }
             
         }
