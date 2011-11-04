@@ -18,10 +18,6 @@ import com.spinn3r.log5j.Logger;
 import peregrine.util.netty.*;
 
 public class FSDaemon {
-
-    public static boolean TCP_NODELAY = true;
-
-    public static long CONNECT_TIMEOUT_MILLIS = 5000;
     
     private static final Logger log = Logger.getLogger();
 
@@ -61,14 +57,12 @@ public class FSDaemon {
         
         // http://docs.jboss.org/netty/3.2/api/org/jboss/netty/channel/ChannelConfig.html
         
-        bootstrap = new ServerBootstrap( new NioServerSocketChannelFactory( Executors.newCachedThreadPool( tf ),
-                                                                            Executors.newCachedThreadPool( tf ) ) );
+        NioServerSocketChannelFactory factory = 
+        		new NioServerSocketChannelFactory( Executors.newCachedThreadPool( tf ),
+                                                   Executors.newCachedThreadPool( tf ) ) ;
+        		
+        bootstrap = BootstrapFactory.newServerBootstrap( factory );
 
-        // set options 
-        bootstrap.setOption( "tcpNoDelay", TCP_NODELAY );
-        bootstrap.setOption( "connectTimeoutMillis", CONNECT_TIMEOUT_MILLIS );
-        bootstrap.setOption( "bufferFactory", new DirectChannelBufferFactory() );
-        
         // Set up the event pipeline factory.
         bootstrap.setPipelineFactory( new FSPipelineFactory( config, this ) );
 

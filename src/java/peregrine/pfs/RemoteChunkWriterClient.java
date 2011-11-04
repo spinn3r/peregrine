@@ -15,6 +15,7 @@ import peregrine.config.Host;
 import peregrine.io.async.*;
 import peregrine.pfsd.*;
 import peregrine.util.*;
+import peregrine.util.netty.*;
 
 /**
  * HTTP client that supports chunked PUT to a remote PFS node.
@@ -173,7 +174,7 @@ public class RemoteChunkWriterClient extends BaseOutputStream implements Channel
         int port = uri.getPort();
         
         // Configure the client.
-        ClientBootstrap bootstrap = new ClientBootstrap( socketChannelFactory );
+        ClientBootstrap bootstrap = BootstrapFactory.newClientBootstrap( socketChannelFactory );
 
         // Set up the event pipeline factory.
         bootstrap.setPipelineFactory( new RemoteChunkWriterClientPipelineFactory( this ) );
