@@ -28,7 +28,7 @@ public class StructWriter {
         //don't accidentally blow up in the future.  Also, this need to be
         //thread local but there was a RARE race conditition that I need to
         //track down.
-        buff = ChannelBuffers.buffer( BUFFER_SIZE );
+        buff = threadLocal.get();
     }
 
     public StructWriter writeVarint( int value ) {

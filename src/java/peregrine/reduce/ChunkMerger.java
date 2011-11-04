@@ -8,25 +8,31 @@ import peregrine.io.chunk.*;
 /**
  * http://en.wikipedia.org/wiki/External_sorting
  * 
+ * <p>
  * One example of external sorting is the external merge sort algorithm, which
  * sorts chunks that each fit in RAM, then merges the sorted chunks
  * together.[1][2] For example, for sorting 900 megabytes of data using only 100
  * megabytes of RAM:
- * 
+ *
+ * <p>
  * Read 100 MB of the data in main memory and sort by some conventional method,
  * like quicksort.
  * 
+ * <p>
  * Write the sorted data to disk.
  * 
+ * <p>
  * Repeat steps 1 and 2 until all of the data is in sorted 100 MB chunks (there are
  * 900MB / 100MB = 9 chunks), which now need to be merged into one single output
  * file.
  * 
+ * <p>
  * Read the first 10 MB (= 100MB / (9 chunks + 1)) of each sorted chunk into input
  * buffers in main memory and allocate the remaining 10 MB for an output
  * buffer. (In practice, it might provide better performance to make the output
  * buffer larger and the input buffers slightly smaller.)
  * 
+ * <p>
  * Perform a 9-way merge and store the result in the output buffer. If the output
  * buffer is full, write it to the final sorted file, and empty it. If any of the 9
  * input buffers gets empty, fill it with the next 10 MB of its associated 100 MB
@@ -36,8 +42,10 @@ import peregrine.io.chunk.*;
  * chunk does not have to be loaded completely; rather, sequential parts of the
  * chunk can be loaded as needed.
  * 
+ * <p>
  * http://en.wikipedia.org/wiki/Merge_algorithm
  * 
+ * <p>
  * Merge algorithms generally run in time proportional to the sum of the lengths of
  * the lists; merge algorithms that operate on large numbers of lists at once will
  * multiply the sum of the lengths of the lists by the time to figure out which of
@@ -47,6 +55,7 @@ import peregrine.io.chunk.*;
  * merging two lists of length m, there is a lower bound of 2m − 1 comparisons
  * required in the worst case.
  * 
+ * <p>
  * The classic merge (the one used in merge sort) outputs the data item with the
  * lowest key at each step; given some sorted lists, it produces a sorted list
  * containing all the elements in any of the input lists, and it does so in time
