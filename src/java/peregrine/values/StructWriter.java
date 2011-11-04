@@ -28,15 +28,29 @@ public class StructWriter {
         //don't accidentally blow up in the future.  Also, this need to be
         //thread local but there was a RARE race conditition that I need to
         //track down.
-        buff = threadLocal.get();
+        this( threadLocal.get() );
     }
 
+    public StructWriter( ChannelBuffer buff ) {
+    	this.buff = buff;
+    }
+    
+    public StructWriter( int capacity ) {
+    	this( ChannelBuffers.buffer( capacity ) );
+    }
+    
     public StructWriter writeVarint( int value ) {
         varintWriter.write( buff, value );
         return this;
     }
 
+    public StructWriter writeInt( int value ) {
+    	buff.writeInt( value );
+    	return this;
+    }
+    
     public StructWriter writeDouble( double value ) {
+    	// FIXME why isn't this using writeDouble?
         buff.writeBytes( LongBytes.toByteArray( Double.doubleToLongBits( value ) ) );
         return this;
     }
@@ -50,6 +64,10 @@ public class StructWriter {
     public StructWriter writeString( String value ) {
         buff.writeBytes( value.getBytes( UTF8 ) );
         return this;
+    }
+    
+    public ChannelBuffer getChannelBuffer() {
+    	return buff;
     }
     
     public byte[] toBytes() {

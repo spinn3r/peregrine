@@ -4,6 +4,7 @@ import java.io.*;
 import java.util.*;
 import peregrine.util.*;
 import peregrine.util.primitive.IntBytes;
+import peregrine.values.*;
 import peregrine.config.Config;
 import peregrine.config.Partition;
 import peregrine.config.Replica;
@@ -138,8 +139,11 @@ public class ShuffleOutputWriter {
 
         AsyncOutputStream out = new AsyncOutputStream( path );
 
-        out.write( MAGIC );
-        out.write( IntBytes.toByteArray( lookup.size() ) );
+        out.write( ChannelBuffers.wrappedBuffer( MAGIC ) );
+        
+        out.write( new StructWriter( IntBytes.LENGTH )
+                       .writeInt( lookup.size() )
+                       .getChannelBuffer() );
         
         // the offset in this chunk to start reading the data from this
         // partition and chunk.
@@ -178,12 +182,14 @@ public class ShuffleOutputWriter {
                 throw new IOException( "Header corrupted: count < 0" );
 
             int count = shuffleOutputPartition.count;
-            
-            out.write( IntBytes.toByteArray( part ) );
-            out.write( IntBytes.toByteArray( offset ) );
-            out.write( IntBytes.toByteArray( nr_packets ) );
-            out.write( IntBytes.toByteArray( count ) );
-            out.write( IntBytes.toByteArray( length ) );
+
+            out.write( new StructWriter( LOOKUP_HEADER_SIZE )
+                           .writeInt( part )
+                           .writeInt( offset )
+                           .writeInt( nr_packets )
+                           .writeInt( count )
+                           .writeInt( length )
+                           .getChannelBuffer() );
             
             offset += length;
                 
@@ -199,18 +205,17 @@ public class ShuffleOutputWriter {
 
             for( ShufflePacket pack : shuffleOutputPartition.packets ) {
 
-                out.write( IntBytes.toByteArray( pack.from_partition ) );
-                out.write( IntBytes.toByteArray( pack.from_chunk ) );
-                out.write( IntBytes.toByteArray( pack.to_partition ) );
-                out.write( IntBytes.toByteArray( pack.data.capacity() ) );
+                out.write( new StructWriter( PACKET_HEADER_SIZE )
+                				.writeInt( pack.from_partition )
+                				.writeInt( pack.from_chunk )
+                				.writeInt( pack.to_partition )
+                				.writeInt( pack.data.capacity() )
+                				.getChannelBuffer() );
 
                 // TODO: migrate this to using a zero copy system and write it
                 // directly to disk and avoid this copy.
                 
-                byte[] data = new byte[ pack.data.capacity() ];
-                pack.data.getBytes( 0, data );
-                
-                out.write( data );
+                out.write( pack.data );
 
             }
             

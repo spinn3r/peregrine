@@ -4,6 +4,8 @@ package peregrine.io.async;
 import java.io.*;
 import java.util.concurrent.*;
 
+import org.jboss.netty.buffer.*;
+
 /**
  * 
  */
@@ -30,6 +32,12 @@ public abstract class BaseAsyncOutputStream extends BaseOutputStream {
     
     protected BlockingQueue<byte[]> getQueue() {
         return queue;
+    }
+    
+    public void write( ChannelBuffer buff ) throws IOException {
+        byte[] data = new byte[ buff.writerIndex() ];
+        buff.getBytes( 0, data );
+        write( data );
     }
     
     public void write( byte[] data ) throws IOException {

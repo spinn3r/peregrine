@@ -43,10 +43,8 @@ public class FSPutDirectHandler extends FSPutBaseHandler {
 
             if ( ! chunk.isLast() ) {
 
-                ChannelBuffer content = chunk.getContent();
-    
+                ChannelBuffer content = chunk.getContent();    
                 content.getBytes( 0, output, content.writerIndex() );
-
 
             } else {
 
