@@ -1,6 +1,7 @@
 package peregrine.shuffle;
 
 import java.io.*;
+import java.nio.channels.*;
 import java.util.*;
 import peregrine.util.*;
 import peregrine.util.primitive.IntBytes;
@@ -52,6 +53,8 @@ public class ShuffleOutputWriter {
     private int length = 0;
 
     private Config config;
+    
+    private FileChannel output;
     
     public ShuffleOutputWriter( Config config, String path ) {
 
@@ -127,6 +130,10 @@ public class ShuffleOutputWriter {
         
     }
     
+    private void write( ChannelBuffer buff ) throws IOException {
+    	buff.getBytes( 0, output, buff.writerIndex() );
+    }
+    
     public void close() throws IOException {
 
         closed = true;
@@ -137,11 +144,13 @@ public class ShuffleOutputWriter {
         
         // now stream these out to disk...
 
-        AsyncOutputStream out = new AsyncOutputStream( path );
+        FileOutputStream fos = new FileOutputStream( path );
 
-        out.write( ChannelBuffers.wrappedBuffer( MAGIC ) );
+        this.output = fos.getChannel();
         
-        out.write( new StructWriter( IntBytes.LENGTH )
+        write( ChannelBuffers.wrappedBuffer( MAGIC ) );
+        
+        write( new StructWriter( IntBytes.LENGTH )
                        .writeInt( lookup.size() )
                        .getChannelBuffer() );
         
@@ -183,13 +192,13 @@ public class ShuffleOutputWriter {
 
             int count = shuffleOutputPartition.count;
 
-            out.write( new StructWriter( LOOKUP_HEADER_SIZE )
-                           .writeInt( part )
-                           .writeInt( offset )
-                           .writeInt( nr_packets )
-                           .writeInt( count )
-                           .writeInt( length )
-                           .getChannelBuffer() );
+            write( new StructWriter( LOOKUP_HEADER_SIZE )
+                       .writeInt( part )
+                       .writeInt( offset )
+                       .writeInt( nr_packets )
+                       .writeInt( count )
+                       .writeInt( length )
+                       .getChannelBuffer() );
             
             offset += length;
                 
@@ -205,23 +214,23 @@ public class ShuffleOutputWriter {
 
             for( ShufflePacket pack : shuffleOutputPartition.packets ) {
 
-                out.write( new StructWriter( PACKET_HEADER_SIZE )
-                				.writeInt( pack.from_partition )
-                				.writeInt( pack.from_chunk )
-                				.writeInt( pack.to_partition )
-                				.writeInt( pack.data.capacity() )
-                				.getChannelBuffer() );
+                write( new StructWriter( PACKET_HEADER_SIZE )
+            				.writeInt( pack.from_partition )
+            				.writeInt( pack.from_chunk )
+            				.writeInt( pack.to_partition )
+            				.writeInt( pack.data.capacity() )
+            				.getChannelBuffer() );
 
                 // TODO: migrate this to using a zero copy system and write it
                 // directly to disk and avoid this copy.
                 
-                out.write( pack.data );
+                write( pack.data );
 
             }
             
         }
 
-        out.close();
+        output.force( true );
 
         index = null; // This is required for the JVM to more aggresively
                       // recover memory.  I did extensive testing with this and
