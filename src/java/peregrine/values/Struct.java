@@ -69,10 +69,9 @@ public class Struct implements Value {
         try {
 
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            VarintWriter varintWriter = new VarintWriter();
             
             for( byte[] value : values ) {
-                bos.write( varintWriter.write( value.length ) );
+                bos.write( VarintWriter.write( value.length ) );
                 bos.write( value);
             }
             

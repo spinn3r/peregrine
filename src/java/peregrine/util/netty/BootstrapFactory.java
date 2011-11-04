@@ -3,8 +3,12 @@ package peregrine.util.netty;
 import org.jboss.netty.bootstrap.*;
 import org.jboss.netty.channel.socket.nio.*;
 
+import com.spinn3r.log5j.*;
+
 public class BootstrapFactory {
 
+	private static final Logger log = Logger.getLogger();
+	
     public static boolean TCP_NODELAY = true;
 
     public static long CONNECT_TIMEOUT_MILLIS = 5000;
@@ -38,10 +42,15 @@ public class BootstrapFactory {
 	private static void setOptions( String prefix, Bootstrap bootstrap ) {
 		
         // set options 	
-        bootstrap.setOption( prefix+"tcpNoDelay",            TCP_NODELAY );
-        bootstrap.setOption( prefix+"connectTimeoutMillis",  CONNECT_TIMEOUT_MILLIS );
-        bootstrap.setOption( prefix+"bufferFactory",         new DirectChannelBufferFactory() );
+        setOption( bootstrap, prefix+"tcpNoDelay",            TCP_NODELAY );
+        setOption( bootstrap, prefix+"connectTimeoutMillis",  CONNECT_TIMEOUT_MILLIS );
+        setOption( bootstrap, prefix+"bufferFactory",         new DirectChannelBufferFactory() );
 		
+	}
+	
+	private static void setOption( Bootstrap bootstrap, String name, Object value ) {
+		log.info( "Setting bootstrap option on %s: %s=%s", bootstrap, name, value );
+		bootstrap.setOption( name, value );
 	}
 	
 }

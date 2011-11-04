@@ -54,7 +54,8 @@ public class ShuffleOutputWriter {
 
     private Config config;
     
-    private FileChannel output;
+    //private FileChannel output;
+    private AsyncOutputStream output;
     
     public ShuffleOutputWriter( Config config, String path ) {
 
@@ -131,7 +132,8 @@ public class ShuffleOutputWriter {
     }
     
     private void write( ChannelBuffer buff ) throws IOException {
-    	buff.getBytes( 0, output, buff.writerIndex() );
+    	//buff.getBytes( 0, output, buff.writerIndex() );
+    	output.write( buff );
     }
     
     public void close() throws IOException {
@@ -144,9 +146,9 @@ public class ShuffleOutputWriter {
         
         // now stream these out to disk...
 
-        FileOutputStream fos = new FileOutputStream( path );
-
-        this.output = fos.getChannel();
+        //FileOutputStream fos = new FileOutputStream( path );
+        //this.output = fos.getChannel();
+        this.output = new AsyncOutputStream( path );
         
         write( ChannelBuffers.wrappedBuffer( MAGIC ) );
         
@@ -230,7 +232,8 @@ public class ShuffleOutputWriter {
             
         }
 
-        output.force( true );
+        //output.force( true );
+        output.close();
 
         index = null; // This is required for the JVM to more aggresively
                       // recover memory.  I did extensive testing with this and

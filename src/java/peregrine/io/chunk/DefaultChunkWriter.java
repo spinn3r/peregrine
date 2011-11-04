@@ -22,8 +22,6 @@ public class DefaultChunkWriter implements ChunkWriter {
 
     public static int BUFFER_SIZE = 16384;
     
-    private static VarintWriter varintWriter = new VarintWriter();
-
     protected OutputStream out = null;
 
     private int count = 0;
@@ -86,10 +84,10 @@ public class DefaultChunkWriter implements ChunkWriter {
                               byte[] key,
                               byte[] value ) {
         
-        varintWriter.write( buff, key.length );
+        VarintWriter.write( buff, key.length );
         buff.writeBytes( key );
 
-        varintWriter.write( buff, value.length );
+        VarintWriter.write( buff, value.length );
         buff.writeBytes( value );
         
     }

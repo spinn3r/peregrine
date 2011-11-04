@@ -5,7 +5,7 @@ import java.nio.charset.Charset;
 import org.jboss.netty.buffer.*;
 
 import peregrine.util.*;
-import peregrine.util.primitive.LongBytes;
+import peregrine.util.primitive.*;
 
 /**
  * 
@@ -15,8 +15,6 @@ public class StructWriter {
     public static int BUFFER_SIZE = 16384;
 
     private static Charset UTF8 = null;
-
-    private static VarintWriter varintWriter = new VarintWriter();
     
     private ChannelBuffer buff = null;
 
@@ -40,12 +38,13 @@ public class StructWriter {
     }
     
     public StructWriter writeVarint( int value ) {
-        varintWriter.write( buff, value );
+        VarintWriter.write( buff, value );
         return this;
     }
 
     public StructWriter writeInt( int value ) {
-    	buff.writeInt( value );
+    	//buff.writeInt( value );
+    	buff.writeBytes( IntBytes.toByteArray(value) );
     	return this;
     }
     

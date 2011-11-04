@@ -11,7 +11,7 @@ public class VarintWriter {
     /**
      * Emit a varint to the output stream.  Only use with varint encoding.
      */
-    public byte[] write( int value ) {
+    public static byte[] write( int value ) {
 
         List<Byte> list = new ArrayList();
         
@@ -47,7 +47,7 @@ public class VarintWriter {
     /**
      * Emit a varint to the output stream.  Only use with varint encoding.
      */
-    public void write( ChannelBuffer buff, int value ) {
+    public static void write( ChannelBuffer buff, int value ) {
 
         //note varints have to be incremented by one(1) so that we can avoid
         //having to store a zero offset.  If we were to do this then it would be

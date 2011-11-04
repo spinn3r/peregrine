@@ -48,7 +48,7 @@ public class FSPutDirectHandler extends FSPutBaseHandler {
 
             } else {
 
-                output.force( false );
+                output.force( true );
 
                 HttpResponse response = new DefaultHttpResponse( HTTP_1_1, OK );
 
