@@ -132,6 +132,11 @@ public class Membership {
 
     }
 
+    @Override 
+    public String toString() {
+    	return toMatrix();
+    }
+    
     private void updatePartitionsByHostMapping( Partition part, List<Host> hosts ) {
 
         for( Host host : hosts ) {

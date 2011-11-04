@@ -1,14 +1,3 @@
-
-- someone could do something silly like configure nr_partitions = 10 and
-  nr_replicas = 3 which would mean that the nr_primaries is 3.333 which is
-  retarded... what do we do in that situation?  I think 3 will be uncommon.. 2
-  is realistic.
-
-- I need a way to keep track of which machines are responsible for running
-  reduces over which partitions.
-
-    - what do we call these?  Masters? Primary?
-
 - If the CPU performance of performing a sort is MUCH slower than the disk
   perforamnce, we can go ahead and replicate the sort temporary files so that
   hte other replicas can resume if necessary.

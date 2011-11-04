@@ -1,5 +1,6 @@
 package peregrine.config;
 
+import java.lang.reflect.*;
 import java.util.*;
 
 import peregrine.util.*;
@@ -40,7 +41,7 @@ public class Config {
     /**
      * Partition membership.
      */
-    public Membership membership = new Membership();
+    protected Membership membership = new Membership();
 
     /**
      * The current 'host' that we are running on.  This is used so that we can
@@ -100,9 +101,8 @@ public class Config {
             throw new RuntimeException( "Host is not define in hosts file nor is it the controller: " + getHost() );
         }
         
-        log.info( "Using controller: %s", getController() );
-        log.info( "Running with partition layout: \n%s", membership.toMatrix() );
-
+        log.info( "%s", toDesc() );
+        
     }
     
     public Membership getMembership() {
@@ -182,6 +182,46 @@ public class Config {
         return String.format( "%s/tmp/shuffle/%s", getRoot(), name);
     }
 
+    /**
+     * Return a description of this config which is human readable.
+     */
+    public String toDesc() {
+    	
+    	try {
+    		
+			StringBuilder buff = new StringBuilder();
+			StringBuilder multi = new StringBuilder();
+			    	
+			Field[] fields = getClass().getDeclaredFields();
+			
+			buff.append( "\n" );
+			
+			for( Field field : fields ) {
+				
+				if ( Modifier.isStatic( field.getModifiers() ) ) {
+					continue;    		
+				}
+				
+				String value = field.get(this).toString();
+				
+				if ( value.contains( "\n") ) {
+					multi.append( String.format( "%s\n", value ) );
+				} else {
+					buff.append( String.format( "  %s = %s\n", field.getName(), value ) );
+				}
+		
+			}
+			
+			buff.append( multi.toString() );
+			
+			return buff.toString();
+			
+    	} catch ( Throwable t ) {
+			throw new RuntimeException( t );
+		}
+    
+    }
+    
     @Override
     public String toString() {
         return String.format( "root=%s, host=%s", root, host );
