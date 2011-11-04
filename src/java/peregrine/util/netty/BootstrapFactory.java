@@ -40,7 +40,7 @@ public class BootstrapFactory {
         // set options 	
         bootstrap.setOption( prefix+"tcpNoDelay",            TCP_NODELAY );
         bootstrap.setOption( prefix+"connectTimeoutMillis",  CONNECT_TIMEOUT_MILLIS );
-        //bootstrap.setOption( prefix+"bufferFactory",         new DirectChannelBufferFactory() );
+        bootstrap.setOption( prefix+"bufferFactory",         new DirectChannelBufferFactory() );
 		
 	}
 	

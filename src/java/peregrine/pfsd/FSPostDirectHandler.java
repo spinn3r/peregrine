@@ -51,8 +51,9 @@ public class FSPostDirectHandler extends SimpleChannelUpstreamHandler {
             if ( ! chunk.isLast() ) {
 
                 ChannelBuffer content = chunk.getContent();
-                byte[] data = content.array();
-
+                byte[] data = new byte[ content.writerIndex() ];
+                content.readBytes( data );
+                
                 this.message = new Message( new String( data ) );
                 
             } else {

@@ -4,6 +4,9 @@ import static org.jboss.netty.handler.codec.http.HttpResponseStatus.*;
 import static org.jboss.netty.handler.codec.http.HttpVersion.*;
 
 import java.io.*;
+import java.nio.*;
+import java.nio.channels.*;
+
 import org.jboss.netty.buffer.*;
 import org.jboss.netty.channel.*;
 import org.jboss.netty.handler.codec.http.*;
@@ -15,12 +18,15 @@ public class FSPutDirectHandler extends FSPutBaseHandler {
 
     public static byte[] EOF = new byte[0];
 
-    private OutputStream asyncOutputStream = null;
-
-    public FSPutDirectHandler( FSHandler handler ) {
+    private FileChannel output = null;
+    
+    public FSPutDirectHandler( FSHandler handler ) throws IOException {
         super( handler );
         
-        asyncOutputStream = new AsyncOutputStream( handler.path );
+        // used so that we can get our channel
+        FileOutputStream out = new FileOutputStream( handler.path );
+        
+        output = out.getChannel();
 
     }
 
@@ -38,14 +44,13 @@ public class FSPutDirectHandler extends FSPutBaseHandler {
             if ( ! chunk.isLast() ) {
 
                 ChannelBuffer content = chunk.getContent();
-                byte[] data = content.array();
+    
+                content.getBytes( 0, output, content.writerIndex() );
 
-                asyncOutputStream.write( data );
 
             } else {
 
-                asyncOutputStream.write( EOF );
-                asyncOutputStream.close();
+                output.force( false );
 
                 HttpResponse response = new DefaultHttpResponse( HTTP_1_1, OK );
 
