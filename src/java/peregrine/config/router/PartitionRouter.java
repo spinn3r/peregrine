@@ -1,4 +1,6 @@
-package peregrine.config;
+package peregrine.config.router;
+
+import peregrine.config.*;
 
 public interface PartitionRouter {
 

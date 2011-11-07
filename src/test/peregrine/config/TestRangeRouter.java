@@ -1,6 +1,7 @@
 package peregrine.config;
 
 import peregrine.BaseTestWithMultipleDaemons;
+import peregrine.config.router.*;
 
 public class TestRangeRouter extends BaseTestWithMultipleDaemons {
 

@@ -1,16 +1,15 @@
-package peregrine.config;
+package peregrine.config.router;
 
-public class RangePartitionRouter implements PartitionRouter {
+import peregrine.config.*;
+
+public class RangePartitionRouter  extends BasePartitionRouter {
 
 	private int range;
 	
-	private int nr_partitions;
-	
 	@Override
     public void init( Config config ) {
-    	this.nr_partitions = config.getMembership().size();    	
-    	this.range = 255 / nr_partitions;
-    	
+		super.init( config );
+    	this.range = 255 / nr_partitions;	
     }
 	
 	@Override

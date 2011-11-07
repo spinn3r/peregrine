@@ -3,6 +3,7 @@ package peregrine.config;
 import java.lang.reflect.*;
 import java.util.*;
 
+import peregrine.config.router.*;
 import peregrine.util.primitive.LongBytes;
 
 import com.spinn3r.log5j.Logger;
@@ -72,6 +73,8 @@ public class Config {
      */
     protected int concurrency = DEFAULT_CONCURRENCY;
     
+    protected PartitionRouter router = null;
+    
     public Config() { }
 
     public Config( String host, int port ) {
@@ -99,6 +102,9 @@ public class Config {
         if ( ! hosts.contains( getHost() ) && ! isController() ) {
             throw new RuntimeException( "Host is not define in hosts file nor is it the controller: " + getHost() );
         }
+        
+        router = new HashPartitionRouter();
+        router.init( this );
         
         log.info( "%s", toDesc() );
         
@@ -234,21 +240,8 @@ public class Config {
     /**
      * For a given key, in bytes, route it to the correct partition/partition.
      */
-    public Partition route( byte[] key_bytes ) {
-
-        int nr_partitions = membership.size();
-        
-        // TODO: we only need a FEW bytes to route a key , not the WHOLE thing
-        // if it is a hashcode.  For example... we can route to 255 partitions
-        // with just one byte... that IS if it is a hashode.  with just TWO
-        // bytes we can route to 65536 partitions which is probably fine for all
-        // users for a LONG time.
-
-        long value = Math.abs( LongBytes.toLong( key_bytes ) );
-        int partition = (int)(value % nr_partitions);
-
-        return new Partition( partition );
-        
+    public Partition route( byte[] key ) {
+    	return router.route( key );    
     }
 
 }
