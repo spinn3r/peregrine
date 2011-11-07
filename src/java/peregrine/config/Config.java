@@ -237,33 +237,16 @@ public class Config {
      */
     public Partition route( byte[] key_bytes ) {
 
-    	boolean keyIsHashcode= true;
-    	
         int nr_partitions = membership.size();
-        
-        // TODO: we should to build out an entirely new router which we can
-        // replace with a custom partitioning system if the user decides that
-        // there may be a smarter partitioning system they can use.
         
         // TODO: we only need a FEW bytes to route a key , not the WHOLE thing
         // if it is a hashcode.  For example... we can route to 255 partitions
         // with just one byte... that IS if it is a hashode.  with just TWO
         // bytes we can route to 65536 partitions which is probably fine for all
         // users for a LONG time.
-        
-        int partition = -1;
 
-        if ( keyIsHashcode ) {
-
-            long value = Math.abs( LongBytes.toLong( key_bytes ) );
-            partition = (int)(value % nr_partitions);
-            
-        } else { 
-
-            long value = Math.abs( LongBytes.toLong( Hashcode.getHashcode( key_bytes ) ) );
-            partition = (int)( value % nr_partitions);
-
-        }
+        long value = Math.abs( LongBytes.toLong( key_bytes ) );
+        int partition = (int)(value % nr_partitions);
 
         return new Partition( partition );
         
