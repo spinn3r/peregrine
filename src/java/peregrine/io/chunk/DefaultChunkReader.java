@@ -82,8 +82,7 @@ public class DefaultChunkReader implements ChunkReader {
         throws IOException {
 
         //FIXME: refactor this to use a ChannelBuffer ... via
-        //ChannelBuffers.wrapped() ... but I need to get unit tests working
-        //again.
+        //ChannelBuffers.wrapped() ... 
         
         this.length = data.length;
 

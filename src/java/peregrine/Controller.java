@@ -68,8 +68,6 @@ public class Controller {
                      final Input input ) throws Exception {
         map( mapper, input, null );
     }
-
-    // FIXME: unify map, reduce, and merge bodies to use a withScheduler method ... 
     
     public void map( final Class delegate,
     		 		 final Input input,
@@ -86,16 +84,7 @@ public class Controller {
      */
     public void map( final Job job ) throws Exception {
     	
-    	final Class delegate = job.getDelegate();
-    	final Input input = job.getInput();
-    	final Output output = job.getOutput();
-    	
-        log.info( "STARTING map %s for input %s and output %s ", 
-        		job.getDelegate().getName(), job.getInput(), job.getOutput() );
-
-        config.getMembership();
-
-        Scheduler scheduler = new Scheduler( config ) {
+    	withScheduler( "map", job, new Scheduler( config ) {
 
                 public void invoke( Host host, Partition part ) throws Exception {
 
@@ -106,17 +95,7 @@ public class Controller {
                     
                 }
                 
-            };
-
-        daemon.setScheduler( scheduler );
-
-        scheduler.waitForCompletion();
-
-        daemon.setScheduler( null );
-
-        flushAllShufflers();
-
-        log.info( "COMPLETED map %s for input %s and output %s ", delegate.getName(), input, output );
+            } );
 
     }
     
@@ -155,13 +134,7 @@ public class Controller {
      */
     public void merge( final Job job ) throws Exception {
     	
-    	final Class delegate = job.getDelegate();
-    	final Input input = job.getInput();
-    	final Output output = job.getOutput();
-    	
-        log.info( "STARTING merge %s for input %s and output %s ", delegate.getName(), input, output );
-
-        Scheduler scheduler = new Scheduler( config ) {
+        withScheduler( "merge", job, new Scheduler( config ) {
 
                 public void invoke( Host host, Partition part ) throws Exception {
 
@@ -170,18 +143,8 @@ public class Controller {
                     
                 }
                 
-            };
-
-        daemon.setScheduler( scheduler );
-
-        scheduler.waitForCompletion();
-
-        daemon.setScheduler( null );
-        
-        flushAllShufflers();
-
-        log.info( "COMPLETED merge %s for input %s and output %s ", delegate.getName(), input, output );
-
+            } );
+            
     }
   
     public void reduce( final Class delegate,
@@ -197,12 +160,8 @@ public class Controller {
     public void reduce( final Job job ) 
         throws Exception {
 
-    	final Class delegate = job.getDelegate();
     	final Input input = job.getInput();
-    	final Output output = job.getOutput();
     	
-        log.info( "STARTING reduce %s for input %s and output %s ", delegate.getName(), input, output );
-
         // we need to support reading input from the shuffler.  If the user
         // doesn't specify input, use the default shuffler.
 
@@ -216,8 +175,8 @@ public class Controller {
         if ( input.getReferences().size() < 1 ) {
             throw new IOException( "Reducer requires at least one shuffle input." );
         }
-
-        Scheduler scheduler = new Scheduler( config ) {
+      
+        withScheduler( "reduce", job, new Scheduler( config ) {
 
                 public void invoke( Host host, Partition part ) throws Exception {
 
@@ -226,18 +185,34 @@ public class Controller {
                     
                 }
                 
-            };
+            } );
 
+    }
+
+    private void withScheduler( String operation, Job job, Scheduler scheduler ) 
+    		throws Exception {
+    	
+    	final Class delegate = job.getDelegate();
+    	final Input input = job.getInput();
+    	final Output output = job.getOutput();
+    	
+        log.info( "STARTING %s %s for input %s and output %s ", operation, delegate.getName(), input, output );
+        
         daemon.setScheduler( scheduler );
 
         scheduler.waitForCompletion();
 
         daemon.setScheduler( null );
 
-        log.info( "COMPLETED reduce %s for input %s and output %s ", delegate.getName(), input, output );
+        // shufflers can be flushed after any stage even reduce as nothing will
+        // happen
+        flushAllShufflers();
+        
+        log.info( "COMPLETED %s %s for input %s and output %s ", operation, delegate.getName(), input, output );
 
     }
-
+    
+    // TODO this probably should not be public.
     public void flushAllShufflers() throws Exception {
 
         Message message = new Message();
