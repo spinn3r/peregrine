@@ -13,13 +13,16 @@ public class BootstrapFactory {
 
     public static long CONNECT_TIMEOUT_MILLIS = 5000;
 	
+    public static boolean logged = false;
+    
 	public static ServerBootstrap newServerBootstrap( NioServerSocketChannelFactory factory ) {
 		
 		ServerBootstrap bootstrap = new ServerBootstrap( factory );
 
 		setOptions( bootstrap );
 		setOptions( "child.", bootstrap );
-
+		logged = true;
+		
         return bootstrap;
         
 	}
@@ -30,7 +33,8 @@ public class BootstrapFactory {
 		ClientBootstrap bootstrap = new ClientBootstrap( factory );
 		
 		setOptions( bootstrap );
-		
+		logged = true;
+
 		return bootstrap;
 		
 	}
@@ -49,8 +53,12 @@ public class BootstrapFactory {
 	}
 	
 	private static void setOption( Bootstrap bootstrap, String name, Object value ) {
-		log.info( "Setting bootstrap option on %s: %s=%s", bootstrap, name, value );
+		
+		if ( ! logged )
+			log.info( "Setting bootstrap option on %s: %s=%s", bootstrap, name, value );
+		
 		bootstrap.setOption( name, value );
+		
 	}
 	
 }

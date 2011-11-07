@@ -1,6 +1,8 @@
 package peregrine.pfsd.rpc;
 
 
+import org.jboss.netty.channel.*;
+
 import peregrine.pfsd.*;
 import peregrine.rpc.*;
 
@@ -8,7 +10,7 @@ import peregrine.rpc.*;
  */
 public abstract class RPCHandler {
 
-    public abstract void handleMessage( FSDaemon daemon, Message message )
+    public abstract void handleMessage( Channel channel, FSDaemon daemon, Message message )
         throws Exception;
     
     

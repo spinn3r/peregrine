@@ -34,7 +34,7 @@ public class RemoteChunkWriterClientHandler extends SimpleChannelUpstreamHandler
             client.channelState = RemoteChunkWriterClient.CLOSED;
             
             if ( response.getStatus().getCode() != OK.getCode() ) {
-                client.setCause( new IOException( response.getStatus().toString() ) );
+                client.failed( new IOException( response.getStatus().toString() ) );
                 return;
             }
             
@@ -48,7 +48,7 @@ public class RemoteChunkWriterClientHandler extends SimpleChannelUpstreamHandler
     public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e)
         throws Exception {
 
-        client.setCause( e.getCause() );
+        client.failed( e.getCause() );
 
     }
 

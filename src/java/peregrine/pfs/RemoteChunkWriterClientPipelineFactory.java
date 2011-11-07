@@ -26,7 +26,7 @@ public class RemoteChunkWriterClientPipelineFactory implements ChannelPipelineFa
                                                          MAX_HEADER_SIZE,
                                                          MAX_CHUNK_SIZE ));
         
-        pipeline.addLast("handler", new RemoteChunkWriterClientHandler( client ));
+        pipeline.addLast("handler", new RemoteChunkWriterClientHandler( client ) );
 
         return pipeline;
 

@@ -212,9 +212,12 @@ public class RemoteChunkWriterClient extends BaseOutputStream implements Channel
         write( ChannelBuffers.wrappedBuffer( data ) );
     }
 
-    public void setCause( Throwable throwable ) throws Exception {
+    public void failed( Throwable throwable ) throws Exception {
         this.cause = throwable;
         this.result.put( throwable );
+
+        this.channelState = CLOSED;
+
     }
 
     public void success() throws Exception {
@@ -317,6 +320,7 @@ public class RemoteChunkWriterClient extends BaseOutputStream implements Channel
                 if ( isChannelStateClosed() )
                     break;
                 
+                // TODO: this should be a constant ...
                 Thread.sleep( 10L );
 
             } catch ( Exception e ) {
@@ -389,7 +393,7 @@ public class RemoteChunkWriterClient extends BaseOutputStream implements Channel
 
         public void operationComplete( ChannelFuture future ) 
             throws Exception {
-
+        	
             Channel channel = future.getChannel();
 
             if ( channel.isConnected() == false ) 
@@ -429,7 +433,12 @@ public class RemoteChunkWriterClient extends BaseOutputStream implements Channel
 
         public void operationComplete( ChannelFuture future ) 
             throws Exception {
-            
+                    	
+        	if ( ! future.isSuccess() ) {
+        		client.failed( future.getCause() );           
+        		return;
+        	}
+        	
             client.channel = future.getChannel();
 
             client.channelState = RemoteChunkWriterClient.OPEN;
@@ -453,14 +462,12 @@ public class RemoteChunkWriterClient extends BaseOutputStream implements Channel
 
         public void operationComplete( ChannelFuture future ) 
             throws Exception {
-
+        	        	
             Throwable cause = future.getCause();
 
             if ( cause != null ) {
-                client.setCause( cause );
+                client.failed( cause );
             }
-
-            client.channelState = RemoteChunkWriterClient.CLOSED;
 
         }
 

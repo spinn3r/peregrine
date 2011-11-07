@@ -32,6 +32,7 @@ public class Controller {
     private FSDaemon daemon = null;
 
     public Controller( Config config ) {
+    	
         this.config = config;
 
         // FIXME: we should not startup an ORDINARY daemon... it should be JUST

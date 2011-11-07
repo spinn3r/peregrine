@@ -5,6 +5,8 @@ import peregrine.pfsd.*;
 import java.util.*;
 import java.util.concurrent.*;
 
+import org.jboss.netty.channel.*;
+
 import peregrine.config.Config;
 import peregrine.config.Partition;
 import peregrine.util.*;
@@ -25,7 +27,7 @@ public class MapperHandler extends RPCHandler {
     private static ExecutorService executors =
         Executors.newCachedThreadPool( new DefaultThreadFactory( MapperHandler.class) );
 
-    public void handleMessage( FSDaemon daemon, Message message )
+    public void handleMessage( Channel channel, FSDaemon daemon, Message message )
         throws Exception {
 
         String action = message.get( "action" );
@@ -38,7 +40,7 @@ public class MapperHandler extends RPCHandler {
             Output output          = readOutput( message );
             Partition partition    = new Partition( message.getInt( "partition" ) );
             Class delegate         = Class.forName( message.get( "delegate" ) );
-            Config config          = daemon.config;
+            Config config          = daemon.getConfig();
 
             exec( delegate, config, partition, input, output );
             

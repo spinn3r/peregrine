@@ -11,16 +11,20 @@ import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
 
 import peregrine.util.*;
 import peregrine.task.*;
-import peregrine.config.Config;
+import peregrine.config.*;
+import peregrine.rpc.*;
 import peregrine.shuffle.receiver.*;
 
 import com.spinn3r.log5j.Logger;
 import peregrine.util.netty.*;
 
 public class FSDaemon {
-    
-    private static final Logger log = Logger.getLogger();
 
+    private static final Logger log = Logger.getLogger();
+    
+    public static final ExecutorService executors =
+            Executors.newCachedThreadPool( new DefaultThreadFactory( HeartbeatSender.class) );
+    
     private ServerBootstrap bootstrap = null;
 
     private int port;
@@ -32,7 +36,7 @@ public class FSDaemon {
      */
     public ShuffleReceiverFactory shuffleReceiverFactory;
 
-    public Config config;
+    private Config config;
 
     private Scheduler scheduler = null;
 
@@ -70,9 +74,14 @@ public class FSDaemon {
         
         // Bind and start to accept incoming connections.
         channel = bootstrap.bind( new InetSocketAddress( port ) );
-
+        
+        /*
+        if ( ! config.getHost().equals( config.getController() ) )
+        	executors.submit( new HeartbeatSender() );
+        */
+        
     }
-
+    
     public Scheduler getScheduler() { 
         return this.scheduler;
     }
@@ -81,16 +90,74 @@ public class FSDaemon {
         this.scheduler = scheduler;
     }
 
+    public Config getConfig() {
+    	return config;
+    }
+    
     public void shutdown() {
 
-        log.info( "Shutting down on port: %s", port );
+        log.info( "Shutting down PFSd on: %s", config.getHost() );
 
         channel.close().awaitUninterruptibly();
+
+        executors.shutdown();
         
         bootstrap.releaseExternalResources();
         
+        
     }
 
+    class HeartbeatSender implements Callable<Void>{
+    	
+        public static final long ONLINE_SLEEP_INTERVAL  = 30000L;
+        
+        public static final long OFFLINE_SLEEP_INTERVAL = 1000L;    	
+    	
+		@Override
+		public Void call() throws Exception {
+
+	        while( true ) {
+	        	
+	        	if ( sendHeartbeatToController() ) {
+
+	                Thread.sleep( ONLINE_SLEEP_INTERVAL );
+	        		
+	        	} else {
+	        		
+	                Thread.sleep( OFFLINE_SLEEP_INTERVAL );
+	        		
+	        	}
+	                        
+	        }
+			
+		}
+    	
+	    public boolean sendHeartbeatToController() {
+	    	
+	        Message message = new Message();
+	        message.put( "action", "heartbeat" );
+	        message.put( "host",    config.getHost().toString() );
+	        
+	        Host controller = config.getController();
+	        
+	        try {        	
+	        	
+				new Client().invoke( controller, "controller", message );
+				
+				return true;
+				
+			} catch (IOException e) {
+				
+				log.warn( String.format( "Unable to send heartbeat to %s: %s", 
+					      controller, e.getMessage() ) );
+				
+				return false;
+			}
+	   
+	    }        	
+    	
+    }
+    
     static {
 
         // perform this once per VM.

@@ -77,11 +77,13 @@ public class FSPostDirectHandler extends SimpleChannelUpstreamHandler {
             final RPCHandler rpcHandler = handlers.get( path );
 
             if ( rpcHandler != null ) {
-
+            	
+            	log.info( "Handling message %s for URI: %s with %s", message, uri, rpcHandler );
+            	
                 executors.submit( new AsyncAction( channel, message ) {
 
                         public void doAction() throws Exception {
-                            rpcHandler.handleMessage( handler.daemon, message );
+                            rpcHandler.handleMessage( channel, handler.daemon, message );
                         }
                         
                     } );

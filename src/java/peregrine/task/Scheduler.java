@@ -27,8 +27,8 @@ public abstract class Scheduler {
      */
     protected Progress<Partition> completed = new Progress();
 
-    protected Progress<Partition> pending = new Progress();
-
+    protected Progress<Partition> pending = new Progress();    
+    
     /**
      * Hosts which are available for additional work.  
      */
@@ -50,11 +50,15 @@ public abstract class Scheduler {
         this.config = config;
         this.membership = config.getMembership();
 
-        for( Host host : config.getHosts() ) {
-            available.put( host );
-        }
-
         concurrency = new Concurrency( config.getHosts() );
+        
+        //for( Host host : membership.getOnline().values() ) {
+        //	available.put( host );
+        //}
+        
+        for ( Host host : config.getHosts() ) {
+        	available.put( host );        
+        }
         
     }
     
@@ -119,7 +123,8 @@ public abstract class Scheduler {
 
         pending.clear( partition );
 
-        // add this to the list of idle hosts so that we can schedule additional work.peregrine.task
+        // add this to the list of available hosts so that we can schedule 
+        // additional work.peregrine.task
         available.put( host );
 
         concurrency.decr( host );
@@ -134,6 +139,15 @@ public abstract class Scheduler {
 
         failure.mark( new Fail( host, partition, stacktrace ) );
         
+    }
+    
+    public void markOnline( Host host ) {
+
+    	if ( ! config.getMembership().getOnline().contains( host ) ) {    		
+    		log.info( "Host is now online: %s", host );
+    		available.put( host );
+    	}
+
     }
 
     /**
@@ -163,23 +177,23 @@ public abstract class Scheduler {
             }
 
             // TODO: make this a constant.
-            Host idle = available.poll( 1000, TimeUnit.MILLISECONDS );
+            Host availableHost = available.poll( 1000, TimeUnit.MILLISECONDS );
             
-            if ( idle != null ) {
+            if ( availableHost != null ) {
                 
-                log.info( "Scheduling work on: %s", idle );
+                log.info( "Scheduling work on: %s", availableHost );
 
                 try {
-                    schedule( idle );
+                    schedule( availableHost );
                 } catch ( Exception e ) {
                     //FIXME: we need to gossip about this.
-                    log.error( "Unable to schedule work on host: " + idle, e );
+                    log.error( "Unable to schedule work on host: " + availableHost, e );
                 }
 
             }
 
-            String message = String.format( "pending: %s, completed: %s, available: %s, spare: %s",
-                                            pending, completed, available, spare );
+            String message = String.format( "pending: %s, completed: %s, available: %s, spare: %s, online: %s",
+                                            pending, completed, available, spare, membership.getOnline() );
 
             if ( changedMessage.hasChanged( message ) ) {
                 log.info( message );
@@ -193,30 +207,8 @@ public abstract class Scheduler {
 
 }
 
-class Progress<T> {
-
-    ConcurrentHashMap<T,T> map = new ConcurrentHashMap();
-
-    public void mark( T entry ) {
-        map.put( entry, entry );
-    }
-
-    public void clear( T entry ) {
-        map.remove( entry );
-    }
-
-    public boolean contains( T entry ) {
-        return map.get( entry ) != null;
-    }
-
-    public int size() {
-        return map.size();
-    }
-
-    public String toString() {
-        return map.keySet().toString();
-    }
-
+class Progress<T> extends ConcurrentSet<T>{ 
+    
 }
 
 class Concurrency<T> {
@@ -246,22 +238,6 @@ class Concurrency<T> {
 }
 
 class Failure extends Progress<Fail> {
-
-    /**
-     * Allows us to clear work from a failure structure so that we can start
-     * fresh.
-     */
-    public void clear() {
-        map.clear();
-    }
-
-    /**
-     * Used so that speculative execution can enumerate all failures to schedule
-     * additional work.
-     */
-    public Collection<Fail> values() {
-        return map.values();
-    }
     
 }
 

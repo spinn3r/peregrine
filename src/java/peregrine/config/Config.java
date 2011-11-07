@@ -202,9 +202,14 @@ public class Config {
 					continue;    		
 				}
 				
-				String value = field.get(this).toString();
+				Object field_value = field.get(this);
 				
-				if ( value.contains( "\n") ) {
+				String value = null;
+				
+				if ( field_value != null ) 
+					value = field_value.toString();
+				
+				if ( value != null && value.contains( "\n") ) {
 					multi.append( String.format( "%s\n", value ) );
 				} else {
 					buff.append( String.format( "  %s = %s\n", field.getName(), value ) );

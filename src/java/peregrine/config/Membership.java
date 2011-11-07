@@ -1,6 +1,7 @@
 package peregrine.config;
 
 import java.util.*;
+import java.util.concurrent.*;
 
 public class Membership {
     
@@ -10,6 +11,8 @@ public class Membership {
 
     protected Map<Host,List<Replica>> replicasByHost = new HashMap();
 
+    protected Online online = new Online();
+    
     protected Config config;
     
     public Membership() {}
@@ -86,6 +89,10 @@ public class Membership {
         updatePartitionsByHostMapping( part, hosts );
     }
 
+    public Online getOnline() {
+    	return online;
+    }
+  
     public int size() {
         return hostsByPartition.size();
     }
