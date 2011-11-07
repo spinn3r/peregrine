@@ -71,14 +71,27 @@ public class Controller {
 
     // FIXME: unify map, reduce, and merge bodies to use a withScheduler method ... 
     
+    public void map( final Class delegate,
+    		 		 final Input input,
+    				 final Output output ) throws Exception {
+
+    	map( new Job().setDelegate( delegate ) 
+    			      .setInput( input )
+    			      .setOutput( output ) );
+    		
+    }
+    
     /**
      * Run map jobs on all chunks on the given path.
      */
-    public void map( final Class delegate,
-                     final Input input,
-                     final Output output ) throws Exception {
-
-        log.info( "STARTING map %s for input %s and output %s ", delegate.getName(), input, output );
+    public void map( final Job job ) throws Exception {
+    	
+    	final Class delegate = job.getDelegate();
+    	final Input input = job.getInput();
+    	final Output output = job.getOutput();
+    	
+        log.info( "STARTING map %s for input %s and output %s ", 
+        		job.getDelegate().getName(), job.getInput(), job.getOutput() );
 
         config.getMembership();
 
@@ -86,7 +99,8 @@ public class Controller {
 
                 public void invoke( Host host, Partition part ) throws Exception {
 
-                    Message message = createSchedulerMessage( "exec", delegate, part, input, output );
+                    Message message 
+                        = createSchedulerMessage( "exec", job, part );
 
                     new Client().invoke( host, "mapper", message );
                     
@@ -120,6 +134,15 @@ public class Controller {
 
     }
 
+    public void merge( final Class delegate,
+                       final Input input,
+                       final Output output ) throws Exception {
+    	
+    	merge( new Job().setDelegate( delegate )
+    			        .setInput( input )
+    			        .setOutput( output ) );
+    }
+    
     /**
      * http://en.wikipedia.org/wiki/Join_(SQL)#Full_outer_join
      * 
@@ -130,17 +153,19 @@ public class Controller {
      * will be produced in the result set (containing fields populated from both
      * tables)
      */
-    public void merge( final Class delegate,
-                       final Input input,
-                       final Output output ) throws Exception {
-
+    public void merge( final Job job ) throws Exception {
+    	
+    	final Class delegate = job.getDelegate();
+    	final Input input = job.getInput();
+    	final Output output = job.getOutput();
+    	
         log.info( "STARTING merge %s for input %s and output %s ", delegate.getName(), input, output );
 
         Scheduler scheduler = new Scheduler( config ) {
 
                 public void invoke( Host host, Partition part ) throws Exception {
 
-                    Message message = createSchedulerMessage( "exec", delegate, part, input, output );
+                    Message message = createSchedulerMessage( "exec", job, part );
                     new Client().invoke( host, "merger", message );
                     
                 }
@@ -158,12 +183,24 @@ public class Controller {
         log.info( "COMPLETED merge %s for input %s and output %s ", delegate.getName(), input, output );
 
     }
-    
+  
     public void reduce( final Class delegate,
-                        final Input input,
-                        final Output output ) 
+    				    final Input input,
+    				    final Output output ) 
+            		throws Exception {
+    	
+    	reduce( new Job().setDelegate( delegate )
+		                 .setInput( input )
+		                 .setOutput( output ) );    	
+    }
+    
+    public void reduce( final Job job ) 
         throws Exception {
 
+    	final Class delegate = job.getDelegate();
+    	final Input input = job.getInput();
+    	final Output output = job.getOutput();
+    	
         log.info( "STARTING reduce %s for input %s and output %s ", delegate.getName(), input, output );
 
         // we need to support reading input from the shuffler.  If the user
@@ -184,7 +221,7 @@ public class Controller {
 
                 public void invoke( Host host, Partition part ) throws Exception {
 
-                    Message message = createSchedulerMessage( "exec", delegate, part, input, output );
+                    Message message = createSchedulerMessage( "exec", job, part );
                     new Client().invoke( host, "reducer", message );
                     
                 }
@@ -215,11 +252,13 @@ public class Controller {
     }
 
     private Message createSchedulerMessage( String action,
-                                            Class delegate,
-                                            Partition partition,
-                                            Input input,
-                                            Output output ) {
+                                            Job job,
+                                            Partition partition ) {
 
+    	Class delegate = job.getDelegate();
+    	Input input = job.getInput();
+    	Output output = job.getOutput();
+    	
         int idx;
 
         Message message = new Message();

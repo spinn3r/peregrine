@@ -20,7 +20,7 @@ public class Config {
      * Default port for serving requests.
      */
     public static int DEFAULT_PORT = 11112;
-
+    
     public static int DEFAULT_CONCURRENCY = 1;
     
     /**
@@ -120,18 +120,16 @@ public class Config {
         return host;
     }
 
-    public Config setHost( Host host ) {
+    public void setHost( Host host ) {
         this.host = host;
-        return this;
     }
 
     public Host getController() {
         return controller;
     }
 
-    public Config setController( Host controller ) {
+    public void setController( Host controller ) {
         this.controller = controller;
-        return this;
     }
 
     public boolean isController() {
@@ -150,9 +148,8 @@ public class Config {
         return root;
     }
 
-    public Config setRoot( String root ) {
+    public void setRoot( String root ) {
         this.root = root;
-        return this;
     }
 
     public int getPartitionsPerHost() {
