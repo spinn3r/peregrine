@@ -6,6 +6,7 @@ public class RangePartitionRouter implements PartitionRouter {
 	
 	private int nr_partitions;
 	
+	@Override
     public void init( Config config ) {
     	this.nr_partitions = config.getMembership().size();    	
     	this.range = 255 / nr_partitions;

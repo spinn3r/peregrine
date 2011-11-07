@@ -43,8 +43,14 @@ public class StructWriter {
     }
 
     public StructWriter writeInt( int value ) {
+    	//FIXME: use channel buffers directly.. 
     	//buff.writeInt( value );
     	buff.writeBytes( IntBytes.toByteArray(value) );
+    	return this;
+    }
+
+    public StructWriter writeLong( int value ) {
+    	buff.writeBytes( LongBytes.toByteArray(value) );
     	return this;
     }
     

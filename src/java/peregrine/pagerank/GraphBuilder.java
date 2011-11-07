@@ -77,8 +77,6 @@ public class GraphBuilder {
                                   int source,
                                   List<Integer> targets ) throws Exception {
 
-        boolean keyIsHashcode = true;
-
         //byte[] hash = Hashcode.getHashcode( ""+source );
 
         byte[] hash = LongBytes.toByteArray( source );
@@ -90,7 +88,7 @@ public class GraphBuilder {
             value.add( target_key );
         }
         
-        writer.write( key, value, keyIsHashcode );
+        writer.write( key, value );
 
     }
 

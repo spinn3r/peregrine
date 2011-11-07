@@ -2,28 +2,8 @@
   perforamnce, we can go ahead and replicate the sort temporary files so that
   hte other replicas can resume if necessary.
 
-- I think ALL buffers should be done with mmap:
-
-    - creating a buffer() and then mlocking the buffer into memory for shuffle
-      sorting would be ideal.
-
-    - the buffer extent system would all be done outside of java
-
-    - I would need SOME way to keep track of memory and which structures are
-      using memory ... java wouldn't give this to me (including jprofiler)
-
-    - transferTo would make read and sorting faster
-
-    - all network IO could use transferTo as well... 
       
-- AH!!!!! the problem now is that I'm reading the SAME data N times when in FACT
-  I should be reading it ONE time and handing it out to ALL partitions.... THIS
-  is a big problem.... and it's not even doing sequential reads of the data.
-  Hm...  Is this true?  The issue is that I"m reading from 8 shuffle files ...
 
-  2011-10-28 23:21:39,699  INFO [peregrine.pfsd.ReducerHandler:2] peregrine.reduce.sorter.ChunkSorter Going to sort: /d2/peregrine-fs/tmp/shuffle/default/0000000327.tmp
-
-    how am I going to fix that.
 
 - Make sure the controller and the slaves ALL have the same partitioning
   config...  I imagine this could JUST be a hash of the config and or

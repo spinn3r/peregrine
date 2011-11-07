@@ -235,9 +235,10 @@ public class Config {
     /**
      * For a given key, in bytes, route it to the correct partition/partition.
      */
-    public Partition route( byte[] key_bytes,
-                            boolean keyIsHashcode ) {
+    public Partition route( byte[] key_bytes ) {
 
+    	boolean keyIsHashcode= true;
+    	
         int nr_partitions = membership.size();
         
         // TODO: we should to build out an entirely new router which we can

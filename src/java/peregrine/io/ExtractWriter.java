@@ -42,34 +42,20 @@ public class ExtractWriter {
         
     }
 
-    public void write( Key key, Value value )
+    public void write( Key key, Value value ) 
         throws IOException {
 
-        write( key, value, false );
-        
-    }
-
-    public void write( byte[] key, byte[] value )
-        throws IOException {
-
-        write( key, value, false );
-        
-    }
-
-    public void write( Key key, Value value, boolean keyIsHashcode ) 
-        throws IOException {
-
-        write( key.toBytes(), value.toBytes(), keyIsHashcode );
+        write( key.toBytes(), value.toBytes() );
         
     }
     
     /**
      * If the Key is already a hashcode and we can route over it specify keyIsHashcode=true.
      */
-    public void write( byte[] key, byte[] value, boolean keyIsHashcode )
+    public void write( byte[] key, byte[] value )
         throws IOException {
 
-        Partition partition = config.route( key, keyIsHashcode );
+        Partition partition = config.route( key );
         
         write( partition, key, value );
         
