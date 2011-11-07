@@ -96,14 +96,7 @@ public class DefaultChunkWriter implements ChunkWriter {
 
         length += buff.writerIndex();
 
-        byte[] backing = buff.array();
-        int len = buff.writerIndex();
-        
-        byte[] result = new byte[ len ];
-        System.arraycopy( backing, 0, result, 0, len );
-
-        // FIXME: this should not use a copy here... 
-        out.write( result );
+        out.write( buff.array() , 0,  buff.writerIndex() );
 
         buff.resetReaderIndex();
         buff.resetWriterIndex();

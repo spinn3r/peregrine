@@ -80,16 +80,11 @@ public class DefaultChunkReader implements ChunkReader {
     
     public DefaultChunkReader( byte[] data )
         throws IOException {
-
-        //FIXME: refactor this to use a ChannelBuffer ... via
-        //ChannelBuffers.wrapped() ... 
-        
+         
         this.length = data.length;
-
-        byte[] size_bytes = new byte[ IntBytes.LENGTH ];
-        System.arraycopy( data, data.length - IntBytes.LENGTH, size_bytes, 0, IntBytes.LENGTH );
-
-        setSize( IntBytes.toInt( size_bytes ) );
+        
+        ChannelBuffer buff = ChannelBuffers.wrappedBuffer( data );
+        setSize( buff.getInt( buff.writerIndex() - IntBytes.LENGTH ) );
 
         this.input = new ByteArrayInputStream( data );
         this.varintReader = new VarintReader( this.input );
