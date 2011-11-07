@@ -38,18 +38,18 @@ public class DefaultChunkWriter implements ChunkWriter {
 
     public DefaultChunkWriter( File file ) throws IOException {
 
-        this.out = getOutputStream( file.getPath() );
+        this.out = getOutputStream( file );
         
     }
 
-    public static OutputStream getOutputStream( String path ) throws IOException {
+    public static OutputStream getOutputStream( File file ) throws IOException {
 
         OutputStream out;
         
         if ( USE_ASYNC )
-            out = new AsyncOutputStream( path );
+            out = new AsyncOutputStream( file );
         else 
-            out = new FileOutputStream( path );
+            out = new FileOutputStream( file );
 
         return out;
         

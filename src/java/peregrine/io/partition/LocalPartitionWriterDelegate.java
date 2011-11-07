@@ -46,17 +46,12 @@ public class LocalPartitionWriterDelegate extends BasePartitionWriterDelegate {
 
     @Override
     public OutputStream newChunkWriter( int chunk_id ) throws IOException {
+    	
+    	File file = LocalPartition.getChunkFile( config, partition, path, chunk_id );
 
-        // FIXME: move this to LocalPartition.getChunkFile
-        
-        String local = config.getPath( partition, path );
+        log.info( "Creating new local chunk writer: %s" , file );
 
-        String chunk_name = LocalPartition.getFilenameForChunkID( chunk_id );
-        String chunk_path = new File( local, chunk_name ).getPath();
-
-        log.info( "Creating new local chunk writer: %s" , chunk_path );
-
-        return DefaultChunkWriter.getOutputStream( chunk_path );
+        return DefaultChunkWriter.getOutputStream( file );
         
     }
 
