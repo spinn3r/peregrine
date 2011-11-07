@@ -43,20 +43,17 @@ public class StructWriter {
     }
 
     public StructWriter writeInt( int value ) {
-    	//FIXME: use channel buffers directly.. 
-    	//buff.writeInt( value );
-    	buff.writeBytes( IntBytes.toByteArray(value) );
+    	buff.writeInt( value );
     	return this;
     }
 
     public StructWriter writeLong( int value ) {
-    	buff.writeBytes( LongBytes.toByteArray(value) );
+    	buff.writeLong(value);
     	return this;
     }
     
     public StructWriter writeDouble( double value ) {
-    	// FIXME why isn't this using writeDouble?
-        buff.writeBytes( LongBytes.toByteArray( Double.doubleToLongBits( value ) ) );
+    	buff.writeDouble(value);
         return this;
     }
     
