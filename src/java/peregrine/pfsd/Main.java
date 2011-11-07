@@ -1,10 +1,6 @@
 package peregrine.pfsd;
 
-import java.io.*;
-
 import peregrine.config.*;
-import peregrine.rpc.*;
-
 import org.apache.log4j.xml.DOMConfigurator;
 
 import com.spinn3r.log5j.Logger;

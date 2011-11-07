@@ -3,7 +3,6 @@ package peregrine.config;
 import java.lang.reflect.*;
 import java.util.*;
 
-import peregrine.util.*;
 import peregrine.util.primitive.LongBytes;
 
 import com.spinn3r.log5j.Logger;

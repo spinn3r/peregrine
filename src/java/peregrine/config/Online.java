@@ -1,8 +1,5 @@
 package peregrine.config;
 
-import java.util.*;
-import java.util.concurrent.*;
-
 import com.spinn3r.log5j.*;
 
 import peregrine.util.*;

@@ -2,7 +2,6 @@ package peregrine.shuffle.sender;
 
 import org.jboss.netty.buffer.*;
 
-import peregrine.util.*;
 import peregrine.util.primitive.IntBytes;
 import peregrine.io.chunk.*;
 

@@ -1,9 +1,7 @@
 package peregrine.shuffle;
 
 import java.io.*;
-import java.nio.channels.*;
 import java.util.*;
-import peregrine.util.*;
 import peregrine.util.primitive.IntBytes;
 import peregrine.values.*;
 import peregrine.config.Config;

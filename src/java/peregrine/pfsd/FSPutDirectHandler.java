@@ -4,13 +4,11 @@ import static org.jboss.netty.handler.codec.http.HttpResponseStatus.*;
 import static org.jboss.netty.handler.codec.http.HttpVersion.*;
 
 import java.io.*;
-import java.nio.*;
 import java.nio.channels.*;
 
 import org.jboss.netty.buffer.*;
 import org.jboss.netty.channel.*;
 import org.jboss.netty.handler.codec.http.*;
-import peregrine.io.async.*;
 
 /**
  */

@@ -5,7 +5,6 @@ import java.nio.charset.Charset;
 import org.jboss.netty.buffer.*;
 
 import peregrine.util.*;
-import peregrine.util.primitive.*;
 
 /**
  * 

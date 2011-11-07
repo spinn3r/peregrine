@@ -3,7 +3,6 @@ package peregrine;
 import java.util.*;
 import peregrine.io.*;
 import peregrine.keys.*;
-import peregrine.util.*;
 import peregrine.util.primitive.IntBytes;
 import peregrine.io.partition.*;
 import peregrine.task.*;

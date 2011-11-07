@@ -2,7 +2,6 @@ package peregrine;
 
 import java.util.*;
 import peregrine.io.*;
-import peregrine.util.*;
 import peregrine.util.primitive.*;
 
 public class TestMapReduce extends peregrine.BaseTestWithTwoDaemons {

@@ -9,7 +9,6 @@ import java.util.regex.*;
 import org.jboss.netty.buffer.*;
 import org.jboss.netty.channel.*;
 import org.jboss.netty.handler.codec.http.*;
-import peregrine.util.*;
 import peregrine.util.primitive.IntBytes;
 import peregrine.shuffle.receiver.*;
 

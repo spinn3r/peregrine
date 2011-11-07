@@ -1,7 +1,6 @@
 package peregrine.config;
 
 import java.util.*;
-import java.util.concurrent.*;
 
 public class Membership {
     
