@@ -57,9 +57,6 @@ public class ShuffleJobOutput implements JobOutput, LocalPartitionReaderListener
 
     protected void emit( int to_partition, byte[] key , byte[] value ) {
 
-        if ( DISABLED ) /* FIXME: remove this check before we ship */
-            return;
-
         shuffleSenderBuffer.emit( to_partition, key, value );
         ++emits;
     }

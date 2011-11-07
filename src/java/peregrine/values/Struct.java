@@ -3,8 +3,11 @@ package peregrine.values;
 import java.io.*;
 import java.util.*;
 
+import org.jboss.netty.buffer.*;
+
 import peregrine.*;
 import peregrine.util.*;
+import peregrine.util.primitive.*;
 
 /**
  * Stores a list of byte arrays.  The nice thing is that you can just APPEND to
@@ -64,14 +67,21 @@ public class Struct implements Value {
 
         try {
 
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        	int len = 0;
+            for( byte[] value : values ) {
+                len += value.length;
+            }
+
+            ChannelBuffer buff = ChannelBuffers.buffer( len + IntBytes.LENGTH );
             
             for( byte[] value : values ) {
-                bos.write( VarintWriter.write( value.length ) );
-                bos.write( value);
+                VarintWriter.write( buff, value.length );
+                buff.writeBytes( value );
             }
             
-            return bos.toByteArray();
+            byte[] result = new byte[ buff.writerIndex() ];
+            buff.readBytes( result );
+            return result;
             
         } catch ( Exception e ) {
             throw new RuntimeException( e );
