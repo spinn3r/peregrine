@@ -54,11 +54,6 @@ public class Pagerank {
                            new Input( new ShuffleInputReference( "nr_dangling" ) ),
                            new Output( "/pr/out/nr_dangling" ) );
 
-        //now read in the output and make sure our results are correct...
-
-        //FIXME: this broke no the local version and we ned to add it back in.
-        //TestBroadcastMapReduce.assertValueOnAllPartitions( "/pr/out/nr_nodes", 12 );
-
         // init the empty rank_vector table ... we need to merge against it.
         controller.map( Mapper.class, new Input(), new Output( "/pr/out/rank_vector" ) );
 

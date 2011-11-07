@@ -1,6 +1,9 @@
 package peregrine.values;
 
 import java.io.*;
+
+import org.jboss.netty.buffer.*;
+
 import peregrine.util.*;
 import peregrine.util.primitive.*;
 
@@ -9,17 +12,16 @@ import peregrine.util.primitive.*;
  */
 public class StructReader {
 
-    private UnsafeInputStream unsafe;
-
     private VarintReader varintReader;
-
+    private ChannelBuffer buff;
+    
     public StructReader( byte[] data ) {
-        this( new ByteArrayInputStream( data ) );
+        this( ChannelBuffers.wrappedBuffer( data ) );
     }
 
-    public StructReader( InputStream is ) {
-        this.unsafe = new UnsafeInputStream( is );
-        this.varintReader = new VarintReader( is );
+    public StructReader( ChannelBuffer buff ) {
+    	this.buff = buff;
+        this.varintReader = new VarintReader( buff );
     }
 
     public int readVarint() {
@@ -27,57 +29,21 @@ public class StructReader {
     }
 
     public double readDouble() {
-
-        byte[] data = new byte[8];
-        unsafe.read( data );
-
-        return Double.longBitsToDouble( LongBytes.toLong( data ) );
-
+        return buff.readDouble();
     }
 
     public int readInt() {
-
-        byte[] data = new byte[4];
-        unsafe.read( data );
-
-        return IntBytes.toInt( data );
-
+        return buff.readInt();
     }
 
     public byte[] read( byte[] data ) {
-        unsafe.read( data );
+        buff.readBytes( data );
         return data;
     }
     
     public byte[] readHashcode() {
-
-        byte[] result = new byte[Hashcode.HASH_WIDTH];
-        unsafe.read( result );
-
-        return result;
-
+        return read(new byte[Hashcode.HASH_WIDTH]);
     }
 
 }
 
-class UnsafeInputStream {
-
-    private InputStream delegate = null;
-    
-    public UnsafeInputStream( InputStream is ) {
-        this.delegate = is;
-    }
-
-    public void read( byte[] data ) {
-
-        try {
-
-            this.delegate.read( data );
-            
-        } catch ( IOException e ) {
-            throw new RuntimeException(e);
-        }
-        
-    }
-
-}

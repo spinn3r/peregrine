@@ -12,10 +12,6 @@ import peregrine.util.*;
  */
 public class Struct implements Value {
 
-    //FIXME: rewrite this so that we can use varints without the length prefix
-    //being required but also support it with intermediate values during
-    //reductions.
-    
     public List<byte[]> values = new ArrayList();
 
     private int ptr = 0;

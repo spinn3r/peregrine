@@ -70,7 +70,15 @@ public class ShuffleInputReader {
         // data but in practice this may be a premature optimization.
         
         in = new FileInputStream( file );
-        StructReader struct = new StructReader( in );
+        
+        memLock = new MemLock( in.getFD(), 0, file.length() );
+        
+        // mmap the WHOLE file. We won't actually use these pages if we dont'
+        // read them so this make it less difficult to figure out what to map.
+        MappedByteBuffer map = in.getChannel().map( FileChannel.MapMode.READ_ONLY, 0, file.length() );
+        this.buffer = ChannelBuffers.wrappedBuffer( map );
+        
+        StructReader struct = new StructReader( buffer );
 
         struct.read( new byte[ ShuffleOutputWriter.MAGIC.length ] );
 
@@ -121,13 +129,6 @@ public class ShuffleInputReader {
         }
 
         partitionIterator = partitions.iterator();
-        
-        memLock = new MemLock( in.getFD(), 0, file.length() );
-        
-        // mmap the WHOLE file. We won't actually use these pages if we dont'
-        // read them so this make it less difficult to figure out what to map.
-        MappedByteBuffer map = in.getChannel().map( FileChannel.MapMode.READ_ONLY, 0, file.length() );
-        this.buffer = ChannelBuffers.wrappedBuffer( map );
 
         nextPartition();
         

@@ -9,6 +9,7 @@ public class VarintReader {
     
     public VarintReader() {}
 
+    //FIXME: remove this and no longer read from an InputStream.
     public VarintReader( InputStream is ) {
         this.byteReader = new InputStreamByteReader( is );
     }

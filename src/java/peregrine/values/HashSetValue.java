@@ -8,7 +8,6 @@ import peregrine.util.*;
 
 /**
  * A set of hashcodes.
- ** FIXME: change this name from HashSetValue to avoid confusion with java.util.HashSet
  */
 public class HashSetValue implements Value {
 
