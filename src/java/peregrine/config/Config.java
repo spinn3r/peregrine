@@ -24,7 +24,7 @@ public class Config {
     public static int DEFAULT_CONCURRENCY = 1;
     
     /**
-     * Default root dir for serving files.
+     * Default root directory for serving files.
      */
     public static String DEFAULT_ROOT = "/tmp/peregrine-fs";
 

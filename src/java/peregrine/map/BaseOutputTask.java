@@ -66,7 +66,7 @@ public abstract class BaseOutputTask {
 
     public void teardown() throws IOException {
 
-        //FIXME: close ALL of these jobs even if one of them fails and then
+        //TODO: close ALL of these jobs even if one of them fails and then
         //throw ALL exceptions.  Also we need to gossip here if it is failing
         //talking to a remote host.
 
@@ -125,17 +125,11 @@ public abstract class BaseOutputTask {
     protected void sendFailedToController( Throwable cause ) throws IOException {
 
         Message message = new Message();
-
-        // include the full stack trace 
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        cause.printStackTrace( new PrintStream( out ) );
-
-        String stacktrace = new String( out.toByteArray() );
         
         message.put( "action" ,     "failed" );
         message.put( "host",        config.getHost().toString() );
         message.put( "partition",   partition.getId() );
-        message.put( "stacktrace",  stacktrace );
+        message.put( "stacktrace",  cause );
 
         log.info( "Sending failed message to controller: %s", message );
         

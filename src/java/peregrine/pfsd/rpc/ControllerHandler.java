@@ -74,6 +74,18 @@ public class ControllerHandler extends RPCHandler {
 		    }
 		} );
 		
+		put( "gossip", new RPCHandler() {
+			
+		    public void handleMessage( Channel channel, FSDaemon daemon, Message message )
+		            throws Exception {
+
+		    	// mark that a machine has failed to process some unit of work.
+		    	
+	            return;
+		    	
+		    }
+		} );
+		
 	}};
 	
     public void handleMessage( Channel channel, FSDaemon daemon, Message message )

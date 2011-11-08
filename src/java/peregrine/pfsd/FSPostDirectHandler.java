@@ -25,7 +25,15 @@ public class FSPostDirectHandler extends SimpleChannelUpstreamHandler {
     private static ExecutorService executors =
         Executors.newCachedThreadPool( new DefaultThreadFactory( FSPostDirectHandler.class) );
 
-    private static Map<String,RPCHandler> handlers = new HashMap();
+	private static Map<String,RPCHandler> handlers = new HashMap() {{
+    	
+    	put( "/shuffler/RPC",    new ShufflerHandler() );
+        put( "/controller/RPC",  new ControllerHandler() );
+        put( "/mapper/RPC",      new MapperHandler() );
+        put( "/reducer/RPC",     new ReducerHandler() );
+        put( "/merger/RPC",      new MergerHandler() );
+        
+    }};
     
     private FSHandler handler;
 
@@ -102,14 +110,6 @@ public class FSPostDirectHandler extends SimpleChannelUpstreamHandler {
         channel.write(response).addListener(ChannelFutureListener.CLOSE);
         return;
 
-    }
-
-    static {
-        handlers.put( "/shuffler/RPC",    new ShufflerHandler() );
-        handlers.put( "/controller/RPC",  new ControllerHandler() );
-        handlers.put( "/mapper/RPC",      new MapperHandler() );
-        handlers.put( "/reducer/RPC",     new ReducerHandler() );
-        handlers.put( "/merger/RPC",      new MergerHandler() );
     }
     
 }

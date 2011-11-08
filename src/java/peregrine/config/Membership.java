@@ -1,9 +1,16 @@
 package peregrine.config;
 
+import java.io.*;
 import java.util.*;
+
+import com.spinn3r.log5j.*;
+
+import peregrine.rpc.*;
 
 public class Membership {
     
+    private static final Logger log = Logger.getLogger();
+
     protected Map<Partition,List<Host>> hostsByPartition = new HashMap();
 
     protected Map<Host,List<Partition>> partitionsByHost = new HashMap();
@@ -157,6 +164,37 @@ public class Membership {
             partitions.add( part );
             
         }
+        
+    }
+
+    /**
+     * Send gossip to the controller that a given host is not cooperating for 
+     * functioning correctly.
+     * 
+     * @param host
+     * @param cause
+     * @throws IOException 
+     */
+    public void sendGossip( Host host, Throwable cause ) {
+    	
+        try {
+        	
+			Message message = new Message();
+			
+			message.put( "action",     "gossip" );
+			message.put( "host",       host );
+			message.put( "cause",      cause );
+
+			new Client().invoke( config.getController(), "controller", message );
+			
+		} catch (IOException e) {
+			
+			// there isn't much we can do on gossip failure.  It almost certainly 
+			// means that this machine is off the network and we're shutting 
+			// down anyway.
+			log.error( "Unable to gossip: ", e );
+			
+		}
         
     }
     

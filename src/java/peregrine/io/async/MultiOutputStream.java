@@ -2,6 +2,9 @@ package peregrine.io.async;
 
 import java.io.*;
 import java.util.*;
+
+import peregrine.config.*;
+
 import com.spinn3r.log5j.*;
 
 /**
@@ -14,11 +17,15 @@ import com.spinn3r.log5j.*;
  */
 public class MultiOutputStream extends BaseOutputStream {
 
+	// FIXME: I can dump the ENTIRE multi output stream if I also dump the 
+	// entire local output writer work and ALWAYS use pipeline writes which will
+	// both simplify the code and make it more maintainable.
+	
     private static final Logger log = Logger.getLogger();
 
-    protected List<OutputStream> delegates;
+    protected Map<Host,OutputStream> delegates;
     
-    public MultiOutputStream( List<OutputStream> delegates ) throws IOException {
+    public MultiOutputStream( Map<Host,OutputStream> delegates ) throws IOException {
 
         if ( delegates == null || delegates.size() == 0 )
             throw new IOException( "No delegates" );
@@ -78,8 +85,13 @@ public class MultiOutputStream extends BaseOutputStream {
      * do) but in production we should probably gossip about the failure with
      * the controller so that we understand what is happening.
      */
-    public void handleFailure( Throwable cause ) {
-        log.error( "Unable to handle chunk: " , cause );
+    public void handleFailure( Host host, Throwable cause ) {
+    	
+        log.error( "Unable to handle chunk on host: " + host , cause );
+        
+        // FIXME: we need to gossip about this because a host may be down and 
+        // failing writes
+        
     }
 
     protected void assertDelegates() throws IOException {
@@ -106,20 +118,25 @@ abstract class MultiOutputStreamIterator {
     
         writer.assertDelegates();
 
-        Iterator<OutputStream> it = writer.delegates.iterator();
-
+        Set<Map.Entry<Host,OutputStream>> set = writer.delegates.entrySet();
+        
+        Iterator<Map.Entry<Host,OutputStream>> it = set.iterator();
+        
+        
         while( it.hasNext() ) {
 
+        	Map.Entry<Host,OutputStream> entry = it.next();
+        	
             try {
-
-                OutputStream current = it.next();
+                        	
+                OutputStream current = entry.getValue();
 
                 handle( current );
 
             } catch ( Throwable t ) {
 
                 it.remove();
-                writer.handleFailure( t );
+                writer.handleFailure( entry.getKey(), t );
 
             }
 

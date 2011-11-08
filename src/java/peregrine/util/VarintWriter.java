@@ -1,7 +1,5 @@
 package peregrine.util;
 
-import java.util.*;
-
 import org.jboss.netty.buffer.*;
 
 public class VarintWriter {

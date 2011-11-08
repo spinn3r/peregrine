@@ -26,10 +26,7 @@ public class ThreadLocalMessageDigest extends ThreadLocal {
             return MessageDigest.getInstance( name );
             
         } catch ( Exception e ) {
-
-            e.printStackTrace();
-            return null;
-
+        	throw new RuntimeException( e );
         }
 
     }

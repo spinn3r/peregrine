@@ -1,5 +1,6 @@
 package peregrine.rpc;
 
+import java.io.*;
 import java.util.*;
 import org.jboss.netty.handler.codec.http.*;
 
@@ -20,6 +21,22 @@ public class Message extends StructMap {
 
     }
 
+    public void put( String key, Object value ) {
+    	put( key, value.toString() );
+    }
+    
+    public void put( String key, Throwable throwable ) {
+    	
+        // include the full stack trace 
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        throwable.printStackTrace( new PrintStream( out ) );
+
+        String stacktrace = new String( out.toByteArray() );
+    	
+        put( key, stacktrace );
+        
+    }
+    
     public String toString() {
 
         QueryStringEncoder encoder = new QueryStringEncoder( "" );

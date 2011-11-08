@@ -136,7 +136,7 @@ public class DefaultPartitionWriter implements PartitionWriter {
 
         closeChunkWriter();
         
-        List<OutputStream> outputStreams = new ArrayList();
+        Map<Host,OutputStream> outputStreams = new HashMap();
 
         RemoteChunkWriterClient client = null;
 
@@ -150,14 +150,14 @@ public class DefaultPartitionWriter implements PartitionWriter {
 
                 OutputStream out = delegate.newChunkWriter( chunk_id );
 
-                outputStreams.add( out );
+                outputStreams.put( delegate.getHost(), out );
                 
             } else if ( client == null ) {
 
                 OutputStream out = delegate.newChunkWriter( chunk_id );
                 
                 client = (RemoteChunkWriterClient)out;
-                outputStreams.add( client );
+                outputStreams.put( delegate.getHost(), client );
 
             } else {
                 pipeline += delegate.getHost() + " ";

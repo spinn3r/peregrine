@@ -207,7 +207,7 @@ public abstract class Scheduler {
 
 }
 
-class Progress<T> extends ConcurrentSet<T>{ 
+class Progress<T> extends MarkSet<T>{ 
     
 }
 
@@ -237,7 +237,7 @@ class Concurrency<T> {
 
 }
 
-class Failure extends Progress<Fail> {
+class Failure extends MarkSet<Fail> {
     
 }
 
