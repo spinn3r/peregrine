@@ -120,6 +120,7 @@ public class Controller {
     	merge( new Job().setDelegate( delegate )
     			        .setInput( input )
     			        .setOutput( output ) );
+        	
     }
     
     /**

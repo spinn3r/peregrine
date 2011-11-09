@@ -42,5 +42,9 @@ public class ShufflePacket {
                               data.capacity() );
 
     }
+
+    public int getOffset() {
+        return offset;
+    }                            
     
 }

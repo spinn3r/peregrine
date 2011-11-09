@@ -3,3 +3,4 @@ target
 logs
 clover_html
 .clover
+.idea

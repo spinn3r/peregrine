@@ -35,14 +35,14 @@ public class ShuffleInputChunkReader {
     private ShufflePacket pack = null;
     
     /**
-     * Our current position in the key/value stream of items.
+     * Our current position in the key/value stream of items for this partition.
      */
-    private int idx = 0;
+    private Index partition_idx;;
 
     /**
      * The index of packet reads.
      */
-    private int packet_idx = 0;
+    private Index packet_idx;
     
     private int key_offset;
     private int key_length;
@@ -73,6 +73,9 @@ public class ShuffleInputChunkReader {
         if ( header == null ) {
             throw new IOException( "Unable to find header for partition: " + partition );
         }
+
+        partition_idx = new Index( header.count );
+        packet_idx = new Index( header.nr_packets );
         
     }
 
@@ -81,7 +84,7 @@ public class ShuffleInputChunkReader {
     }
 
     public boolean hasNext() {
-        return idx < header.count;
+        return partition_idx.hasNext();
     }
 
     public void next() {
@@ -100,7 +103,7 @@ public class ShuffleInputChunkReader {
 
                 pack.data.readerIndex( pack.data.readerIndex() + value_length ); 
 
-                ++idx;
+                partition_idx.next();
                 
                 return;
                 
@@ -119,14 +122,14 @@ public class ShuffleInputChunkReader {
 
     private boolean nextShufflePacket() {
         
-        if ( packet_idx < header.nr_packets ) {
+        if ( packet_idx.hasNext() ) {
             
             pack = queue.take();
             
             varintReader  = new VarintReader( pack.data );
             pack.data.readerIndex( 0 );
 
-            ++packet_idx;
+            packet_idx.next();
             
             return true;
             
@@ -171,6 +174,28 @@ public class ShuffleInputChunkReader {
         return String.format( "%s:%s:%s" , getClass().getName(), path, partition );
     }
 
+    /**
+     * Index for moving forward over items.
+     */
+    static class Index {
+
+        private int idx = 0;
+        private int max;
+        
+        public Index( int max ) {
+            this.max = max;
+        }
+        
+        public boolean hasNext() {
+            return idx < max;
+        }
+
+        public void next() {
+            ++idx;
+        }
+        
+    }
+    
     static class PrefetchReader implements Callable {
 
         private static final Logger log = Logger.getLogger();

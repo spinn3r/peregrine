@@ -2,6 +2,8 @@ package peregrine;
 
 import java.util.*;
 import org.jboss.netty.buffer.*;
+import peregrine.config.*;
+import peregrine.shuffle.*;
 
 public class Test {
 
@@ -60,13 +62,26 @@ public class Test {
     }
 
     public static void main( String[] args ) throws Exception {
-    	
-    	for( int i = 0; i <= 255; ++i ) {
-    		int test = (byte)i & 0xFF;
-    	
-    		System.out.printf( "%s\n", test );
-    	}
-    	
+
+        Config config = new Config();
+        config.setReplicas( 1 );
+        config.setConcurrency( 1 );
+
+        config.setHost( new Host( "localhost" ) );
+        config.getHosts().add( config.getHost() );
+        
+        config.init();
+        
+        ShuffleInputChunkReader reader
+            = new ShuffleInputChunkReader( config,
+                                           new Partition( 0 ),
+                                           "/d2/peregrine-fs/tmp/shuffle/default/0000000000.tmp" );
+
+        while( reader.hasNext() ) {
+            reader.next();
+            System.out.printf( "." );
+        }
+        
 /*
         test0();
         test0();
@@ -79,7 +94,6 @@ public class Test {
         test1();
         */
 
-        
     }
 
 }

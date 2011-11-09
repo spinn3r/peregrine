@@ -63,6 +63,8 @@ public class ChunkSorter extends BaseChunkSorter {
             
             while( lookup.hasNext() ) {
 
+                // TODO: move this to use transferTo ... 
+                
                 lookup.next();
 
                 int start = lookup.get() - 1;
@@ -78,7 +80,7 @@ public class ChunkSorter extends BaseChunkSorter {
                 buffer.readBytes( value );
 
                 writer.write( key, value );
-
+                
             }
 
             writer.close();

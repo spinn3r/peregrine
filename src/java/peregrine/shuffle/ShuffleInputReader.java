@@ -202,19 +202,15 @@ public class ShuffleInputReader {
 
         String path = args[0];
 
-        /*
-        if ( args.length == 2 ) {
-            partition = Integer.parseInt( args[1] );
-        }
-        */
-
         // debug code to dump a shuffle.
 
         List<Partition> partitions = new ArrayList();
 
+        partitions.add( new Partition( 0 ) );
+        partitions.add( new Partition( 1 ) );
         partitions.add( new Partition( 2 ) );
-        partitions.add( new Partition( 7 ) );
-
+        partitions.add( new Partition( 3 ) );
+        
         System.out.printf( "Reading from partitions: %s\n", partitions );
 
         ShuffleInputReader reader = new ShuffleInputReader( path, partitions );

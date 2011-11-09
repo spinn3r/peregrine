@@ -11,12 +11,12 @@ import peregrine.io.*;
  */
 public class Job {
 
-	private String name;
-	private String description;
-	private Class delegate;
-	private Class combiner;
-	private Input input;
-	private Output output;
+	protected String name;
+	protected String description;
+	protected Class delegate;
+	protected Class combiner;
+	protected Input input;
+	protected Output output;
 	
 	public String getName() {
 		return name;
