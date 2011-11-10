@@ -59,7 +59,7 @@ public class RemoteChunkWriterClient extends BaseOutputStream implements Channel
      * Stores the result of this IO operation.  Boolean.TRUE if it was success
      * or Throwable it it was a failure.
      */
-    protected BlockingQueue<Object> result = new LinkedBlockingDeque( 1 );
+    protected BlockingQueue<Object> result = new LinkedBlockingDeque();
 
     /**
      * True when the open() method has been called.
@@ -213,17 +213,29 @@ public class RemoteChunkWriterClient extends BaseOutputStream implements Channel
     }
 
     public void failed( Throwable throwable ) throws Exception {
+
         this.cause = throwable;
-        this.result.put( throwable );
+
+        updateResult( throwable );
 
         this.channelState = CLOSED;
 
     }
 
     public void success() throws Exception {
-        this.result.put( Boolean.TRUE );
+
+        updateResult( Boolean.TRUE );
     }
 
+    private void updateResult( Object value ) throws Exception {
+
+        if ( result.size() >= 1 )
+            throw new Exception( "Too many result messages: " + result );
+
+        result.put( value );
+        
+    }
+    
     public boolean isChannelStateClosed() {
         return channelState == CLOSED;
     }

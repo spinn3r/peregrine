@@ -61,9 +61,6 @@ public class ChunkSorter extends BaseChunkSorter {
 
             ChunkWriter writer = new DefaultChunkWriter( output );
 
-            System.out.printf( "FIXME: reading %s keys\n", lookup.size() );
-
-            int idx = 0;
             while( lookup.hasNext() ) {
 
                 // TODO: move this to use transferTo ... 
@@ -75,9 +72,6 @@ public class ChunkSorter extends BaseChunkSorter {
 
                 int key_length = varintReader.read();
 
-                if ( key_length != 8 )
-                    System.out.printf( "FIXME: %,d of %,d not 8: %s\n", idx, lookup.size(), key_length );
-
                 byte[] key = new byte[ key_length ];
                 buffer.readBytes( key );
 
@@ -86,8 +80,6 @@ public class ChunkSorter extends BaseChunkSorter {
                 buffer.readBytes( value );
 
                 writer.write( key, value );
-
-                ++idx;
                 
             }
 
