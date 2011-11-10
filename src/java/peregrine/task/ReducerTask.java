@@ -28,20 +28,18 @@ public class ReducerTask extends BaseOutputTask implements Callable {
 
     private Reducer reducer;
 
-    private Class delegate_class = null;
-
     private ShuffleInputReference shuffleInput;
 
     public ReducerTask( Config config,
                         Partition partition,
-                        Class delegate_class,
+                        Class delegate,
                         ShuffleInputReference shuffleInput )
         throws Exception {
 
         super.init( partition );
 
         this.config = config;
-        this.delegate_class = delegate_class;
+        this.delegate = delegate;
         this.shuffleInput = shuffleInput;
         
     }
@@ -51,7 +49,7 @@ public class ReducerTask extends BaseOutputTask implements Callable {
         if ( output.getReferences().size() == 0 )
             throw new IOException( "Reducer tasks require output." );
 
-        this.reducer = (Reducer)delegate_class.newInstance();
+        this.reducer = (Reducer)delegate.newInstance();
 
         try {
 

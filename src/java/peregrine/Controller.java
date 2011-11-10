@@ -193,11 +193,11 @@ public class Controller {
     private void withScheduler( String operation, Job job, Scheduler scheduler ) 
     		throws Exception {
     	
-    	final Class delegate = job.getDelegate();
-    	final Input input = job.getInput();
-    	final Output output = job.getOutput();
-    	
-        log.info( "STARTING %s %s for input %s and output %s ", operation, delegate.getName(), input, output );
+        String desc = String.format( "%s %s (%s) for input %s and output %s ",
+                                     operation, job.getDelegate().getName(),
+                                     job.getName(), job.getInput(), job.getOutput() );
+
+        log.info( "STARTING %s", desc );
         
         daemon.setScheduler( scheduler );
 
@@ -208,8 +208,8 @@ public class Controller {
         // shufflers can be flushed after any stage even reduce as nothing will
         // happen
         flushAllShufflers();
-        
-        log.info( "COMPLETED %s %s for input %s and output %s ", operation, delegate.getName(), input, output );
+
+        log.info( "COMPLETED %s", desc );
 
     }
     

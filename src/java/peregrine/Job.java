@@ -1,6 +1,7 @@
 package peregrine;
 
 import peregrine.io.*;
+import java.util.concurrent.atomic.*;
 
 /**
  * Represents a job which much be run by Peregrine.  All necessary metadata is 
@@ -11,13 +12,16 @@ import peregrine.io.*;
  */
 public class Job {
 
-	protected String name;
+    public static AtomicInteger id = new AtomicInteger();
+
+    protected long timestamp = System.currentTimeMillis();
+	protected String name = String.format( "%010d.%010d", timestamp, id.getAndIncrement() );
 	protected String description;
 	protected Class delegate;
 	protected Class combiner;
 	protected Input input;
 	protected Output output;
-	
+
 	public String getName() {
 		return name;
 	}
@@ -60,6 +64,8 @@ public class Job {
 		this.output = output;
 		return this;
 	}
-
-	
+    public long getTimestamp() {
+        return timestamp;
+    }
+    
 }

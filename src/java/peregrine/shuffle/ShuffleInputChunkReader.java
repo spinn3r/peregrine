@@ -217,16 +217,13 @@ public class ShuffleInputChunkReader {
             // get the top priority replicas to reduce over.
             List<Replica> replicas = config.getMembership().getReplicasByPriority( config.getHost() );
 
-            log.info( "Working with replicas: %s", replicas );
+            log.info( "Working with replicas %s for blocking queue on host %s", replicas, config.getHost() );
             
             List<Partition> partitions = new ArrayList();
             
             for( Replica replica : replicas ) {
-
                 lookup.put( replica.getPartition(), new SimpleBlockingQueue( QUEUE_CAPACITY ) );
-
                 partitions.add( replica.getPartition() );
-                
             }
             
             // now open the shuffle file and read in the shuffle packets adding

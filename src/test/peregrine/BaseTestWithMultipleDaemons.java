@@ -19,9 +19,9 @@ public abstract class BaseTestWithMultipleDaemons extends peregrine.BaseTest {
 
     protected List<Config> configs = new ArrayList();
 
-    private int concurrency;
-    private int replicas;
-    private int nr_daemons;
+    private int concurrency = -1;
+    private int replicas    = -1;
+    private int nr_daemons  = -1;
     
     public BaseTestWithMultipleDaemons() {
         this( 1, 1, 2 );

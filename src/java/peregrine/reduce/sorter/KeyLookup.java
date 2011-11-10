@@ -85,6 +85,10 @@ public class KeyLookup {
         return lookup[idx];
     }
 
+    public int size() {
+        return size;
+    }
+    
     public void reset() {
         this.idx = start - 1;
     }

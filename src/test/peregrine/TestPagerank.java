@@ -3,7 +3,11 @@ package peregrine;
 import peregrine.io.*;
 import peregrine.pagerank.*;
 
-public class TestPagerank extends peregrine.BaseTestWithOneDaemon {
+public class TestPagerank extends peregrine.BaseTestWithMultipleDaemons {
+
+    public TestPagerank() {
+        super( 1, 2, 5 );
+    }
 
     public void test1() throws Exception {
 

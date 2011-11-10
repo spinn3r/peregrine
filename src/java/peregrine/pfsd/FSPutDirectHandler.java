@@ -20,6 +20,10 @@ public class FSPutDirectHandler extends FSPutBaseHandler {
     
     public FSPutDirectHandler( FSHandler handler ) throws IOException {
         super( handler );
+
+        // FIXME: ALL of this should be async... In fact ALL the IO here should
+        // be async.
+        new File( new File( handler.path ).getParent() ).mkdirs();
         
         // used so that we can get our channel
         FileOutputStream out = new FileOutputStream( handler.path );
@@ -41,6 +45,7 @@ public class FSPutDirectHandler extends FSPutBaseHandler {
 
             if ( ! chunk.isLast() ) {
 
+                // transferTo the data in this handler... 
                 ChannelBuffer content = chunk.getContent();    
                 content.getBytes( 0, output, content.writerIndex() );
 

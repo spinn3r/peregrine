@@ -25,6 +25,11 @@ public abstract class BaseOutputTask {
     protected TaskStatus status = TaskStatus.UNKNOWN;
 
     protected Throwable cause = null;
+
+    /**
+     * The job we should be running.
+     */
+    protected Class delegate = null;
     
     protected void init( Partition partition ) {
         this.partition = partition;
@@ -70,6 +75,8 @@ public abstract class BaseOutputTask {
         //throw ALL exceptions.  Also we need to gossip here if it is failing
         //talking to a remote host.
 
+        log.info( "Task %s on %s is %s", delegate, partition, status );
+        
         for( JobOutput current : jobOutput ) {
             log.info( "Closing job output: %s" , current );
             current.close();

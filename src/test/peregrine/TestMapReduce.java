@@ -4,7 +4,7 @@ import java.util.*;
 import peregrine.io.*;
 import peregrine.util.primitive.*;
 
-public class TestMapReduce extends peregrine.BaseTestWithTwoDaemons {
+public class TestMapReduce extends peregrine.BaseTestWithMultipleConfigs {
 
     public static int MAX = 90000;
     
@@ -55,29 +55,9 @@ public class TestMapReduce extends peregrine.BaseTestWithTwoDaemons {
 
     }
 
-    public void test1() throws Exception {
-
-        // 100000000 * 32 == 3.2GB
-        // 10000000 * 32 == 320MB
-
-        for( int i = 0; i < 10; ++i ) {
-            
-            Runtime runtime = Runtime.getRuntime();
-            
-            System.gc() ;
-
-            long before = runtime.totalMemory() - runtime.freeMemory();
-
-            doTest( MAX );
-
-            System.gc() ;
-
-            long after = runtime.totalMemory() - runtime.freeMemory();
-
-            System.out.printf( "memory: used: %,d, diff: %,d\n", after, (after-before) );
-
-        }
-            
+    @Override
+    public void doTest() throws Exception {
+        doTest( MAX );
     }
 
     private void doTest( int max ) throws Exception {

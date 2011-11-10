@@ -16,7 +16,6 @@ public abstract class BaseMapperTask extends BaseOutputTask implements Callable 
 
     protected Host host;
     protected int nr_partitions;
-    protected Class mapper_clazz = null;
 
     protected List<ShuffleJobOutput> shuffleJobOutput = new ArrayList();
 
@@ -33,14 +32,14 @@ public abstract class BaseMapperTask extends BaseOutputTask implements Callable 
                       Membership partitionMembership,
                       Partition partition,
                       Host host,
-                      Class mapper_clazz ) {
+                      Class delegate ) {
 
         super.init( partition );
 
         this.config         = config;
         this.host           = host;
         this.nr_partitions  = partitionMembership.size();
-        this.mapper_clazz   = mapper_clazz;
+        this.delegate       = delegate;
         
     }
 
@@ -63,7 +62,7 @@ public abstract class BaseMapperTask extends BaseOutputTask implements Callable 
 
         try {
 
-            return mapper_clazz.newInstance();
+            return delegate.newInstance();
 
         } catch ( Exception e ) {
 

@@ -43,10 +43,10 @@ public class PartitionLayoutEngine {
         this.config                  = config;
 
         if ( nr_hosts == 0 )
-            throw new RuntimeException( "No hosts defined." );
+            throw new PartitionLayoutException( "No hosts defined." );
 
         if ( nr_replicas == 0 || nr_replicas > 3 )
-            throw new RuntimeException( "Invalid nr_replicas defined: " + nr_replicas );
+            throw new PartitionLayoutException( "Invalid nr_replicas defined: " + nr_replicas );
 
     }
 
@@ -59,10 +59,10 @@ public class PartitionLayoutEngine {
         // additional hosts
         
         if ( nr_hosts < nr_replicas )
-            throw new RuntimeException( "Incorrect number of hosts." );
+            throw new PartitionLayoutException( "Incorrect number of hosts." );
 
         if ( nr_partitions_per_host % nr_replicas != 0 ) {
-            throw new RuntimeException( "nr_partitions_per_host % nr_replicas must equal zero to fit partitions correctly." );
+            throw new PartitionLayoutException( "nr_partitions_per_host % nr_replicas must equal zero to fit partitions correctly." );
         }
 
         int min_hosts = nr_replicas * nr_partitions_per_host;
@@ -80,7 +80,7 @@ public class PartitionLayoutEngine {
             String.format( "%,d hosts can fail before you risk partition lost due to nr_replicas." , extra_hosts );
 
         if ( extra_hosts <= 0 && nr_hosts != 1 ) {
-            throw new RuntimeException( extra_hosts_message );
+            throw new PartitionLayoutException( extra_hosts_message );
         } else {
             log.info( "%s", extra_hosts_message );
         }
@@ -190,7 +190,7 @@ public class PartitionLayoutEngine {
             }
 
             if ( nr_replicas > 1 && hosts.size() < nr_partitions_per_host ) {
-                throw new RuntimeException( String.format( "Replica config for %s is too small: %s", host, hosts ) );
+                throw new PartitionLayoutException( String.format( "Replica config for %s is too small: %s", host, hosts ) );
             }
             
         }

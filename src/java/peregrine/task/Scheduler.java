@@ -124,7 +124,7 @@ public abstract class Scheduler {
         pending.clear( partition );
 
         // add this to the list of available hosts so that we can schedule 
-        // additional work.peregrine.task
+        // additional work.
         available.put( host );
 
         concurrency.decr( host );
@@ -192,7 +192,12 @@ public abstract class Scheduler {
 
             }
 
-            String message = String.format( "pending: %s, completed: %s, available: %s, spare: %s, online: %s",
+            String message = String.format( "\n" +
+                                            "pending:    %s\n" + 
+                                            "completed:  %s\n" +
+                                            "available:  %s\n" +
+                                            "spare:      %s\n" +
+                                            "online:     %s",
                                             pending, completed, available, spare, membership.getOnline() );
 
             if ( changedMessage.hasChanged( message ) ) {
@@ -291,3 +296,4 @@ class ChangedMessage {
     }
 
 }
+
