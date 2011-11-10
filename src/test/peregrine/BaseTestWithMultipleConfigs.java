@@ -10,6 +10,10 @@ public abstract class BaseTestWithMultipleConfigs extends peregrine.BaseTest {
 
     private static final Logger log = Logger.getLogger();
 
+    public static int[] CONCURRENCY = new int[] { 1, 2, 4, 8 };
+    public static int[] REPLICAS = new int[] { 1, 2, 3 };
+    public static int[] HOSTS = new int[] { 1, 2, 4, 8 };
+
     protected Host controller;
 
     protected Config config;
@@ -63,15 +67,11 @@ public abstract class BaseTestWithMultipleConfigs extends peregrine.BaseTest {
 
     public void test() throws Exception {
 
-        int[] concurrencyTests = new int[] { 1, 2, 4, 8 };
-        int[] replicaTests = new int[] { 1, 2, 3 };
-        int[] hostTests = new int[] { 1, 2, 4, 8 };
+        for( int concurrency : CONCURRENCY ) {
 
-        for( int concurrency : concurrencyTests ) {
+            for( int replicas : REPLICAS ) {
 
-            for( int replicas : replicaTests ) {
-
-                for( int hosts : hostTests ) {
+                for( int hosts : HOSTS ) {
 
                     this.concurrency = concurrency;
                     this.replicas = replicas;
