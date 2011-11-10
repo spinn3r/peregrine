@@ -193,6 +193,10 @@ public class ShuffleInputChunkReader {
         public void next() {
             ++idx;
         }
+
+        public String toString() {
+            return String.format( "idx: %s, max: %s", idx, max );
+        }
         
     }
     
@@ -242,6 +246,7 @@ public class ShuffleInputChunkReader {
             while( reader.hasNext() ) {
                 
                 ShufflePacket pack = reader.next();
+                
                 lookup.get( new Partition( pack.to_partition ) ).put( pack );
 
                 ++count;

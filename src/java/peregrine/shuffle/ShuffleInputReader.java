@@ -16,8 +16,9 @@ import org.jboss.netty.buffer.*;
  */
 public class ShuffleInputReader {
 
-    public static int BUFFER_SIZE = 8192;
-
+    /**
+     * The current packet index we're on.
+     */
     private int packet_idx = 0;
 
     /**
@@ -127,7 +128,7 @@ public class ShuffleInputReader {
             nr_packets += header.nr_packets;
             
         }
-
+        
         partitionIterator = partitions.iterator();
 
         nextPartition();
@@ -162,8 +163,9 @@ public class ShuffleInputReader {
     
     public ShufflePacket next() throws IOException {
 
-        if ( packet_idx >= nr_packets )
+        if ( packet_idx >= nr_packets ) {
             return null;
+        }
 
         ++packet_idx;
 
@@ -172,10 +174,12 @@ public class ShuffleInputReader {
         int to_partition    = buffer.readInt();
         int len             = buffer.readInt();
         int offset          = buffer.readerIndex();
-
+        
         if ( to_partition != current.getId() ) {
             // skip over this partition and move to the next one.
             nextPartition();
+
+            --packet_idx; /* this doesn't count */
             return next();
         }
             
@@ -204,12 +208,14 @@ public class ShuffleInputReader {
 
         // debug code to dump a shuffle.
 
-        List<Partition> partitions = new ArrayList();
+        List<Partition> partitions = new ArrayList() {{
 
-        partitions.add( new Partition( 0 ) );
-        partitions.add( new Partition( 1 ) );
-        partitions.add( new Partition( 2 ) );
-        partitions.add( new Partition( 3 ) );
+            add( new Partition( 0 ) );
+            add( new Partition( 1 ) );
+            //add( new Partition( 2 ) );
+            //add( new Partition( 3 ) );
+
+        }};
         
         System.out.printf( "Reading from partitions: %s\n", partitions );
 
@@ -224,8 +230,7 @@ public class ShuffleInputReader {
 
             ShufflePacket pack = reader.next();
 
-            System.out.printf( "from_partition: %s, from_chunk: %s, to_partition: %s, data length: %,d\n",
-                               pack.from_partition, pack.from_chunk, pack.to_partition, pack.data.capacity() );
+            System.out.printf( "pack: %s\n", pack );
 
             System.out.printf( "%s\n", Hex.pretty( pack.data ) );
             

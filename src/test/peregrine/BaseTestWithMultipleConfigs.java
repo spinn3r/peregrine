@@ -10,9 +10,9 @@ public abstract class BaseTestWithMultipleConfigs extends peregrine.BaseTest {
 
     private static final Logger log = Logger.getLogger();
 
-    public static int[] CONCURRENCY = new int[] { 1, 2, 4, 8 };
-    public static int[] REPLICAS = new int[] { 1, 2, 3 };
-    public static int[] HOSTS = new int[] { 1, 2, 4, 8 };
+    public static int[] CONCURRENCY  = new int[] { 1, 2, 4, 8 };
+    public static int[] REPLICAS     = new int[] { 1, 2, 3 };
+    public static int[] HOSTS        = new int[] { 1, 2, 4, 8 };
 
     protected Host controller;
 
@@ -36,8 +36,7 @@ public abstract class BaseTestWithMultipleConfigs extends peregrine.BaseTest {
         if ( concurrency == 0 )
             return;
         
-        log.info( "Working with concurrency=%s, replicas=%s, hosts=%s" ,
-                  concurrency, replicas, hosts );
+        log.info( "Working with concurrency=%s, replicas=%s, hosts=%s" , concurrency, replicas, hosts );
 
         controller = new Host( "localhost", 11111 );
         config = newConfig( "localhost", 11111 );
@@ -81,6 +80,7 @@ public abstract class BaseTestWithMultipleConfigs extends peregrine.BaseTest {
                         setUp();
                     } catch ( PartitionLayoutException e ) {
                         // this is just an invalid config so skip it.
+                        log.warn( "Invalid config: %s" , e.getMessage() );
                         continue;
                     }
 
