@@ -43,12 +43,8 @@ public class TestMapReduce extends peregrine.BaseTestWithMultipleConfigs {
                 ints.add( IntBytes.toInt( val ) );
             }
             
-            // full of fail...
-            /*
-              FIXME: add this back in
             if ( values.size() != 2 )
                 throw new RuntimeException( String.format( "%s does not equal %s (%s) on nth reduce %s" , values.size(), 2, ints, nth ) );
-            */
 
             ++nth;
             
@@ -89,10 +85,6 @@ public class TestMapReduce extends peregrine.BaseTestWithMultipleConfigs {
             writer.write( key, value );
         }
 
-        /*
-
-        // FIXME add this back in.
-          
         // write data 2x to verify that sorting works.
         for( int i = 0; i < max; ++i ) {
             byte[] key = LongBytes.toByteArray( i );
@@ -100,16 +92,12 @@ public class TestMapReduce extends peregrine.BaseTestWithMultipleConfigs {
 
             writer.write( key, value );
         }
-        */
 
         writer.close();
         
         String output = String.format( "/test/%s/test1.out", getClass().getName() );
 
         Controller controller = new Controller( config );
-
-        // FIXME: flag the mapper and reducer to verify that the right number of
-        // keys were read.
         
         controller.map( Map.class, path );
         controller.reduce( Reduce.class, new Input(), new Output( output ) );
