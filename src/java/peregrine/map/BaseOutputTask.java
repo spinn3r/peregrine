@@ -84,6 +84,10 @@ public abstract class BaseOutputTask {
 
         log.info( "Closing job output...done" );
 
+    }
+
+    public void report() throws IOException {
+
         if ( status == TaskStatus.COMPLETE ) {
             sendCompleteToController();
         } else if ( status == TaskStatus.FAILED ) {
@@ -108,7 +112,7 @@ public abstract class BaseOutputTask {
         log.info( "Memory footprint: used=%,d , free=%,d , total=%,d", usedMemory, freeMemory, totalMemory );
 
     }
-
+    
     /**
      * Mark the partition for this task complete.  
      */

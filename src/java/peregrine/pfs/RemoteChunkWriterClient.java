@@ -17,11 +17,15 @@ import peregrine.pfsd.*;
 import peregrine.util.*;
 import peregrine.util.netty.*;
 
+import com.spinn3r.log5j.Logger;
+
 /**
  * HTTP client that supports chunked PUT to a remote PFS node.
  * 
  */
 public class RemoteChunkWriterClient extends BaseOutputStream implements ChannelBufferWritable {
+
+    private static final Logger log = Logger.getLogger();
 
     protected static NioClientSocketChannelFactory socketChannelFactory =
         new NioClientSocketChannelFactory( Executors.newCachedThreadPool( new DefaultThreadFactory( RemoteChunkWriterClient.class ) ), 
@@ -230,7 +234,7 @@ public class RemoteChunkWriterClient extends BaseOutputStream implements Channel
     private void updateResult( Object value ) throws Exception {
 
         if ( result.size() >= 1 )
-            throw new Exception( "Too many result messages: " + result );
+            log.warn( "Too many result messages: " + result );
 
         result.put( value );
         

@@ -29,6 +29,8 @@ public class MapperTask extends BaseMapperTask {
                 mapper.cleanup();
             }
 
+            teardown();
+
             setStatus( TaskStatus.COMPLETE );
 
         } catch ( Throwable t ) { 
@@ -39,7 +41,7 @@ public class MapperTask extends BaseMapperTask {
             setCause( t );
 
         } finally {
-            teardown();
+            report();
         }
         
         return null;

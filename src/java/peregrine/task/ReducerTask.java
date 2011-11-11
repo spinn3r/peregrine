@@ -65,6 +65,8 @@ public class ReducerTask extends BaseOutputTask implements Callable {
                 reducer.cleanup();
             }
 
+            teardown();
+            
             setStatus( TaskStatus.COMPLETE );
             
         } catch ( Throwable t ) { 
@@ -74,9 +76,7 @@ public class ReducerTask extends BaseOutputTask implements Callable {
             setCause( t );
 
         } finally {
-
-            teardown();
-
+            report();
         }
 
         return null;
