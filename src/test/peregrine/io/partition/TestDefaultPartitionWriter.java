@@ -10,14 +10,12 @@ import peregrine.io.chunk.*;
 
 public class TestDefaultPartitionWriter extends peregrine.BaseTestWithMultipleConfigs {
 
-    public static int[] TEST = new int[] { 0, 1, 2, 3 , 10, 100, 1000 , 10000 };
-
-    //public static int[] TEST = new int[] { 0 };
+    public static int[] TESTS = new int[] { 0, 1, 2, 3 , 10, 100, 1000 , 10000 };
 
     @Override
     public void doTest() throws Exception {
 
-        for( int test : TEST ) {
+        for( int test : TESTS ) {
             doTest( test );
         }
         

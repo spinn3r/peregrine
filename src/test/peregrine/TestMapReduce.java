@@ -6,16 +6,10 @@ import peregrine.util.primitive.*;
 
 public class TestMapReduce extends peregrine.BaseTestWithMultipleConfigs {
 
-    //public static int MAX = 90000;
+    // TODO: test 0, 1, etc... but we will need to broadcast this value to test
+    // things.
+    public static int[] TESTS = { 100, 1000 };
 
-    public static int MAX = 1;
-
-    // FIXME: 0 and 1 both break 
-    //public static int MAX = 2;
-
-    // test with odd numbers tooo... 3, 9 , etc.
-    public static int[] TESTS = { 0, 1, 2, 4, 8, 16, 32, 64 };
-    
     public static class Map extends Mapper {
 
         @Override
@@ -31,13 +25,9 @@ public class TestMapReduce extends peregrine.BaseTestWithMultipleConfigs {
     public static class Reduce extends Reducer {
 
         int count = 0;
-
-        int nth = 0;
         
         @Override
         public void reduce( byte[] key, List<byte[]> values ) {
-
-            ++count;
 
             List<Integer> ints = new ArrayList();
 
@@ -46,9 +36,9 @@ public class TestMapReduce extends peregrine.BaseTestWithMultipleConfigs {
             }
             
             if ( values.size() != 2 )
-                throw new RuntimeException( String.format( "%s does not equal %s (%s) on nth reduce %s" , values.size(), 2, ints, nth ) );
+                throw new RuntimeException( String.format( "%s does not equal %s (%s) on nth reduce %s" , values.size(), 2, ints, count ) );
 
-            ++nth;
+            ++count;
             
         }
 
@@ -56,7 +46,7 @@ public class TestMapReduce extends peregrine.BaseTestWithMultipleConfigs {
         public void cleanup() {
 
            if ( count == 0 )
-               throw new RuntimeException();
+               throw new RuntimeException( "count is zero" );
             
         }
 
@@ -64,7 +54,11 @@ public class TestMapReduce extends peregrine.BaseTestWithMultipleConfigs {
 
     @Override
     public void doTest() throws Exception {
-        doTest( MAX );
+
+        for( int test : TESTS ) {
+            doTest( test );
+        }
+        
     }
 
     private void doTest( int max ) throws Exception {
@@ -119,7 +113,7 @@ public class TestMapReduce extends peregrine.BaseTestWithMultipleConfigs {
     public static void main( String[] args ) throws Exception {
 
         if ( args.length > 0 )
-            MAX = Integer.parseInt( args[0] );
+            TESTS = new int[] { Integer.parseInt( args[0] ) };
 
         /*
         BaseTestWithMultipleConfigs.CONCURRENCY  = new int[] { 2 };
