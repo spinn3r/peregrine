@@ -86,6 +86,11 @@ public class RemoteChunkWriterClient extends BaseOutputStream implements Channel
     private boolean closed = false;
 
     /**
+     * True while we are closing.
+     */
+    private boolean closing = false;
+    
+    /**
      * The cause of a failure.
      */
     protected Throwable cause = null;
@@ -248,11 +253,14 @@ public class RemoteChunkWriterClient extends BaseOutputStream implements Channel
 
         // use Netty composite buffers to avoid copying excessive data.
         String prefix = String.format( "%2x", data.writerIndex() );
+        
+        ChannelBuffer result =
+            ChannelBuffers.wrappedBuffer( ChannelBuffers.wrappedBuffer( prefix.getBytes() ),
+                                          ChannelBuffers.wrappedBuffer( CRLF ),
+                                          data,
+                                          ChannelBuffers.wrappedBuffer( CRLF ) );
 
-        return ChannelBuffers.wrappedBuffer( ChannelBuffers.wrappedBuffer( prefix.getBytes() ),
-                                             ChannelBuffers.wrappedBuffer( CRLF ),
-                                             data,
-                                             ChannelBuffers.wrappedBuffer( CRLF ) );
+        return result;
         
     }
 
@@ -262,6 +270,8 @@ public class RemoteChunkWriterClient extends BaseOutputStream implements Channel
 
     public void close() throws IOException {
 
+        closing = true;
+        
         // if we aren't opened there is no reason to do any work.  This could
         // happen if we opened this code and never did a write() to it which
         // would mean we don't have an HTTP connection to the server
@@ -349,6 +359,9 @@ public class RemoteChunkWriterClient extends BaseOutputStream implements Channel
     
     public void write( ChannelBuffer data ) throws IOException {
 
+        if ( ! closing && data.writerIndex() == 0 )
+            return;
+        
         requireOpen();
         
         data = newChannelBuffer( data );

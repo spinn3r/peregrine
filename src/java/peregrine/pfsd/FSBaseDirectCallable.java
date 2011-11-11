@@ -22,7 +22,7 @@ public abstract class FSBaseDirectCallable implements Callable {
         if ( ! dir.exists() ) {
 
             HttpResponse response = new DefaultHttpResponse( HTTP_1_1, NOT_FOUND );
-            channel.write(response);
+            channel.write(response).addListener(ChannelFutureListener.CLOSE);
             return false;
 
         }

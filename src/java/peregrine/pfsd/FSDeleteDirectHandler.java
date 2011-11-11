@@ -80,12 +80,12 @@ class FSDeleteDirectCallable extends FSBaseDirectCallable {
                 
             }
 
-        }
+            HttpResponse response = new DefaultHttpResponse( HTTP_1_1, OK );
+            response.setHeader( "X-deleted", "" + deleted );
+            
+            channel.write(response).addListener(ChannelFutureListener.CLOSE);
 
-        HttpResponse response = new DefaultHttpResponse( HTTP_1_1, OK );
-        response.setHeader( "X-deleted", "" + deleted );
-        
-        channel.write(response).addListener(ChannelFutureListener.CLOSE);
+        }
 
         return null;
         

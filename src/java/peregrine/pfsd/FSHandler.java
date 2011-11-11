@@ -235,7 +235,7 @@ public class FSHandler extends SimpleChannelUpstreamHandler {
         if ( request == null )
             log.error( String.format( "Could not handle initial request (tag=%s): ", tag ), cause );
         else
-            log.error( String.format( "Could not handle request (tag=%s): %s", tag, request.getUri() ) , cause );
+            log.error( String.format( "Could not handle request (tag=%s): %s %s", tag, request.getMethod(), request.getUri() ) , cause );
 
         if (cause instanceof TooLongFrameException) {
             sendError(ctx, BAD_REQUEST);

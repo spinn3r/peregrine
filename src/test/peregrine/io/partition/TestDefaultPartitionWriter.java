@@ -10,8 +10,20 @@ import peregrine.io.chunk.*;
 
 public class TestDefaultPartitionWriter extends peregrine.BaseTestWithMultipleConfigs {
 
+    public static int[] TEST = new int[] { 0, 1, 2, 3 , 10, 100, 1000 , 10000 };
+
+    //public static int[] TEST = new int[] { 0 };
+
     @Override
     public void doTest() throws Exception {
+
+        for( int test : TEST ) {
+            doTest( test );
+        }
+        
+    }
+
+    public void doTest( int max ) throws Exception {
 
         String path = "/tmp/test";
 
@@ -22,8 +34,6 @@ public class TestDefaultPartitionWriter extends peregrine.BaseTestWithMultipleCo
         Partition part = new Partition( 0 );
         
         PartitionWriter writer = new DefaultPartitionWriter( config, part, path );
-
-        int max = 10000;
         
         for ( int i = 0; i < max; ++i ) {
 
@@ -46,7 +56,7 @@ public class TestDefaultPartitionWriter extends peregrine.BaseTestWithMultipleCo
 
         System.out.printf( "We have %,d readers\n", readers.size() );
         
-        assertTrue( readers.size() > 1 ) ;
+        assertTrue( readers.size() >= 1 ) ;
 
         // now create another PartitionWriter this time try to overwrite the
         // existing file and all chunks should be removed.
