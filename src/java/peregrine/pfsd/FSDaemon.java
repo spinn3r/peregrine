@@ -100,10 +100,15 @@ public class FSDaemon {
 
         channel.close().awaitUninterruptibly();
 
+        log.info( "Channel closed." );
+        
         executors.shutdown();
+
+        log.info( "Executors shut down." );
         
         bootstrap.releaseExternalResources();
-        
+
+        log.info( "Resources released." );
         
     }
 

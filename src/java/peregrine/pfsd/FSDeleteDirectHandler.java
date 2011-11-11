@@ -49,12 +49,18 @@ class FSDeleteDirectCallable extends FSBaseDirectCallable {
     
     public Object call() throws Exception {
 
+        int deleted = 0;
+
+        // TODO: if the file does not exist should we return
+        //
+        // HTTP 404 File Not Found ?
+        //
+        // I think this would be the right thing to do
+        //
         if ( exists( channel, path ) ) {
             
             List<File> files = LocalPartition.getChunkFiles( path );
 
-            int deleted = 0;
-            
             for( File file : files ) {
 
                 // TODO: use the new JDK 1.7 API so we can get the reason why the
@@ -65,7 +71,7 @@ class FSDeleteDirectCallable extends FSBaseDirectCallable {
                 if ( ! file.delete() ) {
 
                     HttpResponse response = new DefaultHttpResponse( HTTP_1_1, INTERNAL_SERVER_ERROR );
-                    channel.write(response);
+                    channel.write(response).addListener(ChannelFutureListener.CLOSE);
                     return null;
                     
                 }
@@ -74,13 +80,13 @@ class FSDeleteDirectCallable extends FSBaseDirectCallable {
                 
             }
 
-            HttpResponse response = new DefaultHttpResponse( HTTP_1_1, OK );
-            response.setHeader( "X-deleted", "" + deleted );
-            
-            channel.write(response);
-
         }
-            
+
+        HttpResponse response = new DefaultHttpResponse( HTTP_1_1, OK );
+        response.setHeader( "X-deleted", "" + deleted );
+        
+        channel.write(response).addListener(ChannelFutureListener.CLOSE);
+
         return null;
         
     }

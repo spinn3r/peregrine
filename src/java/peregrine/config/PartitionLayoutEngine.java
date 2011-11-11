@@ -37,6 +37,13 @@ public class PartitionLayoutEngine {
         this.hosts = new ArrayList();
         this.hosts.addAll( config.getHosts() );
 
+        // sort the hosts. In the Set they are not sorted.  The implementation
+        // of this was initially a HashSet which may change but we should always
+        // sort the hosts to make testing easier since we know how the partition
+        // layout apriori.
+        
+        Collections.sort( this.hosts );
+        
         this.nr_hosts                = hosts.size();
         this.nr_partitions_per_host  = config.getPartitionsPerHost();
         this.nr_replicas             = config.getReplicas();
