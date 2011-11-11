@@ -6,7 +6,9 @@ import peregrine.util.primitive.*;
 
 public class TestMapReduce extends peregrine.BaseTestWithMultipleConfigs {
 
-    public static int MAX = 90000;
+    //public static int MAX = 90000;
+
+    public static int MAX = 1;
 
     // FIXME: 0 and 1 both break 
     //public static int MAX = 2;

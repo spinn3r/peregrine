@@ -84,7 +84,14 @@ public abstract class BaseTestWithMultipleConfigs extends peregrine.BaseTest {
                         continue;
                     }
 
-                    doTest();
+                    try {
+
+                        doTest();
+
+                    } catch ( Throwable t ) {
+                        throw new Exception( "Test failed with config: " + config, t );
+                    }
+                    
                     tearDown();
                     
                 }

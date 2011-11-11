@@ -270,7 +270,7 @@ public class RemoteChunkWriterClient extends BaseOutputStream implements Channel
         // don't allow a double close.  This would never return.
         if ( closed ) return;
         
-        //required for chunked encoding.  We must wrote an EOF at the end of the
+        //required for chunked encoding.  We must write an EOF at the end of the
         //stream ot note that there is no more data.
         write( EOF );
 
@@ -283,7 +283,7 @@ public class RemoteChunkWriterClient extends BaseOutputStream implements Channel
 
             // FIXME: this should have a timeout so that we don't block for
             // infinity.  We need a unit test for this... this would basically
-            // emulate infinte write timeouts.
+            // emulate infinte write timeouts... same with waitForClose... 
             
             Object took = result.take();
 

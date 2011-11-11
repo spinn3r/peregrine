@@ -7,12 +7,20 @@ import java.security.*;
 import peregrine.util.*;
 import peregrine.config.Config;
 
-public class TestRemoteChunkWriterClient extends peregrine.PFSTest {
+public class TestRemoteChunkWriterClient extends peregrine.BaseTestWithMultipleConfigs {
 
-    /**
-     * make sure the before and after 
-     */
-    public void test1() throws Exception {
+    public static int[] TEST = new int[] { 0, 1, 2, 4, 8, 16, 32 };
+
+    @Override
+    public void doTest() throws Exception {
+
+        for( int test : TEST ) {
+            doTest( test );
+        }
+        
+    }
+
+    public void doTest( int max ) throws Exception {
 
         URI uri = new URI( "http://localhost:11112/test-write-hash" );
 
@@ -20,7 +28,7 @@ public class TestRemoteChunkWriterClient extends peregrine.PFSTest {
 
         int block = 16384;
         
-        long max = 10 ;
+        long max = 100;
 
         long nr_bytes = (long)max * (long)block;
         
@@ -49,7 +57,7 @@ public class TestRemoteChunkWriterClient extends peregrine.PFSTest {
 
         byte[] digest_value = digest.digest();
 
-        File file = new File( String.format( "%s/test-write-hash", Config.DEFAULT_ROOT ) );
+        File file = new File( String.format( "%s/localhost/11112/test-write-hash", Config.DEFAULT_ROOT ) );
 
         byte[] data = toByteArray( new FileInputStream( file ) );
 
