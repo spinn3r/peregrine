@@ -9,7 +9,7 @@ import peregrine.config.Config;
 
 public class TestRemoteChunkWriterClient extends peregrine.BaseTestWithMultipleConfigs {
 
-    public static int[] TEST = new int[] { 0, 1, 2, 4, 8, 16, 32 };
+    public static int[] TEST = new int[] { 1, 2, 4, 8, 16, 32 };
 
     @Override
     public void doTest() throws Exception {
@@ -28,8 +28,6 @@ public class TestRemoteChunkWriterClient extends peregrine.BaseTestWithMultipleC
 
         int block = 16384;
         
-        long max = 100;
-
         long nr_bytes = (long)max * (long)block;
         
         System.out.printf( "Writing %,d bytes.\n" , nr_bytes );
@@ -72,6 +70,9 @@ public class TestRemoteChunkWriterClient extends peregrine.BaseTestWithMultipleC
     }
 
     public static void main( String[] args ) throws Exception {
+
+        //new TestRemoteChunkWriterClient().doTest( 0 );
+        
         runTests();
     }
 
