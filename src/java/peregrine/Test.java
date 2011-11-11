@@ -4,6 +4,7 @@ import java.util.*;
 import org.jboss.netty.buffer.*;
 import peregrine.config.*;
 import peregrine.shuffle.*;
+import peregrine.util.*;
 
 public class Test {
 
@@ -63,14 +64,28 @@ public class Test {
 
     public static void main( String[] args ) throws Exception {
 
+        //byte[] key = new byte[] { (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF };
+        byte[] key = new byte[] { (byte)-128, (byte)0, (byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0 };
+
         Config config = new Config();
-        config.setReplicas( 1 );
+        config.setReplicas( 2 );
         config.setConcurrency( 1 );
 
         config.setHost( new Host( "localhost" ) );
-        config.getHosts().add( config.getHost() );
+
+        for( int i = 0; i < 5; ++i ) {
+
+            config.getHosts().add( new Host(  "localhost", Config.DEFAULT_PORT + i ) );
+
+        }
         
         config.init();
+
+        Partition part = config.route( key );
+
+        System.out.printf( "part: %s for key %s with config: %s\n", part, Hex.encode( key ), config );
+        
+        /*
         
         ShuffleInputChunkReader reader
             = new ShuffleInputChunkReader( config,
@@ -81,6 +96,7 @@ public class Test {
             reader.next();
             System.out.printf( "." );
         }
+        */
         
 /*
         test0();

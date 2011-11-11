@@ -1,6 +1,7 @@
 package peregrine.config.router;
 
 import peregrine.config.*;
+import peregrine.util.*;
 import peregrine.util.primitive.*;
 
 public class HashPartitionRouter extends BasePartitionRouter {
@@ -14,9 +15,9 @@ public class HashPartitionRouter extends BasePartitionRouter {
         // bytes we can route to 65536 partitions which is probably fine for all
         // users for a LONG time.
 
-        long value = Math.abs( LongBytes.toLong( key ) );
-        int partition = (int)(value % nr_partitions);
-
+        long value = LongBytes.toLong( key );
+        int partition = (int)Math.abs(value % nr_partitions);
+        
         return new Partition( partition );		
 
 	}	

@@ -47,7 +47,7 @@ public class ShuffleJobOutput implements JobOutput, LocalPartitionReaderListener
     public void emit( byte[] key , byte[] value ) {
 
         Partition target = config.route( key );
-
+        
         chunkRef.partition.getId();
         int to_partition    = target.getId();
 
