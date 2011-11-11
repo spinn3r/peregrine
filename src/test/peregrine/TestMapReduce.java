@@ -45,7 +45,7 @@ public class TestMapReduce extends peregrine.BaseTestWithMultipleConfigs {
         @Override
         public void cleanup() {
 
-           if ( count == 0 )
+            if ( count == 0 )
                throw new RuntimeException( "count is zero" );
             
         }
@@ -115,11 +115,11 @@ public class TestMapReduce extends peregrine.BaseTestWithMultipleConfigs {
         if ( args.length > 0 )
             TESTS = new int[] { Integer.parseInt( args[0] ) };
 
-        /*
+        // oncurrency=2, replicas=2, hosts=8
+        
         BaseTestWithMultipleConfigs.CONCURRENCY  = new int[] { 2 };
-        BaseTestWithMultipleConfigs.REPLICAS     = new int[] { 1 };
-        BaseTestWithMultipleConfigs.HOSTS        = new int[] { 1 };
-        */
+        BaseTestWithMultipleConfigs.REPLICAS     = new int[] { 2 };
+        BaseTestWithMultipleConfigs.HOSTS        = new int[] { 8 };
         
         runTests();
 

@@ -96,19 +96,21 @@ public class FSDaemon {
     
     public void shutdown() {
 
-        log.info( "Shutting down PFSd on: %s", config.getHost() );
+        String msg = String.format( "Shutting down PFSd on: %s", config.getHost() );
+        
+        log.info( "%s" , msg );
 
         channel.close().awaitUninterruptibly();
 
-        log.info( "Channel closed." );
+        log.debug( "Channel closed." );
         
         executors.shutdown();
 
-        log.info( "Executors shut down." );
+        log.debug( "Executors shut down." );
         
         bootstrap.releaseExternalResources();
 
-        log.info( "Resources released." );
+        log.info( "%s COMPLETE" , msg );
         
     }
 
