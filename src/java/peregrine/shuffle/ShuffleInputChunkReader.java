@@ -73,8 +73,8 @@ public class ShuffleInputChunkReader {
             throw new IOException( "Unable to find header for partition: " + partition );
         }
 
-        partition_idx = new Index( header.count );
-        packet_idx = new Index( header.nr_packets );
+        partition_idx  = new Index( header.count );
+        packet_idx     = new Index( header.nr_packets );
         
     }
 
@@ -265,7 +265,8 @@ public class ShuffleInputChunkReader {
             
             log.info( "Reading from %s ...done (read %,d packets as %s)", path, count, packetsReadPerPartition );
 
-            // remove thyself
+            // remove thyself so that next time around there isn't a reference
+            // to this path and a new reader will be created.
             manager.reset( path );
             
             return null;
@@ -284,13 +285,19 @@ public class ShuffleInputChunkReader {
         static Map<String,PrefetchReader> instances = new ConcurrentHashMap();
 
         public void reset( String path ) {
-            instances.remove( path );
+
+            synchronized( instances ) {
+                instances.remove( path );
+            }
+            
         }
         
         public PrefetchReader getInstance( Config config, String path )
             throws IOException {
 
-            PrefetchReader result = instances.get( path );
+            PrefetchReader result;
+
+            result = instances.get( path );
 
             if ( result == null ) {
 
@@ -312,7 +319,7 @@ public class ShuffleInputChunkReader {
 
                 }
                 
-            }
+            } 
 
             return result;
             

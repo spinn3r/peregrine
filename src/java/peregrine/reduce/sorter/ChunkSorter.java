@@ -47,7 +47,13 @@ public class ChunkSorter extends BaseChunkSorter {
             
             ChannelBuffer buffer = reader.getBuffer();
 
+            // we need our OWN copy of this buffer so that other thread don't
+            // update the readerIndex and writerIndex
+            buffer = buffer.slice( 0, buffer.writerIndex() );
+            
             lookup = new KeyLookup( reader, buffer );
+
+            log.info( "Key lookup for %s has %,d entries." , partition, lookup.size() );
             
             int depth = 0;
 

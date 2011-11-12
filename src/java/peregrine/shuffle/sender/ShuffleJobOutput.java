@@ -15,8 +15,7 @@ public class ShuffleJobOutput implements JobOutput, LocalPartitionReaderListener
 
     private static final Logger log = Logger.getLogger();
 
-    private static ExecutorService executors =
-        Executors.newFixedThreadPool( 1, new DefaultThreadFactory( ShuffleJobOutput.class) );
+    private ExecutorService executors = null;
 
     public static boolean DISABLED = false;
     
@@ -40,6 +39,8 @@ public class ShuffleJobOutput implements JobOutput, LocalPartitionReaderListener
 
         this.config = config;
         this.name = name;
+
+        executors = Executors.newFixedThreadPool( 1, new DefaultThreadFactory( ShuffleJobOutput.class) );
 
     }
     
@@ -90,6 +91,8 @@ public class ShuffleJobOutput implements JobOutput, LocalPartitionReaderListener
         // the second flush will block until the prev finishs and then not do
         // anything else as no more emits are present.
         flush( true );
+
+        executors.shutdown();
         
     }
 

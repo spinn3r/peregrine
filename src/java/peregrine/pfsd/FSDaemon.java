@@ -22,9 +22,6 @@ public class FSDaemon {
 
     private static final Logger log = Logger.getLogger();
     
-    public static final ExecutorService executors =
-            Executors.newCachedThreadPool( new DefaultThreadFactory( HeartbeatSender.class) );
-    
     private ServerBootstrap bootstrap = null;
 
     private int port;
@@ -103,11 +100,7 @@ public class FSDaemon {
         channel.close().awaitUninterruptibly();
 
         log.debug( "Channel closed." );
-        
-        executors.shutdown();
-
-        log.debug( "Executors shut down." );
-        
+                
         bootstrap.releaseExternalResources();
 
         log.info( "%s COMPLETE" , msg );
