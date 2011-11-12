@@ -83,7 +83,14 @@ public class ShuffleInputChunkReader {
     }
 
     public boolean hasNext() {
-        return partition_idx.hasNext();
+
+        boolean result = partition_idx.hasNext();
+
+        if ( result == false )
+            prefetcher.finished( partition );
+
+        return result;
+
     }
 
     public void next() {
@@ -205,6 +212,8 @@ public class ShuffleInputChunkReader {
 
         public Map<Partition,SimpleBlockingQueue<ShufflePacket>> lookup = new HashMap();
 
+        private Map<Partition,SimpleBlockingQueue<Boolean>> finished = new ConcurrentHashMap();
+
         protected ShuffleInputReader reader = null;
 
         private String path;
@@ -231,6 +240,8 @@ public class ShuffleInputChunkReader {
                 Partition part = replica.getPartition(); 
                 
                 lookup.put( part, new SimpleBlockingQueue( QUEUE_CAPACITY ) );
+                finished.put( part, new SimpleBlockingQueue( 1 ) );
+                
                 packetsReadPerPartition.put( part, new AtomicInteger() );
                 partitions.add( part );
                 
@@ -241,6 +252,13 @@ public class ShuffleInputChunkReader {
 
             this.reader = new ShuffleInputReader( path, partitions );
 
+        }
+
+        /**
+         * Called so that partitions that are read can note when they are finished.
+         */
+        public void finished( Partition partition ) {
+            finished.get( partition ).put( Boolean.TRUE );
         }
         
         public Object call() throws Exception {
@@ -262,13 +280,18 @@ public class ShuffleInputChunkReader {
                 ++count;
                 
             }
-            
+
+            // make sure all partitions are finished reading.
+            for ( SimpleBlockingQueue _finished : finished.values() ) {
+                _finished.take();
+            }
+
             log.info( "Reading from %s ...done (read %,d packets as %s)", path, count, packetsReadPerPartition );
 
             // remove thyself so that next time around there isn't a reference
             // to this path and a new reader will be created.
             manager.reset( path );
-            
+
             return null;
             
         }
