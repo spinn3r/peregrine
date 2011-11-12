@@ -3,10 +3,9 @@ package peregrine.shuffle;
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.*;
 import peregrine.util.*;
-import peregrine.config.Config;
-import peregrine.config.Partition;
-import peregrine.config.Replica;
+import peregrine.config.*;
 import org.jboss.netty.buffer.*;
 
 import com.spinn3r.log5j.Logger;
@@ -211,6 +210,8 @@ public class ShuffleInputChunkReader {
         private String path;
 
         private PrefetchReaderManager manager = null;
+
+        private Map<Partition,AtomicInteger> packetsReadPerPartition = new HashMap();
         
         public PrefetchReader( PrefetchReaderManager manager, Config config, String path )
             throws IOException {
@@ -226,8 +227,13 @@ public class ShuffleInputChunkReader {
             List<Partition> partitions = new ArrayList();
             
             for( Replica replica : replicas ) {
-                lookup.put( replica.getPartition(), new SimpleBlockingQueue( QUEUE_CAPACITY ) );
-                partitions.add( replica.getPartition() );
+
+                Partition part = replica.getPartition(); 
+                
+                lookup.put( part, new SimpleBlockingQueue( QUEUE_CAPACITY ) );
+                packetsReadPerPartition.put( part, new AtomicInteger() );
+                partitions.add( part );
+                
             }
             
             // now open the shuffle file and read in the shuffle packets adding
@@ -242,18 +248,22 @@ public class ShuffleInputChunkReader {
             log.info( "Reading from %s ...", path );
 
             int count = 0;
-            
+
             while( reader.hasNext() ) {
                 
                 ShufflePacket pack = reader.next();
+
+                Partition part = new Partition( pack.to_partition ); 
                 
-                lookup.get( new Partition( pack.to_partition ) ).put( pack );
+                packetsReadPerPartition.get( part ).getAndIncrement();
+                    
+                lookup.get( part ).put( pack );
 
                 ++count;
                 
             }
             
-            log.info( "Reading from %s ...done (read %,d packets)", path, count );
+            log.info( "Reading from %s ...done (read %,d packets as %s)", path, count, packetsReadPerPartition );
 
             // remove thyself
             manager.reset( path );

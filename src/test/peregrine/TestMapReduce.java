@@ -36,7 +36,8 @@ public class TestMapReduce extends peregrine.BaseTestWithMultipleConfigs {
             }
             
             if ( values.size() != 2 )
-                throw new RuntimeException( String.format( "%s does not equal %s (%s) on nth reduce %s" , values.size(), 2, ints, count ) );
+                throw new RuntimeException( String.format( "%s does not equal %s (%s) on nth reduce %s" ,
+                                                           values.size(), 2, ints, count ) );
 
             ++count;
             
@@ -115,11 +116,9 @@ public class TestMapReduce extends peregrine.BaseTestWithMultipleConfigs {
         if ( args.length > 0 )
             TESTS = new int[] { Integer.parseInt( args[0] ) };
 
-        // oncurrency=2, replicas=2, hosts=8
-        
         BaseTestWithMultipleConfigs.CONCURRENCY  = new int[] { 2 };
-        BaseTestWithMultipleConfigs.REPLICAS     = new int[] { 2 };
-        BaseTestWithMultipleConfigs.HOSTS        = new int[] { 8 };
+        BaseTestWithMultipleConfigs.REPLICAS     = new int[] { 1 };
+        BaseTestWithMultipleConfigs.HOSTS        = new int[] { 1 };
         
         runTests();
 

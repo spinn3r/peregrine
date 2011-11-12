@@ -114,6 +114,11 @@ public class FSDaemon {
         
     }
 
+    @Override
+    public String toString() {
+        return String.format( "FSDaemon: %s", config.getHost() );
+    }
+    
     class HeartbeatSender implements Callable<Void>{
     	
         public static final long ONLINE_SLEEP_INTERVAL  = 30000L;

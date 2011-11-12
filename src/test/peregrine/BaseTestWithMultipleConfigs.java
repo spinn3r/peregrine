@@ -60,6 +60,9 @@ public abstract class BaseTestWithMultipleConfigs extends peregrine.BaseTest {
             daemon.shutdown();
         }
 
+        daemons = new ArrayList();
+        configs = new ArrayList();
+
         super.tearDown();
 
     }
@@ -77,22 +80,21 @@ public abstract class BaseTestWithMultipleConfigs extends peregrine.BaseTest {
                     this.hosts = hosts;
 
                     try {
+
                         setUp();
+                        doTest();
+
                     } catch ( PartitionLayoutException e ) {
+
                         // this is just an invalid config so skip it.
                         log.warn( "Invalid config: %s" , e.getMessage() );
                         continue;
-                    }
-
-                    try {
-
-                        doTest();
 
                     } catch ( Throwable t ) {
                         throw new Exception( "Test failed with config: " + config, t );
+                    } finally {
+                        tearDown();
                     }
-                    
-                    tearDown();
                     
                 }
                 
