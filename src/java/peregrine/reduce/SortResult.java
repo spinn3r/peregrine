@@ -1,6 +1,7 @@
 package peregrine.reduce;
 
 import java.io.*;
+import peregrine.util.*;
 import peregrine.values.*;
 import peregrine.io.chunk.*;
 
@@ -24,11 +25,14 @@ public class SortResult {
     public void accept( SortEntry entry ) throws IOException {
 
         FullKeyComparator comparator = new FullKeyComparator();
+
+        System.out.printf( "FIXME: on entry: %s\n", Hex.encode( entry.key ) );
         
         if ( last == null || comparator.compare( last.key, entry.key ) != 0 ) {
 
+            System.out.printf( "FIXME: gonna try to emit: \n", Hex.encode( entry.key ) );
+            
             emit( last );
-
             last = entry;
 
         } else {
@@ -46,11 +50,12 @@ public class SortResult {
 
     private void emit( SortEntry entry ) throws IOException {
 
-        if ( entry == null )
+        if ( entry == null ) {
             return;
+        }
         
         if ( listener != null ) {
-
+            System.out.printf( "FIXME: sweet gonna call onFinalValue... \n" );
             listener.onFinalValue( entry.key , entry.getValues() );
         }
 
@@ -61,6 +66,8 @@ public class SortResult {
         if ( writer != null )
             writer.write( entry.key, struct.toBytes() );
 
+        System.out.printf( "FIXME: emitted!\n" );
+        
     }
     
 }

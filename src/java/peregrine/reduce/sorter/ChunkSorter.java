@@ -37,7 +37,7 @@ public class ChunkSorter extends BaseChunkSorter {
 
         try {
         
-            log.info( "Going to sort: %s", input );
+            log.info( "Going to sort: %s which is %,d bytes", input, input.length() );
 
             // TODO: do this async so that we can read from disk and compute at
             // the same time... we need a background thread to trigger the

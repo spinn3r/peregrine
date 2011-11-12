@@ -1,3 +1,10 @@
+- I don't like the reduce sorting framework class names... they are too retro:
+
+    ChunkSorter
+    ChunkMerger
+    SortResult
+    Toplevelsortentryfactory ... 
+
 - If the CPU performance of performing a sort is MUCH slower than the disk
   perforamnce, we can go ahead and replicate the sort temporary files so that
   hte other replicas can resume if necessary.

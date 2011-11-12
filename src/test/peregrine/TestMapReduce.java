@@ -1,6 +1,7 @@
 package peregrine;
 
 import java.util.*;
+import java.util.concurrent.atomic.*;
 import peregrine.io.*;
 import peregrine.util.primitive.*;
 
@@ -8,7 +9,7 @@ public class TestMapReduce extends peregrine.BaseTestWithMultipleConfigs {
 
     // TODO: test 0, 1, etc... but we will need to broadcast this value to test
     // things.
-    public static int[] TESTS = { 100, 1000 };
+    public static int[] TESTS = { 1000 };
 
     public static class Map extends Mapper {
 
@@ -24,29 +25,43 @@ public class TestMapReduce extends peregrine.BaseTestWithMultipleConfigs {
 
     public static class Reduce extends Reducer {
 
-        int count = 0;
+        AtomicInteger count = new AtomicInteger();
         
         @Override
         public void reduce( byte[] key, List<byte[]> values ) {
 
+            System.out.printf( "FIXME: in reduce... \n" );
+            
             List<Integer> ints = new ArrayList();
 
             for( byte[] val : values ) {
                 ints.add( IntBytes.toInt( val ) );
             }
+
+            System.out.printf( "FIXME: after values\n" );
             
-            if ( values.size() != 2 )
+            if ( values.size() != 2 ) {
+
+                System.out.printf( "FIXME: wrong number of values... ouch!\n" );
+                
                 throw new RuntimeException( String.format( "%s does not equal %s (%s) on nth reduce %s" ,
                                                            values.size(), 2, ints, count ) );
+            }
 
-            ++count;
-            
+            count.getAndIncrement();
+
+            System.out.printf( "FIXME: count is now: %s\n", count.get() );
+
+            System.out.printf( "FIXME: in reduce for object: %s\n", toString() );
+
         }
 
         @Override
         public void cleanup() {
 
-            if ( count == 0 )
+            System.out.printf( "FIXME: in cleanup for object: %s\n", toString() );
+            
+            if ( count.get() == 0 )
                throw new RuntimeException( "count is zero" );
             
         }

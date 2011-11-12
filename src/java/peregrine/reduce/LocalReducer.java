@@ -41,11 +41,8 @@ public class LocalReducer {
 
         // The input list should first be sorted so that we sort by the order of
         // the shuffle files and not an arbitrary order
-
         Collections.sort( input );
         
-        new ChunkSorter( config , partition, shuffleInput );
-
         List<ChunkReader> sorted = sort( input );
         
         ChunkMerger merger = new ChunkMerger( listener );
@@ -80,6 +77,8 @@ public class LocalReducer {
 
         }
 
+        log.info( "Sorted %,d files", sorted.size() );
+        
         return sorted;
 
     }
