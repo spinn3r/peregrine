@@ -62,7 +62,10 @@ public class LocalReducer {
 
         String sort_dir = config.getPath( partition, String.format( "/tmp/%s" , shuffleInput.getName() ) );
 
+        // make the parent dir for holding sort files.
         new File( sort_dir ).mkdirs();
+
+        log.info( "Going to sort %,d files for %s", input.size(), partition );
         
         for ( File in : input ) {
 

@@ -1,3 +1,16 @@
+
+- Using fork in the unit tests I think is a BAD idea because it doesn't simulate
+  some of our longer running map reduces ... 
+
+- Audit ALL uses of static Executors to see where I should be shutting them
+  down... 
+
+
+- write a unit test for key distribution to make sure when we write a LARGE
+  amount of data that the writes to partitions are about the same size.
+  
+
+
 - If the CPU performance of performing a sort is MUCH slower than the disk
   perforamnce, we can go ahead and replicate the sort temporary files so that
   hte other replicas can resume if necessary.

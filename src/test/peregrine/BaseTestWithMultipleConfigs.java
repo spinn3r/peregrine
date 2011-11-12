@@ -22,6 +22,8 @@ public abstract class BaseTestWithMultipleConfigs extends peregrine.BaseTest {
 
     protected List<Config> configs = new ArrayList();
 
+    protected Map<Host,Config> configsByHost;
+    
     protected int concurrency = 0;
     protected int replicas = 0;
     protected int hosts = 0;
@@ -32,7 +34,8 @@ public abstract class BaseTestWithMultipleConfigs extends peregrine.BaseTest {
 
         daemons = new ArrayList();
         configs = new ArrayList();
-
+        configsByHost = new HashMap();
+        
         if ( concurrency == 0 )
             return;
         
@@ -45,6 +48,8 @@ public abstract class BaseTestWithMultipleConfigs extends peregrine.BaseTest {
 
             Config config = newConfig( "localhost", Config.DEFAULT_PORT + i );
             configs.add( config );
+
+            configsByHost.put( config.getHost() , config );
             
             daemons.add( new FSDaemon( config ) );
 
