@@ -1,5 +1,6 @@
 package peregrine;
 
+import java.io.*;
 import java.util.*;
 import java.util.concurrent.atomic.*;
 import peregrine.config.*;
@@ -8,7 +9,11 @@ import peregrine.io.partition.*;
 import peregrine.util.primitive.*;
 import peregrine.util.*;
 
+import com.spinn3r.log5j.*;
+
 public class TestMapReduce extends peregrine.BaseTestWithMultipleConfigs {
+
+    private static final Logger log = Logger.getLogger();
 
     // TODO: test 0, 1, etc... but we will need to broadcast this value to test
     // things.
@@ -82,6 +87,46 @@ public class TestMapReduce extends peregrine.BaseTestWithMultipleConfigs {
         
     }
 
+    private void fsck( String path ) throws IOException {
+
+        log.info( "Running fsck of %s", path );
+        
+        Membership membership = config.getMembership();
+        
+        for( Partition part : config.getMembership().getPartitions() ) {
+
+            List<Host> hosts = config.getMembership().getHosts( part );
+
+            Set state = new HashSet();
+
+            for( Host host : hosts ) {
+
+                try {
+
+                    String relative = String.format( "/%s%s", part.getId(), path );
+                    
+                    log.info( "Checking %s on %s", relative, host );
+                    
+                    RemotePartitionWriterDelegate delegate = new RemotePartitionWriterDelegate();
+                    delegate.init( config, part, host, relative );
+                    
+                    java.util.Map stat = delegate.stat();
+                    
+                    state.add( stat.get( "X-length" ) );
+
+                } catch ( IOException e ) {
+                    throw new IOException( "fsck failed: " , e );
+                }
+                
+            }
+
+            if ( state.size() != 1 )
+                throw new IOException( String.format( "fsck failed.  %s is in inconsistent state: %s", part, state ) );
+            
+        }
+        
+    }
+    
     private void doTest( int max ) throws Exception {
 
         System.gc();
@@ -111,6 +156,8 @@ public class TestMapReduce extends peregrine.BaseTestWithMultipleConfigs {
         }
 
         writer.close();
+
+        fsck( path );
 
         // verify that the right number of items have been written to filesystem.
 
@@ -192,12 +239,10 @@ public class TestMapReduce extends peregrine.BaseTestWithMultipleConfigs {
         BaseTestWithMultipleConfigs.HOSTS        = new int[] { 8 };
         */
 
-
         /*
         BaseTestWithMultipleConfigs.CONCURRENCY  = new int[] { 2, 2, 2, 2, 2 , 2, 2, 2, 2, 2 , 2, 2, 2, 2, 2 , 2, 2, 2, 2, 2 , 2, 2, 2, 2, 2 , 2, 2, 2, 2, 2 , 2, 2, 2, 2, 2 , 2, 2, 2, 2, 2 , 2, 2, 2, 2, 2 , 2, 2, 2, 2, 2 , 2, 2, 2, 2, 2 , 2, 2, 2, 2, 2 , 2, 2, 2, 2, 2 , 2, 2, 2, 2, 2 , 2, 2, 2, 2, 2 , 2, 2, 2, 2, 2 , 2, 2, 2, 2, 2 , 2, 2, 2, 2, 2 , 2, 2, 2, 2, 2 , 2, 2, 2, 2, 2 , 2, 2, 2, 2, 2 , 2, 2, 2, 2, 2  };
         */
 
-        
         // BaseTestWithMultipleConfigs.CONCURRENCY  = new int[] { 2 };
         // BaseTestWithMultipleConfigs.REPLICAS     = new int[] { 3 };
         // BaseTestWithMultipleConfigs.HOSTS        = new int[] { 8 };

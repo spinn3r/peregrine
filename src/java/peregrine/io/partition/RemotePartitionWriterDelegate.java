@@ -18,12 +18,16 @@ public class RemotePartitionWriterDelegate extends BasePartitionWriterDelegate {
     @Override
     public int append() throws IOException {
 
-        Map map = request( "HEAD" );
+        Map stat = stat();
         
-        int chunks = readHeader( map, "X-nr-chunks" );
+        int chunks = readHeader( stat, "X-nr-chunks" );
 
         return chunks;
         
+    }
+
+    public Map stat() throws IOException {
+        return request( "HEAD" );
     }
     
     @Override
@@ -68,7 +72,7 @@ public class RemotePartitionWriterDelegate extends BasePartitionWriterDelegate {
         int response = httpCon.getResponseCode();
 
         if ( response != 200 ) {
-            throw new RemoteRequestException( response );
+            throw new RemoteRequestException( method, url, response );
         }
 
         return httpCon.getHeaderFields();
@@ -113,8 +117,8 @@ class RemoteRequestException extends IOException {
 
     public int status;
     
-    public RemoteRequestException( int status ) {
-        super( "HTTP request failed: " + status );
+    public RemoteRequestException( String method, URL url, int status ) {
+        super( String.format( "HTTP request failed %s %s (%s)", method, url, status ) );
         this.status = status;
     }
     

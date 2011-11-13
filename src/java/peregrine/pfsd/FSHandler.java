@@ -176,13 +176,13 @@ public class FSHandler extends SimpleChannelUpstreamHandler {
                 if ( ! chunk.isLast() ) {
                     
                     ChannelBuffer content = chunk.getContent();
-                    
                     remote.write( content );
 
                 } else {
 
-                    // any HTTP exceptions on the remote host should bubble up
+                    // Any HTTP exceptions on the remote host should bubble up
                     // in close() and be passed on to callers.
+                    
                     remote.close();
                     
                 }
