@@ -66,11 +66,6 @@ public class RemoteChunkWriterClient extends BaseOutputStream implements Channel
     protected BlockingQueue<Object> result = new LinkedBlockingDeque();
 
     /**
-     * True when the open() method has been called.
-     */
-    private boolean opened = false;
-
-    /**
      * The HTTP request URI representing this client.
      */
     protected URI uri;
@@ -79,6 +74,11 @@ public class RemoteChunkWriterClient extends BaseOutputStream implements Channel
      * The HTTP request we sent and are about to send.
      */
     protected HttpRequest request;
+
+    /**
+     * True when the open() method has been called.
+     */
+    private boolean opened = false;
 
     /**
      * Request that we close()
@@ -101,13 +101,16 @@ public class RemoteChunkWriterClient extends BaseOutputStream implements Channel
     protected boolean clear = false;
 
     /**
+     * True when we have initialized the client.
+     */
+    protected boolean initialized = false;
+
+    /**
      * The channel we are using (when connected).
      */
     protected Channel channel = null;
 
     protected HttpMethod method = HttpMethod.PUT;
-
-    protected boolean inited = false;
     
     public RemoteChunkWriterClient( List<Host> hosts, String path ) throws IOException {
 
@@ -167,12 +170,12 @@ public class RemoteChunkWriterClient extends BaseOutputStream implements Channel
 
         request.setHeader( X_TAG, "" + tag++ );
         
-        inited = true;
+        initialized = true;
         
     }
 
     private void requireInit() {
-        if ( ! inited ) init();
+        if ( ! initialized ) init();
     }
 
     private void open() throws IOException {
