@@ -17,9 +17,8 @@ public class TestMapReduce extends peregrine.BaseTestWithMultipleConfigs {
 
     // TODO: test 0, 1, etc... but we will need to broadcast this value to test
     // things.
-    public static int[] TESTS = { 1000 };
 
-    //public static int[] TESTS = { 100, 1000 };
+    public static int[] TESTS = { 250, 1000 };
 
     public static class Map extends Mapper {
 

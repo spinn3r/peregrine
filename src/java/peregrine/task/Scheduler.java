@@ -68,6 +68,10 @@ public abstract class Scheduler {
         
         for( Replica replica : replicas ) {
 
+            if ( replica.getPriority() > 0 ) {
+                return;
+            }
+            
             Partition part = replica.getPartition();
             
             if ( completed.contains( part ) )

@@ -18,8 +18,6 @@ public abstract class BaseTestWithMultipleConfigs extends peregrine.BaseTest {
     public static int[] REPLICAS     = new int[] { 1, 2 };
     public static int[] HOSTS        = new int[] { 1, 2, 4, 8 };
 
-    public static int PASS = -1;
-    
     protected Host controller;
 
     protected Config config;
@@ -33,6 +31,8 @@ public abstract class BaseTestWithMultipleConfigs extends peregrine.BaseTest {
     protected int concurrency = 0;
     protected int replicas = 0;
     protected int hosts = 0;
+
+    protected int pass = -1;
     
     public void setUp() {
 
@@ -79,8 +79,6 @@ public abstract class BaseTestWithMultipleConfigs extends peregrine.BaseTest {
     }
 
     public void test() throws Exception {
-
-        PASS = -1;
         
         for( int concurrency : CONCURRENCY ) {
 
@@ -96,7 +94,7 @@ public abstract class BaseTestWithMultipleConfigs extends peregrine.BaseTest {
                     
                     try {
 
-                        ++PASS;
+                        ++pass;
 
                         setUp();
 
@@ -104,7 +102,7 @@ public abstract class BaseTestWithMultipleConfigs extends peregrine.BaseTest {
 
                     } catch ( PartitionLayoutException e ) {
 
-                        --PASS;
+                        --pass;
                         ran = false;
                         
                         // this is just an invalid config so skip it.
@@ -112,14 +110,14 @@ public abstract class BaseTestWithMultipleConfigs extends peregrine.BaseTest {
                         continue;
 
                     } catch ( Throwable t ) {
-                        throw new Exception( String.format( "Test failed on PASS %,d with config: ", PASS, config ), t );
+                        throw new Exception( String.format( "Test failed on pass %,d with config: ", pass, config ), t );
                     } finally {
 
                         tearDown();
 
                         if ( ran ) {
                             // create a copy of the logs for this task for debug 
-                            copy( new File( "logs/peregrine.log" ), new File( String.format( "logs/test-%s-pass-%02d.log", getClass().getName(), PASS ) ) );
+                            copy( new File( "logs/peregrine.log" ), new File( String.format( "logs/test-%s-pass-%02d.log", getClass().getName(), pass ) ) );
                             
                             new FileOutputStream( "logs/peregrine.log" ).getChannel().truncate( 0 );
                         }

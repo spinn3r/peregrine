@@ -67,6 +67,9 @@ public class ShuffleInputChunkReader {
         // get the path that we should be working with.
         queue = prefetcher.lookup.get( partition );
 
+        if ( queue == null )
+            throw new IOException( "Queue is not defined for partition: " + partition );
+        
         header = prefetcher.reader.getHeader( partition );
 
         if ( header == null ) {
