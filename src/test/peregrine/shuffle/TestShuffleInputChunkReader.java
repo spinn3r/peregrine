@@ -58,7 +58,7 @@ public class TestShuffleInputChunkReader extends peregrine.BaseTestWithMultipleD
 
         path = "/tmp/peregrine-fs/localhost/11116/tmp/shuffle/default/0000000000.tmp";
 
-        Partition partition = new Partition( 2 );
+        Partition partition = new Partition( 4 );
 
         ShuffleInputChunkReader reader = new ShuffleInputChunkReader( configs.get(4), partition, path );
 
