@@ -16,10 +16,11 @@ public class SortResult {
     private LocalChunkWriter writer = null;
     
     public SortResult( LocalChunkWriter writer,
-                       SortListener listener )
-    {
+                       SortListener listener ) {
+        
         this.listener = listener;
         this.writer = writer;
+        
     }
 
     public void accept( SortEntry entry ) throws IOException {
