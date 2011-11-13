@@ -1,6 +1,7 @@
+    
+- I need to work on the ChunkMerger system so that it can use more memory NOT
+  just the size of chunk files. 
 
-
-- reunify MapperTask and MergerTask with ReducerTask
 
 - I don't like the reduce sorting framework class names... they are too retro:
     ChunkSorter
@@ -20,7 +21,6 @@
   
 
 
->>>>>>> other
 - If the CPU performance of performing a sort is MUCH slower than the disk
   perforamnce, we can go ahead and replicate the sort temporary files so that
   hte other replicas can resume if necessary.
@@ -34,15 +34,7 @@
 
 - we're at 100% CPU in the extract / init phase of our pagerank tests.
 
--
 
-    - log these setting on startup
-
-        - http://docs.jboss.org/netty/3.2/api/org/jboss/netty/channel/socket/SocketChannelConfig.html
-
-    
-- I need to work on the ChunkMerger system so that it can use more memory NOT
-  just the size of chunk files. 
 
 - ChunkMerger, ChunkSorter, and LocalMerger all use a nearly identical priority
   queue merging system and this will need to be cleaned up to reduce the amount

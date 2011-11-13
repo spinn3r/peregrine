@@ -8,9 +8,9 @@ public class TestPagerank extends peregrine.BaseTestWithMultipleConfigs {
     @Override
     public void doTest() throws Exception {
 
-        doRandomTest( 500 , 10 );
+        //doRandomTest( 500 , 10 );
 
-        //doRandomTest( 50000 , 100 ); /* this one fails */
+        doRandomTest( 50000 , 100 ); /* this one fails */
 
         //doRandomTest( 500, 10 );
 
