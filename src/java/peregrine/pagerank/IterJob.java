@@ -30,7 +30,7 @@ public class IterJob {
 
             super.init( output );
 
-            danglingRankSumBroadcast = output[0];
+            danglingRankSumBroadcast = output[1];
             
             BroadcastInput nrNodesBroadcastInput = getBroadcastInput().get( 0 );
             

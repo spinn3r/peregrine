@@ -12,8 +12,6 @@ public class TestPagerank extends peregrine.BaseTestWithMultipleConfigs {
 
         doRandomTest( 50000 , 100 ); 
 
-        //doRandomTest( 500, 10 );
-
         //FIXME: this is the main test... 
         //doRandomTest( 50000000, 10 );
         

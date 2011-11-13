@@ -56,8 +56,6 @@ public class Pagerank {
 
         // init the empty rank_vector table ... we need to merge against it.
         controller.map( Mapper.class, new Input(), new Output( "/pr/out/rank_vector" ) );
-
-        // FIXME: add nonlinked... 
         
         controller.merge( IterJob.Map.class,
                           new Input( new FileInputReference( "/pr/test.graph_by_source" ),
@@ -73,12 +71,12 @@ public class Pagerank {
                                       new BroadcastInputReference( "/pr/out/nr_nodes" ) ),
                            new Output( "/pr/out/rank_vector_new" ) );
 
-        // // now compute the dangling rank sum.. 
+        // now compute the dangling rank sum for the next iteration
 
-        // controller.reduce( TeleportationGrantJob.Reduce.class, 
-        //                    new Input( new ShuffleInputReference( "dangling_rank_sum" ),
-        //                               new BroadcastInputReference( "/pr/out/nr_nodes" ) ),
-        //                    new Output( "/pr/out/teleportation_rant" ) );
+        controller.reduce( TeleportationGrantJob.Reduce.class, 
+                           new Input( new ShuffleInputReference( "dangling_rank_sum" ),
+                                      new BroadcastInputReference( "/pr/out/nr_nodes" ) ),
+                           new Output( "/pr/out/teleportation_grant" ) );
 
         controller.shutdown();
         
