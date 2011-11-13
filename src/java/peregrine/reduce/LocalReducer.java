@@ -75,8 +75,6 @@ public class LocalReducer {
 
             ChunkReader result = sorter.sort( in, out );
 
-            log.info( "FIXME: sorted result for %s was %s", partition, result );
-            
             if ( result != null )
                 sorted.add( result );
 

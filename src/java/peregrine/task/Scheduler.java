@@ -84,8 +84,8 @@ public abstract class Scheduler {
                 return;
             }
             
-            log.info( "Scheduling %s on %s with current concurrency: %,d of %,d and FIXME pending: %s completed: %s",
-                      part, host, concurrency.get( host ), config.getConcurrency(), pending, completed );
+            log.info( "Scheduling %s on %s with current concurrency: %,d of %,d",
+                      part, host, concurrency.get( host ), config.getConcurrency() );
             
             invoke( host, part );
 

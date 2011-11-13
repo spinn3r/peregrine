@@ -39,37 +39,25 @@ public class TestMapReduce extends peregrine.BaseTestWithMultipleConfigs {
         @Override
         public void reduce( byte[] key, List<byte[]> values ) {
 
-            System.out.printf( "FIXME: in reduce... \n" );
-            
             List<Integer> ints = new ArrayList();
 
             for( byte[] val : values ) {
                 ints.add( IntBytes.toInt( val ) );
             }
 
-            System.out.printf( "FIXME: after values\n" );
-            
             if ( values.size() != 2 ) {
 
-                System.out.printf( "FIXME: wrong number of values... ouch!\n" );
-                
                 throw new RuntimeException( String.format( "%s does not equal %s (%s) on nth reduce %s" ,
                                                            values.size(), 2, ints, count ) );
             }
 
             count.getAndIncrement();
 
-            System.out.printf( "FIXME: count is now: %s\n", count.get() );
-
-            System.out.printf( "FIXME: in reduce for object: %s\n", toString() );
-
         }
 
         @Override
         public void cleanup() {
 
-            System.out.printf( "FIXME: in cleanup for object: %s\n", toString() );
-            
             if ( count.get() == 0 )
                throw new RuntimeException( "count is zero" );
             
