@@ -10,7 +10,7 @@ public class TestPagerank extends peregrine.BaseTestWithMultipleConfigs {
 
         //doRandomTest( 500 , 10 );
 
-        doRandomTest( 50000 , 100 ); /* this one fails */
+        doRandomTest( 50000 , 100 ); 
 
         //doRandomTest( 500, 10 );
 
