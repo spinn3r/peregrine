@@ -1,5 +1,6 @@
 package peregrine;
 
+import java.io.*;
 import java.util.*;
 import peregrine.config.*;
 import peregrine.pfsd.*;
@@ -14,6 +15,8 @@ public abstract class BaseTestWithMultipleConfigs extends peregrine.BaseTest {
     public static int[] REPLICAS     = new int[] { 1, 2, 3 };
     public static int[] HOSTS        = new int[] { 1, 2, 4, 8 };
 
+    public static int PASS = -1;
+    
     protected Host controller;
 
     protected Config config;
@@ -74,6 +77,8 @@ public abstract class BaseTestWithMultipleConfigs extends peregrine.BaseTest {
 
     public void test() throws Exception {
 
+        PASS = -1;
+        
         for( int concurrency : CONCURRENCY ) {
 
             for( int replicas : REPLICAS ) {
@@ -87,6 +92,9 @@ public abstract class BaseTestWithMultipleConfigs extends peregrine.BaseTest {
                     try {
 
                         setUp();
+
+                        ++PASS;
+
                         doTest();
 
                     } catch ( PartitionLayoutException e ) {
@@ -96,11 +104,17 @@ public abstract class BaseTestWithMultipleConfigs extends peregrine.BaseTest {
                         continue;
 
                     } catch ( Throwable t ) {
-                        throw new Exception( "Test failed with config: " + config, t );
+                        throw new Exception( String.format( "Test failed on PASS %,d with config: ", PASS, config ), t );
                     } finally {
                         tearDown();
+
+                        // create a copy of the logs for this task for debug 
+                        copy( new File( "logs/peregrine.log" ), new File( String.format( "logs/test-%s-pass-%02d.log", getClass().getName(), PASS ) ) );
+
+                        new FileOutputStream( "logs/peregrine.log" ).getChannel().truncate( 0 );
+
                     }
-                    
+
                 }
                 
             }

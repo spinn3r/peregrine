@@ -231,7 +231,7 @@ public class Config {
     
     @Override
     public String toString() {
-        return String.format( "root=%s, host=%s, concurrency=%s, replicas=%s, nr_hosts=%s",
+        return String.format( "host=%s, root=%s, concurrency=%s, replicas=%s, nr_hosts=%s",
                               root, host, concurrency, replicas, hosts.size() );
     }
     

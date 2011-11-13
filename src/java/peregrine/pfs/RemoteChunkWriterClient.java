@@ -265,7 +265,7 @@ public class RemoteChunkWriterClient extends BaseOutputStream implements Channel
     }
 
     public String toString() {
-        return uri.toString();
+        return String.format( "RemoteChunkWriterClient: %s %s", method, uri.toString() );
     }
 
     public void close() throws IOException {

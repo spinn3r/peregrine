@@ -6,7 +6,11 @@ import peregrine.config.*;
 import peregrine.shuffle.*;
 import peregrine.util.*;
 
+import com.spinn3r.log5j.*;
+
 public class Test {
+
+    private static final Logger log = Logger.getLogger();
 
     public static void test0() throws Exception {
 
@@ -64,27 +68,44 @@ public class Test {
 
     public static void main( String[] args ) throws Exception {
 
-        //byte[] key = new byte[] { (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF };
-        byte[] key = new byte[] { (byte)-128, (byte)0, (byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0 };
+        System.setProperty( "log4j.file.name", "foo.log" );
 
-        Config config = new Config();
-        config.setReplicas( 2 );
-        config.setConcurrency( 1 );
+        // init log4j ...
+        org.apache.log4j.xml.DOMConfigurator.configure( "conf/log4j.xml" );
 
-        config.setHost( new Host( "localhost" ) );
-
-        for( int i = 0; i < 5; ++i ) {
-
-            config.getHosts().add( new Host(  "localhost", Config.DEFAULT_PORT + i ) );
-
+        for ( int i = 0; i < 10; ++i ) {
+            log.info( "hello world" );
         }
-        
-        config.init();
 
-        Partition part = config.route( key );
-
-        System.out.printf( "part: %s for key %s with config: %s\n", part, Hex.encode( key ), config );
+        Thread.sleep( 10000 );
         
+        //com.spinn3r.log5j.LogManager.shutdown();
+        
+        //
+        
+        // shut down the logger... 
+        
+        // //byte[] key = new byte[] { (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF, (byte)0xFF };
+        // byte[] key = new byte[] { (byte)-128, (byte)0, (byte)0,(byte)0,(byte)0,(byte)0,(byte)0,(byte)0 };
+
+        // Config config = new Config();
+        // config.setReplicas( 2 );
+        // config.setConcurrency( 1 );
+
+        // config.setHost( new Host( "localhost" ) );
+
+        // for( int i = 0; i < 5; ++i ) {
+
+        //     config.getHosts().add( new Host(  "localhost", Config.DEFAULT_PORT + i ) );
+
+        // }
+        
+        // config.init();
+
+        // Partition part = config.route( key );
+
+        // System.out.printf( "part: %s for key %s with config: %s\n", part, Hex.encode( key ), config );
+
         /*
         
         ShuffleInputChunkReader reader

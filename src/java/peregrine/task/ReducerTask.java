@@ -60,26 +60,34 @@ public class ReducerTask extends BaseOutputTask implements Callable {
             reducer.init( getJobOutput() );
 
             try {
-                
                 doCall();
-
             } catch ( Throwable t ) {
                 handleFailure( log, t );
-            } finally {
-                reducer.cleanup();
             }
 
-            teardown();
+            try {
+                reducer.cleanup();
+            } catch ( Throwable t ) {
+                handleFailure( log, t );
+            }
+
+            try {
+                teardown();
+            } catch ( Throwable t ) {
+                handleFailure( log, t );
+            }
 
         } catch ( Throwable t ) { 
             handleFailure( log, t );
         } finally {
 
-            // no failures happened in the delegate, cleanup, and teardown so we
-            // are complete.
-            
-            if ( status == TaskStatus.UNKNOWN )
+            if ( status == TaskStatus.UNKNOWN ) {
+
+                // no failures happened in the delegate, cleanup, and teardown
+                // so we are complete.
+
                 setStatus( TaskStatus.COMPLETE );
+            }
             
             report();
             

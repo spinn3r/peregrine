@@ -60,6 +60,8 @@ public class DefaultPartitionWriter implements PartitionWriter {
 
         Membership membership = config.getMembership();
 
+        // TODO/FIXME: we need make sure we first contact the closest host first by route.
+
         List<Host> hosts = membership.getHosts( partition );
 
         partitionWriterDelegates = new ArrayList();

@@ -67,10 +67,12 @@ public class FSDaemon {
         // Set up the event pipeline factory.
         bootstrap.setPipelineFactory( new FSPipelineFactory( config, this ) );
 
-        log.info( "Starting up... port: %s, root: %s" , port, root );
+        log.info( "Starting up on %s with root: %s" , config.getHost(), root );
         
         // Bind and start to accept incoming connections.
         channel = bootstrap.bind( new InetSocketAddress( port ) );
+
+        log.info( "Now listening on %s with root: %s" , config.getHost(), root );
         
         /*
         if ( ! config.getHost().equals( config.getController() ) )

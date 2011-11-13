@@ -8,6 +8,8 @@ public abstract class BaseTest extends junit.framework.TestCase {
     public void setUp() {
 
         remove( Config.DEFAULT_ROOT );
+
+        //org.apache.log4j.MDC.put( "server.hostname",    Initializer.HOSTNAME );
         
         // init log4j ... 
         org.apache.log4j.xml.DOMConfigurator.configure( "conf/log4j.xml" );
@@ -62,6 +64,15 @@ public abstract class BaseTest extends junit.framework.TestCase {
         
     }
 
+    public static void copy( File source, File target ) throws IOException {
+
+        FileInputStream in = new FileInputStream( source );
+        FileOutputStream out = new FileOutputStream( target );
+
+        out.getChannel().transferFrom( in.getChannel(), 0, source.length() );
+        
+    }
+    
     /**
      * Method to allow ALL junit classes to be called from the command line
      * which allows for us having less main() methods cluttering up the test

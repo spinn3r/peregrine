@@ -197,9 +197,10 @@ public class TestMapReduce extends peregrine.BaseTestWithMultipleConfigs {
         BaseTestWithMultipleConfigs.CONCURRENCY  = new int[] { 2, 2, 2, 2, 2 , 2, 2, 2, 2, 2 , 2, 2, 2, 2, 2 , 2, 2, 2, 2, 2 , 2, 2, 2, 2, 2 , 2, 2, 2, 2, 2 , 2, 2, 2, 2, 2 , 2, 2, 2, 2, 2 , 2, 2, 2, 2, 2 , 2, 2, 2, 2, 2 , 2, 2, 2, 2, 2 , 2, 2, 2, 2, 2 , 2, 2, 2, 2, 2 , 2, 2, 2, 2, 2 , 2, 2, 2, 2, 2 , 2, 2, 2, 2, 2 , 2, 2, 2, 2, 2 , 2, 2, 2, 2, 2 , 2, 2, 2, 2, 2 , 2, 2, 2, 2, 2 , 2, 2, 2, 2, 2 , 2, 2, 2, 2, 2  };
         */
 
-        BaseTestWithMultipleConfigs.CONCURRENCY  = new int[] { 2 };
-        BaseTestWithMultipleConfigs.REPLICAS     = new int[] { 3 };
-        BaseTestWithMultipleConfigs.HOSTS        = new int[] { 8 };
+        
+        // BaseTestWithMultipleConfigs.CONCURRENCY  = new int[] { 2, 2 };
+        // BaseTestWithMultipleConfigs.REPLICAS     = new int[] { 3 };
+        // BaseTestWithMultipleConfigs.HOSTS        = new int[] { 8 };
         
         runTests();
 
