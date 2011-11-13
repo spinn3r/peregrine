@@ -53,10 +53,10 @@ public class ReducerTask extends BaseOutputTask implements Callable {
 
         try {
 
+            log.info( "Running %s on %s", delegate, partition );
+            
             setup();
-
             reducer.setBroadcastInput( BroadcastInputFactory.getBroadcastInput( config, getInput(), partition ) );
-
             reducer.init( getJobOutput() );
 
             try {
@@ -80,17 +80,7 @@ public class ReducerTask extends BaseOutputTask implements Callable {
         } catch ( Throwable t ) { 
             handleFailure( log, t );
         } finally {
-
-            if ( status == TaskStatus.UNKNOWN ) {
-
-                // no failures happened in the delegate, cleanup, and teardown
-                // so we are complete.
-
-                setStatus( TaskStatus.COMPLETE );
-            }
-            
             report();
-            
         }
 
         return null;

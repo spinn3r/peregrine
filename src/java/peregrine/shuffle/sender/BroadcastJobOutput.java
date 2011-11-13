@@ -6,13 +6,13 @@ import peregrine.config.Partition;
 
 public class BroadcastJobOutput extends ShuffleJobOutput {
 
-    public BroadcastJobOutput( Config config ) {
-        this( config, "default" );
+    public BroadcastJobOutput( Config config, Partition partition ) {
+        this( config, "default", partition );
     }
         
-    public BroadcastJobOutput( Config config, String name ) {
+    public BroadcastJobOutput( Config config, String name, Partition partition ) {
 
-        super( config, name );
+        super( config, name, partition );
 
     }
     

@@ -1,4 +1,7 @@
 
+
+- reunify MapperTask and MergerTask with ReducerTask
+
 - I don't like the reduce sorting framework class names... they are too retro:
     ChunkSorter
     ChunkMerger

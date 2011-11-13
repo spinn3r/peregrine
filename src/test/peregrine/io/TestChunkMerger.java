@@ -8,6 +8,7 @@ import peregrine.util.*;
 import peregrine.util.primitive.LongBytes;
 import peregrine.reduce.*;
 import peregrine.io.chunk.*;
+import peregrine.config.*;
 
 public class TestChunkMerger extends peregrine.BaseTest {
 
@@ -47,7 +48,7 @@ public class TestChunkMerger extends peregrine.BaseTest {
                     System.out.printf( "sorted value: key=%s, value=%s\n", Hex.encode( key ), pp );
                 }
 
-            } ).merge( work );
+            }, new Partition( 0 ) ).merge( work );
 
     }
 

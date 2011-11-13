@@ -30,13 +30,13 @@ public class JobOutputFactory {
 
                 BroadcastOutputReference bcast = (BroadcastOutputReference) ref;
                 
-                jobOutput[idx++] = new BroadcastJobOutput( config, bcast.getName() );
+                jobOutput[idx++] = new BroadcastJobOutput( config, bcast.getName(), partition );
 
             } else if ( ref instanceof ShuffleOutputReference ) {
 
                 ShuffleOutputReference sref = (ShuffleOutputReference) ref;
                 
-                jobOutput[idx++] = new ShuffleJobOutput( config, sref.getName() );
+                jobOutput[idx++] = new ShuffleJobOutput( config, sref.getName(), partition );
 
             } else {
                 throw new IOException( "ref not supported: " + ref.getClass().getName() );

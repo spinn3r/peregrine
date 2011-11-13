@@ -89,16 +89,21 @@ public abstract class BaseTestWithMultipleConfigs extends peregrine.BaseTest {
                     this.replicas = replicas;
                     this.hosts = hosts;
 
+                    boolean ran = true;
+                    
                     try {
 
-                        setUp();
-
                         ++PASS;
+
+                        setUp();
 
                         doTest();
 
                     } catch ( PartitionLayoutException e ) {
 
+                        --PASS;
+                        ran = false;
+                        
                         // this is just an invalid config so skip it.
                         log.warn( "Invalid config: %s" , e.getMessage() );
                         continue;
@@ -106,12 +111,15 @@ public abstract class BaseTestWithMultipleConfigs extends peregrine.BaseTest {
                     } catch ( Throwable t ) {
                         throw new Exception( String.format( "Test failed on PASS %,d with config: ", PASS, config ), t );
                     } finally {
+
                         tearDown();
 
-                        // create a copy of the logs for this task for debug 
-                        copy( new File( "logs/peregrine.log" ), new File( String.format( "logs/test-%s-pass-%02d.log", getClass().getName(), PASS ) ) );
-
-                        new FileOutputStream( "logs/peregrine.log" ).getChannel().truncate( 0 );
+                        if ( ran ) {
+                            // create a copy of the logs for this task for debug 
+                            copy( new File( "logs/peregrine.log" ), new File( String.format( "logs/test-%s-pass-%02d.log", getClass().getName(), PASS ) ) );
+                            
+                            new FileOutputStream( "logs/peregrine.log" ).getChannel().truncate( 0 );
+                        }
 
                     }
 

@@ -6,10 +6,7 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.*;
 
 import peregrine.util.*;
-import peregrine.config.Config;
-import peregrine.config.Host;
-import peregrine.config.Membership;
-import peregrine.config.Partition;
+import peregrine.config.*;
 import com.spinn3r.log5j.*;
 
 public abstract class Scheduler {
@@ -62,15 +59,17 @@ public abstract class Scheduler {
         
     }
     
-    public void schedule( Host host ) throws Exception {
+    protected void schedule( Host host ) throws Exception {
 
-        List<Partition> partitions = membership.getPartitions( host );
+        List<Replica> replicas = membership.getReplicas( host );
 
-        if ( partitions == null )
-            throw new Exception( "No partitions defined for host: " + host );
+        if ( replicas == null )
+            throw new Exception( "No replicas defined for host: " + host );
         
-        for( Partition part : partitions ) {
+        for( Replica replica : replicas ) {
 
+            Partition part = replica.getPartition();
+            
             if ( completed.contains( part ) )
                 continue;
 
@@ -81,8 +80,8 @@ public abstract class Scheduler {
                 return;
             }
             
-            log.info( "Scheduling %s on %s with current concurrency: %,d of %,d",
-                      part, host, concurrency.get( host ), config.getConcurrency() );
+            log.info( "Scheduling %s on %s with current concurrency: %,d of %,d and FIXME pending: %s completed: %s",
+                      part, host, concurrency.get( host ), config.getConcurrency(), pending, completed );
             
             invoke( host, part );
 
@@ -163,7 +162,7 @@ public abstract class Scheduler {
                 break;
             }
 
-            // right now , if ANYTHING has failed, we can not continue.
+            // right now , if ANYTHING has failed, we can not continue....
             if ( failure.size() > 0 ) {
 
                 // log all root causes.

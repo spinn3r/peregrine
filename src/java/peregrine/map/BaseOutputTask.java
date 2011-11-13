@@ -99,6 +99,14 @@ public abstract class BaseOutputTask {
 
     public void report() throws IOException {
 
+        if ( status == TaskStatus.UNKNOWN ) {
+
+            // no failures happened in the delegate, cleanup, and teardown so we
+            // are complete.
+
+            setStatus( TaskStatus.COMPLETE );
+        }
+
         if ( status == TaskStatus.COMPLETE ) {
             sendCompleteToController();
         } else if ( status == TaskStatus.FAILED ) {

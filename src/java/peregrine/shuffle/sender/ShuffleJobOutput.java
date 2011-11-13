@@ -3,8 +3,7 @@ package peregrine.shuffle.sender;
 import java.io.*;
 import java.util.concurrent.*;
 
-import peregrine.config.Config;
-import peregrine.config.Partition;
+import peregrine.config.*;
 import peregrine.io.*;
 import peregrine.io.partition.*;
 import peregrine.util.*;
@@ -30,24 +29,33 @@ public class ShuffleJobOutput implements JobOutput, LocalPartitionReaderListener
     protected Config config;
 
     protected int emits = 0;
+
+    protected Partition partition;
     
-    public ShuffleJobOutput( Config config ) {
-        this( config, "default" );
+    private PartitionRouteHistograph partitionWriteHistograph;
+
+    public ShuffleJobOutput( Config config, Partition partition ) {
+        this( config, "default", partition );
     }
         
-    public ShuffleJobOutput( Config config, String name ) {
+    public ShuffleJobOutput( Config config, String name, Partition partition ) {
 
         this.config = config;
         this.name = name;
-
+        this.partition = partition;
+        
         executors = Executors.newFixedThreadPool( 1, new DefaultThreadFactory( ShuffleJobOutput.class) );
 
+        partitionWriteHistograph = new PartitionRouteHistograph( config );
+        
     }
     
     @Override
     public void emit( byte[] key , byte[] value ) {
 
         Partition target = config.route( key );
+
+        partitionWriteHistograph.incr( target );
         
         chunkRef.partition.getId();
         int to_partition    = target.getId();
@@ -91,6 +99,8 @@ public class ShuffleJobOutput implements JobOutput, LocalPartitionReaderListener
         // the second flush will block until the prev finishs and then not do
         // anything else as no more emits are present.
         flush( true );
+
+        log.info( "Partition write histograph for %s: %s" , partition, partitionWriteHistograph );
 
         executors.shutdown();
         

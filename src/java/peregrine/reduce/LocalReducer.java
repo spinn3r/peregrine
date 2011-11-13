@@ -45,7 +45,7 @@ public class LocalReducer {
         
         List<ChunkReader> sorted = sort( input );
         
-        ChunkMerger merger = new ChunkMerger( listener );
+        ChunkMerger merger = new ChunkMerger( listener, partition );
         
         merger.merge( sorted );
         
@@ -62,27 +62,27 @@ public class LocalReducer {
         // make the parent dir for holding sort files.
         new File( sort_dir ).mkdirs();
 
-        log.info( "Going to sort %,d files for %s  FIXME PASS %s", input.size(), partition, peregrine.BaseTestWithMultipleConfigs.PASS );
+        log.info( "Going to sort %,d files for %s", input.size(), partition );
         
         for ( File in : input ) {
 
             String path = String.format( "%s/sort-%s.tmp" , sort_dir, id++ );
             File out    = new File( path );
             
-            log.info( "Writing temporary sort file %s  FIXME PASS %s", path, peregrine.BaseTestWithMultipleConfigs.PASS );
+            log.info( "Writing temporary sort file %s", path );
 
             ChunkSorter sorter = new ChunkSorter( config , partition, shuffleInput );
 
             ChunkReader result = sorter.sort( in, out );
 
-            log.info( "FIXME: sorted result for %s was %s  FIXME PASS %s", partition, result, peregrine.BaseTestWithMultipleConfigs.PASS );
+            log.info( "FIXME: sorted result for %s was %s", partition, result );
             
             if ( result != null )
                 sorted.add( result );
 
         }
 
-        log.info( "Sorted %,d files for %s on FIXME PASS %s", sorted.size(), partition, peregrine.BaseTestWithMultipleConfigs.PASS );
+        log.info( "Sorted %,d files for %s", sorted.size(), partition );
         
         return sorted;
 

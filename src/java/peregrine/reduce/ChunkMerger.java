@@ -3,6 +3,7 @@ package peregrine.reduce;
 
 import java.io.*;
 import java.util.*;
+import peregrine.config.*;
 import peregrine.io.chunk.*;
 
 import com.spinn3r.log5j.Logger;
@@ -76,12 +77,15 @@ public class ChunkMerger {
     public int entries = 0;
         
     private SortEntryFactory topLevelSortEntryFactory = new TopLevelSortEntryFactory();
+
+    private Partition partition;
     
     public ChunkMerger() {
     }
 
-    public ChunkMerger( SortListener listener ) {
+    public ChunkMerger( SortListener listener, Partition partition ) {
         this.listener = listener;
+        this.partition = partition;
     }
 
     public void merge( List<ChunkReader> input ) throws IOException {
@@ -131,7 +135,7 @@ public class ChunkMerger {
             if ( writer != null )         
                 writer.close();
 
-            log.info( "Merged %,d entries" , entries );
+            log.info( "Merged %,d entries for %s" , entries, partition );
 
         } catch ( Throwable t ) {
             throw new IOException( "Unable to merge chunks: " + input, t );
