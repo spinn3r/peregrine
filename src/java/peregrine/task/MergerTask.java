@@ -20,6 +20,8 @@ public class MergerTask extends BaseMapperTask {
         merger = (Merger)super.newMapper();
 
         try {
+
+            log.info( "Running %s on %s", delegate, partition );
             
             setup();
             merger.setBroadcastInput( getBroadcastInput() );
@@ -27,21 +29,26 @@ public class MergerTask extends BaseMapperTask {
 
             try {
                 doCall();
-            } finally {
-                merger.cleanup();
+            } catch ( Throwable t ) {
+                handleFailure( log, t );
             }
 
-            teardown();
+            try {
+                merger.cleanup();
+            } catch ( Throwable t ) {
+                handleFailure( log, t );
+            }
+
+            try {
+                teardown();
+            } catch ( Throwable t ) {
+                handleFailure( log, t );
+            }
 
             setStatus( TaskStatus.COMPLETE );
 
         } catch ( Throwable t ) { 
-
-            log.error( "Task failed for partition: " + partition, t );
-
-            setStatus( TaskStatus.FAILED );
-            setCause( t );
-            
+            handleFailure( log, t );
         } finally {
             report();
         }
