@@ -121,6 +121,8 @@ public class ShuffleReceiver {
             else 
                 log.info( "Accepted %,d entries for %s ", accepted, name );
 
+            executors.shutdown();
+            
         } catch ( IOException e ) {
             throw e;
         } catch ( Exception e ) {

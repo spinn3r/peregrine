@@ -3,7 +3,10 @@ package peregrine.reduce;
 
 import java.io.*;
 import java.util.*;
+import peregrine.config.*;
 import peregrine.io.chunk.*;
+
+import com.spinn3r.log5j.Logger;
 
 /**
  * http://en.wikipedia.org/wiki/External_sorting
@@ -65,19 +68,24 @@ import peregrine.io.chunk.*;
  */
 public class ChunkMerger {
 
+    private static final Logger log = Logger.getLogger();
+
     public static int DEFAULT_PARTITION_WIDTH = 1000;
 
     private SortListener listener = null;
 
-    public int tuples = 0;
+    public int entries = 0;
         
     private SortEntryFactory topLevelSortEntryFactory = new TopLevelSortEntryFactory();
+
+    private Partition partition;
     
     public ChunkMerger() {
     }
 
-    public ChunkMerger( SortListener listener ) {
+    public ChunkMerger( SortListener listener, Partition partition ) {
         this.listener = listener;
+        this.partition = partition;
     }
 
     public void merge( List<ChunkReader> input ) throws IOException {
@@ -95,8 +103,10 @@ public class ChunkMerger {
             //this will only be a single 100MB file so this is not the end of the
             //world.
 
-            if ( input.size() == 0 )
+            if ( input.size() == 0 ) {
+                log.info( "No input to sort." );
                 return;
+            }
             
             PartitionPriorityQueue queue = new PartitionPriorityQueue( input );
             
@@ -114,9 +124,9 @@ public class ChunkMerger {
                 if ( entry == null )
                     break;
 
-                ++tuples;
-                
                 result.accept( topLevelSortEntryFactory.newSortEntry( entry.key, entry.value ) );
+
+                ++entries;
 
             }
 
@@ -124,6 +134,8 @@ public class ChunkMerger {
 
             if ( writer != null )         
                 writer.close();
+
+            log.info( "Merged %,d entries for %s" , entries, partition );
 
         } catch ( Throwable t ) {
             throw new IOException( "Unable to merge chunks: " + input, t );

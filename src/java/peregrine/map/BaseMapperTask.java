@@ -80,7 +80,7 @@ public abstract class BaseMapperTask extends BaseOutputTask implements Callable 
 
         if ( output == null || output.getReferences().size() == 0 ) {
         
-            setJobOutput( new JobOutput[] { new ShuffleJobOutput( config ) } );
+            setJobOutput( new JobOutput[] { new ShuffleJobOutput( config, partition ) } );
 
         } else {
             super.setup();

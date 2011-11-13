@@ -17,6 +17,9 @@ public class DefaultChunkReader implements ChunkReader {
 
     private VarintReader varintReader;;
 
+    /**
+     * Length in bytes of the input.
+     */
     private long length = -1;
 
     /**
@@ -28,7 +31,7 @@ public class DefaultChunkReader implements ChunkReader {
      * The current item we are reading from.
      */
     private int idx = 0;
-    
+
     public DefaultChunkReader( File file )
         throws IOException {
         
@@ -125,12 +128,7 @@ public class DefaultChunkReader implements ChunkReader {
 
     @Override
     public String toString() {
-
-        if ( file != null )
-            return file.getPath();
-
-        return super.toString();
-        
+        return String.format( "file: %s, length (in bytes): %,d, size: %,d", file, length, size );
     }
 
     private void assertLength() throws IOException {

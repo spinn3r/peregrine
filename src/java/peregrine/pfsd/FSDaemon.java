@@ -22,9 +22,6 @@ public class FSDaemon {
 
     private static final Logger log = Logger.getLogger();
     
-    public static final ExecutorService executors =
-            Executors.newCachedThreadPool( new DefaultThreadFactory( HeartbeatSender.class) );
-    
     private ServerBootstrap bootstrap = null;
 
     private int port;
@@ -70,10 +67,12 @@ public class FSDaemon {
         // Set up the event pipeline factory.
         bootstrap.setPipelineFactory( new FSPipelineFactory( config, this ) );
 
-        log.info( "Starting up... port: %s, root: %s" , port, root );
+        log.info( "Starting up on %s with root: %s" , config.getHost(), root );
         
         // Bind and start to accept incoming connections.
         channel = bootstrap.bind( new InetSocketAddress( port ) );
+
+        log.info( "Now listening on %s with root: %s" , config.getHost(), root );
         
         /*
         if ( ! config.getHost().equals( config.getController() ) )
@@ -103,11 +102,7 @@ public class FSDaemon {
         channel.close().awaitUninterruptibly();
 
         log.debug( "Channel closed." );
-        
-        executors.shutdown();
-
-        log.debug( "Executors shut down." );
-        
+                
         bootstrap.releaseExternalResources();
 
         log.info( "%s COMPLETE" , msg );

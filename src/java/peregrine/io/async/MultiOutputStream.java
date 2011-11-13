@@ -85,9 +85,9 @@ public class MultiOutputStream extends BaseOutputStream {
      * do) but in production we should probably gossip about the failure with
      * the controller so that we understand what is happening.
      */
-    public void handleFailure( Host host, Throwable cause ) {
+    public void handleFailure( OutputStream out, Host host, Throwable cause ) {
     	
-        log.error( "Unable to handle chunk on host: " + host , cause );
+        log.error( String.format( "Unable to handle chunk on host %s for %s", host, out) , cause );
         
         // FIXME: we need to gossip about this because a host may be down and 
         // failing writes
@@ -121,22 +121,21 @@ abstract class MultiOutputStreamIterator {
         Set<Map.Entry<Host,OutputStream>> set = writer.delegates.entrySet();
         
         Iterator<Map.Entry<Host,OutputStream>> it = set.iterator();
-        
-        
+
         while( it.hasNext() ) {
 
         	Map.Entry<Host,OutputStream> entry = it.next();
-        	
+
+            OutputStream current = entry.getValue();
+
             try {
-                        	
-                OutputStream current = entry.getValue();
 
                 handle( current );
 
             } catch ( Throwable t ) {
 
                 it.remove();
-                writer.handleFailure( entry.getKey(), t );
+                writer.handleFailure( current, entry.getKey(), t );
 
             }
 

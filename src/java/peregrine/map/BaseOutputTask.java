@@ -55,7 +55,18 @@ public abstract class BaseOutputTask {
         this.status = status;
     }
 
+    public void handleFailure( Logger log, Throwable cause ) {
+        log.error( String.format( "Unable to run delegate %s on %s", delegate, partition ), cause );
+        setCause( cause );
+        setStatus( TaskStatus.FAILED );
+    }
+    
     public void setCause( Throwable cause ) {
+
+        // for now we only care about the first cause.
+        if ( this.cause != null )
+            return;
+        
         this.cause = cause;
     }
     
@@ -87,6 +98,14 @@ public abstract class BaseOutputTask {
     }
 
     public void report() throws IOException {
+
+        if ( status == TaskStatus.UNKNOWN ) {
+
+            // no failures happened in the delegate, cleanup, and teardown so we
+            // are complete.
+
+            setStatus( TaskStatus.COMPLETE );
+        }
 
         if ( status == TaskStatus.COMPLETE ) {
             sendCompleteToController();

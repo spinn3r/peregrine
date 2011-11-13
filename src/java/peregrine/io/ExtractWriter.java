@@ -2,11 +2,11 @@ package peregrine.io;
 
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.*;
 
 import peregrine.*;
-import peregrine.config.Config;
-import peregrine.config.Membership;
-import peregrine.config.Partition;
+import peregrine.config.*;
 import peregrine.io.partition.*;
 
 import com.spinn3r.log5j.Logger;
@@ -23,6 +23,8 @@ public class ExtractWriter {
     private List<PartitionWriter> output;
 
     private Config config;
+
+    private PartitionRouteHistograph partitionWriteHistograph;
     
     public ExtractWriter( Config config, String path ) throws IOException {
 
@@ -39,6 +41,8 @@ public class ExtractWriter {
             output.add( writer );
             
         }
+
+        partitionWriteHistograph = new PartitionRouteHistograph( config );
         
     }
 
@@ -64,6 +68,8 @@ public class ExtractWriter {
     private void write( Partition part, byte[] key, byte[] value )
         throws IOException {
 
+        partitionWriteHistograph.incr( part );
+        
         output.get( part.getId() ).write( key, value );
         
     }
@@ -74,6 +80,8 @@ public class ExtractWriter {
             writer.close();
         }
 
+        log.info( "Partition write histograph: %s" , partitionWriteHistograph );
+        
     }
 
 }

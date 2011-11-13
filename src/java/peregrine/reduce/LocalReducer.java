@@ -41,17 +41,14 @@ public class LocalReducer {
 
         // The input list should first be sorted so that we sort by the order of
         // the shuffle files and not an arbitrary order
-
         Collections.sort( input );
         
-        new ChunkSorter( config , partition, shuffleInput );
-
         List<ChunkReader> sorted = sort( input );
         
-        ChunkMerger merger = new ChunkMerger( listener );
+        ChunkMerger merger = new ChunkMerger( listener, partition );
         
         merger.merge( sorted );
-     
+        
     }
 
     public List<ChunkReader> sort( List<File> input ) throws IOException {
@@ -62,7 +59,10 @@ public class LocalReducer {
 
         String sort_dir = config.getPath( partition, String.format( "/tmp/%s" , shuffleInput.getName() ) );
 
+        // make the parent dir for holding sort files.
         new File( sort_dir ).mkdirs();
+
+        log.info( "Going to sort %,d files for %s", input.size(), partition );
         
         for ( File in : input ) {
 
@@ -74,12 +74,14 @@ public class LocalReducer {
             ChunkSorter sorter = new ChunkSorter( config , partition, shuffleInput );
 
             ChunkReader result = sorter.sort( in, out );
-                
+
             if ( result != null )
                 sorted.add( result );
 
         }
 
+        log.info( "Sorted %,d files for %s", sorted.size(), partition );
+        
         return sorted;
 
     }

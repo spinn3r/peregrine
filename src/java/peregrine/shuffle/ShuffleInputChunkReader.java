@@ -67,14 +67,17 @@ public class ShuffleInputChunkReader {
         // get the path that we should be working with.
         queue = prefetcher.lookup.get( partition );
 
+        if ( queue == null )
+            throw new IOException( "Queue is not defined for partition: " + partition );
+        
         header = prefetcher.reader.getHeader( partition );
 
         if ( header == null ) {
             throw new IOException( "Unable to find header for partition: " + partition );
         }
 
-        partition_idx = new Index( header.count );
-        packet_idx = new Index( header.nr_packets );
+        partition_idx  = new Index( header.count );
+        packet_idx     = new Index( header.nr_packets );
         
     }
 
@@ -83,7 +86,14 @@ public class ShuffleInputChunkReader {
     }
 
     public boolean hasNext() {
-        return partition_idx.hasNext();
+
+        boolean result = partition_idx.hasNext();
+
+        if ( result == false )
+            prefetcher.finished( partition );
+
+        return result;
+
     }
 
     public void next() {
@@ -205,6 +215,8 @@ public class ShuffleInputChunkReader {
 
         public Map<Partition,SimpleBlockingQueue<ShufflePacket>> lookup = new HashMap();
 
+        private Map<Partition,SimpleBlockingQueue<Boolean>> finished = new ConcurrentHashMap();
+
         protected ShuffleInputReader reader = null;
 
         private String path;
@@ -231,6 +243,8 @@ public class ShuffleInputChunkReader {
                 Partition part = replica.getPartition(); 
                 
                 lookup.put( part, new SimpleBlockingQueue( QUEUE_CAPACITY ) );
+                finished.put( part, new SimpleBlockingQueue( 1 ) );
+                
                 packetsReadPerPartition.put( part, new AtomicInteger() );
                 partitions.add( part );
                 
@@ -241,6 +255,13 @@ public class ShuffleInputChunkReader {
 
             this.reader = new ShuffleInputReader( path, partitions );
 
+        }
+
+        /**
+         * Called so that partitions that are read can note when they are finished.
+         */
+        public void finished( Partition partition ) {
+            finished.get( partition ).put( Boolean.TRUE );
         }
         
         public Object call() throws Exception {
@@ -262,12 +283,18 @@ public class ShuffleInputChunkReader {
                 ++count;
                 
             }
-            
+
+            // make sure all partitions are finished reading.
+            for ( SimpleBlockingQueue _finished : finished.values() ) {
+                _finished.take();
+            }
+
             log.info( "Reading from %s ...done (read %,d packets as %s)", path, count, packetsReadPerPartition );
 
-            // remove thyself
+            // remove thyself so that next time around there isn't a reference
+            // to this path and a new reader will be created.
             manager.reset( path );
-            
+
             return null;
             
         }
@@ -284,13 +311,19 @@ public class ShuffleInputChunkReader {
         static Map<String,PrefetchReader> instances = new ConcurrentHashMap();
 
         public void reset( String path ) {
-            instances.remove( path );
+
+            synchronized( instances ) {
+                instances.remove( path );
+            }
+            
         }
         
         public PrefetchReader getInstance( Config config, String path )
             throws IOException {
 
-            PrefetchReader result = instances.get( path );
+            PrefetchReader result;
+
+            result = instances.get( path );
 
             if ( result == null ) {
 
@@ -312,7 +345,7 @@ public class ShuffleInputChunkReader {
 
                 }
                 
-            }
+            } 
 
             return result;
             

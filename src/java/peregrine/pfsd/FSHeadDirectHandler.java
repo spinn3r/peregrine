@@ -53,10 +53,17 @@ class FSHeadDirectCallable extends FSBaseDirectCallable {
             
             List<File> files = LocalPartition.getChunkFiles( path );
 
+            int length = 0;
+            
+            for ( File file : files ) {
+                length += file.length();
+            }
+            
             int nr_chunks = files.size();
 
             HttpResponse response = new DefaultHttpResponse( HTTP_1_1, OK );
             response.setHeader( "X-nr-chunks", "" + nr_chunks );
+            response.setHeader( "X-length",    "" + length );
             
             channel.write(response);
 

@@ -1,5 +1,6 @@
 package peregrine;
 
+import java.io.*;
 import java.util.*;
 import peregrine.config.*;
 import peregrine.pfsd.*;
@@ -11,7 +12,10 @@ public abstract class BaseTestWithMultipleConfigs extends peregrine.BaseTest {
     private static final Logger log = Logger.getLogger();
 
     public static int[] CONCURRENCY  = new int[] { 1, 2, 4, 8 };
-    public static int[] REPLICAS     = new int[] { 1, 2, 3 };
+
+    //FIXME: add this back in...
+    //public static int[] REPLICAS     = new int[] { 1, 2, 3 };
+    public static int[] REPLICAS     = new int[] { 1, 2 };
     public static int[] HOSTS        = new int[] { 1, 2, 4, 8 };
 
     protected Host controller;
@@ -22,9 +26,13 @@ public abstract class BaseTestWithMultipleConfigs extends peregrine.BaseTest {
 
     protected List<Config> configs = new ArrayList();
 
+    protected Map<Host,Config> configsByHost;
+    
     protected int concurrency = 0;
     protected int replicas = 0;
     protected int hosts = 0;
+
+    protected int pass = -1;
     
     public void setUp() {
 
@@ -32,7 +40,8 @@ public abstract class BaseTestWithMultipleConfigs extends peregrine.BaseTest {
 
         daemons = new ArrayList();
         configs = new ArrayList();
-
+        configsByHost = new HashMap();
+        
         if ( concurrency == 0 )
             return;
         
@@ -45,6 +54,8 @@ public abstract class BaseTestWithMultipleConfigs extends peregrine.BaseTest {
 
             Config config = newConfig( "localhost", Config.DEFAULT_PORT + i );
             configs.add( config );
+
+            configsByHost.put( config.getHost() , config );
             
             daemons.add( new FSDaemon( config ) );
 
@@ -68,7 +79,7 @@ public abstract class BaseTestWithMultipleConfigs extends peregrine.BaseTest {
     }
 
     public void test() throws Exception {
-
+        
         for( int concurrency : CONCURRENCY ) {
 
             for( int replicas : REPLICAS ) {
@@ -79,23 +90,40 @@ public abstract class BaseTestWithMultipleConfigs extends peregrine.BaseTest {
                     this.replicas = replicas;
                     this.hosts = hosts;
 
+                    boolean ran = true;
+                    
                     try {
 
+                        ++pass;
+
                         setUp();
+
                         doTest();
 
                     } catch ( PartitionLayoutException e ) {
 
+                        --pass;
+                        ran = false;
+                        
                         // this is just an invalid config so skip it.
                         log.warn( "Invalid config: %s" , e.getMessage() );
                         continue;
 
                     } catch ( Throwable t ) {
-                        throw new Exception( "Test failed with config: " + config, t );
+                        throw new Exception( String.format( "Test failed on pass %,d with config: ", pass, config ), t );
                     } finally {
+
                         tearDown();
+
+                        if ( ran ) {
+                            // create a copy of the logs for this task for debug 
+                            copy( new File( "logs/peregrine.log" ), new File( String.format( "logs/test-%s-pass-%02d.log", getClass().getName(), pass ) ) );
+                            
+                            new FileOutputStream( "logs/peregrine.log" ).getChannel().truncate( 0 );
+                        }
+
                     }
-                    
+
                 }
                 
             }

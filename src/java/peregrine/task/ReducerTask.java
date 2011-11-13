@@ -53,28 +53,32 @@ public class ReducerTask extends BaseOutputTask implements Callable {
 
         try {
 
+            log.info( "Running %s on %s", delegate, partition );
+            
             setup();
-
             reducer.setBroadcastInput( BroadcastInputFactory.getBroadcastInput( config, getInput(), partition ) );
-
             reducer.init( getJobOutput() );
 
             try {
                 doCall();
-            } finally {
-                reducer.cleanup();
+            } catch ( Throwable t ) {
+                handleFailure( log, t );
             }
 
-            teardown();
-            
-            setStatus( TaskStatus.COMPLETE );
-            
+            try {
+                reducer.cleanup();
+            } catch ( Throwable t ) {
+                handleFailure( log, t );
+            }
+
+            try {
+                teardown();
+            } catch ( Throwable t ) {
+                handleFailure( log, t );
+            }
+
         } catch ( Throwable t ) { 
-
-            log.error( "Task failed for partition: " + partition, t );
-            setStatus( TaskStatus.FAILED );
-            setCause( t );
-
+            handleFailure( log, t );
         } finally {
             report();
         }

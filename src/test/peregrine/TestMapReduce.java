@@ -1,14 +1,24 @@
 package peregrine;
 
+import java.io.*;
 import java.util.*;
+import java.util.concurrent.atomic.*;
+import peregrine.config.*;
 import peregrine.io.*;
+import peregrine.io.partition.*;
 import peregrine.util.primitive.*;
+import peregrine.util.*;
+
+import com.spinn3r.log5j.*;
 
 public class TestMapReduce extends peregrine.BaseTestWithMultipleConfigs {
 
+    private static final Logger log = Logger.getLogger();
+
     // TODO: test 0, 1, etc... but we will need to broadcast this value to test
     // things.
-    public static int[] TESTS = { 100, 1000 };
+
+    public static int[] TESTS = { 250, 1000 };
 
     public static class Map extends Mapper {
 
@@ -24,7 +34,7 @@ public class TestMapReduce extends peregrine.BaseTestWithMultipleConfigs {
 
     public static class Reduce extends Reducer {
 
-        int count = 0;
+        AtomicInteger count = new AtomicInteger();
         
         @Override
         public void reduce( byte[] key, List<byte[]> values ) {
@@ -34,19 +44,21 @@ public class TestMapReduce extends peregrine.BaseTestWithMultipleConfigs {
             for( byte[] val : values ) {
                 ints.add( IntBytes.toInt( val ) );
             }
-            
-            if ( values.size() != 2 )
+
+            if ( values.size() != 2 ) {
+
                 throw new RuntimeException( String.format( "%s does not equal %s (%s) on nth reduce %s" ,
                                                            values.size(), 2, ints, count ) );
+            }
 
-            ++count;
-            
+            count.getAndIncrement();
+
         }
 
         @Override
         public void cleanup() {
 
-            if ( count == 0 )
+            if ( count.get() == 0 )
                throw new RuntimeException( "count is zero" );
             
         }
@@ -62,6 +74,46 @@ public class TestMapReduce extends peregrine.BaseTestWithMultipleConfigs {
         
     }
 
+    private void fsck( String path ) throws IOException {
+
+        log.info( "Running fsck of %s", path );
+        
+        Membership membership = config.getMembership();
+        
+        for( Partition part : config.getMembership().getPartitions() ) {
+
+            List<Host> hosts = config.getMembership().getHosts( part );
+
+            Set state = new HashSet();
+
+            for( Host host : hosts ) {
+
+                try {
+
+                    String relative = String.format( "/%s%s", part.getId(), path );
+                    
+                    log.info( "Checking %s on %s", relative, host );
+                    
+                    RemotePartitionWriterDelegate delegate = new RemotePartitionWriterDelegate();
+                    delegate.init( config, part, host, relative );
+                    
+                    java.util.Map stat = delegate.stat();
+                    
+                    state.add( stat.get( "X-length" ) );
+
+                } catch ( IOException e ) {
+                    throw new IOException( "fsck failed: " , e );
+                }
+                
+            }
+
+            if ( state.size() != 1 )
+                throw new IOException( String.format( "fsck failed.  %s is in inconsistent state: %s", part, state ) );
+            
+        }
+        
+    }
+    
     private void doTest( int max ) throws Exception {
 
         System.gc();
@@ -76,7 +128,7 @@ public class TestMapReduce extends peregrine.BaseTestWithMultipleConfigs {
 
         for( int i = 0; i < max; ++i ) {
 
-            byte[] key = LongBytes.toByteArray( i );
+            byte[] key = MD5.encode( "" + i );
             byte[] value = key;
 
             writer.write( key, value );
@@ -84,19 +136,59 @@ public class TestMapReduce extends peregrine.BaseTestWithMultipleConfigs {
 
         // write data 2x to verify that sorting works.
         for( int i = 0; i < max; ++i ) {
-            byte[] key = LongBytes.toByteArray( i );
+            byte[] key = MD5.encode( "" + i );
             byte[] value = key;
 
             writer.write( key, value );
         }
 
         writer.close();
+
+        fsck( path );
+
+        // verify that the right number of items have been written to filesystem.
+
+        Set<Partition> partitions = config.getMembership().getPartitions();
+
+        int count = 0;
+
+        int idx = 0;
+
+        for( Partition part : partitions ) {
+
+            Config part_config = configsByHost.get( config.getMembership().getHosts( part ).get( 0 ) );
+            
+            LocalPartitionReader reader = new LocalPartitionReader( part_config , part, path );
+
+            int countInPartition = 0;
+            
+            while( reader.hasNext() ) {
+
+                reader.key();
+                reader.value();
+
+                ++countInPartition;
+                
+            }
+
+            System.out.printf( "Partition %s has entries: %,d \n", part, countInPartition );
+
+            count += countInPartition;
+
+        }
+
+        assertEquals( max * 2, count );
+
+        // the writes worked correctly.
         
         String output = String.format( "/test/%s/test1.out", getClass().getName() );
 
         Controller controller = new Controller( config );
         
         controller.map( Map.class, path );
+
+        // make sure the shuffle output worked
+        
         controller.reduce( Reduce.class, new Input(), new Output( output ) );
 
         System.gc();
@@ -116,9 +208,31 @@ public class TestMapReduce extends peregrine.BaseTestWithMultipleConfigs {
         if ( args.length > 0 )
             TESTS = new int[] { Integer.parseInt( args[0] ) };
 
-        BaseTestWithMultipleConfigs.CONCURRENCY  = new int[] { 2 };
-        BaseTestWithMultipleConfigs.REPLICAS     = new int[] { 1 };
-        BaseTestWithMultipleConfigs.HOSTS        = new int[] { 1 };
+        /*
+        BaseTestWithMultipleConfigs.CONCURRENCY  = new int[] { 2, 2, 2, 2 };
+        BaseTestWithMultipleConfigs.REPLICAS     = new int[] { 2, 2, 2, 2 };
+        BaseTestWithMultipleConfigs.HOSTS        = new int[] { 8, 8, 8 };
+        */
+
+        /*
+        BaseTestWithMultipleConfigs.CONCURRENCY  = new int[] { 2, 2, 2 };
+        BaseTestWithMultipleConfigs.REPLICAS     = new int[] { 2 };
+        BaseTestWithMultipleConfigs.HOSTS        = new int[] { 8 };
+        */
+
+        /*
+        BaseTestWithMultipleConfigs.CONCURRENCY  = new int[] { 2, 2, 2, 2, 2, 2 , 2, 2, 2  };
+        BaseTestWithMultipleConfigs.REPLICAS     = new int[] { 2 };
+        BaseTestWithMultipleConfigs.HOSTS        = new int[] { 8 };
+        */
+
+        /*
+        BaseTestWithMultipleConfigs.CONCURRENCY  = new int[] { 2, 2, 2, 2, 2 , 2, 2, 2, 2, 2 , 2, 2, 2, 2, 2 , 2, 2, 2, 2, 2 , 2, 2, 2, 2, 2 , 2, 2, 2, 2, 2 , 2, 2, 2, 2, 2 , 2, 2, 2, 2, 2 , 2, 2, 2, 2, 2 , 2, 2, 2, 2, 2 , 2, 2, 2, 2, 2 , 2, 2, 2, 2, 2 , 2, 2, 2, 2, 2 , 2, 2, 2, 2, 2 , 2, 2, 2, 2, 2 , 2, 2, 2, 2, 2 , 2, 2, 2, 2, 2 , 2, 2, 2, 2, 2 , 2, 2, 2, 2, 2 , 2, 2, 2, 2, 2 , 2, 2, 2, 2, 2 , 2, 2, 2, 2, 2  };
+        */
+
+        // BaseTestWithMultipleConfigs.CONCURRENCY  = new int[] { 2 };
+        // BaseTestWithMultipleConfigs.REPLICAS     = new int[] { 3 };
+        // BaseTestWithMultipleConfigs.HOSTS        = new int[] { 8 };
         
         runTests();
 

@@ -19,27 +19,32 @@ public class MapperTask extends BaseMapperTask {
 
         try {
 
+            log.info( "Running %s on %s", delegate, partition );
+            
             setup();
             mapper.setBroadcastInput( getBroadcastInput() );
             mapper.init( getJobOutput() );
 
             try {
                 doCall();
-            } finally {
-                mapper.cleanup();
+            } catch ( Throwable t ) {
+                handleFailure( log, t );
             }
 
-            teardown();
+            try {
+                mapper.cleanup();
+            } catch ( Throwable t ) {
+                handleFailure( log, t );
+            }
 
-            setStatus( TaskStatus.COMPLETE );
+            try {
+                teardown();
+            } catch ( Throwable t ) {
+                handleFailure( log, t );
+            }
 
         } catch ( Throwable t ) { 
-
-            log.error( "Task failed for partition: " + partition, t );
-
-            setStatus( TaskStatus.FAILED );
-            setCause( t );
-
+            handleFailure( log, t );
         } finally {
             report();
         }
@@ -64,9 +69,14 @@ public class MapperTask extends BaseMapperTask {
         
         LocalPartitionReader reader = readers.get( 0 );
 
+        int count = 0;
+        
         while( reader.hasNext() ) {
             mapper.map( reader.key(), reader.value() );
+            ++count;
         }
+
+        log.info( "Mapped %,d entries on %s on host %s from %s", count, partition, config.getHost(), reader );
 
     }
 

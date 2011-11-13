@@ -1,6 +1,7 @@
 package peregrine.reduce;
 
 import java.io.*;
+import peregrine.util.*;
 import peregrine.values.*;
 import peregrine.io.chunk.*;
 
@@ -24,11 +25,10 @@ public class SortResult {
     public void accept( SortEntry entry ) throws IOException {
 
         FullKeyComparator comparator = new FullKeyComparator();
-        
+
         if ( last == null || comparator.compare( last.key, entry.key ) != 0 ) {
 
             emit( last );
-
             last = entry;
 
         } else {
@@ -46,11 +46,11 @@ public class SortResult {
 
     private void emit( SortEntry entry ) throws IOException {
 
-        if ( entry == null )
+        if ( entry == null ) {
             return;
+        }
         
         if ( listener != null ) {
-
             listener.onFinalValue( entry.key , entry.getValues() );
         }
 

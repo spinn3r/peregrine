@@ -37,7 +37,7 @@ public class ChunkSorter extends BaseChunkSorter {
 
         try {
         
-            log.info( "Going to sort: %s", input );
+            log.info( "Going to sort: %s which is %,d bytes", input, input.length() );
 
             // TODO: do this async so that we can read from disk and compute at
             // the same time... we need a background thread to trigger the
@@ -47,7 +47,13 @@ public class ChunkSorter extends BaseChunkSorter {
             
             ChannelBuffer buffer = reader.getBuffer();
 
+            // we need our OWN copy of this buffer so that other thread don't
+            // update the readerIndex and writerIndex
+            buffer = buffer.slice( 0, buffer.writerIndex() );
+            
             lookup = new KeyLookup( reader, buffer );
+
+            log.info( "Key lookup for %s has %,d entries." , partition, lookup.size() );
             
             int depth = 0;
 
