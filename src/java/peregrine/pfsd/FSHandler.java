@@ -12,7 +12,8 @@ import org.jboss.netty.channel.*;
 import org.jboss.netty.handler.codec.frame.*;
 import org.jboss.netty.handler.codec.http.*;
 import peregrine.config.Config;
-import peregrine.pfs.*;
+import peregrine.http.*;
+
 import com.spinn3r.log5j.*;
 
 /**
@@ -34,7 +35,7 @@ public class FSHandler extends SimpleChannelUpstreamHandler {
      */
     protected boolean pipeline = false;
 
-    protected RemoteChunkWriterClient remote = null;
+    protected HttpClient remote = null;
 
     protected Config config;
 
@@ -167,7 +168,7 @@ public class FSHandler extends SimpleChannelUpstreamHandler {
 
                 log.info( "Going to pipeline requests to: %s ", uri );
                 
-                remote = new RemoteChunkWriterClient( request, uri );
+                remote = new HttpClient( request, uri );
                 
             } else if ( remote != null && message instanceof HttpChunk ) {
 
@@ -230,7 +231,7 @@ public class FSHandler extends SimpleChannelUpstreamHandler {
         Channel ch = e.getChannel();
         Throwable cause = e.getCause();
 
-        String tag = request.getHeader( RemoteChunkWriterClient.X_TAG );
+        String tag = request.getHeader( HttpClient.X_TAG );
         
         if ( request == null )
             log.error( String.format( "Could not handle initial request (tag=%s): ", tag ), cause );

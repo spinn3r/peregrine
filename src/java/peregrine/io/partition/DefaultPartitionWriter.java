@@ -7,9 +7,9 @@ import peregrine.config.Config;
 import peregrine.config.Host;
 import peregrine.config.Membership;
 import peregrine.config.Partition;
+import peregrine.http.*;
 import peregrine.io.chunk.*;
 import peregrine.io.async.*;
-import peregrine.pfs.*;
 import peregrine.pfsd.*;
 
 import com.spinn3r.log5j.Logger;
@@ -140,7 +140,7 @@ public class DefaultPartitionWriter implements PartitionWriter {
         
         Map<Host,OutputStream> outputStreams = new HashMap();
 
-        RemoteChunkWriterClient client = null;
+        HttpClient client = null;
 
         String pipeline = "";
         
@@ -158,7 +158,7 @@ public class DefaultPartitionWriter implements PartitionWriter {
 
                 OutputStream out = delegate.newChunkWriter( chunk_id );
                 
-                client = (RemoteChunkWriterClient)out;
+                client = (HttpClient)out;
                 outputStreams.put( delegate.getHost(), client );
 
             } else {

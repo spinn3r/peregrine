@@ -4,7 +4,7 @@ import java.io.*;
 import java.util.*;
 import java.net.*;
 
-import peregrine.pfs.*;
+import peregrine.http.*;
 
 import com.spinn3r.log5j.*;
 
@@ -103,7 +103,7 @@ public class RemotePartitionWriterDelegate extends BasePartitionWriterDelegate {
 
             log.info( "Creating new chunk writer: %s" , uri );
 
-            return new RemoteChunkWriterClient( uri );
+            return new HttpClient( uri );
             
         } catch ( URISyntaxException e ) {
             throw new IOException( "Unable to create new chunk writer: " , e );

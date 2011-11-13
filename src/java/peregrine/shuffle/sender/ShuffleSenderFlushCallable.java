@@ -10,8 +10,8 @@ import peregrine.config.Config;
 import peregrine.config.Host;
 import peregrine.config.Membership;
 import peregrine.config.Partition;
+import peregrine.http.*;
 import peregrine.util.primitive.IntBytes;
-import peregrine.pfs.*;
 
 import com.spinn3r.log5j.Logger;
 
@@ -118,7 +118,7 @@ public class ShuffleSenderFlushCallable implements Callable {
                                              output.chunkRef.partition.getId(),
                                              output.chunkRef.local );
 
-                ChannelBufferWritable client = new RemoteChunkWriterClient( hosts, path );
+                ChannelBufferWritable client = new HttpClient( hosts, path );
                 client = new BufferedChannelBuffer( client , MAX_CHUNK_SIZE - IntBytes.LENGTH ) {
 
                         @Override

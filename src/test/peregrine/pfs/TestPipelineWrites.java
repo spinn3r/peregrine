@@ -7,6 +7,7 @@ import java.security.*;
 import peregrine.util.*;
 import peregrine.config.Config;
 import peregrine.config.Host;
+import peregrine.http.*;
 import peregrine.pfsd.*;
 
 public class TestPipelineWrites extends peregrine.BaseTest {
@@ -37,7 +38,7 @@ public class TestPipelineWrites extends peregrine.BaseTest {
 
         URI uri = new URI( "http://localhost:11112/test-write-hash" );
 
-        RemoteChunkWriterClient client = new RemoteChunkWriterClient( uri );
+        HttpClient client = new HttpClient( uri );
 
         client.setHeader( "X-pipeline", "localhost:11113" );
         

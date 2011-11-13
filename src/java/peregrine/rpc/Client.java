@@ -5,7 +5,8 @@ import java.net.*;
 import org.jboss.netty.handler.codec.http.*;
 
 import peregrine.config.Host;
-import peregrine.pfs.*;
+import peregrine.http.*;
+
 import com.spinn3r.log5j.*;
 
 /**
@@ -26,7 +27,7 @@ public class Client {
 
             log.info( "Sending RPC %s %s ..." , data, uri );
             
-            RemoteChunkWriterClient client = new RemoteChunkWriterClient( uri );
+            HttpClient client = new HttpClient( uri );
 
             client.setMethod( HttpMethod.POST );
             client.write( data.getBytes() );

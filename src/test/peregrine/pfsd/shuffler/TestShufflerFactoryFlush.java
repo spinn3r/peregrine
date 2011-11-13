@@ -1,7 +1,9 @@
 package peregrine.pfsd.shuffler;
 
 import java.net.*;
-import peregrine.pfs.*;
+
+import peregrine.http.*;
+
 import org.jboss.netty.handler.codec.http.*;
 
 public class TestShufflerFactoryFlush extends peregrine.BaseTestWithTwoDaemons {
@@ -14,7 +16,7 @@ public class TestShufflerFactoryFlush extends peregrine.BaseTestWithTwoDaemons {
         encoder.addParam( "action", "flush" );
         String query = encoder.toString();
 
-        RemoteChunkWriterClient client = new RemoteChunkWriterClient( new URI( "http://localhost:11112/shuffler/RPC" ) );
+        HttpClient client = new HttpClient( new URI( "http://localhost:11112/shuffler/RPC" ) );
 
         client.setMethod( HttpMethod.POST );
         client.write( query.getBytes() );

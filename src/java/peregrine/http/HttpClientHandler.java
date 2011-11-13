@@ -1,4 +1,4 @@
-package peregrine.pfs;
+package peregrine.http;
 
 import java.io.*;
 
@@ -10,13 +10,13 @@ import com.spinn3r.log5j.Logger;
 
 /**
  */
-public class RemoteChunkWriterClientHandler extends SimpleChannelUpstreamHandler {
+public class HttpClientHandler extends SimpleChannelUpstreamHandler {
 
     private static final Logger log = Logger.getLogger();
 
-    private RemoteChunkWriterClient client = null;
+    private HttpClient client = null;
     
-    public RemoteChunkWriterClientHandler( RemoteChunkWriterClient client ) {
+    public HttpClientHandler( HttpClient client ) {
         this.client = client;
     }
 
@@ -31,7 +31,7 @@ public class RemoteChunkWriterClientHandler extends SimpleChannelUpstreamHandler
             
             log.info( "Received HTTP response: %s for %s", response.getStatus(), client.uri );
 
-            client.channelState = RemoteChunkWriterClient.CLOSED;
+            client.channelState = HttpClient.CLOSED;
             
             if ( response.getStatus().getCode() != OK.getCode() ) {
                 client.failed( new IOException( response.getStatus().toString() ) );

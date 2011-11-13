@@ -1,4 +1,4 @@
-package peregrine.pfs;
+package peregrine.http;
 
 import java.io.*;
 import org.jboss.netty.buffer.*;

@@ -6,6 +6,7 @@ import java.security.*;
 
 import peregrine.util.*;
 import peregrine.config.Config;
+import peregrine.http.*;
 
 public class TestRemoteChunkWriterClient extends peregrine.BaseTestWithMultipleConfigs {
 
@@ -24,7 +25,7 @@ public class TestRemoteChunkWriterClient extends peregrine.BaseTestWithMultipleC
 
         URI uri = new URI( "http://localhost:11112/test-write-hash" );
 
-        RemoteChunkWriterClient client = new RemoteChunkWriterClient( uri );
+        HttpClient client = new HttpClient( uri );
 
         int block = 16384;
         

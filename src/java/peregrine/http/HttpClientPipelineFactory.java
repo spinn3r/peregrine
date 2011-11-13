@@ -1,4 +1,4 @@
-package peregrine.pfs;
+package peregrine.http;
 
 import static org.jboss.netty.channel.Channels.*;
 import static peregrine.pfsd.FSPipelineFactory.*;
@@ -10,11 +10,11 @@ import org.jboss.netty.handler.codec.http.*;
  *
  * @version $Rev: 2226 $, $Date: 2010-03-31 11:26:51 +0900 (Wed, 31 Mar 2010) $
  */
-public class RemoteChunkWriterClientPipelineFactory implements ChannelPipelineFactory {
+public class HttpClientPipelineFactory implements ChannelPipelineFactory {
 
-    private RemoteChunkWriterClient client;
+    private HttpClient client;
     
-    public RemoteChunkWriterClientPipelineFactory( RemoteChunkWriterClient client ) {
+    public HttpClientPipelineFactory( HttpClient client ) {
         this.client = client;
     }
     
@@ -26,7 +26,7 @@ public class RemoteChunkWriterClientPipelineFactory implements ChannelPipelineFa
                                                          MAX_HEADER_SIZE,
                                                          MAX_CHUNK_SIZE ));
         
-        pipeline.addLast("handler", new RemoteChunkWriterClientHandler( client ) );
+        pipeline.addLast("handler", new HttpClientHandler( client ) );
 
         return pipeline;
 

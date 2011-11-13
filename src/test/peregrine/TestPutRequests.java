@@ -1,7 +1,8 @@
 package peregrine;
 
 import java.net.*;
-import peregrine.pfs.*;
+
+import peregrine.http.*;
 import peregrine.pfsd.*;
 
 public class TestPutRequests extends peregrine.BaseTestWithTwoDaemons {
@@ -12,7 +13,7 @@ public class TestPutRequests extends peregrine.BaseTestWithTwoDaemons {
 
             System.out.printf( "Writing %,d out of %,d\n", i , max );
             
-            RemoteChunkWriterClient client = new RemoteChunkWriterClient( new URI( String.format( "http://localhost:11112/foo/%s", i ) ) );
+            HttpClient client = new HttpClient( new URI( String.format( "http://localhost:11112/foo/%s", i ) ) );
 
             client.write( "xxxxxxxxxxxxxxxxxx".getBytes() );
 
@@ -42,7 +43,7 @@ public class TestPutRequests extends peregrine.BaseTestWithTwoDaemons {
 
             System.out.printf( "Writing %,d out of %,d\n", i , max );
             
-            RemoteChunkWriterClient client = new RemoteChunkWriterClient( new URI( String.format( "http://localhost:11112/foo/%s", i ) ) );
+            HttpClient client = new HttpClient( new URI( String.format( "http://localhost:11112/foo/%s", i ) ) );
 
             client.write( "xxxxxxxxxxxxxxxxxx".getBytes() );
 

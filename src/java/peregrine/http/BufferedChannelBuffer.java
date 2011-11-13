@@ -1,4 +1,4 @@
-package peregrine.pfs;
+package peregrine.http;
 
 import java.io.*;
 import java.util.*;
@@ -88,7 +88,7 @@ public class BufferedChannelBuffer implements ChannelBufferWritable {
      */
     protected boolean hasCapacity( ChannelBuffer buff ) {
 
-        int newCapacity = writeLength + buff.writerIndex() + RemoteChunkWriterClient.CHUNK_OVERHEAD;
+        int newCapacity = writeLength + buff.writerIndex() + HttpClient.CHUNK_OVERHEAD;
         
         return newCapacity < capacity;
 

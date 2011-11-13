@@ -1,4 +1,4 @@
-package peregrine.pfs;
+package peregrine.http;
 
 import java.io.*;
 import java.net.*;
@@ -23,13 +23,13 @@ import com.spinn3r.log5j.Logger;
  * HTTP client that supports chunked PUT to a remote PFS node.
  * 
  */
-public class RemoteChunkWriterClient extends BaseOutputStream implements ChannelBufferWritable {
+public class HttpClient extends BaseOutputStream implements ChannelBufferWritable {
 
     private static final Logger log = Logger.getLogger();
 
     protected static NioClientSocketChannelFactory socketChannelFactory =
-        new NioClientSocketChannelFactory( Executors.newCachedThreadPool( new DefaultThreadFactory( RemoteChunkWriterClient.class ) ), 
-                                           Executors.newCachedThreadPool( new DefaultThreadFactory( RemoteChunkWriterClient.class ) ) );
+        new NioClientSocketChannelFactory( Executors.newCachedThreadPool( new DefaultThreadFactory( HttpClient.class ) ), 
+                                           Executors.newCachedThreadPool( new DefaultThreadFactory( HttpClient.class ) ) );
 
     public static final String X_TAG = "X-tag";
     
@@ -112,7 +112,7 @@ public class RemoteChunkWriterClient extends BaseOutputStream implements Channel
 
     protected HttpMethod method = HttpMethod.PUT;
     
-    public RemoteChunkWriterClient( List<Host> hosts, String path ) throws IOException {
+    public HttpClient( List<Host> hosts, String path ) throws IOException {
 
         try {
             
@@ -138,7 +138,7 @@ public class RemoteChunkWriterClient extends BaseOutputStream implements Channel
         
     }
 
-    public RemoteChunkWriterClient( String uri ) throws IOException {
+    public HttpClient( String uri ) throws IOException {
 
         try {
             this.uri = new URI( uri );
@@ -148,11 +148,11 @@ public class RemoteChunkWriterClient extends BaseOutputStream implements Channel
 
     }
 
-    public RemoteChunkWriterClient( URI uri ) throws IOException {
+    public HttpClient( URI uri ) throws IOException {
         this.uri = uri;
     }
     
-    public RemoteChunkWriterClient( HttpRequest request, URI uri ) throws IOException {
+    public HttpClient( HttpRequest request, URI uri ) throws IOException {
         this.request = request;
         this.uri = uri;
     }
@@ -164,7 +164,7 @@ public class RemoteChunkWriterClient extends BaseOutputStream implements Channel
         // Prepare the HTTP request.
         this.request = new DefaultHttpRequest( HttpVersion.HTTP_1_1, method, uri.toASCIIString() );
 
-        request.setHeader( HttpHeaders.Names.USER_AGENT, RemoteChunkWriterClient.class.getName() );
+        request.setHeader( HttpHeaders.Names.USER_AGENT, HttpClient.class.getName() );
         request.setHeader( HttpHeaders.Names.HOST, host );
         request.setHeader( HttpHeaders.Names.TRANSFER_ENCODING, "chunked" );
 
@@ -189,7 +189,7 @@ public class RemoteChunkWriterClient extends BaseOutputStream implements Channel
         ClientBootstrap bootstrap = BootstrapFactory.newClientBootstrap( socketChannelFactory );
 
         // Set up the event pipeline factory.
-        bootstrap.setPipelineFactory( new RemoteChunkWriterClientPipelineFactory( this ) );
+        bootstrap.setPipelineFactory( new HttpClientPipelineFactory( this ) );
 
         // Start the connection attempt... where is the connect timeout set?
         ChannelFuture connectFuture = bootstrap.connect( new InetSocketAddress( host, port ) );
@@ -417,9 +417,9 @@ public class RemoteChunkWriterClient extends BaseOutputStream implements Channel
 
     class WriteFutureListener implements ChannelFutureListener {
 
-        private RemoteChunkWriterClient client;
+        private HttpClient client;
         
-        public WriteFutureListener( RemoteChunkWriterClient client ) {
+        public WriteFutureListener( HttpClient client ) {
             this.client = client;
         }
 
@@ -457,9 +457,9 @@ public class RemoteChunkWriterClient extends BaseOutputStream implements Channel
 
     class ConnectFutureListener implements ChannelFutureListener {
 
-        private RemoteChunkWriterClient client;
+        private HttpClient client;
 
-        public ConnectFutureListener( RemoteChunkWriterClient client ) {
+        public ConnectFutureListener( HttpClient client ) {
             this.client = client;
         }
 
@@ -473,7 +473,7 @@ public class RemoteChunkWriterClient extends BaseOutputStream implements Channel
         	
             client.channel = future.getChannel();
 
-            client.channelState = RemoteChunkWriterClient.OPEN;
+            client.channelState = HttpClient.OPEN;
 
             // we need to find out when we are closed now.
             client.channel.getCloseFuture().addListener( new CloseFutureListener( client ) );
@@ -486,9 +486,9 @@ public class RemoteChunkWriterClient extends BaseOutputStream implements Channel
 
     class CloseFutureListener implements ChannelFutureListener {
 
-        private RemoteChunkWriterClient client;
+        private HttpClient client;
         
-        public CloseFutureListener( RemoteChunkWriterClient client ) {
+        public CloseFutureListener( HttpClient client ) {
             this.client = client;
         }
 
