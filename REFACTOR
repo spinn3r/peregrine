@@ -1,0 +1,18 @@
+
+Multiple things to cleanup in our refactor.
+
+- Cleanup MultiOutputStream to use JUST pipelines
+
+- NO usage of java.net.URL anywhere... 
+
+- remove redundant priority queue work.
+
+- All IO need to use one thread and never block... there are some blocking
+  operations in there now suck as writing to the queue which we first need to
+  see if it is at capacity AFTER a write then setReadable( false ) then call
+  setReadable( true ) after a read works.
+
+- Unit tests for failed HttpClient requests that lock up when
+  connecting to a failed machine.
+
+- 
