@@ -241,7 +241,8 @@ public class Controller {
         message.put( "action",     action );
         message.put( "partition",  partition.getId() );
         message.put( "delegate",   delegate.getName() );
-    
+        message.put( "job_id",     job.getId() );
+        
         if ( input != null ) {
         
             idx = 0;
