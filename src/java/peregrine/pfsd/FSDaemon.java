@@ -136,7 +136,7 @@ public class FSDaemon {
         for( Class clazz : executorServices.keySet() ) {
 
             log.info( "Shutting down executor service: %s", clazz.getName() );
-            executorServices.get( clazz ).shutdown();
+            executorServices.get( clazz ).shutdownNow();
             
         }
 
