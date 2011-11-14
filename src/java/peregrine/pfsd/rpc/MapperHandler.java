@@ -66,7 +66,7 @@ public class MapperHandler extends RPCHandler {
 
         log.info( "Running delegate %s with input %s and output %s", delegate.getName(), input, output );
 
-        daemon.mapperExecutors.submit( task );
+        daemon.getExecutorService( getClass() ).submit( task );
 
     }
     

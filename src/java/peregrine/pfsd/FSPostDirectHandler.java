@@ -22,9 +22,6 @@ public class FSPostDirectHandler extends SimpleChannelUpstreamHandler {
 
     private static final Logger log = Logger.getLogger();
 
-    private static ExecutorService executors =
-        Executors.newCachedThreadPool( new DefaultThreadFactory( FSPostDirectHandler.class) );
-
 	private static Map<String,RPCHandler> handlers = new HashMap() {{
     	
     	put( "/shuffler/RPC",    new ShufflerHandler() );
@@ -34,15 +31,18 @@ public class FSPostDirectHandler extends SimpleChannelUpstreamHandler {
         put( "/merger/RPC",      new MergerHandler() );
         
     }};
-    
+
+    private FSDaemon daemon;
+
     private FSHandler handler;
 
     private Channel channel;
 
     private Message message;
-    
-    public FSPostDirectHandler( FSHandler handler ) {
+
+    public FSPostDirectHandler( FSDaemon daemon, FSHandler handler ) {
         this.handler = handler;
+        this.daemon = daemon;
     }
 
     @Override
@@ -88,7 +88,7 @@ public class FSPostDirectHandler extends SimpleChannelUpstreamHandler {
             	
             	log.info( "Handling message %s for URI: %s with %s", message, uri, rpcHandler );
             	
-                executors.submit( new AsyncAction( channel, message ) {
+                daemon.getExecutorService( getClass() ).submit( new AsyncAction( channel, message ) {
 
                         public void doAction() throws Exception {
                             rpcHandler.handleMessage( channel, handler.daemon, message );

@@ -26,7 +26,7 @@ public class FSPutShuffleHandler extends FSPutBaseHandler {
     
     private ShuffleReceiver shuffleReceiver = null;
     
-    public FSPutShuffleHandler( FSHandler handler ) throws Exception {
+    public FSPutShuffleHandler( FSDaemon daemon, FSHandler handler ) throws Exception {
         super( handler );
         
         String path = handler.request.getUri();

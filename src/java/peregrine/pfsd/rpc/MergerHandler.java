@@ -35,7 +35,7 @@ public class MergerHandler extends MapperHandler {
         task.setInput( input );
         task.setOutput( output );
         
-        daemon.mergerExecutors.submit( task );
+        daemon.getExecutorService( getClass() ).submit( task );
 
     }
 

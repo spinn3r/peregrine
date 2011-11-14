@@ -16,12 +16,11 @@ import peregrine.util.*;
  */
 public class FSDeleteDirectHandler extends SimpleChannelUpstreamHandler {
 
-    private static ExecutorService executors =
-        Executors.newCachedThreadPool( new DefaultThreadFactory( FSDeleteDirectHandler.class) );
-    
     private FSHandler handler;
+    private FSDaemon daemon;
     
-    public FSDeleteDirectHandler( FSHandler handler ) {
+    public FSDeleteDirectHandler( FSDaemon daemon, FSHandler handler ) {
+        this.daemon = daemon;
         this.handler = handler;
     }
 
@@ -30,7 +29,7 @@ public class FSDeleteDirectHandler extends SimpleChannelUpstreamHandler {
 
         Channel ch = e.getChannel();
 
-        executors.submit( new FSDeleteDirectCallable( handler.path, ch ) );
+        daemon.getExecutorService( getClass() ).submit( new FSDeleteDirectCallable( handler.path, ch ) );
         
     }
 

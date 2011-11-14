@@ -18,7 +18,7 @@ public class FSPutDirectHandler extends FSPutBaseHandler {
 
     private FileChannel output = null;
     
-    public FSPutDirectHandler( FSHandler handler ) throws IOException {
+    public FSPutDirectHandler( FSDaemon daemon, FSHandler handler ) throws IOException {
         super( handler );
 
         // FIXME: ALL of this should be async... In fact ALL the IO here should

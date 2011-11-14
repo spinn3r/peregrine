@@ -16,12 +16,11 @@ import peregrine.util.*;
  */
 public class FSHeadDirectHandler extends SimpleChannelUpstreamHandler {
 
-    private static ExecutorService executors =
-        Executors.newCachedThreadPool( new DefaultThreadFactory( FSHeadDirectHandler.class) );
-    
+    private FSDaemon daemon;
     private FSHandler handler;
     
-    public FSHeadDirectHandler( FSHandler handler ) {
+    public FSHeadDirectHandler( FSDaemon daemon, FSHandler handler ) {
+        this.daemon = daemon;
         this.handler = handler;
     }
 
@@ -30,7 +29,8 @@ public class FSHeadDirectHandler extends SimpleChannelUpstreamHandler {
 
         Channel ch = e.getChannel();
 
-        executors.submit( new FSHeadDirectCallable( handler.path, ch ) );
+        daemon.getExecutorService( getClass() )
+            .submit( new FSHeadDirectCallable( handler.path, ch ) );
         
     }
 

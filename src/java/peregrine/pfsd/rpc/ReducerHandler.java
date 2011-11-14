@@ -36,7 +36,7 @@ public class ReducerHandler extends MapperHandler {
         task.setInput( input );
         task.setOutput( output );
 
-        daemon.reducerExecutors.submit( task );
+        daemon.getExecutorService( getClass() ).submit( task );
 
     }
 

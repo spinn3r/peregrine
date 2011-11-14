@@ -81,23 +81,23 @@ public class FSHandler extends SimpleChannelUpstreamHandler {
                 URI uri = new URI( request.getUri() );
 
                 if ( uri.getPath().contains( "/shuffle/" ) ) {
-                    upstream = new FSPutShuffleHandler( this );
+                    upstream = new FSPutShuffleHandler( daemon, this );
                 } else {
-                    upstream = new FSPutDirectHandler( this );
+                    upstream = new FSPutDirectHandler( daemon, this );
                 }
 
             }
 
             if ( method == DELETE ) {
-                upstream = new FSDeleteDirectHandler( this );
+                upstream = new FSDeleteDirectHandler( daemon, this );
             }
 
             if ( method == HEAD ) {
-                upstream = new FSHeadDirectHandler( this );
+                upstream = new FSHeadDirectHandler( daemon, this );
             }
 
             if ( method == POST ) {
-                upstream = new FSPostDirectHandler( this );
+                upstream = new FSPostDirectHandler( daemon, this );
             }
             
             if ( method == GET ) {

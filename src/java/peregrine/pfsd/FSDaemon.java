@@ -1,13 +1,14 @@
 package peregrine.pfsd;
 
 import java.io.*;
-import java.net.InetSocketAddress;
+import java.net.*;
+import java.util.*;
 import java.util.concurrent.*;
 
 import org.jboss.netty.logging.*;
 import org.jboss.netty.bootstrap.*;
 import org.jboss.netty.channel.*;
-import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
+import org.jboss.netty.channel.socket.nio.*;
 
 import peregrine.config.*;
 import peregrine.pfsd.rpc.*;
@@ -25,18 +26,8 @@ public class FSDaemon {
     
     private ServerBootstrap bootstrap = null;
 
-    private ExecutorService executors =
-        Executors.newCachedThreadPool( new DefaultThreadFactory( FSDaemon.class ) );
-
-    public ExecutorService mapperExecutors =
-        Executors.newCachedThreadPool( new DefaultThreadFactory( MapperHandler.class) );
-
-    public ExecutorService mergerExecutors =
-        Executors.newCachedThreadPool( new DefaultThreadFactory( MergerHandler.class) );
-
-    public ExecutorService reducerExecutors =
-        Executors.newCachedThreadPool( new DefaultThreadFactory( ReducerHandler.class) );
-
+    private Map<Class,ExecutorService> executorServices = new ConcurrentHashMap();
+    
     private int port;
 
     private Channel channel;
@@ -88,7 +79,7 @@ public class FSDaemon {
         log.info( "Now listening on %s with root: %s" , config.getHost(), root );
         
         if ( ! config.getHost().equals( config.getController() ) )
-        	executors.submit( new HeartbeatSender() );
+        	getExecutorService( HeartbeatSender.class ).submit( new HeartbeatSender() );
         
     }
     
@@ -103,7 +94,35 @@ public class FSDaemon {
     public Config getConfig() {
     	return config;
     }
-    
+
+    public ExecutorService getExecutorService( Class clazz ) {
+
+        ExecutorService result;
+
+        result = executorServices.get( clazz );
+
+        // double check idiom
+        if ( result == null ) {
+
+            synchronized( executorServices ) {
+
+                result = executorServices.get( clazz );
+                
+                if ( result == null ) {
+
+                    result = Executors.newCachedThreadPool( new DefaultThreadFactory( clazz ) );
+                    executorServices.put( clazz, result );
+                    
+                }
+                
+            }
+            
+        }
+
+        return result;
+        
+    }
+
     public void shutdown() {
 
         String msg = String.format( "Shutting down PFSd on: %s", config.getHost() );
@@ -114,14 +133,13 @@ public class FSDaemon {
 
         log.debug( "Channel closed." );
 
-        //shutdown the heartbeat executor
-        executors.shutdown();
+        for( Class clazz : executorServices.keySet() ) {
 
-        // shutdown the job executors
-        mapperExecutors.shutdown();
-        mergerExecutors.shutdown();
-        reducerExecutors.shutdown();
-        
+            log.info( "Shutting down executor service: %s", clazz.getName() );
+            executorServices.get( clazz ).shutdown();
+            
+        }
+
         bootstrap.releaseExternalResources();
 
         log.info( "%s COMPLETE" , msg );
