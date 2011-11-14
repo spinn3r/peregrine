@@ -51,7 +51,7 @@ public abstract class Scheduler {
 
         // import the current list of online hosts and pay attention to new
         // updates in the future.
-        membership.getOnline().addListenerWithMarks( new MarkListener<Host>() {
+        membership.getOnline().addListenerWithSnapshot( new MarkListener<Host>() {
 
                 public void updated( Host host, MarkListener.Status status ) {
 

@@ -40,9 +40,12 @@ public class MarkMap<T,V> {
     }
 
     /**
-     * Add a listener and then call marked() on the current marks.
+     * Add a listener and then get a snapshot of the current state.  This can be
+     * used to sync the behavior of two objects and avoid any races. It IS
+     * possible that the updated method is called 2x on the same object but this
+     * is acceptable for our usage.
      */
-    public void addListenerWithMarks( MarkListener<T> listener ) {
+    public void addListenerWithSnapshot( MarkListener<T> listener ) {
 
         addListener( listener );
 
