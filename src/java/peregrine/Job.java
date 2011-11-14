@@ -12,19 +12,32 @@ import java.util.concurrent.atomic.*;
  */
 public class Job {
 
-    public static AtomicInteger id = new AtomicInteger();
+    public static AtomicInteger nonce = new AtomicInteger();
 
     protected long timestamp = System.currentTimeMillis();
-	protected String name = String.format( "%010d.%010d", timestamp, id.getAndIncrement() );
+	protected String id = String.format( "%010d.%010d", timestamp, nonce.getAndIncrement() );
+	protected String name = id;
 	protected String description;
 	protected Class delegate;
 	protected Class combiner;
 	protected Input input;
 	protected Output output;
 
+    /**
+     * Get the unique job ID (nonce). 
+     */
+    public String getId() {
+        return id;        
+    }
+
+    /**
+     * Get an optionally human readable name for this job.  Should be short and
+     * only one line of text.
+     */
 	public String getName() {
 		return name;
 	}
+    
 	public Job setName(String name) {
 		this.name = name;
 		return this;
