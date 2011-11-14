@@ -184,22 +184,25 @@ public class TestMapReduce extends peregrine.BaseTestWithMultipleConfigs {
         String output = String.format( "/test/%s/test1.out", getClass().getName() );
 
         Controller controller = new Controller( config );
-        
-        controller.map( Map.class, path );
 
-        // make sure the shuffle output worked
-        
-        controller.reduce( Reduce.class, new Input(), new Output( output ) );
+        try {
+            controller.map( Map.class, path );
 
-        System.gc();
+            // make sure the shuffle output worked
+            
+            controller.reduce( Reduce.class, new Input(), new Output( output ) );
 
-        long after = runtime.totalMemory() - runtime.freeMemory();
+            System.gc();
 
-        long used = after - before ;
-        
-        System.out.printf( "Memory footprint before = %,d bytes, after = %,d bytes, diff = %,d bytes\n", before, after, used );
-        
-        controller.shutdown();
+            long after = runtime.totalMemory() - runtime.freeMemory();
+
+            long used = after - before ;
+            
+            System.out.printf( "Memory footprint before = %,d bytes, after = %,d bytes, diff = %,d bytes\n", before, after, used );
+
+        } finally {
+            controller.shutdown();
+        }
         
     }
 
@@ -207,32 +210,6 @@ public class TestMapReduce extends peregrine.BaseTestWithMultipleConfigs {
 
         if ( args.length > 0 )
             TESTS = new int[] { Integer.parseInt( args[0] ) };
-
-        /*
-        BaseTestWithMultipleConfigs.CONCURRENCY  = new int[] { 2, 2, 2, 2 };
-        BaseTestWithMultipleConfigs.REPLICAS     = new int[] { 2, 2, 2, 2 };
-        BaseTestWithMultipleConfigs.HOSTS        = new int[] { 8, 8, 8 };
-        */
-
-        /*
-        BaseTestWithMultipleConfigs.CONCURRENCY  = new int[] { 2, 2, 2 };
-        BaseTestWithMultipleConfigs.REPLICAS     = new int[] { 2 };
-        BaseTestWithMultipleConfigs.HOSTS        = new int[] { 8 };
-        */
-
-        /*
-        BaseTestWithMultipleConfigs.CONCURRENCY  = new int[] { 2, 2, 2, 2, 2, 2 , 2, 2, 2  };
-        BaseTestWithMultipleConfigs.REPLICAS     = new int[] { 2 };
-        BaseTestWithMultipleConfigs.HOSTS        = new int[] { 8 };
-        */
-
-        /*
-        BaseTestWithMultipleConfigs.CONCURRENCY  = new int[] { 2, 2, 2, 2, 2 , 2, 2, 2, 2, 2 , 2, 2, 2, 2, 2 , 2, 2, 2, 2, 2 , 2, 2, 2, 2, 2 , 2, 2, 2, 2, 2 , 2, 2, 2, 2, 2 , 2, 2, 2, 2, 2 , 2, 2, 2, 2, 2 , 2, 2, 2, 2, 2 , 2, 2, 2, 2, 2 , 2, 2, 2, 2, 2 , 2, 2, 2, 2, 2 , 2, 2, 2, 2, 2 , 2, 2, 2, 2, 2 , 2, 2, 2, 2, 2 , 2, 2, 2, 2, 2 , 2, 2, 2, 2, 2 , 2, 2, 2, 2, 2 , 2, 2, 2, 2, 2 , 2, 2, 2, 2, 2 , 2, 2, 2, 2, 2  };
-        */
-
-        // BaseTestWithMultipleConfigs.CONCURRENCY  = new int[] { 2 };
-        // BaseTestWithMultipleConfigs.REPLICAS     = new int[] { 3 };
-        // BaseTestWithMultipleConfigs.HOSTS        = new int[] { 8 };
         
         runTests();
 

@@ -99,6 +99,8 @@ public abstract class BaseTestWithMultipleConfigs extends peregrine.BaseTest {
 
                         setUp();
 
+                        log.info( "Running with config: %s" , config );
+                        
                         doTest();
 
                     } catch ( PartitionLayoutException e ) {

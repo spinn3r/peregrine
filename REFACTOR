@@ -15,4 +15,4 @@ Multiple things to cleanup in our refactor.
 - Unit tests for failed HttpClient requests that lock up when
   connecting to a failed machine.
 
-- 
+- ShuffleOutputWriter should not use AsyncOutputStream ... 
