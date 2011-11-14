@@ -64,9 +64,6 @@ public class ControllerHandler extends RPCHandler {
 	            		    	
 	            Host host = Host.parse( message.get( "host" ) );
 
-                // the current scheduler needs this host marked online.
-		    	daemon.getScheduler().markOnline( host );
-
                 // mark this host as online for the entire controller.
                 daemon.getConfig().getMembership().getOnline().mark( host );
 		    	

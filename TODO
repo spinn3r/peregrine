@@ -1,4 +1,10 @@
-    
+
+- the complete and failed need to keep track of which jobs they're running on
+  ... if we report that we failed or completed a job that is ALREADY complete we
+  need to ignore this message.
+
+  
+
 - I need to work on the ChunkMerger system so that it can use more memory NOT
   just the size of chunk files. 
 

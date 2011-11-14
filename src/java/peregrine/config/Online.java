@@ -14,8 +14,8 @@ public class Online extends MarkSet<Host>{
 		if ( ! map.containsKey( entry ) )
 			log.info( "Host now online: %s" , entry );
 		
-		map.put( entry, System.currentTimeMillis() );
-		
+		put( entry, System.currentTimeMillis() );
+
 	}
 	
 }

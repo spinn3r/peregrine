@@ -10,10 +10,14 @@ public class MarkMap<T,V> {
     protected List<MarkListener<T>> listeners = new ArrayList();
     
 	public void mark( T entry ) {
-		map.put( entry, null );
-        fireUpdated( entry, MarkListener.Status.MARKED );
+        put( entry, null );
 	}
-		
+
+    protected void put( T entry, V value ) {
+		map.put( entry, value );
+        fireUpdated( entry, MarkListener.Status.MARKED );
+    }
+    
 	public void clear( T entry ) {
 		map.remove( entry );
         fireUpdated( entry, MarkListener.Status.CLEARED );

@@ -55,8 +55,10 @@ public abstract class Scheduler {
 
                 public void updated( Host host, MarkListener.Status status ) {
 
-                    if ( status == MarkListener.Status.MARKED ) 
+                    if ( status == MarkListener.Status.MARKED ) {
+                        log.info( "Host now available: %s", host );
                         available.put( host );
+                    }
                     
                 }
 

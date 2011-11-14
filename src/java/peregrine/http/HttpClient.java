@@ -241,6 +241,13 @@ public class HttpClient extends BaseOutputStream implements ChannelBufferWritabl
 
     private void updateResult( Object value ) throws Exception {
 
+        if( result.contains( value ) ) {
+            // if two listeners are called (for example fail on a write and then
+            // the close future with the same cause) then we should ignroe the
+            // second one.
+            return;
+        }
+        
         if ( result.size() >= 1 )
             log.warn( "Too many result messages: " + result );
 
