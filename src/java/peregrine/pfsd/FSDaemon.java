@@ -9,11 +9,12 @@ import org.jboss.netty.bootstrap.*;
 import org.jboss.netty.channel.*;
 import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
 
-import peregrine.util.*;
-import peregrine.task.*;
 import peregrine.config.*;
+import peregrine.pfsd.rpc.*;
 import peregrine.rpc.*;
 import peregrine.shuffle.receiver.*;
+import peregrine.task.*;
+import peregrine.util.*;
 
 import com.spinn3r.log5j.Logger;
 import peregrine.util.netty.*;
@@ -26,7 +27,16 @@ public class FSDaemon {
 
     private ExecutorService executors =
         Executors.newCachedThreadPool( new DefaultThreadFactory( FSDaemon.class ) );
-    
+
+    public ExecutorService mapperExecutors =
+        Executors.newCachedThreadPool( new DefaultThreadFactory( MapperHandler.class) );
+
+    public ExecutorService mergerExecutors =
+        Executors.newCachedThreadPool( new DefaultThreadFactory( MergerHandler.class) );
+
+    public ExecutorService reducerExecutors =
+        Executors.newCachedThreadPool( new DefaultThreadFactory( ReducerHandler.class) );
+
     private int port;
 
     private Channel channel;
@@ -104,7 +114,14 @@ public class FSDaemon {
 
         log.debug( "Channel closed." );
 
+        //shutdown the heartbeat executor
         executors.shutdown();
+
+        // shutdown the job executors
+        mapperExecutors.shutdown();
+        mergerExecutors.shutdown();
+        reducerExecutors.shutdown();
+        
         bootstrap.releaseExternalResources();
 
         log.info( "%s COMPLETE" , msg );

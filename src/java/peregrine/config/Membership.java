@@ -59,7 +59,8 @@ public class Membership {
             throw new RuntimeException( "No replicas defined." );
         
         if ( ! replicasByHost.containsKey( host ) ) {
-            throw new RuntimeException( "Unknown host with no replicas: " + host );
+            throw new RuntimeException( String.format( "Unknown host with no replicas %s (%s)",
+                                                       host, config.getHosts() ) );
         }
         
         return replicasByHost.get( host );

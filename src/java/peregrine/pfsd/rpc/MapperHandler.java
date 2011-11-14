@@ -24,9 +24,6 @@ public class MapperHandler extends RPCHandler {
 
     private static final Logger log = Logger.getLogger();
 
-    private static ExecutorService executors =
-        Executors.newCachedThreadPool( new DefaultThreadFactory( MapperHandler.class) );
-
     public void handleMessage( Channel channel, FSDaemon daemon, Message message )
         throws Exception {
 
@@ -42,7 +39,7 @@ public class MapperHandler extends RPCHandler {
             Class delegate         = Class.forName( message.get( "delegate" ) );
             Config config          = daemon.getConfig();
 
-            exec( delegate, config, partition, input, output );
+            exec( daemon, delegate, config, partition, input, output );
             
             return;
 
@@ -52,7 +49,12 @@ public class MapperHandler extends RPCHandler {
 
     }
 
-    protected void exec( Class delegate, Config config, Partition partition, Input input, Output output )
+    protected void exec( FSDaemon daemon,
+                         Class delegate,
+                         Config config,
+                         Partition partition,
+                         Input input,
+                         Output output )
         throws Exception {
 
         MapperTask task = new MapperTask();
@@ -64,7 +66,7 @@ public class MapperHandler extends RPCHandler {
 
         log.info( "Running delegate %s with input %s and output %s", delegate.getName(), input, output );
 
-        executors.submit( task );
+        daemon.mapperExecutors.submit( task );
 
     }
     
