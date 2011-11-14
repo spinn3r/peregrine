@@ -49,11 +49,19 @@ public abstract class Scheduler {
 
         concurrency = new Concurrency( config.getHosts() );
 
-        // import the current list of online hosts... 
-        for( Host host : membership.getOnline().values() ) {
-        	available.put( host );
-        }
+        // import the current list of online hosts and pay attention to new
+        // updates in the future.
+        membership.getOnline().addListenerWithMarks( new MarkListener<Host>() {
 
+                public void updated( Host host, MarkListener.Status status ) {
+
+                    if ( status == MarkListener.Status.MARKED ) 
+                        available.put( host );
+                    
+                }
+
+            } );
+        
     }
     
     protected void schedule( Host host ) throws Exception {

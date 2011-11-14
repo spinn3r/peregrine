@@ -11,12 +11,12 @@ public class MarkMap<T,V> {
     
 	public void mark( T entry ) {
 		map.put( entry, null );
-        fireMarked( entry );
+        fireUpdated( entry, MarkListener.Status.MARKED );
 	}
 		
 	public void clear( T entry ) {
 		map.remove( entry );
-        fireCleared( entry );
+        fireUpdated( entry, MarkListener.Status.CLEARED );
 	}
 
 	public boolean contains( T entry ) {
@@ -47,23 +47,15 @@ public class MarkMap<T,V> {
         addListener( listener );
 
         for( T entry : map.keySet() ) {
-            listener.marked( entry );
+            listener.updated( entry, MarkListener.Status.MARKED );
         }
         
     }
     
-    protected void fireMarked( T entry ) {
+    protected void fireUpdated( T entry, MarkListener.Status status ) {
 
         for( MarkListener current : listeners ) {
-            current.marked( entry );
-        }
-        
-    }
-
-    protected void fireCleared( T entry ) {
-
-        for( MarkListener current : listeners ) {
-            current.cleared( entry );
+            current.updated( entry, status );
         }
         
     }

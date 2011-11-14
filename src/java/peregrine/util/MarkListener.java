@@ -8,8 +8,13 @@ import java.util.concurrent.*;
  */
 public interface MarkListener<T> {
 
-    public void marked( T entry );
+    public void updated( T entry, Status status );
 
-    public void cleared( T entry );
+    public enum Status {
+
+        MARKED(),
+        CLEARED(),
+        
+    }
 
 }
