@@ -35,14 +35,27 @@ public class MarkMap<T,V> {
         return map.keySet();
     }    
 
-    public void addListener( MarkListener listener ) {
-        this.listeners.add( listeners );
+    public void addListener( MarkListener<T> listener ) {
+        this.listeners.add( listener );
     }
 
+    /**
+     * Add a listener and then call marked() on the current marks.
+     */
+    public void addListenerWithMarks( MarkListener<T> listener ) {
+
+        addListener( listener );
+
+        for( T entry : map.keySet() ) {
+            listener.marked( entry );
+        }
+        
+    }
+    
     protected void fireMarked( T entry ) {
 
         for( MarkListener current : listeners ) {
-            listeners.marked( entry );
+            current.marked( entry );
         }
         
     }
@@ -50,7 +63,7 @@ public class MarkMap<T,V> {
     protected void fireCleared( T entry ) {
 
         for( MarkListener current : listeners ) {
-            listeners.cleared( entry );
+            current.cleared( entry );
         }
         
     }
