@@ -151,31 +151,36 @@ public class FSDaemon {
         return String.format( "FSDaemon: %s", config.getHost() );
     }
     
-    class HeartbeatSender implements Callable<Void>{
+    class HeartbeatSender implements Callable {
     	
         public static final long ONLINE_SLEEP_INTERVAL  = 30000L;
         
         public static final long OFFLINE_SLEEP_INTERVAL = 1000L;    	
     	
 		@Override
-		public Void call() throws Exception {
+		public Object call() throws Exception {
 
 	        while( true ) {
-	        	
+
 	        	if ( sendHeartbeatToController() ) {
 
 	                Thread.sleep( ONLINE_SLEEP_INTERVAL );
 	        		
 	        	} else {
-	        		
+
+                    if ( Thread.currentThread().isInterrupted() )
+                        break;
+
 	                Thread.sleep( OFFLINE_SLEEP_INTERVAL );
 	        		
 	        	}
-	                        
+
 	        }
+
+            return null;
 			
 		}
-    	
+
 	    public boolean sendHeartbeatToController() {
 	    	
 	        Message message = new Message();
@@ -189,11 +194,14 @@ public class FSDaemon {
 				new Client().invoke( controller, "controller", message );
 				
 				return true;
-				
-			} catch (IOException e) {
-				
+
+			} catch ( IOException e ) {
+
+                if ( Thread.currentThread().isInterrupted() )
+                    return false;
+                
 				log.warn( String.format( "Unable to send heartbeat to %s: %s", 
-					      controller, e.getMessage() ) );
+                                         controller, e.getMessage() ) );
 				
 				return false;
 			}
