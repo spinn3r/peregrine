@@ -41,6 +41,8 @@ public class FSDaemon {
 
     private Scheduler scheduler = null;
 
+    private HeartbeatTimer heartbeatTimer = null;
+
     public FSDaemon( Config config ) {
 
         this.config = config;
@@ -79,7 +81,7 @@ public class FSDaemon {
         log.info( "Now listening on %s with root: %s" , config.getHost(), root );
         
         if ( ! config.getHost().equals( config.getController() ) )
-        	getExecutorService( HeartbeatSender.class ).submit( new HeartbeatSender() );
+            heartbeatTimer = new HeartbeatTimer();
         
     }
     
@@ -133,13 +135,27 @@ public class FSDaemon {
 
         log.debug( "Channel closed." );
 
+        if ( heartbeatTimer != null )
+            heartbeatTimer.cancel();
+        
         for( Class clazz : executorServices.keySet() ) {
 
             log.info( "Shutting down executor service: %s", clazz.getName() );
-            executorServices.get( clazz ).shutdownNow();
-            
+
+            try {
+                
+                ExecutorService current = executorServices.get( clazz );
+                current.shutdown();
+                current.awaitTermination( Long.MAX_VALUE, TimeUnit.MILLISECONDS );
+                
+            } catch ( InterruptedException e ) {
+                throw new RuntimeException( e );
+            }
+
         }
 
+        log.info( "Releasing netty external resources" );
+        
         bootstrap.releaseExternalResources();
 
         log.info( "%s COMPLETE" , msg );
@@ -151,63 +167,72 @@ public class FSDaemon {
         return String.format( "FSDaemon: %s", config.getHost() );
     }
     
-    class HeartbeatSender implements Callable {
+    class HeartbeatTimer extends Timer {
     	
         public static final long ONLINE_SLEEP_INTERVAL  = 30000L;
         
         public static final long OFFLINE_SLEEP_INTERVAL = 1000L;    	
-    	
-		@Override
-		public Object call() throws Exception {
 
-	        while( true ) {
+        /**
+         *
+         */
+        public HeartbeatTimer() {
+            super( HeartbeatTimer.class.getName(), true );
+            schedule( new HeartbeatTimerTask( this ) , 0 );
+        }
 
+        class HeartbeatTimerTask extends TimerTask {
+
+            HeartbeatTimer timer;
+            
+            public HeartbeatTimerTask( HeartbeatTimer timer ) {
+                this.timer = timer;
+            }
+
+    		@Override
+    		public void run() {
+
+                long delay;
+                
 	        	if ( sendHeartbeatToController() ) {
-
-	                Thread.sleep( ONLINE_SLEEP_INTERVAL );
-	        		
+                    delay = ONLINE_SLEEP_INTERVAL;
 	        	} else {
-
-                    if ( Thread.currentThread().isInterrupted() )
-                        break;
-
-	                Thread.sleep( OFFLINE_SLEEP_INTERVAL );
-	        		
+                    delay = OFFLINE_SLEEP_INTERVAL;
 	        	}
 
-	        }
+                timer.schedule( new HeartbeatTimerTask( timer ), delay );
 
-            return null;
-			
-		}
+    		}
 
-	    public boolean sendHeartbeatToController() {
-	    	
-	        Message message = new Message();
-	        message.put( "action", "heartbeat" );
-	        message.put( "host",    config.getHost().toString() );
-	        
-	        Host controller = config.getController();
-	        
-	        try {        	
-	        	
-				new Client().invoke( controller, "controller", message );
-				
-				return true;
+    	    public boolean sendHeartbeatToController() {
+    	    	
+    	        Message message = new Message();
+    	        message.put( "action", "heartbeat" );
+    	        message.put( "host",    config.getHost().toString() );
+    	        
+    	        Host controller = config.getController();
+    	        
+    	        try {        	
+    	        	
+    				new Client().invoke( controller, "controller", message );
+    				
+    				return true;
 
-			} catch ( IOException e ) {
+    			} catch ( IOException e ) {
 
-                if ( Thread.currentThread().isInterrupted() )
-                    return false;
-                
-				log.warn( String.format( "Unable to send heartbeat to %s: %s", 
-                                         controller, e.getMessage() ) );
-				
-				return false;
-			}
-	   
-	    }        	
-    	
+                    if ( Thread.currentThread().isInterrupted() )
+                        return false;
+                    
+    				log.warn( String.format( "Unable to send heartbeat to %s: %s", 
+                                             controller, e.getMessage() ) );
+    				
+    				return false;
+    			}
+    	   
+    	    }        	
+
+        }
+
     }
     
     static {
