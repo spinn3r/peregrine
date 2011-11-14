@@ -48,15 +48,12 @@ public abstract class Scheduler {
         this.membership = config.getMembership();
 
         concurrency = new Concurrency( config.getHosts() );
-        
-        //for( Host host : membership.getOnline().values() ) {
-        //	available.put( host );
-        //}
-        
-        for ( Host host : config.getHosts() ) {
-        	available.put( host );        
+
+        // import the current list of online hosts... 
+        for( Host host : membership.getOnline().values() ) {
+        	available.put( host );
         }
-        
+
     }
     
     protected void schedule( Host host ) throws Exception {

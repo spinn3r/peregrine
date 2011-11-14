@@ -6,13 +6,17 @@ import java.util.concurrent.*;
 public class MarkMap<T,V> {
 
 	protected ConcurrentHashMap<T,V> map = new ConcurrentHashMap();
-	
+
+    protected List<MarkListener<T>> listeners = new ArrayList();
+    
 	public void mark( T entry ) {
 		map.put( entry, null );
+        fireMarked( entry );
 	}
 		
 	public void clear( T entry ) {
 		map.remove( entry );
+        fireCleared( entry );
 	}
 
 	public boolean contains( T entry ) {
@@ -30,5 +34,25 @@ public class MarkMap<T,V> {
     public Collection<T> values() {
         return map.keySet();
     }    
-	
+
+    public void addListener( MarkListener listener ) {
+        this.listeners.add( listeners );
+    }
+
+    protected void fireMarked( T entry ) {
+
+        for( MarkListener current : listeners ) {
+            listeners.marked( entry );
+        }
+        
+    }
+
+    protected void fireCleared( T entry ) {
+
+        for( MarkListener current : listeners ) {
+            listeners.cleared( entry );
+        }
+        
+    }
+
 }

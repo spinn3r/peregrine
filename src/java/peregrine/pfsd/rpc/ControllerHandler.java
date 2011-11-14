@@ -47,7 +47,6 @@ public class ControllerHandler extends RPCHandler {
 		    }
 		} );		
 
-		
 		put( "progress", new RPCHandler() {
 			
 		    public void handleMessage( Channel channel, FSDaemon daemon, Message message )
@@ -64,10 +63,12 @@ public class ControllerHandler extends RPCHandler {
 		            throws Exception {
 	            		    	
 	            Host host = Host.parse( message.get( "host" ) );
-	           
+
+                // the current scheduler needs this host marked online.
 		    	daemon.getScheduler().markOnline( host );
-		    	
-		    	daemon.getConfig().getMembership().getOnline().mark( host );
+
+                // mark this host as online for the entire controller.
+                daemon.getConfig().getMembership().getOnline().mark( host );
 		    	
 	            return;
 		    	

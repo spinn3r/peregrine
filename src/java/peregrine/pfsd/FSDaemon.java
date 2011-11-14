@@ -24,6 +24,9 @@ public class FSDaemon {
     
     private ServerBootstrap bootstrap = null;
 
+    private ExecutorService executors =
+        Executors.newCachedThreadPool( new DefaultThreadFactory( FSDaemon.class ) );
+    
     private int port;
 
     private Channel channel;
@@ -74,10 +77,8 @@ public class FSDaemon {
 
         log.info( "Now listening on %s with root: %s" , config.getHost(), root );
         
-        /*
         if ( ! config.getHost().equals( config.getController() ) )
         	executors.submit( new HeartbeatSender() );
-        */
         
     }
     
@@ -102,7 +103,8 @@ public class FSDaemon {
         channel.close().awaitUninterruptibly();
 
         log.debug( "Channel closed." );
-                
+
+        executors.shutdown();
         bootstrap.releaseExternalResources();
 
         log.info( "%s COMPLETE" , msg );
