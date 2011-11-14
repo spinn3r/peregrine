@@ -38,9 +38,11 @@ public class TestNewShuffleJobOutput extends peregrine.BaseTestWithTwoDaemons {
 
         Controller controller = new Controller( config );
 
-        controller.flushAllShufflers();
-
-        controller.shutdown();
+        try {
+            controller.flushAllShufflers();
+        } finally {
+            controller.shutdown();
+        }
         
     }
 

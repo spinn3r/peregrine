@@ -92,10 +92,14 @@ public class TestNewReduceCode extends peregrine.BaseTestWithTwoDaemons {
         String output = String.format( "/test/%s/test1.out", getClass().getName() );
 
         Controller controller = new Controller( config );
-        
-        controller.map( Map.class, path );
-        controller.reduce( Reduce.class, new Input(), new Output( output ) );
-        
+
+        try {
+            controller.map( Map.class, path );
+            controller.reduce( Reduce.class, new Input(), new Output( output ) );
+        } finally {
+            controller.shutdown();
+        }
+
     }
 
     public static void main( String[] args ) throws Exception {

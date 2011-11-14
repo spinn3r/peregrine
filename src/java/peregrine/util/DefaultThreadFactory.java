@@ -17,7 +17,7 @@ public class DefaultThreadFactory implements ThreadFactory {
     }
 
     public Thread newThread(Runnable r) {
-        Thread thread = new Thread( r, template + ":" + idx++ );
+        Thread thread = new Thread( r, template + "." + idx++ );
         thread.setDaemon( true );
         return thread;
     }

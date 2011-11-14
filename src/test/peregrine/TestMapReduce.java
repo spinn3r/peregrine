@@ -198,7 +198,8 @@ public class TestMapReduce extends peregrine.BaseTestWithMultipleConfigs {
 
             long used = after - before ;
             
-            System.out.printf( "Memory footprint before = %,d bytes, after = %,d bytes, diff = %,d bytes\n", before, after, used );
+            System.out.printf( "Memory footprint before = %,d bytes, after = %,d bytes, diff = %,d bytes\n",
+                               before, after, used );
 
         } finally {
             controller.shutdown();

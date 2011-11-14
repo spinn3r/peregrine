@@ -45,16 +45,22 @@ public class TestMapOnlyJobs extends peregrine.BaseTestWithTwoDaemons {
         String output = "/test/map.only/test1.out";
 
         Controller controller = new Controller( config );
-        
-        controller.map( Map.class, new Input( path ), new Output( output ) );
 
-        Partition part = new Partition( 1 );
+        try {
+            
+            controller.map( Map.class, new Input( path ), new Output( output ) );
 
-        LocalPartitionReader reader = new LocalPartitionReader( config1, part, output );
+            Partition part = new Partition( 1 );
 
-        if ( reader.hasNext() == false )
-            throw new IOException( "nothing written" );
+            LocalPartitionReader reader = new LocalPartitionReader( config1, part, output );
 
+            if ( reader.hasNext() == false )
+                throw new IOException( "nothing written" );
+
+        } finally {
+            controller.shutdown();
+        }
+            
     }
 
     public static void main( String[] args ) throws Exception {

@@ -96,27 +96,33 @@ public class TestBroadcastMapReduce extends peregrine.BaseTestWithTwoDaemons {
          
          Controller controller = new Controller( config );
 
-         controller.map( Map.class,
-                         new Input( path ),
-                         new Output( new ShuffleOutputReference(),
-                                     new BroadcastOutputReference( "count" ) ) );
+         try {
+         
+             controller.map( Map.class,
+                             new Input( path ),
+                             new Output( new ShuffleOutputReference(),
+                                         new BroadcastOutputReference( "count" ) ) );
 
-         String count_out = String.format( "/test/%s/test1.count", getClass().getName() );
-         
-         controller.reduce( Reduce.class,
-                            new Input( new ShuffleInputReference( "count" ) ),
-                            new Output( count_out ) );
-         
-         // FIXME: we have to actually emit values from the reducer and assert
-         // their value across all partitions now.
-         
-         // now read all partition values...
-         
-         //FIXME: this broke no the local version and we ned to add it back in.
-         //assertValueOnAllPartitions( count_out, 1000 );
-         
-         System.out.printf( "WIN\n" );
-        
+             String count_out = String.format( "/test/%s/test1.count", getClass().getName() );
+             
+             controller.reduce( Reduce.class,
+                                new Input( new ShuffleInputReference( "count" ) ),
+                                new Output( count_out ) );
+             
+             // FIXME: we have to actually emit values from the reducer and assert
+             // their value across all partitions now.
+             
+             // now read all partition values...
+             
+             //FIXME: this broke no the local version and we ned to add it back in.
+             //assertValueOnAllPartitions( count_out, 1000 );
+             
+             System.out.printf( "WIN\n" );
+
+         } finally {
+             controller.shutdown();
+         }
+             
     }
 
     public static void assertValueOnAllPartitions( Config config, String path, int value ) throws Exception {

@@ -44,27 +44,31 @@ public class TestFullShufflePath extends peregrine.BaseTestWithMultipleDaemons {
 
         Controller controller = new Controller( config );
 
-        ShuffleJobOutput output = new ShuffleJobOutput( config, new Partition( 0 ) );
+        try {
 
-        for( int i = 0; i < iterations; ++i ) {
+            ShuffleJobOutput output = new ShuffleJobOutput( config, new Partition( 0 ) );
 
-            ChunkReference chunkRef = new ChunkReference( new Partition( 0  ) );
-            chunkRef.local = i;
+            for( int i = 0; i < iterations; ++i ) {
 
-            // we need to call onChunk to init the shuffle job output.
-            output.onChunk( chunkRef );
+                ChunkReference chunkRef = new ChunkReference( new Partition( 0  ) );
+                chunkRef.local = i;
 
-            doTestIter( output, max_emits );
+                // we need to call onChunk to init the shuffle job output.
+                output.onChunk( chunkRef );
 
-            output.onChunkEnd( chunkRef );
+                doTestIter( output, max_emits );
 
+                output.onChunkEnd( chunkRef );
+
+            }
+
+            output.close();
+
+            controller.flushAllShufflers();
+
+        } finally {
+            controller.shutdown();
         }
-
-        output.close();
-
-        controller.flushAllShufflers();
-
-        controller.shutdown();
 
         // now the data should be on disk... try to read it back out wth a ShuffleInputChunkReader
 

@@ -49,9 +49,11 @@ public class TestShuffleInputChunkReader extends peregrine.BaseTestWithMultipleD
         
         Controller controller = new Controller( config );
 
-        controller.map( Map.class, path );
-
-        controller.shutdown();
+        try {
+            controller.map( Map.class, path );
+        } finally {
+            controller.shutdown();
+        }
 
         //now create a ParallelShuffleInputChunkReader for one of the
         //partitions so that we can see if it actually works
