@@ -59,10 +59,7 @@ public class ShuffleOutputWriter {
 
         this.path = path;
         this.config = config;
-        
-        //FIXME: should be async.
-        new File( new File( path ).getParent() ).mkdirs();
-        
+
     }
     
     public void accept( int from_partition,
@@ -142,7 +139,8 @@ public class ShuffleOutputWriter {
 
         log.info( "Going write output buffer with %,d entries.", lookup.size() );
         
-        // now stream these out to disk...
+        // make sure the parent directory exists first.
+        new File( new File( path ).getParent() ).mkdirs();
 
         FileOutputStream fos = new FileOutputStream( path );
         this.output = fos.getChannel();
