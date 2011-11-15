@@ -80,8 +80,12 @@ public class FSDaemon {
 
         log.info( "Now listening on %s with root: %s" , config.getHost(), root );
         
-        if ( ! config.getHost().equals( config.getController() ) )
+        if ( config.getController() != null &&
+             ! config.getHost().equals( config.getController() ) ) {
+
             heartbeatTimer = new HeartbeatTimer();
+
+        }
         
     }
     
@@ -173,6 +177,8 @@ public class FSDaemon {
         
         public static final long OFFLINE_SLEEP_INTERVAL = 1000L;    	
 
+        private boolean cancelled = false;
+        
         /**
          *
          */
@@ -181,10 +187,16 @@ public class FSDaemon {
             schedule( new HeartbeatTimerTask( this ) , 0 );
         }
 
+        @Override
+        public void cancel() {
+            cancelled = true;
+            super.cancel();
+        }
+
         class HeartbeatTimerTask extends TimerTask {
 
             HeartbeatTimer timer;
-            
+
             public HeartbeatTimerTask( HeartbeatTimer timer ) {
                 this.timer = timer;
             }
@@ -200,7 +212,8 @@ public class FSDaemon {
                     delay = OFFLINE_SLEEP_INTERVAL;
 	        	}
 
-                timer.schedule( new HeartbeatTimerTask( timer ), delay );
+                if ( ! cancelled ) 
+                    timer.schedule( new HeartbeatTimerTask( timer ), delay );
 
     		}
 

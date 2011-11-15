@@ -117,13 +117,13 @@ public class FSHandler extends SimpleChannelUpstreamHandler {
 
         }
 
-        if ( upstream != null )
-            upstream.messageReceived( ctx, e );
-
         if ( pipeline ) {
             handlePipeline( message );
         }
-        
+
+        if ( upstream != null )
+            upstream.messageReceived( ctx, e );
+
     }
     
     private void handlePipeline( Object message ) throws IOException {
