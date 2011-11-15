@@ -74,7 +74,7 @@ public class ShuffleInputReader {
         
         memLock = new MemLock( in.getFD(), 0, file.length() );
         
-        // mmap the WHOLE file. We won't actually use these pages if we dont'
+        // mmap the WHOLE file. We won't actually use these pages if we don't
         // read them so this make it less difficult to figure out what to map.
         MappedByteBuffer map = in.getChannel().map( FileChannel.MapMode.READ_ONLY, 0, file.length() );
         this.buffer = ChannelBuffers.wrappedBuffer( map );
