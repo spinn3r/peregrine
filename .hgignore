@@ -4,3 +4,6 @@ logs
 clover_html
 .clover
 .idea
+hg.status
+hg.diff
+
