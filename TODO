@@ -1,5 +1,9 @@
 
-- the complete and failed need to keep track of which jobs they're running on
+- Speculative execution is currently disabled because we weren't handling write
+  pipelineing and were having filesystem corruption. 
+
+  
+- The complete and failed need to keep track of which jobs they're running on
   ... if we report that we failed or completed a job that is ALREADY complete we
   need to ignore this message.
 
@@ -14,16 +18,6 @@
     ChunkMerger
     SortResult
     Toplevelsortentryfactory ... 
-
-- Using fork in the unit tests I think is a BAD idea because it doesn't simulate
-  some of our longer running map reduces ... 
-
-  - Audit ALL uses of static Executors to see where I should be shutting them
-  down... 
-
-
-- write a unit test for key distribution to make sure when we write a LARGE
-  amount of data that the writes to partitions are about the same size.
   
 
 
@@ -38,8 +32,6 @@
   config...  I imagine this could JUST be a hash of the config and or
   partitioning setup.
 
-- we're at 100% CPU in the extract / init phase of our pagerank tests.
-
 
 
 - ChunkMerger, ChunkSorter, and LocalMerger all use a nearly identical priority
@@ -47,13 +39,12 @@
   of code (and potential bugs)
 
 - our async output stream support is lame because we should REALLY be using
-  direct DMA zerocopy right to the disk.
+  direct DMA zerocopy directly to the disk.
 
 - stability bugs:
 
     - we need to use ChannelBuffers everywhere
     - some of the thread local bugs are problematic with StructWriter
-    -
     
 - Potentially support fallocate so that I can allocate files in extents of say
   10MB.
