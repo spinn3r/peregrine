@@ -229,8 +229,7 @@ public class ShuffleOutputWriter {
             
         }
 
-        //output.force( true );
-        output.close();
+        output.force( true );
 
         index = null; // This is required for the JVM to more aggresively
                       // recover memory.  I did extensive testing with this and
