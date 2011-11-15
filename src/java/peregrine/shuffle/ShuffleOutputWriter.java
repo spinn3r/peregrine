@@ -1,6 +1,7 @@
 package peregrine.shuffle;
 
 import java.io.*;
+import java.nio.channels.*;
 import java.util.*;
 import peregrine.util.primitive.IntBytes;
 import peregrine.values.*;
@@ -52,14 +53,14 @@ public class ShuffleOutputWriter {
 
     private Config config;
     
-    //private FileChannel output;
-    private AsyncOutputStream output;
+    private FileChannel output;
     
     public ShuffleOutputWriter( Config config, String path ) {
 
         this.path = path;
         this.config = config;
-
+        
+        //FIXME: should be async.
         new File( new File( path ).getParent() ).mkdirs();
         
     }
@@ -130,8 +131,7 @@ public class ShuffleOutputWriter {
     }
     
     private void write( ChannelBuffer buff ) throws IOException {
-    	//buff.getBytes( 0, output, buff.writerIndex() );
-    	output.write( buff );
+    	output.write( buff.toByteBuffer() );
     }
     
     public void close() throws IOException {
@@ -144,9 +144,8 @@ public class ShuffleOutputWriter {
         
         // now stream these out to disk...
 
-        //FileOutputStream fos = new FileOutputStream( path );
-        //this.output = fos.getChannel();
-        this.output = new AsyncOutputStream( path );
+        FileOutputStream fos = new FileOutputStream( path );
+        this.output = fos.getChannel();
         
         write( ChannelBuffers.wrappedBuffer( MAGIC ) );
         
