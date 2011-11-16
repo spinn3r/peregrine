@@ -1,6 +1,7 @@
 package peregrine.shuffle;
 
 import java.io.*;
+import java.nio.channels.*;
 import java.util.*;
 import peregrine.util.primitive.IntBytes;
 import peregrine.values.*;
@@ -52,16 +53,13 @@ public class ShuffleOutputWriter {
 
     private Config config;
     
-    //private FileChannel output;
-    private AsyncOutputStream output;
+    private FileChannel output;
     
     public ShuffleOutputWriter( Config config, String path ) {
 
         this.path = path;
         this.config = config;
 
-        new File( new File( path ).getParent() ).mkdirs();
-        
     }
     
     public void accept( int from_partition,
@@ -130,8 +128,7 @@ public class ShuffleOutputWriter {
     }
     
     private void write( ChannelBuffer buff ) throws IOException {
-    	//buff.getBytes( 0, output, buff.writerIndex() );
-    	output.write( buff );
+    	output.write( buff.toByteBuffer() );
     }
     
     public void close() throws IOException {
@@ -142,11 +139,11 @@ public class ShuffleOutputWriter {
 
         log.info( "Going write output buffer with %,d entries.", lookup.size() );
         
-        // now stream these out to disk...
+        // make sure the parent directory exists first.
+        new File( new File( path ).getParent() ).mkdirs();
 
-        //FileOutputStream fos = new FileOutputStream( path );
-        //this.output = fos.getChannel();
-        this.output = new AsyncOutputStream( path );
+        FileOutputStream fos = new FileOutputStream( path );
+        this.output = fos.getChannel();
         
         write( ChannelBuffers.wrappedBuffer( MAGIC ) );
         
@@ -230,8 +227,7 @@ public class ShuffleOutputWriter {
             
         }
 
-        //output.force( true );
-        output.close();
+        output.force( true );
 
         index = null; // This is required for the JVM to more aggresively
                       // recover memory.  I did extensive testing with this and
