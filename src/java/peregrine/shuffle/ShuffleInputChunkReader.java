@@ -316,6 +316,8 @@ public class ShuffleInputChunkReader {
 
             synchronized( instances ) {
 
+                // FIXME: right now this means that we startup 1 thread per
+                // chunk which is not super efficient.
                 PrefetchReader reader = instances.remove( path );
                 reader.executor.shutdown();
                 
