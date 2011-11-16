@@ -5,7 +5,11 @@ import java.util.*;
 
 import peregrine.util.*;
 
+import com.spinn3r.log5j.Logger;
+
 public class ConfigParser {
+
+    private static final Logger log = Logger.getLogger();
 
     /**
      * Load the given configuration.
@@ -15,33 +19,38 @@ public class ConfigParser {
         String conf  = "conf/peregrine.conf";
         String hosts = "conf/peregrine.hosts";
 
+        Config config = parse( conf, hosts );
+
         // we should probably convert to getopts for this.... 
         for ( String arg : args ) {
 
-            if ( arg.startsWith( "-c=" ) ) {
-                conf = arg.split( "=" )[1];
-                continue;
-            }
-
             if ( arg.startsWith( "-h=" ) ) {
-                hosts = arg.split( "=" )[1];
+
+                String value = arg.split( "=" )[1];
+                String split[] = value.split( ":" );
+
+                config.setHost( new Host( split[0], 
+                                          Integer.parseInt( split[1] ) ) );
+                
                 continue;
             }
 
         }
-        
-        return parse( conf, hosts );
+
+        config.init();
+
+        return config;
 
     }
 
-    public static Config parse( String conf, String hosts ) throws IOException {
+    private static Config parse( String conf, String hosts ) throws IOException {
         return parse( new File( conf ), new File( hosts ) );
     }
 
     /**
      * Parse a config file from disk.
      */
-    public static Config parse( File conf_file, File hosts_file ) throws IOException {
+    private static Config parse( File conf_file, File hosts_file ) throws IOException {
 
         Properties props = new Properties();
         props.load( new FileInputStream( conf_file ) );
@@ -71,13 +80,11 @@ public class ConfigParser {
         // now read the hosts file...
         config.setHosts( readHosts( hosts_file ) );
 
-        config.init();
-
         return config;
         
     }
 
-    public static Set<Host> readHosts( File file ) throws IOException {
+    private static Set<Host> readHosts( File file ) throws IOException {
 
         FileInputStream fis = new FileInputStream( file );
 
