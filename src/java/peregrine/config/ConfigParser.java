@@ -29,8 +29,12 @@ public class ConfigParser {
                 String value = arg.split( "=" )[1];
                 String split[] = value.split( ":" );
 
-                config.setHost( new Host( split[0], 
-                                          Integer.parseInt( split[1] ) ) );
+                Host host = new Host( split[0], 
+                                      Integer.parseInt( split[1] ) );
+
+                log.info( "Running with custom host: %s" , host );
+                
+                config.setHost( host );
                 
                 continue;
             }
