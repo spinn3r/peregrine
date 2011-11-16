@@ -9,18 +9,18 @@ start() {
 
     for host in `cat conf/peregrine.hosts`; do
 
-        echo $host
-
         hostname=$(echo $host|grep -Eo '^[^:]+')
 
-        echo $hostname
+        if [ "$HOSTAME" = "$hostname" ]; then
 
-        if [ "$HOSTAME" == "$hostname" ]; then
+            echo $host
 
             cd $DIR
             export MAX_MEMORY=256M 
             export HOSTNAME 
+            set -x
             ./bin/jexec peregrine.pfsd.Main -h=$host > $LOGDIR/peregrine-$host.log 2> $LOGDIR/peregrine-$host.err &
+            set +x
 
         fi
 
