@@ -77,6 +77,8 @@ public abstract class BaseTestWithMultipleConfigs extends peregrine.BaseTest {
 
         super.tearDown();
 
+        showRunningThreads();
+        
     }
 
     public void test() throws Exception {
@@ -158,4 +160,37 @@ public abstract class BaseTestWithMultipleConfigs extends peregrine.BaseTest {
      */
     public abstract void doTest() throws Exception;
 
+    public void showRunningThreads() {
+
+        ThreadGroup root = Thread.currentThread().getThreadGroup();
+
+        while ( root.getParent() != null )
+            root = root.getParent();
+
+        Thread[] threads = new Thread[10];
+
+        // WOW.  What a broken API.
+        while( root.enumerate( threads, true ) == threads.length ) {
+            threads = new Thread[ threads.length * 2 ];
+        }
+
+        List<Thread> threadlist = new ArrayList();
+
+        for ( Thread thread : threads ) {
+
+            if ( thread == null )
+                break;
+
+            threadlist.add( thread );
+            
+        }
+
+        log.info( "%,d threads remain", threadlist.size() );
+
+        for( Thread thread : threadlist ) {
+            System.out.printf( "  %s\n", thread.getName() );
+        }
+        
+    }
+    
 }
