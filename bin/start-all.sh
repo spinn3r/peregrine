@@ -11,7 +11,7 @@ start() {
 
         hostname=$(echo $host|grep -Eo '^[^:]+')
 
-        if [ "$HOSTAME" = "$hostname" ]; then
+        if [ "$HOSTNAME" = "$hostname" ]; then
 
             echo $host
 
