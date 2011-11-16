@@ -15,10 +15,14 @@ start() {
 
         echo $hostname
 
-        cd $DIR
-        export MAX_MEMORY=256M 
-        export HOSTNAME 
-        ./bin/jexec peregrine.pfsd.Main -h=$host > $LOGDIR/peregrine-$host.log 2> $LOGDIR/peregrine-$host.err &
+        if [ "$HOSTAME" == "$hostname" ]; then
+
+            cd $DIR
+            export MAX_MEMORY=256M 
+            export HOSTNAME 
+            ./bin/jexec peregrine.pfsd.Main -h=$host > $LOGDIR/peregrine-$host.log 2> $LOGDIR/peregrine-$host.err &
+
+        fi
 
     done
 
