@@ -2,6 +2,8 @@
 
 BRANCH=burton-bench
 DIR=/root/peregrine
+LOGDIR=/var/log
+MAX_MEMORY=256M
 
 start() {
 
@@ -14,8 +16,10 @@ start() {
         echo $hostname
 
         #FIXME: waitfor the daemon to starup.
+        #ssh root@$hostname "cd $DIR && export HOSTNAME && nohup ./bin/jexec peregrine.pfsd.Main -h=$host > $LOGDIR/peregrine-$host.log 2> $LOGDIR/peregrine-$host.err &" 
+
         set -x
-        ssh root@$hostname "cd $DIR && export HOSTNAME && nohup ./bin/jexec peregrine.pfsd.Main -h=$host &" 
+        ssh root@$hostname "cd $DIR && export MAX_MEMORY=256M && export HOSTNAME && nohup ./bin/jexec peregrine.pfsd.Main -h=$host > $LOGDIR/peregrine-$host.log 2> $LOGDIR/peregrine-$host.err &" 
         set +x
 
     done
