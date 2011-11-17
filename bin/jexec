@@ -40,6 +40,10 @@ if [ "$MAX_MEMORY" = "" ]; then
     export MAX_MEMORY=256M
 fi
 
+if [ "$MAX_DIRECT_MEMORY" = "" ]; then
+    export MAX_DIRECT_MEMORY=256M
+fi
+
 export PROFILER_PATH="/usr/local/jprofiler"
 export PROFILER_OPTS="-agentlib:jprofilerti=port=8849 \
                       -Xint \
@@ -66,6 +70,7 @@ if [ "$2" != "" ]; then
 
     set -x
     $JAVA -Djava.awt.headless=true \
+      -XX:MaxDirectMemorySize=$MAX_DIRECT_MEMORY \
       -Xms$MAX_MEMORY \
       -Xmx$MAX_MEMORY \
       $JAVA_OPTS \
@@ -74,6 +79,7 @@ if [ "$2" != "" ]; then
 else
     set -x
     $JAVA -Djava.awt.headless=true \
+        -XX:MaxDirectMemorySize=$MAX_DIRECT_MEMORY \
         -Xms$MAX_MEMORY \
         -Xmx$MAX_MEMORY \
         $JAVA_OPTS \

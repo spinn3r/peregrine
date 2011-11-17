@@ -4,6 +4,7 @@ BRANCH=burton-bench
 DIR=/root/peregrine
 LOGDIR=/var/log
 MAX_MEMORY=256M
+MAX_DIRECT_MEMORY=1000M
 HOSTNAME=$(hostname)
 
 start() {
