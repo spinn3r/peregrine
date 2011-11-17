@@ -175,7 +175,7 @@ public class FSHandler extends SimpleChannelUpstreamHandler {
                             // it is important that we change the readable
                             // status of this thread so that we don't block in
                             // pipelined requests
-                            ctx.getChannel().setReadable( hasCapacity );
+                            //ctx.getChannel().setReadable( hasCapacity );
                             
                         }
                         

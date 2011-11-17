@@ -27,6 +27,7 @@ public class HttpClient extends BaseOutputStream implements ChannelBufferWritabl
 
     private static final Logger log = Logger.getLogger();
 
+    // FIXME: change to a fixed size thread pool based on concurrency... 
     protected static NioClientSocketChannelFactory socketChannelFactory =
         new NioClientSocketChannelFactory( Executors.newCachedThreadPool( new DefaultThreadFactory( HttpClient.class ) ), 
                                            Executors.newCachedThreadPool( new DefaultThreadFactory( HttpClient.class ) ) );

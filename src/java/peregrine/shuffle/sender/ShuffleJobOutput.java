@@ -14,6 +14,8 @@ public class ShuffleJobOutput implements JobOutput, LocalPartitionReaderListener
 
     private static final Logger log = Logger.getLogger();
 
+    private static final ThreadFactory threadFactory = new DefaultThreadFactory( ShuffleJobOutput.class );
+    
     private ExecutorService executors = null;
 
     public static boolean DISABLED = false;
@@ -44,7 +46,7 @@ public class ShuffleJobOutput implements JobOutput, LocalPartitionReaderListener
         this.name = name;
         this.partition = partition;
         
-        executors = Executors.newFixedThreadPool( 1, new DefaultThreadFactory( ShuffleJobOutput.class) );
+        executors = Executors.newFixedThreadPool( 1, threadFactory );
 
         partitionWriteHistograph = new PartitionRouteHistograph( config );
         

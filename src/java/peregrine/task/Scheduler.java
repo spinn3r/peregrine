@@ -187,7 +187,7 @@ public abstract class Scheduler {
             }
 
             // TODO: make this a constant.
-            Host availableHost = available.poll( 1000, TimeUnit.MILLISECONDS );
+            Host availableHost = available.poll( 500, TimeUnit.MILLISECONDS );
             
             if ( availableHost != null ) {
                 

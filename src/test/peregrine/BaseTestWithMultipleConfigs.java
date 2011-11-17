@@ -11,14 +11,15 @@ public abstract class BaseTestWithMultipleConfigs extends peregrine.BaseTest {
 
     private static final Logger log = Logger.getLogger();
 
-    //public static int[] CONCURRENCY  = new int[] { 1, 2, 4, 8 };
-    //    public static int[] CONCURRENCY  = new int[] { 2, 4, 8 };
-    public static int[] CONCURRENCY  = new int[] { 1 };
+    public static int[] CONCURRENCY  = new int[] { 1, 2, 4, 8 };
 
     //FIXME: does not yet work with 3 replicas 
     //public static int[] REPLICAS     = new int[] { 1, 2, 3 };
     
-    public static int[] REPLICAS     = new int[] { 1, 2 };
+    //public static int[] REPLICAS     = new int[] { 1, 2 };
+
+    public static int[] REPLICAS     = new int[] { 1 };
+    
     public static int[] HOSTS        = new int[] { 1, 2, 4, 8 };
 
     protected Host controller;

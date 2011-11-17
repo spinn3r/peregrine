@@ -66,7 +66,8 @@ public class FSDaemon {
         
         NioServerSocketChannelFactory factory = 
         		new NioServerSocketChannelFactory( newDefaultThreadPool( tf ),
-                                                   newDefaultThreadPool( tf ) ) ;
+                                                   newDefaultThreadPool( tf ),
+                                                   config.getConcurrency() ) ;
         		
         bootstrap = BootstrapFactory.newServerBootstrap( factory );
 
