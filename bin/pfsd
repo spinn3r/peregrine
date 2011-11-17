@@ -1,0 +1,8 @@
+#!/bin/sh
+
+export MAX_MEMORY=256M
+export HOSTNAME=$(hostname)
+
+ulimit -n 16384
+
+./bin/jexec peregrine.pfsd.Main $@
