@@ -68,20 +68,12 @@ public class Test {
 
     public static void main( String[] args ) throws Exception {
 
+        while( true ) {
+            ChannelBuffer buff = ChannelBuffers.directBuffer( 2097152 );
+        }
+        
         /*
         
-        System.setProperty( "log4j.file.name", "foo.log" );
-
-        // init log4j ...
-        org.apache.log4j.xml.DOMConfigurator.configure( "conf/log4j.xml" );
-
-        for ( int i = 0; i < 10; ++i ) {
-            log.info( "hello world" );
-        }
-
-        Thread.sleep( 10000 );
-        */
-
         int nr_extents = Integer.parseInt( args[ 0 ] );
         int extent_size = Integer.parseInt( args[ 1 ] );
 
@@ -101,7 +93,8 @@ public class Test {
         } 
 
         System.out.printf( "WIN\n" );
-        
+        */
+
         //com.spinn3r.log5j.LogManager.shutdown();
         
         //

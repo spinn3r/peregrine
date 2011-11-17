@@ -14,7 +14,7 @@ public class ShuffleSenderBuffer {
     private static final Logger log = Logger.getLogger();
 
     /**
-     * Write in 2MB chunks at ~100MB output this is only 2MB extra memory
+     * Write in 2MB chunks at around 100MB output this is only 2MB extra memory
      * potentially wasted which would be at most 2%.
      */
     public static final int EXTENT_SIZE = 2097152;
