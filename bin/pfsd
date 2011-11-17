@@ -3,6 +3,7 @@
 export MAX_MEMORY=256M
 export HOSTNAME=$(hostname)
 
-ulimit -n 16384
+ulimit -n 32768
+ulimit -l unlimited
 
 ./bin/jexec peregrine.pfsd.Main $@
