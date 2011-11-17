@@ -82,9 +82,21 @@ public class Test {
         Thread.sleep( 10000 );
         */
 
-        System.out.printf( "allocating.\n" );
+        int nr_extents = Integer.parseInt( args[ 0 ] );
+        int extent_size = Integer.parseInt( args[ 1 ] );
+
+        System.out.printf( "Allocating %,d extents of %,d bytes for a total of %,d bytes.\n", nr_extents, extent_size, (nr_extents*extent_size) );
         
-        ChannelBuffers.directBuffer( 2097152 );
+        System.out.printf( "allocating.\n" );
+
+        List<ChannelBuffer> buffs = new ArrayList();
+        
+        for( int i = 0; i < nr_extents; ++i ) {
+            
+            ChannelBuffer buff = ChannelBuffers.directBuffer( extent_size );
+            buffs.add( buff );
+            
+        } 
 
         System.out.printf( "WIN\n" );
         
