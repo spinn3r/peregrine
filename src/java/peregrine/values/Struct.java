@@ -69,10 +69,10 @@ public class Struct implements Value {
 
         	int len = 0;
             for( byte[] value : values ) {
-                len += value.length;
+                len += IntBytes.LENGTH + value.length;
             }
 
-            ChannelBuffer buff = ChannelBuffers.buffer( len + IntBytes.LENGTH );
+            ChannelBuffer buff = ChannelBuffers.buffer( len );
             
             for( byte[] value : values ) {
                 VarintWriter.write( buff, value.length );
