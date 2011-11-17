@@ -233,11 +233,16 @@ public class HttpClient extends BaseOutputStream implements ChannelBufferWritabl
 
         this.channelState = CLOSED;
 
+        onClose( false, throwable );
+        
     }
 
     public void success() throws Exception {
 
         updateResult( Boolean.TRUE );
+
+        onClose( true, null );
+
     }
 
     private void updateResult( Object value ) throws Exception {
@@ -280,6 +285,10 @@ public class HttpClient extends BaseOutputStream implements ChannelBufferWritabl
     }
 
     public void close() throws IOException {
+        close(true);
+    }
+    
+    public void close( boolean block ) throws IOException {
 
         closing = true;
         
@@ -294,8 +303,8 @@ public class HttpClient extends BaseOutputStream implements ChannelBufferWritabl
         //required for chunked encoding.  We must write an EOF at the end of the
         //stream ot note that there is no more data.
         write( EOF );
-
-        waitForClose();
+        
+        waitForClose( block );
         
         // prevent any more write requests
         closed = true;
@@ -325,7 +334,7 @@ public class HttpClient extends BaseOutputStream implements ChannelBufferWritabl
             
     }
 
-    private void waitForClose() throws IOException {
+    private void waitForClose( boolean block ) throws IOException {
 
         // FIXME: I don't like this code and it probably means that this entire
         // class should be refactored to avoid having to do this.  The problem
@@ -340,7 +349,7 @@ public class HttpClient extends BaseOutputStream implements ChannelBufferWritabl
         
             try {
 
-                if ( clear && queue.peek() != null ) {
+                while ( clear && queue.peek() != null ) {
 
                     try {
                     
@@ -354,7 +363,9 @@ public class HttpClient extends BaseOutputStream implements ChannelBufferWritabl
 
                 }
 
-                if ( isChannelStateClosed() )
+                System.out.printf( "FIXME here0\n" );
+                
+                if ( isChannelStateClosed() || block == false )
                     break;
                 
                 // TODO: this should be a constant ...
@@ -440,6 +451,13 @@ public class HttpClient extends BaseOutputStream implements ChannelBufferWritabl
      * change the readable status of channels, etc.
      */
     public void onCapacityChange( boolean hasCapacity ) {
+
+    }
+
+    /**
+     * Called when the client is closed.  
+     */
+    public void onClose( boolean success, Throwable cause ) {
 
     }
     

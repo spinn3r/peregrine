@@ -10,24 +10,24 @@ import com.spinn3r.log5j.*;
  */
 public class FSPutBaseHandler extends SimpleChannelUpstreamHandler {
 
-    private static final Logger log = Logger.getLogger();
+    protected static final Logger log = Logger.getLogger();
 
     /**
      * NR of bytes written.
      */
-    private long written = 0;
+    protected long written = 0;
 
     /**
      * Time we started the request.
      */
-    private long started;
+    protected long started;
 
     /**
      * Number of chunks written.
      */
-    private long chunks = 0;
+    protected long chunks = 0;
 
-    private FSHandler handler;
+    protected FSHandler handler;
     
     public FSPutBaseHandler( FSHandler handler ) {
 

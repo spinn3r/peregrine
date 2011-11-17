@@ -17,7 +17,7 @@ public class FSPutDirectHandler extends FSPutBaseHandler {
     public static byte[] EOF = new byte[0];
 
     private FileChannel output = null;
-    
+
     public FSPutDirectHandler( FSDaemon daemon, FSHandler handler ) throws IOException {
         super( handler );
 
@@ -53,9 +53,14 @@ public class FSPutDirectHandler extends FSPutBaseHandler {
 
                 output.force( true );
 
-                HttpResponse response = new DefaultHttpResponse( HTTP_1_1, OK );
-
-                ctx.getChannel().write(response).addListener(ChannelFutureListener.CLOSE);
+                // FIXME: I don't like how the status sending is decoupled from
+                // pipeline requests AND non-pipeline requests.  I need to unify
+                // these.
+                
+                if ( handler.pipeline == false ) {
+                    HttpResponse response = new DefaultHttpResponse( HTTP_1_1, OK );
+                    ctx.getChannel().write(response).addListener(ChannelFutureListener.CLOSE);
+                }
 
             }
 

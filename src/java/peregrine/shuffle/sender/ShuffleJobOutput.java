@@ -92,7 +92,6 @@ public class ShuffleJobOutput implements JobOutput, LocalPartitionReaderListener
 
     @Override 
     public void close() throws IOException {
-
         log.info( "Closing %s... emits: %,d" , name, emits );
 
         // the first flush will trigger pending output to be async written to disk.
@@ -121,6 +120,8 @@ public class ShuffleJobOutput implements JobOutput, LocalPartitionReaderListener
 
         try {
 
+            long before = System.currentTimeMillis();
+            
             if ( future != null )
                 future.get();
 
@@ -136,6 +137,10 @@ public class ShuffleJobOutput implements JobOutput, LocalPartitionReaderListener
 
             }
 
+            long after = System.currentTimeMillis();
+
+            log.info( "Flush duration was: %,d ms", (after-before) );
+            
         } catch ( Exception e ) {
             throw new IOException( e );
         }

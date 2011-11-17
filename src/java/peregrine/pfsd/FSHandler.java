@@ -170,6 +170,7 @@ public class FSHandler extends SimpleChannelUpstreamHandler {
                 
                 remote = new HttpClient( request, uri ) {
 
+                        @Override
                         public void onCapacityChange( boolean hasCapacity ) {
 
                             // it is important that we change the readable
@@ -179,6 +180,16 @@ public class FSHandler extends SimpleChannelUpstreamHandler {
                             
                             ctx.getChannel().setReadable( hasCapacity );
                             
+                        }
+
+                        @Override
+                        public void onClose( boolean success, Throwable cause ) {
+
+                            System.out.printf( "FIXME: onClose: %s, %s\n", success, cause );
+                            
+                            HttpResponse response = new DefaultHttpResponse( HTTP_1_1, OK );
+                            ctx.getChannel().write(response).addListener(ChannelFutureListener.CLOSE);
+
                         }
                         
                     };
@@ -195,9 +206,9 @@ public class FSHandler extends SimpleChannelUpstreamHandler {
                 } else {
 
                     // Any HTTP exceptions on the remote host should bubble up
-                    // in close() and be passed on to callers.
+                    // in close() and be passed on to callers.... 
                     
-                    remote.close();
+                    remote.close( false );
                     
                 }
                 
