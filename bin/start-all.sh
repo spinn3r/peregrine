@@ -1,11 +1,11 @@
 #!/bin/sh
 
-BRANCH=burton-bench
-DIR=/root/peregrine
-LOGDIR=/var/log
-MAX_MEMORY=256M
-MAX_DIRECT_MEMORY=1000M
-HOSTNAME=$(hostname)
+export BRANCH=burton-bench
+export DIR=/root/peregrine
+export LOGDIR=/var/log
+export MAX_MEMORY=128M
+export MAX_DIRECT_MEMORY=1000M
+export HOSTNAME=$(hostname)
 
 start() {
 
