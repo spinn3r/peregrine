@@ -85,7 +85,9 @@ public class Test {
         int nr_extents = Integer.parseInt( args[ 0 ] );
         int extent_size = Integer.parseInt( args[ 1 ] );
 
-        System.out.printf( "Allocating %,d extents of %,d bytes for a total of %,d bytes.\n", nr_extents, extent_size, (nr_extents*extent_size) );
+        long total_size = (long)nr_extents * (long)extent_size;
+        
+        System.out.printf( "Allocating %,d extents of %,d bytes for a total of %,d bytes.\n", nr_extents, extent_size, total_size );
         
         System.out.printf( "allocating.\n" );
 
