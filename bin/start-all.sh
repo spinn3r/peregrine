@@ -13,16 +13,8 @@ start() {
         hostname=$(echo $host|grep -Eo '^[^:]+')
 
         if [ "$HOSTNAME" = "$hostname" ]; then
-
             echo $host
-
-            cd $DIR
-            export MAX_MEMORY=256M 
-            export HOSTNAME 
-            set -x
-            ./bin/jexec peregrine.pfsd.Main -h=$host > $LOGDIR/peregrine-$host.log 2> $LOGDIR/peregrine-$host.err &
-            set +x
-
+            ./bin/pfsd -h=$host > $LOGDIR/peregrine-$host.log 2> $LOGDIR/peregrine-$host.err &
         fi
 
     done
