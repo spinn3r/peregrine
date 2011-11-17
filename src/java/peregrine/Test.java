@@ -70,6 +70,7 @@ public class Test {
 
         while( true ) {
             ChannelBuffer buff = ChannelBuffers.directBuffer( 2097152 );
+            System.out.printf( "." );
         }
         
         /*
