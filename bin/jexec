@@ -37,7 +37,7 @@ fi
 export CLASSPATH=$NEW_CLASSPATH
 
 if [ "$MAX_MEMORY" = "" ]; then
-    export MAX_MEMORY=1500M
+    export MAX_MEMORY=256M
 fi
 
 export PROFILER_PATH="/usr/local/jprofiler"
@@ -48,8 +48,6 @@ export PROFILER_OPTS="-agentlib:jprofilerti=port=8849 \
 if [ "$PROFILER_ENABLED" = "true" ]; then
 
     echo "Running with profiler..."
-
-    # FIXME: make sure the profiler is installed correctly.
 
     export JAVA_OPTS="$JAVA_OPTS $PROFILER_OPTS"
     export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$PROFILER_PATH/bin/linux-x64/"
