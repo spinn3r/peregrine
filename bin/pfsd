@@ -1,6 +1,6 @@
 #!/bin/sh
 
-export MAX_MEMORY=256M
+export MAX_MEMORY=128M
 export HOSTNAME=$(hostname)
 
 # This option specifies the maximum total size of java.nio (New I/O package)
