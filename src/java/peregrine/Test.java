@@ -68,6 +68,8 @@ public class Test {
 
     public static void main( String[] args ) throws Exception {
 
+        /*
+        
         System.setProperty( "log4j.file.name", "foo.log" );
 
         // init log4j ...
@@ -78,6 +80,13 @@ public class Test {
         }
 
         Thread.sleep( 10000 );
+        */
+
+        System.out.printf( "allocating.\n" );
+        
+        ChannelBuffers.directBuffer( 2097152 );
+
+        System.out.printf( "WIN\n" );
         
         //com.spinn3r.log5j.LogManager.shutdown();
         
