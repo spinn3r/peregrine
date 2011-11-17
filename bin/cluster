@@ -4,6 +4,7 @@ BRANCH=burton-bench
 DIR=/root/peregrine
 LOGDIR=/var/log
 MAX_MEMORY=256M
+OPEN_FILES=16384
 
 start() {
 
@@ -19,7 +20,7 @@ start() {
         #ssh root@$hostname "cd $DIR && export HOSTNAME && nohup ./bin/jexec peregrine.pfsd.Main -h=$host > $LOGDIR/peregrine-$host.log 2> $LOGDIR/peregrine-$host.err &" 
 
         set -x
-        ssh root@$hostname "cd $DIR && export MAX_MEMORY=256M && export HOSTNAME && nohup ./bin/jexec peregrine.pfsd.Main -h=$host > $LOGDIR/peregrine-$host.log 2> $LOGDIR/peregrine-$host.err &" 
+        ssh root@$hostname "cd $DIR && nohup ./bin/pfsd -h=$host > $LOGDIR/peregrine-$host.log 2> $LOGDIR/peregrine-$host.err &" 
         set +x
 
     done
