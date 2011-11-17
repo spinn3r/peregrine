@@ -118,7 +118,7 @@ public class FSHandler extends SimpleChannelUpstreamHandler {
         }
 
         if ( pipeline ) {
-            handlePipeline( message );
+            handlePipeline( ctx, message );
         }
 
         if ( upstream != null )
@@ -126,7 +126,7 @@ public class FSHandler extends SimpleChannelUpstreamHandler {
 
     }
     
-    private void handlePipeline( Object message ) throws IOException {
+    private void handlePipeline( final ChannelHandlerContext ctx , Object message ) throws IOException {
 
         try {
             
@@ -168,7 +168,18 @@ public class FSHandler extends SimpleChannelUpstreamHandler {
 
                 log.info( "Going to pipeline requests to: %s ", uri );
                 
-                remote = new HttpClient( request, uri );
+                remote = new HttpClient( request, uri ) {
+
+                        public void onCapacityChange( boolean hasCapacity ) {
+
+                            // it is important that we change the readable
+                            // status of this thread so that we don't block in
+                            // pipelined requests
+                            ctx.getChannel().setReadable( hasCapacity );
+                            
+                        }
+                        
+                    };
                 
             } else if ( remote != null && message instanceof HttpChunk ) {
 
@@ -265,6 +276,6 @@ public class FSHandler extends SimpleChannelUpstreamHandler {
         ctx.getChannel().write(response).addListener(ChannelFutureListener.CLOSE);
 
     }
-
+    
 }
 

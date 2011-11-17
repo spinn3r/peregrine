@@ -343,7 +343,7 @@ public class HttpClient extends BaseOutputStream implements ChannelBufferWritabl
 
                     try {
                     
-                        ChannelBuffer data = queue.take();
+                        ChannelBuffer data = takeFromQueue();
                         
                         channel.write( data ).addListener( new WriteFutureListener( this ) );
                         
@@ -365,6 +365,16 @@ public class HttpClient extends BaseOutputStream implements ChannelBufferWritabl
 
         }
 
+    }
+
+    private ChannelBuffer takeFromQueue() throws InterruptedException {
+
+        ChannelBuffer result = queue.take();
+        
+        onCapacityChange( queue.remainingCapacity() != 0 );
+
+        return result;
+        
     }
     
     public void write( ChannelBuffer data ) throws IOException {
@@ -402,7 +412,7 @@ public class HttpClient extends BaseOutputStream implements ChannelBufferWritabl
 
                 if ( queue.peek() != null ) {
 
-                    ChannelBuffer tmp = queue.take();
+                    ChannelBuffer tmp = takeFromQueue();
                     queue.put( data );
                     data = tmp;
 
@@ -414,6 +424,8 @@ public class HttpClient extends BaseOutputStream implements ChannelBufferWritabl
                 queue.put( data );
             }
 
+            onCapacityChange( queue.remainingCapacity() != 0 );
+            
         } catch ( Exception e ) {
 
             throw new IOException( e );
@@ -422,6 +434,14 @@ public class HttpClient extends BaseOutputStream implements ChannelBufferWritabl
 
     }
 
+    /**
+     * Called when the capacity for the underlying queue changes so that we can
+     * change the readable status of channels, etc.
+     */
+    public void onCapacityChange( boolean hasCapacity ) {
+
+    }
+    
     class WriteFutureListener implements ChannelFutureListener {
 
         private HttpClient client;
@@ -443,7 +463,7 @@ public class HttpClient extends BaseOutputStream implements ChannelBufferWritabl
                 
             if ( client.queue.peek() != null ) {
 
-                 ChannelBuffer data = client.queue.take();
+                 ChannelBuffer data = client.takeFromQueue();
 
                 // NOTE that even if the last response was written here we MUST wait
                 // until we get the HTTP response.
