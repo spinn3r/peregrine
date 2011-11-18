@@ -83,7 +83,7 @@ public class FSDaemon {
         if ( config.getController() != null &&
              ! config.getHost().equals( config.getController() ) ) {
 
-            heartbeatTimer = new HeartbeatTimer();
+            heartbeatTimer = new HeartbeatTimer( config );
 
         }
         

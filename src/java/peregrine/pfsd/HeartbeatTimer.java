@@ -21,19 +21,27 @@ import com.spinn3r.log5j.Logger;
 import peregrine.util.netty.*;
 
 public class HeartbeatTimer extends Timer {
-	
+
+    private static final Logger log = Logger.getLogger();
+
     public static final long ONLINE_SLEEP_INTERVAL  = 30000L;
     
     public static final long OFFLINE_SLEEP_INTERVAL = 1000L;    	
 
     private boolean cancelled = false;
+
+    private Config config = null;
     
     /**
      *
      */
-    public HeartbeatTimer() {
+    public HeartbeatTimer( Config config ) {
         super( HeartbeatTimer.class.getName(), true );
+
+        this.config = config;
+
         schedule( new HeartbeatTimerTask( this ) , 0 );
+        
     }
 
     @Override
@@ -84,9 +92,9 @@ public class HeartbeatTimer extends Timer {
 
                 if ( Thread.currentThread().isInterrupted() )
                     return false;
-                
-				log.warn( String.format( "Unable to send heartbeat to %s: %s", 
-                                         controller, e.getMessage() ) );
+
+                // we don't normally need to send this message because we would be overly verbose.
+				log.debug( String.format( "Unable to send heartbeat to %s: %s", controller, e.getMessage() ) );
 				
 				return false;
 			}
