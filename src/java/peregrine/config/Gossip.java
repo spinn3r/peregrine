@@ -49,5 +49,5 @@ public class Gossip extends MarkMap<Host,MarkSet<Host>> {
 		}
 		
 	}
-	
+    
 }

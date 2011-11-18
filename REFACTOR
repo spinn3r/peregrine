@@ -2,9 +2,9 @@
 Multiple things to cleanup in our refactor.
 
 
-- ShuffleOutputWriter should not use AsyncOutputStream ... 
-
-
+- I ned to make 100% certain that I don't confuse the separation between the
+  controller and the membership (online, gossip, etc).  The PFSD should not have
+  access to the membership information.
 
 - Cleanup MultiOutputStream to use JUST pipelines
 

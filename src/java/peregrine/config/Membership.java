@@ -183,14 +183,15 @@ public class Membership {
      * @param cause
      * @throws IOException 
      */
-    public void sendGossip( Host host, Throwable cause ) {
+    public void sendGossip( Host failed, Throwable cause ) {
     	
         try {
         	
 			Message message = new Message();
 			
 			message.put( "action",     "gossip" );
-			message.put( "host",       host );
+			message.put( "reporter",   config.getHost() );
+			message.put( "failed",     failed );
 			message.put( "cause",      cause );
 
 			new Client().invoke( config.getController(), "controller", message );
@@ -199,8 +200,9 @@ public class Membership {
 			
 			// there isn't much we can do on gossip failure.  It almost certainly 
 			// means that this machine is off the network and we're shutting 
-			// down anyway.
-			log.error( "Unable to gossip: ", e );
+			// down anyway.  AKA *we* are the failed host.
+            
+			log.error( "Unable to send gossip: ", e );
 			
 		}
         

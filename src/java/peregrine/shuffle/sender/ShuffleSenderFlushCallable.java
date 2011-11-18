@@ -38,7 +38,7 @@ public class ShuffleSenderFlushCallable implements Callable {
         
         log.info( "Closing shuffle job output for chunk: %s", output.chunkRef );
 
-        Map<Integer,ChannelBufferWritable> partitionOutput = getPartitionOutput();
+        Map<Integer,ShuffleOutputTarget> partitionOutput = getPartitionOutput();
 
         // now read the data and write it to all clients .. 
         int count = 0;
@@ -103,11 +103,11 @@ public class ShuffleSenderFlushCallable implements Callable {
         
     }
 
-    private Map<Integer,ChannelBufferWritable> getPartitionOutput() {
+    private Map<Integer,ShuffleOutputTarget> getPartitionOutput() {
 
         try {
 
-            Map<Integer,ChannelBufferWritable> clients = new HashMap();
+            Map<Integer,ShuffleOutputTarget> result = new HashMap();
 
             Membership membership = config.getMembership();
             
@@ -123,26 +123,16 @@ public class ShuffleSenderFlushCallable implements Callable {
                                              output.chunkRef.partition.getId(),
                                              output.chunkRef.local );
 
-                ChannelBufferWritable client = new HttpClient( hosts, path );
-                client = new BufferedChannelBuffer( client , MAX_CHUNK_SIZE - IntBytes.LENGTH ) {
+                HttpClient client = new HttpClient( hosts, path );
 
-                        @Override
-                        public void preFlush() throws IOException {
+                ShuffleOutputTarget target
+                    = new ShuffleOutputTarget( hosts.get( 0 ), client, MAX_CHUNK_SIZE - IntBytes.LENGTH  );
 
-                            // add the number of entries written to this buffer 
-                            byte[] data = IntBytes.toByteArray( this.buffers.size() );
-
-                            this.buffers.add( ChannelBuffers.wrappedBuffer( data ) );
-                            
-                        }
-                        
-                    };
-                
-                clients.put( part.getId(), client );
+                result.put( part.getId(), target );
                 
             }
 
-            return clients;
+            return result;
             
         } catch ( Exception e ) {
             // This should be ok as it will cause the map job to fail which will
@@ -151,5 +141,33 @@ public class ShuffleSenderFlushCallable implements Callable {
         }
 
     }
-    
+
+    /**
+     * The output for shuffle data.  
+     */
+    class ShuffleOutputTarget extends BufferedChannelBuffer {
+
+        private Host host;
+        
+        public ShuffleOutputTarget( Host host, HttpClient client, int capacity ) {
+            super( client, capacity );
+            this.host = host;
+        }
+
+        @Override
+        public void preFlush() throws IOException {
+
+            // add the number of entries written to this buffer 
+            byte[] data = IntBytes.toByteArray( this.buffers.size() );
+
+            this.buffers.add( ChannelBuffers.wrappedBuffer( data ) );
+            
+        }
+
+        public Host getHost() {
+            return host;
+        }
+        
+    }
+
 }
