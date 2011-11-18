@@ -195,7 +195,9 @@ public class Membership {
 			message.put( "cause",      cause );
 
 			new Client().invoke( config.getController(), "controller", message );
-			
+
+            log.info( "Sent gossip that %s failed: %s", failed, cause.getMessage() );
+            
 		} catch (IOException e) {
 			
 			// there isn't much we can do on gossip failure.  It almost certainly 

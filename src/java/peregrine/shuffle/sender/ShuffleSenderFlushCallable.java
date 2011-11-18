@@ -59,7 +59,7 @@ public class ShuffleSenderFlushCallable implements Callable {
 
                 ChannelBuffer slice = buff.slice( buff.readerIndex() , length );
 
-                ChannelBufferWritable client = partitionOutput.get( to_partition );
+                ShuffleOutputTarget client = partitionOutput.get( to_partition );
 
                 if ( client == null )
                     throw new Exception( "NO client for partition: " + to_partition );
@@ -70,6 +70,8 @@ public class ShuffleSenderFlushCallable implements Callable {
 
                 } catch ( Exception e ) {
 
+                    config.getMembership().sendGossip( client.getHost(), e );
+                    
                     throw new ShuffleFailedException( String.format( "Unable to write to %s: %s" , client, e.getMessage() ) , e );
 
                 }
