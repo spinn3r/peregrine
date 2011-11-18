@@ -74,7 +74,7 @@ public class ConfigParser {
         
         Config config = new Config();
 
-        config.setRoot( String.format( "%s/%s/%s", basedir, hostname, port ) );
+        config.setBasedir( basedir );
         config.setHost( new Host( hostname, port ) );
         config.setController( Host.parse( struct.get( "controller" ) ) );
 

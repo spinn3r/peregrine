@@ -26,7 +26,7 @@ public class Config {
     /**
      * Default root directory for serving files.
      */
-    public static String DEFAULT_ROOT = "/tmp/peregrine-fs";
+    public static String DEFAULT_BASEDIR = "/tmp/peregrine-fs";
 
     /**
      * Default number of replicas.
@@ -36,8 +36,10 @@ public class Config {
     /**
      * The root for storing data.
      */
-    public String root = DEFAULT_ROOT;
+    public String root = DEFAULT_BASEDIR;
 
+    public String basedir = DEFAULT_BASEDIR;
+    
     /**
      * Partition membership.
      */
@@ -83,7 +85,7 @@ public class Config {
 
     public Config( Host host ) {
         setHost( host );
-        setRoot( String.format( "%s/%s/%s", DEFAULT_ROOT, host.getName(), host.getPort() ) );
+        setRoot( host );
     }
 
     /**
@@ -92,6 +94,9 @@ public class Config {
      */
     public void init() {
 
+        // update the root directory from the host/port and configured basedir
+        setRoot( host );
+        
         log.info( "Using root: %s", root );
         
         PartitionLayoutEngine engine = new PartitionLayoutEngine( this );
@@ -150,6 +155,18 @@ public class Config {
 
     public void setRoot( String root ) {
         this.root = root;
+    }
+
+    public void setRoot( Host host ) {
+        setRoot( String.format( "%s/%s/%s", basedir, host.getName(), host.getPort() ) );
+    }
+    
+    public void setBasedir( String basedir ) {
+        this.basedir = basedir;
+    }
+
+    public String getBasedir() {
+        return this.basedir;
     }
 
     public int getPartitionsPerHost() {
