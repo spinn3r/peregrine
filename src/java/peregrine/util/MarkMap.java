@@ -14,13 +14,25 @@ public class MarkMap<T,V> {
 	}
 
     protected void put( T entry, V value ) {
+
+        bookean updated = map.get( entry ) == null;
+        
 		map.put( entry, value );
-        fireUpdated( entry, MarkListener.Status.MARKED );
+
+        if ( updated ) 
+            fireUpdated( entry, MarkListener.Status.MARKED );
+        
     }
     
 	public void clear( T entry ) {
-		map.remove( entry );
-        fireUpdated( entry, MarkListener.Status.CLEARED );
+
+        bookean updated = map.get( entry ) != null;
+
+        map.remove( entry );
+
+        if ( updated ) 
+            fireUpdated( entry, MarkListener.Status.CLEARED );
+        
 	}
 
 	public boolean contains( T entry ) {
