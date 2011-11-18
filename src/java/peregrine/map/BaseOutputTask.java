@@ -86,8 +86,6 @@ public abstract class BaseOutputTask {
         //throw ALL exceptions.  Also we need to gossip here if it is failing
         //talking to a remote host.
 
-        log.info( "Task %s on %s is %s", delegate, partition, status );
-        
         for( JobOutput current : jobOutput ) {
             log.info( "Closing job output: %s" , current );
             current.close();
@@ -106,6 +104,8 @@ public abstract class BaseOutputTask {
 
             setStatus( TaskStatus.COMPLETE );
         }
+
+        log.info( "Task %s on %s is %s", delegate, partition, status );
 
         if ( status == TaskStatus.COMPLETE ) {
             sendCompleteToController();
