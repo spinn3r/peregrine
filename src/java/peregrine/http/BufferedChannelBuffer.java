@@ -68,6 +68,11 @@ public class BufferedChannelBuffer implements ChannelBufferWritable {
         delegate.close();
         
     }
+
+    @Override
+    public String toString() {
+        return delegate.toString();
+    }
     
     protected ChannelBuffer getChannelBuffer() {
 

@@ -6,10 +6,7 @@ import java.util.concurrent.*;
 
 import org.jboss.netty.buffer.*;
 
-import peregrine.config.Config;
-import peregrine.config.Host;
-import peregrine.config.Membership;
-import peregrine.config.Partition;
+import peregrine.config.*;
 import peregrine.http.*;
 import peregrine.util.primitive.IntBytes;
 
@@ -138,7 +135,7 @@ public class ShuffleSenderFlushCallable implements Callable {
                             this.buffers.add( ChannelBuffers.wrappedBuffer( data ) );
                             
                         }
-
+                        
                     };
                 
                 clients.put( part.getId(), client );
