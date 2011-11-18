@@ -22,9 +22,9 @@ public abstract class Scheduler {
      * more work we verify that we aren't scheduling work form completed
      * partitions.
      */
-    protected Progress<Partition> completed = new Progress();
+    protected MarkSet<Partition> completed = new MarkSet();
 
-    protected Progress<Partition> pending = new Progress();    
+    protected MarkSet<Partition> pending = new MarkSet();    
     
     /**
      * Hosts which are available for additional work.  
@@ -34,13 +34,13 @@ public abstract class Scheduler {
     /**
      * Hosts available for additional work for speculative execution.
      */
-    protected SimpleBlockingQueue<Host> spare = new SimpleBlockingQueue();
+    protected MarkSet<Host> spare = new MarkSet();
 
     protected Concurrency<Host> concurrency;
 
     protected ChangedMessage changedMessage = new ChangedMessage();
 
-    protected Failure failure = new Failure();
+    protected MarkSet<Fail> failure = new MarkSet();
     
     public Scheduler( Config config ) {
 
@@ -107,7 +107,7 @@ public abstract class Scheduler {
 
         }
 
-        spare.put( host );
+        spare.mark( host );
         
     }
 
@@ -222,10 +222,6 @@ public abstract class Scheduler {
 
 }
 
-class Progress<T> extends MarkSet<T>{ 
-    
-}
-
 class Concurrency<T> {
 
     Map<T,AtomicInteger> map = new ConcurrentHashMap();
@@ -250,10 +246,6 @@ class Concurrency<T> {
         return map.get( key ).get();
     }
 
-}
-
-class Failure extends MarkSet<Fail> {
-    
 }
 
 class Fail {
