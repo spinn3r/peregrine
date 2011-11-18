@@ -48,7 +48,8 @@ public class ShuffleSenderFlushCallable implements Callable {
 
         // FIXME(gossip): ANY of these writes can fail and if they do we need to
         // continue and just gossip that they have failed...  this includes
-        // write() AND close()
+        // write() AND close().  We ALSO need to pick a new host to write to
+        // after the failure.
         
         for( ShuffleSenderExtent extent : output.extents ) {
             
@@ -65,8 +66,16 @@ public class ShuffleSenderFlushCallable implements Callable {
 
                 if ( client == null )
                     throw new Exception( "NO client for partition: " + to_partition );
+
+                try {
                 
-                client.write( slice );
+                    client.write( slice );
+
+                } catch ( Exception e ) {
+
+                    throw new ShuffleFailedException( "Unable to write: " + client , e );
+
+                }
 
                 // bump up the writer index now for the next reader.
                 buff.readerIndex( buff.readerIndex() + length );
@@ -93,7 +102,6 @@ public class ShuffleSenderFlushCallable implements Callable {
                        // but this is a good pragmatic defense and solved the
                        // problem.
 
-        
         return null;
         
     }
@@ -124,7 +132,6 @@ public class ShuffleSenderFlushCallable implements Callable {
                         @Override
                         public void preFlush() throws IOException {
 
-                            
                             // add the number of entries written to this buffer 
                             byte[] data = IntBytes.toByteArray( this.buffers.size() );
 

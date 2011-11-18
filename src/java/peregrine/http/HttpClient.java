@@ -274,8 +274,9 @@ public class HttpClient extends BaseOutputStream implements ChannelBufferWritabl
         
     }
 
+    @Override
     public String toString() {
-        return String.format( "RemoteChunkWriterClient: %s %s", method, uri.toString() );
+        return String.format( "%s: %s %s", getClass().getSimpleName(), method, uri.toString() );
     }
 
     public void close() throws IOException {
