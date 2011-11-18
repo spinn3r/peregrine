@@ -56,7 +56,7 @@ public class TestRemoteChunkWriterClient extends peregrine.BaseTestWithMultipleC
 
         byte[] digest_value = digest.digest();
 
-        File file = new File( String.format( "%s/localhost/11112/test-write-hash", Config.DEFAULT_ROOT ) );
+        File file = new File( String.format( "%s/localhost/11112/test-write-hash", Config.DEFAULT_BASEDIR ) );
 
         byte[] data = toByteArray( new FileInputStream( file ) );
 

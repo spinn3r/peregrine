@@ -26,7 +26,7 @@ public class TestPipelineWrites extends peregrine.BaseTest {
         Config config = new Config();
 
         config.setHost( new Host( "localhost", port ) );
-        config.setRoot( String.format( "%s/localhost/%s", Config.DEFAULT_ROOT, port ) );
+        config.init();
         
         return config;
     }
@@ -73,7 +73,7 @@ public class TestPipelineWrites extends peregrine.BaseTest {
 
         byte[] digest_value = digest.digest();
 
-        File file = new File( String.format( "%s/localhost/11112/test-write-hash", Config.DEFAULT_ROOT ) );
+        File file = new File( String.format( "%s/localhost/11112/test-write-hash", Config.DEFAULT_BASEDIR ) );
 
         byte[] data = toByteArray( new FileInputStream( file ) );
 
