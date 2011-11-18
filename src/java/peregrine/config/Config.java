@@ -150,7 +150,7 @@ public class Config {
     }
     
     public String getRoot() {
-        return root;
+        return this.root;
     }
 
     public void setRoot( String root ) {
