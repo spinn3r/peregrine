@@ -37,11 +37,11 @@ fi
 export CLASSPATH=$NEW_CLASSPATH
 
 if [ "$MAX_MEMORY" = "" ]; then
-    export MAX_MEMORY=256M
+    export MAX_MEMORY=512M
 fi
 
 if [ "$MAX_DIRECT_MEMORY" = "" ]; then
-    export MAX_DIRECT_MEMORY=256M
+    export MAX_DIRECT_MEMORY=512M
 fi
 
 export PROFILER_PATH="/usr/local/jprofiler"
