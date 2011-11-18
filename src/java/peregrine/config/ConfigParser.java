@@ -61,7 +61,7 @@ public class ConfigParser {
 
         StructMap struct = new StructMap( props );
         
-        String root        = struct.get( "root" );
+        String basedir     = struct.get( "basedir" );
         int port           = struct.getInt( "port" );
 
         String hostname = System.getenv( "HOSTNAME" );
@@ -74,7 +74,7 @@ public class ConfigParser {
         
         Config config = new Config();
 
-        config.setRoot( root );
+        config.setRoot( String.format( "%s/%s/%s", basedir, hostname, port ) );
         config.setHost( new Host( hostname, port ) );
         config.setController( Host.parse( struct.get( "controller" ) ) );
 
