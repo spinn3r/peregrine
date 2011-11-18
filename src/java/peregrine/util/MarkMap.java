@@ -36,7 +36,7 @@ public class MarkMap<T,V> {
 	}
 
 	public boolean contains( T entry ) {
-		return map.get( entry ) != null;
+		return map.containsKey( entry );
 	}
 
     public int size() {

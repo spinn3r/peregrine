@@ -78,7 +78,12 @@ public class ControllerHandler extends RPCHandler {
 		            throws Exception {
 
 		    	// mark that a machine has failed to process some unit of work.
-		    	
+
+	            Host reporter = Host.parse( message.get( "reporter" ) );
+	            Host failed   = Host.parse( message.get( "failed" ) );
+
+                daemon.getConfig().getMembership().getGossip().mark( reporter, failed ); 
+                
 	            return;
 		    	
 		    }

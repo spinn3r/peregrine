@@ -70,7 +70,7 @@ public class ShuffleSenderFlushCallable implements Callable {
 
                 } catch ( Exception e ) {
 
-                    throw new ShuffleFailedException( "Unable to write: " + client , e );
+                    throw new ShuffleFailedException( String.format( "Unable to write to %s: %s" , client, e.getMessage() ) , e );
 
                 }
 

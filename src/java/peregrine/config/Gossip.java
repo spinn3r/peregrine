@@ -15,7 +15,9 @@ import peregrine.util.*;
 public class Gossip extends MarkMap<Host,MarkSet<Host>> {
 
 	private static final Logger log = Logger.getLogger();
-	
+
+    public static double QUORUM = 0.5;
+    
 	private Config config;
 		
 	public Gossip( Config config ) {		
@@ -33,13 +35,13 @@ public class Gossip extends MarkMap<Host,MarkSet<Host>> {
 		// mark the machine as failed... if a majority of host have marked this
 		// machine as being failed, take it out of production.
 		
-		MarkSet marks = map.get( failed );
+		MarkSet<Host> marks = map.get( failed );
 		
 		marks.mark( reporter );
 		
-		if ( marks.size() > config.getHosts().size() / 2 ) {
+		if ( marks.size() > config.getHosts().size() * QUORUM ) {
 			
-			log.warn( "Host is no longer online: %s", failed );
+			log.warn( "Host is no longer online: %s (%,d hosts have gossiped that it has failed.)", failed , marks.size() );
 			
 			// we can't use this host anymore.  
 			config.getMembership().getOnline().clear( failed );

@@ -17,7 +17,9 @@ public class Membership {
 
     protected Map<Host,List<Replica>> replicasByHost = new HashMap();
 
-    protected Online online = new Online();
+    protected Online online = new Online( this );
+
+    protected Gossip gossip;
     
     protected Config config;
     
@@ -36,6 +38,7 @@ public class Membership {
         this.partitionsByHost = partitionsByHost;
         this.replicasByHost = replicasByHost;
         
+        this.gossip = new Gossip( config );
     }
     
     public Set<Partition> getPartitions() {
@@ -99,7 +102,11 @@ public class Membership {
     public Online getOnline() {
     	return online;
     }
-  
+
+    public Gossip getGossip() {
+        return gossip;
+    }
+    
     public int size() {
         return hostsByPartition.size();
     }
