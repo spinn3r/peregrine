@@ -57,7 +57,7 @@ public abstract class Scheduler {
 
                     if ( status == MarkListener.Status.MARKED ) {
                         log.info( "Host now available: %s", host );
-                        available.put( host );
+                        available.putWhenMissing( host );
                     }
                     
                 }
@@ -135,7 +135,7 @@ public abstract class Scheduler {
 
         // add this to the list of available hosts so that we can schedule 
         // additional work.
-        available.put( host );
+        available.putWhenMissing( host );
 
         concurrency.decr( host );
         
@@ -155,7 +155,7 @@ public abstract class Scheduler {
 
     	if ( ! config.getMembership().getOnline().contains( host ) ) {    		
     		log.info( "Host is now online: %s", host );
-    		available.put( host );
+    		available.putWhenMissing( host );
     	}
 
     }

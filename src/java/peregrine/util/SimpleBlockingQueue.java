@@ -49,6 +49,13 @@ public class SimpleBlockingQueue<T> {
         }
     }
 
+    public void putWhenMissing( T value ) {
+
+        if ( delegate.contains( value ) == false )
+            put( value );
+        
+    }
+    
     public int size() {
         return delegate.size();
     }
