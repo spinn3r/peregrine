@@ -15,7 +15,7 @@ public class MarkMap<T,V> {
 
     protected void put( T entry, V value ) {
 
-        bookean updated = map.get( entry ) == null;
+        boolean updated = map.get( entry ) == null;
         
 		map.put( entry, value );
 
@@ -26,7 +26,7 @@ public class MarkMap<T,V> {
     
 	public void clear( T entry ) {
 
-        bookean updated = map.get( entry ) != null;
+        boolean updated = map.get( entry ) != null;
 
         map.remove( entry );
 
