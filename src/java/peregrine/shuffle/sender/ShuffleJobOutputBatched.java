@@ -22,38 +22,28 @@ public class ShuffleJobOutputBatched implements JobOutput, LocalPartitionReaderL
 
     protected ShuffleSenderBuffer shuffleSenderBuffer;
 
-    protected String name;
-
     protected Future future = null;
 
-    protected Config config;
-
     protected int emits = 0;
-
-    protected Partition partition;
     
     private PartitionRouteHistograph partitionWriteHistograph;
 
-    public ShuffleJobOutputBatched( Config config, Partition partition ) {
-        this( config, "default", partition );
-    }
-        
-    public ShuffleJobOutputBatched( Config config, String name, Partition partition ) {
+    private ShuffleJobOutput parent;
+    
+    public ShuffleJobOutputBatched( ShuffleJobOutput parent ) {
 
-        this.config = config;
-        this.name = name;
-        this.partition = partition;
+        this.parent = parent;
         
         executors = Executors.newFixedThreadPool( 1, new DefaultThreadFactory( ShuffleJobOutputBatched.class) );
 
-        partitionWriteHistograph = new PartitionRouteHistograph( config );
+        partitionWriteHistograph = new PartitionRouteHistograph( parent.config );
         
     }
     
     @Override
     public void emit( byte[] key , byte[] value ) {
 
-        Partition target = config.route( key );
+        Partition target = parent.config.route( key );
 
         partitionWriteHistograph.incr( target );
         
@@ -81,7 +71,7 @@ public class ShuffleJobOutputBatched implements JobOutput, LocalPartitionReaderL
             throw new RuntimeException( e );
         }
 
-        this.shuffleSenderBuffer = new ShuffleSenderBuffer( config, chunkRef, name );
+        this.shuffleSenderBuffer = new ShuffleSenderBuffer( parent.config, chunkRef, parent.name );
         
     }
 
@@ -91,7 +81,7 @@ public class ShuffleJobOutputBatched implements JobOutput, LocalPartitionReaderL
     @Override 
     public void close() throws IOException {
 
-        log.info( "Closing %s... emits: %,d" , name, emits );
+        log.info( "Closing %s... emits: %,d" , parent.name, emits );
 
         // the first flush will trigger pending output to be async written to disk.
         flush( true );
@@ -100,7 +90,7 @@ public class ShuffleJobOutputBatched implements JobOutput, LocalPartitionReaderL
         // anything else as no more emits are present.
         flush( true );
 
-        log.info( "Partition write histograph for %s: %s" , partition, partitionWriteHistograph );
+        log.info( "Partition write histograph for %s: %s" , parent.partition, partitionWriteHistograph );
 
         executors.shutdown();
         
@@ -108,7 +98,7 @@ public class ShuffleJobOutputBatched implements JobOutput, LocalPartitionReaderL
 
     @Override
     public String toString() {
-        return String.format( "%s:%s", getClass().getSimpleName(), name );
+        return String.format( "%s:%s", getClass().getSimpleName(), parent.name );
     }
     
     private void flush() throws IOException {
@@ -129,7 +119,7 @@ public class ShuffleJobOutputBatched implements JobOutput, LocalPartitionReaderL
                 boolean trigger = force || shuffleSenderBuffer.length > DefaultPartitionWriter.CHUNK_SIZE;
                 
                 if ( trigger ) {
-                    future = executors.submit( new ShuffleSenderFlushCallable( config, shuffleSenderBuffer ) );
+                    future = executors.submit( new ShuffleSenderFlushCallable( parent.config, shuffleSenderBuffer ) );
                 }
 
             }
