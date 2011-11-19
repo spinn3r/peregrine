@@ -16,6 +16,8 @@ import org.jboss.netty.buffer.*;
  */
 public class ShuffleInputReader {
 
+    public static boolean ENABLE_MEMLOCK = false;
+    
     /**
      * The current packet index we're on.
      */
@@ -71,8 +73,9 @@ public class ShuffleInputReader {
         // data but in practice this may be a premature optimization.
         
         in = new FileInputStream( file );
-        
-        memLock = new MemLock( in.getFD(), 0, file.length() );
+
+        if ( ENABLE_MEMLOCK ) 
+            memLock = new MemLock( in.getFD(), 0, file.length() );
         
         // mmap the WHOLE file. We won't actually use these pages if we don't
         // read them so this make it less difficult to figure out what to map.
@@ -198,8 +201,12 @@ public class ShuffleInputReader {
     }
 
     public void close() throws IOException {
+
         in.close();
-        memLock.release();
+
+        if ( memLock != null )
+            memLock.release();
+        
     }
 
     public static void main( String[] args ) throws IOException {
