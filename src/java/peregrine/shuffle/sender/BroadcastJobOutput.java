@@ -11,9 +11,7 @@ public class BroadcastJobOutput extends ShuffleJobOutput {
     }
         
     public BroadcastJobOutput( Config config, String name, Partition partition ) {
-
         super( config, name, partition );
-
     }
     
     @Override

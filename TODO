@@ -1,4 +1,10 @@
 
+- TestBroadcastMapReduce doesn't equal the right value... it is NEAR the right
+  value but not exactly so I think we're bleeding some packets somewhere.
+
+- LocalPartitionReader should FAIL when trying to read from a partition which is
+  not local according to the config.
+
 - Speculative execution is currently disabled because we weren't handling write
   pipelineing and were having filesystem corruption. 
 

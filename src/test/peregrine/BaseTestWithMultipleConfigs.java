@@ -19,11 +19,11 @@ public abstract class BaseTestWithMultipleConfigs extends peregrine.BaseTest {
     public static int[] HOSTS        = new int[] { 1, 2, 4, 8 };
 
     /*
-    public static int[] CONCURRENCY  = new int[] { 4 };
+    public static int[] CONCURRENCY  = new int[] { 1 };
     public static int[] REPLICAS     = new int[] { 1 };
-    public static int[] HOSTS        = new int[] { 8 };
+    public static int[] HOSTS        = new int[] { 2 };
     */
-
+    
     protected Host controller;
 
     protected Config config;
@@ -79,7 +79,8 @@ public abstract class BaseTestWithMultipleConfigs extends peregrine.BaseTest {
 
         daemons = new ArrayList();
         configs = new ArrayList();
-
+        configsByHost = new HashMap();
+        
         super.tearDown();
 
     }
@@ -118,7 +119,7 @@ public abstract class BaseTestWithMultipleConfigs extends peregrine.BaseTest {
                         continue;
 
                     } catch ( Throwable t ) {
-                        throw new Exception( String.format( "Test failed on pass %,d with config: ", pass, config ), t );
+                        throw new Exception( String.format( "Test failed on pass %,d with config: %s", pass, config ), t );
                     } finally {
 
                         tearDown();

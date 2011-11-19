@@ -18,6 +18,8 @@ public class LocalPartition {
 
     public static List<File> getChunkFiles( String dir ) {
 
+        System.out.printf( "FIXME finding chunk files in : %s\n", dir );
+        
         List<File> files = new ArrayList();
 
         for( int i = 0; i < Integer.MAX_VALUE; ++i ) {
@@ -71,7 +73,7 @@ public class LocalPartition {
                                      int chunk_id ) {
 
         String local = config.getPath( part, path );
-        
+
         String chunk_name = LocalPartition.getFilenameForChunkID( chunk_id );
 
         return new File( local, chunk_name );
