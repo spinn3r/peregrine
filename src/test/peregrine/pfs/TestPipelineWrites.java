@@ -26,6 +26,8 @@ public class TestPipelineWrites extends peregrine.BaseTest {
         Config config = new Config();
 
         config.setHost( new Host( "localhost", port ) );
+        config.getHosts().add( config.getHost() );
+        
         config.init();
         
         return config;
