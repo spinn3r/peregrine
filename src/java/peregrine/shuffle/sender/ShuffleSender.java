@@ -30,6 +30,7 @@ public class ShuffleSender {
     private ChunkReference chunkRef;
     
     public ShuffleSender( Config config, String name, ChunkReference chunkRef ) {
+
         this.config = config;
         this.name = name;
         this.chunkRef = chunkRef;
@@ -53,6 +54,9 @@ public class ShuffleSender {
         } catch ( Exception e ) {
 
             config.getMembership().sendGossip( client.getHost(), e );
+
+            // TODO: I think we have to block here until the controller tells us
+            // what to do (in normal situations write to a new host).
             
             throw new ShuffleFailedException( String.format( "Unable to write to %s: %s" , client, e.getMessage() ) , e );
 
