@@ -19,6 +19,8 @@ public class Membership {
 
     protected Online online = new Online( this );
 
+    protected Offline offline = new Offline();
+
     protected Gossip gossip;
     
     protected Config config;
@@ -101,6 +103,10 @@ public class Membership {
 
     public Online getOnline() {
     	return online;
+    }
+
+    public Offline getOffline() {
+    	return offline;
     }
 
     public Gossip getGossip() {

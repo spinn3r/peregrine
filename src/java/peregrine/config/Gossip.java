@@ -44,6 +44,8 @@ public class Gossip extends MarkMap<Host,MarkSet<Host>> {
 			log.warn( "Host is no longer online: %s (%,d hosts have gossiped that it has failed.)", failed , marks.size() );
 			
 			// we can't use this host anymore.  
+			config.getMembership().getOffline().mark( failed );
+
 			config.getMembership().getOnline().clear( failed );
 			
 		}

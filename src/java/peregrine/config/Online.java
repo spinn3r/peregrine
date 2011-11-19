@@ -16,15 +16,15 @@ public class Online extends MarkSet<Host>{
     
 	@Override
 	public void mark( Host entry ) {
-		
-		if ( ! map.containsKey( entry ) ) 
-			log.info( "Host now online: %s" , entry );
-            
-        if ( membership.getGossip().contains( entry ) ) {
-            log.debug( "Host is marked failed by gossip.  Not adding online." );
+
+        if ( membership.getOffline().contains( entry ) ) {
+            log.debug( "Host is marked offline.  Not adding online." );
             return;
         }
-        
+
+		if ( ! map.containsKey( entry ) ) 
+			log.info( "Host now online: %s" , entry );
+
 		put( entry, System.currentTimeMillis() );
 
 	}
