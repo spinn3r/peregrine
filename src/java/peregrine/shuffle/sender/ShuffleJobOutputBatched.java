@@ -108,7 +108,7 @@ public class ShuffleJobOutputBatched implements JobOutput, LocalPartitionReaderL
 
     @Override
     public String toString() {
-        return String.format( "ShuffleSenderBuffer:%s", name );
+        return String.format( "%s:%s", getClass().getSimpleName(), name );
     }
     
     private void flush() throws IOException {
