@@ -15,23 +15,17 @@ public class MarkMap<T,V> {
 
     protected void put( T entry, V value ) {
 
-        boolean updated = map.get( entry ) == null;
-        
 		map.put( entry, value );
 
-        if ( updated ) 
-            fireUpdated( entry, MarkListener.Status.MARKED );
+        fireUpdated( entry, MarkListener.Status.MARKED );
         
     }
     
 	public void clear( T entry ) {
 
-        boolean updated = map.get( entry ) != null;
-
         map.remove( entry );
 
-        if ( updated ) 
-            fireUpdated( entry, MarkListener.Status.CLEARED );
+        fireUpdated( entry, MarkListener.Status.CLEARED );
         
 	}
 
