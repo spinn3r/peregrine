@@ -16,7 +16,7 @@ public class ShuffleJobOutput implements JobOutput, LocalPartitionReaderListener
     protected String name;
     protected Partition partition;
 
-    protected JobOutput jobOutputDelegate;
+    protected ShuffleJobOutputDelegate jobOutputDelegate;
 
     protected LocalPartitionReaderListener localPartitionReaderListener;
 
@@ -30,8 +30,8 @@ public class ShuffleJobOutput implements JobOutput, LocalPartitionReaderListener
         this.name = name;
         this.partition = partition;
 
-        //jobOutputDelegate = new ShuffleJobOutputBatched( config , name, partition );
-        jobOutputDelegate = new ShuffleJobOutputDirect( this );
+        jobOutputDelegate = new ShuffleJobOutputBatched( this );
+        //jobOutputDelegate = new ShuffleJobOutputDirect( this );
 
         localPartitionReaderListener = (LocalPartitionReaderListener) jobOutputDelegate;
         
@@ -40,6 +40,10 @@ public class ShuffleJobOutput implements JobOutput, LocalPartitionReaderListener
     @Override
     public void emit( byte[] key , byte[] value ) {
         jobOutputDelegate.emit( key, value );
+    }
+
+    public void emit( int to_partition, byte[] key , byte[] value ) {
+        jobOutputDelegate.emit( to_partition, key, value );
     }
 
     @Override 

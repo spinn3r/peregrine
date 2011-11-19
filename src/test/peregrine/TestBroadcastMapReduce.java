@@ -114,8 +114,7 @@ public class TestBroadcastMapReduce extends peregrine.BaseTestWithTwoDaemons {
              
              // now read all partition values...
              
-             //FIXME: this broke no the local version and we ned to add it back in.
-             //assertValueOnAllPartitions( count_out, 1000 );
+             assertValueOnAllPartitions( config, count_out, 1000 );
              
              System.out.printf( "WIN\n" );
 

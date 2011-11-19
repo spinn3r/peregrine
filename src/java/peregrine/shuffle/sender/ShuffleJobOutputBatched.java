@@ -10,7 +10,7 @@ import peregrine.util.*;
 import peregrine.io.chunk.*;
 import com.spinn3r.log5j.Logger;
 
-public class ShuffleJobOutputBatched implements JobOutput, LocalPartitionReaderListener {
+public class ShuffleJobOutputBatched implements ShuffleJobOutputDelegate {
 
     private static final Logger log = Logger.getLogger();
 
@@ -51,7 +51,8 @@ public class ShuffleJobOutputBatched implements JobOutput, LocalPartitionReaderL
         
     }
 
-    protected void emit( int to_partition, byte[] key , byte[] value ) {
+    @Override
+    public void emit( int to_partition, byte[] key , byte[] value ) {
 
         shuffleSenderBuffer.emit( to_partition, key, value );
         ++emits;

@@ -10,7 +10,7 @@ import peregrine.util.*;
 import peregrine.io.chunk.*;
 import com.spinn3r.log5j.Logger;
 
-public class ShuffleJobOutputDirect implements JobOutput, LocalPartitionReaderListener {
+public class ShuffleJobOutputDirect implements ShuffleJobOutputDelegate {
 
     private ShuffleJobOutput parent;
 
@@ -22,20 +22,24 @@ public class ShuffleJobOutputDirect implements JobOutput, LocalPartitionReaderLi
     
     @Override
     public void emit( byte[] key , byte[] value ) {
+            
+        Partition target = parent.config.route( key );
+        
+        emit( target.getId(), key, value );
+                    
+    }
+
+    @Override
+    public void emit( int to_partition, byte[] key , byte[] value ) {
 
         try {
-            
-            Partition target = parent.config.route( key );
-
-            sender.emit( target.getId(), key, value );
-
+            sender.emit( to_partition, key, value );
         } catch ( ShuffleFailedException e ) {
             // this should cause the job to (correctly) fail
             throw new RuntimeException( e );
         }
-        
-    }
 
+    }
 
     @Override 
     public void onChunk( ChunkReference chunkRef ) {
