@@ -50,6 +50,7 @@ public class ShuffleSender {
         try {
         
             client.write( buff );
+            ++count;
 
         } catch ( Exception e ) {
 

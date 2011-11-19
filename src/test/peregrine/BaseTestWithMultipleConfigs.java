@@ -18,11 +18,9 @@ public abstract class BaseTestWithMultipleConfigs extends peregrine.BaseTest {
     public static int[] REPLICAS     = new int[] { 1, 2 };
     public static int[] HOSTS        = new int[] { 1, 2, 4, 8 };
 
-    /*
-    public static int[] CONCURRENCY  = new int[] { 1 };
-    public static int[] REPLICAS     = new int[] { 1 };
-    public static int[] HOSTS        = new int[] { 2 };
-    */
+    // public static int[] CONCURRENCY  = new int[] { 1 };
+    // public static int[] REPLICAS     = new int[] { 1 };
+    // public static int[] HOSTS        = new int[] { 2 };
     
     protected Host controller;
 

@@ -43,23 +43,26 @@ public class ShuffleJobOutputDirect implements ShuffleJobOutputDelegate {
 
     @Override 
     public void onChunk( ChunkReference chunkRef ) {
-        sender = new ShuffleSender( parent.config, parent.name, chunkRef );
-    }
 
-    @Override 
-    public void onChunkEnd( ChunkReference chunkRef ) {
-        
         try {
-            sender.close();
+            close();
         } catch ( IOException e ) {
             throw new RuntimeException( e );
         }
 
+        sender = new ShuffleSender( parent.config, parent.name, chunkRef );
     }
 
     @Override 
+    public void onChunkEnd( ChunkReference chunkRef ) {}
+
+    @Override 
     public void close() throws IOException {
-        // redundant because of onChunkEnd 
+
+        if ( sender != null ) {
+            sender.close();
+        }
+            
     }
 
     @Override
