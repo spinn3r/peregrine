@@ -13,7 +13,7 @@ public abstract class Scheduler {
 
     private static final Logger log = Logger.getLogger();
 
-    protected Config config;
+    protected final Config config;
 
     protected Membership membership;
 
@@ -36,19 +36,29 @@ public abstract class Scheduler {
      */
     protected MarkSet<Host> spare = new MarkSet();
 
-    protected Concurrency<Host> concurrency;
+    protected IncrMap<Host> concurrency;
+
+    protected MarkSet<Fail> failure = new MarkSet();
+
+    /**
+     * When a host has has been marked offline, we also need to keep track of
+     * the partitions it hosted.  When number of offline hosts for a partition
+     * is equal to the replica count the system has to fail as we have lost
+     * data (ouch).
+     */
+    protected IncrMap<Partition> offlinePartitions;
 
     protected ChangedMessage changedMessage = new ChangedMessage();
 
-    protected MarkSet<Fail> failure = new MarkSet();
-    
-    public Scheduler( Config config ) {
+    public Scheduler( final Config config ) {
 
         this.config = config;
         this.membership = config.getMembership();
 
-        concurrency = new Concurrency( config.getHosts() );
+        concurrency = new IncrMap( config.getHosts() );
 
+        offlinePartitions = new IncrMap( config.getMembership().getPartitions() );
+        
         // import the current list of online hosts and pay attention to new
         // updates in the future.
         membership.getOnline().addListenerWithSnapshot( new MarkListener<Host>() {
@@ -58,6 +68,30 @@ public abstract class Scheduler {
                     if ( status == MarkListener.Status.MARKED ) {
                         log.info( "Host now available: %s", host );
                         available.putWhenMissing( host );
+                    }
+                    
+                }
+
+            } );
+
+        membership.getOffline().addListenerWithSnapshot( new MarkListener<Host>() {
+
+                public void updated( Host host, MarkListener.Status status ) {
+
+                    // for every partition when it is marked offline, go through
+                    // and mark every partition offline.  if a partition has NO
+                    // online replicas then we must abort the job.
+                    List<Partition> partitions = config.getMembership().getPartitions( host );
+
+                    for( Partition part : partitions ) {
+
+                        offlinePartitions.incr( part );
+
+                        if( offlinePartitions.get( part ) == config.getReplicas() ) {
+                            failure.mark( new Fail( host, part , "*NO TRACE*" ) );
+                            break;
+                        }
+                                                  
                     }
                     
                 }
@@ -218,32 +252,6 @@ public abstract class Scheduler {
 
         }
             
-    }
-
-}
-
-class Concurrency<T> {
-
-    Map<T,AtomicInteger> map = new ConcurrentHashMap();
-
-    public Concurrency( Set<T> list ) {
-
-        for( T key : list ) {
-            map.put( key, new AtomicInteger() );
-        }
-        
-    }
-    
-    public void incr( T key ) {
-        map.get( key ).getAndIncrement();
-    }
-
-    public void decr( T key ) {
-        map.get( key ).getAndDecrement();
-    }
-
-    public int get( T key ) {
-        return map.get( key ).get();
     }
 
 }
