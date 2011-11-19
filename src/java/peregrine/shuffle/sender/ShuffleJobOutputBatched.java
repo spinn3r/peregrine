@@ -18,8 +18,6 @@ public class ShuffleJobOutputBatched implements JobOutput, LocalPartitionReaderL
 
     public static boolean DISABLED = false;
     
-    protected ChunkReference chunkRef = null;
-
     protected ShuffleSenderBuffer shuffleSenderBuffer;
 
     protected Future future = null;
@@ -47,7 +45,6 @@ public class ShuffleJobOutputBatched implements JobOutput, LocalPartitionReaderL
 
         partitionWriteHistograph.incr( target );
         
-        chunkRef.partition.getId();
         int to_partition = target.getId();
 
         emit( to_partition, key, value );
@@ -62,8 +59,6 @@ public class ShuffleJobOutputBatched implements JobOutput, LocalPartitionReaderL
 
     @Override 
     public void onChunk( ChunkReference chunkRef ) {
-
-        this.chunkRef = chunkRef;
 
         try {
             flush();
