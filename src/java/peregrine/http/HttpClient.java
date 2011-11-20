@@ -289,6 +289,8 @@ public class HttpClient extends BaseOutputStream implements ChannelBufferWritabl
      */
     public void closeRequest() throws IOException {
 
+        if ( ! opened ) return;
+
         closing = true;
 
         //required for chunked encoding.  We must write an EOF at the end of the
