@@ -1,4 +1,8 @@
 
+- Include a global size factor for tests.  This way each test gets the amount of
+  size it should be testing passed into it... This way we can run small and
+  medium tests and then 
+
 - TestBroadcastMapReduce doesn't equal the right value... it is NEAR the right
   value but not exactly so I think we're bleeding some packets somewhere.
 

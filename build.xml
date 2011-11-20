@@ -141,6 +141,16 @@
     </target> 
 
     <target name="test-multi">
+
+      <foreach list="1,10" 
+               param="peregrine.test.factor" 
+               target="test-multi-with-configs">
+
+      </foreach>
+
+    </target>
+
+    <target name="test-multi-with-configs">
       
       <!-- 
         Define muliple config test in the form of:
@@ -148,7 +158,6 @@
         concurrency:replicas:hosts 
 
         one per line.
-
 
         TODO we are not testing three replica configs right now as we
         have some known bugs here and it isn't important at the moment.
@@ -207,7 +216,7 @@
       </property>
 
       <foreach list="${configs}" 
-               param="peregrine.config" 
+               param="peregrine.test.config" 
                delimiter=" "
                target="test-multi-exec">
 

@@ -15,11 +15,6 @@ public class TestMapReduce extends peregrine.BaseTestWithMultipleConfigs {
 
     private static final Logger log = Logger.getLogger();
 
-    // TODO: test 0, 1, etc... but we will need to broadcast this value to test
-    // things.
-
-    public static int[] TESTS = { 2500, 10000 };
-
     public static class Map extends Mapper {
 
         @Override
@@ -41,6 +36,7 @@ public class TestMapReduce extends peregrine.BaseTestWithMultipleConfigs {
 
             List<Integer> ints = new ArrayList();
 
+            // decode these so we know what they actually mean.
             for( byte[] val : values ) {
                 ints.add( IntBytes.toInt( val ) );
             }
@@ -68,9 +64,7 @@ public class TestMapReduce extends peregrine.BaseTestWithMultipleConfigs {
     @Override
     public void doTest() throws Exception {
 
-        for( int test : TESTS ) {
-            doTest( test );
-        }
+        doTest( 2500 * getFactor() );
         
     }
 
@@ -116,6 +110,8 @@ public class TestMapReduce extends peregrine.BaseTestWithMultipleConfigs {
     
     private void doTest( int max ) throws Exception {
 
+        log.info( "Testing with %,d records." , max );
+        
         System.gc();
 
         Runtime runtime = Runtime.getRuntime();
@@ -129,7 +125,7 @@ public class TestMapReduce extends peregrine.BaseTestWithMultipleConfigs {
         for( int i = 0; i < max; ++i ) {
 
             byte[] key = MD5.encode( "" + i );
-            byte[] value = key;
+            byte[] value = IntBytes.toByteArray( i );
 
             writer.write( key, value );
         }
@@ -137,7 +133,7 @@ public class TestMapReduce extends peregrine.BaseTestWithMultipleConfigs {
         // write data 2x to verify that sorting works.
         for( int i = 0; i < max; ++i ) {
             byte[] key = MD5.encode( "" + i );
-            byte[] value = key;
+            byte[] value = IntBytes.toByteArray( i );
 
             writer.write( key, value );
         }

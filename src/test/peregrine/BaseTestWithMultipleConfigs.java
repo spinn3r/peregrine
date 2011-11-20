@@ -72,12 +72,27 @@ public abstract class BaseTestWithMultipleConfigs extends peregrine.BaseTest {
 
     }
 
+    /**
+     * Get the amount of work relative to the base test that we should be
+     * working with.
+     */
+    public int getFactor() {
+
+        String factor = System.getProperty( "peregrine.test.factor" );
+
+        if ( factor == null )
+            return 1;
+
+        return Integer.parseInt( factor );
+        
+    }
+    
     public void test() throws Exception {
 
-        String conf = System.getProperty( "peregrine.config" );
+        String conf = System.getProperty( "peregrine.test.config" );
 
         if ( conf == null )
-            throw new RuntimeException( "peregrine.config not define" );
+            throw new RuntimeException( "peregrine.test.config not defined" );
 
         conf = conf.trim();
         
