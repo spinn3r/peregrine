@@ -18,6 +18,10 @@ public class Client {
     private static final Logger log = Logger.getLogger();
 
     public void invoke( Host host, String service, Message message ) throws IOException {
+        invokeAsync( host, service, message ).close();
+    }
+    
+    public HttpClient invokeAsync( Host host, String service, Message message ) throws IOException {
 
         try {
 
@@ -31,8 +35,9 @@ public class Client {
 
             client.setMethod( HttpMethod.POST );
             client.write( data.getBytes() );
-            client.close();
 
+            return client;
+            
         } catch ( URISyntaxException e ) {
             throw new IOException( e );
         }

@@ -2,15 +2,15 @@
 package peregrine;
 
 import java.io.*;
+import java.util.*;
 import java.util.concurrent.*;
 
-import peregrine.config.Config;
-import peregrine.config.Host;
-import peregrine.config.Partition;
+import peregrine.config.*;
 import peregrine.io.*;
 import peregrine.rpc.*;
 import peregrine.pfsd.*;
 import peregrine.task.*;
+import peregrine.http.*;
 
 import com.spinn3r.log5j.*;
 
@@ -220,11 +220,21 @@ public class Controller {
         message.put( "action", "flush" );
 
         log.info( "Flushing all %,d shufflers with message: %s" , config.getHosts().size(), message );
+
+        List<HttpClient> clients = new ArrayList();
         
         for ( Host host : config.getHosts() ) {
-            new Client().invoke( host, "shuffler", message );
+            clients.add( new Client().invokeAsync( host, "shuffler", message ) );
         }
-        
+
+        for( HttpClient client : clients ) {
+            client.closeRequest();
+        }
+
+        for( HttpClient client : clients ) {
+            client.close();
+        }
+
     }
 
     private Message createSchedulerMessage( String action,
