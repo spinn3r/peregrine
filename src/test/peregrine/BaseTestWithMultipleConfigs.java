@@ -91,8 +91,10 @@ public abstract class BaseTestWithMultipleConfigs extends peregrine.BaseTest {
 
         String conf = System.getProperty( "peregrine.test.config" );
 
-        if ( conf == null )
-            throw new RuntimeException( "peregrine.test.config not defined" );
+        if ( conf == null ) {
+            log.warn( "NOT RUNNING: peregrine.test.config not defined" );
+            return;
+        }
 
         conf = conf.trim();
         
