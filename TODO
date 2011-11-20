@@ -1,4 +1,6 @@
 
+- ExtractWriter should be able to close multiple streams in parallel... 
+
 - tests take FAR too much time... the more host we add the SLOWER things get due
   to overhead but I think we can/should fix that problem.
 
