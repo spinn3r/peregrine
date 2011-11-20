@@ -207,7 +207,9 @@ public class Controller {
 
         // shufflers can be flushed after any stage even reduce as nothing will
         // happen
-        flushAllShufflers();
+
+        if ( "map".equals( operation ) || "merge".equals( operation ) )
+            flushAllShufflers();
 
         log.info( "COMPLETED %s", desc );
 
