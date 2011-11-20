@@ -18,7 +18,7 @@ public class TestMapReduce extends peregrine.BaseTestWithMultipleConfigs {
     // TODO: test 0, 1, etc... but we will need to broadcast this value to test
     // things.
 
-    public static int[] TESTS = { 250, 1000 };
+    public static int[] TESTS = { 2500, 10000 };
 
     public static class Map extends Mapper {
 
@@ -209,16 +209,7 @@ public class TestMapReduce extends peregrine.BaseTestWithMultipleConfigs {
 
     public static void main( String[] args ) throws Exception {
 
-        if ( args.length > 0 )
-            TESTS = new int[] { Integer.parseInt( args[0] ) };
-
-        TestMapReduce.TESTS = new int[] { 30000000 };
-
-        /*
-        BaseTestWithMultipleConfigs.CONCURRENCY  = new int[] { 1 };
-        BaseTestWithMultipleConfigs.REPLICAS     = new int[] { 1 };
-        BaseTestWithMultipleConfigs.HOSTS        = new int[] { 2 };
-        */
+        System.setProperty( "peregrine.config", "2:1:4" );
         
         runTests();
 
