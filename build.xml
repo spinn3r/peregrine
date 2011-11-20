@@ -24,6 +24,17 @@
 
     <taskdef resource="cloverlib.xml" classpath="${clover.jar}"/>
 
+    <taskdef resource="net/sf/antcontrib/antcontrib.properties">
+        <classpath>
+            <pathelement location="lib/build/ant-contrib-1.0b3.jar"/>
+        </classpath>
+    </taskdef>
+
+    <taskdef name="junit"
+             classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask">
+        <classpath refid="project.classpath"/>
+    </taskdef>	
+
     <target name="with.clover">
         <clover-setup/>
     </target>
@@ -100,11 +111,6 @@
             depends="jar,compile.test" 
             description="Run junit tests.">
 
-        <taskdef name="junit"
-                 classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask">
-            <classpath refid="project.classpath"/>
-        </taskdef>	
-
         <junit printsummary="withOutAndErr"
                fork="true"
                forkmode="perTest"
@@ -131,6 +137,64 @@
             </batchtest>
             
         </junit>
+
+    </target> 
+
+    <target name="test-multi">
+      
+      <!-- 
+        Define muliple config test in the form of:
+
+        concurrency:replicas:hosts 
+
+        one per line.
+      -->
+      <property name="configs">1:1:1
+                               1:1:2
+      </property>
+
+      <foreach list="${configs}" 
+               param="peregrine.config" 
+               delimiter=" "
+               target="test-multi-exec">
+
+      </foreach>
+
+    </target>
+
+    <target name="test-multi-exec">
+
+      <echo message="peregrine.config: ${peregrine.config}"/>
+
+        <junit printsummary="withOutAndErr"
+               fork="true"
+               forkmode="perTest"
+               timeout="1000000"
+               maxmemory="512m"
+               filtertrace="false"
+               haltonfailure="true"
+               haltonerror="true"
+               showoutput="true" 
+               logfailedtests="true">
+
+            <jvmarg value="-Dperegrine.config=${peregrine.config}"/>
+
+            <formatter type="plain" usefile="false" />
+
+            <classpath>
+                <path refid="project.classpath"/>
+            </classpath>
+
+            <batchtest todir="target/test-reports"> 
+
+                <fileset dir="src/test">
+                    <include name="peregrine/TestMapReduce.java"/>
+                </fileset>
+
+            </batchtest>
+            
+        </junit>
+
     </target> 
 
     <target name="test-all" 

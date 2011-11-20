@@ -7,28 +7,28 @@ import java.util.concurrent.atomic.*;
 
 public class PartitionRouteHistograph {
 
-    private Map<Partition,AtomicInteger> partitionWriteHistograph = new ConcurrentHashMap();
-    
     private AtomicInteger total = new AtomicInteger();
 
     private Config config = null;
+
+    private AtomicInteger[] data;
     
     public PartitionRouteHistograph( Config config ) {
 
         this.config = config;
+
+        data = new AtomicInteger[ config.getMembership().getPartitions().size() ];
         
-        for( Partition partition : config.getMembership().getPartitions() ) {
-
-            partitionWriteHistograph.put( partition, new AtomicInteger() );
-
+        for( int i = 0; i < data.length; ++i ) {
+            data[i] = new AtomicInteger();
         }
-            
+
     }
 
     public void incr( Partition part ) {
 
         total.getAndIncrement();
-        partitionWriteHistograph.get( part ).getAndIncrement();
+        data[ part.getId() ].getAndIncrement();
         
      }
     
@@ -41,7 +41,7 @@ public class PartitionRouteHistograph {
             if ( hist.length() > 0 )
                 hist.append( ", " );
 
-            hist.append( String.format( "%s=%s", part.getId(), partitionWriteHistograph.get( part ) ) );
+            hist.append( String.format( "%s=%s", part.getId(), data[ part.getId() ] ) );
             
         }
         

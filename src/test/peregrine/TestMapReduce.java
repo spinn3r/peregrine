@@ -211,6 +211,14 @@ public class TestMapReduce extends peregrine.BaseTestWithMultipleConfigs {
 
         if ( args.length > 0 )
             TESTS = new int[] { Integer.parseInt( args[0] ) };
+
+        TestMapReduce.TESTS = new int[] { 30000000 };
+
+        /*
+        BaseTestWithMultipleConfigs.CONCURRENCY  = new int[] { 1 };
+        BaseTestWithMultipleConfigs.REPLICAS     = new int[] { 1 };
+        BaseTestWithMultipleConfigs.HOSTS        = new int[] { 2 };
+        */
         
         runTests();
 

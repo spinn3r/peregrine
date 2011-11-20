@@ -50,7 +50,7 @@ public class HttpClient extends BaseOutputStream implements ChannelBufferWritabl
      */
     public static long tag = 0;
     
-    public static int LIMIT = 10;
+    public static int LIMIT = 1000;
 
     protected int channelState = PENDING;
 

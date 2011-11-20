@@ -11,17 +11,6 @@ public abstract class BaseTestWithMultipleConfigs extends peregrine.BaseTest {
 
     private static final Logger log = Logger.getLogger();
 
-    //FIXME: does not yet work with 3 replicas 
-    //public static int[] REPLICAS     = new int[] { 1, 2, 3 };
-
-    public static int[] CONCURRENCY  = new int[] { 1, 2, 4, 8 };
-    public static int[] REPLICAS     = new int[] { 1, 2 };
-    public static int[] HOSTS        = new int[] { 1, 2, 4, 8 };
-
-    // public static int[] CONCURRENCY  = new int[] { 1 };
-    // public static int[] REPLICAS     = new int[] { 1 };
-    // public static int[] HOSTS        = new int[] { 2 };
-    
     protected Host controller;
 
     protected Config config;
@@ -84,59 +73,55 @@ public abstract class BaseTestWithMultipleConfigs extends peregrine.BaseTest {
     }
 
     public void test() throws Exception {
+
+        String conf = System.getProperty( "peregrine.config" );
+
+        if ( conf == null )
+            throw new RuntimeException( "peregrine.config not define" );
+
+        conf = conf.trim();
         
-        for( int concurrency : CONCURRENCY ) {
+        String[] split = conf.split( ":" );
 
-            for( int replicas : REPLICAS ) {
+        concurrency = Integer.parseInt( split[0] );
+        replicas = Integer.parseInt( split[1] );
+        hosts = Integer.parseInt( split[2] );
 
-                for( int hosts : HOSTS ) {
+        boolean ran = true;
+        
+        try {
 
-                    this.concurrency = concurrency;
-                    this.replicas = replicas;
-                    this.hosts = hosts;
+            ++pass;
 
-                    boolean ran = true;
-                    
-                    try {
+            setUp();
 
-                        ++pass;
-
-                        setUp();
-
-                        log.info( "Running with config: %s" , config );
-                        
-                        doTest();
-
-                    } catch ( PartitionLayoutException e ) {
-
-                        --pass;
-                        ran = false;
-                        
-                        // this is just an invalid config so skip it.
-                        log.warn( "Invalid config: %s" , e.getMessage() );
-                        continue;
-
-                    } catch ( Throwable t ) {
-                        throw new Exception( String.format( "Test failed on pass %,d with config: %s", pass, config ), t );
-                    } finally {
-
-                        tearDown();
-
-                        if ( ran ) {
-                            // create a copy of the logs for this task for debug 
-                            copy( new File( "logs/peregrine.log" ), new File( String.format( "logs/test-%s-pass-%02d.log", getClass().getName(), pass ) ) );
-                            
-                            new FileOutputStream( "logs/peregrine.log" ).getChannel().truncate( 0 );
-                        }
-
-                    }
-
-                }
-                
-            }
+            log.info( "Running with config: %s" , config );
             
+            doTest();
+
+        } catch ( PartitionLayoutException e ) {
+
+            --pass;
+            ran = false;
+            
+            // this is just an invalid config so skip it.
+            log.warn( "Invalid config: %s" , e.getMessage() );
+
+        } catch ( Throwable t ) {
+            throw new Exception( String.format( "Test failed on pass %,d with config: %s", pass, config ), t );
+        } finally {
+
+            tearDown();
+
+            if ( ran ) {
+                // create a copy of the logs for this task for debug 
+                copy( new File( "logs/peregrine.log" ), new File( String.format( "logs/test-%s-pass-%02d.log", getClass().getName(), pass ) ) );
+                
+                new FileOutputStream( "logs/peregrine.log" ).getChannel().truncate( 0 );
+            }
+
         }
-        
+
     }
 
     protected Config newConfig( String host, int port ) {
