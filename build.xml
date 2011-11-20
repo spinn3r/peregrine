@@ -226,7 +226,7 @@
 
     <target name="test-multi-exec">
 
-      <echo message="peregrine.config: ${peregrine.config}"/>
+      <echo message="peregrine.test.config: ${peregrine.test.config}"/>
 
         <junit printsummary="withOutAndErr"
                fork="true"
@@ -239,7 +239,8 @@
                showoutput="true" 
                logfailedtests="true">
 
-            <jvmarg value="-Dperegrine.config=${peregrine.config}"/>
+            <jvmarg value="-Dperegrine.test.config=${peregrine.test.config}"/>
+            <jvmarg value="-Dperegrine.test.factor=${peregrine.test.factor}"/>
 
             <formatter type="plain" usefile="false" />
 
