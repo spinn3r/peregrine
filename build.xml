@@ -142,7 +142,7 @@
 
     <target name="test-multi">
 
-      <foreach list="1,10" 
+      <foreach list="1" 
                param="peregrine.test.factor" 
                target="test-multi-with-configs">
 
@@ -252,6 +252,7 @@
 
                 <fileset dir="src/test">
                     <include name="peregrine/TestMapReduce.java"/>
+                    <include name="peregrine/TestPagerank.java"/>
                 </fileset>
 
             </batchtest>

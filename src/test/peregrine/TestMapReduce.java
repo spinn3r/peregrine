@@ -205,7 +205,8 @@ public class TestMapReduce extends peregrine.BaseTestWithMultipleConfigs {
 
     public static void main( String[] args ) throws Exception {
 
-        System.setProperty( "peregrine.config", "2:1:4" );
+        //System.setProperty( "peregrine.test.config", "1:1:1" ); // 3sec
+        System.setProperty( "peregrine.test.config", "08:02:32" ); // 1m
         
         runTests();
 

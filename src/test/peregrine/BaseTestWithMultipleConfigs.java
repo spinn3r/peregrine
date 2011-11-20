@@ -60,10 +60,13 @@ public abstract class BaseTestWithMultipleConfigs extends peregrine.BaseTest {
 
     public void tearDown() {
 
+        /*
+        we don't need to do this anymore.
         for( FSDaemon daemon : daemons ) {
             daemon.shutdown();
         }
-
+        */
+        
         daemons = new ArrayList();
         configs = new ArrayList();
         configsByHost = new HashMap();

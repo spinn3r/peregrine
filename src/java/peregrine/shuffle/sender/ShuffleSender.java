@@ -68,8 +68,13 @@ public class ShuffleSender {
     public void close() throws IOException {
 
         // now close all clients and we are done.
-        
-        for( ChannelBufferWritable client : partitionOutput.values() ) {
+
+        for( ShuffleOutputTarget client : partitionOutput.values() ) {
+            client.flush();
+            client.getClient().closeRequest();
+        }
+
+        for( ShuffleOutputTarget client : partitionOutput.values() ) {
             client.close();
         }
 
@@ -122,10 +127,12 @@ public class ShuffleSender {
     class ShuffleOutputTarget extends BufferedChannelBuffer {
 
         private Host host;
+        private HttpClient client;
         
         public ShuffleOutputTarget( Host host, HttpClient client, int capacity ) {
             super( client, capacity );
             this.host = host;
+            this.client = client;            
         }
 
         @Override
@@ -140,6 +147,10 @@ public class ShuffleSender {
 
         public Host getHost() {
             return host;
+        }
+
+        public HttpClient getClient() {
+            return client;
         }
         
     }

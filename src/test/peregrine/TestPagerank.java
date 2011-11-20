@@ -8,7 +8,7 @@ public class TestPagerank extends peregrine.BaseTestWithMultipleConfigs {
     @Override
     public void doTest() throws Exception {
 
-        doRandomTest( 5000 * getFactor() , 100 ); 
+        doTest( 5000 * getFactor() , 100 ); 
 
     }
 
@@ -30,6 +30,7 @@ public class TestPagerank extends peregrine.BaseTestWithMultipleConfigs {
     }
 
     public static void main( String[] args ) throws Exception {
+        System.setProperty( "peregrine.test.config", "08:02:32" ); 
         runTests();
     }
 

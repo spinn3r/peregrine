@@ -106,6 +106,11 @@ public class HttpClient extends BaseOutputStream implements ChannelBufferWritabl
     protected boolean initialized = false;
 
     /**
+     * True when we have requested that this channel be closed.
+     */
+    protected boolean closeRequested = false;
+    
+    /**
      * The channel we are using (when connected).
      */
     protected Channel channel = null;
@@ -279,10 +284,23 @@ public class HttpClient extends BaseOutputStream implements ChannelBufferWritabl
         return String.format( "%s: %s %s", getClass().getSimpleName(), method, uri.toString() );
     }
 
-    public void close() throws IOException {
+    /**
+     * Send a close request to the remote client.  This is non-blocking.
+     */
+    public void closeRequest() throws IOException {
 
         closing = true;
-        
+
+        //required for chunked encoding.  We must write an EOF at the end of the
+        //stream ot note that there is no more data.
+        write( EOF );
+
+        closeRequested = true;
+
+    }
+    
+    public void close() throws IOException {
+
         // if we aren't opened there is no reason to do any work.  This could
         // happen if we opened this code and never did a write() to it which
         // would mean we don't have an HTTP connection to the server
@@ -290,11 +308,10 @@ public class HttpClient extends BaseOutputStream implements ChannelBufferWritabl
 
         // don't allow a double close.  This would never return.
         if ( closed ) return;
-        
-        //required for chunked encoding.  We must write an EOF at the end of the
-        //stream ot note that there is no more data.
-        write( EOF );
 
+        if ( closeRequested == false )
+            closeRequest();
+        
         waitForClose();
         
         // prevent any more write requests
