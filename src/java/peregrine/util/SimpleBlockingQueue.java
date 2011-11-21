@@ -55,6 +55,10 @@ public class SimpleBlockingQueue<T> {
             put( value );
         
     }
+
+    public int remainingCapacity() {
+        return delegate.remainingCapacity();
+    }
     
     public int size() {
         return delegate.size();

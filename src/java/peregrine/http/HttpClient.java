@@ -27,6 +27,7 @@ public class HttpClient extends BaseOutputStream implements ChannelBufferWritabl
 
     private static final Logger log = Logger.getLogger();
 
+    // FIXME: change to a fixed size thread pool based on concurrency... 
     protected static NioClientSocketChannelFactory socketChannelFactory =
         new NioClientSocketChannelFactory( Executors.newCachedThreadPool( new DefaultThreadFactory( HttpClient.class ) ), 
                                            Executors.newCachedThreadPool( new DefaultThreadFactory( HttpClient.class ) ) );
@@ -237,11 +238,16 @@ public class HttpClient extends BaseOutputStream implements ChannelBufferWritabl
 
         this.channelState = CLOSED;
 
+        onClose( false, throwable );
+        
     }
 
     public void success() throws Exception {
 
         updateResult( Boolean.TRUE );
+
+        onClose( true, null );
+
     }
 
     private void updateResult( Object value ) throws Exception {
@@ -310,6 +316,10 @@ public class HttpClient extends BaseOutputStream implements ChannelBufferWritabl
     }
     
     public void close() throws IOException {
+        close(true);
+    }
+    
+    public void close( boolean block ) throws IOException {
 
         System.out.printf( "FIXME: gonna close %s\n", this );
         
@@ -324,7 +334,7 @@ public class HttpClient extends BaseOutputStream implements ChannelBufferWritabl
         if ( closing == false )
             shutdown();
         
-        waitForClose();
+        waitForClose( block );
         
         // prevent any more write requests
         closed = true;
@@ -354,7 +364,7 @@ public class HttpClient extends BaseOutputStream implements ChannelBufferWritabl
             
     }
 
-    private void waitForClose() throws IOException {
+    private void waitForClose( boolean block ) throws IOException {
 
         // FIXME: I don't like this code and it probably means that this entire
         // class should be refactored to avoid having to do this.  The problem
@@ -384,7 +394,7 @@ public class HttpClient extends BaseOutputStream implements ChannelBufferWritabl
 
             }
 
-            if ( isChannelStateClosed() )
+            if ( isChannelStateClosed() || block == false )
                 break;
             
             // TODO: this should be a constant ...
@@ -400,6 +410,16 @@ public class HttpClient extends BaseOutputStream implements ChannelBufferWritabl
 
         }
 
+    }
+
+    private ChannelBuffer takeFromQueue() throws InterruptedException {
+
+        ChannelBuffer result = queue.take();
+        
+        onCapacityChange( queue.remainingCapacity() != 0 );
+
+        return result;
+        
     }
     
     public void write( ChannelBuffer data ) throws IOException {
@@ -437,7 +457,7 @@ public class HttpClient extends BaseOutputStream implements ChannelBufferWritabl
 
                 if ( queue.peek() != null ) {
 
-                    ChannelBuffer tmp = queue.take();
+                    ChannelBuffer tmp = takeFromQueue();
                     queue.put( data );
                     data = tmp;
 
@@ -449,6 +469,8 @@ public class HttpClient extends BaseOutputStream implements ChannelBufferWritabl
                 queue.put( data );
             }
 
+            onCapacityChange( queue.remainingCapacity() != 0 );
+            
         } catch ( Exception e ) {
 
             throw new IOException( e );
@@ -457,6 +479,21 @@ public class HttpClient extends BaseOutputStream implements ChannelBufferWritabl
 
     }
 
+    /**
+     * Called when the capacity for the underlying queue changes so that we can
+     * change the readable status of channels, etc.
+     */
+    public void onCapacityChange( boolean hasCapacity ) {
+
+    }
+
+    /**
+     * Called when the client is closed.  
+     */
+    public void onClose( boolean success, Throwable cause ) {
+
+    }
+    
     class WriteFutureListener implements ChannelFutureListener {
 
         private HttpClient client;
@@ -478,7 +515,7 @@ public class HttpClient extends BaseOutputStream implements ChannelBufferWritabl
                 
             if ( client.queue.peek() != null ) {
 
-                 ChannelBuffer data = client.queue.take();
+                 ChannelBuffer data = client.takeFromQueue();
 
                 // NOTE that even if the last response was written here we MUST wait
                 // until we get the HTTP response.

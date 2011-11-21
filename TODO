@@ -14,6 +14,12 @@
 - LocalPartitionReader should FAIL when trying to read from a partition which is
   not local according to the config.
 
+
+- We're still creating too many threads because of newCachedThreadPool and it's
+  causing the server to run our of file handles...
+
+
+  
 - Speculative execution is currently disabled because we weren't handling write
   pipelineing and were having filesystem corruption. 
 

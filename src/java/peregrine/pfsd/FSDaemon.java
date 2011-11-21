@@ -65,8 +65,9 @@ public class FSDaemon {
         // http://docs.jboss.org/netty/3.2/api/org/jboss/netty/channel/ChannelConfig.html
         
         NioServerSocketChannelFactory factory = 
-        		new NioServerSocketChannelFactory( Executors.newCachedThreadPool( tf ),
-                                                   Executors.newCachedThreadPool( tf ) ) ;
+        		new NioServerSocketChannelFactory( newDefaultThreadPool( tf ),
+                                                   newDefaultThreadPool( tf ),
+                                                   config.getConcurrency() ) ;
         		
         bootstrap = BootstrapFactory.newServerBootstrap( factory );
 
@@ -99,6 +100,43 @@ public class FSDaemon {
 
     public Config getConfig() {
     	return config;
+    }
+
+    /**
+     * Create a default thread pool for use in the system with the correct
+     * concurrency.
+     */
+    public ExecutorService newDefaultThreadPool( Class clazz ) {
+        return newDefaultThreadPool( new DefaultThreadFactory( clazz ) );
+    }
+
+    /**
+     * Create a default thread pool for use in the system with the correct
+     * concurrency.
+     */
+    public ExecutorService newDefaultThreadPool( ThreadFactory threadFactory ) {
+
+        return newDefaultThreadPool( config.getConcurrency(), threadFactory );
+
+    }
+
+    /**
+     * Create a default thread pool for use in the system with the correct
+     * concurrency.
+     */
+    public static ExecutorService newDefaultThreadPool( int concurrency, ThreadFactory threadFactory ) {
+
+        ExecutorService service
+            = Executors.newFixedThreadPool( concurrency , threadFactory );
+
+        ThreadPoolExecutor tpe = (ThreadPoolExecutor)service;
+
+        tpe.setKeepAliveTime( Long.MAX_VALUE, TimeUnit.MILLISECONDS );
+        tpe.setCorePoolSize( concurrency );
+        tpe.prestartAllCoreThreads();
+        
+        return service;
+
     }
 
     public ExecutorService getExecutorService( Class clazz ) {
