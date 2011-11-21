@@ -104,11 +104,6 @@ public class HttpClient extends BaseOutputStream implements ChannelBufferWritabl
      * True when we have initialized the client.
      */
     protected boolean initialized = false;
-
-    /**
-     * True when we have shutdown this client for writes (closing).
-     */
-    protected boolean shutdown = false; 
     
     /**
      * The channel we are using (when connected).
@@ -297,6 +292,8 @@ public class HttpClient extends BaseOutputStream implements ChannelBufferWritabl
         // don't allow a double close.  This would never return.
         if ( closed ) return;
 
+        if ( closing ) return;
+
         closing = true;
 
         //required for chunked encoding.  We must write an EOF at the end of the
@@ -304,8 +301,6 @@ public class HttpClient extends BaseOutputStream implements ChannelBufferWritabl
         write( EOF );
 
         System.out.printf( "FIXME: wrote EOF to %s\n", this );
-
-        shutdown = true;
 
     }
     
@@ -321,7 +316,7 @@ public class HttpClient extends BaseOutputStream implements ChannelBufferWritabl
         // don't allow a double close.  This would never return.
         if ( closed ) return;
 
-        if ( shutdown == false )
+        if ( closing == false )
             shutdown();
         
         waitForClose();
