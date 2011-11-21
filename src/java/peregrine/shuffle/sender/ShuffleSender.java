@@ -71,7 +71,7 @@ public class ShuffleSender {
 
         for( ShuffleOutputTarget client : partitionOutput.values() ) {
             client.flush();
-            client.getClient().closeRequest();
+            client.getClient().shutdown();
         }
         
         for( ShuffleOutputTarget client : partitionOutput.values() ) {

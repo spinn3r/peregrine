@@ -230,7 +230,7 @@ public class Controller {
         }
 
         for( HttpClient client : clients ) {
-            client.closeRequest();
+            client.shutdown();
         }
 
         for( HttpClient client : clients ) {

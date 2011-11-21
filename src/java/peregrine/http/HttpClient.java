@@ -106,9 +106,9 @@ public class HttpClient extends BaseOutputStream implements ChannelBufferWritabl
     protected boolean initialized = false;
 
     /**
-     * True when we have requested that this channel be closed.
+     * True when we have shutdown this client for writes (closing).
      */
-    protected boolean closeRequested = false;
+    protected boolean shutdown = false; 
     
     /**
      * The channel we are using (when connected).
@@ -287,21 +287,7 @@ public class HttpClient extends BaseOutputStream implements ChannelBufferWritabl
     /**
      * Send a close request to the remote client.  This is non-blocking.
      */
-    public void closeRequest() throws IOException {
-
-        if ( ! opened ) return;
-
-        closing = true;
-
-        //required for chunked encoding.  We must write an EOF at the end of the
-        //stream ot note that there is no more data.
-        write( EOF );
-
-        closeRequested = true;
-
-    }
-    
-    public void close() throws IOException {
+    public void shutdown() throws IOException {
 
         // if we aren't opened there is no reason to do any work.  This could
         // happen if we opened this code and never did a write() to it which
@@ -311,8 +297,32 @@ public class HttpClient extends BaseOutputStream implements ChannelBufferWritabl
         // don't allow a double close.  This would never return.
         if ( closed ) return;
 
-        if ( closeRequested == false )
-            closeRequest();
+        closing = true;
+
+        //required for chunked encoding.  We must write an EOF at the end of the
+        //stream ot note that there is no more data.
+        write( EOF );
+
+        System.out.printf( "FIXME: wrote EOF to %s\n", this );
+
+        shutdown = true;
+
+    }
+    
+    public void close() throws IOException {
+
+        System.out.printf( "FIXME: gonna close %s\n", this );
+        
+        // if we aren't opened there is no reason to do any work.  This could
+        // happen if we opened this code and never did a write() to it which
+        // would mean we don't have an HTTP connection to the server
+        if ( ! opened ) return;
+
+        // don't allow a double close.  This would never return.
+        if ( closed ) return;
+
+        if ( shutdown == false )
+            shutdown();
         
         waitForClose();
         
