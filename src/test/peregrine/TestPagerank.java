@@ -30,7 +30,7 @@ public class TestPagerank extends peregrine.BaseTestWithMultipleConfigs {
     }
 
     public static void main( String[] args ) throws Exception {
-        System.setProperty( "peregrine.test.config", "08:02:32" ); 
+        System.setProperty( "peregrine.test.config", "08:01:32" ); 
         runTests();
     }
 
