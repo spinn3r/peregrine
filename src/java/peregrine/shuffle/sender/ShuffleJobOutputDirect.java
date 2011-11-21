@@ -61,6 +61,7 @@ public class ShuffleJobOutputDirect implements ShuffleJobOutputDelegate {
 
         if ( sender != null ) {
             sender.close();
+            sender = null;
         }
             
     }

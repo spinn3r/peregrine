@@ -73,12 +73,12 @@ public class ShuffleSender {
             client.flush();
             client.getClient().closeRequest();
         }
-
+        
         for( ShuffleOutputTarget client : partitionOutput.values() ) {
             client.close();
         }
 
-        log.info( "Shuffled %,d entries.", count );
+        log.info( "Shuffled %,d entries in %s", count, this );
 
     }
     

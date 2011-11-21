@@ -138,6 +138,8 @@
             
         </junit>
 
+        <antcall target="test-multi" />
+
     </target> 
 
     <target name="test-multi">
@@ -251,8 +253,8 @@
             <batchtest todir="target/test-reports"> 
 
                 <fileset dir="src/test">
-                    <include name="peregrine/TestMapReduce.java"/>
-                    <include name="peregrine/TestPagerank.java"/>
+                  <include name="peregrine/TestMapReduce.java"/>
+                  <!-- <include name="peregrine/TestPagerank.java"/> -->
                 </fileset>
 
             </batchtest>
@@ -289,51 +291,6 @@
 
                 <fileset dir="src/test">
                     <include name="**/Test*.java"/>
-                </fileset>
-
-            </batchtest>
-            
-        </junit>
-    </target> 
-
-    <target name="test-basic" 
-            depends="jar,compile.test" 
-            description="Run junit tests.">
-
-        <taskdef name="junit"
-                 classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask">
-            <classpath refid="project.classpath"/>
-        </taskdef>	
-
-        <junit printsummary="on"
-               fork="true"
-               forkmode="perTest"
-               timeout="1000000"
-               maxmemory="512m"
-               filtertrace="false"
-               haltonfailure="false"
-               haltonerror="false"
-               showoutput="true" 
-               logfailedtests="true">
-
-            <classpath>
-                <path refid="project.classpath"/>
-            </classpath>
-
-            <batchtest todir="target/test-reports"> 
-
-                <fileset dir="src/test">
-                    <include name="**/peregrine/io/TestPartitionWriter.java"/>
-
-                    <include name="**/peregrine/TestMapOnlyJobs"/>
-                    <include name="**/peregrine/TestMapReduce"/>
-                    <include name="**/peregrine/io/TestChunkMerger"/>
-                    <include name="**/peregrine/io/TestChunkSorter"/>
-                    <include name="**/peregrine/io/TestFullOuterJoin"/>
-                    <include name="**/peregrine/io/TestPartitionWriter"/>
-                    <include name="**/peregrine/io/TestReduceSort"/>
-                    <include name="**/peregrine/values/TestIntValue"/>
-
                 </fileset>
 
             </batchtest>

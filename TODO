@@ -1,5 +1,7 @@
 
-- ExtractWriter should be able to close multiple streams in parallel... 
+- ExtractWriter should be able to close multiple streams in parallel... the
+  problem we have now is that we're still usign MultiOutputStream which we need
+  to deprecate in favor of 100% pipeline operation.
 
 - tests take FAR too much time... the more host we add the SLOWER things get due
   to overhead but I think we can/should fix that problem.
@@ -32,6 +34,7 @@
   
 
 
+    
 - If the CPU performance of performing a sort is MUCH slower than the disk
   perforamnce, we can go ahead and replicate the sort temporary files so that
   hte other replicas can resume if necessary.
@@ -39,6 +42,7 @@
       
 
 
+  
 - Make sure the controller and the slaves ALL have the same partitioning
   config...  I imagine this could JUST be a hash of the config and or
   partitioning setup.
