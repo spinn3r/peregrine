@@ -50,8 +50,13 @@ public class HttpClient extends BaseOutputStream implements ChannelBufferWritabl
      */
     public static long tag = 0;
     
-    public static int LIMIT = 1000;
+    public static int LIMIT = 10;
 
+    /**
+     * The write timeout for requests.
+     */
+    public static final int WRITE_TIMEOUT = 30000;
+    
     protected int channelState = PENDING;
 
     /**
@@ -98,7 +103,7 @@ public class HttpClient extends BaseOutputStream implements ChannelBufferWritabl
     /**
      * Clear to directly send a packet. 
      */
-    protected boolean clear = false;
+    protected boolean clearToSend = false;
 
     /**
      * True when we have initialized the client.
@@ -360,26 +365,37 @@ public class HttpClient extends BaseOutputStream implements ChannelBufferWritabl
         // it is never sent and we sit here blocking forever.  This is a
         // workaround but it would be nice to have a more elegant way to handle
         // this.
+        //
+        // A BETTER way to handle this would be to have explicit shutdown
+        // required by my code so that OUR code must shutdown FIRST instead of
+        // allowing daemon threads to just exit without a defined order.  This
+        // way all the event handlers will execute and then complete IO and
+        // our main threads will terminate and then I can shutdown netty.
+
+        long started = System.currentTimeMillis();
+
         while( true ) { 
         
-            try {
-
-                if ( clear && queue.peek() != null ) {
-                    
-                    ChannelBuffer data = queue.take();
-                    
-                    channel.write( data ).addListener( new WriteFutureListener( this ) );
-
-                }
-
-                if ( isChannelStateClosed() )
-                    break;
+            if ( clearToSend && queue.peek() != null ) {
                 
-                // TODO: this should be a constant ...
-                Thread.sleep( 10L );
+                ChannelBuffer data = queue.take();
+                
+                channel.write( data ).addListener( new WriteFutureListener( this ) );
 
-            } catch ( Exception e ) {
+            }
+
+            if ( isChannelStateClosed() )
+                break;
+            
+            // TODO: this should be a constant ...
+            try {
+                Thread.sleep( 10L );
+            } catch ( InterruptedException e ) {
                 throw new IOException( e );
+            }
+
+            if ( System.currentTimeMillis() - started >= WRITE_TIMEOUT ) {
+                throw new IOException( "write timeout: " + WRITE_TIMEOUT );
             }
 
         }
@@ -407,9 +423,9 @@ public class HttpClient extends BaseOutputStream implements ChannelBufferWritabl
         
         try {
             
-            if ( clear ) {
+            if ( clearToSend ) {
                 
-                clear = false;
+                clearToSend = false;
 
                 // NOTE it is required to put a packet on to the queue and pull
                 // one back off because technically there could be a race in the
@@ -475,7 +491,7 @@ public class HttpClient extends BaseOutputStream implements ChannelBufferWritabl
 
             // the queue was drained so the next packet should be sent direc
 
-            client.clear = true;
+            client.clearToSend = true;
 
         }
 
