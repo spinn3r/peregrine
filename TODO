@@ -1,4 +1,6 @@
 
+- I THINK the sender is writing LOT of small HTTP requests.
+
 - ExtractWriter should be able to close multiple streams in parallel... the
   problem we have now is that we're still usign MultiOutputStream which we need
   to deprecate in favor of 100% pipeline operation.

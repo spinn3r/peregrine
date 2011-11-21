@@ -57,7 +57,7 @@ public class HttpClient extends BaseOutputStream implements ChannelBufferWritabl
     /**
      * Stores writes waiting to be sent over the wire.
      */
-    protected BlockingQueue<ChannelBuffer> queue = new LinkedBlockingDeque( LIMIT );
+    protected SimpleBlockingQueue<ChannelBuffer> queue = new SimpleBlockingQueue( LIMIT );
 
     /**
      * Stores the result of this IO operation.  Boolean.TRUE if it was success
@@ -365,16 +365,10 @@ public class HttpClient extends BaseOutputStream implements ChannelBufferWritabl
             try {
 
                 if ( clear && queue.peek() != null ) {
-
-                    try {
                     
-                        ChannelBuffer data = queue.take();
-                        
-                        channel.write( data ).addListener( new WriteFutureListener( this ) );
-                        
-                    } catch ( InterruptedException e ) {
-                        throw new IOException( e );
-                    }
+                    ChannelBuffer data = queue.take();
+                    
+                    channel.write( data ).addListener( new WriteFutureListener( this ) );
 
                 }
 
