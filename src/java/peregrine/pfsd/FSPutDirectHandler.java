@@ -58,7 +58,6 @@ public class FSPutDirectHandler extends FSPutBaseHandler {
                 // these.
 
                 if ( handler.remote == null ) {
-                    System.out.printf( "FIXME sending 200 OK\n" );
                     HttpResponse response = new DefaultHttpResponse( HTTP_1_1, OK );
                     ctx.getChannel().write(response).addListener(ChannelFutureListener.CLOSE);
                 }

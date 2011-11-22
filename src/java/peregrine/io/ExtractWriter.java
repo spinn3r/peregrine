@@ -74,7 +74,23 @@ public class ExtractWriter {
         
     }
 
+    public long length() {
+
+        long result = 0;
+        
+        for( PartitionWriter writer : output ) {
+            result += writer.length();
+        }
+
+        return result;
+        
+    }
+    
     public void close() throws IOException {
+
+        for( PartitionWriter writer : output ) {
+            writer.shutdown();
+        }
 
         for( PartitionWriter writer : output ) {
             writer.close();

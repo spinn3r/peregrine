@@ -30,6 +30,8 @@ public class DefaultChunkWriter implements ChunkWriter {
 
     private boolean closed = false;
 
+    private boolean shutdown = false;
+    
     private ChannelBuffer buff = ChannelBuffers.buffer( BUFFER_SIZE );
 
     public DefaultChunkWriter( OutputStream out ) throws IOException {
@@ -119,6 +121,19 @@ public class DefaultChunkWriter implements ChunkWriter {
         if ( closed )
             return;
 
+        shutdown();
+
+        out.close();
+
+        closed = true;
+        
+    }
+
+    public void shutdown() throws IOException {
+
+        if ( shutdown )
+            return;
+        
         flushChannelBuffer();
 
         // last four bytes store the number of items.
@@ -126,10 +141,15 @@ public class DefaultChunkWriter implements ChunkWriter {
         byte[] count_bytes = IntBytes.toByteArray( count );
         out.write( count_bytes );
         length += count_bytes.length;
-        
-        out.close();
 
-        closed = true;
+        if ( out instanceof MultiOutputStream ) {
+
+            MultiOutputStream multi = (MultiOutputStream)out;
+            multi.shutdown();
+            
+        }
+
+        shutdown = true;
         
     }
     

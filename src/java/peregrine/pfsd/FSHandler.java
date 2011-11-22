@@ -184,8 +184,6 @@ public class FSHandler extends SimpleChannelUpstreamHandler {
 
                         @Override
                         public void onClose( boolean success, Throwable cause ) {
-
-                            System.out.printf( "FIXME: onClose: %s, %s\n", success, cause );
                             
                             HttpResponse response = new DefaultHttpResponse( HTTP_1_1, OK );
                             ctx.getChannel().write(response).addListener(ChannelFutureListener.CLOSE);
