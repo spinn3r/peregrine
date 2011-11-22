@@ -126,8 +126,13 @@ public class FSDaemon {
      */
     public static ExecutorService newDefaultThreadPool( int concurrency, ThreadFactory threadFactory ) {
 
+        /*
         ExecutorService service
             = Executors.newFixedThreadPool( concurrency , threadFactory );
+        */
+
+        ExecutorService service
+            = Executors.newCachedThreadPool( threadFactory );
 
         ThreadPoolExecutor tpe = (ThreadPoolExecutor)service;
 

@@ -56,7 +56,7 @@ public class HttpClient extends BaseOutputStream implements ChannelBufferWritabl
     /**
      * The write timeout for requests.
      */
-    public static final int WRITE_TIMEOUT = 30000;
+    public static final int WRITE_TIMEOUT = 10000;
     
     protected int channelState = PENDING;
 
@@ -301,17 +301,13 @@ public class HttpClient extends BaseOutputStream implements ChannelBufferWritabl
         if ( ! opened ) return;
 
         // don't allow a double close.  This would never return.
-        if ( closed ) return;
-
-        if ( closing ) return;
+        if ( closed || closing ) return;
 
         closing = true;
 
         //required for chunked encoding.  We must write an EOF at the end of the
         //stream ot note that there is no more data.
         write( EOF );
-
-        System.out.printf( "FIXME: wrote EOF to %s\n", this );
 
     }
     
@@ -320,8 +316,6 @@ public class HttpClient extends BaseOutputStream implements ChannelBufferWritabl
     }
     
     public void close( boolean block ) throws IOException {
-
-        System.out.printf( "FIXME: gonna close %s\n", this );
         
         // if we aren't opened there is no reason to do any work.  This could
         // happen if we opened this code and never did a write() to it which
@@ -333,11 +327,10 @@ public class HttpClient extends BaseOutputStream implements ChannelBufferWritabl
 
         if ( closing == false )
             shutdown();
-        
+
+        // even in block mode we must enter this once to send the last packet
+        // directly if necessary.
         waitForClose( block );
-        
-        // prevent any more write requests
-        closed = true;
 
         // we need to return here becuase we would then block for the result.
         if ( block == false )
@@ -409,10 +402,13 @@ public class HttpClient extends BaseOutputStream implements ChannelBufferWritabl
             }
 
             if ( System.currentTimeMillis() - started >= WRITE_TIMEOUT ) {
-                throw new IOException( "write timeout: " + WRITE_TIMEOUT );
+                throw new IOException( String.format( "write timeout: %s (%s)", WRITE_TIMEOUT, result ) );
             }
 
         }
+
+        // prevent any more write requests
+        closed = true;
 
     }
 

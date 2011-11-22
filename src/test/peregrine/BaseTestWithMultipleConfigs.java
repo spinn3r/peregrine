@@ -73,7 +73,7 @@ public abstract class BaseTestWithMultipleConfigs extends peregrine.BaseTest {
         
         super.tearDown();
 
-        showRunningThreads();
+        //showRunningThreads();
         
     }
 

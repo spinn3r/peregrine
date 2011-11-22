@@ -56,8 +56,9 @@ public class FSPutDirectHandler extends FSPutBaseHandler {
                 // FIXME: I don't like how the status sending is decoupled from
                 // pipeline requests AND non-pipeline requests.  I need to unify
                 // these.
-                
-                if ( handler.pipeline == false ) {
+
+                if ( handler.remote == null ) {
+                    System.out.printf( "FIXME sending 200 OK\n" );
                     HttpResponse response = new DefaultHttpResponse( HTTP_1_1, OK );
                     ctx.getChannel().write(response).addListener(ChannelFutureListener.CLOSE);
                 }
