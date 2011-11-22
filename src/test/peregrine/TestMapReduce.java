@@ -207,8 +207,8 @@ public class TestMapReduce extends peregrine.BaseTestWithMultipleConfigs {
 
         //System.setProperty( "peregrine.test.config", "1:1:1" ); // 3sec
         System.setProperty( "peregrine.test.factor", "10" ); // 1m
-        //System.setProperty( "peregrine.test.config", "01:01:1" ); // 1m
-        System.setProperty( "peregrine.test.config", "08:01:32" ); 
+        System.setProperty( "peregrine.test.config", "01:01:1" ); // 1m
+        //System.setProperty( "peregrine.test.config", "08:01:32" ); 
 
         runTests();
 

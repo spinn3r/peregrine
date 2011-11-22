@@ -339,6 +339,10 @@ public class HttpClient extends BaseOutputStream implements ChannelBufferWritabl
         // prevent any more write requests
         closed = true;
 
+        // we need to return here becuase we would then block for the result.
+        if ( block == false )
+            return;
+        
         try {
 
             // FIXME: this should have a timeout so that we don't block for
@@ -478,6 +482,8 @@ public class HttpClient extends BaseOutputStream implements ChannelBufferWritabl
         }
 
     }
+
+    // FIXME: move these into an event listener... 
 
     /**
      * Called when the capacity for the underlying queue changes so that we can
