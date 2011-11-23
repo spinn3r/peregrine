@@ -53,14 +53,17 @@ public class FSPutDirectHandler extends FSPutBaseHandler {
 
             } else {
 
-                long before = System.currentTimeMillis();
+                if ( FORCE ) {
 
-                if ( FORCE ) 
+                    long before = System.currentTimeMillis();
+
                     output.force( true );
 
-                long after = System.currentTimeMillis();
+                    long after = System.currentTimeMillis();
 
-                log.info( "Took %,d ms to force output to disk." , (after-before) );
+                    log.info( "Took %,d ms to force output to disk." , (after-before) );
+
+                }
                 
                 // FIXME: I don't like how the status sending is decoupled from
                 // pipeline requests AND non-pipeline requests.  I need to unify

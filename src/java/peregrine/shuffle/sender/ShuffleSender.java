@@ -45,6 +45,9 @@ public class ShuffleSender {
 
         ShuffleOutputTarget client = partitionOutput.get( to_partition );
 
+        // TODO: WARNING in practice using a direct buffer turned out ot be a
+        // BIG performance penalty.
+
         //ChannelBuffer buff = ChannelBuffers.directBuffer( IntBytes.LENGTH * 2 + key.length + value.length );
         ChannelBuffer buff = ChannelBuffers.buffer( IntBytes.LENGTH * 2 + key.length + value.length );
 
