@@ -50,6 +50,9 @@ public class BufferedChannelBuffer implements ChannelBufferWritable {
     
     public void flush() throws IOException {
 
+        if ( writeLength == 0 )
+            return;
+        
         preFlush();
         
         delegate.write( getChannelBuffer() );
@@ -62,8 +65,7 @@ public class BufferedChannelBuffer implements ChannelBufferWritable {
     @Override
     public void close() throws IOException {
 
-        if ( writeLength > 0 )
-            flush();
+        flush();
 
         delegate.close();
         

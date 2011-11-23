@@ -1,10 +1,11 @@
 package peregrine.util;
 
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.*;
 
 public class DefaultThreadFactory implements ThreadFactory {
 
-    public int idx = 0;
+    public AtomicInteger idx = new AtomicInteger();;
 
     private String template;
     
@@ -17,7 +18,7 @@ public class DefaultThreadFactory implements ThreadFactory {
     }
 
     public Thread newThread(Runnable r) {
-        Thread thread = new Thread( r, template + ":" + idx++ );
+        Thread thread = new Thread( r, template + ":" + idx.getAndIncrement() );
         thread.setDaemon( true );
         return thread;
     }

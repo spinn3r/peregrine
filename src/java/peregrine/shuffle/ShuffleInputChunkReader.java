@@ -213,6 +213,8 @@ public class ShuffleInputChunkReader {
 
         private static final Logger log = Logger.getLogger();
 
+        private static ThreadFactory threadFactory = new DefaultThreadFactory( PrefetchReader.class );
+        
         public Map<Partition,SimpleBlockingQueue<ShufflePacket>> lookup = new HashMap();
 
         private Map<Partition,SimpleBlockingQueue<Boolean>> finished = new ConcurrentHashMap();
@@ -224,7 +226,10 @@ public class ShuffleInputChunkReader {
         private PrefetchReaderManager manager = null;
 
         private Map<Partition,AtomicInteger> packetsReadPerPartition = new HashMap();
-        
+
+        protected ExecutorService executor =
+            Executors.newCachedThreadPool( threadFactory );
+
         public PrefetchReader( PrefetchReaderManager manager, Config config, String path )
             throws IOException {
 
@@ -305,15 +310,17 @@ public class ShuffleInputChunkReader {
 
         private static final Logger log = Logger.getLogger();
 
-        private static ExecutorService executors =
-            Executors.newCachedThreadPool( new DefaultThreadFactory( PrefetchReaderManager.class) );
-
         static Map<String,PrefetchReader> instances = new ConcurrentHashMap();
 
         public void reset( String path ) {
 
             synchronized( instances ) {
-                instances.remove( path );
+
+                // FIXME: right now this means that we startup 1 thread per
+                // chunk which is not super efficient.
+                PrefetchReader reader = instances.remove( path );
+                reader.executor.shutdown();
+                
             }
             
         }
@@ -339,7 +346,7 @@ public class ShuffleInputChunkReader {
                         result = new PrefetchReader( this, config, path );
                         instances.put( path, result );
 
-                        executors.submit( result );
+                        result.executor.submit( result );
 
                     } 
 

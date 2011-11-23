@@ -20,7 +20,7 @@ public class ExtractWriter {
 
     private static final Logger log = Logger.getLogger();
 
-    private List<PartitionWriter> output;
+    private List<DefaultPartitionWriter> output;
 
     private Config config;
 
@@ -74,8 +74,25 @@ public class ExtractWriter {
         
     }
 
+    public long length() {
+
+        long result = 0;
+        
+        for( PartitionWriter writer : output ) {
+            result += writer.length();
+        }
+
+        return result;
+        
+    }
+    
     public void close() throws IOException {
 
+        //TODO: not sure why but this made it slower.
+        for( PartitionWriter writer : output ) {
+            writer.shutdown();
+        }
+        
         for( PartitionWriter writer : output ) {
             writer.close();
         }

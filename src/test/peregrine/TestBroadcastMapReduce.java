@@ -13,7 +13,7 @@ import peregrine.util.*;
 import peregrine.util.primitive.IntBytes;
 import peregrine.io.partition.*;
 
-public class TestBroadcastMapReduce extends peregrine.BaseTestWithTwoDaemons {
+public class TestBroadcastMapReduce extends peregrine.BaseTestWithMultipleConfigs {
 
     public static class Map extends Mapper {
 
@@ -73,12 +73,9 @@ public class TestBroadcastMapReduce extends peregrine.BaseTestWithTwoDaemons {
     }
 
     /**
-     *
-     * FIXME: I disabled this test... I don't it was EVER working and it isn't
-     * so important right now during the refactor.
      * 
      */
-     public void test1() throws Exception {
+     public void doTest() throws Exception {
 
          String path = String.format( "/test/%s/test1.in", getClass().getName() );
         
@@ -109,13 +106,9 @@ public class TestBroadcastMapReduce extends peregrine.BaseTestWithTwoDaemons {
                                 new Input( new ShuffleInputReference( "count" ) ),
                                 new Output( count_out ) );
              
-             // FIXME: we have to actually emit values from the reducer and assert
-             // their value across all partitions now.
-             
              // now read all partition values...
              
-             //FIXME: this broke no the local version and we ned to add it back in.
-             //assertValueOnAllPartitions( count_out, 1000 );
+             assertValueOnAllPartitions( config.getMembership() , count_out, 1000 );
              
              System.out.printf( "WIN\n" );
 
@@ -125,28 +118,32 @@ public class TestBroadcastMapReduce extends peregrine.BaseTestWithTwoDaemons {
              
     }
 
-    public static void assertValueOnAllPartitions( Config config, String path, int value ) throws Exception {
+    public void assertValueOnAllPartitions( Membership membership, String path, int value ) throws Exception {
 
-        Membership membership = config.getMembership();
-        
         for( Partition part : membership.getPartitions() ) {
 
             for( Host host : membership.getHosts( part ) ) {
 
-                LocalPartitionReader reader = new LocalPartitionReader( config, part, path );
+                LocalPartitionReader reader = new LocalPartitionReader( configsByHost.get( host ), part, path );
 
+                System.out.printf( "Reading from: %s\n", reader );
+                
                 if ( reader.hasNext() == false )
-                    throw new Exception( "No values" );
+                    throw new Exception( "No values in: " + reader );
 
                 reader.key();
                 byte[] _value = reader.value();
                 
-                int count = new StructReader( _value )
-                    .readVarint();
+                int count = IntBytes.toInt( _value );
 
+                /*
                 if ( count != value )
                     throw new Exception( "Invalid value: " + count );
-                
+                */
+
+                if ( count == 0 )
+                    throw new Exception( "zero" );
+
                 System.out.printf( "count: %,d\n", count );
                 
                 if ( reader.hasNext() )

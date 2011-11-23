@@ -50,7 +50,7 @@ public class TestFullShufflePath extends peregrine.BaseTestWithMultipleDaemons {
 
             for( int i = 0; i < iterations; ++i ) {
 
-                ChunkReference chunkRef = new ChunkReference( new Partition( 0  ) );
+                ChunkReference chunkRef = new ChunkReference( new Partition( 0 ) );
                 chunkRef.local = i;
 
                 // we need to call onChunk to init the shuffle job output.
@@ -77,7 +77,7 @@ public class TestFullShufflePath extends peregrine.BaseTestWithMultipleDaemons {
         count += readShuffle( "/tmp/peregrine-fs/localhost/11112/tmp/shuffle/default/0000000000.tmp", 0 );
         count += readShuffle( "/tmp/peregrine-fs/localhost/11113/tmp/shuffle/default/0000000000.tmp", 1 );
 
-        assertEquals( count, max_emits );
+        assertEquals( max_emits * iterations, count );
 
         ShuffleInputChunkReader reader = new ShuffleInputChunkReader( configs.get( 0 ), new Partition( 0 ), "/tmp/peregrine-fs/localhost/11112/tmp/shuffle/default/0000000000.tmp" );
 
@@ -166,6 +166,8 @@ public class TestFullShufflePath extends peregrine.BaseTestWithMultipleDaemons {
     
     public void test1() throws Exception {
 
+        doTest( 2, 100000 );
+
         // FIXME sort BOTH partitions and make sure the counts are right.
         // 
         
@@ -177,7 +179,6 @@ public class TestFullShufflePath extends peregrine.BaseTestWithMultipleDaemons {
         // doTest( 2, 100 );
         // doTest( 2, 1000 );
         // doTest( 2, 10000 );
-        doTest( 2, 100000 );
         // doTest( 2, 10000000 );
 
         //doTest( 3, 100 );

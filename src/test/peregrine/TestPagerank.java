@@ -8,31 +8,12 @@ public class TestPagerank extends peregrine.BaseTestWithMultipleConfigs {
     @Override
     public void doTest() throws Exception {
 
-        //doRandomTest( 500 , 10 );
-
-        doRandomTest( 50000 , 100 ); 
-
-        //FIXME: this is the main test... 
-        //doRandomTest( 50000000, 10 );
-        
-/*        
-        doRandomTest( 500, 10 );
-        doRandomTest( 600, 10 );
-        doRandomTest( 700, 10 );
-        doRandomTest( 800, 10 );
-        doRandomTest( 900, 10 );
-        doRandomTest( 1000, 100 );
-        doRandomTest( 5000, 100 );
-
-*/
-        // doRandomTest( 2000, 100 );
-        // doRandomTest( 3000, 100 );
-        // doRandomTest( 4000, 100 );
+        doTest( 5000 * getFactor() , 100 ); 
 
     }
 
-    private void doRandomTest( int nr_nodes,
-                               int max_edges_per_node ) throws Exception {
+    private void doTest( int nr_nodes,
+                         int max_edges_per_node ) throws Exception {
 
         // only 0 and 1 should be dangling.
 
@@ -49,6 +30,10 @@ public class TestPagerank extends peregrine.BaseTestWithMultipleConfigs {
     }
 
     public static void main( String[] args ) throws Exception {
+        //System.setProperty( "peregrine.test.config", "04:01:32" ); 
+        //System.setProperty( "peregrine.test.config", "01:01:1" ); 
+        //System.setProperty( "peregrine.test.config", "8:1:32" ); 
+        System.setProperty( "peregrine.test.config", "8:1:16" ); 
         runTests();
     }
 

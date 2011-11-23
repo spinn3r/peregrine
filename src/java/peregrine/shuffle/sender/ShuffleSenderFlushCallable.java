@@ -21,6 +21,8 @@ public class ShuffleSenderFlushCallable implements Callable {
     private ShuffleSenderBuffer output = null;
 
     private Config config = null;
+
+    private long length = 0;
     
     public ShuffleSenderFlushCallable( Config config, ShuffleSenderBuffer output ) {
         this.config = config;
@@ -67,7 +69,8 @@ public class ShuffleSenderFlushCallable implements Callable {
                 try {
                 
                     client.write( slice );
-
+                    length += slice.writerIndex();
+                    
                 } catch ( Exception e ) {
 
                     config.getMembership().sendGossip( client.getHost(), e );
@@ -105,6 +108,10 @@ public class ShuffleSenderFlushCallable implements Callable {
         
     }
 
+    public long length() {
+        return length;
+    }
+    
     private Map<Integer,ShuffleOutputTarget> getPartitionOutput() {
 
         try {

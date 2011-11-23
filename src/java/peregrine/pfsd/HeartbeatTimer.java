@@ -84,7 +84,7 @@ public class HeartbeatTimer extends Timer {
 	        
 	        try {        	
 	        	
-				new Client().invoke( controller, "controller", message );
+				new Client( true ).invoke( controller, "controller", message );
 				
 				return true;
 
