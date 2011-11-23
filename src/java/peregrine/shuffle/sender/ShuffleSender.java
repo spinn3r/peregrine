@@ -45,7 +45,8 @@ public class ShuffleSender {
 
         ShuffleOutputTarget client = partitionOutput.get( to_partition );
 
-        ChannelBuffer buff = ChannelBuffers.directBuffer( IntBytes.LENGTH * 2 + key.length + value.length );
+        //ChannelBuffer buff = ChannelBuffers.directBuffer( IntBytes.LENGTH * 2 + key.length + value.length );
+        ChannelBuffer buff = ChannelBuffers.buffer( IntBytes.LENGTH * 2 + key.length + value.length );
 
         DefaultChunkWriter.write( buff, key, value );
         
