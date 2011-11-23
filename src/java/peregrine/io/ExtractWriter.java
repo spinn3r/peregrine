@@ -90,7 +90,7 @@ public class ExtractWriter {
 
         //TODO: not sure why but this made it slower.
         for( PartitionWriter writer : output ) {
-            //writer.shutdown();
+            writer.shutdown();
         }
         
         for( PartitionWriter writer : output ) {
