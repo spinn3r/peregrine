@@ -10,7 +10,7 @@ import peregrine.util.*;
 import peregrine.io.chunk.*;
 import com.spinn3r.log5j.Logger;
 
-public class ShuffleJobOutputDirect implements ShuffleJobOutputDelegate {
+public class ShuffleJobOutputDirect extends ShuffleJobOutputBase {
 
     private ShuffleJobOutput parent;
 
@@ -61,6 +61,7 @@ public class ShuffleJobOutputDirect implements ShuffleJobOutputDelegate {
 
         if ( sender != null ) {
             sender.close();
+            length += sender.length();
             sender = null;
         }
             

@@ -14,4 +14,6 @@ public interface ShuffleJobOutputDelegate extends JobOutput, LocalPartitionReade
 
     public void emit( int to_partition, byte[] key , byte[] value );
 
+    public long length();
+    
 }

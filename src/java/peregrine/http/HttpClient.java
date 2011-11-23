@@ -291,6 +291,38 @@ public class HttpClient extends BaseOutputStream implements ChannelBufferWritabl
     }
 
     /**
+     * Get the result of this HTTP request (True on success) or throw an
+     * IOException on failure.
+     * @return True on success, null on pending.
+     * @throws IOException on failure
+     */
+    public Boolean getResult() throws IOException {
+
+        Object peek = result.peek();
+
+        return handleResult( peek );
+
+    }
+
+    private Boolean handleResult( Object peek ) throws IOException {
+
+        if ( peek instanceof IOException )
+            throw (IOException) peek;
+
+        if ( peek instanceof Throwable )
+            throw new IOException( (Throwable)peek );
+
+        if ( peek instanceof Boolean )
+            return (Boolean)peek;
+
+        if ( peek != null )
+            throw new IllegalArgumentException( "unknown value: " + peek );
+        
+        return null;
+
+    }
+
+    /**
      * Send a close request to the remote client.  This is non-blocking.
      */
     public void shutdown() throws IOException {
@@ -341,20 +373,11 @@ public class HttpClient extends BaseOutputStream implements ChannelBufferWritabl
             // FIXME: this should have a timeout so that we don't block for
             // infinity.  We need a unit test for this... this would basically
             // emulate infinte write timeouts... same with waitForClose... 
-            
+
             Object took = result.take();
 
-            if ( took instanceof IOException )
-                throw (IOException) took;
-
-            if ( took instanceof Throwable )
-                throw new IOException( (Throwable)took );
-
-            if ( took.equals( Boolean.TRUE ) )
-                return;
-
-            throw new IOException( "unknown result: " + took );
-
+            handleResult( took );
+            
         } catch ( InterruptedException e ) {
             throw new IOException( e );
         }

@@ -28,6 +28,8 @@ public class ShuffleSender {
     private String name;
 
     private ChunkReference chunkRef;
+
+    private long length = 0;
     
     public ShuffleSender( Config config, String name, ChunkReference chunkRef ) {
 
@@ -51,6 +53,7 @@ public class ShuffleSender {
         
             client.write( buff );
             ++count;
+            length += buff.writerIndex();
 
         } catch ( Exception e ) {
 
@@ -65,6 +68,10 @@ public class ShuffleSender {
 
     }
 
+    public long length() {
+        return length;
+    }
+    
     public void close() throws IOException {
 
         // now close all clients and we are done.

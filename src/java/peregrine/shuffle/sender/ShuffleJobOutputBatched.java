@@ -10,7 +10,7 @@ import peregrine.util.*;
 import peregrine.io.chunk.*;
 import com.spinn3r.log5j.Logger;
 
-public class ShuffleJobOutputBatched implements ShuffleJobOutputDelegate {
+public class ShuffleJobOutputBatched extends ShuffleJobOutputBase {
 
     private static final Logger log = Logger.getLogger();
 

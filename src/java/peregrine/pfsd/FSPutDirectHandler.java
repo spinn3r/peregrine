@@ -16,6 +16,8 @@ public class FSPutDirectHandler extends FSPutBaseHandler {
 
     public static byte[] EOF = new byte[0];
 
+    public static boolean FORCE = false;
+    
     private FileChannel output = null;
 
     public FSPutDirectHandler( FSDaemon daemon, FSHandler handler ) throws IOException {
@@ -51,8 +53,15 @@ public class FSPutDirectHandler extends FSPutBaseHandler {
 
             } else {
 
-                output.force( true );
+                long before = System.currentTimeMillis();
 
+                if ( FORCE ) 
+                    output.force( true );
+
+                long after = System.currentTimeMillis();
+
+                log.info( "Took %,d ms to force output to disk." , (after-before) );
+                
                 // FIXME: I don't like how the status sending is decoupled from
                 // pipeline requests AND non-pipeline requests.  I need to unify
                 // these.

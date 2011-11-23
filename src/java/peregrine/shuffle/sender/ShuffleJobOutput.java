@@ -66,5 +66,9 @@ public class ShuffleJobOutput implements JobOutput, LocalPartitionReaderListener
         return jobOutputDelegate.toString();
     }
 
+    public long length() {
+        return jobOutputDelegate.length();
+    }
+    
 }
 
