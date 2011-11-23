@@ -4,7 +4,11 @@ import peregrine.*;
 import peregrine.config.Config;
 import peregrine.io.*;
 
+import com.spinn3r.log5j.Logger;
+
 public class Pagerank {
+
+    private static final Logger log = Logger.getLogger();
 
     private Config config;
     
@@ -80,7 +84,8 @@ public class Pagerank {
                                           new BroadcastInputReference( "/pr/out/nr_nodes" ) ),
                                new Output( "/pr/out/teleportation_grant" ) );
 
-
+            log.info( "Pagerank complete" );
+            
         } finally {
             controller.shutdown();
         }

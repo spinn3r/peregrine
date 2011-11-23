@@ -194,16 +194,16 @@
                                08:02:24
                                08:02:32
 
-      -->
-      <property name="configs">01:01:01
-                               01:01:02
-                               01:01:04
                                01:01:08
                                01:01:16
                                01:01:24
                                01:01:32
-                               02:01:01
-                               02:01:04
+
+                               02:01:08
+                               02:01:16
+                               02:01:24
+                               02:01:32
+
                                02:01:08
                                02:01:16
                                02:01:24
@@ -213,10 +213,14 @@
                                04:01:16
                                04:01:24
                                04:01:32
-                               08:01:01
-                               08:01:16
-                               08:01:24
                                08:01:32
+
+      -->
+      <property name="configs">01:01:01
+                               01:01:02
+                               01:01:04
+                               02:01:01
+                               02:01:04
       </property>
 
       <foreach list="${configs}" 
@@ -258,7 +262,6 @@
 
                   <include name="peregrine/TestPagerank.java"/>
                   
-                  <!--
                   <include name="peregrine/TestMapReduce.java"/>
                   <include name="peregrine/io/partition/TestDefaultPartitionWriter.java"/>
                   <include name="peregrine/pfs/TestRemoteChunkWriterClient.java"/>
@@ -266,7 +269,6 @@
                   <include name="peregrine/pfsd/TestFanoutWritePerformance.java"/>
                   <include name="peregrine/shuffle/TestShufflePerformance.java"/>
                   <include name="peregrine/TestBroadcastMapReduce.java"/>
-                  -->
 
                 </fileset>
 

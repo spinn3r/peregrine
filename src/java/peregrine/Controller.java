@@ -198,6 +198,8 @@ public class Controller {
                                      job.getName(), job.getInput(), job.getOutput() );
 
         log.info( "STARTING %s", desc );
+
+        long before = System.currentTimeMillis();
         
         daemon.setScheduler( scheduler );
 
@@ -211,7 +213,11 @@ public class Controller {
         if ( "map".equals( operation ) || "merge".equals( operation ) )
             flushAllShufflers();
 
-        log.info( "COMPLETED %s", desc );
+        long after = System.currentTimeMillis();
+
+        long duration = after - before;
+        
+        log.info( "COMPLETED %s (duration %,d ms)", desc, duration );
 
     }
     
@@ -221,8 +227,12 @@ public class Controller {
         Message message = new Message();
         message.put( "action", "flush" );
 
-        log.info( "Flushing all %,d shufflers with message: %s" , config.getHosts().size(), message );
+        String desc = String.format( "Flushing all %,d shufflers with message: %s" , config.getHosts().size(), message );
+        
+        log.info( "STARTING %s", desc );
 
+        long before = System.currentTimeMillis();
+        
         List<HttpClient> clients = new ArrayList();
         
         for ( Host host : config.getHosts() ) {
@@ -236,6 +246,12 @@ public class Controller {
         for( HttpClient client : clients ) {
             client.close();
         }
+
+        long after = System.currentTimeMillis();
+
+        long duration = after - before;
+
+        log.info( "COMPLETED %s (duration %,d ms)", desc, duration );
 
     }
 

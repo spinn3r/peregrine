@@ -30,8 +30,6 @@ public class ShuffleSender {
     private ChunkReference chunkRef;
 
     private long length = 0;
-
-    private long started = System.currentTimeMillis();
     
     public ShuffleSender( Config config, String name, ChunkReference chunkRef ) {
 
@@ -90,19 +88,6 @@ public class ShuffleSender {
         for( ShuffleOutputTarget client : partitionOutput.values() ) {
             client.close();
         }
-
-        long now = System.currentTimeMillis();
-
-        long duration = (now-started);
-
-        long throughput = -1;
-
-        try {
-            throughput = (long)((length() / (double)duration) * 1000);
-        } catch ( Throwable t ) { }
-
-        log.info( "Shuffled %,d entries (%,d bytes) in %s %,d ms with throughput %,d b/s", count, length(), this, duration, throughput );
-
 
     }
     

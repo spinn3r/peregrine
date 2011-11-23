@@ -1,4 +1,15 @@
 
+- Refactor DefaultChunkWriter to use BufferedChannelBuffer ... 
+
+- ExtractWriter needs buffered IO ... the throughput was nearly 2x ... I think
+  the ShuffleSender needs the same change.
+
+- The ExtractWriter should probably write to a buffer BEFORE writing to the
+  queue that is used in the HttpClient so that all writes are about 16k ... This
+  is what DefaultChunkWriter does and this was done for performance reasons.
+
+- Init of ExtractWriter / DefaultPartitionWriter needs to be fork/join HTTP ... 
+
 - I THINK the sender is writing LOT of small HTTP requests.
 
 - ExtractWriter should be able to close multiple streams in parallel... the
