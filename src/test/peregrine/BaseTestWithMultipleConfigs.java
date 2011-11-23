@@ -135,6 +135,9 @@ public abstract class BaseTestWithMultipleConfigs extends peregrine.BaseTest {
     
     public void test() throws Exception {
 
+        if ( config == null )
+            return;
+        
         try {
 
             log.info( "Running with config: %s" , config );
