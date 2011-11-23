@@ -25,6 +25,8 @@ public class LocalPartitionReader {
     private ChunkReference chunkRef = null;
 
     private boolean hasNext = false;
+
+    private Partition partition;
     
     public LocalPartitionReader( Config config,
                                  Partition partition,
@@ -50,10 +52,12 @@ public class LocalPartitionReader {
                                  String path,
                                  List<LocalPartitionReaderListener> listeners ) throws IOException {
 
+        this.partition = partition;
         this.chunkReaders = LocalPartition.getChunkReaders( config, partition, path );
         this.iterator = chunkReaders.iterator();
         this.listeners = listeners;
         this.path = path;
+        
         
         this.chunkRef = new ChunkReference( partition );
          
@@ -129,7 +133,7 @@ public class LocalPartitionReader {
     }
 
     public String toString() {
-        return String.format( "%s:%s", this.path, this.chunkReaders );
+        return String.format( "%s (%s):%s", path, partition, chunkReaders );
     }
     
 }

@@ -4,6 +4,7 @@ import java.io.*;
 import java.util.*;
 
 import peregrine.config.*;
+import peregrine.http.*;
 
 import com.spinn3r.log5j.*;
 
@@ -56,6 +57,25 @@ public class MultiOutputStream extends BaseOutputStream {
 
                 public void handle( OutputStream writer ) throws IOException {
                     writer.close();
+                }
+
+            };
+
+        it.iterate();
+
+    }
+
+    public void shutdown() throws IOException {
+
+        MultiOutputStreamIterator it = new MultiOutputStreamIterator( this ) {
+
+                public void handle( OutputStream writer ) throws IOException {
+
+                    if ( writer instanceof HttpClient ) {
+                        HttpClient client = (HttpClient)writer;
+                        client.shutdown();
+                    }
+
                 }
 
             };

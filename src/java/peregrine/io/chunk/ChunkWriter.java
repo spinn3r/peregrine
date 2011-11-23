@@ -17,7 +17,9 @@ public interface ChunkWriter {
     public int count() throws IOException;
 
     public long length() throws IOException;
-    
+
+    public void shutdown() throws IOException;
+
     public void close() throws IOException;
 
 }

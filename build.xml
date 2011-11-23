@@ -24,6 +24,17 @@
 
     <taskdef resource="cloverlib.xml" classpath="${clover.jar}"/>
 
+    <taskdef resource="net/sf/antcontrib/antcontrib.properties">
+        <classpath>
+            <pathelement location="lib/build/ant-contrib-1.0b3.jar"/>
+        </classpath>
+    </taskdef>
+
+    <taskdef name="junit"
+             classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask">
+        <classpath refid="project.classpath"/>
+    </taskdef>	
+
     <target name="with.clover">
         <clover-setup/>
     </target>
@@ -100,11 +111,6 @@
             depends="jar,compile.test" 
             description="Run junit tests.">
 
-        <taskdef name="junit"
-                 classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask">
-            <classpath refid="project.classpath"/>
-        </taskdef>	
-
         <junit printsummary="withOutAndErr"
                fork="true"
                forkmode="perTest"
@@ -131,6 +137,145 @@
             </batchtest>
             
         </junit>
+
+        <antcall target="test-multi" />
+
+    </target> 
+
+    <target name="test-multi"
+            depends="jar,compile.test">
+
+      <foreach list="1" 
+               param="peregrine.test.factor" 
+               target="test-multi-with-configs">
+
+      </foreach>
+
+    </target>
+
+    <target name="test-multi-with-configs">
+      
+      <!-- 
+        Define muliple config test in the form of:
+
+        concurrency:replicas:hosts 
+
+        one per line.
+
+        TODO we are not testing three replica configs right now as we
+        have some known bugs here and it isn't important at the moment.
+
+                               01:03:04
+                               01:03:08
+                               01:03:16
+                               01:03:24
+                               01:03:32
+                               02:03:08
+                               02:03:16
+                               02:03:24
+                               02:03:32
+                               04:03:16
+                               04:03:24
+                               04:03:32
+                               08:03:32
+
+                               01:02:04
+                               01:02:08
+                               01:02:16
+                               01:02:24
+                               01:02:32
+                               02:02:08
+                               02:02:16
+                               02:02:24
+                               02:02:32
+                               04:02:16
+                               04:02:24
+                               04:02:32
+                               08:02:24
+                               08:02:32
+
+                               01:01:08
+                               01:01:16
+                               01:01:24
+                               01:01:32
+
+                               02:01:08
+                               02:01:16
+                               02:01:24
+                               02:01:32
+
+                               02:01:08
+                               02:01:16
+                               02:01:24
+                               02:01:32
+                               04:01:01
+                               04:01:08
+                               04:01:16
+                               04:01:24
+                               04:01:32
+                               08:01:32
+
+      -->
+      <property name="configs">01:01:01
+                               01:01:02
+                               01:01:04
+                               02:01:01
+                               02:01:04
+      </property>
+
+      <foreach list="${configs}" 
+               param="peregrine.test.config" 
+               delimiter=" "
+               target="test-multi-exec">
+
+      </foreach>
+
+    </target>
+
+    <target name="test-multi-exec">
+
+      <echo message="peregrine.test.config: ${peregrine.test.config}"/>
+
+        <junit printsummary="withOutAndErr"
+               fork="true"
+               forkmode="perTest"
+               timeout="1000000"
+               maxmemory="512m"
+               filtertrace="false"
+               haltonfailure="true"
+               haltonerror="true"
+               showoutput="true" 
+               logfailedtests="true">
+
+            <jvmarg value="-Dperegrine.test.config=${peregrine.test.config}"/>
+            <jvmarg value="-Dperegrine.test.factor=${peregrine.test.factor}"/>
+
+            <formatter type="plain" usefile="false" />
+
+            <classpath>
+                <path refid="project.classpath"/>
+            </classpath>
+
+            <batchtest todir="target/test-reports"> 
+
+                <fileset dir="src/test">
+
+                  <include name="peregrine/TestPagerank.java"/>
+                  
+                  <include name="peregrine/TestMapReduce.java"/>
+                  <include name="peregrine/io/partition/TestDefaultPartitionWriter.java"/>
+                  <include name="peregrine/pfs/TestRemoteChunkWriterClient.java"/>
+                  <include name="peregrine/pfsd/TestExtractWriterPerformance.java"/>
+                  <include name="peregrine/pfsd/TestFanoutWritePerformance.java"/>
+                  <include name="peregrine/shuffle/TestShufflePerformance.java"/>
+                  <include name="peregrine/TestBroadcastMapReduce.java"/>
+
+                </fileset>
+
+            </batchtest>
+            
+        </junit>
+
     </target> 
 
     <target name="test-all" 
@@ -168,51 +313,6 @@
         </junit>
     </target> 
 
-    <target name="test-basic" 
-            depends="jar,compile.test" 
-            description="Run junit tests.">
-
-        <taskdef name="junit"
-                 classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask">
-            <classpath refid="project.classpath"/>
-        </taskdef>	
-
-        <junit printsummary="on"
-               fork="true"
-               forkmode="perTest"
-               timeout="1000000"
-               maxmemory="512m"
-               filtertrace="false"
-               haltonfailure="false"
-               haltonerror="false"
-               showoutput="true" 
-               logfailedtests="true">
-
-            <classpath>
-                <path refid="project.classpath"/>
-            </classpath>
-
-            <batchtest todir="target/test-reports"> 
-
-                <fileset dir="src/test">
-                    <include name="**/peregrine/io/TestPartitionWriter.java"/>
-
-                    <include name="**/peregrine/TestMapOnlyJobs"/>
-                    <include name="**/peregrine/TestMapReduce"/>
-                    <include name="**/peregrine/io/TestChunkMerger"/>
-                    <include name="**/peregrine/io/TestChunkSorter"/>
-                    <include name="**/peregrine/io/TestFullOuterJoin"/>
-                    <include name="**/peregrine/io/TestPartitionWriter"/>
-                    <include name="**/peregrine/io/TestReduceSort"/>
-                    <include name="**/peregrine/values/TestIntValue"/>
-
-                </fileset>
-
-            </batchtest>
-            
-        </junit>
-    </target> 
-
   <target name="javadoc" description="Generate javadoc" depends="compile">
 
     <mkdir dir="${javadocdir}">
@@ -221,12 +321,12 @@
       <format pattern="2000-yyyy" property="year">
       </format>
     </tstamp>
-    <property name="copyright" value="Copyright &amp;copy; Tailrank Inc. All Rights Reserved.">
+    <property name="copyright" value="Copyright &amp;copy; 2011 Kevin Burton. All Rights Reserved.">
     </property>
-    <property name="title" value="Peregrine Client Reference API">
+    <property name="title" value="Peregrine API">
     </property>
 
-    <javadoc bottom="Copyright &amp;copy; Tailrank Inc. All Rights Reserved." 
+    <javadoc bottom="Copyright &amp;copy; 2011 Kevin Burton. All Rights Reserved." 
              windowtitle="Peregrine API" 
              use="true" 
              private="false" 

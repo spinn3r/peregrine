@@ -2,15 +2,15 @@
 package peregrine;
 
 import java.io.*;
+import java.util.*;
 import java.util.concurrent.*;
 
-import peregrine.config.Config;
-import peregrine.config.Host;
-import peregrine.config.Partition;
+import peregrine.config.*;
 import peregrine.io.*;
 import peregrine.rpc.*;
 import peregrine.pfsd.*;
 import peregrine.task.*;
+import peregrine.http.*;
 
 import com.spinn3r.log5j.*;
 
@@ -198,6 +198,8 @@ public class Controller {
                                      job.getName(), job.getInput(), job.getOutput() );
 
         log.info( "STARTING %s", desc );
+
+        long before = System.currentTimeMillis();
         
         daemon.setScheduler( scheduler );
 
@@ -207,9 +209,15 @@ public class Controller {
 
         // shufflers can be flushed after any stage even reduce as nothing will
         // happen
-        flushAllShufflers();
 
-        log.info( "COMPLETED %s", desc );
+        if ( "map".equals( operation ) || "merge".equals( operation ) )
+            flushAllShufflers();
+
+        long after = System.currentTimeMillis();
+
+        long duration = after - before;
+        
+        log.info( "COMPLETED %s (duration %,d ms)", desc, duration );
 
     }
     
@@ -219,12 +227,32 @@ public class Controller {
         Message message = new Message();
         message.put( "action", "flush" );
 
-        log.info( "Flushing all %,d shufflers with message: %s" , config.getHosts().size(), message );
+        String desc = String.format( "Flushing all %,d shufflers with message: %s" , config.getHosts().size(), message );
+        
+        log.info( "STARTING %s", desc );
+
+        long before = System.currentTimeMillis();
+        
+        List<HttpClient> clients = new ArrayList();
         
         for ( Host host : config.getHosts() ) {
-            new Client().invoke( host, "shuffler", message );
+            clients.add( new Client().invokeAsync( host, "shuffler", message ) );
         }
-        
+
+        for( HttpClient client : clients ) {
+            client.shutdown();
+        }
+
+        for( HttpClient client : clients ) {
+            client.close();
+        }
+
+        long after = System.currentTimeMillis();
+
+        long duration = after - before;
+
+        log.info( "COMPLETED %s (duration %,d ms)", desc, duration );
+
     }
 
     private Message createSchedulerMessage( String action,

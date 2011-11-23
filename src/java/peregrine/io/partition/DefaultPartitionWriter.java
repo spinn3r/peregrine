@@ -37,9 +37,9 @@ public class DefaultPartitionWriter implements PartitionWriter {
     private int chunk_id = 0;
 
     /**
-     * Bytes written.
+     * Total lengh of this file (bytes written) to this partition writer..
      */
-    private long written = 0;
+    private long length = 0;
 
     private Config config;
     
@@ -109,15 +109,28 @@ public class DefaultPartitionWriter implements PartitionWriter {
 
         closeChunkWriter();
 
-        log.info( "Wrote %,d bytes to %s" , written, path );
+        log.info( "Wrote %,d bytes to %s on %s" , length, path , partition );
         
     }
 
+    @Override
+    public void shutdown() throws IOException {
+
+        if ( chunkWriter != null )
+            chunkWriter.shutdown();
+        
+    }
+    
     @Override
     public String toString() {
         return path;
     }
 
+    @Override
+    public long length() {
+        return length;
+    }
+    
     private void rolloverWhenNecessary() throws IOException {
 
         if ( chunkWriter.length() > CHUNK_SIZE )
@@ -129,7 +142,7 @@ public class DefaultPartitionWriter implements PartitionWriter {
 
         if ( chunkWriter != null ) {
             chunkWriter.close();
-            written += chunkWriter.length();
+            length += chunkWriter.length();
         }
 
     }

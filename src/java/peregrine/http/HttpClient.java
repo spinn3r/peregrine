@@ -27,6 +27,7 @@ public class HttpClient extends BaseOutputStream implements ChannelBufferWritabl
 
     private static final Logger log = Logger.getLogger();
 
+    // FIXME: change to a fixed size thread pool based on concurrency... 
     protected static NioClientSocketChannelFactory socketChannelFactory =
         new NioClientSocketChannelFactory( Executors.newCachedThreadPool( new DefaultThreadFactory( HttpClient.class ) ), 
                                            Executors.newCachedThreadPool( new DefaultThreadFactory( HttpClient.class ) ) );
@@ -52,12 +53,17 @@ public class HttpClient extends BaseOutputStream implements ChannelBufferWritabl
     
     public static int LIMIT = 10;
 
+    /**
+     * The write timeout for requests.
+     */
+    public static final int WRITE_TIMEOUT = 10000;
+    
     protected int channelState = PENDING;
 
     /**
      * Stores writes waiting to be sent over the wire.
      */
-    protected BlockingQueue<ChannelBuffer> queue = new LinkedBlockingDeque( LIMIT );
+    protected SimpleBlockingQueue<ChannelBuffer> queue = new SimpleBlockingQueue( LIMIT );
 
     /**
      * Stores the result of this IO operation.  Boolean.TRUE if it was success
@@ -98,13 +104,13 @@ public class HttpClient extends BaseOutputStream implements ChannelBufferWritabl
     /**
      * Clear to directly send a packet. 
      */
-    protected boolean clear = false;
+    protected boolean clearToSend = false;
 
     /**
      * True when we have initialized the client.
      */
     protected boolean initialized = false;
-
+    
     /**
      * The channel we are using (when connected).
      */
@@ -232,11 +238,16 @@ public class HttpClient extends BaseOutputStream implements ChannelBufferWritabl
 
         this.channelState = CLOSED;
 
+        onClose( false, throwable );
+        
     }
 
     public void success() throws Exception {
 
         updateResult( Boolean.TRUE );
+
+        onClose( true, null );
+
     }
 
     private void updateResult( Object value ) throws Exception {
@@ -279,9 +290,64 @@ public class HttpClient extends BaseOutputStream implements ChannelBufferWritabl
         return String.format( "%s: %s %s", getClass().getSimpleName(), method, uri.toString() );
     }
 
-    public void close() throws IOException {
+    /**
+     * Get the result of this HTTP request (True on success) or throw an
+     * IOException on failure.
+     * @return True on success, null on pending.
+     * @throws IOException on failure
+     */
+    public Boolean getResult() throws IOException {
+
+        Object peek = result.peek();
+
+        return handleResult( peek );
+
+    }
+
+    private Boolean handleResult( Object peek ) throws IOException {
+
+        if ( peek instanceof IOException )
+            throw (IOException) peek;
+
+        if ( peek instanceof Throwable )
+            throw new IOException( (Throwable)peek );
+
+        if ( peek instanceof Boolean )
+            return (Boolean)peek;
+
+        if ( peek != null )
+            throw new IllegalArgumentException( "unknown value: " + peek );
+        
+        return null;
+
+    }
+
+    /**
+     * Send a close request to the remote client.  This is non-blocking.
+     */
+    public void shutdown() throws IOException {
+
+        // if we aren't opened there is no reason to do any work.  This could
+        // happen if we opened this code and never did a write() to it which
+        // would mean we don't have an HTTP connection to the server
+        if ( ! opened ) return;
+
+        // don't allow a double close.  This would never return.
+        if ( closed || closing ) return;
 
         closing = true;
+
+        //required for chunked encoding.  We must write an EOF at the end of the
+        //stream ot note that there is no more data.
+        write( EOF );
+
+    }
+    
+    public void close() throws IOException {
+        close(true);
+    }
+    
+    public void close( boolean block ) throws IOException {
         
         // if we aren't opened there is no reason to do any work.  This could
         // happen if we opened this code and never did a write() to it which
@@ -290,42 +356,35 @@ public class HttpClient extends BaseOutputStream implements ChannelBufferWritabl
 
         // don't allow a double close.  This would never return.
         if ( closed ) return;
-        
-        //required for chunked encoding.  We must write an EOF at the end of the
-        //stream ot note that there is no more data.
-        write( EOF );
 
-        waitForClose();
-        
-        // prevent any more write requests
-        closed = true;
+        if ( closing == false )
+            shutdown();
 
+        // even in block mode we must enter this once to send the last packet
+        // directly if necessary.
+        waitForClose( block );
+
+        // we need to return here becuase we would then block for the result.
+        if ( block == false )
+            return;
+        
         try {
 
             // FIXME: this should have a timeout so that we don't block for
             // infinity.  We need a unit test for this... this would basically
             // emulate infinte write timeouts... same with waitForClose... 
-            
+
             Object took = result.take();
 
-            if ( took instanceof IOException )
-                throw (IOException) took;
-
-            if ( took instanceof Throwable )
-                throw new IOException( (Throwable)took );
-
-            if ( took.equals( Boolean.TRUE ) )
-                return;
-
-            throw new IOException( "unknown result: " + took );
-
+            handleResult( took );
+            
         } catch ( InterruptedException e ) {
             throw new IOException( e );
         }
             
     }
 
-    private void waitForClose() throws IOException {
+    private void waitForClose( boolean block ) throws IOException {
 
         // FIXME: I don't like this code and it probably means that this entire
         // class should be refactored to avoid having to do this.  The problem
@@ -336,36 +395,54 @@ public class HttpClient extends BaseOutputStream implements ChannelBufferWritabl
         // it is never sent and we sit here blocking forever.  This is a
         // workaround but it would be nice to have a more elegant way to handle
         // this.
+        //
+        // A BETTER way to handle this would be to have explicit shutdown
+        // required by my code so that OUR code must shutdown FIRST instead of
+        // allowing daemon threads to just exit without a defined order.  This
+        // way all the event handlers will execute and then complete IO and
+        // our main threads will terminate and then I can shutdown netty.
+
+        long started = System.currentTimeMillis();
+
         while( true ) { 
         
-            try {
-
-                if ( clear && queue.peek() != null ) {
-
-                    try {
-                    
-                        ChannelBuffer data = queue.take();
-                        
-                        channel.write( data ).addListener( new WriteFutureListener( this ) );
-                        
-                    } catch ( InterruptedException e ) {
-                        throw new IOException( e );
-                    }
-
-                }
-
-                if ( isChannelStateClosed() )
-                    break;
+            if ( clearToSend && queue.peek() != null ) {
                 
-                // TODO: this should be a constant ...
-                Thread.sleep( 10L );
+                ChannelBuffer data = queue.take();
+                
+                channel.write( data ).addListener( new WriteFutureListener( this ) );
 
-            } catch ( Exception e ) {
+            }
+
+            if ( isChannelStateClosed() || block == false )
+                break;
+            
+            // TODO: this should be a constant ...
+            try {
+                Thread.sleep( 10L );
+            } catch ( InterruptedException e ) {
                 throw new IOException( e );
+            }
+
+            if ( System.currentTimeMillis() - started >= WRITE_TIMEOUT ) {
+                throw new IOException( String.format( "write timeout: %s (%s)", WRITE_TIMEOUT, result ) );
             }
 
         }
 
+        // prevent any more write requests
+        closed = true;
+
+    }
+
+    private ChannelBuffer takeFromQueue() throws InterruptedException {
+
+        ChannelBuffer result = queue.take();
+        
+        onCapacityChange( queue.remainingCapacity() != 0 );
+
+        return result;
+        
     }
     
     public void write( ChannelBuffer data ) throws IOException {
@@ -389,9 +466,9 @@ public class HttpClient extends BaseOutputStream implements ChannelBufferWritabl
         
         try {
             
-            if ( clear ) {
+            if ( clearToSend ) {
                 
-                clear = false;
+                clearToSend = false;
 
                 // NOTE it is required to put a packet on to the queue and pull
                 // one back off because technically there could be a race in the
@@ -403,7 +480,7 @@ public class HttpClient extends BaseOutputStream implements ChannelBufferWritabl
 
                 if ( queue.peek() != null ) {
 
-                    ChannelBuffer tmp = queue.take();
+                    ChannelBuffer tmp = takeFromQueue();
                     queue.put( data );
                     data = tmp;
 
@@ -415,6 +492,8 @@ public class HttpClient extends BaseOutputStream implements ChannelBufferWritabl
                 queue.put( data );
             }
 
+            onCapacityChange( queue.remainingCapacity() != 0 );
+            
         } catch ( Exception e ) {
 
             throw new IOException( e );
@@ -423,6 +502,23 @@ public class HttpClient extends BaseOutputStream implements ChannelBufferWritabl
 
     }
 
+    // FIXME: move these into an event listener... 
+
+    /**
+     * Called when the capacity for the underlying queue changes so that we can
+     * change the readable status of channels, etc.
+     */
+    public void onCapacityChange( boolean hasCapacity ) {
+
+    }
+
+    /**
+     * Called when the client is closed.  
+     */
+    public void onClose( boolean success, Throwable cause ) {
+
+    }
+    
     class WriteFutureListener implements ChannelFutureListener {
 
         private HttpClient client;
@@ -444,7 +540,7 @@ public class HttpClient extends BaseOutputStream implements ChannelBufferWritabl
                 
             if ( client.queue.peek() != null ) {
 
-                 ChannelBuffer data = client.queue.take();
+                 ChannelBuffer data = client.takeFromQueue();
 
                 // NOTE that even if the last response was written here we MUST wait
                 // until we get the HTTP response.
@@ -457,7 +553,7 @@ public class HttpClient extends BaseOutputStream implements ChannelBufferWritabl
 
             // the queue was drained so the next packet should be sent direc
 
-            client.clear = true;
+            client.clearToSend = true;
 
         }
 

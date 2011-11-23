@@ -40,6 +40,11 @@ public class LocalChunkWriter implements ChunkWriter {
     }
 
     @Override
+    public void shutdown() throws IOException {
+        // noop on local 
+    }
+
+    @Override
     public long length() throws IOException {
         return delegate.length();
     }
