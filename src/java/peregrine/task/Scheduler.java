@@ -5,6 +5,7 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.*;
 
+import peregrine.*;
 import peregrine.util.*;
 import peregrine.config.*;
 import com.spinn3r.log5j.*;
@@ -50,8 +51,12 @@ public abstract class Scheduler {
 
     protected ChangedMessage changedMessage = new ChangedMessage();
 
-    public Scheduler( final Config config ) {
+    protected Controller controller;
+    
+    public Scheduler( final Controller controller,
+                      final Config config ) {
 
+        this.controller = controller;
         this.config = config;
         this.membership = config.getMembership();
 

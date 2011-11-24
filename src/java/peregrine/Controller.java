@@ -84,7 +84,7 @@ public class Controller {
      */
     public void map( final Job job ) throws Exception {
     	
-    	withScheduler( "map", job, new Scheduler( config ) {
+    	withScheduler( "map", job, new Scheduler( this, config ) {
 
                 public void invoke( Host host, Partition part ) throws Exception {
 
@@ -135,7 +135,7 @@ public class Controller {
      */
     public void merge( final Job job ) throws Exception {
     	
-        withScheduler( "merge", job, new Scheduler( config ) {
+        withScheduler( "merge", job, new Scheduler( this, config ) {
 
                 public void invoke( Host host, Partition part ) throws Exception {
 
@@ -177,7 +177,7 @@ public class Controller {
             throw new IOException( "Reducer requires at least one shuffle input." );
         }
       
-        withScheduler( "reduce", job, new Scheduler( config ) {
+        withScheduler( "reduce", job, new Scheduler( this, config ) {
 
                 public void invoke( Host host, Partition part ) throws Exception {
 
@@ -295,6 +295,10 @@ public class Controller {
 
     public void shutdown() {
         daemon.shutdown();
+    }
+
+    public Config getConfig() {
+        return config;
     }
     
 }

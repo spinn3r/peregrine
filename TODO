@@ -1,4 +1,6 @@
 
+- the controller and config needs a better seperation of concerns.
+
 - before a job is executed we need to make sure we aren't running something
   already on the cluster... this is a GOOD reason why we should use a secondary
   JVM for jobs so we can just kill it 
