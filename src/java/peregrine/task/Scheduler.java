@@ -260,14 +260,33 @@ public abstract class Scheduler {
                                     "  available:  %s\n" +
                                     "  spare:      %s\n" +
                                     "  online:     %s\n",
-                                    pending, completed, available, spare, membership.getOnline() ) );
+                                    format( pending ), format( completed ), available, spare, membership.getOnline() ) );
 
-        long perc = 100 * (long)(completed.size() / (double)membership.getPartitions().size());
+        long perc = (long)(100 * (completed.size() / (double)membership.getPartitions().size()));
         
         buff.append( String.format( "  Perc complete: %,d %% \n", perc ) );
 
+        buff.setLength( buff.length() - 1 ); // trim the trailing \n
+        
         return buff.toString();
 
+    }
+
+    private String format( MarkSet<Partition> set ) {
+
+        StringBuilder buff = new StringBuilder();
+
+        for( Partition part : set.values() ) {
+
+            if ( buff.length() > 0 )
+                buff.append( ", " );
+
+            buff.append( part.getId() );
+            
+        }
+
+        return buff.toString();
+        
     }
     
 }
