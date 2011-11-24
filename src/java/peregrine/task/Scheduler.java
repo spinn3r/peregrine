@@ -262,7 +262,7 @@ public abstract class Scheduler {
                                     "  online:     %s\n",
                                     pending, completed, available, spare, membership.getOnline() ) );
 
-        double perc = 100 * (completed.size() / (double)membership.getPartitions().size());
+        long perc = 100 * (long)(completed.size() / (double)membership.getPartitions().size());
         
         buff.append( String.format( "  Perc complete: %,d %% \n", perc ) );
 
