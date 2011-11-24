@@ -4,7 +4,7 @@ export BRANCH=burton-bench
 export DIR=/root/peregrine
 export LOGDIR=/var/log
 export MAX_MEMORY=488M
-export MAX_DIRECT_MEMORY=800M
+export MAX_DIRECT_MEMORY=700M
 export HOSTNAME=$(hostname)
 
 start() {
