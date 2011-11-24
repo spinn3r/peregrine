@@ -20,7 +20,7 @@ public class DefaultChunkWriter implements ChunkWriter {
     
     public static boolean USE_ASYNC = true;
 
-    public static int BUFFER_SIZE = 16384;
+    public static int BUFFER_SIZE = 65536;
     
     protected OutputStream out = null;
 
@@ -31,7 +31,10 @@ public class DefaultChunkWriter implements ChunkWriter {
     private boolean closed = false;
 
     private boolean shutdown = false;
-    
+
+    // FIXME: this MUST become a DynamicBuffer which does the deterministic
+    // expansion by slabs ... 
+
     private ChannelBuffer buff = ChannelBuffers.buffer( BUFFER_SIZE );
 
     public DefaultChunkWriter( OutputStream out ) throws IOException {
