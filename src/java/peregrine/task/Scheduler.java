@@ -236,24 +236,40 @@ public abstract class Scheduler {
 
             }
 
-            String message = String.format( "\n" +
-                                            "pending:    %s\n" + 
-                                            "completed:  %s\n" +
-                                            "available:  %s\n" +
-                                            "spare:      %s\n" +
-                                            "online:     %s",
-                                            pending, completed, available, spare, membership.getOnline() );
-
-            if ( changedMessage.hasChanged( message ) ) {
-                log.info( message );
+            String status = status();
+            
+            if ( changedMessage.hasChanged( status ) ) {
+                log.info( "%s", status );
             }
 
-            changedMessage.update( message );
+            changedMessage.update( status );
 
         }
             
     }
 
+    private String status() {
+
+        StringBuilder buff = new StringBuilder();
+
+        buff.append( "-- progress: --\n" );
+        
+        buff.append( String.format( "\n" +
+                                    "  pending:    %s\n" + 
+                                    "  completed:  %s\n" +
+                                    "  available:  %s\n" +
+                                    "  spare:      %s\n" +
+                                    "  online:     %s\n",
+                                    pending, completed, available, spare, membership.getOnline() ) );
+
+        double perc = 100 * (completed.size() / (double)membership.getPartitions().size());
+        
+        buff.append( String.format( "  Perc complete: %,d %% \n", perc ) );
+
+        return buff.toString();
+
+    }
+    
 }
 
 class Fail {
