@@ -98,7 +98,13 @@ public class ChunkSorter extends BaseChunkSorter {
             return result;
 
         } catch ( Throwable t ) {
-            throw new IOException( String.format( "Unable to sort %s for %s" , input, partition ) , t );                
+
+            String error = String.format( "Unable to sort %s for %s" , input, partition );
+
+            log.error( "%s", error, t );
+            
+            throw new IOException( error , t );
+            
         } finally {
             inputChannel.close();
             outputChannel.close();
