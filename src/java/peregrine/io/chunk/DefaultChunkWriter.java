@@ -102,7 +102,12 @@ public class DefaultChunkWriter implements ChunkWriter {
 
         length += buff.writerIndex();
 
-        out.write( buff.array() , 0,  buff.writerIndex() );
+        //FIXME: rewrite this to use transferTo and mmap.
+
+        byte[] data = new byte[ buff.writerIndex() ];
+        
+        buff.getBytes( 0, data, 0, buff.writerIndex() );
+        out.write( data );
 
         buff.resetReaderIndex();
         buff.resetWriterIndex();
