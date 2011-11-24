@@ -28,8 +28,6 @@ public class FSDaemon {
 
     private ExecutorServiceManager executorServiceManager = new ExecutorServiceManager();
     
-    private int port;
-
     private Channel channel;
     
     /**
@@ -46,17 +44,11 @@ public class FSDaemon {
     public FSDaemon( Config config ) {
 
         this.config = config;
-        this.port = config.getHost().getPort();
         this.shuffleReceiverFactory = new ShuffleReceiverFactory( config ); 
         
         String root = config.getRoot();
         
-        File file = new File( root );
-
-        // try to make the root directory.
-        if ( ! file.exists() ) {
-            file.mkdirs();
-        }
+        new File( root ).mkdirs();
         
         ThreadFactory tf = new DefaultThreadFactory( FSDaemon.class );
 
@@ -77,7 +69,7 @@ public class FSDaemon {
         log.info( "Starting up on %s with root: %s" , config.getHost(), root );
         
         // Bind and start to accept incoming connections.
-        channel = bootstrap.bind( new InetSocketAddress( port ) );
+        channel = bootstrap.bind( new InetSocketAddress( config.getHost().getPort() ) );
 
         log.info( "Now listening on %s with root: %s" , config.getHost(), root );
         
