@@ -56,7 +56,7 @@ public class HttpClient extends BaseOutputStream implements ChannelBufferWritabl
     /**
      * The write timeout for requests.
      */
-    public static final int WRITE_TIMEOUT = 10000;
+    public static final int WRITE_TIMEOUT = 30000;
     
     protected int channelState = PENDING;
 
