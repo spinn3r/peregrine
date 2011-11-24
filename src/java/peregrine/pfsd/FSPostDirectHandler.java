@@ -114,6 +114,9 @@ public class FSPostDirectHandler extends SimpleChannelUpstreamHandler {
     
 }
 
+/**
+ * Perform an action in a background thread, and then send a response code.
+ */
 abstract class AsyncAction implements Runnable {
 
     private static final Logger log = Logger.getLogger();
