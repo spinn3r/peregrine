@@ -26,7 +26,7 @@ public class FSDaemon {
     
     private ServerBootstrap bootstrap = null;
 
-    private Map<Class,ExecutorService> executorServices = new ConcurrentHashMap();
+    private ExecutorServiceManager executorServiceManager = new ExecutorServiceManager();
     
     private int port;
 
@@ -145,31 +145,7 @@ public class FSDaemon {
     }
 
     public ExecutorService getExecutorService( Class clazz ) {
-
-        ExecutorService result;
-
-        result = executorServices.get( clazz );
-
-        // double check idiom
-        if ( result == null ) {
-
-            synchronized( executorServices ) {
-
-                result = executorServices.get( clazz );
-                
-                if ( result == null ) {
-
-                    result = Executors.newCachedThreadPool( new DefaultThreadFactory( clazz ) );
-                    executorServices.put( clazz, result );
-                    
-                }
-                
-            }
-            
-        }
-
-        return result;
-        
+        return executorServiceManager.getExecutorService( clazz );
     }
 
     public void shutdown() {
@@ -184,23 +160,9 @@ public class FSDaemon {
 
         if ( heartbeatTimer != null )
             heartbeatTimer.cancel();
+
+        executorServiceManager.shutdownAndAwaitTermination();
         
-        for( Class clazz : executorServices.keySet() ) {
-
-            log.info( "Shutting down executor service: %s", clazz.getName() );
-
-            try {
-                
-                ExecutorService current = executorServices.get( clazz );
-                current.shutdown();
-                current.awaitTermination( Long.MAX_VALUE, TimeUnit.MILLISECONDS );
-                
-            } catch ( InterruptedException e ) {
-                throw new RuntimeException( e );
-            }
-
-        }
-
         log.info( "Releasing netty external resources" );
         
         bootstrap.releaseExternalResources();
@@ -211,7 +173,7 @@ public class FSDaemon {
 
     @Override
     public String toString() {
-        return String.format( "FSDaemon: %s", config.getHost() );
+        return String.format( "%s: %s", getClass().getSimpleName(), config.getHost() );
     }
         
     static {
