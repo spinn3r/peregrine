@@ -107,6 +107,8 @@ public class Config {
         if ( ! hosts.contains( getHost() ) && ! isController() ) {
             throw new RuntimeException( "Host is not define in hosts file nor is it the controller: " + getHost() );
         }
+
+        // FIXME: move this to a config directive... 
         
         router = new HashPartitionRouter();
         router.init( this );
