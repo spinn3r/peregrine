@@ -20,7 +20,7 @@ import peregrine.task.*;
 
 /**
  */
-public class MapperHandler extends RPCHandler<FSDaemon> {
+public class MapperRPCDelegate extends RPCDelegate<FSDaemon> {
 
     private static final Logger log = Logger.getLogger();
 

@@ -7,7 +7,7 @@ import peregrine.rpc.*;
 
 /**
  */
-public abstract class RPCHandler<T> {
+public abstract class RPCDelegate<T> {
 
     /**
      * @param parent The parent object invoking this request. Usually an

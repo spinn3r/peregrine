@@ -6,11 +6,12 @@ import java.util.*;
 import java.util.concurrent.*;
 
 import peregrine.config.*;
-import peregrine.io.*;
-import peregrine.rpc.*;
-import peregrine.pfsd.*;
-import peregrine.task.*;
+import peregrine.controller.*;
 import peregrine.http.*;
+import peregrine.io.*;
+import peregrine.pfsd.*;
+import peregrine.rpc.*;
+import peregrine.task.*;
 
 import com.spinn3r.log5j.*;
 
@@ -29,8 +30,8 @@ public class Controller {
 
     private Config config = null;
 
-    private FSDaemon daemon = null;
-
+    private ControllerDaemon daemon = null;
+    
     public Controller( Config config ) {
     	
         this.config = config;
@@ -55,7 +56,7 @@ public class Controller {
 
         log.info( "Starting controller: %s", config.getController() );
         
-        this.daemon = new FSDaemon( config );
+        this.daemon = new ControllerDaemon( this, config );
 
     }
 

@@ -8,7 +8,7 @@ import peregrine.rpc.*;
 
 /**
  */
-public class ShufflerHandler extends RPCHandler<FSDaemon> {
+public class ShufflerRPCDelegate extends RPCDelegate<FSDaemon> {
 
     public void handleMessage( FSDaemon daemon, Channel channel, Message message )
         throws Exception {

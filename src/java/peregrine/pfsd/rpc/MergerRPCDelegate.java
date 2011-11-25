@@ -13,7 +13,7 @@ import com.spinn3r.log5j.*;
 
 /**
  */
-public class MergerHandler extends MapperHandler {
+public class MergerRPCDelegate extends MapperRPCDelegate {
 
     private static final Logger log = Logger.getLogger();
 

@@ -27,7 +27,9 @@ public class ControllerHandler extends DefaultChannelUpstreamHandler {
 
     protected Config config;
     protected ControllerDaemon controllerDaemon;
-    
+
+    protected ControllerRPCHandler handler = null;
+
     public ControllerHandler( Config config,
                               ControllerDaemon controllerDaemon ) {
 
@@ -52,10 +54,13 @@ public class ControllerHandler extends DefaultChannelUpstreamHandler {
             HttpMethod method = request.getMethod();
         	
             if ( method == POST ) {
-                ControllerRPCHandler handler = new ControllerRPCHandler( config, controllerDaemon, request.getUri() );
-                handler.messageReceived( ctx, e );
+                handler = new ControllerRPCHandler( config, controllerDaemon, request.getUri() );
             }
 
+        }
+
+        if ( handler != null ) {
+            handler.messageReceived( ctx, e );
         }
 
     }

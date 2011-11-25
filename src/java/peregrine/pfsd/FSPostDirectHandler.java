@@ -22,13 +22,13 @@ public class FSPostDirectHandler extends SimpleChannelUpstreamHandler {
 
     private static final Logger log = Logger.getLogger();
 
-	private static Map<String,RPCHandler<FSHandler>> handlers = new HashMap() {{
+	private static Map<String,RPCDelegate<FSHandler>> handlers = new HashMap() {{
     	
-    	put( "/shuffler/RPC",    new ShufflerHandler() );
-        put( "/controller/RPC",  new ControllerHandler() );
-        put( "/mapper/RPC",      new MapperHandler() );
-        put( "/reducer/RPC",     new ReducerHandler() );
-        put( "/merger/RPC",      new MergerHandler() );
+    	put( "/shuffler/RPC",    new ShufflerRPCDelegate() );
+        put( "/controller/RPC",  new ControllerRPCDelegate() );
+        put( "/mapper/RPC",      new MapperRPCDelegate() );
+        put( "/reducer/RPC",     new ReducerRPCDelegate() );
+        put( "/merger/RPC",      new MergerRPCDelegate() );
         
     }};
 
@@ -74,14 +74,14 @@ public class FSPostDirectHandler extends SimpleChannelUpstreamHandler {
         
     }
 
-    public void handleMessage( RPCHandler handler, Channel channel, Message message ) 
+    public void handleMessage( RPCDelegate handler, Channel channel, Message message ) 
     	throws Exception {
     	
     	handler.handleMessage(  daemon, channel, message );
     	
     }
     
-    public RPCHandler getRPCHandler( String path ) {
+    public RPCDelegate getRPCHandler( String path ) {
     	return handlers.get( path );	
     }
     
@@ -93,7 +93,7 @@ public class FSPostDirectHandler extends SimpleChannelUpstreamHandler {
 
             String path = uri.getPath();
 
-            final RPCHandler rpcHandler = getRPCHandler( path );
+            final RPCDelegate rpcHandler = getRPCHandler( path );
 
             if ( rpcHandler != null ) {
             	

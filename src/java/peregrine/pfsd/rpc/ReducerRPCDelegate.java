@@ -13,7 +13,7 @@ import com.spinn3r.log5j.*;
 
 /**
  */
-public class ReducerHandler extends MapperHandler {
+public class ReducerRPCDelegate extends MapperRPCDelegate {
 
     private static final Logger log = Logger.getLogger();
 
