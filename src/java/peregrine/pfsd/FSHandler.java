@@ -14,6 +14,8 @@ import org.jboss.netty.handler.codec.http.*;
 
 import peregrine.config.Config;
 import peregrine.http.*;
+import peregrine.pfsd.rpc.*;
+import peregrine.pfsd.rpcd.*;
 import peregrine.util.netty.*;
 
 import com.spinn3r.log5j.*;
@@ -97,7 +99,7 @@ public class FSHandler extends DefaultChannelUpstreamHandler {
             }
 
             if ( method == POST ) {
-                upstream = new FSPostDirectHandler( daemon, this );
+                upstream = new FSDaemonRPCHandler( daemon, this, request.getUri() );
             }
             
             if ( method == GET ) {
