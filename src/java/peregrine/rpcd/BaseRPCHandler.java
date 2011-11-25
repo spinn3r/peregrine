@@ -52,8 +52,6 @@ public abstract class BaseRPCHandler<T> extends SimpleChannelUpstreamHandler {
 
             if ( ! chunk.isLast() ) {
 
-                System.out.printf( "FIXME1\n" );
-                
                 ChannelBuffer content = chunk.getContent();
                 byte[] data = new byte[ content.writerIndex() ];
                 content.readBytes( data );
@@ -61,8 +59,6 @@ public abstract class BaseRPCHandler<T> extends SimpleChannelUpstreamHandler {
                 this.message = new Message( new String( data ) );
                 
             } else {
-
-                System.out.printf( "FIXME2\n" );
 
                 doHandleMessage();
 

@@ -11,21 +11,21 @@ import org.jboss.netty.buffer.*;
 import org.jboss.netty.channel.*;
 import org.jboss.netty.handler.codec.frame.*;
 import org.jboss.netty.handler.codec.http.*;
+
 import peregrine.config.Config;
 import peregrine.http.*;
+import peregrine.util.netty.*;
 
 import com.spinn3r.log5j.*;
 
 /**
  */
-public class FSHandler extends SimpleChannelUpstreamHandler {
+public class FSHandler extends DefaultChannelUpstreamHandler {
 
     private static final Logger log = Logger.getLogger();
 
     public static final String X_PIPELINE_HEADER = "X-pipeline";
     
-    protected HttpRequest request = null;
-
     protected String path = null;
 
     protected SimpleChannelUpstreamHandler upstream = null;
@@ -52,6 +52,8 @@ public class FSHandler extends SimpleChannelUpstreamHandler {
     @Override
     public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
 
+    	super.messageReceived( ctx, e );
+    	
         // introspect requests and route them to the correct handler.  For
         // example, PUT request need to be handled separately than GET requests
         // as well as DELETE and HEAD.
@@ -59,8 +61,6 @@ public class FSHandler extends SimpleChannelUpstreamHandler {
         Object message = e.getMessage();
 
         if ( message instanceof HttpRequest ) {
-
-            this.request = (HttpRequest)message;
 
             HttpMethod method = request.getMethod();
 
@@ -244,48 +244,6 @@ public class FSHandler extends SimpleChannelUpstreamHandler {
         // Convert to absolute path.
         return config.getRoot() + new URI( uri ).getPath();
         
-    }
-
-    @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e)
-        throws Exception {
-
-        Channel ch = e.getChannel();
-        Throwable cause = e.getCause();
-
-        String tag = request.getHeader( HttpClient.X_TAG );
-        
-        if ( request == null )
-            log.error( String.format( "Could not handle initial request (tag=%s): ", tag ), cause );
-        else
-            log.error( String.format( "Could not handle request (tag=%s): %s %s", tag, request.getMethod(), request.getUri() ) , cause );
-
-        if (cause instanceof TooLongFrameException) {
-            sendError(ctx, BAD_REQUEST);
-            return;
-        }
-
-        if (ch.isConnected()) {
-            sendError(ctx, INTERNAL_SERVER_ERROR);
-        }
-        
-    }
-
-    private void sendError(ChannelHandlerContext ctx, HttpResponseStatus status) {
-
-        HttpResponse response = new DefaultHttpResponse(HTTP_1_1, status);
-
-        /*
-        response.setHeader(CONTENT_TYPE, "text/plain; charset=UTF-8");
-
-        String msg = "Failure: " + status.toString() + "\r\n";
-
-        response.setContent( ChannelBuffers.copiedBuffer( msg, CharsetUtil.UTF_8));
-        */
-        
-        // Close the connection as soon as the error message is sent.
-        ctx.getChannel().write(response).addListener(ChannelFutureListener.CLOSE);
-
     }
     
 }

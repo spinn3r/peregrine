@@ -24,7 +24,7 @@ public class DefaultChannelUpstreamHandler extends SimpleChannelUpstreamHandler 
 
     private static final Logger log = Logger.getLogger();
 
-    protected HttpRequest request;
+    public HttpRequest request;
 
     @Override
     public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
@@ -62,7 +62,7 @@ public class DefaultChannelUpstreamHandler extends SimpleChannelUpstreamHandler 
         
     }
 
-    private void sendError(ChannelHandlerContext ctx, HttpResponseStatus status) {
+    protected void sendError(ChannelHandlerContext ctx, HttpResponseStatus status) {
 
         HttpResponse response = new DefaultHttpResponse(HTTP_1_1, status);
 

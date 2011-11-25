@@ -27,7 +27,6 @@ public class FSPostDirectHandler extends SimpleChannelUpstreamHandler {
 	private static Map<String,RPCDelegate<FSHandler>> handlers = new HashMap() {{
     	
     	put( "/shuffler/RPC",    new ShufflerRPCDelegate() );
-        put( "/controller/RPC",  new ControllerRPCDelegate() );
         put( "/mapper/RPC",      new MapperRPCDelegate() );
         put( "/reducer/RPC",     new ReducerRPCDelegate() );
         put( "/merger/RPC",      new MergerRPCDelegate() );
