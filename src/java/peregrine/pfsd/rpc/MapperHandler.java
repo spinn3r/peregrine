@@ -20,13 +20,13 @@ import peregrine.task.*;
 
 /**
  */
-public class MapperHandler extends RPCHandler {
+public class MapperHandler extends RPCHandler<FSDaemon> {
 
     private static final Logger log = Logger.getLogger();
 
-    public void handleMessage( Channel channel, FSDaemon daemon, Message message )
+    public void handleMessage( FSDaemon daemon, Channel channel, Message message )
         throws Exception {
-
+    	
         String action = message.get( "action" );
 
         if ( "exec".equals( action ) ) {

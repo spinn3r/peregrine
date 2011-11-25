@@ -17,12 +17,12 @@ import peregrine.pfsd.*;
 public class ControllerPipelineFactory implements ChannelPipelineFactory {
 
     private Config config;
-    private Controller controller;
+    private ControllerDaemon controllerDaemon;
     
-    public ControllerPipelineFactory( Controller controller, 
+    public ControllerPipelineFactory( ControllerDaemon controllerDaemon, 
     							      Config config ) {
 
-        this.controller = controller;
+        this.controllerDaemon = controllerDaemon;
     	this.config = config;
     	
     }
@@ -38,7 +38,7 @@ public class ControllerPipelineFactory implements ChannelPipelineFactory {
                                                                    MAX_CHUNK_SIZE ) );
 
         pipeline.addLast("encoder",        new HttpResponseEncoder() );
-        pipeline.addLast("handler",        new ControllerHandler( config, controller ) );
+        pipeline.addLast("handler",        new ControllerHandler( config, controllerDaemon ) );
         
         return pipeline;
 

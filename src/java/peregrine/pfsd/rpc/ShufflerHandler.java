@@ -8,11 +8,11 @@ import peregrine.rpc.*;
 
 /**
  */
-public class ShufflerHandler extends RPCHandler {
+public class ShufflerHandler extends RPCHandler<FSDaemon> {
 
-    public void handleMessage( Channel channel, FSDaemon daemon, Message message )
+    public void handleMessage( FSDaemon daemon, Channel channel, Message message )
         throws Exception {
-
+    	
         String action = message.get( "action" );
 
         if ( "flush".equals( action ) ) {

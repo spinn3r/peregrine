@@ -22,7 +22,7 @@ public class FSPostDirectHandler extends SimpleChannelUpstreamHandler {
 
     private static final Logger log = Logger.getLogger();
 
-	private static Map<String,RPCHandler> handlers = new HashMap() {{
+	private static Map<String,RPCHandler<FSHandler>> handlers = new HashMap() {{
     	
     	put( "/shuffler/RPC",    new ShufflerHandler() );
         put( "/controller/RPC",  new ControllerHandler() );
@@ -74,6 +74,17 @@ public class FSPostDirectHandler extends SimpleChannelUpstreamHandler {
         
     }
 
+    public void handleMessage( RPCHandler handler, Channel channel, Message message ) 
+    	throws Exception {
+    	
+    	handler.handleMessage(  daemon, channel, message );
+    	
+    }
+    
+    public RPCHandler getRPCHandler( String path ) {
+    	return handlers.get( path );	
+    }
+    
     private void doHandleMessage() {
 
         try {
@@ -82,16 +93,16 @@ public class FSPostDirectHandler extends SimpleChannelUpstreamHandler {
 
             String path = uri.getPath();
 
-            final RPCHandler rpcHandler = handlers.get( path );
+            final RPCHandler rpcHandler = getRPCHandler( path );
 
             if ( rpcHandler != null ) {
             	
             	log.info( "Handling message %s for URI: %s with %s", message, uri, rpcHandler );
             	
-                daemon.getExecutorService( getClass() ).submit( new AsyncAction( channel, message ) {
+                daemon.getExecutorService( getClass() ).submit( new AsyncMessageHandler( channel, message ) {
 
                         public void doAction() throws Exception {
-                            rpcHandler.handleMessage( channel, handler.daemon, message );
+                            handleMessage( rpcHandler, channel, message );
                         }
                         
                     } );
@@ -117,15 +128,15 @@ public class FSPostDirectHandler extends SimpleChannelUpstreamHandler {
 /**
  * Perform an action in a background thread, and then send a response code.
  */
-abstract class AsyncAction implements Runnable {
+abstract class AsyncMessageHandler implements Runnable {
 
     private static final Logger log = Logger.getLogger();
 
     private Channel channel;
     private Message message;
     
-    public AsyncAction( Channel channel,
-                        Message message ) {
+    public AsyncMessageHandler( Channel channel,
+                                Message message ) {
         this.channel = channel;
         this.message = message;
     }

@@ -41,7 +41,7 @@ public class ControllerDaemon extends BaseDaemon {
 
     @Override
     public ChannelPipelineFactory getChannelPipelineFactory() {
-        return new ControllerPipelineFactory( controller, getConfig() );
+        return new ControllerPipelineFactory( this, getConfig() );
     }
     
     public Scheduler getScheduler() { 
@@ -52,4 +52,8 @@ public class ControllerDaemon extends BaseDaemon {
         this.scheduler = scheduler;
     }
 
+    public Controller getController() {
+        return controller;
+    }
+    
 }

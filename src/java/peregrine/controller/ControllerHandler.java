@@ -25,17 +25,14 @@ public class ControllerHandler extends DefaultChannelUpstreamHandler {
 
     private static final Logger log = Logger.getLogger();
 
-    protected SimpleChannelUpstreamHandler upstream = null;
-
     protected Config config;
-
-    protected Controller controller;
+    protected ControllerDaemon controllerDaemon;
     
     public ControllerHandler( Config config,
-                              Controller controller ) {
+                              ControllerDaemon controllerDaemon ) {
 
         this.config = config;
-        this.controller = controller;
+        this.controllerDaemon = controllerDaemon;
 
     }
     
@@ -55,13 +52,11 @@ public class ControllerHandler extends DefaultChannelUpstreamHandler {
             HttpMethod method = request.getMethod();
         	
             if ( method == POST ) {
-                //upstream = new FSPostDirectHandler( daemon, this );
+                ControllerRPCHandler handler = new ControllerRPCHandler( config, controllerDaemon, request.getUri() );
+                handler.messageReceived( ctx, e );
             }
 
         }
-            
-        if ( upstream != null )
-            upstream.messageReceived( ctx, e );
 
     }
     

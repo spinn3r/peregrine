@@ -18,8 +18,10 @@ public class ControllerHandler extends RPCHandler {
 	
 		put( "complete", new RPCHandler() {
 		
-		    public void handleMessage( Channel channel, FSDaemon daemon, Message message )
+		    public void handleMessage( Object parent, Channel channel, Message message )
 		            throws Exception {
+		    	
+		    	FSDaemon daemon = (FSDaemon)parent;
 		    	
 	            Host host       = Host.parse( message.get( "host" ) );
 	            Partition part  = new Partition( message.getInt( "partition" ) );
@@ -33,9 +35,11 @@ public class ControllerHandler extends RPCHandler {
 		
 		put( "failed", new RPCHandler() {
 			
-		    public void handleMessage( Channel channel, FSDaemon daemon, Message message )
+		    public void handleMessage( Object parent, Channel channel, Message message )
 		            throws Exception {
 
+		    	FSDaemon daemon = (FSDaemon)parent;
+		    	
 	            Host host          = Host.parse( message.get( "host" ) );
 	            Partition part     = new Partition( message.getInt( "partition" ) );
 	            String stacktrace  = message.get( "stacktrace" );
@@ -49,7 +53,7 @@ public class ControllerHandler extends RPCHandler {
 
 		put( "progress", new RPCHandler() {
 			
-		    public void handleMessage( Channel channel, FSDaemon daemon, Message message )
+		    public void handleMessage( Object parent, Channel channel, Message message )
 		            throws Exception {
 	            
 	            return;
@@ -59,9 +63,11 @@ public class ControllerHandler extends RPCHandler {
 		
 		put( "heartbeat", new RPCHandler() {
 			
-		    public void handleMessage( Channel channel, FSDaemon daemon, Message message )
+		    public void handleMessage( Object parent, Channel channel, Message message )
 		            throws Exception {
 	            		    	
+		    	FSDaemon daemon = (FSDaemon)parent;
+		    	
 	            Host host = Host.parse( message.get( "host" ) );
 
                 // mark this host as online for the entire controller.
@@ -74,9 +80,11 @@ public class ControllerHandler extends RPCHandler {
 		
 		put( "gossip", new RPCHandler() {
 			
-		    public void handleMessage( Channel channel, FSDaemon daemon, Message message )
+		    public void handleMessage( Object parent, Channel channel, Message message )
 		            throws Exception {
 
+		    	FSDaemon daemon = (FSDaemon)parent;
+		    	
 		    	// mark that a machine has failed to process some unit of work.
 
 	            Host reporter = Host.parse( message.get( "reporter" ) );
@@ -91,8 +99,10 @@ public class ControllerHandler extends RPCHandler {
 		
 	}};
 	
-    public void handleMessage( Channel channel, FSDaemon daemon, Message message )
+    public void handleMessage( Object parent, Channel channel, Message message )
         throws Exception {
+    	
+    	FSDaemon daemon = (FSDaemon)parent;
 
         String action = message.get( "action" );
         
@@ -101,7 +111,7 @@ public class ControllerHandler extends RPCHandler {
         if ( handler == null )
         	throw new Exception( String.format( "No handler for action %s with message %s", action, message ) );
 
-        handler.handleMessage( channel, daemon, message );	
+        handler.handleMessage( daemon, channel, message );	
         
     }
     
