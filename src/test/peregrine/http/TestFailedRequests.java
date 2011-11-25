@@ -4,7 +4,6 @@ import java.io.*;
 import java.net.*;
 
 import peregrine.http.*;
-import peregrine.pfsd.*;
 
 public class TestFailedRequests extends peregrine.BaseTest {
 

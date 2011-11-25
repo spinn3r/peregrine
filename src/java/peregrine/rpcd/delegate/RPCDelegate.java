@@ -1,8 +1,7 @@
-package peregrine.pfsd.rpc;
+package peregrine.rpcd.delegate;
 
 import org.jboss.netty.channel.*;
 
-import peregrine.pfsd.*;
 import peregrine.rpc.*;
 
 /**

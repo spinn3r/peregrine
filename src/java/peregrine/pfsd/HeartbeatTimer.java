@@ -11,7 +11,6 @@ import org.jboss.netty.channel.*;
 import org.jboss.netty.channel.socket.nio.*;
 
 import peregrine.config.*;
-import peregrine.pfsd.rpc.*;
 import peregrine.rpc.*;
 import peregrine.shuffle.receiver.*;
 import peregrine.task.*;

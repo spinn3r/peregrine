@@ -11,13 +11,9 @@ import org.jboss.netty.channel.*;
 import org.jboss.netty.channel.socket.nio.*;
 
 import peregrine.config.*;
-import peregrine.pfsd.rpc.*;
-import peregrine.rpc.*;
 import peregrine.shuffle.receiver.*;
 import peregrine.task.*;
 import peregrine.util.*;
-import peregrine.pfsd.*;
-
 import com.spinn3r.log5j.Logger;
 import peregrine.util.netty.*;
 import peregrine.*;

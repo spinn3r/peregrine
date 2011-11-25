@@ -1,4 +1,4 @@
-package peregrine.pfsd.rpc;
+package peregrine.pfsd.rpcd.delegate;
 
 import java.util.concurrent.*;
 

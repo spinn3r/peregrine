@@ -12,7 +12,9 @@ import org.jboss.netty.channel.*;
 import org.jboss.netty.handler.codec.http.*;
 import peregrine.util.*;
 import peregrine.rpc.*;
-import peregrine.pfsd.rpc.*;
+import peregrine.rpcd.delegate.*;
+import peregrine.controller.rpcd.delegate.*;
+import peregrine.pfsd.rpcd.delegate.*;
 
 import com.spinn3r.log5j.*;
 

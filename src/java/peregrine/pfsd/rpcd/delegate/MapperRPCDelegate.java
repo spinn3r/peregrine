@@ -1,7 +1,6 @@
-package peregrine.pfsd.rpc;
+package peregrine.pfsd.rpcd.delegate;
 
 import peregrine.pfsd.*;
-
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -14,6 +13,7 @@ import peregrine.util.*;
 import com.spinn3r.log5j.*;
 
 import peregrine.rpc.*;
+import peregrine.rpcd.delegate.*;
 
 import peregrine.io.*;
 import peregrine.task.*;

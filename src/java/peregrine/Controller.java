@@ -9,7 +9,6 @@ import peregrine.config.*;
 import peregrine.controller.*;
 import peregrine.http.*;
 import peregrine.io.*;
-import peregrine.pfsd.*;
 import peregrine.rpc.*;
 import peregrine.task.*;
 
@@ -35,9 +34,6 @@ public class Controller {
     public Controller( Config config ) {
     	
         this.config = config;
-
-        // FIXME: we should not startup an ORDINARY daemon... it should be JUST
-        // for RPC and minimum services.  Nothing else.
 
         // verify that we aren't running on the right host.  Starting up a
         // controller on the wrong machine doesn't make sense and the job won't

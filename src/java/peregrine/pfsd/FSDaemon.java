@@ -11,168 +11,49 @@ import org.jboss.netty.channel.*;
 import org.jboss.netty.channel.socket.nio.*;
 
 import peregrine.config.*;
-import peregrine.pfsd.rpc.*;
+import peregrine.controller.*;
 import peregrine.rpc.*;
 import peregrine.shuffle.receiver.*;
 import peregrine.task.*;
 import peregrine.util.*;
-
-import com.spinn3r.log5j.Logger;
 import peregrine.util.netty.*;
 
-public class FSDaemon {
+import com.spinn3r.log5j.Logger;
+
+public class FSDaemon extends BaseDaemon {
 
     private static final Logger log = Logger.getLogger();
-    
-    private ServerBootstrap bootstrap = null;
-
-    private ExecutorServiceManager executorServiceManager = new ExecutorServiceManager();
-    
-    private Channel channel;
     
     /**
      * Each daemon can only have one shuffle instance.
      */
     public ShuffleReceiverFactory shuffleReceiverFactory;
 
-    private Config config;
-
-    private Scheduler scheduler = null;
-
-    private HeartbeatTimer heartbeatTimer = null;
-
+    private HeartbeatTimer heartbeatTimer;
+    
     public FSDaemon( Config config ) {
 
-        this.config = config;
-        this.shuffleReceiverFactory = new ShuffleReceiverFactory( config ); 
-        
-        String root = config.getRoot();
-        
-        new File( root ).mkdirs();
-        
-        ThreadFactory tf = new DefaultThreadFactory( FSDaemon.class );
+        this.setConfig( config );
 
-        // Configure the server.
-        
-        // http://docs.jboss.org/netty/3.2/api/org/jboss/netty/channel/ChannelConfig.html
-        
-        NioServerSocketChannelFactory factory = 
-        		new NioServerSocketChannelFactory( newDefaultThreadPool( tf ),
-                                                   newDefaultThreadPool( tf ),
-                                                   config.getConcurrency() ) ;
-        		
-        bootstrap = BootstrapFactory.newServerBootstrap( factory );
+        init();
 
-        // Set up the event pipeline factory.
-        bootstrap.setPipelineFactory( new FSPipelineFactory( config, this ) );
+        shuffleReceiverFactory = new ShuffleReceiverFactory( config ); 
 
-        log.info( "Starting up on %s with root: %s" , config.getHost(), root );
-        
-        // Bind and start to accept incoming connections.
-        channel = bootstrap.bind( new InetSocketAddress( config.getHost().getPort() ) );
-
-        log.info( "Now listening on %s with root: %s" , config.getHost(), root );
-        
-        if ( config.getController() != null &&
-             ! config.getHost().equals( config.getController() ) ) {
-
-            heartbeatTimer = new HeartbeatTimer( config );
-
-        }
-        
-    }
-    
-    public Scheduler getScheduler() { 
-        return this.scheduler;
-    }
-
-    public void setScheduler( Scheduler scheduler ) { 
-        this.scheduler = scheduler;
-    }
-
-    public Config getConfig() {
-    	return config;
-    }
-
-    /**
-     * Create a default thread pool for use in the system with the correct
-     * concurrency.
-     */
-    public ExecutorService newDefaultThreadPool( Class clazz ) {
-        return newDefaultThreadPool( new DefaultThreadFactory( clazz ) );
-    }
-
-    /**
-     * Create a default thread pool for use in the system with the correct
-     * concurrency.
-     */
-    public ExecutorService newDefaultThreadPool( ThreadFactory threadFactory ) {
-
-        return newDefaultThreadPool( config.getConcurrency(), threadFactory );
-
-    }
-
-    /**
-     * Create a default thread pool for use in the system with the correct
-     * concurrency.
-     */
-    public static ExecutorService newDefaultThreadPool( int concurrency, ThreadFactory threadFactory ) {
-
-        /*
-        ExecutorService service
-            = Executors.newFixedThreadPool( concurrency , threadFactory );
-        */
-
-        ExecutorService service
-            = Executors.newCachedThreadPool( threadFactory );
-
-        ThreadPoolExecutor tpe = (ThreadPoolExecutor)service;
-
-        tpe.setKeepAliveTime( Long.MAX_VALUE, TimeUnit.MILLISECONDS );
-        tpe.setCorePoolSize( concurrency );
-        tpe.prestartAllCoreThreads();
-        
-        return service;
-
-    }
-
-    public ExecutorService getExecutorService( Class clazz ) {
-        return executorServiceManager.getExecutorService( clazz );
-    }
-
-    public void shutdown() {
-
-        String msg = String.format( "Shutting down PFSd on: %s", config.getHost() );
-        
-        log.info( "%s" , msg );
-
-        channel.close().awaitUninterruptibly();
-
-        log.debug( "Channel closed." );
-
-        if ( heartbeatTimer != null )
-            heartbeatTimer.cancel();
-
-        executorServiceManager.shutdownAndAwaitTermination();
-        
-        log.info( "Releasing netty external resources" );
-        
-        bootstrap.releaseExternalResources();
-
-        log.info( "%s COMPLETE" , msg );
+        heartbeatTimer = new HeartbeatTimer( config );
         
     }
 
     @Override
-    public String toString() {
-        return String.format( "%s: %s", getClass().getSimpleName(), config.getHost() );
+    public ChannelPipelineFactory getChannelPipelineFactory() {
+        return new FSPipelineFactory( getConfig(), this );
     }
+    
+    public void shutdown() {
+
+        heartbeatTimer.cancel();
+
+        super.shutdown();
         
-    static {
-
-        // first configure netty to use  
-        InternalLoggerFactory.setDefaultFactory( new Log4JLoggerFactory() );
-
     }
 
 }

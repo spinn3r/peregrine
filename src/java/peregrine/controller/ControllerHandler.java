@@ -14,6 +14,7 @@ import org.jboss.netty.handler.codec.http.*;
 
 import peregrine.*;
 import peregrine.config.*;
+import peregrine.controller.rpcd.*;
 import peregrine.http.*;
 import peregrine.util.netty.*;
 

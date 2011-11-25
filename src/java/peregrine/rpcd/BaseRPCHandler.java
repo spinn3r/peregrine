@@ -1,4 +1,4 @@
-package peregrine.pfsd;
+package peregrine.rpcd;
 
 import static org.jboss.netty.handler.codec.http.HttpResponseStatus.*;
 import static org.jboss.netty.handler.codec.http.HttpVersion.*;
@@ -12,8 +12,7 @@ import org.jboss.netty.channel.*;
 import org.jboss.netty.handler.codec.http.*;
 import peregrine.util.*;
 import peregrine.rpc.*;
-import peregrine.pfsd.rpc.*;
-
+import peregrine.rpcd.delegate.*;
 import com.spinn3r.log5j.*;
 
 /**

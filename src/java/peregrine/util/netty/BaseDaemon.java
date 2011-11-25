@@ -11,13 +11,9 @@ import org.jboss.netty.channel.*;
 import org.jboss.netty.channel.socket.nio.*;
 
 import peregrine.config.*;
-import peregrine.pfsd.rpc.*;
-import peregrine.rpc.*;
 import peregrine.shuffle.receiver.*;
 import peregrine.task.*;
 import peregrine.util.*;
-import peregrine.pfsd.*;
-
 import com.spinn3r.log5j.Logger;
 import peregrine.util.netty.*;
 import peregrine.*;
@@ -45,8 +41,8 @@ public abstract class BaseDaemon {
         int concurrency = config.getConcurrency();
         
         NioServerSocketChannelFactory factory = 
-        		new NioServerSocketChannelFactory( FSDaemon.newDefaultThreadPool( concurrency, tf ),
-                                                   FSDaemon.newDefaultThreadPool( concurrency, tf ),
+        		new NioServerSocketChannelFactory( newDefaultThreadPool( concurrency, tf ),
+                                                   newDefaultThreadPool( concurrency, tf ),
                                                    concurrency ) ;
         		
         bootstrap = BootstrapFactory.newServerBootstrap( factory );
@@ -72,7 +68,49 @@ public abstract class BaseDaemon {
     public void setConfig( Config config ) {
         this.config = config;
     }
-    
+
+    /**
+     * Create a default thread pool for use in the system with the correct
+     * concurrency.
+     */
+    public ExecutorService newDefaultThreadPool( Class clazz ) {
+        return newDefaultThreadPool( new DefaultThreadFactory( clazz ) );
+    }
+
+    /**
+     * Create a default thread pool for use in the system with the correct
+     * concurrency.
+     */
+    public ExecutorService newDefaultThreadPool( ThreadFactory threadFactory ) {
+
+        return newDefaultThreadPool( config.getConcurrency(), threadFactory );
+
+    }
+
+    /**
+     * Create a default thread pool for use in the system with the correct
+     * concurrency.
+     */
+    public static ExecutorService newDefaultThreadPool( int concurrency, ThreadFactory threadFactory ) {
+
+        /*
+        ExecutorService service
+            = Executors.newFixedThreadPool( concurrency , threadFactory );
+        */
+
+        ExecutorService service
+            = Executors.newCachedThreadPool( threadFactory );
+
+        ThreadPoolExecutor tpe = (ThreadPoolExecutor)service;
+
+        tpe.setKeepAliveTime( Long.MAX_VALUE, TimeUnit.MILLISECONDS );
+        tpe.setCorePoolSize( concurrency );
+        tpe.prestartAllCoreThreads();
+        
+        return service;
+
+    }
+
     public ExecutorService getExecutorService( Class clazz ) {
         return executorServiceManager.getExecutorService( clazz );
     }

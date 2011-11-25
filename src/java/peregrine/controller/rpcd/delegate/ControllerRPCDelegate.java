@@ -1,15 +1,14 @@
-package peregrine.pfsd.rpc;
+package peregrine.controller.rpcd.delegate;
 
 import java.util.*;
 
 import org.jboss.netty.channel.*;
 
-import peregrine.pfsd.*;
-
 import peregrine.config.Host;
 import peregrine.config.Partition;
 import peregrine.controller.*;
 import peregrine.rpc.*;
+import peregrine.rpcd.delegate.*;
 
 /**
  */
