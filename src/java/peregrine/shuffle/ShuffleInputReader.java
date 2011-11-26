@@ -204,11 +204,11 @@ public class ShuffleInputReader {
 
     public void close() throws IOException {
 
-        in.close();
-
         if ( memLock != null )
             memLock.release();
-        
+
+        in.close();
+
     }
 
     public static void main( String[] args ) throws IOException {
