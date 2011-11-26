@@ -265,8 +265,7 @@ public abstract class Scheduler {
 
         buff.append( "-- progress: --\n" );
         
-        buff.append( String.format( "\n" +
-                                    "  pending:    %s\n" + 
+        buff.append( String.format( "  pending:    %s\n" + 
                                     "  completed:  %s\n" +
                                     "  available:  %s\n" +
                                     "  spare:      %s\n" +

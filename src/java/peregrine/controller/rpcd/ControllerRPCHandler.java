@@ -28,9 +28,11 @@ public class ControllerRPCHandler extends BaseRPCHandler<ControllerDaemon> {
 
     private static final Logger log = Logger.getLogger();
 
+    private static final ControllerRPCDelegate delegate = new ControllerRPCDelegate();
+
     protected Config config;
     protected ControllerDaemon controllerDaemon;
-    
+
     public ControllerRPCHandler( Config config,
                                  ControllerDaemon controllerDaemon,
                                  String uri ) {
@@ -44,7 +46,7 @@ public class ControllerRPCHandler extends BaseRPCHandler<ControllerDaemon> {
 
     @Override
     public RPCDelegate<ControllerDaemon> getRPCDelegate( String uri ) {
-        return new ControllerRPCDelegate();
+        return delegate;
     }
 
     @Override
