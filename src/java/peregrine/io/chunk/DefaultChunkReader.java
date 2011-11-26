@@ -34,6 +34,13 @@ public class DefaultChunkReader implements ChunkReader {
 
     public DefaultChunkReader( File file )
         throws IOException {
+
+        this( file, BUFFER_SIZE );
+        
+    }
+
+    public DefaultChunkReader( File file, int bufferSize )
+        throws IOException {
         
         this.file = file;
 
@@ -41,7 +48,7 @@ public class DefaultChunkReader implements ChunkReader {
         InputStream is = new FileInputStream( file );
 
         //and also buffer it
-        this.input = new BufferedInputStream( is, BUFFER_SIZE );
+        this.input = new BufferedInputStream( is, bufferSize );
 
         this.varintReader = new VarintReader( this.input );
         
