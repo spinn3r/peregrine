@@ -1,4 +1,15 @@
 
+
+- ok.. so the current sort algorithm will NO LONGER work on these large jobs due
+  to the high number of intermediate files.  I will have to implement a
+  multi-pass merge system now... which will take me some time but isn't too
+  hard.
+
+
+- before a job is executed we need to make sure we aren't running something
+  already on the cluster... this is a GOOD reason why we should use a secondary
+  JVM for jobs so we can just kill it 
+
 - Refactor DefaultChunkWriter to use BufferedChannelBuffer ... 
 
 - ExtractWriter needs buffered IO ... the throughput was nearly 2x ... I think
@@ -10,21 +21,11 @@
 
 - Init of ExtractWriter / DefaultPartitionWriter needs to be fork/join HTTP ... 
 
-- I THINK the sender is writing LOT of small HTTP requests.
-
-- ExtractWriter should be able to close multiple streams in parallel... the
-  problem we have now is that we're still usign MultiOutputStream which we need
-  to deprecate in favor of 100% pipeline operation.
-
 - tests take FAR too much time... the more host we add the SLOWER things get due
   to overhead but I think we can/should fix that problem.
 
-- TestBroadcastMapReduce doesn't equal the right value... it is NEAR the right
-  value but not exactly so I think we're bleeding some packets somewhere.
-
 - LocalPartitionReader should FAIL when trying to read from a partition which is
   not local according to the config.
-
 
 - We're still creating too many threads because of newCachedThreadPool and it's
   causing the server to run our of file handles...

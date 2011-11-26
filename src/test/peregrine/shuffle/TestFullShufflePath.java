@@ -2,15 +2,15 @@ package peregrine.shuffle;
 
 import java.io.*;
 import peregrine.*;
-import peregrine.util.*;
-import peregrine.util.primitive.LongBytes;
-import peregrine.reduce.*;
-import peregrine.config.Partition;
+import peregrine.config.*;
 import peregrine.controller.*;
 import peregrine.io.*;
 import peregrine.io.chunk.*;
-import peregrine.shuffle.sender.*;
+import peregrine.reduce.*;
 import peregrine.reduce.sorter.*;
+import peregrine.shuffle.sender.*;
+import peregrine.util.*;
+import peregrine.util.primitive.*;
 
 /**
  * Test the FULL shuffle path, not just pats of it...including running with two
@@ -21,6 +21,15 @@ public class TestFullShufflePath extends peregrine.BaseTestWithMultipleDaemons {
 
     public TestFullShufflePath() {
         super( 1, 1, 2 );
+    }
+
+    @Override
+    public void setUp() {
+
+        Config.DEFAULT_SHUFFLE_BUFFER_SIZE = 134217728;
+
+        super.setUp();
+        
     }
     
     private void doTestIter( ShuffleJobOutput output, int max_emits ) throws Exception {

@@ -25,7 +25,7 @@ public class HeartbeatTimer extends Timer {
 
     public static long ONLINE_SLEEP_INTERVAL  = 30000L;
     
-    public static long OFFLINE_SLEEP_INTERVAL = 1000L;    	
+    public static long OFFLINE_SLEEP_INTERVAL = 1000L;      
 
     private boolean cancelled = false;
 
@@ -57,48 +57,51 @@ public class HeartbeatTimer extends Timer {
             this.timer = timer;
         }
 
-		@Override
-		public void run() {
+        @Override
+        public void run() {
 
             long delay;
             
-	        	if ( sendHeartbeatToController() ) {
+            if ( sendHeartbeatToController() ) {
                 delay = ONLINE_SLEEP_INTERVAL;
-	        	} else {
+            } else {
                 delay = OFFLINE_SLEEP_INTERVAL;
-	        	}
-
+            }
+            
             if ( ! cancelled ) 
                 timer.schedule( new HeartbeatTimerTask( timer ), delay );
 
-		}
+        }
 
-	    public boolean sendHeartbeatToController() {
-	    	
-	        Message message = new Message();
-	        message.put( "action", "heartbeat" );
-	        message.put( "host",    config.getHost().toString() );
-	        
-	        Host controller = config.getController();
-	        
-	        try {        	
-	        	
-				new Client( true ).invoke( controller, "controller", message );
-				
-				return true;
+        public boolean sendHeartbeatToController() {
+            
+            Message message = new Message();
+            message.put( "action", "heartbeat" );
+            message.put( "host",    config.getHost().toString() );
+            
+            Host controller = config.getController();
 
-			} catch ( IOException e ) {
+            if ( controller == null )
+                throw new NullPointerException( "controller" );
+            
+            try {           
+                
+                new Client( true ).invoke( controller, "controller", message );
+                
+                return true;
+
+            } catch ( IOException e ) {
 
                 if ( Thread.currentThread().isInterrupted() )
                     return false;
 
                 // we don't normally need to send this message because we would be overly verbose.
-				log.debug( String.format( "Unable to send heartbeat to %s: %s", controller, e.getMessage() ) );
-				
-				return false;
-			}
-	   
-	    }        	
+                log.debug( String.format( "Unable to send heartbeat to %s: %s", controller, e.getMessage() ) );
+                
+                return false;
+            }
+       
+        }           
 
     }
 

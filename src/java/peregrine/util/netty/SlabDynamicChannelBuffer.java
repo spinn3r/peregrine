@@ -63,24 +63,30 @@ public class SlabDynamicChannelBuffer extends AbstractChannelBuffer {
 
     @Override
     public void ensureWritableBytes(int minWritableBytes) {
-
+        
         int writableBytes = capacity - writerIndex();
         if ( minWritableBytes <= writableBytes) {
             return;
         }
 
+        int extentLength = this.extentLength;
+
+        if ( extentLength < minWritableBytes ) {
+            extentLength = minWritableBytes;
+        }
+        
         extend( extentLength );
 
     }
 
-    private void extend( int newExtentLength ) {
+    private void extend( int extentLength ) {
 
-        ChannelBuffer newExtent = factory().getBuffer(order(), newExtentLength);
+        ChannelBuffer newExtent = factory().getBuffer(order(), extentLength );
         extents.add( newExtent );
         
         buffer = new CompositeChannelBuffer( endianness, extents );
 
-        capacity += newExtentLength;
+        capacity += extentLength;
         
     }
     

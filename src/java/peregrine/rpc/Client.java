@@ -35,6 +35,9 @@ public class Client {
 
             String data = message.toString();
 
+            if ( host == null )
+                throw new NullPointerException( "host" );
+            
             URI uri = new URI( String.format( "http://%s:%s/%s/RPC", host.getName(), host.getPort(), service ) );
 
             if( ! silent )

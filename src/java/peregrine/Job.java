@@ -80,5 +80,16 @@ public class Job {
     public long getTimestamp() {
         return timestamp;
     }
+
+    @Override
+    public String toString() {
+
+        return String.format( "%s (%s) for input %s and output %s ",
+                              getDelegate().getName(),
+                              getName(),
+                              getInput(),
+                              getOutput() );
+
+    }
     
 }

@@ -185,10 +185,18 @@ public class FSHandler extends DefaultChannelUpstreamHandler {
 
                         @Override
                         public void onClose( boolean success, Throwable cause ) {
-                            
-                            HttpResponse response = new DefaultHttpResponse( HTTP_1_1, OK );
-                            ctx.getChannel().write(response).addListener(ChannelFutureListener.CLOSE);
 
+                            Channel channel = ctx.getChannel();
+
+                            if ( channel.isOpen() ) {
+
+                                if( success ) {
+                                    sendOK( ctx );
+                                } else {
+                                    sendError( ctx, INTERNAL_SERVER_ERROR );
+                                }
+                                
+                            } 
                         }
                         
                     };

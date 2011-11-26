@@ -4,7 +4,8 @@ import java.util.*;
 import peregrine.io.*;
 import peregrine.keys.*;
 import peregrine.values.*;
-import peregrine.util.primitive.LongBytes;
+import peregrine.util.*;
+import peregrine.util.primitive.*;
 
 public class GraphBuilder {
 
@@ -73,18 +74,26 @@ public class GraphBuilder {
         
     }
 
+    public static byte[] hash( long value ) {
+
+        return Hashcode.getHashcodeWithMD5( LongBytes.toByteArray( value ) );
+        
+        //return LongBytes.toByteArray( value );
+        
+    }
+    
     public static void addRecord( ExtractWriter writer,
                                   int source,
                                   List<Integer> targets ) throws Exception {
 
         //byte[] hash = Hashcode.getHashcode( ""+source );
 
-        byte[] hash = LongBytes.toByteArray( source );
+        byte[] hash = hash( source );
         ByteArrayKey key = new ByteArrayKey( hash );
 
         HashSetValue value = new HashSetValue();
         for ( int target : targets ) {
-            byte[] target_key = LongBytes.toByteArray( target );
+            byte[] target_key = hash( target );
             value.add( target_key );
         }
         

@@ -87,7 +87,7 @@ public class Controller {
      */
     public void map( final Job job ) throws Exception {
     	
-    	withScheduler( "map", job, new Scheduler( config, clusterState ) {
+    	withScheduler( "map", job, new Scheduler( job, config, clusterState ) {
 
                 public void invoke( Host host, Partition part ) throws Exception {
 
@@ -138,7 +138,7 @@ public class Controller {
      */
     public void merge( final Job job ) throws Exception {
     	
-        withScheduler( "merge", job, new Scheduler( config, clusterState ) {
+        withScheduler( "merge", job, new Scheduler( job, config, clusterState ) {
 
                 public void invoke( Host host, Partition part ) throws Exception {
 
@@ -180,7 +180,7 @@ public class Controller {
             throw new IOException( "Reducer requires at least one shuffle input." );
         }
       
-        withScheduler( "reduce", job, new Scheduler( config, clusterState ) {
+        withScheduler( "reduce", job, new Scheduler( job, config, clusterState ) {
 
                 public void invoke( Host host, Partition part ) throws Exception {
 

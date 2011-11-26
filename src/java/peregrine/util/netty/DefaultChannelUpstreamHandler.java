@@ -3,6 +3,7 @@ package peregrine.util.netty;
 import static org.jboss.netty.handler.codec.http.HttpMethod.*;
 import static org.jboss.netty.handler.codec.http.HttpResponseStatus.*;
 import static org.jboss.netty.handler.codec.http.HttpVersion.*;
+import static org.jboss.netty.handler.codec.http.HttpHeaders.Names.*;
 
 import java.io.*;
 import java.net.*;
@@ -11,6 +12,7 @@ import org.jboss.netty.buffer.*;
 import org.jboss.netty.channel.*;
 import org.jboss.netty.handler.codec.frame.*;
 import org.jboss.netty.handler.codec.http.*;
+import org.jboss.netty.util.*;
 
 import peregrine.*;
 import peregrine.config.*;
@@ -62,18 +64,20 @@ public class DefaultChannelUpstreamHandler extends SimpleChannelUpstreamHandler 
         
     }
 
+    protected void sendOK( ChannelHandlerContext ctx ) {
+        HttpResponse response = new DefaultHttpResponse( HTTP_1_1, OK );
+        ctx.getChannel().write(response).addListener(ChannelFutureListener.CLOSE);
+    }
+    
     protected void sendError(ChannelHandlerContext ctx, HttpResponseStatus status) {
 
         HttpResponse response = new DefaultHttpResponse(HTTP_1_1, status);
 
-        /*
         response.setHeader(CONTENT_TYPE, "text/plain; charset=UTF-8");
 
         String msg = "Failure: " + status.toString() + "\r\n";
-
         response.setContent( ChannelBuffers.copiedBuffer( msg, CharsetUtil.UTF_8));
-        */
-        
+
         // Close the connection as soon as the error message is sent.
         ctx.getChannel().write(response).addListener(ChannelFutureListener.CLOSE);
 

@@ -3,7 +3,8 @@ package peregrine.io.chunk;
 import java.io.*;
 import peregrine.io.async.*;
 import peregrine.util.*;
-import peregrine.util.primitive.IntBytes;
+import peregrine.util.netty.*;
+import peregrine.util.primitive.*;
 
 import org.jboss.netty.buffer.*;
 
@@ -31,8 +32,11 @@ public class DefaultChunkWriter implements ChunkWriter {
     private boolean closed = false;
 
     private boolean shutdown = false;
-    
-    private ChannelBuffer buff = ChannelBuffers.buffer( BUFFER_SIZE );
+
+    // FIXME: this MUST become a DynamicBuffer which does the deterministic
+    // expansion by slabs ... 
+
+    private ChannelBuffer buff = new SlabDynamicChannelBuffer( BUFFER_SIZE, BUFFER_SIZE );
 
     public DefaultChunkWriter( OutputStream out ) throws IOException {
         this.out = out;
@@ -98,7 +102,12 @@ public class DefaultChunkWriter implements ChunkWriter {
 
         length += buff.writerIndex();
 
-        out.write( buff.array() , 0,  buff.writerIndex() );
+        //FIXME: rewrite this to use transferTo and mmap.
+
+        byte[] data = new byte[ buff.writerIndex() ];
+        
+        buff.getBytes( 0, data, 0, buff.writerIndex() );
+        out.write( data );
 
         buff.resetReaderIndex();
         buff.resetWriterIndex();
