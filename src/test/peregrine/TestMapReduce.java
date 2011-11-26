@@ -4,6 +4,7 @@ import java.io.*;
 import java.util.*;
 import java.util.concurrent.atomic.*;
 import peregrine.config.*;
+import peregrine.controller.*;
 import peregrine.io.*;
 import peregrine.io.partition.*;
 import peregrine.util.primitive.*;

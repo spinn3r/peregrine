@@ -2,6 +2,7 @@ package peregrine.pagerank;
 
 import peregrine.*;
 import peregrine.config.Config;
+import peregrine.controller.*;
 import peregrine.io.*;
 
 import com.spinn3r.log5j.Logger;

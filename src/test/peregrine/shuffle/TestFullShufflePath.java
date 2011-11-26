@@ -6,6 +6,7 @@ import peregrine.util.*;
 import peregrine.util.primitive.LongBytes;
 import peregrine.reduce.*;
 import peregrine.config.Partition;
+import peregrine.controller.*;
 import peregrine.io.*;
 import peregrine.io.chunk.*;
 import peregrine.shuffle.sender.*;

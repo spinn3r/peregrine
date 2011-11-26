@@ -1,10 +1,11 @@
 
-package peregrine;
+package peregrine.controller;
 
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.*;
 
+import peregrine.*;
 import peregrine.config.*;
 import peregrine.controller.*;
 import peregrine.http.*;

@@ -3,6 +3,7 @@ package peregrine.controller;
 import java.net.*;
 
 import peregrine.*;
+import peregrine.config.*;
 import peregrine.http.*;
 import peregrine.pfsd.*;
 
@@ -30,9 +31,20 @@ public class TestMarkOfflineTimer extends peregrine.BaseTestWithTwoDaemons {
 
             shutdown();
 
-            Thread.sleep( 60000L );
+            Thread.sleep( 11000L );
 
-            // 
+            // make sure our hosts are marked offline.
+
+            Offline offline = controller.clusterState.getOffline();
+            
+            for( Host host : config.getHosts() ) {
+
+                if ( ! offline.contains( host ) )
+                    throw new RuntimeException( "host not offline: " + host );
+                
+            }
+
+            System.out.printf( "WIN.  All hosts have been marked offline.\n" );
             
         } finally {
             controller.shutdown();
