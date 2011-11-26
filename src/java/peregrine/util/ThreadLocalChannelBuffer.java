@@ -1,5 +1,7 @@
 package peregrine.util;
 
+import peregrine.util.netty.*;
+
 import org.jboss.netty.buffer.*;
 
 /**
@@ -8,10 +10,10 @@ import org.jboss.netty.buffer.*;
  */
 public class ThreadLocalChannelBuffer extends ThreadLocal<ChannelBuffer> {
 
-    SimpleChannelBufferFactory factory;
+    private int capacity;
     
     public ThreadLocalChannelBuffer( int capacity ) {
-        this.factory = new DefaultSimpleChannelBufferFactory( capacity );
+        this.capacity = capacity;
     }
 
     @Override
@@ -28,27 +30,12 @@ public class ThreadLocalChannelBuffer extends ThreadLocal<ChannelBuffer> {
     
     @Override
     public ChannelBuffer initialValue() {
-        return factory.newChannelBuffer();
+        //return ChannelBuffers.buffer( capacity );
+
+        // support extension if we need it...
+        return new SlabDynamicChannelBuffer( capacity, capacity );
+        
     }
     
 }
 
-interface SimpleChannelBufferFactory {
-
-    public ChannelBuffer newChannelBuffer();
-    
-}
-
-class DefaultSimpleChannelBufferFactory implements SimpleChannelBufferFactory {
-
-    private int capacity;
-    
-    public DefaultSimpleChannelBufferFactory( int capacity ) {
-        this.capacity = capacity;
-    }
-
-    public ChannelBuffer newChannelBuffer() {
-        return ChannelBuffers.buffer( capacity );
-    }
-    
-}
