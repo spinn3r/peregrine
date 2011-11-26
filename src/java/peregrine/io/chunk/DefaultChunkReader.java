@@ -1,6 +1,9 @@
 package peregrine.io.chunk;
 
 import java.io.*;
+import java.nio.*;
+import java.nio.channels.*;
+
 import peregrine.*;
 import peregrine.util.*;
 import peregrine.util.primitive.IntBytes;
@@ -8,12 +11,10 @@ import peregrine.util.primitive.IntBytes;
 import org.jboss.netty.buffer.*;
 
 public class DefaultChunkReader implements ChunkReader {
-
-    public static int BUFFER_SIZE = 8192;
     
     private File file = null;
 
-    private InputStream input = null;
+    private ChannelBuffer buff = null;
 
     private VarintReader varintReader;;
 
@@ -32,46 +33,20 @@ public class DefaultChunkReader implements ChunkReader {
      */
     private int idx = 0;
 
+    // FIXME: share all this code with using a ChannelBuffer across the three
+    // constructors.
+    
     public DefaultChunkReader( File file )
         throws IOException {
 
-        this( file, BUFFER_SIZE );
-        
-    }
-
-    public DefaultChunkReader( File file, int bufferSize )
-        throws IOException {
-        
-        this.file = file;
-
         //read from the given file.
-        InputStream is = new FileInputStream( file );
+        FileInputStream in = new FileInputStream( file );
 
-        //and also buffer it
-        this.input = new BufferedInputStream( is, bufferSize );
+        MappedByteBuffer map = in.getChannel().map( FileChannel.MapMode.READ_ONLY, 0, file.length() );
 
-        this.varintReader = new VarintReader( this.input );
-        
-        // and keep track of reads but also buffer the IO ...
-        this.length = file.length();
-
-        RandomAccessFile raf = new RandomAccessFile( file , "r" );
-
-        try {
-
-            assertLength();
-            raf.seek( this.length - IntBytes.LENGTH );
-            
-            byte[] size_bytes = new byte[ IntBytes.LENGTH ];
-            raf.read( size_bytes );
-            
-            setSize( IntBytes.toInt( size_bytes ) );
-
-        } finally {
-            
-            raf.close();
-
-        }
+        buff = ChannelBuffers.wrappedBuffer( map );
+      
+        init( buff );
         
     }
 
@@ -79,28 +54,36 @@ public class DefaultChunkReader implements ChunkReader {
         throws IOException {
 
         this.file = file;
-        this.input = new ChannelBufferInputStream( buff );
-        this.varintReader = new VarintReader( this.input );
-        this.length = file.length();
+        init( buff );
 
-        assertLength();
-        setSize( buff.getInt( (int)(length - 4) ) );
-        
     }
     
     public DefaultChunkReader( byte[] data )
         throws IOException {
-         
-        this.length = data.length;
-        
-        ChannelBuffer buff = ChannelBuffers.wrappedBuffer( data );
-        setSize( buff.getInt( buff.writerIndex() - IntBytes.LENGTH ) );
-
-        this.input = new ByteArrayInputStream( data );
-        this.varintReader = new VarintReader( this.input );
+                 
+        init( ChannelBuffers.wrappedBuffer( data ) );
 
     }
 
+    public DefaultChunkReader( ChannelBuffer buff )
+        throws IOException {
+
+        init( buff );
+        
+    }
+
+    private void init( ChannelBuffer buff )
+        throws IOException {
+
+        this.buff = buff;
+        this.length = buff.writerIndex();
+        this.varintReader = new VarintReader( buff );
+        
+        assertLength();
+        setSize( buff.getInt( buff.writerIndex() - IntBytes.LENGTH ) );
+
+    }
+    
     @Override
     public boolean hasNext() throws IOException {
 
@@ -125,7 +108,6 @@ public class DefaultChunkReader implements ChunkReader {
 
     @Override
     public void close() throws IOException {
-        this.input.close();
     }
 
     @Override
@@ -157,7 +139,7 @@ public class DefaultChunkReader implements ChunkReader {
      * over it in the input stream.
      */
     public void skip() throws IOException {
-        input.skip( varintReader.read() );        
+        buff.readerIndex( buff.readerIndex() + varintReader.read() );
     }
 
     private byte[] readEntry() throws IOException {
@@ -165,7 +147,6 @@ public class DefaultChunkReader implements ChunkReader {
         try {
 
             int len = varintReader.read();
-        
             return readBytes( len );
             
         } catch ( Throwable t ) {
@@ -177,7 +158,7 @@ public class DefaultChunkReader implements ChunkReader {
     private byte[] readBytes( int len ) throws IOException {
 
         byte[] data = new byte[len];
-        input.read( data );
+        buff.readBytes( data );
         return data;
         
     }

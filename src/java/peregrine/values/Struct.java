@@ -92,23 +92,16 @@ public class Struct implements Value {
     @Override
     public void fromBytes( byte[] data ) {
 
-        try {
-            
-            TrackedInputStream is = new TrackedInputStream( new ByteArrayInputStream( data ) );
-            VarintReader varintReader = new VarintReader( is );
-            
-            while( is.getPosition() < data.length ) {
+        ChannelBuffer buff = ChannelBuffers.wrappedBuffer( data );
 
-                int len = varintReader.read();
-                byte[] entry = new byte[len];
-                is.read( entry );
-                values.add( entry );
-            }
-            
-            is.close();
-            
-        } catch ( IOException e ) {
-            throw new RuntimeException( e ); // can't happen.
+        VarintReader varintReader = new VarintReader( buff );
+        
+        while( buff.readerIndex() < data.length ) {
+
+            int len = varintReader.read();
+            byte[] entry = new byte[len];
+            buff.readBytes( entry );
+            values.add( entry );
         }
 
     }

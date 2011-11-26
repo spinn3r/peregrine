@@ -15,6 +15,8 @@ import com.spinn3r.log5j.Logger;
 public class Config {
 
     private static final Logger log = Logger.getLogger();
+
+    public static long DEFAULT_SHUFFLE_BUFFER_SIZE = 1048576;
     
     /**
      * Default port for serving requests.
@@ -75,7 +77,7 @@ public class Config {
      */
     protected int concurrency = DEFAULT_CONCURRENCY;
 
-    protected long shuffleBufferSize = 1048576;
+    protected long shuffleBufferSize = DEFAULT_SHUFFLE_BUFFER_SIZE;
 
     protected PartitionRouter router = null;
 
