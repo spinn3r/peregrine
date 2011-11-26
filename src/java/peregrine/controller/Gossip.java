@@ -1,7 +1,9 @@
-package peregrine.config;
+package peregrine.controller;
 
 import com.spinn3r.log5j.*;
 
+import peregrine.config.*;
+import peregrine.controller.*;
 import peregrine.util.*;
 
 /**
@@ -19,10 +21,16 @@ public class Gossip extends MarkMap<Host,MarkSet<Host>> {
     public static double QUORUM = 0.5;
     
 	private Config config;
+	
+	private Online online;
+	
+	private Offline offline;
 		
-	public Gossip( Config config ) {		
+	public Gossip( Config config, Online online, Offline offline ) {		
 		
 		this.config = config;
+		this.online = online;
+		this.offline = offline;
 				
 		for( Host host : config.getHosts() ) {
 			map.put( host, new MarkSet() );
@@ -44,9 +52,9 @@ public class Gossip extends MarkMap<Host,MarkSet<Host>> {
 			log.warn( "Host is no longer online: %s (%,d hosts have gossiped that it has failed.)", failed , marks.size() );
 			
 			// we can't use this host anymore.  
-			config.getMembership().getOffline().mark( failed );
+			offline.mark( failed );
 
-			config.getMembership().getOnline().clear( failed );
+			online.clear( failed );
 			
 		}
 		

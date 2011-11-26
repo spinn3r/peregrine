@@ -25,14 +25,27 @@ public class ControllerDaemon extends BaseDaemon {
     private Scheduler scheduler = null;
 
     private Controller controller = null;
-    
-    public ControllerDaemon( Controller controller, Config config ) {
+
+    private ClusterState clusterState;
+
+    public ControllerDaemon( Controller controller, 
+    		                 Config config,
+                             ClusterState clusterState ) {
 
         this.controller = controller;
         this.setConfig( config );
-
+        this.clusterState = clusterState;
+        
         init();
         
+        clusterState.init( this );
+        
+    }
+    
+    @Override
+    public void shutdown() {
+    	clusterState.shutdown();
+    	super.shutdown();
     }
 
     @Override
@@ -51,5 +64,9 @@ public class ControllerDaemon extends BaseDaemon {
     public Controller getController() {
         return controller;
     }
-    
+
+    public ClusterState getClusterState() { 
+        return this.clusterState;
+    }
+
 }

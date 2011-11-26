@@ -16,12 +16,6 @@ public class Membership {
     protected Map<Host,List<Partition>> partitionsByHost = new HashMap();
 
     protected Map<Host,List<Replica>> replicasByHost = new HashMap();
-
-    protected Online online = new Online( this );
-
-    protected Offline offline = new Offline();
-
-    protected Gossip gossip;
     
     protected Config config;
     
@@ -39,8 +33,7 @@ public class Membership {
         this.hostsByPartition = hostsByPartition;
         this.partitionsByHost = partitionsByHost;
         this.replicasByHost = replicasByHost;
-        
-        this.gossip = new Gossip( config );
+                
     }
     
     public Set<Partition> getPartitions() {
@@ -99,18 +92,6 @@ public class Membership {
     public void setPartition( Partition part, List<Host> hosts ) {
         hostsByPartition.put( part, hosts );
         updatePartitionsByHostMapping( part, hosts );
-    }
-
-    public Online getOnline() {
-    	return online;
-    }
-
-    public Offline getOffline() {
-    	return offline;
-    }
-
-    public Gossip getGossip() {
-        return gossip;
     }
     
     public int size() {

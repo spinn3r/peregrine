@@ -1,23 +1,25 @@
-package peregrine.config;
+package peregrine.controller;
 
 import com.spinn3r.log5j.*;
 
+import peregrine.config.*;
+import peregrine.controller.*;
 import peregrine.util.*;
 
-public class Online extends MarkSet<Host>{
+public class Online extends MarkMap<Host,Long>{
 
 	private static final Logger log = Logger.getLogger();
 
-    private Membership membership;
+    private Offline offline;
     
-    public Online( Membership membership ) {
-        this.membership = membership;
+    public Online( Offline offline ) {
+        this.offline = offline;
     }
     
 	@Override
 	public void mark( Host entry ) {
 
-        if ( membership.getOffline().contains( entry ) ) {
+        if ( offline.contains( entry ) ) {
             log.debug( "Host is marked offline.  Not adding online." );
             return;
         }

@@ -31,6 +31,8 @@ public class Controller {
 
     private ControllerDaemon daemon = null;
     
+    protected ClusterState clusterState;
+    
     public Controller( Config config ) {
     	
         this.config = config;
@@ -51,9 +53,12 @@ public class Controller {
         config.setHost( config.getController() );
 
         log.info( "Starting controller: %s", config.getController() );
-        
-        this.daemon = new ControllerDaemon( this, config );
 
+        this.clusterState = new ClusterState( config, this );
+
+        this.daemon = new ControllerDaemon( this, config, clusterState );
+       
+        
     }
 
     public void map( Class mapper,
@@ -81,7 +86,7 @@ public class Controller {
      */
     public void map( final Job job ) throws Exception {
     	
-    	withScheduler( "map", job, new Scheduler( config ) {
+    	withScheduler( "map", job, new Scheduler( config, clusterState ) {
 
                 public void invoke( Host host, Partition part ) throws Exception {
 
@@ -132,7 +137,7 @@ public class Controller {
      */
     public void merge( final Job job ) throws Exception {
     	
-        withScheduler( "merge", job, new Scheduler( config ) {
+        withScheduler( "merge", job, new Scheduler( config, clusterState ) {
 
                 public void invoke( Host host, Partition part ) throws Exception {
 
@@ -174,7 +179,7 @@ public class Controller {
             throw new IOException( "Reducer requires at least one shuffle input." );
         }
       
-        withScheduler( "reduce", job, new Scheduler( config ) {
+        withScheduler( "reduce", job, new Scheduler( config, clusterState ) {
 
                 public void invoke( Host host, Partition part ) throws Exception {
 

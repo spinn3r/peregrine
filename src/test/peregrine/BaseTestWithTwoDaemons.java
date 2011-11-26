@@ -62,12 +62,18 @@ public abstract class BaseTestWithTwoDaemons extends peregrine.BaseTest {
 
     public void tearDown() {
 
-        for( FSDaemon daemon : daemons ) {
-            daemon.shutdown();
-        }
+        shutdown();
         
         super.tearDown();
 
     }
 
+    public void shutdown() {
+
+        for( FSDaemon daemon : daemons ) {
+            daemon.shutdown();
+        }
+
+    }
+    
 }

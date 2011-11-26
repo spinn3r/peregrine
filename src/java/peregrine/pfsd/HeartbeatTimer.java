@@ -23,9 +23,9 @@ public class HeartbeatTimer extends Timer {
 
     private static final Logger log = Logger.getLogger();
 
-    public static final long ONLINE_SLEEP_INTERVAL  = 30000L;
+    public static long ONLINE_SLEEP_INTERVAL  = 30000L;
     
-    public static final long OFFLINE_SLEEP_INTERVAL = 1000L;    	
+    public static long OFFLINE_SLEEP_INTERVAL = 1000L;    	
 
     private boolean cancelled = false;
 

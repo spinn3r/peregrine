@@ -65,7 +65,7 @@ public class ControllerRPCDelegate extends RPCDelegate<ControllerDaemon> {
 	            Host host = Host.parse( message.get( "host" ) );
 
                 // mark this host as online for the entire controller.
-	            controllerDaemon.getConfig().getMembership().getOnline().mark( host );
+	            controllerDaemon.getClusterState().getOnline().mark( host );
 		    	
 	            return;
 		    	
@@ -82,7 +82,7 @@ public class ControllerRPCDelegate extends RPCDelegate<ControllerDaemon> {
 	            Host reporter = Host.parse( message.get( "reporter" ) );
 	            Host failed   = Host.parse( message.get( "failed" ) );
 
-	            controllerDaemon.getConfig().getMembership().getGossip().mark( reporter, failed ); 
+	            controllerDaemon.getClusterState().getGossip().mark( reporter, failed ); 
                 
 	            return;
 		    	

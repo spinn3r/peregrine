@@ -9,34 +9,38 @@ public class MarkMap<T,V> {
 
     protected List<MarkListener<T>> listeners = new ArrayList();
     
-	public void mark( T entry ) {
-        put( entry, null );
+	public void mark( T key ) {
+        put( key, null );
 	}
 
-    protected void put( T entry, V value ) {
+    protected void put( T key, V value ) {
 
-        boolean updated = map.get( entry ) == null;
+        boolean updated = map.get( key ) == null;
         
-		map.put( entry, value );
+		map.put( key, value );
 
         if ( updated ) 
-            fireUpdated( entry, MarkListener.Status.MARKED );
+            fireUpdated( key, MarkListener.Status.MARKED );
         
     }
-    
-	public void clear( T entry ) {
 
-        boolean updated = map.get( entry ) != null;
+    public V get( T key ) {
+        return map.get( key );
+    }
 
-        map.remove( entry );
+	public void clear( T key ) {
+
+        boolean updated = map.get( key ) != null;
+
+        map.remove( key );
 
         if ( updated ) 
-            fireUpdated( entry, MarkListener.Status.CLEARED );
+            fireUpdated( key, MarkListener.Status.CLEARED );
         
 	}
 
-	public boolean contains( T entry ) {
-		return map.containsKey( entry );
+	public boolean contains( T key ) {
+		return map.containsKey( key );
 	}
 
     public int size() {
@@ -65,16 +69,16 @@ public class MarkMap<T,V> {
 
         addListener( listener );
 
-        for( T entry : map.keySet() ) {
-            listener.updated( entry, MarkListener.Status.MARKED );
+        for( T key : map.keySet() ) {
+            listener.updated( key, MarkListener.Status.MARKED );
         }
         
     }
     
-    protected void fireUpdated( T entry, MarkListener.Status status ) {
+    protected void fireUpdated( T key, MarkListener.Status status ) {
 
         for( MarkListener current : listeners ) {
-            current.updated( entry, status );
+            current.updated( key, status );
         }
         
     }

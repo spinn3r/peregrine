@@ -7,6 +7,8 @@ import java.util.concurrent.atomic.*;
 
 import peregrine.util.*;
 import peregrine.config.*;
+import peregrine.controller.*;
+
 import com.spinn3r.log5j.*;
 
 public abstract class Scheduler {
@@ -50,18 +52,22 @@ public abstract class Scheduler {
 
     protected ChangedMessage changedMessage = new ChangedMessage();
 
-    public Scheduler( final Config config ) {
+    private ClusterState clusterState;
+    
+    public Scheduler( final Config config,
+    				  ClusterState clusterState ) {
 
         this.config = config;
         this.membership = config.getMembership();
-
+        this.clusterState = clusterState;
+        
         concurrency = new IncrMap( config.getHosts() );
 
         offlinePartitions = new IncrMap( config.getMembership().getPartitions() );
         
         // import the current list of online hosts and pay attention to new
         // updates in the future.
-        membership.getOnline().addListenerWithSnapshot( new MarkListener<Host>() {
+        clusterState.getOnline().addListenerWithSnapshot( new MarkListener<Host>() {
 
                 public void updated( Host host, MarkListener.Status status ) {
 
@@ -74,7 +80,7 @@ public abstract class Scheduler {
 
             } );
 
-        membership.getOffline().addListenerWithSnapshot( new MarkListener<Host>() {
+        clusterState.getOffline().addListenerWithSnapshot( new MarkListener<Host>() {
 
                 public void updated( Host host, MarkListener.Status status ) {
 
@@ -187,7 +193,7 @@ public abstract class Scheduler {
     
     public void markOnline( Host host ) {
 
-    	if ( ! config.getMembership().getOnline().contains( host ) ) {    		
+    	if ( ! clusterState.getOnline().contains( host ) ) {    		
     		log.info( "Host is now online: %s", host );
     		available.putWhenMissing( host );
     	}
@@ -242,7 +248,7 @@ public abstract class Scheduler {
                                             "available:  %s\n" +
                                             "spare:      %s\n" +
                                             "online:     %s",
-                                            pending, completed, available, spare, membership.getOnline() );
+                                            pending, completed, available, spare, clusterState.getOnline() );
 
             if ( changedMessage.hasChanged( message ) ) {
                 log.info( message );
