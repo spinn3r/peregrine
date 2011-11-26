@@ -16,6 +16,8 @@ public class Config {
     
     private static final Logger log = Logger.getLogger();
 
+    public static long DEFAULT_SHUFFLE_BUFFER_SIZE = 1048576;
+    
     /**
      * Default port for serving requests.
      */
@@ -74,7 +76,9 @@ public class Config {
      * can run.
      */
     protected int concurrency = DEFAULT_CONCURRENCY;
-    
+
+    private long shuffleBufferSize = DEFAULT_SHUFFLE_BUFFER_SIZE;
+
     protected PartitionRouter router = null;
     
     public Config() { }
@@ -189,6 +193,14 @@ public class Config {
 
     public void setConcurrency( int concurrency ) { 
         this.concurrency = concurrency;
+    }
+
+    public long getShuffleBufferSize() { 
+        return this.shuffleBufferSize;
+    }
+
+    public void setShuffleBufferSize( long shuffleBufferSize ) { 
+        this.shuffleBufferSize = shuffleBufferSize;
     }
 
     public String getRoot( Partition partition ) {

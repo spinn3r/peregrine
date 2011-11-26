@@ -26,11 +26,6 @@ public class ShuffleOutputWriter {
     private static final Logger log = Logger.getLogger();
 
     /**
-     * Chunk size for rollover files.
-     */
-    public static long COMMIT_SIZE = 134217728;
-
-    /**
      * Magic number for this file.  Right now it is 'PSO1' which stands for
      * Peregrine.Reduce Output version 1.
      */
@@ -80,7 +75,7 @@ public class ShuffleOutputWriter {
     }
 
     public boolean hasCapacity() {
-        return length < COMMIT_SIZE;
+        return length < config.getShuffleBufferSize();
     }
 
     private Map<Integer,ShuffleOutputPartition> buildLookup() throws IOException {
