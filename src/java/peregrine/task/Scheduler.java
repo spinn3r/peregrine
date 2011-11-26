@@ -5,6 +5,7 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.*;
 
+import peregrine.*;
 import peregrine.util.*;
 import peregrine.config.*;
 import peregrine.controller.*;
@@ -53,9 +54,9 @@ public abstract class Scheduler {
     protected ChangedMessage changedMessage = new ChangedMessage();
 
     private ClusterState clusterState;
-    
+
     public Scheduler( final Config config,
-    				  ClusterState clusterState ) {
+    				  final ClusterState clusterState ) {
 
         this.config = config;
         this.membership = config.getMembership();
@@ -242,24 +243,59 @@ public abstract class Scheduler {
 
             }
 
-            String message = String.format( "\n" +
-                                            "pending:    %s\n" + 
-                                            "completed:  %s\n" +
-                                            "available:  %s\n" +
-                                            "spare:      %s\n" +
-                                            "online:     %s",
-                                            pending, completed, available, spare, clusterState.getOnline() );
-
-            if ( changedMessage.hasChanged( message ) ) {
-                log.info( message );
+            String status = status();
+            
+            if ( changedMessage.hasChanged( status ) ) {
+                log.info( "%s", status );
             }
 
-            changedMessage.update( message );
+            changedMessage.update( status );
 
         }
             
     }
 
+    private String status() {
+
+        StringBuilder buff = new StringBuilder();
+
+        buff.append( "-- progress: --\n" );
+        
+        buff.append( String.format( "\n" +
+                                    "  pending:    %s\n" + 
+                                    "  completed:  %s\n" +
+                                    "  available:  %s\n" +
+                                    "  spare:      %s\n" +
+                                    "  online:     %s\n",
+                                    format( pending ), format( completed ), available, spare, clusterState.getOnline() ) );
+
+        long perc = (long)(100 * (completed.size() / (double)membership.getPartitions().size()));
+        
+        buff.append( String.format( "  Perc complete: %,d %% \n", perc ) );
+
+        buff.setLength( buff.length() - 1 ); // trim the trailing \n
+        
+        return buff.toString();
+
+    }
+
+    private String format( MarkSet<Partition> set ) {
+
+        StringBuilder buff = new StringBuilder();
+
+        for( Partition part : set.values() ) {
+
+            if ( buff.length() > 0 )
+                buff.append( ", " );
+
+            buff.append( part.getId() );
+            
+        }
+
+        return buff.toString();
+        
+    }
+    
 }
 
 class Fail {

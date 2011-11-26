@@ -5,6 +5,7 @@ import org.jboss.netty.buffer.*;
 import peregrine.config.*;
 import peregrine.shuffle.*;
 import peregrine.util.*;
+import peregrine.util.netty.*;
 
 import com.spinn3r.log5j.*;
 
@@ -68,10 +69,16 @@ public class Test {
 
     public static void main( String[] args ) throws Exception {
 
-        while( true ) {
-            ChannelBuffer buff = ChannelBuffers.directBuffer( 2097152 );
-            System.out.printf( "." );
+        SlabDynamicChannelBuffer buff = new SlabDynamicChannelBuffer( 1 , 1 );
+
+        for( int i = 0; i < 10000; ++i ) {
+            buff.writeInt( i );
         }
+
+        // while( true ) {
+        //     ChannelBuffer buff = ChannelBuffers.directBuffer( 2097152 );
+        //     System.out.printf( "." );
+        // }
         
         /*
         

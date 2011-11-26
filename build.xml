@@ -30,11 +30,6 @@
         </classpath>
     </taskdef>
 
-    <taskdef name="junit"
-             classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask">
-        <classpath refid="project.classpath"/>
-    </taskdef>	
-
     <target name="with.clover">
         <clover-setup/>
     </target>
@@ -110,6 +105,11 @@
     <target name="test" 
             depends="jar,compile.test" 
             description="Run junit tests.">
+
+        <taskdef name="junit"
+                 classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask">
+            <classpath refid="project.classpath"/>
+        </taskdef>	
 
         <junit printsummary="withOutAndErr"
                fork="true"
@@ -234,6 +234,11 @@
 
     <target name="test-multi-exec">
 
+      <taskdef name="junit"
+               classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask">
+          <classpath refid="project.classpath"/>
+      </taskdef>	
+
       <echo message="peregrine.test.config: ${peregrine.test.config}"/>
 
         <junit printsummary="withOutAndErr"
@@ -276,41 +281,6 @@
             
         </junit>
 
-    </target> 
-
-    <target name="test-all" 
-            depends="jar,compile.test" 
-            description="Run junit tests.">
-
-        <taskdef name="junit"
-                 classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask">
-            <classpath refid="project.classpath"/>
-        </taskdef>	
-
-        <junit printsummary="on"
-               fork="true"
-               forkmode="perTest"
-               timeout="1000000"
-               maxmemory="512m"
-               filtertrace="false"
-               haltonfailure="false"
-               haltonerror="false"
-               showoutput="true" 
-               logfailedtests="true">
-
-            <classpath>
-                <path refid="project.classpath"/>
-            </classpath>
-
-            <batchtest todir="target/test-reports"> 
-
-                <fileset dir="src/test">
-                    <include name="**/Test*.java"/>
-                </fileset>
-
-            </batchtest>
-            
-        </junit>
     </target> 
 
   <target name="javadoc" description="Generate javadoc" depends="compile">

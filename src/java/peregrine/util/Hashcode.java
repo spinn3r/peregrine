@@ -14,14 +14,29 @@ public class Hashcode {
     }
 
     public static byte[] getHashcode( byte[] input ) {
+        return getHashcodeWithSHA1( input );
+    }
+
+    public static byte[] getHashcodeWithSHA1( byte[] input ) {
 
         //TODO: it is probably easier to route based on the byte array data and
         //not first converting it to a long.
         
-        byte[] sha1 = SHA1.encode( input );
+        byte[] hashed = SHA1.encode( input );
+        byte[] data   = new byte[ HASH_WIDTH ];
+        
+        System.arraycopy( hashed, 0, data, 0, HASH_WIDTH );
+        
+        return data;
+
+    }
+
+    public static byte[] getHashcodeWithMD5( byte[] input ) {
+
+        byte[] hashed = MD5.encode( input );
         byte[] data = new byte[ HASH_WIDTH ];
         
-        System.arraycopy( sha1, 0, data, 0, HASH_WIDTH );
+        System.arraycopy( hashed, 0, data, 0, HASH_WIDTH );
         
         return data;
 
