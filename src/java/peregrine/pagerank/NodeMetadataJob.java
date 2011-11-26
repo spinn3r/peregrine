@@ -66,10 +66,10 @@ public class NodeMetadataJob {
                 nonlinkedOutput.emit( key, BooleanValue.TRUE );
             }
 
-            nodeMetadataOutput.emit( key, new Struct()
-                                     .write( indegree )
-                                     .write( outdegree )
-                                     .toBytes() );
+            nodeMetadataOutput.emit( key, new StructWriter()
+                                             .writeInt( indegree )
+                                             .writeInt( outdegree )
+                                             .toBytes() );
 
             ++nrNodes;
             

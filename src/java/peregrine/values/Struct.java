@@ -17,8 +17,6 @@ public class Struct implements Value {
 
     public List<byte[]> values = new ArrayList();
 
-    private int ptr = 0;
-    
     public Struct() {}
 
     public Struct( byte[] data ) {
@@ -36,16 +34,6 @@ public class Struct implements Value {
         return this;
 
     }
-    
-    public Struct write( String value ) {
-        write( new StringValue( value ).toBytes() );
-        return this;
-    }
-
-    public Struct write( int value ) {
-        write( new IntValue( value ).toBytes() );
-        return this;
-    }
 
     public Struct write( byte[] value ) {
         values.add( value );
@@ -56,10 +44,6 @@ public class Struct implements Value {
 
     public List<byte[]> read() {
         return values;
-    }
-
-    public int readInt() {
-        return new IntValue( values.get( ptr++ ) ).value;
     }
 
     @Override
@@ -73,7 +57,8 @@ public class Struct implements Value {
             }
 
             ChannelBuffer buff = ChannelBuffers.buffer( len );
-            
+
+            //TODO: support fixed with encoding if ALL are the same width
             for( byte[] value : values ) {
                 VarintWriter.write( buff, value.length );
                 buff.writeBytes( value );
