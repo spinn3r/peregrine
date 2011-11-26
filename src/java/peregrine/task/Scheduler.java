@@ -55,9 +55,13 @@ public abstract class Scheduler {
 
     private ClusterState clusterState;
 
-    public Scheduler( final Config config,
-    				  final ClusterState clusterState ) {
+    private Job job;
+    
+    public Scheduler( final Job job,
+                      final Config config,
+                      final ClusterState clusterState ) {
 
+        this.job = job;
         this.config = config;
         this.membership = config.getMembership();
         this.clusterState = clusterState;
@@ -206,7 +210,7 @@ public abstract class Scheduler {
      */
     public void waitForCompletion() throws Exception {
 
-        log.info( "Waiting on completion ... " );
+        log.info( "Waiting on completion %s" , job );
         
         while( true ) {
         

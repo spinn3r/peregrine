@@ -85,10 +85,10 @@ public class Job {
     public String toString() {
 
         return String.format( "%s (%s) for input %s and output %s ",
-                              job.getDelegate().getName(),
-                              job.getName(),
-                              job.getInput(),
-                              job.getOutput() );
+                              getDelegate().getName(),
+                              getName(),
+                              getInput(),
+                              getOutput() );
 
     }
     
