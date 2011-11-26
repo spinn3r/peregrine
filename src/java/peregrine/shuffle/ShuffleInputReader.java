@@ -74,7 +74,7 @@ public class ShuffleInputReader {
         
         in = new FileInputStream( file );
 
-        int length = file.length();
+        long length = file.length();
         
         if ( ENABLE_MEMLOCK ) 
             memLock = new MemLock( in.getFD(), 0, length );
