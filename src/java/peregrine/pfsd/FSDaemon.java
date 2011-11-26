@@ -39,7 +39,8 @@ public class FSDaemon extends BaseDaemon {
 
         shuffleReceiverFactory = new ShuffleReceiverFactory( config ); 
 
-        heartbeatTimer = new HeartbeatTimer( config );
+        if ( config.getController() != null )
+            heartbeatTimer = new HeartbeatTimer( config );
         
     }
 
@@ -50,7 +51,8 @@ public class FSDaemon extends BaseDaemon {
     
     public void shutdown() {
 
-        heartbeatTimer.cancel();
+        if ( heartbeatTimer != null )
+            heartbeatTimer.cancel();
 
         super.shutdown();
         
