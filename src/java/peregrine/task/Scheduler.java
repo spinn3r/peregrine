@@ -95,7 +95,7 @@ public abstract class Scheduler {
                         offlinePartitions.incr( part );
 
                         if( offlinePartitions.get( part ) == config.getReplicas() ) {
-                            failure.mark( new Fail( host, part , "*NO TRACE*" ) );
+                            markFailed( host, part , "*NO TRACE*" );
                             break;
                         }
                                                   
