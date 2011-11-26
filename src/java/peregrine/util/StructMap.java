@@ -38,6 +38,15 @@ public class StructMap {
 
     }
 
+    public long getLong( String key ) {
+
+        if ( delegate.containsKey( key ) )
+            return Long.parseLong( delegate.get( key ).toString() );
+
+        return 0L;
+
+    }
+
     public String get( String key ) {
 
         if ( delegate.containsKey( key ) )

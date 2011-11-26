@@ -80,6 +80,9 @@ public class ConfigParser {
 
         config.setReplicas( struct.getInt( "replicas" ) );
         config.setConcurrency( struct.getInt( "concurrency" ) );
+
+        config.setShuffleBufferSize( struct.getLong( "shuffle_buffer_size" ) );
+        config.setMergeFactor( struct.getInt( "merge_factor" ) );
         
         // now read the hosts file...
         config.setHosts( readHosts( hosts_file ) );
