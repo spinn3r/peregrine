@@ -1,22 +1,4 @@
 
-- the controller and config needs a better seperation of concerns.
-
-        - Online and Offline move under Controller
-
-        - FSDaemon will be started with a Controller now and only one dedicated
-          handler.
-
-        - Online will spawn a thread for marking things offline if we fail to
-          receive heartbeats for them.
-
-            - mark a machine offline if on startup we do NOT receive a heartbeat
-              ... 
-
-        - The Controller and Daemon will both manage Executors
-
-        - 
-              
-
 - before a job is executed we need to make sure we aren't running something
   already on the cluster... this is a GOOD reason why we should use a secondary
   JVM for jobs so we can just kill it 
