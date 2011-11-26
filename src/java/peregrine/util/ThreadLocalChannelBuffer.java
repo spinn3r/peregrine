@@ -21,8 +21,9 @@ public class ThreadLocalChannelBuffer extends ThreadLocal<ChannelBuffer> {
 
         ChannelBuffer result = super.get();
 
-        result.writerIndex( 0 );
+        // reset the previous one... 
         result.readerIndex( 0 );
+        result.writerIndex( 0 );
 
         return result;
         
@@ -30,6 +31,10 @@ public class ThreadLocalChannelBuffer extends ThreadLocal<ChannelBuffer> {
     
     @Override
     public ChannelBuffer initialValue() {
+
+        if ( capacity <= 0 )
+            throw new IllegalArgumentException( "capacity" );
+        
         //return ChannelBuffers.buffer( capacity );
 
         // support extension if we need it...
