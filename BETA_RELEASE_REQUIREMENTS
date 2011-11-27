@@ -1,5 +1,5 @@
 
-- perform one LARGE job across a 16 core box on 2 machines
-- API is reasonbly stable
+- (DONE) perform one LARGE job across a 16 core box on 2 machines
 - pagerank working with mulitple iterations and math is right
 - rename broadcasts to globals.
+- API is reasonbly stable

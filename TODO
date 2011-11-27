@@ -6,6 +6,10 @@
 
 - we need support for fallocate and fadvise (test them on startup).
 
+- I need to implement break points so that a job can terminate itself.
+
+    - in between map / merge chunks and between reduce files as they are written
+      to disk.
 
 
 - before a job is executed we need to make sure we aren't running something
@@ -83,11 +87,7 @@
     - we need to use ChannelBuffers everywhere
     - some of the thread local bugs are problematic with StructWriter
     
-- Potentially support fallocate so that I can allocate files in extents of say
-  10MB.
     
-- on startup verify that we have enough memory... this should be done in the
-  controller and the FS daemon. 
 
 - test code which tests for off by one errors by looking at the size of buffers
   and changing their inputs to see if rolling over breaks.
@@ -97,9 +97,6 @@
 
 - O_NOATIME on files ... ?
 
-- to pin pages into memory what I should probably do is mmap the file
-  TWICE... once with MLOCK and then with the normal java APIs and then close
-  them both.
 
 - We should support fadvising away files once we've processed them to avoid VFS
   page cache insanity.  ESPECIALLY some of the temporary sort files.  
@@ -127,35 +124,7 @@
 - I need to FULLY solve the issue of endianness in peregrine because ByteBuffer
   and netty will force me to solve it.
 
-- Map and Reduce BOTH need to support merge() operations... We ALSO need to
-  support APPEND to files ... so that a new Map or Reduce job can just write to
-  the new file.
-
-    - We can make pagerank work WITHOUT this thoug... MapperTask and MergerTask
-      could in theory (now) be merged...
 
 - The way we're handling broadcast values will yield TOO MANY values for chunks
   ... should I expose the listener interface for map jobs?
-
-- Consider an implementation of this sorting algorithm that uses an in-place
-  sort on disk with sequential IO which would allow us to use less disk space...
-
-    - I don't really need to because once I'm done with chunks, I can write a
-      progress file, delete the previous chunk file, then continue,  This would
-      require CHUNK_SIZE additional bytes which isn't the end of the world.
-  
-- write a few tests of sequential pseudo sequential read and write IO
-  performance.  This involved running two writers to two files on a single HDD
-  ...
-
-  Test these scenarios:
-
-    - As writes come in , write them to individual files directly.
-        - also test with fallocate() or say 500k-5MB extents
-        
-    - Buffered writes so that we lay them down as individual files but then
-      reads have to jump over regions within the file.  This would yield a
-      sequential file BUT I would have to seek over large portions of it...
-
-        - 1000 partitions... writing to us in chunks
 
