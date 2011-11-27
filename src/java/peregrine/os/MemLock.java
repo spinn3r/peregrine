@@ -50,11 +50,15 @@ public class MemLock {
      */
     public void release() throws IOException {
 
-    	log.info( "Releasing lock %s to pa: %s", file, pa );
+        String desc = String.format( "Releasing lock %s to pa: %s ... ", file, pa );
+        
+        log.info( "%s ...", desc );
 
         if ( mman.munmap( pa, length ) != 0 ) {
             throw new IOException( errno.strerror() );
         }
+
+        log.info( "%s ... DONE", desc );
 
     }
 
