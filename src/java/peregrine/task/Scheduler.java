@@ -56,11 +56,15 @@ public abstract class Scheduler {
     private ClusterState clusterState;
 
     private Job job;
+
+    private String operation;
     
-    public Scheduler( final Job job,
+    public Scheduler( final String operation,
+                      final Job job,
                       final Config config,
                       final ClusterState clusterState ) {
 
+        this.operation = operation;
         this.job = job;
         this.config = config;
         this.membership = config.getMembership();
@@ -109,6 +113,10 @@ public abstract class Scheduler {
 
             } );
         
+    }
+
+    public String getOperation() {
+        return operation;
     }
     
     protected void schedule( Host host ) throws Exception {
@@ -263,7 +271,7 @@ public abstract class Scheduler {
 
         StringBuilder buff = new StringBuilder();
 
-        buff.append( "-- progress: --\n" );
+        buff.append( String.format( "-- progress for %s %s: --\n", operation, job ) );
         
         buff.append( String.format( "  pending:    %s\n" + 
                                     "  completed:  %s\n" +
@@ -286,6 +294,8 @@ public abstract class Scheduler {
 
         StringBuilder buff = new StringBuilder();
 
+        buff.append( "[" );
+        
         for( Partition part : set.values() ) {
 
             if ( buff.length() > 0 )
@@ -295,6 +305,8 @@ public abstract class Scheduler {
             
         }
 
+        buff.append( "]" );
+        
         return buff.toString();
         
     }
