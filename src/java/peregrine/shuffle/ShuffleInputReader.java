@@ -16,7 +16,7 @@ import org.jboss.netty.buffer.*;
  */
 public class ShuffleInputReader {
 
-    public static boolean ENABLE_MEMLOCK = true;
+    public static boolean ENABLE_MEMLOCK = false;
     
     /**
      * The current packet index we're on.
@@ -37,8 +37,6 @@ public class ShuffleInputReader {
 
     protected ChannelBuffer buffer = null;
 
-    protected FileInputStream in = null;
-
     /**
      * The number of packet we need to read for all given partitions.
      */
@@ -56,7 +54,13 @@ public class ShuffleInputReader {
     protected Partition current = null;
     
     protected MemLock memLock = null;
-    	
+
+    protected FileInputStream in = null;
+
+    protected FileChannel channel = null;
+    
+    protected MappedByteBuffer map = null;;
+    
     public ShuffleInputReader( String path, List<Partition> partitions ) throws IOException {
         
         // pull out the header information 
@@ -78,10 +82,12 @@ public class ShuffleInputReader {
         
         if ( ENABLE_MEMLOCK ) 
             memLock = new MemLock( in.getFD(), 0, length );
+
+        channel = in.getChannel();
         
         // mmap the WHOLE file. We won't actually use these pages if we don't
         // read them so this make it less difficult to figure out what to map.
-        MappedByteBuffer map = in.getChannel().map( FileChannel.MapMode.READ_ONLY, 0, length );
+        this.map = channel.map( FileChannel.MapMode.READ_ONLY, 0, length );
         this.buffer = ChannelBuffers.wrappedBuffer( map );
         
         StructReader struct = new StructReader( buffer );
@@ -207,6 +213,8 @@ public class ShuffleInputReader {
         if ( memLock != null )
             memLock.release();
 
+        channel.close();
+        
         in.close();
 
         // TODO fadvise away these pages now that we are done with them.

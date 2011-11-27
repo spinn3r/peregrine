@@ -31,9 +31,12 @@ public class ChunkSorter extends BaseChunkSorter {
 
     public ChunkReader sort( File input, File output )
         throws IOException {
+
+        FileInputStream inputStream   = new FileInputStream( input );
+        FileOutputStream outputStream = new FileOutputStream( output );
         
-        FileChannel inputChannel  = new FileInputStream( input  ).getChannel();
-        FileChannel outputChannel = new FileOutputStream( output ).getChannel();
+        FileChannel inputChannel  = inputStream.getChannel();
+        FileChannel outputChannel = outputStream.getChannel();
 
         try {
         
@@ -106,8 +109,13 @@ public class ChunkSorter extends BaseChunkSorter {
             throw new IOException( error , t );
             
         } finally {
+            
             inputChannel.close();
             outputChannel.close();
+
+            inputStream.close();
+            outputStream.close();
+            
         }
 
     }

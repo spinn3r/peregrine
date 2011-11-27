@@ -35,14 +35,20 @@ public class DefaultChunkReader implements ChunkReader {
 
     // FIXME: share all this code with using a ChannelBuffer across the three
     // constructors.
+
+    private FileInputStream in;
+
+    private FileChannel channel;
     
     public DefaultChunkReader( File file )
         throws IOException {
 
         //read from the given file.
-        FileInputStream in = new FileInputStream( file );
+        in = new FileInputStream( file );
 
-        MappedByteBuffer map = in.getChannel().map( FileChannel.MapMode.READ_ONLY, 0, file.length() );
+        channel = in.getChannel();
+        
+        MappedByteBuffer map = channel.map( FileChannel.MapMode.READ_ONLY, 0, file.length() );
 
         buff = ChannelBuffers.wrappedBuffer( map );
       
@@ -108,6 +114,8 @@ public class DefaultChunkReader implements ChunkReader {
 
     @Override
     public void close() throws IOException {
+        channel.close();
+        in.close();
     }
 
     @Override
