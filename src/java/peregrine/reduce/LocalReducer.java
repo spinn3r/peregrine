@@ -37,36 +37,105 @@ public class LocalReducer {
         this.input.add( in );
     }
     
-    public void sort() throws Exception {
+    public void sort() throws IOException {
 
         // The input list should first be sorted so that we sort by the order of
         // the shuffle files and not an arbitrary order
         Collections.sort( input );
+
+        int pass = 0;
         
-        List<ChunkReader> sorted = sort( input );
-        
-        ChunkMerger merger = new ChunkMerger( listener, partition );
-        
-        merger.merge( sorted );
+        String target_dir = getTargetDir( pass );
+
+        List<ChunkReader> readers = sort( input, target_dir );
+
+        while( true ) {
+
+            log.info( "Working with %,d readers now." , readers.size() );
+            
+            if ( readers.size() < config.getMergeFactor() ) {
+
+                finalMerge( readers );
+                
+                break;
+
+            } else {
+
+                readers = interMerge( readers, ++pass );
+                
+            }
+            
+        }
         
     }
 
-    public List<ChunkReader> sort( List<File> input ) throws IOException {
+    protected void finalMerge( List<ChunkReader> readers ) throws IOException {
+
+        ChunkMerger merger = new ChunkMerger( listener, partition );
+        
+        merger.merge( readers );
+
+    }
+
+    protected List<ChunkReader> interMerge( List<ChunkReader> readers, int pass )
+        throws IOException {
+
+        String target_dir = getTargetDir( pass );
+
+        // chunk readers pending merge.
+        List<ChunkReader> pending = new ArrayList();
+        pending.addAll( readers );
+
+        List<ChunkReader> result = new ArrayList();
+
+        int id = 0;
+        
+        while( pending.size() != 0 ) {
+
+            String path = String.format( "%s/sort-%s.tmp" , target_dir, id++ );
+            File file = new File( path );
+            
+            List<ChunkReader> work = new ArrayList( config.getMergeFactor() );
+
+            // move readers from pending into work until work is full .
+            while( work.size() < config.getMergeFactor() && pending.size() > 0 ) {
+                work.add( pending.remove( 0 ) );
+            }
+
+            log.info( "Merging %,d readers into %s", work.size(), path );
+            
+            ChunkMerger merger = new ChunkMerger( null, partition );
+        
+            merger.merge( readers, new LocalChunkWriter( path ) );
+
+            result.add( new DefaultChunkReader( file ) );
+            
+        }
+
+        return result;
+
+    }
+    
+    protected String getTargetDir( int pass ) {
+
+        return config.getPath( partition, String.format( "/tmp/%s.%s" , shuffleInput.getName(), pass ) );
+
+    }
+
+    protected List<ChunkReader> sort( List<File> input, String target_dir ) throws IOException {
 
         List<ChunkReader> sorted = new ArrayList();
 
         int id = 0;
 
-        String sort_dir = config.getPath( partition, String.format( "/tmp/%s" , shuffleInput.getName() ) );
-
         // make the parent dir for holding sort files.
-        new File( sort_dir ).mkdirs();
+        new File( target_dir ).mkdirs();
 
         log.info( "Going to sort %,d files for %s", input.size(), partition );
         
         for ( File in : input ) {
 
-            String path = String.format( "%s/sort-%s.tmp" , sort_dir, id++ );
+            String path = String.format( "%s/sort-%s.tmp" , target_dir, id++ );
             File out    = new File( path );
             
             log.info( "Writing temporary sort file %s", path );

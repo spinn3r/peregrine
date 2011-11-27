@@ -1,5 +1,8 @@
 
 
+- FIXME: LocalChunkWriter needs to go away in favor of DefaultChunkWriter ... obiovusly..
+
+
 - we need support for fallocate and fadvise (test them on startup).
 
 - ok.. so the current sort algorithm will NO LONGER work on these large jobs due
