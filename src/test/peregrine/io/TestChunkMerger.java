@@ -7,6 +7,7 @@ import peregrine.values.*;
 import peregrine.util.*;
 import peregrine.util.primitive.LongBytes;
 import peregrine.reduce.*;
+import peregrine.reduce.merger.*;
 import peregrine.io.chunk.*;
 import peregrine.config.*;
 

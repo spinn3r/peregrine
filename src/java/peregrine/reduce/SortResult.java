@@ -13,9 +13,9 @@ public class SortResult {
 
     private SortListener listener = null;
 
-    private LocalChunkWriter writer = null;
+    private ChunkWriter writer = null;
     
-    public SortResult( LocalChunkWriter writer,
+    public SortResult( ChunkWriter writer,
                        SortListener listener ) {
         
         this.listener = listener;
