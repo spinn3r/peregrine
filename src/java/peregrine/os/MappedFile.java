@@ -65,15 +65,15 @@ public class MappedFile {
     
     public void close() throws IOException {
 
+       if ( memLock != null )
+            memLock.release();
+
         close( map );
         
         channel.close();
 
         in.close();
 
-        if ( memLock != null )
-            memLock.release();
- 
     }
 
     @SuppressWarnings("all")
