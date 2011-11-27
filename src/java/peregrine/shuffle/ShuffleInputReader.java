@@ -5,7 +5,7 @@ import java.nio.*;
 import java.util.*;
 import java.nio.channels.*;
 
-import peregrine.os.MemLock;
+import peregrine.os.*;
 import peregrine.util.*;
 import peregrine.values.*;
 import peregrine.config.Partition;
@@ -53,13 +53,7 @@ public class ShuffleInputReader {
      */
     protected Partition current = null;
     
-    protected MemLock memLock = null;
-
-    protected FileInputStream in = null;
-
-    protected FileChannel channel = null;
-    
-    protected MappedByteBuffer map = null;;
+    protected MappedFile mappedFile = null;;
     
     public ShuffleInputReader( String path, List<Partition> partitions ) throws IOException {
         
@@ -75,20 +69,15 @@ public class ShuffleInputReader {
         // store the shuffle correctly so that the partitions this machine was
         // responsible for reducing over were at the beginning of the shuffle
         // data but in practice this may be a premature optimization.
-        
-        in = new FileInputStream( file );
 
         long length = file.length();
-        
-        if ( ENABLE_MEMLOCK ) 
-            memLock = new MemLock( in.getFD(), 0, length );
 
-        channel = in.getChannel();
-        
         // mmap the WHOLE file. We won't actually use these pages if we don't
         // read them so this make it less difficult to figure out what to map.
-        this.map = channel.map( FileChannel.MapMode.READ_ONLY, 0, length );
-        this.buffer = ChannelBuffers.wrappedBuffer( map );
+        this.mappedFile = new MappedFile( file, FileChannel.MapMode.READ_ONLY );
+        this.mappedFile.setLock( ENABLE_MEMLOCK );
+        
+        this.buffer = ChannelBuffers.wrappedBuffer( mappedFile.map() );
         
         StructReader struct = new StructReader( buffer );
 
@@ -210,12 +199,7 @@ public class ShuffleInputReader {
 
     public void close() throws IOException {
 
-        if ( memLock != null )
-            memLock.release();
-
-        channel.close();
-        
-        in.close();
+        mappedFile.close();
 
         // TODO fadvise away these pages now that we are done with them.
         
