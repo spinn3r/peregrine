@@ -11,7 +11,7 @@ public class fcntl {
     public static final int POSIX_FADV_NORMAL     = 0; /* fadvise.h */
     public static final int POSIX_FADV_RANDOM     = 1; /* fadvise.h */
     public static final int POSIX_FADV_SEQUENTIAL = 2; /* fadvise.h */
-    Public static final int POSIX_FADV_WILLNEED   = 3; /* fadvise.h */
+    public static final int POSIX_FADV_WILLNEED   = 3; /* fadvise.h */
     public static final int POSIX_FADV_DONTNEED   = 4; /* fadvise.h */
     public static final int POSIX_FADV_NOREUSE    = 5; /* fadvise.h */
 
