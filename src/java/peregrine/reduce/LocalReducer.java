@@ -95,7 +95,7 @@ public class LocalReducer {
         
         while( pending.size() != 0 ) {
 
-            String path = String.format( "%s/sort-%s.tmp" , target_dir, id++ );
+            String path = String.format( "%s/merged-%s.tmp" , target_dir, id++ );
             File file = new File( path );
             
             List<ChunkReader> work = new ArrayList( config.getMergeFactor() );
@@ -138,7 +138,7 @@ public class LocalReducer {
         
         for ( File in : input ) {
 
-            String path = String.format( "%s/sort-%s.tmp" , target_dir, id++ );
+            String path = String.format( "%s/sorted-%s.tmp" , target_dir, id++ );
             File out    = new File( path );
             
             log.info( "Writing temporary sort file %s", path );

@@ -68,31 +68,37 @@ public class ChunkSorter extends BaseChunkSorter {
 
             VarintReader varintReader = new VarintReader( buffer );
 
-            ChunkWriter writer = new DefaultChunkWriter( output );
+            ChunkWriter writer = null;
 
-            while( lookup.hasNext() ) {
-
-                // TODO: move this to use transferTo ... 
-
-                lookup.next();
-
-                int start = lookup.get() - 1;
-                buffer.readerIndex( start );
-
-                int key_length = varintReader.read();
-
-                byte[] key = new byte[ key_length ];
-                buffer.readBytes( key );
-
-                int value_length = varintReader.read();
-                byte[] value = new byte[ value_length ];
-                buffer.readBytes( value );
-
-                writer.write( key, value );
+            try {
                 
-            }
+                writer = new DefaultChunkWriter( output );
 
-            writer.close();
+                while( lookup.hasNext() ) {
+
+                    // TODO: move this to use transferTo ... 
+
+                    lookup.next();
+
+                    int start = lookup.get() - 1;
+                    buffer.readerIndex( start );
+
+                    int key_length = varintReader.read();
+
+                    byte[] key = new byte[ key_length ];
+                    buffer.readBytes( key );
+
+                    int value_length = varintReader.read();
+                    byte[] value = new byte[ value_length ];
+                    buffer.readBytes( value );
+
+                    writer.write( key, value );
+                    
+                }
+
+            } finally {
+                writer.close();
+            }
             
             log.info( "Sort output file %s has %,d entries.", output, reader.size() );
 

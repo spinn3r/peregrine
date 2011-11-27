@@ -271,35 +271,41 @@ public class ShuffleInputChunkReader {
         
         public Object call() throws Exception {
 
-            log.info( "Reading from %s ...", path );
+            try {
 
-            int count = 0;
+                log.info( "Reading from %s ...", path );
 
-            while( reader.hasNext() ) {
-                
-                ShufflePacket pack = reader.next();
+                int count = 0;
 
-                Partition part = new Partition( pack.to_partition ); 
-                
-                packetsReadPerPartition.get( part ).getAndIncrement();
+                while( reader.hasNext() ) {
                     
-                lookup.get( part ).put( pack );
+                    ShufflePacket pack = reader.next();
 
-                ++count;
+                    Partition part = new Partition( pack.to_partition ); 
+                    
+                    packetsReadPerPartition.get( part ).getAndIncrement();
+                        
+                    lookup.get( part ).put( pack );
+
+                    ++count;
+                    
+                }
+
+                // make sure all partitions are finished reading.
+                for ( SimpleBlockingQueue _finished : finished.values() ) {
+                    _finished.take();
+                }
+
+                log.info( "Reading from %s ...done (read %,d packets as %s)", path, count, packetsReadPerPartition );
+
+                // remove thyself so that next time around there isn't a reference
+                // to this path and a new reader will be created.
+                manager.reset( path );
+
+            } finally {
+                reader.close();
+            }
                 
-            }
-
-            // make sure all partitions are finished reading.
-            for ( SimpleBlockingQueue _finished : finished.values() ) {
-                _finished.take();
-            }
-
-            log.info( "Reading from %s ...done (read %,d packets as %s)", path, count, packetsReadPerPartition );
-
-            // remove thyself so that next time around there isn't a reference
-            // to this path and a new reader will be created.
-            manager.reset( path );
-
             return null;
             
         }

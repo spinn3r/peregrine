@@ -138,6 +138,11 @@ public class ChunkMerger {
 
             log.info( "Merged %,d entries for %s" , entries, partition );
 
+            // close all the readers to free up resources
+            for( ChunkReader reader : input ) {
+                reader.close();
+            }
+            
         } catch ( Throwable t ) {
             throw new IOException( "Unable to merge chunks: " + input, t );
         }
