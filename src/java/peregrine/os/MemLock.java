@@ -10,6 +10,7 @@ public class MemLock {
 
     private long pa;
     private long length;
+    private File file;
     private FileDescriptor descriptor;
     
     /**
@@ -23,9 +24,9 @@ public class MemLock {
      * @see #release()
      * @throws IOException
      */
-    public MemLock( FileDescriptor descriptor, long offset, long length ) throws IOException {
+    public MemLock( File file, FileDescriptor descriptor, long offset, long length ) throws IOException {
 
-    	log.info( "Going to mlock %s", descriptor );
+    	log.info( "Going to mlock %s", file );
     	
     	this.descriptor = descriptor;
         this.length = length;
@@ -46,7 +47,7 @@ public class MemLock {
      */
     public void release() throws IOException {
 
-    	log.info( "Releasing lock %s", descriptor );
+    	log.info( "Releasing lock %s", file );
     		
         if ( mman.munmap( pa, length ) != 0 ) {
             throw new IOException( errno.strerror() );

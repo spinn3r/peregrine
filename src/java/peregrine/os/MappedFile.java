@@ -27,9 +27,12 @@ public class MappedFile {
     protected MemLock memLock = null;
 
     protected FileChannel.MapMode mode;
+
+    protected File file;
     
     public MappedFile( File file, FileChannel.MapMode mode ) throws IOException {
 
+        this.file = file;
         this.in = new FileInputStream( file );
         this.channel = in.getChannel();
         this.mode = mode;
@@ -42,7 +45,7 @@ public class MappedFile {
         if ( map == null ) {
 
             if ( lock ) 
-                memLock = new MemLock( in.getFD(), offset, length );
+                memLock = new MemLock( file, in.getFD(), offset, length );
 
             map = channel.map( mode, offset, length );
             
@@ -62,15 +65,15 @@ public class MappedFile {
     
     public void close() throws IOException {
 
-        if ( memLock != null )
-            memLock.release();
-        
         close( map );
         
         channel.close();
 
         in.close();
 
+        if ( memLock != null )
+            memLock.release();
+ 
     }
 
     @SuppressWarnings("all")
