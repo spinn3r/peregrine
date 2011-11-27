@@ -37,7 +37,6 @@ public class ShuffleJobOutput implements JobOutput, LocalPartitionReaderListener
         this.name = name;
         this.partition = partition;
         
-        //jobOutputDelegate = new ShuffleJobOutputBatched( this );
         jobOutputDelegate = new ShuffleJobOutputDirect( this );
 
         localPartitionReaderListener = (LocalPartitionReaderListener) jobOutputDelegate;
