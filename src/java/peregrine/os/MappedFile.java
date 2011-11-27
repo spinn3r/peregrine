@@ -68,7 +68,6 @@ public class MappedFile {
        if ( memLock != null )
             memLock.release();
 
-
        System.out.printf( "FIXME0 \n" );
        close( map );
        
