@@ -9,8 +9,12 @@ import peregrine.config.*;
 import peregrine.shuffle.*;
 import peregrine.util.*;
 import peregrine.util.netty.*;
+import peregrine.os.*;
+import org.jboss.netty.logging.*;
 
-import com.spinn3r.log5j.*;
+import com.spinn3r.log5j.Logger;
+
+import com.sun.jna.Pointer;
 
 public class Test {
 
@@ -72,19 +76,32 @@ public class Test {
     
     public static void main( String[] args ) throws Exception {
 
+        InternalLoggerFactory.setDefaultFactory( new Log4JLoggerFactory() );
+
+        
         File file = new File( "test.mmap" );
-        
-        FileInputStream in = new FileInputStream( file );
 
-        long length = file.length();
+        MappedFile mappedFile = new MappedFile( file, FileChannel.MapMode.READ_ONLY );
+        mappedFile.setLock( true );
 
-        FileChannel channel = in.getChannel();
-        
-        // mmap the WHOLE file. We won't actually use these pages if we don't
-        // read them so this make it less difficult to figure out what to map.
-        MappedByteBuffer map = channel.map( FileChannel.MapMode.READ_ONLY, 0, length );
+        mappedFile.map();
+
+        mappedFile.close();
+
 
         
+        // File file = new File( "test.mmap" );
+        
+        // FileInputStream in = new FileInputStream( file );
+
+        // long length = file.length();
+
+        // FileChannel channel = in.getChannel();
+        
+        // // mmap the WHOLE file. We won't actually use these pages if we don't
+        // // read them so this make it less difficult to figure out what to map.
+        // MappedByteBuffer map = channel.map( FileChannel.MapMode.READ_ONLY, 0, length );
+
         // SlabDynamicChannelBuffer buff = new SlabDynamicChannelBuffer( 1 , 1 );
 
         // for( int i = 0; i < 10000; ++i ) {

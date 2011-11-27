@@ -2,6 +2,7 @@ package peregrine.os;
 
 import com.sun.jna.Library;
 import com.sun.jna.Native;
+import com.sun.jna.Pointer;
 
 public class mman {
 
@@ -25,17 +26,17 @@ public class mman {
 
     // off_t = 8
     // size_t = 8
-    public static long mmap( long addr, long len, int prot, int flags, int fildes, long off ) {
+    public static Pointer mmap( Pointer addr, long len, int prot, int flags, int fildes, long off ) {
         return delegate.mmap( addr, len, prot, flags, fildes, off );
     }
 
-    public static int munmap( long addr, long len ) {
+    public static int munmap( Pointer addr, long len ) {
         return delegate.munmap( addr, len );
     }
 
     interface InterfaceDelegate extends Library {
-        long mmap( long addr, long len, int prot, int flags, int fildes, long off );
-        int munmap( long addr, long len );
+        Pointer mmap( Pointer addr, long len, int prot, int flags, int fildes, long off );
+        int munmap( Pointer addr, long len );
     }
 
 }
