@@ -31,10 +31,15 @@ public class ChunkSorter extends BaseChunkSorter {
 
     public ChunkReader sort( File input, File output )
         throws IOException {
-        
-        FileChannel inputChannel  = new FileInputStream( input  ).getChannel();
-        FileChannel outputChannel = new FileOutputStream( output ).getChannel();
 
+        FileInputStream inputStream   = new FileInputStream( input );
+        FileOutputStream outputStream = new FileOutputStream( output );
+        
+        FileChannel inputChannel  = inputStream.getChannel();
+        FileChannel outputChannel = outputStream.getChannel();
+
+        ShuffleInputChunkReader reader = null;
+        
         try {
         
             log.info( "Going to sort: %s which is %,d bytes", input, input.length() );
@@ -43,7 +48,7 @@ public class ChunkSorter extends BaseChunkSorter {
             // the same time... we need a background thread to trigger the
             // pre-read.
 
-            ShuffleInputChunkReader reader = new ShuffleInputChunkReader( config, partition, input.getPath() );
+            reader = new ShuffleInputChunkReader( config, partition, input.getPath() );
             
             ChannelBuffer buffer = reader.getBuffer();
 
@@ -65,31 +70,37 @@ public class ChunkSorter extends BaseChunkSorter {
 
             VarintReader varintReader = new VarintReader( buffer );
 
-            ChunkWriter writer = new DefaultChunkWriter( output );
+            ChunkWriter writer = null;
 
-            while( lookup.hasNext() ) {
-
-                // TODO: move this to use transferTo ... 
-
-                lookup.next();
-
-                int start = lookup.get() - 1;
-                buffer.readerIndex( start );
-
-                int key_length = varintReader.read();
-
-                byte[] key = new byte[ key_length ];
-                buffer.readBytes( key );
-
-                int value_length = varintReader.read();
-                byte[] value = new byte[ value_length ];
-                buffer.readBytes( value );
-
-                writer.write( key, value );
+            try {
                 
-            }
+                writer = new DefaultChunkWriter( output );
 
-            writer.close();
+                while( lookup.hasNext() ) {
+
+                    // TODO: move this to use transferTo ... 
+
+                    lookup.next();
+
+                    int start = lookup.get() - 1;
+                    buffer.readerIndex( start );
+
+                    int key_length = varintReader.read();
+
+                    byte[] key = new byte[ key_length ];
+                    buffer.readBytes( key );
+
+                    int value_length = varintReader.read();
+                    byte[] value = new byte[ value_length ];
+                    buffer.readBytes( value );
+
+                    writer.write( key, value );
+                    
+                }
+
+            } finally {
+                writer.close();
+            }
             
             log.info( "Sort output file %s has %,d entries.", output, reader.size() );
 
@@ -106,8 +117,15 @@ public class ChunkSorter extends BaseChunkSorter {
             throw new IOException( error , t );
             
         } finally {
+            
             inputChannel.close();
             outputChannel.close();
+
+            inputStream.close();
+            outputStream.close();
+
+            reader.close();
+            
         }
 
     }

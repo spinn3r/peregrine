@@ -47,6 +47,8 @@ public class ShuffleOutputWriter {
     private int length = 0;
 
     private Config config;
+
+    private FileOutputStream fos;
     
     private FileChannel output;
     
@@ -128,108 +130,118 @@ public class ShuffleOutputWriter {
     
     public void close() throws IOException {
 
-        closed = true;
-
-        Map<Integer,ShuffleOutputPartition> lookup = buildLookup();
-
-        log.info( "Going write output buffer with %,d entries.", lookup.size() );
-        
-        // make sure the parent directory exists first.
-        new File( new File( path ).getParent() ).mkdirs();
-
-        FileOutputStream fos = new FileOutputStream( path );
-        this.output = fos.getChannel();
-        
-        write( ChannelBuffers.wrappedBuffer( MAGIC ) );
-        
-        write( new StructWriter( IntBytes.LENGTH )
-                       .writeInt( lookup.size() )
-                       .getChannelBuffer() );
-        
-        // the offset in this chunk to start reading the data from this
-        // partition and chunk.
-        
-        int offset =
-            MAGIC.length + IntBytes.LENGTH + (lookup.size() * LOOKUP_HEADER_SIZE);
-
-        // TODO: these should be stored in the primary order that they will be
-        // reduce by priority on this box.
-
-        // *** STEP 0 .. compute the order that we should write in
-        List<Replica> replicas = config.getMembership().getReplicas( config.getHost() );
-
-        // *** STEP 1 .. write the header information
-
-        for( Replica replica : replicas ) {
-
-            int part = replica.getPartition().getId();
+        try {
             
-            ShuffleOutputPartition shuffleOutputPartition = lookup.get( part );
+            closed = true;
 
-            // the length of ALL the data for this partition.
-            int length = 0;
+            Map<Integer,ShuffleOutputPartition> lookup = buildLookup();
 
-            for( ShufflePacket pack : shuffleOutputPartition.packets ) {
+            log.info( "Going write output buffer with %,d entries.", lookup.size() );
+            
+            // make sure the parent directory exists first.
+            new File( new File( path ).getParent() ).mkdirs();
+
+            this.fos = new FileOutputStream( path );
+            this.output = fos.getChannel();
+            
+            write( ChannelBuffers.wrappedBuffer( MAGIC ) );
+            
+            write( new StructWriter( IntBytes.LENGTH )
+                           .writeInt( lookup.size() )
+                           .getChannelBuffer() );
+            
+            // the offset in this chunk to start reading the data from this
+            // partition and chunk.
+            
+            int offset =
+                MAGIC.length + IntBytes.LENGTH + (lookup.size() * LOOKUP_HEADER_SIZE);
+
+            // TODO: these should be stored in the primary order that they will be
+            // reduce by priority on this box.
+
+            // *** STEP 0 .. compute the order that we should write in
+            List<Replica> replicas = config.getMembership().getReplicas( config.getHost() );
+
+            // *** STEP 1 .. write the header information
+
+            for( Replica replica : replicas ) {
+
+                int part = replica.getPartition().getId();
                 
-                length += PACKET_HEADER_SIZE;
-                length += pack.data.capacity();
+                ShuffleOutputPartition shuffleOutputPartition = lookup.get( part );
+
+                // the length of ALL the data for this partition.
+                int length = 0;
+
+                for( ShufflePacket pack : shuffleOutputPartition.packets ) {
+                    
+                    length += PACKET_HEADER_SIZE;
+                    length += pack.data.capacity();
+                    
+                }
+
+                int nr_packets = shuffleOutputPartition.packets.size();
+
+                //TODO: make sure ALL of these are acceptable.
+                if ( shuffleOutputPartition.count < 0 )
+                    throw new IOException( "Header corrupted: count < 0" );
+
+                int count = shuffleOutputPartition.count;
+
+                write( new StructWriter( LOOKUP_HEADER_SIZE )
+                           .writeInt( part )
+                           .writeInt( offset )
+                           .writeInt( nr_packets )
+                           .writeInt( count )
+                           .writeInt( length )
+                           .getChannelBuffer() );
+                
+                offset += length;
+                    
+            }
+
+            // *** STEP 2 .. write the actual data packets
+            
+            for( Replica replica : replicas ) {
+
+                int part = replica.getPartition().getId();
+
+                ShuffleOutputPartition shuffleOutputPartition = lookup.get( part );
+
+                for( ShufflePacket pack : shuffleOutputPartition.packets ) {
+
+                    write( new StructWriter( PACKET_HEADER_SIZE )
+                				.writeInt( pack.from_partition )
+                				.writeInt( pack.from_chunk )
+                				.writeInt( pack.to_partition )
+                				.writeInt( pack.data.capacity() )
+                				.getChannelBuffer() );
+
+                    // TODO: migrate this to using a zero copy system and write it
+                    // directly to disk and avoid this copy.
+                    
+                    write( pack.data );
+
+                }
                 
             }
 
-            int nr_packets = shuffleOutputPartition.packets.size();
+            //output.force( true );
 
-            //TODO: make sure ALL of these are acceptable.
-            if ( shuffleOutputPartition.count < 0 )
-                throw new IOException( "Header corrupted: count < 0" );
+            index = null; // This is required for the JVM to more aggresively
+                          // recover memory.  I did extensive testing with this
+                          // and without setting index to null the JVM does not
+                          // recover memory and it eventually leaks.  I don't
+                          // think anything could be holding a reference to this
+                          // though but this is a good pragmatic defense and
+                          // solved the problem.
 
-            int count = shuffleOutputPartition.count;
+        } finally {
 
-            write( new StructWriter( LOOKUP_HEADER_SIZE )
-                       .writeInt( part )
-                       .writeInt( offset )
-                       .writeInt( nr_packets )
-                       .writeInt( count )
-                       .writeInt( length )
-                       .getChannelBuffer() );
-            
-            offset += length;
-                
+            output.close();
+            fos.close();
+
         }
-
-        // *** STEP 2 .. write the actual data packets
-        
-        for( Replica replica : replicas ) {
-
-            int part = replica.getPartition().getId();
-
-            ShuffleOutputPartition shuffleOutputPartition = lookup.get( part );
-
-            for( ShufflePacket pack : shuffleOutputPartition.packets ) {
-
-                write( new StructWriter( PACKET_HEADER_SIZE )
-            				.writeInt( pack.from_partition )
-            				.writeInt( pack.from_chunk )
-            				.writeInt( pack.to_partition )
-            				.writeInt( pack.data.capacity() )
-            				.getChannelBuffer() );
-
-                // TODO: migrate this to using a zero copy system and write it
-                // directly to disk and avoid this copy.
-                
-                write( pack.data );
-
-            }
-            
-        }
-
-        //output.force( true );
-
-        index = null; // This is required for the JVM to more aggresively
-                      // recover memory.  I did extensive testing with this and
-                      // without setting index to null the JVM does not recover
-                      // memory and it eventually leaks.  I don't think anything
-                      // could be holding a reference to this though but this is
-                      // a good pragmatic defense and solved the problem.
         
     }
 

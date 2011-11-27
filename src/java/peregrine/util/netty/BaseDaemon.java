@@ -5,18 +5,18 @@ import java.net.*;
 import java.util.*;
 import java.util.concurrent.*;
 
-import org.jboss.netty.logging.*;
+import com.spinn3r.log5j.Logger;
+
 import org.jboss.netty.bootstrap.*;
 import org.jboss.netty.channel.*;
 import org.jboss.netty.channel.socket.nio.*;
-
+import org.jboss.netty.logging.*;
+import peregrine.*;
 import peregrine.config.*;
 import peregrine.shuffle.receiver.*;
 import peregrine.task.*;
 import peregrine.util.*;
-import com.spinn3r.log5j.Logger;
 import peregrine.util.netty.*;
-import peregrine.*;
 
 public abstract class BaseDaemon {
 

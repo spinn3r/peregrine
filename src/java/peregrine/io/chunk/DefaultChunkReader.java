@@ -5,6 +5,7 @@ import java.nio.*;
 import java.nio.channels.*;
 
 import peregrine.*;
+import peregrine.os.*;
 import peregrine.util.*;
 import peregrine.util.primitive.IntBytes;
 
@@ -35,16 +36,15 @@ public class DefaultChunkReader implements ChunkReader {
 
     // FIXME: share all this code with using a ChannelBuffer across the three
     // constructors.
+
+    private MappedFile mappedFile;
     
     public DefaultChunkReader( File file )
         throws IOException {
 
-        //read from the given file.
-        FileInputStream in = new FileInputStream( file );
-
-        MappedByteBuffer map = in.getChannel().map( FileChannel.MapMode.READ_ONLY, 0, file.length() );
-
-        buff = ChannelBuffers.wrappedBuffer( map );
+        mappedFile = new MappedFile( file , FileChannel.MapMode.READ_ONLY );
+        
+        buff = ChannelBuffers.wrappedBuffer( mappedFile.map() );
       
         init( buff );
         
@@ -108,6 +108,7 @@ public class DefaultChunkReader implements ChunkReader {
 
     @Override
     public void close() throws IOException {
+        mappedFile.close();
     }
 
     @Override

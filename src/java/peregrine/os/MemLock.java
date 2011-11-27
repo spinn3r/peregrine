@@ -2,14 +2,17 @@ package peregrine.os;
 
 import java.io.*;
 
+import com.sun.jna.Pointer;
+
 import com.spinn3r.log5j.*;
 
 public class MemLock {
 
     private static final Logger log = Logger.getLogger();
 
-    private long pa;
+    private Pointer pa;
     private long length;
+    private File file;
     private FileDescriptor descriptor;
     
     /**
@@ -23,18 +26,19 @@ public class MemLock {
      * @see #release()
      * @throws IOException
      */
-    public MemLock( FileDescriptor descriptor, long offset, long length ) throws IOException {
+    public MemLock( File file, FileDescriptor descriptor, long offset, long length ) throws IOException {
 
-    	log.info( "Going to mlock %s", descriptor );
-    	
+    	log.info( "Going to mlock %s", file );
+
+        this.file = file;
     	this.descriptor = descriptor;
         this.length = length;
         
         int fd = Native.getFd( descriptor );
         
-        this.pa = mman.mmap( 0, length, mman.PROT_READ, mman.MAP_SHARED | mman.MAP_LOCKED, fd, offset );
-
-        if ( this.pa == -1 ) {
+        this.pa = mman.mmap( new Pointer( 0 ), length, mman.PROT_READ, mman.MAP_SHARED | mman.MAP_LOCKED, fd, offset );
+        
+        if ( Pointer.nativeValue( this.pa ) == -1 ) {
             throw new IOException( errno.strerror() );
         }
 
@@ -46,11 +50,15 @@ public class MemLock {
      */
     public void release() throws IOException {
 
-    	log.info( "Releasing lock %s", descriptor );
-    		
+        String desc = String.format( "Releasing lock %s to pa: %s ... ", file, pa );
+        
+        log.info( "%s ...", desc );
+
         if ( mman.munmap( pa, length ) != 0 ) {
             throw new IOException( errno.strerror() );
         }
+
+        log.info( "%s ... DONE", desc );
 
     }
 
