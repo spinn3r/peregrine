@@ -68,11 +68,15 @@ public class MappedFile {
        if ( memLock != null )
             memLock.release();
 
-        close( map );
-        
-        channel.close();
 
-        in.close();
+       System.out.printf( "FIXME0 \n" );
+       close( map );
+       
+       System.out.printf( "FIXME1 \n" );
+       channel.close();
+       
+       System.out.printf( "FIXME2 \n" );
+       in.close();
 
     }
 
