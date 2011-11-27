@@ -1,43 +1,47 @@
 
-    - we need a combiner.
+- move to the RangePartitionRouter instead of the HashPartitionRouter
 
-    - Fixed number threads
+- we need a combiner.
 
-    - ChannelWriter and BufferedChannelWriter so that we can elide writes and send
-      them in 16k chunks.
+- Fixed number threads
 
-    - compression
+- ChannelWriter and BufferedChannelWriter so that we can elide writes and send
+  them in 16k chunks.
 
-    - checksums.
+- compression
 
-    - No MultiOutputStream but instead ALWAYS use pipeline writes
-    
-    - documentation:
-      - citations (pregel, flume, etc)
-      - paper
+- checksums (I think this part would be easy).
 
-    - job killing so that the controller can kill off something that is running
-      easily .
+- No MultiOutputStream but instead ALWAYS use pipeline writes
 
-    - audit ALL the code.
+- documentation:
+  - citations (pregel, flume, etc)
+  - paper
 
-    - ChunkMerger, ChunkSorter, and LocalMerger all use a nearly identical priority
-      queue merging system and this will need to be cleaned up to reduce the amount
-      of code (and potential bugs)
+- Job killing so that the controller can kill off something that is running
+  easily ... 
 
-    - No use of AsyncOutputStream any more... DefaultChunkWriter still uses
-      it... It *could* change to AsyncChannelWriter in the future though.
+- audit ALL the code to look for any problems.
 
-    - Audit everything to make sure we're using zero copy as much as possible.
+- ChunkMerger, ChunkSorter, and LocalMerger all use a nearly identical priority
+  queue merging system and this will need to be cleaned up to reduce the amount
+  of code (and potential bugs)
 
-    - O_NOATIME on files ... ?
+- No use of AsyncOutputStream any more... DefaultChunkWriter still uses
+  it... It *could* change to AsyncChannelWriter in the future though.
 
-    - during intermediate merges we de-serialze the entire record then add the
-      new records when in reality we can just append bytes together ... 
+- Audit everything to make sure we're using zero copy as much as possible.
 
-    - do a pass to find out what code we can remove.
+- O_NOATIME on files ... ?
 
-    - the entire API need to be StructReader and StructWriter based and use
-      ChannelBuffers for this backing... 
+- during intermediate merges we de-serialze the entire record then add the
+  new records when in reality we can just append bytes together ... 
 
-    - 
+- do a pass to find out what code we can remove.
+
+- the entire API need to be StructReader and StructWriter based and use
+  ChannelBuffers for this backing... 
+
+- run some profiles on the code to make sure we're performing reasonably.
+
+- review ALL my notes.

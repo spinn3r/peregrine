@@ -34,9 +34,6 @@ public class DefaultChunkReader implements ChunkReader {
      */
     private int idx = 0;
 
-    // FIXME: share all this code with using a ChannelBuffer across the three
-    // constructors.
-
     private MappedFile mappedFile;
     
     public DefaultChunkReader( File file )
