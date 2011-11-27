@@ -298,6 +298,9 @@ public class ShuffleInputChunkReader {
                 
             }
 
+            // FIXME: I don't think we no longer need the 'finished' code
+            // because we now have the close() code
+
             // make sure all partitions are finished reading.
             for ( SimpleBlockingQueue _finished : finished.values() ) {
                 _finished.take();
