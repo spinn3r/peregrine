@@ -8,7 +8,6 @@ import java.util.*;
 /**
  * 
  *
- * @version $Rev: 2206M $, $Date: 2010-11-09 15:04:10 +0900 (Tue, 09 Nov 2010) $
  *
  */
 public class MappedFile {
