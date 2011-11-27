@@ -78,6 +78,8 @@ public class MappedFile {
        System.out.printf( "FIXME2 \n" );
        in.close();
 
+       System.out.printf( "FIXME3 \n" );
+       
     }
 
     @SuppressWarnings("all")
