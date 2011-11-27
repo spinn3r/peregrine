@@ -3,11 +3,14 @@ package peregrine.reduce;
 
 import java.io.*;
 import java.util.*;
+
 import peregrine.config.Config;
 import peregrine.config.Partition;
 import peregrine.io.*;
 import peregrine.io.chunk.*;
 import peregrine.reduce.sorter.*;
+import peregrine.reduce.merger.*;
+
 import com.spinn3r.log5j.Logger;
 
 public class LocalReducer {

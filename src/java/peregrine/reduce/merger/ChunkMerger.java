@@ -84,7 +84,7 @@ public class ChunkMerger {
     public ChunkMerger() {
     }
 
-    public ChunkMerger( SortListener listener ) {
+    public ChunkMerger( SortListener listener, Partition partition ) {
         this.listener = listener;
         this.partition = partition;
     }
