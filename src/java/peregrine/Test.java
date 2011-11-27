@@ -69,19 +69,6 @@ public class Test {
         System.out.printf( "duration: %,d\n", (after-before) );
 
     }
-
-    public static void close( MappedByteBuffer map ) {
-
-        sun.misc.Cleaner cl = ((sun.nio.ch.DirectBuffer)map).cleaner();
-
-        System.out.printf( "%s\n", map.getClass() );
-        System.out.printf( "%s\n", cl.getClass() );
-        
-        if (cl != null) {
-            cl.clean();
-        }
-
-    }
     
     public static void main( String[] args ) throws Exception {
 
@@ -97,8 +84,6 @@ public class Test {
         // read them so this make it less difficult to figure out what to map.
         MappedByteBuffer map = channel.map( FileChannel.MapMode.READ_ONLY, 0, length );
 
-        close( map );
-        close( map );
         
         // SlabDynamicChannelBuffer buff = new SlabDynamicChannelBuffer( 1 , 1 );
 

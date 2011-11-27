@@ -73,6 +73,7 @@ public class MappedFile {
 
     }
 
+    @SuppressWarnings("all")
     private void close( MappedByteBuffer map ) {
 
         sun.misc.Cleaner cl = ((sun.nio.ch.DirectBuffer)map).cleaner();
