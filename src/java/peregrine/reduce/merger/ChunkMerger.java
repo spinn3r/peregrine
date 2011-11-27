@@ -3,31 +3,40 @@ package peregrine.reduce.merger;
 
 import java.io.*;
 import java.util.*;
+import peregrine.config.*;
 import peregrine.io.chunk.*;
 import peregrine.reduce.*;
+
+import com.spinn3r.log5j.Logger;
 
 /**
  * http://en.wikipedia.org/wiki/External_sorting
  * 
+ * <p>
  * One example of external sorting is the external merge sort algorithm, which
  * sorts chunks that each fit in RAM, then merges the sorted chunks
  * together.[1][2] For example, for sorting 900 megabytes of data using only 100
  * megabytes of RAM:
- * 
+ *
+ * <p>
  * Read 100 MB of the data in main memory and sort by some conventional method,
  * like quicksort.
  * 
+ * <p>
  * Write the sorted data to disk.
  * 
+ * <p>
  * Repeat steps 1 and 2 until all of the data is in sorted 100 MB chunks (there are
  * 900MB / 100MB = 9 chunks), which now need to be merged into one single output
  * file.
  * 
+ * <p>
  * Read the first 10 MB (= 100MB / (9 chunks + 1)) of each sorted chunk into input
  * buffers in main memory and allocate the remaining 10 MB for an output
  * buffer. (In practice, it might provide better performance to make the output
  * buffer larger and the input buffers slightly smaller.)
  * 
+ * <p>
  * Perform a 9-way merge and store the result in the output buffer. If the output
  * buffer is full, write it to the final sorted file, and empty it. If any of the 9
  * input buffers gets empty, fill it with the next 10 MB of its associated 100 MB
@@ -37,8 +46,10 @@ import peregrine.reduce.*;
  * chunk does not have to be loaded completely; rather, sequential parts of the
  * chunk can be loaded as needed.
  * 
+ * <p>
  * http://en.wikipedia.org/wiki/Merge_algorithm
  * 
+ * <p>
  * Merge algorithms generally run in time proportional to the sum of the lengths of
  * the lists; merge algorithms that operate on large numbers of lists at once will
  * multiply the sum of the lengths of the lists by the time to figure out which of
@@ -48,6 +59,7 @@ import peregrine.reduce.*;
  * merging two lists of length m, there is a lower bound of 2m Å| 1 comparisons
  * required in the worst case.
  * 
+ * <p>
  * The classic merge (the one used in merge sort) outputs the data item with the
  * lowest key at each step; given some sorted lists, it produces a sorted list
  * containing all the elements in any of the input lists, and it does so in time
@@ -57,64 +69,79 @@ import peregrine.reduce.*;
  */
 public class ChunkMerger {
 
+    private static final Logger log = Logger.getLogger();
+
     public static int DEFAULT_PARTITION_WIDTH = 1000;
 
     private SortListener listener = null;
 
-    public int tuples = 0;
+    public int entries = 0;
         
     private SortEntryFactory topLevelSortEntryFactory = new TopLevelSortEntryFactory();
-    
+
+    private Partition partition;
+
     public ChunkMerger() {
     }
 
-    public ChunkMerger( SortListener listener ) {
+    public ChunkMerger( SortListener listener, Partition partition ) {
         this.listener = listener;
+        this.partition = partition;
     }
 
     public void merge( List<ChunkReader> input ) throws IOException {
         merge( input, null );
     }
     
-    public void merge( List<ChunkReader> input, LocalChunkWriter writer ) throws IOException {
+    public void merge( List<ChunkReader> input, ChunkWriter writer ) throws IOException {
 
-        //TODO: if the input length is zero or one then we are done, however
-        //everything will need to be written to the writer first which is
-        //somewhat inefficient so we should try to reference the original file
-        //that was supplied and just return that directly.  In practice though
-        //this will only be a single 100MB file so this is not the end of the
-        //world.
-
-        if ( input.size() == 0 )
-            return;
+        try {
         
-        MergerPriorityQueue queue = new MergerPriorityQueue( input );
-        
-        SortListener sortListener = null;
+            //TODO: if the input length is zero or one then we are done, however
+            //everything will need to be written to the writer first which is
+            //somewhat inefficient so we should try to reference the original file
+            //that was supplied and just return that directly.  In practice though
+            //this will only be a single 100MB file so this is not the end of the
+            //world.
 
-        if ( input.size() <= DEFAULT_PARTITION_WIDTH ) 
-            sortListener = listener;
+            if ( input.size() == 0 ) {
+                log.info( "No input to sort." );
+                return;
+            }
             
-        SortResult result = new SortResult( writer, sortListener );
-
-        while( true ) {
+            MergerPriorityQueue queue = new MergerPriorityQueue( input );
             
-            MergeQueueEntry entry = queue.poll();
+            SortListener sortListener = null;
 
-            if ( entry == null )
-                break;
+            if ( input.size() <= DEFAULT_PARTITION_WIDTH ) 
+                sortListener = listener;
+                
+            SortResult result = new SortResult( writer, sortListener );
 
-            ++tuples;
-            
-            result.accept( topLevelSortEntryFactory.newSortEntry( entry.key, entry.value ) );
+            while( true ) {
+                
+                MergeQueueEntry entry = queue.poll();
 
+                if ( entry == null )
+                    break;
+
+                result.accept( topLevelSortEntryFactory.newSortEntry( entry.key, entry.value ) );
+
+                ++entries;
+
+            }
+
+            result.close();
+
+            if ( writer != null )         
+                writer.close();
+
+            log.info( "Merged %,d entries for %s" , entries, partition );
+
+        } catch ( Throwable t ) {
+            throw new IOException( "Unable to merge chunks: " + input, t );
         }
 
-        result.close();
-
-        if ( writer != null )         
-            writer.close();
-        
     }
 
 }

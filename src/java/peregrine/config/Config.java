@@ -13,9 +13,11 @@ import com.spinn3r.log5j.Logger;
  * 
  */
 public class Config {
-    
+
     private static final Logger log = Logger.getLogger();
 
+    public static int DEFAULT_MERGE_FACTOR = 100;
+    
     public static long DEFAULT_SHUFFLE_BUFFER_SIZE = 1048576;
     
     /**
@@ -77,10 +79,12 @@ public class Config {
      */
     protected int concurrency = DEFAULT_CONCURRENCY;
 
-    private long shuffleBufferSize = DEFAULT_SHUFFLE_BUFFER_SIZE;
+    protected long shuffleBufferSize = DEFAULT_SHUFFLE_BUFFER_SIZE;
 
     protected PartitionRouter router = null;
-    
+
+    protected int mergeFactor = DEFAULT_MERGE_FACTOR;
+
     public Config() { }
 
     public Config( String host, int port ) {
@@ -201,6 +205,14 @@ public class Config {
 
     public void setShuffleBufferSize( long shuffleBufferSize ) { 
         this.shuffleBufferSize = shuffleBufferSize;
+    }
+
+    public int getMergeFactor() { 
+        return this.mergeFactor;
+    }
+
+    public void setMergeFactor( int mergeFactor ) { 
+        this.mergeFactor = mergeFactor;
     }
 
     public String getRoot( Partition partition ) {

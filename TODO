@@ -1,5 +1,8 @@
 
 
+
+- we need support for fallocate and fadvise (test them on startup).
+
 - ok.. so the current sort algorithm will NO LONGER work on these large jobs due
   to the high number of intermediate files.  I will have to implement a
   multi-pass merge system now... which will take me some time but isn't too

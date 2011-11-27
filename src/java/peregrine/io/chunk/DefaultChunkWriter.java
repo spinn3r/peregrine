@@ -33,9 +33,6 @@ public class DefaultChunkWriter implements ChunkWriter {
 
     private boolean shutdown = false;
 
-    // FIXME: this MUST become a DynamicBuffer which does the deterministic
-    // expansion by slabs ... 
-
     private ChannelBuffer buff = new SlabDynamicChannelBuffer( BUFFER_SIZE, BUFFER_SIZE );
 
     public DefaultChunkWriter( OutputStream out ) throws IOException {

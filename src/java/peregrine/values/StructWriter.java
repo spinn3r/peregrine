@@ -21,17 +21,13 @@ public class StructWriter {
         new ThreadLocalChannelBuffer( BUFFER_SIZE );
 
     public StructWriter() {
-        //TODO: I should probably make this an extent based buffer so that we
-        //don't accidentally blow up in the future.  Also, this need to be
-        //thread local but there was a RARE race conditition that I need to
-        //track down.
         this( threadLocal.get() );
     }
 
     public StructWriter( ChannelBuffer buff ) {
     	this.buff = buff;
     }
-    
+
     public StructWriter( int capacity ) {
     	this( ChannelBuffers.buffer( capacity ) );
     }
@@ -73,11 +69,10 @@ public class StructWriter {
     
     public byte[] toBytes() {
 
-        byte[] backing = buff.array();
         int len = buff.writerIndex();
-        
         byte[] result = new byte[ len ];
-        System.arraycopy( backing, 0, result, 0, len );
+
+        buff.readBytes( result );
         
         return result;
         
