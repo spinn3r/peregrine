@@ -69,6 +69,8 @@ public class MappedFile {
             memLock.release();
 
        System.out.printf( "FIXME0 \n" );
+
+       // FIXME: this is resulting in a segv.
        //close( map );
        
        System.out.printf( "FIXME1 \n" );
