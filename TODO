@@ -1,9 +1,5 @@
 
 
-- FIXME: LocalChunkWriter needs to go away in favor of DefaultChunkWriter ... obiovusly..
-
-
-- FIXME: there are TWO ChunkMergers right now... fuck.. which one are we using?!
 
 - we need support for fallocate and fadvise (test them on startup).
 
