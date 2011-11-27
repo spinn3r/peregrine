@@ -3,8 +3,11 @@ package peregrine.reduce.merger;
 
 import java.io.*;
 import java.util.*;
+import peregrine.config.*;
 import peregrine.io.chunk.*;
 import peregrine.reduce.*;
+
+import com.spinn3r.log5j.Logger;
 
 /**
  * http://en.wikipedia.org/wiki/External_sorting
