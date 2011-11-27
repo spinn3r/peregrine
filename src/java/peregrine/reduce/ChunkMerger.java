@@ -92,7 +92,7 @@ public class ChunkMerger {
         merge( input, null );
     }
     
-    public void merge( List<ChunkReader> input, LocalChunkWriter writer ) throws IOException {
+    public void merge( List<ChunkReader> input, ChunkWriter writer ) throws IOException {
 
         try {
             

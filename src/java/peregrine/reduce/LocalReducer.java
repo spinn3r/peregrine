@@ -106,7 +106,7 @@ public class LocalReducer {
             
             ChunkMerger merger = new ChunkMerger( null, partition );
         
-            merger.merge( readers, new LocalChunkWriter( path ) );
+            merger.merge( readers, new DefaultChunkWriter( file ) );
 
             result.add( new DefaultChunkReader( file ) );
             
