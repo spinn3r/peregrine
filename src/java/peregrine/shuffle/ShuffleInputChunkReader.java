@@ -178,6 +178,10 @@ public class ShuffleInputChunkReader {
         return header.count;
     }
 
+    public void close() {
+        prefetcher.closedPartitonQueue.put( partition );
+    }
+    
     @Override
     public String toString() {
         return String.format( "%s:%s:%s" , getClass().getName(), path, partition );
@@ -227,6 +231,11 @@ public class ShuffleInputChunkReader {
 
         private Map<Partition,AtomicInteger> packetsReadPerPartition = new HashMap();
 
+        /**
+         * Used so that readers can signal when they are complete.
+         */
+        protected SimpleBlockingQueue<Partition> closedPartitonQueue = new SimpleBlockingQueue();
+
         protected ExecutorService executor =
             Executors.newCachedThreadPool( threadFactory );
 
@@ -271,41 +280,42 @@ public class ShuffleInputChunkReader {
         
         public Object call() throws Exception {
 
-            try {
+            log.info( "Reading from %s ...", path );
 
-                log.info( "Reading from %s ...", path );
+            int count = 0;
 
-                int count = 0;
-
-                while( reader.hasNext() ) {
-                    
-                    ShufflePacket pack = reader.next();
-
-                    Partition part = new Partition( pack.to_partition ); 
-                    
-                    packetsReadPerPartition.get( part ).getAndIncrement();
-                        
-                    lookup.get( part ).put( pack );
-
-                    ++count;
-                    
-                }
-
-                // make sure all partitions are finished reading.
-                for ( SimpleBlockingQueue _finished : finished.values() ) {
-                    _finished.take();
-                }
-
-                log.info( "Reading from %s ...done (read %,d packets as %s)", path, count, packetsReadPerPartition );
-
-                // remove thyself so that next time around there isn't a reference
-                // to this path and a new reader will be created.
-                manager.reset( path );
-
-            } finally {
-                reader.close();
-            }
+            while( reader.hasNext() ) {
                 
+                ShufflePacket pack = reader.next();
+
+                Partition part = new Partition( pack.to_partition ); 
+                
+                packetsReadPerPartition.get( part ).getAndIncrement();
+                    
+                lookup.get( part ).put( pack );
+
+                ++count;
+                
+            }
+
+            // make sure all partitions are finished reading.
+            for ( SimpleBlockingQueue _finished : finished.values() ) {
+                _finished.take();
+            }
+
+            // not only finished pulling out all packets but actually close()d 
+            for( int i = 0; i < lookup.keySet().size(); ++i ) {
+                closedPartitonQueue.take();
+            }
+            
+            reader.close();
+
+            log.info( "Reading from %s ...done (read %,d packets as %s)", path, count, packetsReadPerPartition );
+
+            // remove thyself so that next time around there isn't a reference
+            // to this path and a new reader will be created.
+            manager.reset( path );
+
             return null;
             
         }

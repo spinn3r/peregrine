@@ -38,6 +38,8 @@ public class ChunkSorter extends BaseChunkSorter {
         FileChannel inputChannel  = inputStream.getChannel();
         FileChannel outputChannel = outputStream.getChannel();
 
+        ShuffleInputChunkReader reader = null;
+        
         try {
         
             log.info( "Going to sort: %s which is %,d bytes", input, input.length() );
@@ -46,7 +48,7 @@ public class ChunkSorter extends BaseChunkSorter {
             // the same time... we need a background thread to trigger the
             // pre-read.
 
-            ShuffleInputChunkReader reader = new ShuffleInputChunkReader( config, partition, input.getPath() );
+            reader = new ShuffleInputChunkReader( config, partition, input.getPath() );
             
             ChannelBuffer buffer = reader.getBuffer();
 
@@ -121,6 +123,8 @@ public class ChunkSorter extends BaseChunkSorter {
 
             inputStream.close();
             outputStream.close();
+
+            reader.close();
             
         }
 
