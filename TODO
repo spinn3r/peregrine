@@ -1,12 +1,11 @@
 
 
+- if we do speculative execution, I need a way to say "stop doing work" to a
+  node...  I guess I could check BETWEEN files as I process them in the
+  map/merge task and I would need similar checks in the reduce phase. 
 
 - we need support for fallocate and fadvise (test them on startup).
 
-- ok.. so the current sort algorithm will NO LONGER work on these large jobs due
-  to the high number of intermediate files.  I will have to implement a
-  multi-pass merge system now... which will take me some time but isn't too
-  hard.
 
 
 - before a job is executed we need to make sure we aren't running something
