@@ -1,5 +1,8 @@
 package peregrine;
 
+import java.io.*;
+import java.nio.*;
+import java.nio.channels.*;
 import java.util.*;
 import org.jboss.netty.buffer.*;
 import peregrine.config.*;
@@ -67,13 +70,41 @@ public class Test {
 
     }
 
+    public static void close( MappedByteBuffer map ) {
+
+        sun.misc.Cleaner cl = ((sun.nio.ch.DirectBuffer)map).cleaner();
+
+        System.out.printf( "%s\n", map.getClass() );
+        System.out.printf( "%s\n", cl.getClass() );
+        
+        if (cl != null) {
+            cl.clean();
+        }
+
+    }
+    
     public static void main( String[] args ) throws Exception {
 
-        SlabDynamicChannelBuffer buff = new SlabDynamicChannelBuffer( 1 , 1 );
+        File file = new File( "test.mmap" );
+        
+        FileInputStream in = new FileInputStream( file );
 
-        for( int i = 0; i < 10000; ++i ) {
-            buff.writeInt( i );
-        }
+        long length = file.length();
+
+        FileChannel channel = in.getChannel();
+        
+        // mmap the WHOLE file. We won't actually use these pages if we don't
+        // read them so this make it less difficult to figure out what to map.
+        MappedByteBuffer map = channel.map( FileChannel.MapMode.READ_ONLY, 0, length );
+
+        close( map );
+        close( map );
+        
+        // SlabDynamicChannelBuffer buff = new SlabDynamicChannelBuffer( 1 , 1 );
+
+        // for( int i = 0; i < 10000; ++i ) {
+        //     buff.writeInt( i );
+        // }
 
         // while( true ) {
         //     ChannelBuffer buff = ChannelBuffers.directBuffer( 2097152 );

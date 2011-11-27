@@ -298,7 +298,7 @@ public abstract class Scheduler {
         
         for( Partition part : set.values() ) {
 
-            if ( buff.length() > 0 )
+            if ( buff.length() > 1 )
                 buff.append( ", " );
 
             buff.append( part.getId() );
