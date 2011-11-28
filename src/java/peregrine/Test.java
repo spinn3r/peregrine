@@ -66,23 +66,24 @@ public class Test {
         return data[idx];
     }
 
+    public static final int CHECKSUM_CAPACITY = 1024;
+    public static final int CHECKSUM_ITERS    = 5000000;
+    
     public static void test3() {
 
         PureJavaCrc32C checksum = new PureJavaCrc32C();
 
         long before = System.currentTimeMillis();
 
-        byte[] data = new byte[ 16384 ];
-
-        int max = 500000;
+        byte[] data = new byte[ CHECKSUM_CAPACITY ];
         
-        for( int i = 0; i < max; ++i ) {
+        for( int i = 0; i < CHECKSUM_ITERS; ++i ) {
             checksum.update( data, 0, data.length );
         }
 
         long after = System.currentTimeMillis();
 
-        long written = (long)data.length * (long)max;
+        long written = (long)data.length * (long)CHECKSUM_ITERS;
 
         long duration = (after-before);
 
@@ -97,20 +98,16 @@ public class Test {
         PureJavaCrc32C checksum = new PureJavaCrc32C();
 
         long before = System.currentTimeMillis();
-
-        int capacity = 16384;
         
-        ChannelBuffer buff = ChannelBuffers.buffer( capacity );
-
-        int max = 500000;
+        ChannelBuffer buff = ChannelBuffers.buffer( CHECKSUM_CAPACITY );
         
-        for( int i = 0; i < max; ++i ) {
-            checksum.update( buff, 0, capacity );
+        for( int i = 0; i < CHECKSUM_ITERS; ++i ) {
+            checksum.update( buff, 0, CHECKSUM_CAPACITY );
         }
 
         long after = System.currentTimeMillis();
 
-        long written = (long)capacity * (long)max;
+        long written = (long)CHECKSUM_CAPACITY * (long)CHECKSUM_ITERS;
 
         long duration = (after-before);
 
