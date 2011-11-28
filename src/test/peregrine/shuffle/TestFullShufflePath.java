@@ -80,32 +80,40 @@ public class TestFullShufflePath extends peregrine.BaseTestWithMultipleDaemons {
             controller.shutdown();
         }
 
+        // TODO: this test is no longer possible becasue we can't read from just
+        // ONE of the partitions without the other one blocking.  However it
+        // would be nice to add it back in at some point.
+        
         // now the data should be on disk... try to read it back out wth a ShuffleInputChunkReader
 
-        int count = 0;
+        // int count = 0;
         
-        count += readShuffle( "/tmp/peregrine-fs/localhost/11112/tmp/shuffle/default/0000000000.tmp", 0 );
-        count += readShuffle( "/tmp/peregrine-fs/localhost/11113/tmp/shuffle/default/0000000000.tmp", 1 );
+        // count += readShuffle( "/tmp/peregrine-fs/localhost/11112/tmp/shuffle/default/0000000000.tmp", 0 );
+        // count += readShuffle( "/tmp/peregrine-fs/localhost/11113/tmp/shuffle/default/0000000000.tmp", 1 );
 
-        assertEquals( max_emits * iterations, count );
+        // assertEquals( max_emits * iterations, count );
 
-        ShuffleInputChunkReader reader = new ShuffleInputChunkReader( configs.get( 0 ), new Partition( 0 ), "/tmp/peregrine-fs/localhost/11112/tmp/shuffle/default/0000000000.tmp" );
+        // ShuffleInputChunkReader reader = new ShuffleInputChunkReader( configs.get( 0 ),
+        //                                                               new Partition( 0 ),
+        //                                                               "/tmp/peregrine-fs/localhost/11112/tmp/shuffle/default/0000000000.tmp" );
 
-        while( reader.hasNext() ) {
-            reader.next();
-            //System.out.printf( "key: %s, value: %s\n", Hex.encode( reader.key() ), Hex.encode( reader.value() ) );
-        }
+        // while( reader.hasNext() ) {
+        //     reader.next();
+        //     //System.out.printf( "key: %s, value: %s\n", Hex.encode( reader.key() ), Hex.encode( reader.value() ) );
+        // }
 
-        ChunkSorter sorter = new ChunkSorter( configs.get( 0 ) , new Partition( 0 ), new ShuffleInputReference( "default" ) );
-
-        File file_input = new File( "/tmp/peregrine-fs/localhost/11112/tmp/shuffle/default/0000000000.tmp" );
-        File file_output = new File( "/tmp/test.out" );
-
-        System.out.printf( "===============================\n" );
+        // reader.close();
         
-        ChunkReader result = sorter.sort( file_input, file_output );
+        // ChunkSorter sorter = new ChunkSorter( configs.get( 0 ) , new Partition( 0 ), new ShuffleInputReference( "default" ) );
 
-        assertResults( result, max_emits );
+        // File file_input = new File( "/tmp/peregrine-fs/localhost/11112/tmp/shuffle/default/0000000000.tmp" );
+        // File file_output = new File( "/tmp/test.out" );
+
+        // System.out.printf( "===============================\n" );
+        
+        // ChunkReader result = sorter.sort( file_input, file_output );
+
+        // assertResults( result, max_emits );
 
     }
 
