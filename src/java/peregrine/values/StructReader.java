@@ -22,23 +22,55 @@ public class StructReader {
         this.varintReader = new VarintReader( buff );
     }
 
-    public int readVarint() {
-        return varintReader.read();
+    public byte readByte() {
+        return buff.readByte();
     }
 
-    public double readDouble() {
-        return buff.readDouble();
+    public short readShort() {
+        return buff.readShort();
+    }
+
+    public int readVarint() {
+        return varintReader.read();
     }
 
     public int readInt() {
         return buff.readInt();
     }
 
+    public long readLong() {
+        return buff.readLong();
+    }
+
+    public float readFloat() {
+        return buff.readFloat();
+    }
+
+    public double readDouble() {
+        return buff.readDouble();
+    }
+
+    public char readChar() {
+        return buff.readChar();
+    }
+
+    public byte[] readBytes() {
+        int len = readVarint();
+        byte[] data = new byte[ len ];
+        buff.readBytes( data );
+        return data;
+    }
+
+    public String readString() {
+        byte[] data = readBytes();
+        return new String( data, StructWriter.UTF8 );
+    }
+    
     public byte[] read( byte[] data ) {
         buff.readBytes( data );
         return data;
     }
-    
+
     public byte[] readHashcode() {
         return read(new byte[Hashcode.HASH_WIDTH]);
     }
