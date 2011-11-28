@@ -105,7 +105,10 @@ public class DefaultChunkReader implements ChunkReader {
 
     @Override
     public void close() throws IOException {
-        mappedFile.close();
+        
+        if ( mappedFile != null )
+            mappedFile.close();
+        
     }
 
     @Override
