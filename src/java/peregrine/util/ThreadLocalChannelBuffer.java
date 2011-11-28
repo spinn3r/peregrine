@@ -34,8 +34,6 @@ public class ThreadLocalChannelBuffer extends ThreadLocal<ChannelBuffer> {
 
         if ( capacity <= 0 )
             throw new IllegalArgumentException( "capacity" );
-        
-        //return ChannelBuffers.buffer( capacity );
 
         // support extension if we need it...
         return new SlabDynamicChannelBuffer( capacity, capacity );

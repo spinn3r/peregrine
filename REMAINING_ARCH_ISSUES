@@ -1,6 +1,8 @@
 
 - pipeline support ... 
 
+- Key and Value should be StructReaders 
+
 - move to the RangePartitionRouter instead of the HashPartitionRouter
 
 - we need a combiner.

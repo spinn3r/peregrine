@@ -66,6 +66,10 @@ public class StructWriter {
     public ChannelBuffer getChannelBuffer() {
     	return buff;
     }
+
+    public StructReader toStructReader() {
+        return new StructReader( buff );
+    }
     
     public byte[] toBytes() {
 

@@ -12,7 +12,16 @@ import peregrine.util.primitive.IntBytes;
 import org.jboss.netty.buffer.*;
 
 public class DefaultChunkReader implements ChunkReader {
-    
+
+    public static byte[] MAGIC_PREFIX =
+        new byte[] { (byte)'P', (byte)'C', (byte)'0' };
+
+    public static byte[] MAGIC_RAW = 
+        new byte[] { (byte)'R', (byte)'A', (byte)'W' };
+
+    public static byte[] MAGIC_CRC32 = 
+        new byte[] { (byte)'C', (byte)'3', (byte)'2' };
+
     private File file = null;
 
     private ChannelBuffer buff = null;

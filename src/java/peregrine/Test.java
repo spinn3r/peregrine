@@ -12,6 +12,8 @@ import peregrine.util.netty.*;
 import peregrine.os.*;
 import org.jboss.netty.logging.*;
 
+import org.apache.hadoop.util.*;
+
 import com.spinn3r.log5j.Logger;
 
 import com.sun.jna.Pointer;
@@ -20,76 +22,133 @@ public class Test {
 
     private static final Logger log = Logger.getLogger();
 
-    public static void test0() throws Exception {
-
-        System.gc();
-
-        System.out.printf( "-------- test ChannelBuffers.buffer\n" );
+    public static void test1() {
 
         long before = System.currentTimeMillis();
 
-        int max = 100;
+        byte[] data = new byte[ 1000000 ];
 
-        int capacity = 1000000; 
+        for( int j = 0; j < 3000; ++j ) {
+            
+            int val = 0;
+            for( int i = 0; i < data.length; ++i ) {
+                val += data[i];
+            }
 
-        System.out.printf( "using capacity: %s\n", capacity );
-
-        List<ChannelBuffer> list = new ArrayList();
-
-        for ( int i = 0; i < max; ++i ) {
-            ChannelBuffer buff = ChannelBuffers.buffer( capacity );
-            list.add( buff );
         }
-
+            
         long after = System.currentTimeMillis();
-
-        System.out.printf( "duration: %,d\n", (after-before) );
-
+        System.out.printf( "test1 duration: %,d ms\n" , (after-before) );
+        
     }
 
-    public static void test1() throws Exception {
-
-        System.gc();
-
-        System.out.printf( "-------- test ChannelBuffers.directBuffer\n" );
+    public static void test2() {
 
         long before = System.currentTimeMillis();
 
-        int max = 10000;
+        byte[] data = new byte[ 1000000 ];
 
-        int capacity = 16384; 
+        for( int j = 0; j < 3000; ++j ) {
+            
+            int val = 0;
+            for( int i = 0; i < data.length; ++i ) {
+                val += getByte( data, i );
+            }
 
-        System.out.printf( "using capacity: %s\n", capacity );
+        }
+            
+        long after = System.currentTimeMillis();
+        System.out.printf( "test2 duration: %,d ms\n" , (after-before) );
+        
+    }
 
-        List<ChannelBuffer> list = new ArrayList();
+    public static byte getByte( byte[] data, int idx ) {
+        return data[idx];
+    }
 
-        for ( int i = 0; i < max; ++i ) {
-            ChannelBuffer buff = ChannelBuffers.directBuffer( capacity );
-            list.add( buff );
+    public static void test3() {
+
+        PureJavaCrc32C checksum = new PureJavaCrc32C();
+
+        long before = System.currentTimeMillis();
+
+        byte[] data = new byte[ 16384 ];
+
+        int max = 500000;
+        
+        for( int i = 0; i < max; ++i ) {
+            checksum.update( data, 0, data.length );
         }
 
         long after = System.currentTimeMillis();
 
-        System.out.printf( "duration: %,d\n", (after-before) );
+        long written = (long)data.length * (long)max;
+
+        long duration = (after-before);
+
+        long throughput = (written / duration) * 1000L; 
+        
+        System.out.printf( "test3: Wrote %,d bytes in duration %,d ms at %,d b/s\n" , written, duration, throughput );
 
     }
     
+    public static void test4() {
+
+        PureJavaCrc32C checksum = new PureJavaCrc32C();
+
+        long before = System.currentTimeMillis();
+
+        int capacity = 16384;
+        
+        ChannelBuffer buff = ChannelBuffers.buffer( capacity );
+
+        int max = 500000;
+        
+        for( int i = 0; i < max; ++i ) {
+            checksum.update( buff, 0, capacity );
+        }
+
+        long after = System.currentTimeMillis();
+
+        long written = (long)capacity * (long)max;
+
+        long duration = (after-before);
+
+        long throughput = (written / duration) * 1000L; 
+        
+        System.out.printf( "test4: Wrote %,d bytes in duration %,d ms at %,d b/s\n" , written, duration, throughput );
+
+    }
+
     public static void main( String[] args ) throws Exception {
 
-        InternalLoggerFactory.setDefaultFactory( new Log4JLoggerFactory() );
-
+        test4();
+        test4();
+        test4();
         
-        File file = new File( "test.mmap" );
-
-        MappedFile mappedFile = new MappedFile( file, FileChannel.MapMode.READ_ONLY );
-        mappedFile.setLock( true );
-
-        mappedFile.map();
-
-        mappedFile.close();
-
-
+        test3();
+        test3();
+        test3();
         
+        // test1();
+        // test1();
+        // test1();
+
+        // test2();
+        // test2();
+        // test2();
+
+        // InternalLoggerFactory.setDefaultFactory( new Log4JLoggerFactory() );
+
+        // File file = new File( "test.mmap" );
+
+        // MappedFile mappedFile = new MappedFile( file, FileChannel.MapMode.READ_ONLY );
+        // mappedFile.setLock( true );
+
+        // mappedFile.map();
+
+        // mappedFile.close();
+
         // File file = new File( "test.mmap" );
         
         // FileInputStream in = new FileInputStream( file );
