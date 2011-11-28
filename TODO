@@ -1,4 +1,8 @@
 
+- https://issues.apache.org/jira/browse/HADOOP-6148
+
+    - use the native zlib with largish buffers for computing the checksum.
+
 
 - if we do speculative execution, I need a way to say "stop doing work" to a
   node...  I guess I could check BETWEEN files as I process them in the
