@@ -21,8 +21,6 @@ import org.jboss.netty.buffer.*;
  */
 public class DefaultChunkWriter implements ChunkWriter {
 
-    public static int MAX_LENGTH_WIDTH = 2 * IntBytes.LENGTH;
-
     public static int BUFFER_SIZE = 16384;
     
     protected ChannelBufferWritable writer = null;
@@ -34,8 +32,6 @@ public class DefaultChunkWriter implements ChunkWriter {
     private boolean closed = false;
 
     private boolean shutdown = false;
-
-    private ChannelBuffer buff = new SlabDynamicChannelBuffer( BUFFER_SIZE, BUFFER_SIZE );
     
     public DefaultChunkWriter( ChannelBufferWritable writer ) throws IOException {
         init( writer );
@@ -50,7 +46,7 @@ public class DefaultChunkWriter implements ChunkWriter {
     }
 
     private void init( ChannelBufferWritable writer ) {
-        this.writer = writer;
+        this.writer = new BufferedChannelBuffer( writer, BUFFER_SIZE );
     }
     
     @Override
@@ -60,16 +56,10 @@ public class DefaultChunkWriter implements ChunkWriter {
         if ( closed )
             throw new IOException( "closed" );
 
-        // the max write width ... the key length and value length and the max
-        // potential value of both keys.
-
-        int write_width = key.length + value.length + MAX_LENGTH_WIDTH;
-
-        if ( buff.writerIndex() + write_width >= (buff.capacity() - 1) ) {
-            flushChannelBuffer();
-        }
-
-        write( buff, key, value );
+        writeVarint( key.length );
+        write( ChannelBuffers.wrappedBuffer( key ) );
+        writeVarint( value.length );
+        write( ChannelBuffers.wrappedBuffer( value ) );
         
         ++count;
 
@@ -89,21 +79,22 @@ public class DefaultChunkWriter implements ChunkWriter {
         buff.writeBytes( value );
         
     }
-    
-    private void flushChannelBuffer() throws IOException {
 
-        length += buff.writerIndex();
+    private void write( ChannelBuffer buff ) throws IOException {
 
         writer.write( buff );
-
-        // we must create a new buffer each time for now because the sender is
-        // async... pooling these would be good so that we can just return them
-        // to the pool when done.
+        length += buff.writerIndex();
         
-        buff = new SlabDynamicChannelBuffer( BUFFER_SIZE, BUFFER_SIZE );
-
     }
 
+    private void writeVarint( int value ) throws IOException {
+
+        ChannelBuffer buff = ChannelBuffers.buffer( IntBytes.LENGTH );
+        VarintWriter.write( buff, value );
+        write( buff );
+        
+    }
+    
     @Override
     public int count() {
         return count;
@@ -111,7 +102,29 @@ public class DefaultChunkWriter implements ChunkWriter {
 
     @Override
     public long length() {
-        return length + buff.writerIndex();
+        return length;
+    }
+
+    public void shutdown() throws IOException {
+
+        if ( shutdown )
+            return;
+        
+        // last four bytes store the number of items.
+
+        ChannelBuffer buff = ChannelBuffers.buffer( IntBytes.LENGTH );
+        buff.writeInt( count );
+        write( buff );
+
+        if ( writer instanceof MultiOutputStream ) {
+
+            MultiOutputStream multi = (MultiOutputStream)writer;
+            multi.shutdown();
+            
+        }
+
+        shutdown = true;
+        
     }
 
     @Override
@@ -128,30 +141,4 @@ public class DefaultChunkWriter implements ChunkWriter {
         
     }
 
-    public void shutdown() throws IOException {
-
-        if ( shutdown )
-            return;
-        
-        flushChannelBuffer();
-
-        // last four bytes store the number of items.
-
-        ChannelBuffer buff = ChannelBuffers.buffer( IntBytes.LENGTH );
-        buff.writeInt( count );
-        writer.write( buff );
-        
-        length += IntBytes.LENGTH;
-
-        if ( writer instanceof MultiOutputStream ) {
-
-            MultiOutputStream multi = (MultiOutputStream)writer;
-            multi.shutdown();
-            
-        }
-
-        shutdown = true;
-        
-    }
-    
 }
