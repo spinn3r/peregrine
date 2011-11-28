@@ -139,7 +139,7 @@ public class ShuffleSender {
         private HttpClient client;
         
         public ShuffleOutputTarget( Host host, HttpClient client, int capacity ) {
-            super( client, capacity );
+            super( client, capacity - HttpClient.CHUNK_OVERHEAD );
             this.host = host;
             this.client = client;            
         }

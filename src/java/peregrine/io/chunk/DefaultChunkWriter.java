@@ -38,21 +38,19 @@ public class DefaultChunkWriter implements ChunkWriter {
     private ChannelBuffer buff = new SlabDynamicChannelBuffer( BUFFER_SIZE, BUFFER_SIZE );
     
     public DefaultChunkWriter( ChannelBufferWritable writer ) throws IOException {
-        this.writer = writer;
+        init( writer );
     }
 
     public DefaultChunkWriter( File file ) throws IOException {
 
         MappedFile mapped = new MappedFile( file, FileChannel.MapMode.READ_WRITE );
 
-        writer = mapped.getChannelBufferWritable();
+        init( mapped.getChannelBufferWritable() );
 
     }
 
-    public static OutputStream getOutputStream( File file ) throws IOException {
-
-        return new AsyncOutputStream( file );
-        
+    private void init( ChannelBufferWritable writer ) {
+        this.writer = writer;
     }
     
     @Override

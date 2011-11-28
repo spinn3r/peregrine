@@ -47,7 +47,10 @@ public class BufferedChannelBuffer implements ChannelBufferWritable {
      * additional metadata to a write before we flush the data.
      */
     public void preFlush() throws IOException { }
-    
+
+    /**
+     * Write out all buffers to the delegate.
+     */
     public void flush() throws IOException {
 
         if ( writeLength == 0 )
@@ -84,11 +87,7 @@ public class BufferedChannelBuffer implements ChannelBufferWritable {
     protected ChannelBuffer getChannelBuffer() {
 
         ChannelBuffer[] buffs = new ChannelBuffer[ buffers.size() ];
-
-        int idx = 0;
-        for( ChannelBuffer curr : buffers ) {
-            buffs[idx++] = curr;
-        }
+        buffs = buffers.toArray( buffs );
 
         return ChannelBuffers.wrappedBuffer( buffs );
         
@@ -100,7 +99,7 @@ public class BufferedChannelBuffer implements ChannelBufferWritable {
      */
     protected boolean hasCapacity( ChannelBuffer buff ) {
 
-        int newCapacity = writeLength + buff.writerIndex() + HttpClient.CHUNK_OVERHEAD;
+        int newCapacity = writeLength + buff.writerIndex();
         
         return newCapacity < capacity;
 
