@@ -4,7 +4,7 @@ import java.io.*;
 import peregrine.config.Config;
 import peregrine.config.Host;
 import peregrine.config.Partition;
-import peregrine.http.ChannelBufferWritable;
+import peregrine.util.netty.*;
 
 /**
  * Delegates performing the actual IO to a given subsystem.  Local or remote. 

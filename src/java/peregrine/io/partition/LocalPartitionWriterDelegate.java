@@ -7,6 +7,7 @@ import java.util.*;
 import peregrine.http.*;
 import peregrine.io.chunk.*;
 import peregrine.os.*;
+import peregrine.util.netty.*;
 
 import com.spinn3r.log5j.*;
 

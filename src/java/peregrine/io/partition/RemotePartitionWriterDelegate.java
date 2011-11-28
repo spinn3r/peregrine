@@ -5,6 +5,7 @@ import java.util.*;
 import java.net.*;
 
 import peregrine.http.*;
+import peregrine.util.netty.*;
 
 import com.spinn3r.log5j.*;
 

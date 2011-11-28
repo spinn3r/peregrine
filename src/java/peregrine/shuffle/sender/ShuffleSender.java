@@ -8,6 +8,7 @@ import org.jboss.netty.buffer.*;
 
 import peregrine.config.*;
 import peregrine.http.*;
+import peregrine.util.netty.*;
 import peregrine.util.primitive.*;
 import peregrine.io.chunk.*;
 
@@ -133,7 +134,7 @@ public class ShuffleSender {
     /**
      * The output for shuffle data.  
      */
-    class ShuffleOutputTarget extends BufferedChannelBuffer {
+    class ShuffleOutputTarget extends BufferedChannelBufferWritable {
 
         private Host host;
         private HttpClient client;

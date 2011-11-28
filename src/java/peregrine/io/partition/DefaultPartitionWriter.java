@@ -11,6 +11,7 @@ import peregrine.http.*;
 import peregrine.io.chunk.*;
 import peregrine.io.async.*;
 import peregrine.pfsd.*;
+import peregrine.util.netty.*;
 
 import com.spinn3r.log5j.Logger;
 
@@ -185,7 +186,7 @@ public class DefaultPartitionWriter implements PartitionWriter {
             client.setHeader( FSHandler.X_PIPELINE_HEADER, pipeline );
         }
         
-        chunkWriter = new DefaultChunkWriter( new MultiOutputStream( writables ) );
+        chunkWriter = new DefaultChunkWriter( new MultiChannelBufferWritable( writables ) );
         
         ++chunk_id; // change the chunk ID now for the next file.
 

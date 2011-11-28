@@ -1,10 +1,11 @@
-package peregrine.io.async;
+package peregrine.util.netty;
 
 import java.io.*;
 import java.util.*;
 
 import peregrine.config.*;
 import peregrine.http.*;
+import peregrine.util.netty.*;
 
 import org.jboss.netty.buffer.*;
 
@@ -18,7 +19,7 @@ import com.spinn3r.log5j.*;
  * reasons.
  * 
  */
-public class MultiOutputStream implements ChannelBufferWritable {
+public class MultiChannelBufferWritable implements ChannelBufferWritable {
 
 	// FIXME: I can dump the ENTIRE multi output stream if I also dump the 
 	// entire local output writer work and ALWAYS use pipeline writes which will
@@ -28,7 +29,7 @@ public class MultiOutputStream implements ChannelBufferWritable {
 
     protected Map<Host,ChannelBufferWritable> delegates;
     
-    public MultiOutputStream( Map<Host,ChannelBufferWritable> delegates ) throws IOException {
+    public MultiChannelBufferWritable( Map<Host,ChannelBufferWritable> delegates ) throws IOException {
 
         if ( delegates == null || delegates.size() == 0 )
             throw new IOException( "No delegates" );
@@ -121,9 +122,9 @@ public class MultiOutputStream implements ChannelBufferWritable {
  */
 abstract class MultiOutputStreamIterator {
 
-    private MultiOutputStream writer;
+    private MultiChannelBufferWritable writer;
     
-    public MultiOutputStreamIterator( MultiOutputStream writer ) {
+    public MultiOutputStreamIterator( MultiChannelBufferWritable writer ) {
         this.writer = writer;
     }
     

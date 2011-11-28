@@ -8,6 +8,7 @@ import java.util.*;
 import org.jboss.netty.buffer.*;
 
 import peregrine.http.*;
+import peregrine.util.netty.*;
 
 /**
  * Facade around a MappedByteBuffer but we also support mlock on the mapped

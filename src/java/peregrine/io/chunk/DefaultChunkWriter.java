@@ -46,7 +46,7 @@ public class DefaultChunkWriter implements ChunkWriter {
     }
 
     private void init( ChannelBufferWritable writer ) {
-        this.writer = new BufferedChannelBuffer( writer, BUFFER_SIZE );
+        this.writer = new BufferedChannelBufferWritable( writer, BUFFER_SIZE );
     }
     
     @Override
@@ -116,9 +116,9 @@ public class DefaultChunkWriter implements ChunkWriter {
         buff.writeInt( count );
         write( buff );
 
-        if ( writer instanceof MultiOutputStream ) {
+        if ( writer instanceof MultiChannelBufferWritable ) {
 
-            MultiOutputStream multi = (MultiOutputStream)writer;
+            MultiChannelBufferWritable multi = (MultiChannelBufferWritable)writer;
             multi.shutdown();
             
         }

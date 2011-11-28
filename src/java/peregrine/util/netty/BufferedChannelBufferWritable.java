@@ -1,9 +1,11 @@
-package peregrine.http;
+package peregrine.util.netty;
 
 import java.io.*;
 import java.util.*;
 
 import org.jboss.netty.buffer.*;
+
+import peregrine.util.netty.*;
 
 /**
  * Buffer output until it is ready to be sent in one CHUNK.  Not N chunks.  This
@@ -11,7 +13,7 @@ import org.jboss.netty.buffer.*;
  * then an aggregate is used.
  * 
  */
-public class BufferedChannelBuffer implements ChannelBufferWritable {
+public class BufferedChannelBufferWritable implements ChannelBufferWritable {
 
     public List<ChannelBuffer> buffers = new ArrayList();
 
@@ -24,7 +26,7 @@ public class BufferedChannelBuffer implements ChannelBufferWritable {
 
     private ChannelBufferWritable delegate;
     
-    public BufferedChannelBuffer( ChannelBufferWritable delegate,
+    public BufferedChannelBufferWritable( ChannelBufferWritable delegate,
                                   int capacity ) {
         this.delegate = delegate;
         this.capacity = capacity;

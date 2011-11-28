@@ -1,4 +1,4 @@
-package peregrine.http;
+package peregrine.util.netty;
 
 import java.io.*;
 import org.jboss.netty.buffer.*;
