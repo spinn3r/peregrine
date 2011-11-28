@@ -151,7 +151,7 @@ public class DefaultPartitionWriter implements PartitionWriter {
 
         closeChunkWriter();
         
-        Map<Host,OutputStream> outputStreams = new HashMap();
+        Map<Host,ChannelBufferWritable> writables = new HashMap();
 
         HttpClient client = null;
 
@@ -163,16 +163,16 @@ public class DefaultPartitionWriter implements PartitionWriter {
             
             if ( delegate.getHost().equals( local ) ) {
 
-                OutputStream out = delegate.newChunkWriter( chunk_id );
+                ChannelBufferWritable writable = delegate.newChunkWriter( chunk_id );
 
-                outputStreams.put( delegate.getHost(), out );
+                writables.put( delegate.getHost(), writable );
                 
             } else if ( client == null ) {
 
-                OutputStream out = delegate.newChunkWriter( chunk_id );
+                ChannelBufferWritable writable = delegate.newChunkWriter( chunk_id );
                 
-                client = (HttpClient)out;
-                outputStreams.put( delegate.getHost(), client );
+                client = (HttpClient)writable;
+                writables.put( delegate.getHost(), writable );
 
             } else {
                 pipeline += delegate.getHost() + " ";
@@ -185,7 +185,7 @@ public class DefaultPartitionWriter implements PartitionWriter {
             client.setHeader( FSHandler.X_PIPELINE_HEADER, pipeline );
         }
         
-        chunkWriter = new DefaultChunkWriter( new MultiOutputStream( outputStreams ) );
+        chunkWriter = new DefaultChunkWriter( new MultiOutputStream( writables ) );
         
         ++chunk_id; // change the chunk ID now for the next file.
 

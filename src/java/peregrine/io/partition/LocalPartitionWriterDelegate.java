@@ -1,9 +1,12 @@
 package peregrine.io.partition;
 
 import java.io.*;
+import java.nio.channels.*;
 import java.util.*;
 
+import peregrine.http.*;
 import peregrine.io.chunk.*;
+import peregrine.os.*;
 
 import com.spinn3r.log5j.*;
 
@@ -45,13 +48,18 @@ public class LocalPartitionWriterDelegate extends BasePartitionWriterDelegate {
     }
 
     @Override
-    public OutputStream newChunkWriter( int chunk_id ) throws IOException {
+    public ChannelBufferWritable newChunkWriter( int chunk_id ) throws IOException {
     	
     	File file = LocalPartition.getChunkFile( config, partition, path, chunk_id );
 
         log.info( "Creating new local chunk writer: %s" , file );
 
-        return DefaultChunkWriter.getOutputStream( file );
+        new File( file.getParent() ).mkdirs();
+
+        if ( ! file.exists() )
+            file.createNewFile();
+        
+        return new MappedFile( file, FileChannel.MapMode.READ_WRITE ).getChannelBufferWritable();
         
     }
 

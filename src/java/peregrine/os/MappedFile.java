@@ -5,15 +5,22 @@ import java.nio.*;
 import java.nio.channels.*;
 import java.util.*;
 
+import org.jboss.netty.buffer.*;
+
+import peregrine.http.*;
+
 /**
- * 
+ * Facade around a MappedByteBuffer but we also support mlock on the mapped
+ * pages, and closing all dependent resources.
  *
  *
  */
 public class MappedFile {
 
     protected FileInputStream in;
-    
+
+    protected FileOutputStream out;
+
     protected FileChannel channel;
 
     protected MappedByteBuffer map;
@@ -33,13 +40,25 @@ public class MappedFile {
     public MappedFile( File file, FileChannel.MapMode mode ) throws IOException {
 
         this.file = file;
-        this.in = new FileInputStream( file );
-        this.channel = in.getChannel();
+
+        if( mode.equals( FileChannel.MapMode.READ_ONLY ) ) {
+            this.in = new FileInputStream( file );
+            this.channel = in.getChannel();
+        } else if ( mode.equals( FileChannel.MapMode.READ_WRITE ) ) {
+            this.out = new FileOutputStream( file );
+            this.channel = out.getChannel();
+        } else {
+            throw new IOException( "Invalid mode: " + mode );
+        }
+
         this.mode = mode;
         this.length = file.length();
         
     }
 
+    /**
+     * Read from this mapped file.
+     */
     public MappedByteBuffer map() throws IOException {
 
         if ( map == null ) {
@@ -55,6 +74,13 @@ public class MappedFile {
         
     }
 
+    /**
+     * Enables writing to this mapped file.
+     */
+    public ChannelBufferWritable getChannelBufferWritable() throws IOException {
+        return new MappedChannelBufferWritable();
+    }
+    
     public boolean getLock() { 
         return this.lock;
     }
@@ -68,12 +94,17 @@ public class MappedFile {
        if ( memLock != null )
             memLock.release();
 
-       close( map );
+       if ( map != null )
+           close( map );
        
        channel.close();
-       
-       in.close();
-       
+
+       if ( in != null )
+           in.close();
+
+       if ( out != null )
+           out.close();
+
     }
 
     @SuppressWarnings("all")
@@ -86,5 +117,24 @@ public class MappedFile {
         }
 
     }
-    
+
+    class MappedChannelBufferWritable implements ChannelBufferWritable {
+
+        public void write( ChannelBuffer buff ) throws IOException {
+
+            //FIXME: I'm NOT sure that this is the fastest write path
+            channel.write( buff.toByteBuffer() );
+            
+        }
+        
+        public void shutdown() throws IOException {
+            // noop 
+        }
+        
+        public void close() throws IOException {
+            MappedFile.this.close();
+        }
+
+    }
+
 }

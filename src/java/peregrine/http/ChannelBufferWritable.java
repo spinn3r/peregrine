@@ -11,6 +11,8 @@ public interface ChannelBufferWritable {
 
     public void write( ChannelBuffer buff ) throws IOException;
 
+    public void shutdown() throws IOException;
+
     public void close() throws IOException;
 
 }

@@ -18,6 +18,7 @@ public class TestChunkMerger extends peregrine.BaseTest {
      */
     public void test1() throws Exception {
 
+    	/*
         System.out.printf( "------------ test1\n" );
 
         List<ChunkReader> work = new ArrayList();
@@ -26,9 +27,9 @@ public class TestChunkMerger extends peregrine.BaseTest {
         work.add( makeTestSortChunk( new int[] { 0, 1, 2 } ) );
 
         _test( work );
-
+        */
     }
-
+/*
     private void _test( List<ChunkReader> work ) throws Exception {
 
         new ChunkMerger( new SortListener() {
@@ -77,7 +78,7 @@ public class TestChunkMerger extends peregrine.BaseTest {
         return new DefaultChunkReader( out.toByteArray() );
         
     }
-
+   */
     public static void main( String[] args ) throws Exception {
         runTests();
     }

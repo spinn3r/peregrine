@@ -4,6 +4,7 @@ import java.io.*;
 import peregrine.config.Config;
 import peregrine.config.Host;
 import peregrine.config.Partition;
+import peregrine.http.ChannelBufferWritable;
 
 /**
  * Delegates performing the actual IO to a given subsystem.  Local or remote. 
@@ -25,7 +26,7 @@ public interface PartitionWriterDelegate {
      */
     public int append() throws IOException;
     
-    public OutputStream newChunkWriter( int chunk_id ) throws IOException;
+    public ChannelBufferWritable newChunkWriter( int chunk_id ) throws IOException;
 
     public Host getHost();
 

@@ -92,7 +92,7 @@ public class RemotePartitionWriterDelegate extends BasePartitionWriterDelegate {
     }
 
     @Override
-    public OutputStream newChunkWriter( int chunk_id ) throws IOException {
+    public ChannelBufferWritable newChunkWriter( int chunk_id ) throws IOException {
 
         try {
             

@@ -6,6 +6,8 @@ import java.util.*;
 import peregrine.config.*;
 import peregrine.http.*;
 
+import org.jboss.netty.buffer.*;
+
 import com.spinn3r.log5j.*;
 
 /**
@@ -16,7 +18,7 @@ import com.spinn3r.log5j.*;
  * reasons.
  * 
  */
-public class MultiOutputStream extends BaseOutputStream {
+public class MultiOutputStream implements ChannelBufferWritable {
 
 	// FIXME: I can dump the ENTIRE multi output stream if I also dump the 
 	// entire local output writer work and ALWAYS use pipeline writes which will
@@ -24,9 +26,9 @@ public class MultiOutputStream extends BaseOutputStream {
 	
     private static final Logger log = Logger.getLogger();
 
-    protected Map<Host,OutputStream> delegates;
+    protected Map<Host,ChannelBufferWritable> delegates;
     
-    public MultiOutputStream( Map<Host,OutputStream> delegates ) throws IOException {
+    public MultiOutputStream( Map<Host,ChannelBufferWritable> delegates ) throws IOException {
 
         if ( delegates == null || delegates.size() == 0 )
             throw new IOException( "No delegates" );
@@ -36,40 +38,36 @@ public class MultiOutputStream extends BaseOutputStream {
     }
 
     @Override
-    public void write( final byte[] value ) throws IOException {
+    public void write( final ChannelBuffer value ) throws IOException {
 
-        MultiOutputStreamIterator it = new MultiOutputStreamIterator( this ) {
+        new MultiOutputStreamIterator( this ) {
+            
+            public void handle( ChannelBufferWritable out ) throws IOException {
+                out.write( value );
+            }
 
-                public void handle( OutputStream out ) throws IOException {
-                    out.write( value );
-                }
-
-            };
-
-        it.iterate();
+        }.iterate();
         
     }
 
     @Override
     public void close() throws IOException {
 
-        MultiOutputStreamIterator it = new MultiOutputStreamIterator( this ) {
-
-                public void handle( OutputStream writer ) throws IOException {
-                    writer.close();
-                }
-
-            };
-
-        it.iterate();
+        new MultiOutputStreamIterator( this ) {
+            
+            public void handle( ChannelBufferWritable writer ) throws IOException {
+                writer.close();
+            }
+            
+        }.iterate();
 
     }
 
     public void shutdown() throws IOException {
 
-        MultiOutputStreamIterator it = new MultiOutputStreamIterator( this ) {
+        new MultiOutputStreamIterator( this ) {
 
-                public void handle( OutputStream writer ) throws IOException {
+                public void handle( ChannelBufferWritable writer ) throws IOException {
 
                     if ( writer instanceof HttpClient ) {
                         HttpClient client = (HttpClient)writer;
@@ -78,24 +76,19 @@ public class MultiOutputStream extends BaseOutputStream {
 
                 }
 
-            };
-
-        it.iterate();
+        }.iterate();
 
     }
 
-    @Override
     public void flush() throws IOException {
 
-        MultiOutputStreamIterator it = new MultiOutputStreamIterator( this ) {
-
-                public void handle( OutputStream writer ) throws IOException {
-                    writer.close();
-                }
-
-            };
-
-        it.iterate();
+        new MultiOutputStreamIterator( this ) {
+            
+            public void handle( ChannelBufferWritable writer ) throws IOException {
+                writer.close();
+            }
+            
+        }.iterate();
 
     }
 
@@ -105,7 +98,7 @@ public class MultiOutputStream extends BaseOutputStream {
      * do) but in production we should probably gossip about the failure with
      * the controller so that we understand what is happening.
      */
-    public void handleFailure( OutputStream out, Host host, Throwable cause ) {
+    public void handleFailure( ChannelBufferWritable out, Host host, Throwable cause ) {
     	
         log.error( String.format( "Unable to handle chunk on host %s for %s", host, out) , cause );
         
@@ -138,15 +131,15 @@ abstract class MultiOutputStreamIterator {
     
         writer.assertDelegates();
 
-        Set<Map.Entry<Host,OutputStream>> set = writer.delegates.entrySet();
+        Set<Map.Entry<Host,ChannelBufferWritable>> set = writer.delegates.entrySet();
         
-        Iterator<Map.Entry<Host,OutputStream>> it = set.iterator();
+        Iterator<Map.Entry<Host,ChannelBufferWritable>> it = set.iterator();
 
         while( it.hasNext() ) {
 
-        	Map.Entry<Host,OutputStream> entry = it.next();
+        	Map.Entry<Host,ChannelBufferWritable> entry = it.next();
 
-            OutputStream current = entry.getValue();
+            ChannelBufferWritable current = entry.getValue();
 
             try {
 
@@ -163,6 +156,6 @@ abstract class MultiOutputStreamIterator {
 
     }
 
-    public abstract void handle( OutputStream out ) throws IOException;
+    public abstract void handle( ChannelBufferWritable out ) throws IOException;
     
 }

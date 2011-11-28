@@ -89,13 +89,17 @@ public class TestFullShufflePath extends peregrine.BaseTestWithMultipleDaemons {
 
         assertEquals( max_emits * iterations, count );
 
-        ShuffleInputChunkReader reader = new ShuffleInputChunkReader( configs.get( 0 ), new Partition( 0 ), "/tmp/peregrine-fs/localhost/11112/tmp/shuffle/default/0000000000.tmp" );
+        ShuffleInputChunkReader reader = new ShuffleInputChunkReader( configs.get( 0 ),
+                                                                      new Partition( 0 ),
+                                                                      "/tmp/peregrine-fs/localhost/11112/tmp/shuffle/default/0000000000.tmp" );
 
         while( reader.hasNext() ) {
             reader.next();
             //System.out.printf( "key: %s, value: %s\n", Hex.encode( reader.key() ), Hex.encode( reader.value() ) );
         }
 
+        reader.close();
+        
         ChunkSorter sorter = new ChunkSorter( configs.get( 0 ) , new Partition( 0 ), new ShuffleInputReference( "default" ) );
 
         File file_input = new File( "/tmp/peregrine-fs/localhost/11112/tmp/shuffle/default/0000000000.tmp" );

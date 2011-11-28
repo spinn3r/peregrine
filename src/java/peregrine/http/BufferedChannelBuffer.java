@@ -61,7 +61,12 @@ public class BufferedChannelBuffer implements ChannelBufferWritable {
         writeLength = 0;
 
     }
-    
+
+    @Override
+    public void shutdown() throws IOException {
+        flush();
+    }
+
     @Override
     public void close() throws IOException {
 

@@ -1,10 +1,14 @@
 package peregrine.io.chunk;
 
 import java.io.*;
+import java.nio.channels.*;
+
 import peregrine.io.async.*;
+import peregrine.os.*;
 import peregrine.util.*;
 import peregrine.util.netty.*;
 import peregrine.util.primitive.*;
+import peregrine.http.*;
 
 import org.jboss.netty.buffer.*;
 
@@ -18,12 +22,10 @@ import org.jboss.netty.buffer.*;
 public class DefaultChunkWriter implements ChunkWriter {
 
     public static int MAX_LENGTH_WIDTH = 2 * IntBytes.LENGTH;
-    
-    public static boolean USE_ASYNC = true;
 
     public static int BUFFER_SIZE = 16384;
     
-    protected OutputStream out = null;
+    protected ChannelBufferWritable writer = null;
 
     private int count = 0;
 
@@ -34,27 +36,22 @@ public class DefaultChunkWriter implements ChunkWriter {
     private boolean shutdown = false;
 
     private ChannelBuffer buff = new SlabDynamicChannelBuffer( BUFFER_SIZE, BUFFER_SIZE );
-
-    public DefaultChunkWriter( OutputStream out ) throws IOException {
-        this.out = out;
+    
+    public DefaultChunkWriter( ChannelBufferWritable writer ) throws IOException {
+        this.writer = writer;
     }
 
     public DefaultChunkWriter( File file ) throws IOException {
 
-        this.out = getOutputStream( file );
-        
+        MappedFile mapped = new MappedFile( file, FileChannel.MapMode.READ_WRITE );
+
+        writer = mapped.getChannelBufferWritable();
+
     }
 
     public static OutputStream getOutputStream( File file ) throws IOException {
 
-        OutputStream out;
-        
-        if ( USE_ASYNC )
-            out = new AsyncOutputStream( file );
-        else 
-            out = new FileOutputStream( file );
-
-        return out;
+        return new AsyncOutputStream( file );
         
     }
     
@@ -99,15 +96,13 @@ public class DefaultChunkWriter implements ChunkWriter {
 
         length += buff.writerIndex();
 
-        //FIXME: rewrite this to use transferTo and mmap.
+        writer.write( buff );
 
-        byte[] data = new byte[ buff.writerIndex() ];
+        // we must create a new buffer each time for now because the sender is
+        // async... pooling these would be good so that we can just return them
+        // to the pool when done.
         
-        buff.getBytes( 0, data, 0, buff.writerIndex() );
-        out.write( data );
-
-        buff.resetReaderIndex();
-        buff.resetWriterIndex();
+        buff = new SlabDynamicChannelBuffer( BUFFER_SIZE, BUFFER_SIZE );
 
     }
 
@@ -129,7 +124,7 @@ public class DefaultChunkWriter implements ChunkWriter {
 
         shutdown();
 
-        out.close();
+        writer.close();
 
         closed = true;
         
@@ -144,13 +139,15 @@ public class DefaultChunkWriter implements ChunkWriter {
 
         // last four bytes store the number of items.
 
-        byte[] count_bytes = IntBytes.toByteArray( count );
-        out.write( count_bytes );
-        length += count_bytes.length;
+        ChannelBuffer buff = ChannelBuffers.buffer( IntBytes.LENGTH );
+        buff.writeInt( count );
+        writer.write( buff );
+        
+        length += IntBytes.LENGTH;
 
-        if ( out instanceof MultiOutputStream ) {
+        if ( writer instanceof MultiOutputStream ) {
 
-            MultiOutputStream multi = (MultiOutputStream)out;
+            MultiOutputStream multi = (MultiOutputStream)writer;
             multi.shutdown();
             
         }
