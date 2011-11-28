@@ -1,4 +1,6 @@
 
+- pipeline support ... 
+
 - move to the RangePartitionRouter instead of the HashPartitionRouter
 
 - we need a combiner.

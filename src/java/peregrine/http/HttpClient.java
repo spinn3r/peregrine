@@ -23,7 +23,7 @@ import com.spinn3r.log5j.Logger;
  * HTTP client that supports chunked PUT to a remote PFS node.
  * 
  */
-public class HttpClient extends BaseOutputStream implements ChannelBufferWritable {
+public class HttpClient implements ChannelBufferWritable {
 
     private static final Logger log = Logger.getLogger();
 
