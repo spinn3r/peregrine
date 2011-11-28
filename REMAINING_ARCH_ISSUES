@@ -1,9 +1,19 @@
 
-- pipeline support ... 
+- Key and Value should be StructReaders / StructWriters
+    - What does Hadoop do by default right now ? It uses IntReader IntWriter correct?
 
-- Key and Value should be StructReaders 
+        map( StructReader key, StructReader value );
+        reduce( StructReader key , List<StructReader> values );
 
 - move to the RangePartitionRouter instead of the HashPartitionRouter
+
+- checksums (I think this part would be easy).
+
+- documentation:
+  - citations (pregel, flume, etc)
+  - paper
+        
+- pipeline support and an API or handling them... 
 
 - we need a combiner.
 
@@ -14,13 +24,7 @@
 
 - compression
 
-- checksums (I think this part would be easy).
-
 - No MultiOutputStream but instead ALWAYS use pipeline writes
-
-- documentation:
-  - citations (pregel, flume, etc)
-  - paper
 
 - Job killing so that the controller can kill off something that is running
   easily ... 
@@ -31,20 +35,17 @@
   queue merging system and this will need to be cleaned up to reduce the amount
   of code (and potential bugs)
 
-- No use of AsyncOutputStream any more... DefaultChunkWriter still uses
+- (done) No use of AsyncOutputStream any more... DefaultChunkWriter still uses
   it... It *could* change to AsyncChannelWriter in the future though.
 
 - Audit everything to make sure we're using zero copy as much as possible.
 
 - O_NOATIME on files ... ?
 
-- during intermediate merges we de-serialze the entire record then add the
+- During intermediate merges we de-serialze the entire record then add the
   new records when in reality we can just append bytes together ... 
 
-- do a pass to find out what code we can remove.
-
-- the entire API need to be StructReader and StructWriter based and use
-  ChannelBuffers for this backing... 
+- Do a pass to find out what code we can remove.
 
 - run some profiles on the code to make sure we're performing reasonably.
 
