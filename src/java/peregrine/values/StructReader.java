@@ -6,7 +6,13 @@ import peregrine.util.*;
 import peregrine.util.primitive.*;
 
 /**
+ * API for dealing with complex data structures as byte array.  All main byte
+ * manipulation in peregrine is centered around StructReader and StructWriter.
+ * A sibling class StructReaders provides API around easily accessing
+ * primitives.
  * 
+ * @see StructWriter
+ * @see StructReaders
  */
 public class StructReader {
 
@@ -95,6 +101,14 @@ public class StructReader {
     
     public int length() {
     	return buff.writerIndex();
+    }
+
+    /**
+     * Reset for reading again.  This positions the pointer at the beginning of
+     * the struct.
+     */
+    public void reset() {
+        buff.readerIndex( 0 );
     }
     
 }
