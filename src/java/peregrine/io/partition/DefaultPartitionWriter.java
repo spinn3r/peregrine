@@ -12,6 +12,7 @@ import peregrine.io.chunk.*;
 import peregrine.io.async.*;
 import peregrine.pfsd.*;
 import peregrine.util.netty.*;
+import peregrine.values.*;
 
 import com.spinn3r.log5j.Logger;
 
@@ -96,10 +97,10 @@ public class DefaultPartitionWriter implements PartitionWriter {
     }
 
     @Override
-    public void write( byte[] key_bytes, byte[] value_bytes )
+    public void write( StructReader key, StructReader value )
         throws IOException {
 
-        chunkWriter.write( key_bytes, value_bytes );
+        chunkWriter.write( key, value );
 
         rolloverWhenNecessary();
         

@@ -1,6 +1,7 @@
 package peregrine.io.chunk;
 
 import java.io.*;
+import peregrine.values.*;
 
 public interface ChunkReader {
 
@@ -16,14 +17,14 @@ public interface ChunkReader {
      *
      * Both key() and value() must be called before moving to the next item.
      */
-    public byte[] key() throws IOException;
+    public StructReader key() throws IOException;
 
     /**
      * Read the value from the current entry.
      *
      * Both key() and value() must be called before moving to the next item.
      */
-    public byte[] value() throws IOException;
+    public StructReader value() throws IOException;
 
     /**
      * Return the number of key/value pairs in this ChunkReader.

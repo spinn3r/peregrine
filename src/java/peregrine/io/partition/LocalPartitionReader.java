@@ -1,11 +1,12 @@
 package peregrine.io.partition;
 
 import java.io.*;
+
 import java.util.*;
 
-import peregrine.config.Config;
-import peregrine.config.Partition;
+import peregrine.config.*;
 import peregrine.io.chunk.*;
+import peregrine.values.*;
 
 /**
  * Read data from a partition from local storage.
@@ -115,11 +116,11 @@ public class LocalPartitionReader {
 
     }
     
-    public byte[] key() throws IOException {
+    public StructReader key() throws IOException {
         return chunkReader.key();
     }
 
-    public byte[] value() throws IOException {
+    public StructReader value() throws IOException {
         return chunkReader.value();
     }
 

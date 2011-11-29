@@ -1,11 +1,14 @@
 package peregrine.io;
 
+import java.util.*;
+import peregrine.values.*;
+
 public final class JoinedTuple {
 
-    public byte[] key = null;
-    public byte[][] values = null;
+    public StructReader key = null;
+    public List<StructReader> values = null;
     
-    public JoinedTuple( byte[] key, byte[][] values ) {
+    public JoinedTuple( StructReader key, List<StructReader> values ) {
 
         this.key = key;
         this.values = values;

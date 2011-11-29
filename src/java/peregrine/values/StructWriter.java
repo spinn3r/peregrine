@@ -17,11 +17,8 @@ public class StructWriter {
     
     private ChannelBuffer buff = null;
 
-    private static ThreadLocalChannelBuffer threadLocal =
-        new ThreadLocalChannelBuffer( BUFFER_SIZE );
-
     public StructWriter() {
-        this( threadLocal.get() );
+        this( LongBytes.LENGTH );
     }
 
     public StructWriter( ChannelBuffer buff ) {
@@ -90,19 +87,24 @@ public class StructWriter {
         return this;
     }
 
-    public StructWriter writeHashcode( String key ) {
+    public StructWriter writeHashcode( byte[] value ) {
         // our hash codes right now are fixed width.
-        buff.writeBytes( Hashcode.getHashcode( key ) );
+        buff.writeBytes( Hashcode.getHashcode( value ) );
         return this;
+    }
         
+    public StructWriter writeHashcode( String value ) {
+        // our hash codes right now are fixed width.
+        buff.writeBytes( Hashcode.getHashcode( value ) );
+        return this;
     }
 
     public ChannelBuffer getChannelBuffer() {
-    	return buff;
+        return buff.duplicate();
     }
 
     public StructReader toStructReader() {
-        return new StructReader( buff );
+        return new StructReader( getChannelBuffer() );
     }
     
     public byte[] toBytes() {

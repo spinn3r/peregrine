@@ -27,7 +27,7 @@ public class SortResult {
 
         FullKeyComparator comparator = new FullKeyComparator();
 
-        if ( last == null || comparator.compare( last.key, entry.key ) != 0 ) {
+        if ( last == null || comparator.compare( last.keyAsByteArray, entry.keyAsByteArray ) != 0 ) {
 
             emit( last );
             last = entry;
@@ -60,7 +60,7 @@ public class SortResult {
         struct.write( entry.getValues() );
 
         if ( writer != null )
-            writer.write( entry.key, struct.toBytes() );
+            writer.write( entry.key, new StructReader( struct.toChannelBuffer() ) );
 
     }
     

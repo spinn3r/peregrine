@@ -43,16 +43,16 @@ public class TestRemotePartitionWriterDelegate extends peregrine.PFSTest {
         
         for( int i = 0; i < max; ++i ) {
 
-            byte[] key = new StructWriter()
+            StructReader key = new StructWriter()
                 .writeVarint( i )
-                .toBytes()
+                .toStructReader()
                 ;
 
-            byte[] value = key;
+            StructReader value = key;
 
             writer.write( key, value );
 
-            computed_written += key.length + value.length + 2 ;
+            computed_written += key.length() + value.length() + 2 ;
 
             assertEquals( computed_written, writer.length() );
 

@@ -18,7 +18,7 @@ public class TeleportationGrantJob {
 
             BroadcastInput nrNodesBroadcastInput = getBroadcastInput().get( 0 );
             
-            nr_nodes = new StructReader( nrNodesBroadcastInput.getValue() )
+            nr_nodes = nrNodesBroadcastInput.getValue()
                 .readVarint()
                 ;
 

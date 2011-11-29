@@ -13,9 +13,9 @@ import peregrine.util.primitive.*;
  * Stores a list of byte arrays.  The nice thing is that you can just APPEND to
  * this list when you want to add entries to it...
  */
-public class Struct implements Value {
+public class Struct {
 
-    public List<byte[]> values = new ArrayList();
+    public List<StructReader> values = new ArrayList();
 
     public Struct() {}
 
@@ -25,9 +25,9 @@ public class Struct implements Value {
 
     //WRITERS
 
-    public Struct write( List<byte[]> values ) {
+    public Struct write( List<StructReader> values ) {
 
-        for( byte[] val : values ) {
+        for( StructReader val : values ) {
             this.values.add( val );
         }
 
@@ -35,38 +35,35 @@ public class Struct implements Value {
 
     }
 
-    public Struct write( byte[] value ) {
+    public Struct write( StructReader value ) {
         values.add( value );
         return this;
     }
 
     // READERS
 
-    public List<byte[]> read() {
+    public List<StructReader> read() {
         return values;
     }
 
-    @Override
-    public byte[] toBytes() {
+    public ChannelBuffer toChannelBuffer() {
 
         try {
 
         	int len = 0;
-            for( byte[] value : values ) {
-                len += IntBytes.LENGTH + value.length;
+            for( StructReader value : values ) {
+                len += IntBytes.LENGTH + value.length();
             }
 
             ChannelBuffer buff = ChannelBuffers.buffer( len );
 
             //TODO: support fixed with encoding if ALL are the same width
-            for( byte[] value : values ) {
-                VarintWriter.write( buff, value.length );
-                buff.writeBytes( value );
+            for( StructReader value : values ) {
+                VarintWriter.write( buff, value.length() );
+                buff.writeBytes( value.getChannelBuffer() );
             }
             
-            byte[] result = new byte[ buff.writerIndex() ];
-            buff.readBytes( result );
-            return result;
+            return buff;
             
         } catch ( Exception e ) {
             throw new RuntimeException( e );
@@ -74,19 +71,14 @@ public class Struct implements Value {
         
     }
 
-    @Override
-    public void fromBytes( byte[] data ) {
-
-        ChannelBuffer buff = ChannelBuffers.wrappedBuffer( data );
+    public void fromChannelBuffer( ChannelBuffer buff ) {
 
         VarintReader varintReader = new VarintReader( buff );
         
         while( buff.readerIndex() < data.length ) {
 
             int len = varintReader.read();
-            byte[] entry = new byte[len];
-            buff.readBytes( entry );
-            values.add( entry );
+            values.add( new StructReader( buff.readSlice( len ) ) );
         }
 
     }
@@ -96,9 +88,9 @@ public class Struct implements Value {
 
         StringBuffer buff = new StringBuffer();
         
-        for ( byte[] val : values ) {
+        for ( StructReader val : values ) {
 
-            buff.append( String.format( "%s ", Hex.encode( val ) ) );
+            buff.append( String.format( "%s ", Hex.encode( val.getChannelBuffer() ) ) );
             
         }
 

@@ -12,7 +12,7 @@ public class MergerPriorityQueue {
 
     protected int key_offset = 0;
 
-    protected MergeQueueEntry result = new MergeQueueEntry();
+    protected MergeQueueEntry result = null;
 
     protected ChunkMergeComparator comparator = new ChunkMergeComparator();
     
@@ -25,11 +25,7 @@ public class MergerPriorityQueue {
             if ( reader.hasNext() == false )
                 continue;
             
-            MergeQueueEntry entry = new MergeQueueEntry();
-            entry.reader = reader;
-
-            entry.key = reader.key();
-            entry.value = reader.value();
+            MergeQueueEntry entry = new MergeQueueEntry( reader );
 
             entry.queue = this;
 
@@ -75,7 +71,7 @@ class ChunkMergeComparator implements Comparator<MergeQueueEntry> {
     private FullKeyComparator delegate = new FullKeyComparator();
     
     public int compare( MergeQueueEntry k0, MergeQueueEntry k1 ) {
-        return delegate.compare( k0.key, k1.key );
+        return delegate.compare( k0.keyAsByteArray, k1.keyAsByteArray );
     }
 
 }

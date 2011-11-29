@@ -1,13 +1,14 @@
 package peregrine.io.chunk;
 
 import java.io.*;
+import peregrine.values.*;
 
 public interface ChunkWriter {
 
     /**
      * Write a key value pair.  This is the main method for IO to a chunk.
      */
-    public void write( byte[] key, byte[] value ) throws IOException;
+    public void write( StructReader key, StructReader value ) throws IOException;
 
     /**
      * Total number of items in this chunk writer.  Basically, a count of the

@@ -1,13 +1,15 @@
 package peregrine.io.chunk;
 
 import java.io.*;
+
 import java.nio.*;
 import java.nio.channels.*;
 
 import peregrine.*;
 import peregrine.os.*;
 import peregrine.util.*;
-import peregrine.util.primitive.IntBytes;
+import peregrine.util.primitive.*;
+import peregrine.values.*;
 
 import org.jboss.netty.buffer.*;
 
@@ -102,13 +104,13 @@ public class DefaultChunkReader implements ChunkReader {
     }
 
     @Override
-    public byte[] key() throws IOException {
+    public StructReader key() throws IOException {
         ++idx;
         return readEntry();
     }
 
     @Override
-    public byte[] value() throws IOException {
+    public StructReader value() throws IOException {
         return readEntry();
     }
 
@@ -152,12 +154,13 @@ public class DefaultChunkReader implements ChunkReader {
         buff.readerIndex( buff.readerIndex() + varintReader.read() );
     }
 
-    private byte[] readEntry() throws IOException {
+    private StructReader readEntry() throws IOException {
 
         try {
 
             int len = varintReader.read();
-            return readBytes( len );
+            
+            return new StructReader( buff.readSlice( len ) );
             
         } catch ( Throwable t ) {
             throw new IOException( "Unable to parse: " + toString() , t );
@@ -165,45 +168,14 @@ public class DefaultChunkReader implements ChunkReader {
         
     }
     
-    private byte[] readBytes( int len ) throws IOException {
-
-        byte[] data = new byte[len];
-        buff.readBytes( data );
-        return data;
-        
-    }
-    
     public static void main( String[] args ) throws Exception {
 
         ChunkReader reader = new DefaultChunkReader( new File( args[0] ) );
 
-        Key key = null;
-        Value value = null;
-        
-        if ( args.length > 1 ) {
-
-            key   = (Key)  Class.forName( args[1] ).newInstance();
-            value = (Value)Class.forName( args[2] ).newInstance();
-            
-        }
-        
         while( reader.hasNext() ) {
-
-            if ( key == null ) {
-
-                System.out.printf( "%s = %s\n", Hex.encode( reader.key() ), Hex.encode( reader.value() ) );
-
-            } else {
-
-                key.fromBytes( reader.key() );
-                value.fromBytes( reader.value() );
-                
-                System.out.printf( "%s = %s\n", key, value );
-
-            }
-
+            System.out.printf( "%s = %s\n", Hex.encode( reader.key().getChannelBuffer() ), Hex.encode( reader.value().getChannelBuffer() ) );
         }
-        
+                    
     }
     
 }

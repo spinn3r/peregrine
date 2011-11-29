@@ -41,8 +41,8 @@ public class IterJob {
         }
 
         @Override
-        public void merge( byte[] key,
-        		           byte[]... values ) {
+        public void merge( StructReader key,
+                           StructReader... values ) {
 
             byte[] graph_by_source  = values[0];
             byte[] dangling         = values[2];
@@ -84,7 +84,7 @@ public class IterJob {
                         .toBytes();
                     */
 
-                    byte[] value = DoubleBytes.toByteArray( grant );
+                    StructReader value = DoubleBytes.toByteArray( grant );
                     
                     emit( target, value );
 

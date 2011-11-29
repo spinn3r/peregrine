@@ -9,6 +9,7 @@ import peregrine.util.*;
 import peregrine.util.netty.*;
 import peregrine.util.primitive.*;
 import peregrine.http.*;
+import peregrine.values.*;
 
 import org.jboss.netty.buffer.*;
 
@@ -50,16 +51,13 @@ public class DefaultChunkWriter implements ChunkWriter {
     }
     
     @Override
-    public void write( byte[] key, byte[] value )
+    public void write( StructReader key, StructReader value )
         throws IOException {
 
         if ( closed )
             throw new IOException( "closed" );
 
-        writeVarint( key.length );
-        write( ChannelBuffers.wrappedBuffer( key ) );
-        writeVarint( value.length );
-        write( ChannelBuffers.wrappedBuffer( value ) );
+        length += write( writer, key, value );
         
         ++count;
 
@@ -68,30 +66,34 @@ public class DefaultChunkWriter implements ChunkWriter {
     /**
      * Perform a DIRECT write on a ChannelBuffer.  
      */
-    public static void write( ChannelBuffer buff,
-                              byte[] key,
-                              byte[] value ) {
+    public static int write( ChannelBufferWritable writer ,
+                             StructReader key,
+                             StructReader value ) throws IOException {
         
-        VarintWriter.write( buff, key.length );
-        buff.writeBytes( key );
-
-        VarintWriter.write( buff, value.length );
-        buff.writeBytes( value );
+    	int result = 0;
+    	
+        result += writeVarint( writer, key.length() );
+        result += write( writer, key.getChannelBuffer() );
+        result += writeVarint( writer, value.length() );
+        result += write( writer, value.getChannelBuffer() );
+        
+        return result;
         
     }
 
-    private void write( ChannelBuffer buff ) throws IOException {
+    private static int write( ChannelBufferWritable writer, ChannelBuffer buff ) throws IOException {
 
         writer.write( buff );
-        length += buff.writerIndex();
+        
+        return buff.writerIndex();
         
     }
 
-    private void writeVarint( int value ) throws IOException {
+    private static int writeVarint( ChannelBufferWritable writer, int value ) throws IOException {
 
         ChannelBuffer buff = ChannelBuffers.buffer( IntBytes.LENGTH );
         VarintWriter.write( buff, value );
-        write( buff );
+        return write( writer, buff );
         
     }
     
@@ -114,7 +116,7 @@ public class DefaultChunkWriter implements ChunkWriter {
 
         ChannelBuffer buff = ChannelBuffers.buffer( IntBytes.LENGTH );
         buff.writeInt( count );
-        write( buff );
+        length += write( writer, buff );
 
         if ( writer instanceof MultiChannelBufferWritable ) {
 

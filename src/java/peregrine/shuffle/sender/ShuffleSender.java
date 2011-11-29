@@ -15,6 +15,7 @@ import peregrine.io.chunk.*;
 import com.spinn3r.log5j.Logger;
 
 import static peregrine.pfsd.FSPipelineFactory.*;
+import peregrine.values.*;
 
 public class ShuffleSender {
 
@@ -42,7 +43,7 @@ public class ShuffleSender {
 
     }
 
-    public void emit( int to_partition, byte[] key, byte[] value ) throws ShuffleFailedException {
+    public void emit( int to_partition, StructReader key, StructReader value ) throws ShuffleFailedException {
 
         ShuffleOutputTarget client = partitionOutput.get( to_partition );
 
@@ -50,13 +51,12 @@ public class ShuffleSender {
         // BIG performance penalty.
 
         //ChannelBuffer buff = ChannelBuffers.directBuffer( IntBytes.LENGTH * 2 + key.length + value.length );
-        ChannelBuffer buff = ChannelBuffers.buffer( IntBytes.LENGTH * 2 + key.length + value.length );
+        ChannelBuffer buff = ChannelBuffers.buffer( IntBytes.LENGTH * 2 + key.length() + value.length() );
 
-        DefaultChunkWriter.write( buff, key, value );
         
         try {
         
-            client.write( buff );
+            DefaultChunkWriter.write( client, key, value );
             ++count;
             length += buff.writerIndex();
 

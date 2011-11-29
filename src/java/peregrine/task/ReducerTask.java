@@ -10,6 +10,7 @@ import peregrine.config.Config;
 import peregrine.config.Partition;
 import peregrine.io.*;
 import peregrine.reduce.*;
+import peregrine.values.*;
 
 import com.spinn3r.log5j.Logger;
 
@@ -152,7 +153,7 @@ class ReducerTaskSortListener implements SortListener {
         this.reducer = reducer;
     }
     
-    public void onFinalValue( byte[] key, List<byte[]> values ) {
+    public void onFinalValue( StructReader key, List<StructReader> values ) {
 
         try {
 

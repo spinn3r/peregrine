@@ -9,6 +9,7 @@ import peregrine.io.partition.*;
 import peregrine.util.*;
 import peregrine.io.chunk.*;
 import com.spinn3r.log5j.Logger;
+import peregrine.values.*;
 
 public class ShuffleJobOutputDirect extends ShuffleJobOutputBase {
 
@@ -21,16 +22,16 @@ public class ShuffleJobOutputDirect extends ShuffleJobOutputBase {
     }
     
     @Override
-    public void emit( byte[] key , byte[] value ) {
+    public void emit( StructReader key , StructReader value ) {
             
-        Partition target = parent.config.route( key );
+        Partition target = parent.config.route( key.toByteArray() );
         
         emit( target.getId(), key, value );
                     
     }
 
     @Override
-    public void emit( int to_partition, byte[] key , byte[] value ) {
+    public void emit( int to_partition, StructReader key , StructReader value ) {
 
         try {
             sender.emit( to_partition, key, value );

@@ -17,6 +17,10 @@ public class StructReader {
         this( ChannelBuffers.wrappedBuffer( data ) );
     }
 
+    public StructReader( int capacity ) {
+        this( ChannelBuffers.buffer( capacity ) );
+    }
+    
     public StructReader( ChannelBuffer buff ) {
     	this.buff = buff;
         this.varintReader = new VarintReader( buff );
@@ -75,5 +79,19 @@ public class StructReader {
         return read(new byte[Hashcode.HASH_WIDTH]);
     }
 
+    public byte[] toByteArray() {
+        byte[] result = new byte[ buff.writerIndex() ];
+        buff.getBytes( 0, result, 0, result.length );
+        return result;
+    }
+    
+    public ChannelBuffer getChannelBuffer() {
+    	return buff;	
+    }
+    
+    public int length() {
+    	return buff.writerIndex();
+    }
+    
 }
 

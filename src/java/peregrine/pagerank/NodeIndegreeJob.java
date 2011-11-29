@@ -9,8 +9,8 @@ public class NodeIndegreeJob {
     public static class Map extends Mapper {
 
         @Override
-        public void map( byte[] key_data,
-                         byte[] value_data ) {
+        public void map( StructReader key,
+                         StructReader value) {
 
             HashSetValue value = new HashSetValue();
             value.fromBytes( value_data );

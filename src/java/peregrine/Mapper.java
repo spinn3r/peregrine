@@ -1,10 +1,11 @@
 package peregrine;
 
 import peregrine.map.BaseMapper;
+import peregrine.values.*;
 
 public class Mapper extends BaseMapper {
 
-    public void map( byte[] key, byte[] value ) {
+    public void map( StructReader key, StructReader value ) {
         emit( key, value );
     }
 

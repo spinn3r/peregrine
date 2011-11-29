@@ -3,6 +3,7 @@ package peregrine.io;
 import java.io.*;
 import java.util.*;
 import peregrine.reduce.*;
+import peregrine.values.*;
 import peregrine.io.partition.*;
 
 /**
@@ -42,7 +43,7 @@ public class LocalMerger {
 
         int nr_readers = readers.size();
         
-        byte[][] joined = new byte[nr_readers][];
+        List<StructReader> joined = new ArrayList( nr_readers );
         
         while( true ) {
 
@@ -54,14 +55,14 @@ public class LocalMerger {
                     return null;
 
                 if ( last != null )
-                    joined[last.id] = last.value;
+                    joined.set( last.id, last.value );
 
                 boolean changed = ref == null || ( last != null && comparator.compare( last, ref ) != 0 );
                 
                 if ( changed ) {
                     
                     JoinedTuple result = new JoinedTuple( last.key, joined );
-                    joined = new byte[nr_readers][];
+                    joined = new ArrayList( nr_readers );
                     
                     return result;
                     
@@ -112,9 +113,9 @@ class FilePriorityQueue {
 
 class FileReference {
 
-    public byte[] key;
-
-    public byte[] value;
+	public byte[] keyAsByteArray;
+    public StructReader key;
+    public StructReader value;
     
     public int id = -1;
     protected LocalPartitionReader reader;
@@ -124,8 +125,9 @@ class FileReference {
         this.reader = reader;
     }
 
-    public FileReference( int id, byte[] key, byte[] value ) {
+    public FileReference( int id, StructReader key, StructReader value ) {
         this.id = id;
+        this.keyAsByteArray = key.toByteArray();
         this.key = key;
         this.value = value;
     }
@@ -139,7 +141,7 @@ class FileComparator implements Comparator<FileReference> {
     
     public int compare( FileReference r1, FileReference r2 ) {
 
-        return delegate.compare( r1.key , r2.key );
+        return delegate.compare( r1.keyAsByteArray , r2.keyAsByteArray );
 
     }
 

@@ -2,6 +2,7 @@
 package peregrine.reduce.sorter;
 
 import java.io.*;
+
 import java.nio.channels.*;
 
 import peregrine.config.Config;
@@ -10,6 +11,8 @@ import peregrine.io.*;
 import peregrine.io.chunk.*;
 import peregrine.shuffle.*;
 import peregrine.util.*;
+import peregrine.values.*;
+
 import org.jboss.netty.buffer.*;
 
 import com.spinn3r.log5j.Logger;
@@ -87,12 +90,10 @@ public class ChunkSorter extends BaseChunkSorter {
 
                     int key_length = varintReader.read();
 
-                    byte[] key = new byte[ key_length ];
-                    buffer.readBytes( key );
-
+                    StructReader key = new StructReader( buffer.readSlice( key_length ) );
+                    
                     int value_length = varintReader.read();
-                    byte[] value = new byte[ value_length ];
-                    buffer.readBytes( value );
+                    StructReader value = new StructReader( buffer.readSlice( value_length ) );
 
                     writer.write( key, value );
                     
