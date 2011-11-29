@@ -19,6 +19,11 @@ StructWriter refactor notes:
         - they're basically the same but one is fixed width and the other is
           variable.
 
+    - The DefaultChunkWriter I think is broken... try to test it with just raw
+      byte arrays.
+
+      - 
+
 
 
 

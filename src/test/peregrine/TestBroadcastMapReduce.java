@@ -80,7 +80,7 @@ public class TestBroadcastMapReduce extends peregrine.BaseTestWithMultipleConfig
         
          ExtractWriter writer = new ExtractWriter( config, path );
          
-         for( int i = 0; i < 1000; ++i ) {
+         for( long i = 0; i < 1000; ++i ) {
              
              StructReader key = StructReaders.create( i );
              StructReader value = key;

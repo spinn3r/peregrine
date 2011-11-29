@@ -39,7 +39,7 @@ public class TestShuffleInputChunkReader extends peregrine.BaseTestWithMultipleD
 
         int max = 10000;
         
-        for( int i = 0; i < max; ++i ) {
+        for( long i = 0; i < max; ++i ) {
 
         	StructReader key =StructReaders.create( i );
         	StructReader value = key;

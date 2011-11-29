@@ -46,7 +46,7 @@ public class TestShufflePerformance extends BaseTestWithMultipleConfigs {
             // we need to call onChunk to init the shuffle job output.
             output.onChunk( chunkRef );
 
-            for ( int i = 0; i < max_emits; ++i ) {
+            for ( long i = 0; i < max_emits; ++i ) {
 
                 StructReader key = StructReaders.create( i );
                 

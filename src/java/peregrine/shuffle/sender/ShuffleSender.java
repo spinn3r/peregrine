@@ -46,13 +46,6 @@ public class ShuffleSender {
     public void emit( int to_partition, StructReader key, StructReader value ) throws ShuffleFailedException {
 
         ShuffleOutputTarget client = partitionOutput.get( to_partition );
-
-        // TODO: WARNING in practice using a direct buffer turned out ot be a
-        // BIG performance penalty.
-
-        //ChannelBuffer buff = ChannelBuffers.directBuffer( IntBytes.LENGTH * 2 + key.length + value.length );
-        ChannelBuffer buff = ChannelBuffers.buffer( IntBytes.LENGTH * 2 + key.length() + value.length() );
-
         
         try {
         

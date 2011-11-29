@@ -17,7 +17,7 @@ import peregrine.values.*;
  *
  */
 public class Merger extends BaseMapper {
-
+	
 	/**
 	 * Run a merge over the given data.  Note the merge method is different 
 	 * from that of Mapper in that only one value is provided. 

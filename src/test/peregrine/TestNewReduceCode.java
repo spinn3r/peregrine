@@ -74,7 +74,7 @@ public class TestNewReduceCode extends peregrine.BaseTestWithTwoDaemons {
 
         int max = 10000;
         
-        for( int i = 0; i < max; ++i ) {
+        for( long i = 0; i < max; ++i ) {
 
         	StructReader key =StructReaders.create( i );
         	StructReader value = key;
@@ -82,7 +82,7 @@ public class TestNewReduceCode extends peregrine.BaseTestWithTwoDaemons {
             
         }
 
-        for( int i = 0; i < max; ++i ) {
+        for( long i = 0; i < max; ++i ) {
 
         	StructReader key =StructReaders.create( i );
         	StructReader value = key;

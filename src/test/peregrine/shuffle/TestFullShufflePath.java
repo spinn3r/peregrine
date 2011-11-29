@@ -35,7 +35,7 @@ public class TestFullShufflePath extends peregrine.BaseTestWithMultipleDaemons {
     
     private void doTestIter( ShuffleJobOutput output, int max_emits ) throws Exception {
 
-        for ( int i = 0; i < max_emits; ++i ) {
+        for ( long i = 0; i < max_emits; ++i ) {
 
             byte[] value = new byte[] { (byte)'x', (byte)'x', (byte)'x', (byte)'x', (byte)'x', (byte)'x', (byte)'x' };
 
