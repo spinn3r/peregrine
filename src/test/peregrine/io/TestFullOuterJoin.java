@@ -6,6 +6,7 @@ import peregrine.config.Partition;
 import peregrine.io.partition.*;
 import peregrine.keys.*;
 import peregrine.util.*;
+import peregrine.values.*;
 
 /**
  * 
@@ -61,7 +62,7 @@ public class TestFullOuterJoin extends peregrine.BaseTestWithTwoPartitions {
                 break;
 
             System.out.printf( "joined: %s, left=%s, right=%s\n",
-                               Hex.encode( joined.key ), Hex.encode( joined.values[0] ), Hex.encode( joined.values[1] ) );
+                               Hex.encode( joined.key ), Hex.encode( joined.values.get(0) ), Hex.encode( joined.values.get(1) ) );
             
         }
 
@@ -70,8 +71,8 @@ public class TestFullOuterJoin extends peregrine.BaseTestWithTwoPartitions {
     public static void write( PartitionWriter writer,
                               int v ) throws IOException {
 
-        byte[] key = new IntKey( v ).toBytes();
-        byte[] value = key;
+    	StructReader key = StructReaders.create(v);
+    	StructReader value = key;
         
         writer.write( key, value );
     }

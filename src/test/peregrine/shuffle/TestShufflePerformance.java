@@ -4,6 +4,7 @@ import java.io.*;
 import peregrine.*;
 import peregrine.util.*;
 import peregrine.util.primitive.LongBytes;
+import peregrine.values.*;
 import peregrine.reduce.*;
 import peregrine.config.Partition;
 import peregrine.controller.*;
@@ -47,9 +48,9 @@ public class TestShufflePerformance extends BaseTestWithMultipleConfigs {
 
             for ( int i = 0; i < max_emits; ++i ) {
 
-                byte[] key = LongBytes.toByteArray( i );
-
-                output.emit( key, value );
+                StructReader key = StructReaders.create( i );
+                
+                output.emit( key, key );
                 
             }
 

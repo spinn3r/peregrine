@@ -35,12 +35,9 @@ public class TestDefaultPartitionWriter extends peregrine.BaseTestWithMultipleCo
         
         for ( int i = 0; i < max; ++i ) {
 
-            byte[] key = new StructWriter()
-                .writeVarint( i )
-                .toBytes()
-                ;
-
-            byte[] value = key;
+        	StructReader key = StructReaders.varint( i );
+                
+        	StructReader value = key;
 
             writer.write( key, value );
             

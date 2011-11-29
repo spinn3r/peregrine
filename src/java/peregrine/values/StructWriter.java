@@ -5,6 +5,7 @@ import java.nio.charset.Charset;
 import org.jboss.netty.buffer.*;
 
 import peregrine.util.*;
+import peregrine.util.primitive.*;
 
 /**
  * 
@@ -49,7 +50,7 @@ public class StructWriter {
     	return this;
     }
 
-    public StructWriter writeLong( int value ) {
+    public StructWriter writeLong( long value ) {
     	buff.writeLong(value);
     	return this;
     }
@@ -64,12 +65,16 @@ public class StructWriter {
         return this;
     }
 
-    /*
     public StructWriter writeBoolean( boolean value ) {
-    	buff.writeBoolean(value);
+    	
+    	if ( value )
+    	    buff.writeByte((byte)1);
+    	else 
+    	    buff.writeByte((byte)0);
+
         return this;
+        
     }
-    */
     
     public StructWriter writeChar( char value ) {
     	buff.writeChar(value);
@@ -85,6 +90,14 @@ public class StructWriter {
     public StructWriter writeString( String value ) {
         writeBytes( value.getBytes( UTF8 ) );
         return this;
+    }
+
+    public StructWriter writeHashcode( int value ) {
+        return writeHashcode( (long)value );
+    }
+
+    public StructWriter writeHashcode( long value ) {
+        return writeHashcode( LongBytes.toByteArray( value ) );
     }
 
     public StructWriter writeHashcode( byte[] value ) {

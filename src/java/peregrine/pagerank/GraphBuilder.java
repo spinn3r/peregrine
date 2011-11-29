@@ -96,7 +96,7 @@ public class GraphBuilder {
             value.add( target_key );
         }
         
-        writer.write( key, value );
+        writer.write( key, new StructReader( value.toChannelBuffer() ) );
 
     }
 

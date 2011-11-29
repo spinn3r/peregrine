@@ -16,12 +16,9 @@ public class TestExtractWriter extends BaseTestWithTwoPartitions {
 
         for ( int i = 0; i < 100; ++i ) {
 
-            byte[] key = new StructWriter()
-                .writeLong( i )
-                .toBytes()
-                ;
+        	StructReader key = StructReaders.create( i );
 
-            byte[] value = key;
+        	StructReader value = key;
 
             writer.write( key, value );
             

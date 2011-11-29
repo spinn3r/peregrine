@@ -3,6 +3,7 @@ package peregrine.shuffle;
 import peregrine.*;
 import peregrine.util.*;
 import peregrine.util.primitive.LongBytes;
+import peregrine.values.*;
 import peregrine.config.Partition;
 import peregrine.controller.*;
 import peregrine.io.*;
@@ -17,8 +18,8 @@ public class TestParallelShuffleInputChunkReader extends peregrine.BaseTestWithM
     public static class Map extends Mapper {
 
         @Override
-        public void map( byte[] key,
-                         byte[] value ) {
+        public void map( StructReader key,
+        		         StructReader value ) {
 
             emit( key, value );
             
@@ -40,9 +41,9 @@ public class TestParallelShuffleInputChunkReader extends peregrine.BaseTestWithM
         
         for( int i = 0; i < max; ++i ) {
 
-            byte[] key = LongBytes.toByteArray( i );
-            byte[] value = key;
-
+        	StructReader key = StructReaders.create( i );
+        	StructReader value = key;
+            
             writer.write( key, value );
         }
 

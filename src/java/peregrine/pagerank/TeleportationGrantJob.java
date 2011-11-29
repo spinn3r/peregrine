@@ -27,26 +27,20 @@ public class TeleportationGrantJob {
         }
 
         @Override
-        public void reduce( byte[] key, List<byte[]> values ) {
+        public void reduce( StructReader key, List<StructReader> values ) {
 
             double sum = 0.0;
             
             // sum up the values... 
-            for ( byte[] value : values ) {
+            for ( StructReader value : values ) {
 
-                sum += new StructReader( value )
-                    .readDouble()
-                    ;
+                sum += value.readDouble();
                 
             }
 
             double result = (1.0 - (IterJob.DAMPENING * (1.0 - sum))) / nr_nodes;
 
-            byte[] value = new StructWriter()
-                .writeDouble( result )
-                .toBytes();
-            
-            emit( key, value );
+            emit( key, StructReaders.create( result ) );
             
         }
 

@@ -34,7 +34,7 @@ public class IterJob {
             
             BroadcastInput nrNodesBroadcastInput = getBroadcastInput().get( 0 );
             
-            nr_nodes = IntBytes.toInt( nrNodesBroadcastInput.getValue() );
+            nr_nodes = nrNodesBroadcastInput.getValue().readInt();
 
             System.out.printf( "Working with nr_nodes: %,d\n", nr_nodes );
             
@@ -42,10 +42,10 @@ public class IterJob {
 
         @Override
         public void merge( StructReader key,
-                           StructReader... values ) {
+                           List<StructReader> values ) {
 
-            byte[] graph_by_source  = values[0];
-            byte[] dangling         = values[2];
+        	StructReader graph_by_source  = values.get( 0 );
+        	StructReader dangling         = values.get( 2 );
             
 
             /*
@@ -76,7 +76,7 @@ public class IterJob {
 
                 double grant = rank / outdegree;
                 
-                for ( byte[] target : outbound.getValues() ) {
+                for ( StructReader target : outbound.getValues() ) {
 
                     /*
                     byte[] value = new StructWriter()
@@ -84,7 +84,9 @@ public class IterJob {
                         .toBytes();
                     */
 
-                    StructReader value = DoubleBytes.toByteArray( grant );
+                    StructReader value = new StructWriter()
+                    	.writeDouble( grant )
+                    	.toStructReader();
                     
                     emit( target, value );
 
@@ -97,8 +99,8 @@ public class IterJob {
         @Override
         public void cleanup() {
 
-            byte[] key = Hashcode.getHashcode( "id" );
-            byte[] value = DoubleBytes.toByteArray( dangling_rank_sum );
+            StructReader key = StructReaders.hashcode( "id" );
+            StructReader value = StructReaders.create( dangling_rank_sum );
 
             danglingRankSumBroadcast.emit( key, value );
             
@@ -126,7 +128,7 @@ public class IterJob {
             
             BroadcastInput nrNodesBroadcastInput = getBroadcastInput().get( 0 );
 
-            nr_nodes = IntBytes.toInt( nrNodesBroadcastInput.getValue() );
+            nr_nodes = nrNodesBroadcastInput.getValue().readInt();
 
             // for iter 0 teleport_grant would be:
 
@@ -146,15 +148,14 @@ public class IterJob {
         }
         
         @Override
-        public void reduce( byte[] key, List<byte[]> values ) {
+        public void reduce( StructReader key, List<StructReader> values ) {
 
             double rank_sum = 0.0;
             
             // sum up the values... 
-            for ( byte[] value : values ) {
+            for ( StructReader value : values ) {
 
-                rank_sum += new StructReader( value )
-                    .readDouble()
+                rank_sum += value.readDouble()
                     ;
                 
             }
@@ -167,10 +168,8 @@ public class IterJob {
                 .toBytes()
                 ;
             */
-                
-            byte[] value = DoubleBytes.toByteArray( rank );
-            
-            emit( key, value );
+                            
+            emit( key, StructReaders.create( rank ) );
             
         }
 

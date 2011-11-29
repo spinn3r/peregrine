@@ -19,8 +19,8 @@ public class Struct {
 
     public Struct() {}
 
-    public Struct( byte[] data ) {
-        fromBytes( data );
+    public Struct( ChannelBuffer data ) {
+        fromChannelBuffer( data );
     }
 
     //WRITERS
@@ -48,34 +48,28 @@ public class Struct {
 
     public ChannelBuffer toChannelBuffer() {
 
-        try {
+    	int len = 0;
+        for( StructReader value : values ) {
+            len += IntBytes.LENGTH + value.length();
+        }
 
-        	int len = 0;
-            for( StructReader value : values ) {
-                len += IntBytes.LENGTH + value.length();
-            }
+        ChannelBuffer buff = ChannelBuffers.buffer( len );
 
-            ChannelBuffer buff = ChannelBuffers.buffer( len );
-
-            //TODO: support fixed with encoding if ALL are the same width
-            for( StructReader value : values ) {
-                VarintWriter.write( buff, value.length() );
-                buff.writeBytes( value.getChannelBuffer() );
-            }
-            
-            return buff;
-            
-        } catch ( Exception e ) {
-            throw new RuntimeException( e );
+        //TODO: support fixed with encoding if ALL are the same width
+        for( StructReader value : values ) {
+            VarintWriter.write( buff, value.length() );
+            buff.writeBytes( value.getChannelBuffer() );
         }
         
+        return buff;
+
     }
 
     public void fromChannelBuffer( ChannelBuffer buff ) {
 
         VarintReader varintReader = new VarintReader( buff );
         
-        while( buff.readerIndex() < data.length ) {
+        while( buff.readerIndex() < buff.writerIndex() ) {
 
             int len = varintReader.read();
             values.add( new StructReader( buff.readSlice( len ) ) );

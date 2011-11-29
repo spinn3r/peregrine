@@ -9,6 +9,7 @@ import peregrine.io.*;
 import peregrine.io.partition.*;
 import peregrine.util.primitive.*;
 import peregrine.util.*;
+import peregrine.values.*;
 
 import com.spinn3r.log5j.*;
 
@@ -43,8 +44,8 @@ public class TestMapReduceWithMergeFactor extends peregrine.BaseTestWithTwoDaemo
 
         for( int i = 0; i < max; ++i ) {
 
-            byte[] key = MD5.encode( "" + i );
-            byte[] value = IntBytes.toByteArray( i );
+        	StructReader key = StructReaders.hashcode( i );
+        	StructReader value = StructReaders.create( i );
 
             writer.write( key, value );
         }

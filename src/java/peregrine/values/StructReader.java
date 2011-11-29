@@ -54,6 +54,10 @@ public class StructReader {
         return buff.readDouble();
     }
 
+    public boolean readBoolean() {
+    	return buff.readByte() == 1;
+    }
+    
     public char readChar() {
         return buff.readChar();
     }

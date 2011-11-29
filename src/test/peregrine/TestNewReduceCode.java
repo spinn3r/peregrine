@@ -6,6 +6,7 @@ import peregrine.controller.*;
 import peregrine.io.*;
 import peregrine.keys.*;
 import peregrine.util.primitive.IntBytes;
+import peregrine.values.*;
 import peregrine.io.partition.*;
 import peregrine.task.*;
 
@@ -14,8 +15,8 @@ public class TestNewReduceCode extends peregrine.BaseTestWithTwoDaemons {
     public static class Map extends Mapper {
 
         @Override
-        public void map( byte[] key,
-                         byte[] value ) {
+        public void map( StructReader key,
+        		         StructReader value ) {
 
             emit( key, value );
             
@@ -30,14 +31,14 @@ public class TestNewReduceCode extends peregrine.BaseTestWithTwoDaemons {
         int nth = 0;
         
         @Override
-        public void reduce( byte[] key, List<byte[]> values ) {
+        public void reduce( StructReader key, List<StructReader> values ) {
             
             ++count;
 
             List<Integer> ints = new ArrayList();
 
-            for( byte[] val : values ) {
-                ints.add( IntBytes.toInt( val ) );
+            for( StructReader val : values ) {
+                ints.add( val.readInt() );
             }
             
             // full of fail... 
@@ -75,16 +76,16 @@ public class TestNewReduceCode extends peregrine.BaseTestWithTwoDaemons {
         
         for( int i = 0; i < max; ++i ) {
 
-            byte[] key = new IntKey( i ).toBytes();
-            byte[] value = key;
+        	StructReader key =StructReaders.create( i );
+        	StructReader value = key;
             writer.write( key, value );
             
         }
 
         for( int i = 0; i < max; ++i ) {
 
-            byte[] key = new IntKey( i ).toBytes();
-            byte[] value = key;
+        	StructReader key =StructReaders.create( i );
+        	StructReader value = key;
             writer.write( key, value );
             
         }

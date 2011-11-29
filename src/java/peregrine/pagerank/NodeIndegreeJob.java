@@ -12,13 +12,11 @@ public class NodeIndegreeJob {
         public void map( StructReader key,
                          StructReader value) {
 
-            HashSetValue value = new HashSetValue();
-            value.fromBytes( value_data );
+            HashSetValue hashSetValue = new HashSetValue();
+            hashSetValue.fromChannelBuffer( value.getChannelBuffer() );
             
-            byte[] source = key_data;
-
-            for( byte[] target : value.getValues() ) {
-                emit( target, source );
+            for( StructReader target : hashSetValue.getValues() ) {
+                emit( target, key );
             }
             
         }
@@ -28,11 +26,13 @@ public class NodeIndegreeJob {
     public static class Reduce extends Reducer {
 
         @Override
-        public void reduce( byte[] key, List<byte[]> values ) {
+        public void reduce( StructReader key, List<StructReader> values ) {
             
             int indegree = values.size();
 
-            emit( key, new IntValue( indegree ).toBytes() );
+            emit( key, new StructWriter()
+            		       .writeInt( indegree )
+            		       .toStructReader() );
             
         }
         

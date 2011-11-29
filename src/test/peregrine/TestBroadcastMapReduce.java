@@ -31,8 +31,8 @@ public class TestBroadcastMapReduce extends peregrine.BaseTestWithMultipleConfig
         }
 
         @Override
-        public void map( byte[] key,
-                         byte[] value ) {
+        public void map( StructReader key,
+        		         StructReader value ) {
             ++count;
         }
 
@@ -45,8 +45,8 @@ public class TestBroadcastMapReduce extends peregrine.BaseTestWithMultipleConfig
 
             System.out.printf( "Writing count: %,d to %s\n", count, countBroadcast );
 
-            byte[] key = Hashcode.getHashcode( "id" );
-            byte[] value = IntBytes.toByteArray( count );
+            StructReader key = StructReaders.hashcode( "id" );
+            StructReader value = StructReaders.create( count );
             
             countBroadcast.emit( key, value );
             
@@ -57,17 +57,15 @@ public class TestBroadcastMapReduce extends peregrine.BaseTestWithMultipleConfig
     public static class Reduce extends Reducer {
 
         @Override
-        public void reduce( byte[] key, List<byte[]> values ) {
+        public void reduce( StructReader key, List<StructReader> values ) {
 
             int count = 0;
             
-            for( byte[] val : values ) {
-                count += IntBytes.toInt( val );
+            for( StructReader val : values ) {
+                count += val.readInt();
             }
-
-            byte[] value = IntBytes.toByteArray( count );
             
-            emit( key, value );
+            emit( key, StructReaders.create( count ) );
             
         }
 
@@ -84,8 +82,8 @@ public class TestBroadcastMapReduce extends peregrine.BaseTestWithMultipleConfig
          
          for( int i = 0; i < 1000; ++i ) {
              
-             byte[] key = new IntKey( i ).toBytes();
-             byte[] value = key;
+             StructReader key = StructReaders.create( i );
+             StructReader value = key;
              writer.write( key, value );
              
          }
@@ -133,9 +131,9 @@ public class TestBroadcastMapReduce extends peregrine.BaseTestWithMultipleConfig
                     throw new Exception( "No values in: " + reader );
 
                 reader.key();
-                byte[] _value = reader.value();
+                StructReader _value = reader.value();
                 
-                int count = IntBytes.toInt( _value );
+                int count = _value.readInt();
 
                 /*
                 if ( count != value )

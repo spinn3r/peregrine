@@ -48,14 +48,11 @@ public class TestExtractWriterPerformance extends BaseTestWithMultipleConfigs {
         int max = 300 * getFactor();
 
         //byte[] value = new byte[8];
-        byte[] value = new byte[8192];
+        StructReader value = StructReaders.create( new byte[8192] );
         
         for ( int i = 0; i < max; ++i ) {
 
-            byte[] key = new StructWriter()
-                .writeLong( i )
-                .toBytes()
-                ;
+        	StructReader key = StructReaders.create( i );
 
             writer.write( key, value );
             
