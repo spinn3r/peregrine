@@ -42,7 +42,7 @@ public class ConfigParser {
             if ( arg.startsWith( "--basedir=" ) ) {
 
                 String value = arg.split( "=" )[1];
-                config.setBaseDir( value );
+                config.setBasedir( value );
                 
                 continue;
             }
