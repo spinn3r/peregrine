@@ -20,7 +20,7 @@ public class Main {
 
     public static void main( String[] args ) throws Exception {
 
-        int max = 10000;
+        long max = 10000;
 
         if ( args.length > 0 ) {
             max = Long.parseLong( args[0] );
@@ -38,10 +38,10 @@ public class Main {
 
         ExtractWriter writer = new ExtractWriter( config, in );
 
-        for( int i = 0; i < max; ++i ) {
+        for( long i = 0; i < max; ++i ) {
 
             byte[] key = MD5.encode( "" + i );
-            byte[] value = IntBytes.toByteArray( i );
+            byte[] value = LongBytes.toByteArray( i );
 
             writer.write( key, value );
         }
