@@ -20,14 +20,18 @@ public class Main {
 
     public static void main( String[] args ) throws Exception {
 
+        int max = 10000;
+
+        if ( args.length > 0 ) {
+            max = Long.parseLong( args[0] );
+        }
+
         DOMConfigurator.configure( "conf/log4j.xml" );
         Config config = ConfigParser.parse( args );
 
         String in = "/test/benchmark.in";
         String out = "/test/benchmark.in";
 
-        int max = 10000;
-        
         log.info( "Testing with %,d records." , max );
         
         System.gc();
