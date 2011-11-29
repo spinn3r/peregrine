@@ -24,7 +24,7 @@ public class ConfigParser {
         // we should probably convert to getopts for this.... 
         for ( String arg : args ) {
 
-            if ( arg.startsWith( "-h=" ) ) {
+            if ( arg.startsWith( "--host=" ) ) {
 
                 String value = arg.split( "=" )[1];
                 String split[] = value.split( ":" );
@@ -35,6 +35,14 @@ public class ConfigParser {
                 log.info( "Running with custom host: %s" , host );
                 
                 config.setHost( host );
+                
+                continue;
+            }
+
+            if ( arg.startsWith( "--basedir=" ) ) {
+
+                String value = arg.split( "=" )[1];
+                config.setBaseDir( value );
                 
                 continue;
             }
