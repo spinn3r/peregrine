@@ -318,14 +318,20 @@ public class ShuffleInputChunkReader implements Closeable {
             for( int i = 0; i < lookup.keySet().size(); ++i ) {
                 closedPartitonQueue.take();
             }
-            
-            reader.close();
 
-            log.info( "Reading from %s ...done (read %,d packets as %s)", path, count, packetsReadPerPartition );
+            try {
+                
+                reader.close();
+                
+                log.info( "Reading from %s ...done (read %,d packets as %s)", path, count, packetsReadPerPartition );
 
-            // remove thyself so that next time around there isn't a reference
-            // to this path and a new reader will be created.
-            manager.reset( path );
+            } finally {
+
+                // remove thyself so that next time around there isn't a reference
+                // to this path and a new reader will be created.
+                manager.reset( path );
+
+            }
 
             return null;
             
