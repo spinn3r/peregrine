@@ -13,7 +13,7 @@ import com.spinn3r.log5j.Logger;
 /**
  * 
  */
-public class ShuffleInputChunkReader {
+public class ShuffleInputChunkReader implements Closeable {
 
     public static int QUEUE_CAPACITY = 100;
 
@@ -49,7 +49,9 @@ public class ShuffleInputChunkReader {
     private int value_offset;
     private int value_length;
 
-    VarintReader varintReader;
+    private VarintReader varintReader;
+
+    private boolean closed = false;
 
     /**
      * The header for this partition.
@@ -179,7 +181,13 @@ public class ShuffleInputChunkReader {
     }
 
     public void close() {
+
+        if ( closed )
+            return;
+        
         prefetcher.closedPartitonQueue.put( partition );
+
+        closed = true;
     }
     
     @Override

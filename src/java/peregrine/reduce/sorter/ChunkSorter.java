@@ -4,12 +4,13 @@ package peregrine.reduce.sorter;
 import java.io.*;
 import java.nio.channels.*;
 
-import peregrine.config.Config;
-import peregrine.config.Partition;
+import peregrine.config.*;
 import peregrine.io.*;
 import peregrine.io.chunk.*;
+import peregrine.io.util.*;
 import peregrine.shuffle.*;
 import peregrine.util.*;
+
 import org.jboss.netty.buffer.*;
 
 import com.spinn3r.log5j.Logger;
@@ -117,14 +118,12 @@ public class ChunkSorter extends BaseChunkSorter {
             throw new IOException( error , t );
             
         } finally {
-            
-            inputChannel.close();
-            outputChannel.close();
 
-            inputStream.close();
-            outputStream.close();
-
-            reader.close();
+            Closer.close( inputChannel,
+                          outputChannel,
+                          inputStream,
+                          outputStream,
+                          reader );
             
         }
 

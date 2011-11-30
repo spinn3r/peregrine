@@ -11,6 +11,7 @@ import peregrine.config.Config;
 import peregrine.config.Partition;
 import peregrine.config.Replica;
 import peregrine.io.async.*;
+import peregrine.io.util.*;
 
 import org.jboss.netty.buffer.*;
 
@@ -36,7 +37,8 @@ public class ShuffleOutputWriter {
 
     // NOTE: in the future if we moved to a single threaded netty implementation
     // we won't need this but for now if multiple threads are writing to the
-    // shuffler we can end up with corruption.
+    // shuffler we can end up with corruption...
+    
     private Queue<ShufflePacket> index = new LinkedBlockingQueue();
 
     /**
@@ -136,6 +138,9 @@ public class ShuffleOutputWriter {
     public void close() throws IOException {
 
         try {
+
+            if ( closed )
+                return;
             
             closed = true;
 
@@ -243,9 +248,8 @@ public class ShuffleOutputWriter {
 
         } finally {
 
-            output.close();
-            fos.close();
-
+            Closer.close( output, fos );
+            
         }
         
     }
