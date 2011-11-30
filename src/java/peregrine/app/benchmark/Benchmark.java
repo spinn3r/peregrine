@@ -20,11 +20,14 @@ public class Benchmark {
 
     public static class Map extends Mapper {
 
+        public static boolean EMIT = true;
+        
         @Override
         public void map( byte[] key,
                          byte[] value ) {
 
-            emit( key, value );
+            if ( EMIT )
+                emit( key, value );
             
         }
 

@@ -22,10 +22,14 @@ public class Main {
 
         long max = 10000;
 
-        if ( args.length > 0 ) {
+        if ( args.length >= 1 ) {
             max = Long.parseLong( args[0] );
         }
 
+        if ( args.length >= 2 ) {
+            Benchmark.Map.EMIT = args[1].equals( "true" );
+        }
+            
         DOMConfigurator.configure( "conf/log4j.xml" );
         Config config = ConfigParser.parse( args );
 

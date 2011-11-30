@@ -71,8 +71,6 @@ public class ChunkMerger {
 
     private static final Logger log = Logger.getLogger();
 
-    public static int DEFAULT_PARTITION_WIDTH = 1000;
-
     private SortListener listener = null;
 
     public int entries = 0;
@@ -110,13 +108,8 @@ public class ChunkMerger {
             }
             
             MergerPriorityQueue queue = new MergerPriorityQueue( input );
-            
-            SortListener sortListener = null;
-
-            if ( input.size() <= DEFAULT_PARTITION_WIDTH ) 
-                sortListener = listener;
-                
-            SortResult result = new SortResult( writer, sortListener );
+                            
+            SortResult result = new SortResult( writer, listener );
 
             while( true ) {
                 
