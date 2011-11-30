@@ -33,16 +33,22 @@ public class ChunkSorter extends BaseChunkSorter {
     public ChunkReader sort( File input, File output )
         throws IOException {
 
-        FileInputStream inputStream   = new FileInputStream( input );
-        FileOutputStream outputStream = new FileOutputStream( output );
+        FileInputStream inputStream   = null;
+        FileOutputStream outputStream = null;
         
-        FileChannel inputChannel  = inputStream.getChannel();
-        FileChannel outputChannel = outputStream.getChannel();
+        FileChannel inputChannel  = null;
+        FileChannel outputChannel = null;
 
         ShuffleInputChunkReader reader = null;
         
         try {
+
+            inputStream   = new FileInputStream( input );
+            outputStream = new FileOutputStream( output );
         
+            inputChannel  = inputStream.getChannel();
+            outputChannel = outputStream.getChannel();
+
             log.info( "Going to sort: %s which is %,d bytes", input, input.length() );
 
             // TODO: do this async so that we can read from disk and compute at

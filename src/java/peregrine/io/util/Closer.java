@@ -22,6 +22,9 @@ public class Closer {
         
         for ( Closeable current : closeables ) {
 
+            if ( current == null )
+                continue;
+            
             try {
 
                 current.close();
