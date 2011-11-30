@@ -91,6 +91,9 @@ public class LocalReducer {
 
         String target_dir = getTargetDir( pass );
 
+        // make sure the parent dir exists.
+        new File( target_dir ).mkdirs();
+        
         // chunk readers pending merge.
         List<ChunkReader> pending = new ArrayList();
         pending.addAll( readers );
