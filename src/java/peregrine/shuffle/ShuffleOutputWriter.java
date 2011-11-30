@@ -3,6 +3,8 @@ package peregrine.shuffle;
 import java.io.*;
 import java.nio.channels.*;
 import java.util.*;
+import java.util.concurrent.*;
+
 import peregrine.util.primitive.IntBytes;
 import peregrine.values.*;
 import peregrine.config.Config;
@@ -31,8 +33,11 @@ public class ShuffleOutputWriter {
      */
     public static final byte[] MAGIC =
         new byte[] { (byte)'P', (byte)'S', (byte)'O', (byte)'1' };
-    
-    private List<ShufflePacket> index = new ArrayList();
+
+    // NOTE: in the future if we moved to a single threaded netty implementation
+    // we won't need this but for now if multiple threads are writing to the
+    // shuffler we can end up with corruption.
+    private Queue<ShufflePacket> index = new LinkedBlockingQueue();
 
     /**
      * Path to store this output buffer once closed.
