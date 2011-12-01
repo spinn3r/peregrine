@@ -21,7 +21,6 @@ public class ShuffleReceiver {
     private ExecutorService executors = null;
 
     public ShuffleOutputWriter writer = null;
-    public ShuffleOutputWriter last = null;
 
     private int idx = 0;
 
@@ -61,12 +60,15 @@ public class ShuffleReceiver {
                 if ( needsRollover() ) {
 
                     log.info( "Rolling over %s " , writer );
-                    
-                    rollover();
+
+                    ShuffleOutputWriter last = writer;
 
                     String path = String.format( "%s/%010d.tmp", config.getShuffleDir( name ), idx++ );
                     
                     writer = new ShuffleOutputWriter( config, path );
+
+                    // ok... now writes should be done to writer... 
+                    rollover( last );
 
                 }
 
@@ -83,8 +85,9 @@ public class ShuffleReceiver {
         return writer == null || writer.hasCapacity() == false;
     }
     
-    public void rollover() throws IOException {
+    public void rollover( ShuffleOutputWriter writer ) throws IOException {
 
+        // Make sure the previous one was complete.
         if ( this.future != null ) {
             
             try {
@@ -94,13 +97,9 @@ public class ShuffleReceiver {
             }
             
         }
-        
-        last = writer;
-        
-        if ( last != null ) {
-            // ok we have to flush this to disk this now....
-            this.future = executors.submit( new ShuffleReceiverFlushCallable( last ) );
-        }
+                
+        // ok we have to flush this to disk this now....
+        this.future = executors.submit( new ShuffleReceiverFlushCallable( writer ) );
 
     }
 

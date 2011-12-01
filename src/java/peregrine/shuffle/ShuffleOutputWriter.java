@@ -249,6 +249,20 @@ public class ShuffleOutputWriter implements Closeable {
                           // though but this is a good pragmatic defense and
                           // solved the problem.
 
+        } catch ( Throwable t ) {
+
+            IOException e = null;
+
+            if ( t instanceof IOException ) {
+                e = (IOException) t;
+            } else {
+                e = new IOException( t );
+            }
+
+            log.error( "Unable to close: " , t );
+
+            throw e;
+
         } finally {
 
             Closer.close( output, fos );
