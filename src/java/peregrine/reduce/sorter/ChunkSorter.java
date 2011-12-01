@@ -40,7 +40,9 @@ public class ChunkSorter extends BaseChunkSorter {
         FileChannel outputChannel = null;
 
         ShuffleInputChunkReader reader = null;
-        
+
+        ChunkWriter writer = null;
+
         try {
 
             inputStream   = new FileInputStream( input );
@@ -77,38 +79,30 @@ public class ChunkSorter extends BaseChunkSorter {
 
             VarintReader varintReader = new VarintReader( buffer );
 
-            ChunkWriter writer = null;
+            writer = new DefaultChunkWriter( output );
 
-            try {
+            while( lookup.hasNext() ) {
+
+                // TODO: move this to use transferTo ... 
+
+                lookup.next();
+
+                int start = lookup.get() - 1;
+                buffer.readerIndex( start );
+
+                int key_length = varintReader.read();
+
+                byte[] key = new byte[ key_length ];
+                buffer.readBytes( key );
+
+                int value_length = varintReader.read();
+                byte[] value = new byte[ value_length ];
+                buffer.readBytes( value );
+
+                writer.write( key, value );
                 
-                writer = new DefaultChunkWriter( output );
-
-                while( lookup.hasNext() ) {
-
-                    // TODO: move this to use transferTo ... 
-
-                    lookup.next();
-
-                    int start = lookup.get() - 1;
-                    buffer.readerIndex( start );
-
-                    int key_length = varintReader.read();
-
-                    byte[] key = new byte[ key_length ];
-                    buffer.readBytes( key );
-
-                    int value_length = varintReader.read();
-                    byte[] value = new byte[ value_length ];
-                    buffer.readBytes( value );
-
-                    writer.write( key, value );
-                    
-                }
-
-            } finally {
-                writer.close();
             }
-            
+
             log.info( "Sort output file %s has %,d entries.", output, reader.size() );
 
             result = new DefaultChunkReader( output );
@@ -129,7 +123,8 @@ public class ChunkSorter extends BaseChunkSorter {
                           outputChannel,
                           inputStream,
                           outputStream,
-                          reader );
+                          reader,
+                          writer );
             
         }
 

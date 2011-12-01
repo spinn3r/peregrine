@@ -19,7 +19,7 @@ import org.jboss.netty.buffer.*;
  * the R partition files BEFORE we sort the output so that we can perform reduce
  * on each (K,V...) pair.
  */
-public class DefaultChunkWriter implements ChunkWriter {
+public class DefaultChunkWriter implements ChunkWriter, Closeable {
 
     public static int BUFFER_SIZE = 16384;
     

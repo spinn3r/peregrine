@@ -16,7 +16,7 @@ import peregrine.util.netty.*;
  *
  *
  */
-public class MappedFile {
+public class MappedFile implements Closeable {
 
     protected FileInputStream in;
 
@@ -37,6 +37,8 @@ public class MappedFile {
     protected FileChannel.MapMode mode;
 
     protected File file;
+
+    protected boolean closed = false;
     
     public MappedFile( File file, FileChannel.MapMode mode ) throws IOException {
 
@@ -92,19 +94,24 @@ public class MappedFile {
     
     public void close() throws IOException {
 
-       if ( memLock != null )
+        if ( closed )
+            return;
+                
+        if ( memLock != null )
             memLock.release();
+        
+        if ( map != null )
+            close( map );
+        
+        channel.close();
+        
+        if ( in != null )
+            in.close();
+        
+        if ( out != null )
+            out.close();
 
-       if ( map != null )
-           close( map );
-       
-       channel.close();
-
-       if ( in != null )
-           in.close();
-
-       if ( out != null )
-           out.close();
+        closed = true;
 
     }
 

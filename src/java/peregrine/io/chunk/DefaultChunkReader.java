@@ -11,7 +11,7 @@ import peregrine.util.primitive.IntBytes;
 
 import org.jboss.netty.buffer.*;
 
-public class DefaultChunkReader implements ChunkReader {
+public class DefaultChunkReader implements ChunkReader, implements Closeable {
 
     public static byte[] MAGIC_PREFIX =
         new byte[] { (byte)'P', (byte)'C', (byte)'0' };
@@ -44,6 +44,8 @@ public class DefaultChunkReader implements ChunkReader {
     private int idx = 0;
 
     private MappedFile mappedFile;
+
+    private boolean closed = false;
     
     public DefaultChunkReader( File file )
         throws IOException {
@@ -114,9 +116,14 @@ public class DefaultChunkReader implements ChunkReader {
 
     @Override
     public void close() throws IOException {
+
+        if ( closed )
+            return;
         
         if ( mappedFile != null )
             mappedFile.close();
+
+        closed = true;
         
     }
 
