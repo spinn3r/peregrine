@@ -20,7 +20,7 @@ public class ShuffleInputChunkReader implements Closeable {
     private static PrefetchReaderManager prefetchReaderManager
         = new PrefetchReaderManager();
 
-    private SimpleBlockingQueue<ShufflePacket> queue = null;
+    private SimpleBlockingQueueWithFailure<ShufflePacket,IOException> queue = null;
 
     private PrefetchReader prefetcher = null;
     
@@ -150,7 +150,7 @@ public class ShuffleInputChunkReader implements Closeable {
 
     }
     
-    private boolean nextShufflePacket() {
+    private boolean nextShufflePacket() throws IOException {
         
         if ( packet_idx.hasNext() ) {
             
@@ -256,7 +256,7 @@ public class ShuffleInputChunkReader implements Closeable {
 
         private Map<Partition,AtomicInteger> packetsReadPerPartition = new HashMap();
 
-        public Map<Partition,SimpleBlockingQueue<ShufflePacket>> lookup = new HashMap();
+        public Map<Partition,SimpleBlockingQueueWithFailure<ShufflePacket,IOException>> lookup = new HashMap();
 
         private Map<Partition,SimpleBlockingQueue<Boolean>> finished = new ConcurrentHashMap();
 
@@ -285,7 +285,7 @@ public class ShuffleInputChunkReader implements Closeable {
 
                 Partition part = replica.getPartition(); 
                 
-                lookup.put( part, new SimpleBlockingQueue( QUEUE_CAPACITY ) );
+                lookup.put( part, new SimpleBlockingQueueWithFailure( QUEUE_CAPACITY ) );
                 finished.put( part, new SimpleBlockingQueue( 1 ) );
                 
                 packetsReadPerPartition.put( part, new AtomicInteger() );
@@ -307,7 +307,7 @@ public class ShuffleInputChunkReader implements Closeable {
             finished.get( partition ).put( Boolean.TRUE );
         }
         
-        public Object call() throws Exception {
+        public Object call() throws IOException {
 
             try {
 
@@ -363,11 +363,18 @@ public class ShuffleInputChunkReader implements Closeable {
                 // note the exception so callers can also fail.
                 failure.put( t );
 
-                if ( t instanceof Exception )
-                    throw (Exception)t;
+                IOException cause = null;
 
-                throw new Exception( t );
+                if ( t instanceof IOException ) {
+                    cause = (IOException)t;
+                } else {
+                    cause = new IOException( t );
+                }
 
+                raise( cause );
+                
+                throw cause;
+                
             } finally {
 
                 log.info( "Leaving thread for %s", path );
@@ -379,6 +386,18 @@ public class ShuffleInputChunkReader implements Closeable {
             }
                 
             return null;
+            
+        }
+
+        /**
+         * Raise the given exception to all callers so that they then fail to
+         * execute as well.
+         */
+        private void raise( IOException cause ) {
+
+            for( SimpleBlockingQueueWithFailure<ShufflePacket,IOException> current : lookup.values() ) {
+                current.raise( cause );
+            }
             
         }
         

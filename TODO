@@ -1,5 +1,10 @@
 
 
+- Another architecture I could have had could have been ONE primary listening
+  daemon which then forks one mapper/reducer proc PER run.  One downside is that
+  for the shuffling I'd have to do soem shared memory work to or fifos to
+  communicate between them for shuffling.
+
 - Remove AsyncOutputStream
 
     - Rename MultiOutputStream to MultiChannelBufferWritable

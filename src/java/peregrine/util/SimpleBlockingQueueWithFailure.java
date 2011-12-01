@@ -26,9 +26,15 @@ public class SimpleBlockingQueueWithFailure<T,E extends Exception> {
     }
 
     public T poll() throws E {
-
         return handleResult( delegate.poll() );
+    }
 
+    public T take() throws E {
+        try {
+            return handleResult( delegate.take() );
+        } catch ( InterruptedException e ) {
+            throw new RuntimeException( e );
+        }
     }
 
     private T handleResult( Entry<T,E> entry ) throws E {
