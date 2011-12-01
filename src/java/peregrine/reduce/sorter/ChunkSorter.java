@@ -71,8 +71,6 @@ public class ChunkSorter extends BaseChunkSorter {
             
             int depth = 0;
 
-            ChunkReader result = null;
-
             lookup = sort( lookup, depth );
             
             //write this into the final ChunkWriter now.
@@ -105,10 +103,6 @@ public class ChunkSorter extends BaseChunkSorter {
 
             log.info( "Sort output file %s has %,d entries.", output, reader.size() );
 
-            result = new DefaultChunkReader( output );
-            
-            return result;
-
         } catch ( Throwable t ) {
 
             String error = String.format( "Unable to sort %s for %s" , input, partition );
@@ -127,6 +121,9 @@ public class ChunkSorter extends BaseChunkSorter {
                           writer );
             
         }
+
+        // if we got to this part we're done... 
+        return new DefaultChunkReader( output );
 
     }
 
