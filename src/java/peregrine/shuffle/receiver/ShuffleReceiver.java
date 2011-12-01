@@ -109,7 +109,7 @@ public class ShuffleReceiver {
         
         try {
             
-            rollover();
+            rollover( writer );
             
             // block until we close
             if ( future != null )
