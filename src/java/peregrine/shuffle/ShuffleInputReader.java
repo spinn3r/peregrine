@@ -183,7 +183,7 @@ public class ShuffleInputReader {
             return next();
         }
 
-        System.out.printf( "FIXME: reading %,d bytes (len)\n", len );
+        System.out.printf( "FIXME: reading %,d bytes (len) from readerIndex %,d \n", len, buffer.readerIndex() );
         
         ChannelBuffer data = buffer.readSlice( len );
 
