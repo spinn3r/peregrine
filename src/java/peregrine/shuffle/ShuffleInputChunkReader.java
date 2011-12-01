@@ -137,7 +137,7 @@ public class ShuffleInputChunkReader implements Closeable {
 
     private void assertPrefetchReaderNotFailed() throws IOException {
 
-        Exception failure = prefetcher.failure.peek();
+        Throwable failure = prefetcher.failure.peek();
         
         if ( failure != null ) {
 
@@ -246,7 +246,7 @@ public class ShuffleInputChunkReader implements Closeable {
 
         private static ThreadFactory threadFactory = new DefaultThreadFactory( PrefetchReader.class );
 
-        protected SimpleBlockingQueue<Exception> failure = new SimpleBlockingQueue();
+        protected SimpleBlockingQueue<Throwable> failure = new SimpleBlockingQueue();
 
         protected ShuffleInputReader reader = null;
 
@@ -352,11 +352,21 @@ public class ShuffleInputChunkReader implements Closeable {
 
                 }
 
-            } catch ( Exception e ) {
+            } catch ( Throwable t ) {
 
+                // NOTE: it's important to catch Throwable becuase it could be
+                // an OutOfMemoryError or any other type of throwable and this
+                // needs to be accounted for.
+                
+                log.error( "Unable to read from: " + path, t );
+                
                 // note the exception so callers can also fail.
-                failure.put( e );
-                throw e;
+                failure.put( t );
+
+                if ( t instanceof Exception )
+                    throw (Exception)t;
+
+                throw new Exception( t );
 
             } finally {
 
