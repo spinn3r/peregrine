@@ -87,6 +87,9 @@ public class ShuffleReceiver {
     
     public void rollover( ShuffleOutputWriter writer ) throws IOException {
 
+        if ( writer == null )
+            return;
+        
         // Make sure the previous one was complete.
         if ( this.future != null ) {
             
