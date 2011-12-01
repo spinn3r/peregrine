@@ -370,6 +370,8 @@ public class ShuffleInputChunkReader implements Closeable {
 
             } finally {
 
+                log.info( "Leaving thread for %s", path );
+
                 // remove thyself so that next time around there isn't a reference
                 // to this path and a new reader will be created.
                 manager.reset( path );
