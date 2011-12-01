@@ -313,56 +313,60 @@ public class ShuffleInputChunkReader implements Closeable {
             //the callers or they will block for infinity.
 
             try {
-                
-                log.info( "Reading from %s ...", path );
-
-                int count = 0;
-
-                while( reader.hasNext() ) {
-                    
-                    ShufflePacket pack = reader.next();
-
-                    Partition part = new Partition( pack.to_partition ); 
-                    
-                    packetsReadPerPartition.get( part ).getAndIncrement();
-                        
-                    lookup.get( part ).put( pack );
-
-                    ++count;
-                    
-                }
-
-                // FIXME: I don't think we no longer need the 'finished' code
-                // because we now have the close() code
-
-                // make sure all partitions are finished reading.
-                for ( SimpleBlockingQueue _finished : finished.values() ) {
-                    _finished.take();
-                }
-
-                // not only finished pulling out all packets but actually close()d 
-                for( int i = 0; i < lookup.keySet().size(); ++i ) {
-                    closedPartitonQueue.take();
-                }
 
                 try {
                     
-                    reader.close();
-                    
+                    log.info( "Reading from %s ...", path );
+
+                    int count = 0;
+
+                    while( reader.hasNext() ) {
+                        
+                        ShufflePacket pack = reader.next();
+
+                        Partition part = new Partition( pack.to_partition ); 
+                        
+                        packetsReadPerPartition.get( part ).getAndIncrement();
+                            
+                        lookup.get( part ).put( pack );
+
+                        ++count;
+                        
+                    }
+
+                    // FIXME: I don't think we no longer need the 'finished' code
+                    // because we now have the close() code
+
+                    // make sure all partitions are finished reading.
+                    for ( SimpleBlockingQueue _finished : finished.values() ) {
+                        _finished.take();
+                    }
+
+                    // not only finished pulling out all packets but actually close()d 
+                    for( int i = 0; i < lookup.keySet().size(); ++i ) {
+                        closedPartitonQueue.take();
+                    }
+
                     log.info( "Reading from %s ...done (read %,d packets as %s)", path, count, packetsReadPerPartition );
 
                 } finally {
-
-                    // remove thyself so that next time around there isn't a reference
-                    // to this path and a new reader will be created.
-                    manager.reset( path );
+                    
+                    reader.close();
 
                 }
 
             } catch ( Exception e ) {
+
                 // note the exception so callers can also fail.
                 failure.put( e );
                 throw e;
+
+            } finally {
+
+                // remove thyself so that next time around there isn't a reference
+                // to this path and a new reader will be created.
+                manager.reset( path );
+
             }
                 
             return null;
