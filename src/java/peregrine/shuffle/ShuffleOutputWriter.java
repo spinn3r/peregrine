@@ -21,7 +21,7 @@ import com.spinn3r.log5j.Logger;
  * Write shuffle output to disk.
  * 
  */
-public class ShuffleOutputWriter {
+public class ShuffleOutputWriter implements Closeable {
 
     public static final int LOOKUP_HEADER_SIZE = IntBytes.LENGTH * 5;
     public static final int PACKET_HEADER_SIZE = IntBytes.LENGTH * 4;
@@ -134,7 +134,8 @@ public class ShuffleOutputWriter {
     private void write( ChannelBuffer buff ) throws IOException {
     	output.write( buff.toByteBuffer() );
     }
-    
+
+    @Override
     public void close() throws IOException {
 
         try {
@@ -147,13 +148,15 @@ public class ShuffleOutputWriter {
             Map<Integer,ShuffleOutputPartition> lookup = buildLookup();
 
             log.info( "Going write output buffer with %,d entries.", lookup.size() );
+
+            File file = new File( path );
             
             // make sure the parent directory exists first.
-            new File( new File( path ).getParent() ).mkdirs();
+            new File( file.getParent() ).mkdirs();
 
             // FIXME: use MappedFile here... 
             
-            this.fos = new FileOutputStream( path );
+            this.fos = new FileOutputStream( file );
             this.output = fos.getChannel();
             
             write( ChannelBuffers.wrappedBuffer( MAGIC ) );
@@ -237,8 +240,6 @@ public class ShuffleOutputWriter {
                 }
                 
             }
-
-            //output.force( true );
 
             index = null; // This is required for the JVM to more aggresively
                           // recover memory.  I did extensive testing with this
