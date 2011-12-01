@@ -85,7 +85,7 @@ public class ShuffleReceiver {
         return writer == null || writer.hasCapacity() == false;
     }
     
-    public void rollover( ShuffleOutputWriter writer ) throws IOException {
+    private void rollover( ShuffleOutputWriter writer ) throws IOException {
 
         if ( writer == null )
             return;
