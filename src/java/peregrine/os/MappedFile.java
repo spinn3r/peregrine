@@ -39,8 +39,36 @@ public class MappedFile implements Closeable {
     protected File file;
 
     protected boolean closed = false;
-    
+
+    protected static Map<String,FileChannel.MapMode> modes = new HashMap() {{
+
+        put( "r",  FileChannel.MapMode.READ_ONLY );
+        put( "rw", FileChannel.MapMode.READ_WRITE );
+        
+    }};
+
+    /**
+     * Simpler API for opening a file based on a mode string.
+     */
+    public MappedFile( File file, String mode ) throws IOException {
+
+        FileChannel.MapMode mapMode = modes.get( mode );
+
+        if ( mapMode == null )
+            throw new IOException( "Invalid mode: " + mode );
+
+        init( file, mapMode );
+
+    }
+
+    /**
+     * Open a file based on the mode constant.
+     */
     public MappedFile( File file, FileChannel.MapMode mode ) throws IOException {
+        init( file, mode );
+    }
+
+    private void init( File file, FileChannel.MapMode mode ) throws IOException {
 
         this.file = file;
 
