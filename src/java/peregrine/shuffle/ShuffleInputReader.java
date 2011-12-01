@@ -183,11 +183,8 @@ public class ShuffleInputReader {
             return next();
         }
             
-        ChannelBuffer data = buffer.slice( buffer.readerIndex(), len );
-        
-        // now update the reader index so we can skip over this data.
-        buffer.readerIndex( buffer.readerIndex() + len );
-        
+        ChannelBuffer data = buffer.readSlice( len );
+                
         // TODO: why is count -1 here?  That makes NO sense.
         int count = -1;
         
