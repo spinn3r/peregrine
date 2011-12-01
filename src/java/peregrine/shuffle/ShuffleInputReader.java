@@ -182,7 +182,9 @@ public class ShuffleInputReader {
             --packet_idx; /* this doesn't count */
             return next();
         }
-            
+
+        System.out.printf( "FIXME: reading %,d bytes (len)\n", len );
+        
         ChannelBuffer data = buffer.readSlice( len );
                 
         // TODO: why is count -1 here?  That makes NO sense.
