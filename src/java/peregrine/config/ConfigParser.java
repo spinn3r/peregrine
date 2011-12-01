@@ -24,7 +24,7 @@ public class ConfigParser {
         // we should probably convert to getopts for this.... 
         for ( String arg : args ) {
 
-            if ( arg.startsWith( "-h=" ) ) {
+            if ( arg.startsWith( "--host=" ) ) {
 
                 String value = arg.split( "=" )[1];
                 String split[] = value.split( ":" );
@@ -35,6 +35,14 @@ public class ConfigParser {
                 log.info( "Running with custom host: %s" , host );
                 
                 config.setHost( host );
+                
+                continue;
+            }
+
+            if ( arg.startsWith( "--basedir=" ) ) {
+
+                String value = arg.split( "=" )[1];
+                config.setBasedir( value );
                 
                 continue;
             }
@@ -64,10 +72,7 @@ public class ConfigParser {
         String basedir     = struct.get( "basedir" );
         int port           = struct.getInt( "port" );
 
-        String hostname = System.getenv( "HOSTNAME" );
-
-        if ( hostname == null )
-            hostname = "localhost";
+        String hostname = determineHostname();
 
         if ( port <= 0 )
             port = Config.DEFAULT_PORT;
@@ -133,4 +138,33 @@ public class ConfigParser {
         
     }
 
+    /**
+     * Try to determine the hostname from the current machine.  This includes
+     * reading /etc/hostname, looking at the HOSTNAME environment variable, etc.
+     */
+    private static String determineHostname() throws IOException {
+
+        String hostname = System.getenv( "HOSTNAME" );
+
+        File file = new File( "/etc/hostname" );
+
+        if ( file.exists() ) {
+
+            FileInputStream in = new FileInputStream( file );
+            
+            byte[] data = new byte[ (int)file.length() ];
+            in.read( data );
+
+            hostname = new String( data );
+            hostname.trim();
+
+        }
+        
+        if ( hostname == null )
+            hostname = "localhost";
+
+        return hostname;
+        
+    }
+    
 }

@@ -13,14 +13,14 @@ import com.spinn3r.log5j.Logger;
 /**
  * 
  */
-public class ShuffleInputChunkReader {
+public class ShuffleInputChunkReader implements Closeable {
 
     public static int QUEUE_CAPACITY = 100;
 
     private static PrefetchReaderManager prefetchReaderManager
         = new PrefetchReaderManager();
 
-    private SimpleBlockingQueue<ShufflePacket> queue = null;
+    private SimpleBlockingQueueWithFailure<ShufflePacket,IOException> queue = null;
 
     private PrefetchReader prefetcher = null;
     
@@ -49,7 +49,9 @@ public class ShuffleInputChunkReader {
     private int value_offset;
     private int value_length;
 
-    VarintReader varintReader;
+    private VarintReader varintReader;
+
+    private boolean closed = false;
 
     /**
      * The header for this partition.
@@ -85,7 +87,9 @@ public class ShuffleInputChunkReader {
         return pack;
     }
 
-    public boolean hasNext() {
+    public boolean hasNext() throws IOException {
+
+        assertPrefetchReaderNotFailed();
 
         boolean result = partition_idx.hasNext();
 
@@ -96,8 +100,10 @@ public class ShuffleInputChunkReader {
 
     }
 
-    public void next() {
+    public void next() throws IOException {
 
+        assertPrefetchReaderNotFailed();
+        
         while( true ) {
 
             if ( pack != null && pack.data.readerIndex() < pack.data.capacity() ) {
@@ -129,7 +135,22 @@ public class ShuffleInputChunkReader {
 
     }
 
-    private boolean nextShufflePacket() {
+    private void assertPrefetchReaderNotFailed() throws IOException {
+
+        Throwable failure = prefetcher.failure.peek();
+        
+        if ( failure != null ) {
+
+            if ( failure instanceof IOException )
+                throw (IOException) failure;
+
+            throw new IOException( failure );
+
+        }
+
+    }
+    
+    private boolean nextShufflePacket() throws IOException {
         
         if ( packet_idx.hasNext() ) {
             
@@ -179,7 +200,13 @@ public class ShuffleInputChunkReader {
     }
 
     public void close() {
+
+        if ( closed )
+            return;
+        
         prefetcher.closedPartitonQueue.put( partition );
+
+        closed = true;
     }
     
     @Override
@@ -218,10 +245,8 @@ public class ShuffleInputChunkReader {
         private static final Logger log = Logger.getLogger();
 
         private static ThreadFactory threadFactory = new DefaultThreadFactory( PrefetchReader.class );
-        
-        public Map<Partition,SimpleBlockingQueue<ShufflePacket>> lookup = new HashMap();
 
-        private Map<Partition,SimpleBlockingQueue<Boolean>> finished = new ConcurrentHashMap();
+        protected SimpleBlockingQueue<Throwable> failure = new SimpleBlockingQueue();
 
         protected ShuffleInputReader reader = null;
 
@@ -230,6 +255,10 @@ public class ShuffleInputChunkReader {
         private PrefetchReaderManager manager = null;
 
         private Map<Partition,AtomicInteger> packetsReadPerPartition = new HashMap();
+
+        public Map<Partition,SimpleBlockingQueueWithFailure<ShufflePacket,IOException>> lookup = new HashMap();
+
+        private Map<Partition,SimpleBlockingQueue<Boolean>> finished = new ConcurrentHashMap();
 
         /**
          * Used so that readers can signal when they are complete.
@@ -256,7 +285,7 @@ public class ShuffleInputChunkReader {
 
                 Partition part = replica.getPartition(); 
                 
-                lookup.put( part, new SimpleBlockingQueue( QUEUE_CAPACITY ) );
+                lookup.put( part, new SimpleBlockingQueueWithFailure( QUEUE_CAPACITY ) );
                 finished.put( part, new SimpleBlockingQueue( 1 ) );
                 
                 packetsReadPerPartition.put( part, new AtomicInteger() );
@@ -278,48 +307,97 @@ public class ShuffleInputChunkReader {
             finished.get( partition ).put( Boolean.TRUE );
         }
         
-        public Object call() throws Exception {
+        public Object call() throws IOException {
 
-            log.info( "Reading from %s ...", path );
+            try {
 
-            int count = 0;
-
-            while( reader.hasNext() ) {
-                
-                ShufflePacket pack = reader.next();
-
-                Partition part = new Partition( pack.to_partition ); 
-                
-                packetsReadPerPartition.get( part ).getAndIncrement();
+                try {
                     
-                lookup.get( part ).put( pack );
+                    log.info( "Reading from %s ...", path );
 
-                ++count;
+                    int count = 0;
+
+                    while( reader.hasNext() ) {
+                        
+                        ShufflePacket pack = reader.next();
+
+                        Partition part = new Partition( pack.to_partition ); 
+                        
+                        packetsReadPerPartition.get( part ).getAndIncrement();
+                            
+                        lookup.get( part ).put( pack );
+
+                        ++count;
+                        
+                    }
+
+                    // FIXME: I don't think we no longer need the 'finished' code
+                    // because we now have the close() code
+
+                    // make sure all partitions are finished reading.
+                    for ( SimpleBlockingQueue _finished : finished.values() ) {
+                        _finished.take();
+                    }
+
+                    // not only finished pulling out all packets but actually close()d 
+                    for( int i = 0; i < lookup.keySet().size(); ++i ) {
+                        closedPartitonQueue.take();
+                    }
+
+                    log.info( "Reading from %s ...done (read %,d packets as %s)", path, count, packetsReadPerPartition );
+
+                } finally {
+                    
+                    reader.close();
+
+                }
+
+            } catch ( Throwable t ) {
+
+                // NOTE: it's important to catch Throwable becuase it could be
+                // an OutOfMemoryError or any other type of throwable and this
+                // needs to be accounted for.
                 
+                log.error( "Unable to read from: " + path, t );
+                
+                // note the exception so callers can also fail.
+                failure.put( t );
+
+                IOException cause = null;
+
+                if ( t instanceof IOException ) {
+                    cause = (IOException)t;
+                } else {
+                    cause = new IOException( t );
+                }
+
+                raise( cause );
+                
+                throw cause;
+                
+            } finally {
+
+                log.info( "Leaving thread for %s", path );
+
+                // remove thyself so that next time around there isn't a reference
+                // to this path and a new reader will be created.
+                manager.reset( path );
+
             }
-
-            // FIXME: I don't think we no longer need the 'finished' code
-            // because we now have the close() code
-
-            // make sure all partitions are finished reading.
-            for ( SimpleBlockingQueue _finished : finished.values() ) {
-                _finished.take();
-            }
-
-            // not only finished pulling out all packets but actually close()d 
-            for( int i = 0; i < lookup.keySet().size(); ++i ) {
-                closedPartitonQueue.take();
-            }
-            
-            reader.close();
-
-            log.info( "Reading from %s ...done (read %,d packets as %s)", path, count, packetsReadPerPartition );
-
-            // remove thyself so that next time around there isn't a reference
-            // to this path and a new reader will be created.
-            manager.reset( path );
-
+                
             return null;
+            
+        }
+
+        /**
+         * Raise the given exception to all callers so that they then fail to
+         * execute as well.
+         */
+        private void raise( IOException cause ) {
+
+            for( SimpleBlockingQueueWithFailure<ShufflePacket,IOException> current : lookup.values() ) {
+                current.raise( cause );
+            }
             
         }
         

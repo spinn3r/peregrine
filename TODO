@@ -29,17 +29,19 @@ StructWriter refactor notes:
 
 
 
-- Remove AsyncOutputStream
+- go through EVERY queue that we used and see if it needs to use a failure
+  queue.
 
-    - Rename MultiOutputStream to MultiChannelBufferWritable
-
-    - Move ChannelBufferWritable to peregrine.util.netty
+- Another architecture I could have had could have been ONE primary listening
+  daemon which then forks one mapper/reducer proc PER run.  One downside is that
+  for the shuffling I'd have to do soem shared memory work to or fifos to
+  communicate between them for shuffling.
 
 
 
 - If I ONLY use the OS buffer I can avoid issues with having to pool buffers.
 
-- https://issues.apache.org/jira/browse/HADOOP-6148
+- CRC32 support https://issues.apache.org/jira/browse/HADOOP-6148
 
     - use the native zlib with largish buffers for computing the checksum.
 

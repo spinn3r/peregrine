@@ -105,7 +105,7 @@ public class Config {
         // update the root directory from the host/port and configured basedir
         setRoot( host );
         
-        log.info( "Using root: %s", root );
+        log.info( "Using root: %s with basedir: %s", root, basedir );
         
         PartitionLayoutEngine engine = new PartitionLayoutEngine( this );
         engine.build();

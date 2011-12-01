@@ -119,13 +119,23 @@ public class Test {
 
     public static void main( String[] args ) throws Exception {
 
-        test4();
-        test4();
-        test4();
+        int capacity = 19;
         
-        test3();
-        test3();
-        test3();
+        ChannelBuffer buff = ChannelBuffers.buffer( capacity );
+
+        for( int i = 0; i < capacity; ++i ) {
+            buff.writeByte( i );
+        }
+
+        System.out.printf( "%s\n", Hex.pretty( buff ) );
+
+        System.out.printf( "====\n" );
+        
+        List<ChannelBuffer> split = CRC32ChannelBuffer.split( buff, 8 );
+
+        for( ChannelBuffer current : split ) {
+            System.out.printf( "%s\n", Hex.pretty( current ) );
+        }
         
         // test1();
         // test1();

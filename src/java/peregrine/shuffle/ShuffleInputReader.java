@@ -182,11 +182,12 @@ public class ShuffleInputReader {
             --packet_idx; /* this doesn't count */
             return next();
         }
-            
-        ChannelBuffer data = buffer.slice( buffer.readerIndex(), len );
+
+        System.out.printf( "FIXME: reading %,d bytes (len) from readerIndex %,d of packet_idx=%,d and nr_packets=%,d\n", len, buffer.readerIndex(), packet_idx, nr_packets );
         
-        // now update the reader index so we can skip over this data.
-        buffer.readerIndex( buffer.readerIndex() + len );
+        ChannelBuffer data = buffer.readSlice( len );
+
+        System.out.printf( "FIXME read complete... \n" );
         
         // TODO: why is count -1 here?  That makes NO sense.
         int count = -1;
@@ -211,14 +212,11 @@ public class ShuffleInputReader {
 
         // debug code to dump a shuffle.
 
-        List<Partition> partitions = new ArrayList() {{
-
-            add( new Partition( 0 ) );
-            add( new Partition( 1 ) );
-            //add( new Partition( 2 ) );
-            //add( new Partition( 3 ) );
-
-        }};
+        List<Partition> partitions = new ArrayList();
+        
+        for( int i = 1; i < args.length; ++i ) {
+            partitions.add( new Partition( Integer.parseInt( args[i] ) ) );
+        }
         
         System.out.printf( "Reading from partitions: %s\n", partitions );
 

@@ -67,13 +67,17 @@ public class StructReaders {
         
     }
 
-    public static StructReader hashcode( int value ) {
+    public static StructReader hashcode( long value ) {
 
         return new StructWriter()
             .writeHashcode( value )
             .toStructReader()
             ;
         
+    }
+
+    public static StructReader hashcode( int value ) {
+        return hashcode( (long)value );
     }
 
     public static StructReader varint( int value ) {

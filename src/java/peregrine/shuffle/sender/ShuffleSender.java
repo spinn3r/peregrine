@@ -49,9 +49,8 @@ public class ShuffleSender {
         
         try {
         
-            DefaultChunkWriter.write( client, key, value );
+            length += DefaultChunkWriter.write( client, key, value );
             ++count;
-            length += buff.writerIndex();
 
         } catch ( Exception e ) {
 

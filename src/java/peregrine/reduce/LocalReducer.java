@@ -72,6 +72,9 @@ public class LocalReducer {
         
     }
 
+    /**
+     * Do the final merge including writing to listener when we are finished.
+     */
     protected void finalMerge( List<ChunkReader> readers ) throws IOException {
 
         ChunkMerger merger = new ChunkMerger( listener, partition );
@@ -80,11 +83,17 @@ public class LocalReducer {
 
     }
 
+    /**
+     * Do an intermediate merge writing to a temp directory.
+     */
     protected List<ChunkReader> interMerge( List<ChunkReader> readers, int pass )
         throws IOException {
 
         String target_dir = getTargetDir( pass );
 
+        // make sure the parent dir exists.
+        new File( target_dir ).mkdirs();
+        
         // chunk readers pending merge.
         List<ChunkReader> pending = new ArrayList();
         pending.addAll( readers );

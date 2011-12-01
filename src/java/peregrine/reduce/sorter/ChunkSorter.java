@@ -5,10 +5,10 @@ import java.io.*;
 
 import java.nio.channels.*;
 
-import peregrine.config.Config;
-import peregrine.config.Partition;
+import peregrine.config.*;
 import peregrine.io.*;
 import peregrine.io.chunk.*;
+import peregrine.io.util.*;
 import peregrine.shuffle.*;
 import peregrine.util.*;
 import peregrine.values.*;
@@ -35,16 +35,24 @@ public class ChunkSorter extends BaseChunkSorter {
     public ChunkReader sort( File input, File output )
         throws IOException {
 
-        FileInputStream inputStream   = new FileInputStream( input );
-        FileOutputStream outputStream = new FileOutputStream( output );
+        FileInputStream inputStream   = null;
+        FileOutputStream outputStream = null;
         
-        FileChannel inputChannel  = inputStream.getChannel();
-        FileChannel outputChannel = outputStream.getChannel();
+        FileChannel inputChannel  = null;
+        FileChannel outputChannel = null;
 
         ShuffleInputChunkReader reader = null;
-        
+
+        ChunkWriter writer = null;
+
         try {
+
+            inputStream   = new FileInputStream( input );
+            outputStream = new FileOutputStream( output );
         
+            inputChannel  = inputStream.getChannel();
+            outputChannel = outputStream.getChannel();
+
             log.info( "Going to sort: %s which is %,d bytes", input, input.length() );
 
             // TODO: do this async so that we can read from disk and compute at
@@ -65,49 +73,34 @@ public class ChunkSorter extends BaseChunkSorter {
             
             int depth = 0;
 
-            ChunkReader result = null;
-
             lookup = sort( lookup, depth );
             
             //write this into the final ChunkWriter now.
 
             VarintReader varintReader = new VarintReader( buffer );
 
-            ChunkWriter writer = null;
+            writer = new DefaultChunkWriter( output );
 
-            try {
+            while( lookup.hasNext() ) {
+
+                // TODO: move this to use transferTo ... 
+
+                lookup.next();
+
+                int start = lookup.get() - 1;
+                buffer.readerIndex( start );
+
+                int key_length = varintReader.read();
+                StructReader key = new StructReader( buffer.readSlice( key_length ) );
                 
-                writer = new DefaultChunkWriter( output );
+                int value_length = varintReader.read();
+                StructReader value = new StructReader( buffer.readSlice( value_length ) );
 
-                while( lookup.hasNext() ) {
-
-                    // TODO: move this to use transferTo ... 
-
-                    lookup.next();
-
-                    int start = lookup.get() - 1;
-                    buffer.readerIndex( start );
-
-                    int key_length = varintReader.read();
-
-                    StructReader key = new StructReader( buffer.readSlice( key_length ) );
-                    
-                    int value_length = varintReader.read();
-                    StructReader value = new StructReader( buffer.readSlice( value_length ) );
-
-                    writer.write( key, value );
-                    
-                }
-
-            } finally {
-                writer.close();
+                writer.write( key, value );
+                
             }
-            
-            log.info( "Sort output file %s has %,d entries.", output, reader.size() );
 
-            result = new DefaultChunkReader( output );
-            
-            return result;
+            log.info( "Sort output file %s has %,d entries.", output, reader.size() );
 
         } catch ( Throwable t ) {
 
@@ -118,16 +111,18 @@ public class ChunkSorter extends BaseChunkSorter {
             throw new IOException( error , t );
             
         } finally {
-            
-            inputChannel.close();
-            outputChannel.close();
 
-            inputStream.close();
-            outputStream.close();
-
-            reader.close();
+            Closer.close( inputChannel,
+                          outputChannel,
+                          inputStream,
+                          outputStream,
+                          reader,
+                          writer );
             
         }
+
+        // if we got to this part we're done... 
+        return new DefaultChunkReader( output );
 
     }
 

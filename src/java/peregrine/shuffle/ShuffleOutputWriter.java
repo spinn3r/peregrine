@@ -3,12 +3,15 @@ package peregrine.shuffle;
 import java.io.*;
 import java.nio.channels.*;
 import java.util.*;
+import java.util.concurrent.*;
+
 import peregrine.util.primitive.IntBytes;
 import peregrine.values.*;
 import peregrine.config.Config;
 import peregrine.config.Partition;
 import peregrine.config.Replica;
 import peregrine.io.async.*;
+import peregrine.io.util.*;
 
 import org.jboss.netty.buffer.*;
 
@@ -18,7 +21,7 @@ import com.spinn3r.log5j.Logger;
  * Write shuffle output to disk.
  * 
  */
-public class ShuffleOutputWriter {
+public class ShuffleOutputWriter implements Closeable {
 
     public static final int LOOKUP_HEADER_SIZE = IntBytes.LENGTH * 5;
     public static final int PACKET_HEADER_SIZE = IntBytes.LENGTH * 4;
@@ -31,8 +34,12 @@ public class ShuffleOutputWriter {
      */
     public static final byte[] MAGIC =
         new byte[] { (byte)'P', (byte)'S', (byte)'O', (byte)'1' };
+
+    // NOTE: in the future if we moved to a single threaded netty implementation
+    // we won't need this but for now if multiple threads are writing to the
+    // shuffler we can end up with corruption...
     
-    private List<ShufflePacket> index = new ArrayList();
+    private Queue<ShufflePacket> index = new LinkedBlockingQueue();
 
     /**
      * Path to store this output buffer once closed.
@@ -127,21 +134,29 @@ public class ShuffleOutputWriter {
     private void write( ChannelBuffer buff ) throws IOException {
     	output.write( buff.toByteBuffer() );
     }
-    
+
+    @Override
     public void close() throws IOException {
 
         try {
+
+            if ( closed )
+                return;
             
             closed = true;
 
             Map<Integer,ShuffleOutputPartition> lookup = buildLookup();
 
             log.info( "Going write output buffer with %,d entries.", lookup.size() );
+
+            File file = new File( path );
             
             // make sure the parent directory exists first.
-            new File( new File( path ).getParent() ).mkdirs();
+            new File( file.getParent() ).mkdirs();
 
-            this.fos = new FileOutputStream( path );
+            // FIXME: use MappedFile here... 
+            
+            this.fos = new FileOutputStream( file );
             this.output = fos.getChannel();
             
             write( ChannelBuffers.wrappedBuffer( MAGIC ) );
@@ -226,8 +241,6 @@ public class ShuffleOutputWriter {
                 
             }
 
-            //output.force( true );
-
             index = null; // This is required for the JVM to more aggresively
                           // recover memory.  I did extensive testing with this
                           // and without setting index to null the JVM does not
@@ -236,11 +249,24 @@ public class ShuffleOutputWriter {
                           // though but this is a good pragmatic defense and
                           // solved the problem.
 
+        } catch ( Throwable t ) {
+
+            IOException e = null;
+
+            if ( t instanceof IOException ) {
+                e = (IOException) t;
+            } else {
+                e = new IOException( t );
+            }
+
+            log.error( "Unable to close: " , t );
+
+            throw e;
+
         } finally {
 
-            output.close();
-            fos.close();
-
+            Closer.close( output, fos );
+            
         }
         
     }

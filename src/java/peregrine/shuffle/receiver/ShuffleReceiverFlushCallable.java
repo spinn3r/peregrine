@@ -8,6 +8,10 @@ public class ShuffleReceiverFlushCallable implements Callable {
     private ShuffleOutputWriter writer;
     
     ShuffleReceiverFlushCallable( ShuffleOutputWriter writer ) {
+
+        if ( writer == null )
+            throw new NullPointerException( "writer" );
+        
         this.writer = writer;
     }
 
@@ -15,7 +19,7 @@ public class ShuffleReceiverFlushCallable implements Callable {
     public Object call() throws Exception {
 
         // close this in a background task since this blocks.
-        this.writer.close();
+        writer.close();
         
         return null;
         

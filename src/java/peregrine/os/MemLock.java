@@ -58,7 +58,7 @@ public class MemLock {
             throw new IOException( errno.strerror() );
         }
 
-        log.info( "%s ... DONE", desc );
+        log.info( "%s ... done", desc );
 
     }
 
