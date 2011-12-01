@@ -8,12 +8,6 @@
   for the shuffling I'd have to do soem shared memory work to or fifos to
   communicate between them for shuffling.
 
-- Remove AsyncOutputStream
-
-    - Rename MultiOutputStream to MultiChannelBufferWritable
-
-    - Move ChannelBufferWritable to peregrine.util.netty
-
 
 
 - If I ONLY use the OS buffer I can avoid issues with having to pool buffers.
