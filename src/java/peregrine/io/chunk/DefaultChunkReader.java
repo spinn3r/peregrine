@@ -145,7 +145,7 @@ public class DefaultChunkReader implements ChunkReader, Closeable {
     private void setSize( int size ) throws IOException {
 
         if ( size < 0 ) {
-            throw new IOException( "Invalid size: " + size );
+            throw new IOException( String.format( "Invalid size: %s (%s)", size, toString() ) );
         }
 
         this.size = size;
