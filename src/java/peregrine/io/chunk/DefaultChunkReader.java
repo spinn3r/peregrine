@@ -11,7 +11,7 @@ import peregrine.util.primitive.IntBytes;
 
 import org.jboss.netty.buffer.*;
 
-public class DefaultChunkReader implements ChunkReader, implements Closeable {
+public class DefaultChunkReader implements ChunkReader, Closeable {
 
     public static byte[] MAGIC_PREFIX =
         new byte[] { (byte)'P', (byte)'C', (byte)'0' };

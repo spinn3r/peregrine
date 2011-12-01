@@ -151,6 +151,8 @@ public class ShuffleOutputWriter {
             // make sure the parent directory exists first.
             new File( new File( path ).getParent() ).mkdirs();
 
+            // FIXME: use MappedFile here... 
+            
             this.fos = new FileOutputStream( path );
             this.output = fos.getChannel();
             

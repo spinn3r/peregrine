@@ -2,7 +2,7 @@ package peregrine.io.chunk;
 
 import java.io.*;
 
-public interface ChunkWriter {
+public interface ChunkWriter extends Closeable {
 
     /**
      * Write a key value pair.  This is the main method for IO to a chunk.
@@ -20,6 +20,7 @@ public interface ChunkWriter {
 
     public void shutdown() throws IOException;
 
+    @Override
     public void close() throws IOException;
 
 }

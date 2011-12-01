@@ -87,7 +87,9 @@ public class ShuffleInputChunkReader implements Closeable {
         return pack;
     }
 
-    public boolean hasNext() {
+    public boolean hasNext() throws IOException {
+
+        assertPrefetchReaderNotFailed();
 
         boolean result = partition_idx.hasNext();
 
@@ -98,8 +100,10 @@ public class ShuffleInputChunkReader implements Closeable {
 
     }
 
-    public void next() {
+    public void next() throws IOException {
 
+        assertPrefetchReaderNotFailed();
+        
         while( true ) {
 
             if ( pack != null && pack.data.readerIndex() < pack.data.capacity() ) {
@@ -131,6 +135,21 @@ public class ShuffleInputChunkReader implements Closeable {
 
     }
 
+    private void assertPrefetchReaderNotFailed() throws IOException {
+
+        Exception failure = prefetcher.failure.peek();
+        
+        if ( failure != null ) {
+
+            if ( failure instanceof IOException )
+                throw (IOException) failure;
+
+            throw new IOException( failure );
+
+        }
+
+    }
+    
     private boolean nextShufflePacket() {
         
         if ( packet_idx.hasNext() ) {
@@ -231,6 +250,8 @@ public class ShuffleInputChunkReader implements Closeable {
 
         private Map<Partition,SimpleBlockingQueue<Boolean>> finished = new ConcurrentHashMap();
 
+        protected SimpleBlockingQueue<Exception> failure = new SimpleBlockingQueue();
+
         protected ShuffleInputReader reader = null;
 
         private String path;
@@ -288,51 +309,62 @@ public class ShuffleInputChunkReader implements Closeable {
         
         public Object call() throws Exception {
 
-            log.info( "Reading from %s ...", path );
-
-            int count = 0;
-
-            while( reader.hasNext() ) {
-                
-                ShufflePacket pack = reader.next();
-
-                Partition part = new Partition( pack.to_partition ); 
-                
-                packetsReadPerPartition.get( part ).getAndIncrement();
-                    
-                lookup.get( part ).put( pack );
-
-                ++count;
-                
-            }
-
-            // FIXME: I don't think we no longer need the 'finished' code
-            // because we now have the close() code
-
-            // make sure all partitions are finished reading.
-            for ( SimpleBlockingQueue _finished : finished.values() ) {
-                _finished.take();
-            }
-
-            // not only finished pulling out all packets but actually close()d 
-            for( int i = 0; i < lookup.keySet().size(); ++i ) {
-                closedPartitonQueue.take();
-            }
+            //FIXME: if this this thread throws an Exception we MUST push it to
+            //the callers or they will block for infinity.
 
             try {
                 
-                reader.close();
-                
-                log.info( "Reading from %s ...done (read %,d packets as %s)", path, count, packetsReadPerPartition );
+                log.info( "Reading from %s ...", path );
 
-            } finally {
+                int count = 0;
 
-                // remove thyself so that next time around there isn't a reference
-                // to this path and a new reader will be created.
-                manager.reset( path );
+                while( reader.hasNext() ) {
+                    
+                    ShufflePacket pack = reader.next();
 
+                    Partition part = new Partition( pack.to_partition ); 
+                    
+                    packetsReadPerPartition.get( part ).getAndIncrement();
+                        
+                    lookup.get( part ).put( pack );
+
+                    ++count;
+                    
+                }
+
+                // FIXME: I don't think we no longer need the 'finished' code
+                // because we now have the close() code
+
+                // make sure all partitions are finished reading.
+                for ( SimpleBlockingQueue _finished : finished.values() ) {
+                    _finished.take();
+                }
+
+                // not only finished pulling out all packets but actually close()d 
+                for( int i = 0; i < lookup.keySet().size(); ++i ) {
+                    closedPartitonQueue.take();
+                }
+
+                try {
+                    
+                    reader.close();
+                    
+                    log.info( "Reading from %s ...done (read %,d packets as %s)", path, count, packetsReadPerPartition );
+
+                } finally {
+
+                    // remove thyself so that next time around there isn't a reference
+                    // to this path and a new reader will be created.
+                    manager.reset( path );
+
+                }
+
+            } catch ( Exception e ) {
+                // note the exception so callers can also fail.
+                failure.put( e );
+                throw e;
             }
-
+                
             return null;
             
         }

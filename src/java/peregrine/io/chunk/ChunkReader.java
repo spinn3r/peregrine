@@ -2,7 +2,7 @@ package peregrine.io.chunk;
 
 import java.io.*;
 
-public interface ChunkReader {
+public interface ChunkReader extends Closeable {
 
     /**
      * Return true if there is a next item.  Initially the reader is positioned
@@ -33,6 +33,7 @@ public interface ChunkReader {
     /**
      * Close the ChunkReader.
      */
+    @Override
     public void close() throws IOException;
     
 }
