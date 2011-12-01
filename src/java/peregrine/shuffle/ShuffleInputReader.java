@@ -16,7 +16,7 @@ import org.jboss.netty.buffer.*;
  */
 public class ShuffleInputReader {
 
-    public static boolean ENABLE_MEMLOCK = false;
+    public static boolean ENABLE_MEMLOCK = true;
     
     /**
      * The current packet index we're on.
