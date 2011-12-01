@@ -186,7 +186,9 @@ public class ShuffleInputReader {
         System.out.printf( "FIXME: reading %,d bytes (len)\n", len );
         
         ChannelBuffer data = buffer.readSlice( len );
-                
+
+        System.out.printf( "FIXME read complete... \n" );
+        
         // TODO: why is count -1 here?  That makes NO sense.
         int count = -1;
         
