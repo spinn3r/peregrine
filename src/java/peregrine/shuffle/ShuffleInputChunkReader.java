@@ -245,10 +245,6 @@ public class ShuffleInputChunkReader implements Closeable {
         private static final Logger log = Logger.getLogger();
 
         private static ThreadFactory threadFactory = new DefaultThreadFactory( PrefetchReader.class );
-        
-        public Map<Partition,SimpleBlockingQueue<ShufflePacket>> lookup = new HashMap();
-
-        private Map<Partition,SimpleBlockingQueue<Boolean>> finished = new ConcurrentHashMap();
 
         protected SimpleBlockingQueue<Exception> failure = new SimpleBlockingQueue();
 
@@ -259,6 +255,10 @@ public class ShuffleInputChunkReader implements Closeable {
         private PrefetchReaderManager manager = null;
 
         private Map<Partition,AtomicInteger> packetsReadPerPartition = new HashMap();
+
+        public Map<Partition,SimpleBlockingQueue<ShufflePacket>> lookup = new HashMap();
+
+        private Map<Partition,SimpleBlockingQueue<Boolean>> finished = new ConcurrentHashMap();
 
         /**
          * Used so that readers can signal when they are complete.
@@ -308,9 +308,6 @@ public class ShuffleInputChunkReader implements Closeable {
         }
         
         public Object call() throws Exception {
-
-            //FIXME: if this this thread throws an Exception we MUST push it to
-            //the callers or they will block for infinity.
 
             try {
 
