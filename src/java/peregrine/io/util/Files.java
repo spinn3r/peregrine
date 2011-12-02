@@ -18,7 +18,6 @@ public class Files {
         for ( File current : files ) {
 
             if ( current.isDirectory() == false ) {
-                System.out.printf( "Deleting: %s\n", current.getPath() );
                 current.delete();
             } else {
                 remove( current );
