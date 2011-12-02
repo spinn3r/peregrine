@@ -4,7 +4,8 @@ import java.lang.reflect.*;
 import java.util.*;
 
 import peregrine.config.router.*;
-import peregrine.util.primitive.LongBytes;
+import peregrine.util.primitive.*;
+import peregrine.util.*;
 
 import com.spinn3r.log5j.Logger;
 
@@ -274,6 +275,10 @@ public class Config {
 			throw new RuntimeException( t );
 		}
     
+    }
+
+    public String getChecksum() {
+        return Base16.encode( SHA1.encode( toDesc() ) );
     }
     
     @Override

@@ -64,6 +64,11 @@ public class ControllerRPCDelegate extends RPCDelegate<ControllerDaemon> {
 	            		    			    	
 	            Host host = Host.parse( message.get( "host" ) );
 
+                // FIXME verify that the config_checksum is correct...
+
+                if ( ! controllerDaemon.getConfig().getChecksum().equals( message.get( "config_checksum" ) ) )
+                    throw new Exception( "Config checksum from %s is invalid: " + host );
+                
                 // mark this host as online for the entire controller.
 	            controllerDaemon.getClusterState().getOnline().mark( host );
 		    	
