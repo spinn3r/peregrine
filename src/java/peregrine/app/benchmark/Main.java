@@ -37,7 +37,7 @@ public class Main {
         
         int width = getopt.getInt( "width", 32 );
         int max   = getopt.getInt( "max", 10000 );
-        Benchmark.Map.EMIT = getopt.getBoolean( "emit" );
+        Benchmark.Map.EMIT = getopt.getBoolean( "emit", true );
 
         long size = width * (long) max;
 
