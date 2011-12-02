@@ -66,6 +66,8 @@ public class Main {
 
         writer.close();
 
+        System.out.printf( "Wrote %,d bytes to extract writer.\n", writer.length() );
+        
         new Benchmark( config ).exec( in, out );
         
     }
