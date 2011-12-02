@@ -20,22 +20,24 @@ public class Main {
 
     public static void main( String[] args ) throws Exception {
 
-        long max = 10000;
+        Getopt getopt = new Getopt( args );
 
-        // the width of writes we should use.
-        int width = 32;
+        if ( getopt.getBoolean( "help" ) ) {
+
+            System.out.printf( "Options: \n\n" );
+            
+            System.out.printf( "   --width=WIDTH       Width of the values to write (in bytes).\n" );
+            System.out.printf( "   --max=MAX           Max number of writes.\n" );
+            System.out.printf( "   --emit=true|false   When true, emit() the key, value.  Default: true\n" );
+            System.out.printf( "\n" );
+            
+            System.exit( 1 );
+            
+        }
         
-        if ( args.length >= 1 ) {
-            max = Long.parseLong( args[0] );
-        }
-
-        if ( args.length >= 2 ) {
-            width = Integer.parseInt( args[0] );
-        }
-
-        if ( args.length >= 3 ) {
-            Benchmark.Map.EMIT = args[2].equals( "true" );
-        }
+        int width = getopt.getInt( "width", 32 );
+        int max   = getopt.getInt( "max", 10000 );
+        Benchmark.Map.EMIT = getopt.getBoolean( "emit" );
 
         DOMConfigurator.configure( "conf/log4j.xml" );
         Config config = ConfigParser.parse( args );
