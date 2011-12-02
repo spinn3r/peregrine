@@ -17,10 +17,10 @@
 
 - CRC32 support https://issues.apache.org/jira/browse/HADOOP-6148
 
-    - use the native zlib with largish buffers for computing the checksum.
+    - Use the native zlib with largish buffers for computing the checksum.
 
 
-- if we do speculative execution, I need a way to say "stop doing work" to a
+- If we do speculative execution, I need a way to say "stop doing work" to a
   node...  I guess I could check BETWEEN files as I process them in the
   map/merge task and I would need similar checks in the reduce phase. 
 
@@ -28,7 +28,7 @@
 
 - I need to implement break points so that a job can terminate itself.
 
-    - in between map / merge chunks and between reduce files as they are written
+    - In between map / merge chunks and between reduce files as they are written
       to disk.
 
 
