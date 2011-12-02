@@ -223,8 +223,12 @@ public class Config {
         return String.format( "%s%s" , getRoot( partition ), path );
     }
 
+    public String getShuffleDir() {
+        return String.format( "%s/tmp/shuffle", getRoot() );
+    }
+    
     public String getShuffleDir( String name ) {
-        return String.format( "%s/tmp/shuffle/%s", getRoot(), name);
+        return String.format( "%s/%s", getShuffleDir(), name );
     }
 
     /**

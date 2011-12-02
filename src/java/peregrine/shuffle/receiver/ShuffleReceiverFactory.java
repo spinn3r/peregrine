@@ -2,7 +2,10 @@ package peregrine.shuffle.receiver;
 
 import java.io.*;
 import java.util.*;
-import peregrine.config.Config;
+
+import peregrine.config.*;
+import peregrine.io.util.*;
+
 import com.spinn3r.log5j.Logger;
 
 /**
@@ -71,6 +74,16 @@ public class ShuffleReceiverFactory {
             
     }
 
+    public void purge() throws IOException {
+
+        String dir = config.getShuffleDir();
+        
+        log.info( "Purging shuffler directory: %s", dir );
+
+        Files.remove( dir );
+        
+    }
+    
     public long lastFlushed() {
         return lastFlushed();
     }
