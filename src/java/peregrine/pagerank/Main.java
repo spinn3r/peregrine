@@ -9,6 +9,8 @@ public class Main {
 
     public static void main( String[] args ) throws Exception {
 
+        // FIXME: update this to use Getopt.
+        
         // use some conservative defaults with no args.
         int nr_nodes = 500;
         int max_edges_per_node = 10;
