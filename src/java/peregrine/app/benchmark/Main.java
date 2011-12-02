@@ -48,7 +48,7 @@ public class Main {
         Config config = ConfigParser.parse( args );
 
         String in = "/test/benchmark.in";
-        String out = "/test/benchmark.in";
+        String out = "/test/benchmark.out";
 
         log.info( "Testing with %,d records." , max );
 
