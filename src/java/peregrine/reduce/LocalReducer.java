@@ -8,6 +8,7 @@ import peregrine.config.Config;
 import peregrine.config.Partition;
 import peregrine.io.*;
 import peregrine.io.chunk.*;
+import peregrine.io.util.*;
 import peregrine.reduce.sorter.*;
 import peregrine.reduce.merger.*;
 
@@ -48,9 +49,9 @@ public class LocalReducer {
 
         int pass = 0;
         
-        String target_dir = getTargetDir( pass );
+        String sort_dir = getTargetDir( pass );
 
-        List<ChunkReader> readers = sort( input, target_dir );
+        List<ChunkReader> readers = sort( input, sort_dir );
 
         while( true ) {
 
@@ -69,9 +70,31 @@ public class LocalReducer {
             }
             
         }
+
+        cleanup();
         
     }
 
+    private void cleanup() throws IOException {
+
+        // Now cleanup after ourselves.  See if the temporary directories exists
+        // and if so purge them.
+        
+        for( int i = 0; i < Integer.MAX_VALUE; ++i ) {
+
+            String path = getTargetDir( i );
+
+            File dir = new File( path );
+            if ( dir.exists() ) {
+                Files.remove( dir );
+            } else {
+                break;
+            }
+            
+        }
+
+    }
+    
     /**
      * Do the final merge including writing to listener when we are finished.
      */
