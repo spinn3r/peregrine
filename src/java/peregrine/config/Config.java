@@ -113,7 +113,7 @@ public class Config {
         this.membership = engine.toMembership();
 
         if ( ! hosts.contains( getHost() ) && ! isController() ) {
-            throw new RuntimeException( "Host is not define in hosts file nor is it the controller: " + getHost() );
+            throw new RuntimeException( "Host is not defined in hosts file nor is it the controller: " + getHost() );
         }
 
         // FIXME: move this to a config directive... 

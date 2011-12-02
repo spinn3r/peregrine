@@ -156,13 +156,17 @@ public class ConfigParser {
             in.read( data );
 
             hostname = new String( data );
-            hostname.trim();
-
+ 
         }
         
         if ( hostname == null )
             hostname = "localhost";
 
+        hostname = hostname.trim();
+        hostname = hostname.replaceAll( "\n" , "" );
+        hostname = hostname.replaceAll( "\r" , "" );
+        hostname = hostname.replaceAll( "\t" , "" );
+        
         return hostname;
         
     }
