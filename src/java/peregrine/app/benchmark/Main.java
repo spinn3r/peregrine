@@ -39,6 +39,10 @@ public class Main {
         int max   = getopt.getInt( "max", 10000 );
         Benchmark.Map.EMIT = getopt.getBoolean( "emit" );
 
+        long size = width * (long) max;
+
+        System.out.printf( "Writing %,d total bytes with width=%,d , max=%,d and emit=%s\n", size, width, max, emit );
+        
         DOMConfigurator.configure( "conf/log4j.xml" );
         Config config = ConfigParser.parse( args );
 
