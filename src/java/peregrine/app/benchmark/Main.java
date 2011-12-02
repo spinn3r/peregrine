@@ -41,7 +41,8 @@ public class Main {
 
         long size = width * (long) max;
 
-        System.out.printf( "Writing %,d total bytes with width=%,d , max=%,d and emit=%s\n", size, width, max, emit );
+        System.out.printf( "Writing %,d total bytes with width=%,d , max=%,d and emit=%s\n",
+                           size, width, max, Benchmark.Map.EMIT );
         
         DOMConfigurator.configure( "conf/log4j.xml" );
         Config config = ConfigParser.parse( args );
