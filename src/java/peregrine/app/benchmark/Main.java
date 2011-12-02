@@ -20,16 +20,29 @@ public class Main {
 
     public static void main( String[] args ) throws Exception {
 
-        long max = 10000;
+        Getopt getopt = new Getopt( args );
 
-        if ( args.length >= 1 ) {
-            max = Long.parseLong( args[0] );
-        }
+        if ( getopt.getBoolean( "help" ) ) {
 
-        if ( args.length >= 2 ) {
-            Benchmark.Map.EMIT = args[1].equals( "true" );
-        }
+            System.out.printf( "Options: \n\n" );
             
+            System.out.printf( "   --width=WIDTH       Width of the values to write (in bytes).\n" );
+            System.out.printf( "   --max=MAX           Max number of writes.\n" );
+            System.out.printf( "   --emit=true|false   When true, emit() the key, value.  Default: true\n" );
+            System.out.printf( "\n" );
+            
+            System.exit( 1 );
+            
+        }
+        
+        int width = getopt.getInt( "width", 32 );
+        int max   = getopt.getInt( "max", 10000 );
+        Benchmark.Map.EMIT = getopt.getBoolean( "emit" );
+
+        long size = width * (long) max;
+
+        System.out.printf( "Writing %,d total bytes with width=%,d , max=%,d and emit=%s\n", size, width, max, emit );
+        
         DOMConfigurator.configure( "conf/log4j.xml" );
         Config config = ConfigParser.parse( args );
 
@@ -37,17 +50,17 @@ public class Main {
         String out = "/test/benchmark.in";
 
         log.info( "Testing with %,d records." , max );
-        
-        System.gc();
 
         ExtractWriter writer = new ExtractWriter( config, in );
 
+        byte[] value = new byte[ width ];
+        
         for( long i = 0; i < max; ++i ) {
 
             byte[] key = MD5.encode( "" + i );
-            byte[] value = LongBytes.toByteArray( i );
 
             writer.write( key, value );
+
         }
 
         writer.close();

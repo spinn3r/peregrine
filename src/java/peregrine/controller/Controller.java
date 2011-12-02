@@ -214,8 +214,13 @@ public class Controller {
         // shufflers can be flushed after any stage even reduce as nothing will
         // happen
 
+        // FIXME: this should be a typesafe enum with map|merge|reduce
+        
         if ( "map".equals( operation ) || "merge".equals( operation ) )
             flushAllShufflers();
+
+        if ( "reduce".equals( operation ) )
+            purgeAllShufflers();
 
         long after = System.currentTimeMillis();
 
@@ -231,7 +236,22 @@ public class Controller {
         Message message = new Message();
         message.put( "action", "flush" );
 
-        String desc = String.format( "Flushing all %,d shufflers with message: %s" , config.getHosts().size(), message );
+        callMethodOnCluster( message );
+        
+    }
+
+    public void purgeAllShufflers() throws Exception {
+
+        Message message = new Message();
+        message.put( "action", "purge" );
+
+        callMethodOnCluster( message );
+        
+    }
+
+    private void callMethodOnCluster( Message message ) throws Exception {
+
+        String desc = String.format( "Calling %s %,d hosts with message: %s" , message, config.getHosts().size(), message );
         
         log.info( "STARTING %s", desc );
 
@@ -258,7 +278,7 @@ public class Controller {
         log.info( "COMPLETED %s (duration %,d ms)", desc, duration );
 
     }
-
+    
     private Message createSchedulerMessage( String action,
                                             Job job,
                                             Partition partition ) {

@@ -16,7 +16,14 @@ public class ShufflerRPCDelegate extends RPCDelegate<FSDaemon> {
         String action = message.get( "action" );
 
         if ( "flush".equals( action ) ) {
+            // FIXME: this should be async should it not?
             daemon.shuffleReceiverFactory.flush();
+            return;
+
+        }
+
+        if ( "purge".equals( action ) ) {
+            daemon.shuffleReceiverFactory.purge();
             return;
 
         }
