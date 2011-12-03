@@ -100,8 +100,13 @@ public class MappedFile implements Closeable {
 
         try {
 
+            // in JDK 1.6 and earlier the max mmap we could have was 2GB so to
+            // route around this problem we create a number of smaller mmap
+            // files , one per 2GB region and then use a composite channel
+            // buffer
+            
             if ( map == null ) {
-                
+
                 int nr_regions = (int)Math.ceil( length / (double)MAX_MMAP );
 
                 int region_offset = 0;
@@ -165,9 +170,9 @@ public class MappedFile implements Closeable {
         if ( closed )
             return;
 
+        closeables.add( channel );
         closeables.add( in );
         closeables.add( out );
-        closeables.add( channel );
 
         Closer.close( closeables );
         
