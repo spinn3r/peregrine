@@ -114,8 +114,8 @@ public class fcntl {
      * <p>
      * Return Value
      * 
-     * <p>
-     * posix_fallocate() returns zero on success, or an error number on failure. Note that errno is not set.
+     * <p> posix_fallocate() returns zero on success, or an error number on
+     * failure. Note that errno is not set.
      */
     public static int posix_fallocate(int fd, long offset, long len) {
         return delegate.posix_fallocate(fd, offset, len);
