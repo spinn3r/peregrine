@@ -46,11 +46,6 @@ public class ShuffleOutputWriter implements Closeable {
      */
     private String path;
 
-    /**
-     * True if we are closed so that we don't corupt ourselves.
-     */
-    private boolean closed = false;
-
     private int length = 0;
 
     private Config config;
@@ -58,6 +53,10 @@ public class ShuffleOutputWriter implements Closeable {
     private FileOutputStream fos;
     
     private FileChannel output;
+
+    private Closer closer = new Closer();
+
+    private boolean closed = false;
     
     public ShuffleOutputWriter( Config config, String path ) {
 
@@ -265,7 +264,9 @@ public class ShuffleOutputWriter implements Closeable {
 
         } finally {
 
-            Closer.close( output, fos );
+            closer.add( output, fos );
+            
+            closer.close();
             
         }
         

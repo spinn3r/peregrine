@@ -8,20 +8,48 @@ import java.util.*;
  *
  * http://docs.oracle.com/javase/tutorial/essential/exceptions/tryResourceClose.html
  */
-public class Closer {
+public class Closer implements Closeable {
 
-    public static void close( Closeable... closeables ) throws CloserException {
-        close( null, closeables );
+    private List<Closeable> closeables = new ArrayList();
+
+    private Throwable cause = null;
+
+    private boolean closed = false;
+
+    public Closer() { }
+
+    public Closer( List<Closeable> closeables ) {
+        this.closeables = closeables;
+    }
+    
+    public Closer( Closeable... closeables ) {
+        add( closeables );
     }
 
-    public static void close( List<Closeable> closeables ) throws CloserException {
+    public void add( Closeable closeable ) {
+        closeables.add( closeable );
+    }
+
+    public void add( Closeable... closeables ) {
+        for( Closeable current : closeables ) {
+            this.closeables.add( current );
+        }
+    }
+
+    public void setCause( Throwable cause ) {
+        this.cause = cause;
+    }
+
+    public boolean closed() {
+        return closed;
+    }
+    
+    @Override
+    public void close() throws CloserException {
+
+        if ( closed )
+            return;
         
-        close( null, closeables.toArray( new Closeable[ closeables.size() ] ) );
-
-    }
-
-    public static void close( Throwable cause , Closeable... closeables ) throws CloserException {
-
         CloserException exc = null;
 
         if ( cause != null )
@@ -48,6 +76,8 @@ public class Closer {
 
         }
 
+        closed = true;
+        
         if ( exc != null )
             throw exc;
         

@@ -38,13 +38,11 @@ public class MappedFile implements Closeable {
 
     protected boolean lock = false;
 
-    protected List<Closeable> closeables = new ArrayList();
+    protected Closer closer = new Closer();
 
     protected FileChannel.MapMode mode;
 
     protected File file;
-
-    protected boolean closed = false;
 
     protected static Map<String,FileChannel.MapMode> modes = new HashMap() {{
 
@@ -122,14 +120,14 @@ public class MappedFile implements Closeable {
                     }
 
                     if ( lock ) {
-                        closeables.add( new MemLock( file, in.getFD(), region_offset, region_length ) );
+                        closer.add( new MemLock( file, in.getFD(), region_offset, region_length ) );
                     }
 
                     MappedByteBuffer map = channel.map( mode, region_offset, region_length );
 
                     buffs[buff_idx++] = map;
                     
-                    closeables.add( new ByteBufferCloser( map ) );
+                    closer.add( new ByteBufferCloser( map ) );
 
                     region_offset += region_length;
                     
@@ -167,16 +165,14 @@ public class MappedFile implements Closeable {
     
     public void close() throws IOException {
         
-        if ( closed )
+        if ( closer.closed() )
             return;
 
-        closeables.add( channel );
-        closeables.add( in );
-        closeables.add( out );
+        closer.add( channel );
+        closer.add( in );
+        closer.add( out );
 
-        Closer.close( closeables );
-        
-        closed = true;
+        closer.close();
 
     }
 

@@ -113,12 +113,13 @@ public class ChunkSorter extends BaseChunkSorter {
             
         } finally {
 
-            Closer.close( inputChannel,
-                          outputChannel,
-                          inputStream,
-                          outputStream,
-                          reader,
-                          writer );
+            new Closer( inputChannel,
+                        outputChannel,
+                        inputStream,
+                        outputStream,
+                        reader,
+                        writer )
+                .close();
             
         }
 
