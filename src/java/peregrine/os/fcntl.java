@@ -1,5 +1,7 @@
 package peregrine.os;
 
+import java.io.*;
+
 import com.sun.jna.Library;
 import com.sun.jna.Native;
 
@@ -117,8 +119,15 @@ public class fcntl {
      * <p>
      * posix_fallocate() returns zero on success, or an error number on failure. Note that errno is not set.
      */
-    public static int posix_fallocate(int fd, long offset, long len) {
-        return delegate.posix_fallocate(fd, offset, len);
+    public static int posix_fallocate(int fd, long offset, long len ) throws IOException {
+
+        int result = delegate.posix_fallocate(fd, offset, len);
+
+        if ( result != 0 )
+            throw new IOException( errno.strerror( result ) );
+
+        return result;
+
     }
     
     interface InterfaceDelegate extends Library {

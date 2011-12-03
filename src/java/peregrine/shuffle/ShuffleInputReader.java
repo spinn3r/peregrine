@@ -8,7 +8,7 @@ import java.nio.channels.*;
 import peregrine.os.*;
 import peregrine.util.*;
 import peregrine.values.*;
-import peregrine.config.Partition;
+import peregrine.config.*;
 import org.jboss.netty.buffer.*;
 
 /**
@@ -54,8 +54,8 @@ public class ShuffleInputReader {
     protected Partition current = null;
     
     protected MappedFile mappedFile = null;;
-    
-    public ShuffleInputReader( String path, List<Partition> partitions ) throws IOException {
+        
+    public ShuffleInputReader( Config config, String path, List<Partition> partitions ) throws IOException {
         
         // pull out the header information 
 
@@ -70,11 +70,9 @@ public class ShuffleInputReader {
         // responsible for reducing over were at the beginning of the shuffle
         // data but in practice this may be a premature optimization.
 
-        long length = file.length();
-
         // mmap the WHOLE file. We won't actually use these pages if we don't
         // read them so this make it less difficult to figure out what to map.
-        this.mappedFile = new MappedFile( file, FileChannel.MapMode.READ_ONLY );
+        this.mappedFile = new MappedFile( config, file, FileChannel.MapMode.READ_ONLY );
         this.mappedFile.setLock( ENABLE_MEMLOCK );
         
         this.buffer = mappedFile.map();
@@ -216,7 +214,7 @@ public class ShuffleInputReader {
         
         System.out.printf( "Reading from partitions: %s\n", partitions );
 
-        ShuffleInputReader reader = new ShuffleInputReader( path, partitions );
+        ShuffleInputReader reader = new ShuffleInputReader( null, path, partitions );
 
         System.out.printf( "Headers: \n" );
         for( ShuffleHeader header : reader.headers ) {

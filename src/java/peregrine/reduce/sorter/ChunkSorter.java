@@ -77,7 +77,7 @@ public class ChunkSorter extends BaseChunkSorter {
 
             VarintReader varintReader = new VarintReader( buffer );
 
-            writer = new DefaultChunkWriter( output );
+            writer = new DefaultChunkWriter( config, output );
 
             while( lookup.hasNext() ) {
 
@@ -124,7 +124,7 @@ public class ChunkSorter extends BaseChunkSorter {
         }
 
         // if we got to this part we're done... 
-        return new DefaultChunkReader( output );
+        return new DefaultChunkReader( config, output );
 
     }
 

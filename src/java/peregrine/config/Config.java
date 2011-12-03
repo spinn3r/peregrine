@@ -17,6 +17,8 @@ public class Config {
 
     private static final Logger log = Logger.getLogger();
 
+    public static long DEFAULT_FALLOCATE_EXTENT_SIZE = 10485760;
+    
     public static int DEFAULT_MERGE_FACTOR = 100;
     
     public static long DEFAULT_SHUFFLE_BUFFER_SIZE = 1048576;
@@ -85,6 +87,8 @@ public class Config {
     protected PartitionRouter router = null;
 
     protected int mergeFactor = DEFAULT_MERGE_FACTOR;
+
+    protected long fallocateExtentSize = DEFAULT_FALLOCATE_EXTENT_SIZE;
 
     public Config() { }
 
@@ -210,6 +214,14 @@ public class Config {
 
     public int getMergeFactor() { 
         return this.mergeFactor;
+    }
+
+    public long getFallocateExtentSize() { 
+        return this.fallocateExtentSize;
+    }
+
+    public void setFallocateExtentSize( long fallocateExtentSize ) { 
+        this.fallocateExtentSize = fallocateExtentSize;
     }
 
     public void setMergeFactor( int mergeFactor ) { 
