@@ -10,7 +10,7 @@ import peregrine.io.chunk.*;
 /**
  * Read data from a partition from local storage.
  */
-public class LocalPartitionReader {
+public class LocalPartitionReader implements ChunkReader {
 
     private String path = null;
 

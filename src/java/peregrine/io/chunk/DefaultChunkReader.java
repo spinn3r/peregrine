@@ -128,11 +128,6 @@ public class DefaultChunkReader implements ChunkReader, Closeable {
     }
 
     @Override
-    public int size() throws IOException {
-        return this.size;
-    }
-
-    @Override
     public String toString() {
         return String.format( "file: %s, length (in bytes): %,d, size: %,d", file, length, size );
     }

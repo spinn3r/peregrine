@@ -18,7 +18,7 @@ import com.spinn3r.log5j.Logger;
 /**
  * 
  */
-public class DefaultPartitionWriter implements PartitionWriter {
+public class DefaultPartitionWriter implements PartitionWriter, ChunkWriter {
 
     private static final Logger log = Logger.getLogger();
 
@@ -35,10 +35,10 @@ public class DefaultPartitionWriter implements PartitionWriter {
 
     private ChunkWriter chunkWriter = null;
 
-    private int chunk_id = 0;
+    private int chunkId = 0;
 
     /**
-     * Total lengh of this file (bytes written) to this partition writer..
+     * Total length of this file (bytes written) to this partition writer..
      */
     private long length = 0;
 
@@ -49,21 +49,27 @@ public class DefaultPartitionWriter implements PartitionWriter {
                                    String path ) throws IOException {
         this( config, partition, path, false );
     }
-    
+
     public DefaultPartitionWriter( Config config,
                                    Partition partition,
                                    String path,
                                    boolean append ) throws IOException {
 
+        // TODO/FIXME: we need make sure we first contact the closest host first by route.
+
+        this( config, partition, path, append, config.getMembership().getHosts( partition ) );
+        
+    }
+    
+    public DefaultPartitionWriter( Config config,
+                                   Partition partition,
+                                   String path,
+                                   boolean append,
+                                   List<Host> hosts ) throws IOException {
+
         this.config = config;
         this.partition = partition;
         this.path = path;
-
-        Membership membership = config.getMembership();
-
-        // TODO/FIXME: we need make sure we first contact the closest host first by route.
-
-        List<Host> hosts = membership.getHosts( partition );
 
         partitionWriterDelegates = new ArrayList();
 
@@ -84,7 +90,7 @@ public class DefaultPartitionWriter implements PartitionWriter {
             partitionWriterDelegates.add( delegate );
 
             if ( append ) 
-                chunk_id = delegate.append();
+                chunkId = delegate.append();
             else
                 delegate.erase();
 
@@ -164,13 +170,13 @@ public class DefaultPartitionWriter implements PartitionWriter {
             
             if ( delegate.getHost().equals( local ) ) {
 
-                ChannelBufferWritable writable = delegate.newChunkWriter( chunk_id );
+                ChannelBufferWritable writable = delegate.newChunkWriter( chunkId );
 
                 writables.put( delegate.getHost(), writable );
                 
             } else if ( client == null ) {
 
-                ChannelBufferWritable writable = delegate.newChunkWriter( chunk_id );
+                ChannelBufferWritable writable = delegate.newChunkWriter( chunkId );
                 
                 client = (HttpClient)writable;
                 writables.put( delegate.getHost(), writable );
@@ -188,7 +194,7 @@ public class DefaultPartitionWriter implements PartitionWriter {
         
         chunkWriter = new DefaultChunkWriter( new MultiChannelBufferWritable( writables ) );
         
-        ++chunk_id; // change the chunk ID now for the next file.
+        ++chunkId; // change the chunk ID now for the next file.
 
     }
 

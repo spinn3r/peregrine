@@ -13,8 +13,7 @@ public interface ChunkWriter extends Closeable {
      * Total number of items in this chunk writer.  Basically, a count of the
      * total number of key value pair writes done to this ChunkWriter.
      */
-
-    public int count() throws IOException;
+    //public int count() throws IOException;
 
     public long length() throws IOException;
 
