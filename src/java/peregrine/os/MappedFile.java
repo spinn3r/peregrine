@@ -180,6 +180,14 @@ public class MappedFile implements Closeable {
 
         public void write( ChannelBuffer buff ) throws IOException {
 
+            // we should probably fallocate here but it's going to be very
+            // difficult to figure this out becasue stat() isn't super portable
+            // due to a GCC and libc compilation issue and I won't be able to
+            // get the block usage of a file.
+            
+            //length += buff.writerIndex();
+            //if ( length 
+
             //FIXME: I'm NOT sure that this is the fastest write path
             channel.write( buff.toByteBuffer() );
             

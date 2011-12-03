@@ -127,6 +127,11 @@ public class Test {
         
     public static void main( String[] args ) throws Exception {
 
+        String path = "/d0/util0029.wdc.sl.spinn3r.com/11112/1/tmp/default.1/merged-0.tmp";
+
+        new MappedFile( path, "r" );
+        
+        /*
         List<String> list = new ArrayList();
 
         list.add( "foo" );
@@ -140,7 +145,8 @@ public class Test {
         list.toArray( array );
         
         dump( array );
-
+        */
+        
         /*
         dump( (String[]) list.toArray() );
         */
