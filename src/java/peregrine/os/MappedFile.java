@@ -95,14 +95,17 @@ public class MappedFile implements Closeable {
         }
 
         if( mode.equals( FileChannel.MapMode.READ_ONLY ) ) {
+
             this.in = new FileInputStream( file );
             this.channel = in.getChannel();
             this.fd = Native.getFd( in.getFD() );
-            
+
         } else if ( mode.equals( FileChannel.MapMode.READ_WRITE ) ) {
+
             this.out = new FileOutputStream( file );
             this.fd = Native.getFd( out.getFD() );
             this.channel = out.getChannel();
+
         } else {
             throw new IOException( "Invalid mode: " + mode );
         }
