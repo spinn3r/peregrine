@@ -1,11 +1,13 @@
 package peregrine.config;
 
+import java.io.*;
 import java.lang.reflect.*;
 import java.util.*;
 
 import peregrine.config.router.*;
 import peregrine.util.primitive.*;
 import peregrine.util.*;
+import peregrine.os.*;
 
 import com.spinn3r.log5j.Logger;
 
@@ -13,82 +15,9 @@ import com.spinn3r.log5j.Logger;
  * Config options.  See peregrine.conf for documentation of these variables.
  * 
  */
-public class Config {
+public class Config extends BaseConfig {
 
     private static final Logger log = Logger.getLogger();
-
-    public static long DEFAULT_FALLOCATE_EXTENT_SIZE = 10485760;
-    
-    public static int DEFAULT_MERGE_FACTOR = 100;
-    
-    public static long DEFAULT_SHUFFLE_BUFFER_SIZE = 1048576;
-    
-    /**
-     * Default port for serving requests.
-     */
-    public static int DEFAULT_PORT = 11112;
-    
-    public static int DEFAULT_CONCURRENCY = 1;
-    
-    /**
-     * Default root directory for serving files.
-     */
-    public static String DEFAULT_BASEDIR = "/tmp/peregrine-fs";
-
-    /**
-     * Default number of replicas.
-     */
-    public static int DEFAULT_REPLICAS = 1;
-    
-    /**
-     * The root for storing data.
-     */
-    public String root = DEFAULT_BASEDIR;
-
-    public String basedir = DEFAULT_BASEDIR;
-    
-    /**
-     * Partition membership.
-     */
-    protected Membership membership = new Membership();
-
-    /**
-     * The current 'host' that we are running on.  This is used so that we can
-     * determine whether we should local or remote readers/writers.  This should
-     * be set correctly or we won't be able to tell that we are on the local
-     * machine and would have performance issues though we should still perform
-     * correctly.
-     */
-    protected Host host = null;
-
-    /**
-     * The controller coordinating job tasks in the cluster.  
-     */
-    protected Host controller = null;
-
-    /**
-     * Unique index of hosts. 
-     */
-    protected Set<Host> hosts = new HashSet<Host>();
-
-    /**
-     * The number of replicas per file we are configured for.  Usually 2 or 3.
-     */
-    protected int replicas = DEFAULT_REPLICAS;
-
-    /**
-     * The concurrency on a per host basis.  How many mappers and reducers each
-     * can run.
-     */
-    protected int concurrency = DEFAULT_CONCURRENCY;
-
-    protected long shuffleBufferSize = DEFAULT_SHUFFLE_BUFFER_SIZE;
-
-    protected PartitionRouter router = null;
-
-    protected int mergeFactor = DEFAULT_MERGE_FACTOR;
-
-    protected long fallocateExtentSize = DEFAULT_FALLOCATE_EXTENT_SIZE;
 
     public Config() { }
 
@@ -121,111 +50,19 @@ public class Config {
             throw new RuntimeException( "Host is not defined in hosts file nor is it the controller: " + getHost() );
         }
 
-        // FIXME: move this to a config directive... 
+        // FIXME: move the hash partitioner implementation to a config directive... 
         
         router = new HashPartitionRouter();
         router.init( this );
-        
+
+        // Test posix_fallocate and posix_fadvise on a test file in the
+        // basedir to see if they work on this OS and if they fail disable them.
+
+        testFallocate();
+        testFadvise();
+
         log.info( "%s", toDesc() );
-        
-    }
-    
-    public Membership getMembership() {
-        return membership;
-    }
 
-    /**
-     */
-    public Host getHost() {
-        return host;
-    }
-
-    public void setHost( Host host ) {
-        this.host = host;
-    }
-
-    public Host getController() {
-        return controller;
-    }
-
-    public void setController( Host controller ) {
-        this.controller = controller;
-    }
-
-    public boolean isController() {
-        return this.controller.getName().equals( getHost().getName() );
-    }
-    
-    public Set<Host> getHosts() {
-        return hosts;
-    }
-
-    public void setHosts( Set<Host> hosts ) {
-        this.hosts = hosts;
-    }
-    
-    public String getRoot() {
-        return this.root;
-    }
-
-    public void setRoot( String root ) {
-        this.root = root;
-    }
-
-    public void setRoot( Host host ) {
-        setRoot( String.format( "%s/%s/%s", basedir, host.getName(), host.getPort() ) );
-    }
-    
-    public void setBasedir( String basedir ) {
-        this.basedir = basedir;
-    }
-
-    public String getBasedir() {
-        return this.basedir;
-    }
-
-    public int getPartitionsPerHost() {
-        return this.replicas * this.concurrency;
-    }
-
-    public int getReplicas() { 
-        return this.replicas;
-    }
-
-    public void setReplicas( int replicas ) { 
-        this.replicas = replicas;
-    }
-
-    public int getConcurrency() { 
-        return this.concurrency;
-    }
-
-    public void setConcurrency( int concurrency ) { 
-        this.concurrency = concurrency;
-    }
-
-    public long getShuffleBufferSize() { 
-        return this.shuffleBufferSize;
-    }
-
-    public void setShuffleBufferSize( long shuffleBufferSize ) { 
-        this.shuffleBufferSize = shuffleBufferSize;
-    }
-
-    public int getMergeFactor() { 
-        return this.mergeFactor;
-    }
-
-    public long getFallocateExtentSize() { 
-        return this.fallocateExtentSize;
-    }
-
-    public void setFallocateExtentSize( long fallocateExtentSize ) { 
-        this.fallocateExtentSize = fallocateExtentSize;
-    }
-
-    public void setMergeFactor( int mergeFactor ) { 
-        this.mergeFactor = mergeFactor;
     }
 
     public String getRoot( Partition partition ) {
@@ -313,6 +150,109 @@ public class Config {
      */
     public Partition route( byte[] key ) {
     	return router.route( key );    
+    }
+
+    private void testFallocate() {
+
+        testConfigOption( new RuntimeTest() {
+
+                File file = null;
+
+                FileOutputStream fos = null;
+
+                @Override
+                public void test() throws Exception {
+
+                    file = new File( getBasedir(), "fallocate.test" );
+
+                    fos = new FileOutputStream( file );
+
+                    int fd = Native.getFd( fos.getFD() );
+
+                    fcntl.posix_fallocate( fd, 0, 1000 );
+
+                }
+
+                @Override
+                public void cleanup() throws Exception {
+                    fos.close();
+                    file.delete(); //cleanup
+                }
+
+                @Override
+                public void disable( Throwable t ) {
+                    log.warn( "Unable to enable fallocate: %s" , t.getMessage() );
+                    setFallocateExtentSize( 0 );
+                }
+                
+            } );
+
+    }
+
+    private void testFadvise() {
+
+        testConfigOption( new RuntimeTest() {
+
+                File file = null;
+
+                FileOutputStream fos = null;
+
+                @Override
+                public void test() throws Exception {
+
+                    file = new File( getBasedir(), "fadvise.test" );
+
+                    String data = "0123";
+                    
+                    fos = new FileOutputStream( file );
+                    fos.write( data.getBytes() );
+
+                    int fd = Native.getFd( fos.getFD() );
+
+                    fcntl.posix_fadvise( fd, 0, data.length(), fcntl.POSIX_FADV_DONTNEED );
+
+                }
+
+                @Override
+                public void cleanup() throws Exception {
+                    fos.close();
+                    file.delete(); //cleanup
+                }
+
+                @Override
+                public void disable( Throwable t ) {
+                    log.warn( "Unable to enable fadvise: %s" , t.getMessage() );
+                    setFadviseDontNeedEnabled( false );
+                }
+                
+            } );
+
+    }
+
+    private void testConfigOption( RuntimeTest test ) {
+
+        try {
+            test.test();
+        } catch ( Throwable t ) {
+            test.disable( t );
+        } finally {
+
+            try {
+                test.cleanup();
+            } catch ( Exception e ) {
+                throw new RuntimeException( e );
+            }
+                
+        }
+        
+    }
+
+    interface RuntimeTest {
+
+        public void test() throws Exception;
+        public void cleanup() throws Exception;
+        public void disable( Throwable t );
+        
     }
 
 }

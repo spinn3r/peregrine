@@ -48,6 +48,7 @@ public class MappedFile implements Closeable {
 
         put( "r",  FileChannel.MapMode.READ_ONLY );
         put( "rw", FileChannel.MapMode.READ_WRITE );
+        put( "w", FileChannel.MapMode.READ_WRITE );
         
     }};
 
@@ -212,6 +213,12 @@ public class MappedFile implements Closeable {
                 cl.clean();
             }
 
+            if ( config.getFadviseDontNeedEnabled() ) {
+
+                fcntl.posix_fadvise( fd, offset, length, fcntl.POSIX_FADV_DONTNEED );
+                
+            }
+            
         }
 
     }

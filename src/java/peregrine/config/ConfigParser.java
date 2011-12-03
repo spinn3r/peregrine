@@ -4,6 +4,7 @@ import java.io.*;
 import java.util.*;
 
 import peregrine.util.*;
+import peregrine.os.*;
 
 import com.spinn3r.log5j.Logger;
 
@@ -170,5 +171,5 @@ public class ConfigParser {
         return hostname;
         
     }
-    
+
 }
