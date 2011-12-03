@@ -51,6 +51,10 @@ public class MappedFile implements Closeable {
         
     }};
 
+    public MappedFile( String path, String mode ) throws IOException {
+        this( new File( path ), mode );
+    }
+    
     /**
      * Simpler API for opening a file based on a mode string.
      */
