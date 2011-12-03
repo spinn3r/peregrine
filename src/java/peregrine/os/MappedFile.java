@@ -22,7 +22,7 @@ public class MappedFile implements Closeable {
     /**
      * JDK <= 1.6 can only mmap files less than 2GB ... 
      */
-    public static final int MAX_MMAP = Integer.MAX_VALUE;
+    public static final int MAX_MMAP = Integer.MAX_VALUE - 1;
     
     protected FileInputStream in;
 
