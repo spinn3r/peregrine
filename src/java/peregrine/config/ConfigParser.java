@@ -89,6 +89,8 @@ public class ConfigParser {
 
         config.setShuffleBufferSize( struct.getLong( "shuffle_buffer_size" ) );
         config.setMergeFactor( struct.getInt( "merge_factor" ) );
+        config.setFallocateExtentSize( struct.getLong( "fallocate_extent_size" ) );
+        config.setFadviseDontNeedEnabled( struct.getBoolean( "fadvise_dont_need_enabled" ) );
         
         // now read the hosts file...
         config.setHosts( readHosts( hosts_file ) );

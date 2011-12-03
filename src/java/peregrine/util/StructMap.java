@@ -29,6 +29,15 @@ public class StructMap {
         delegate.put( key, ""+value );
     }
 
+    public boolean getBoolean( String key ) {
+
+        if ( delegate.containsKey( key ) )
+            return "true".equals( delegate.get( key ) );
+
+        return false;
+
+    }
+
     public int getInt( String key ) {
 
         if ( delegate.containsKey( key ) )

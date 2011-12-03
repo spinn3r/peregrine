@@ -55,6 +55,8 @@ public class Config extends BaseConfig {
         router = new HashPartitionRouter();
         router.init( this );
 
+        new File( root ).mkdirs();
+        
         // Test posix_fallocate and posix_fadvise on a test file in the
         // basedir to see if they work on this OS and if they fail disable them.
 
