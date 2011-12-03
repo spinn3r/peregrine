@@ -129,6 +129,9 @@ public class MappedFile implements Closeable {
                         closer.add( new MemLock( file, in.getFD(), region_offset, region_length ) );
                     }
 
+                    System.out.printf( "FIXME: region_offset=%,d region_length=%,d\n", region_offset, region_length );
+
+                    
                     MappedByteBuffer map = channel.map( mode, region_offset, region_length );
 
                     buffs[buff_idx++] = map;
