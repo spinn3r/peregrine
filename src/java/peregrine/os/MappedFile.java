@@ -81,6 +81,8 @@ public class MappedFile implements Closeable {
         this.file = file;
 
         if( mode.equals( FileChannel.MapMode.READ_ONLY ) ) {
+
+            System.out.printf( "FIXME read only\n" );
             this.in = new FileInputStream( file );
             this.channel = in.getChannel();
         } else if ( mode.equals( FileChannel.MapMode.READ_WRITE ) ) {
