@@ -117,8 +117,7 @@ public class MappedFile implements Closeable {
                 long region_offset = 0;
                 long region_length = MAX_MMAP;
 
-                ByteBuffer[] buffs = new ByteBuffer[ nr_regions ];
-                int buff_idx = 0;
+                List<ByteBuffer> buffs = new ArrayList();
                 
                 for( int i = 0 ; i < nr_regions; ++i ) {
 
@@ -135,7 +134,7 @@ public class MappedFile implements Closeable {
                     
                     MappedByteBuffer map = channel.map( mode, region_offset, region_length );
 
-                    buffs[buff_idx++] = map;
+                    buffs.add( map );
                     
                     closer.add( new ByteBufferCloser( map ) );
 
@@ -143,7 +142,7 @@ public class MappedFile implements Closeable {
                     
                 }
 
-                map = ChannelBuffers.wrappedBuffer( buffs );
+                map = ChannelBuffers.wrappedBuffer( buffs.toArray( new ByteBuffer[ nr_regions ] ) );
                 
             }
 
