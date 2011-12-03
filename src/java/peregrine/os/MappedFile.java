@@ -114,8 +114,8 @@ public class MappedFile implements Closeable {
 
                 int nr_regions = (int)Math.ceil( length / (double)MAX_MMAP );
 
-                int region_offset = 0;
-                int region_length = MAX_MMAP;
+                long region_offset = 0;
+                long region_length = MAX_MMAP;
 
                 ByteBuffer[] buffs = new ByteBuffer[ nr_regions ];
                 int buff_idx = 0;
