@@ -39,7 +39,7 @@ public class DefaultChunkWriter implements ChunkWriter {
 
     public DefaultChunkWriter( File file ) throws IOException {
 
-        MappedFile mapped = new MappedFile( file, FileChannel.MapMode.READ_WRITE );
+        MappedFile mapped = new MappedFile( file, "rw" );
 
         init( mapped.getChannelBufferWritable() );
 

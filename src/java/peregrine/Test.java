@@ -117,8 +117,35 @@ public class Test {
 
     }
 
+    public static void dump( String[] data ) {
+
+        for( String v : data ) {
+            System.out.printf( "  %s\n", v );
+        }
+        
+    }
+        
     public static void main( String[] args ) throws Exception {
 
+        List<String> list = new ArrayList();
+
+        list.add( "foo" );
+        list.add( "bar" );
+
+        System.out.printf( "%s\n", list );
+
+        System.out.printf( "--\n" );
+
+        String[] array = new String[2];
+        list.toArray( array );
+        
+        dump( array );
+
+        /*
+        dump( (String[]) list.toArray() );
+        */
+        
+        /*
         int capacity = 19;
         
         ChannelBuffer buff = ChannelBuffers.buffer( capacity );
@@ -136,6 +163,7 @@ public class Test {
         for( ChannelBuffer current : split ) {
             System.out.printf( "%s\n", Hex.pretty( current ) );
         }
+        */
         
         // test1();
         // test1();

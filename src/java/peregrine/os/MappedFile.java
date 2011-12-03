@@ -9,6 +9,7 @@ import org.jboss.netty.buffer.*;
 
 import peregrine.http.*;
 import peregrine.util.netty.*;
+import peregrine.io.util.*;
 
 /**
  * Facade around a MappedByteBuffer but we also support mlock on the mapped
@@ -18,13 +19,18 @@ import peregrine.util.netty.*;
  */
 public class MappedFile implements Closeable {
 
+    /**
+     * JDK <= 1.6 can only mmap files less than 2GB ... 
+     */
+    public static final int MAX_MMAP = Integer.MAX_VALUE;
+    
     protected FileInputStream in;
 
     protected FileOutputStream out;
 
     protected FileChannel channel;
 
-    protected MappedByteBuffer map;
+    protected ChannelBuffer map;
 
     protected long offset = 0;
 
@@ -32,7 +38,7 @@ public class MappedFile implements Closeable {
 
     protected boolean lock = false;
 
-    protected MemLock memLock = null;
+    protected List<Closeable> closeables = new ArrayList();
 
     protected FileChannel.MapMode mode;
 
@@ -90,18 +96,52 @@ public class MappedFile implements Closeable {
     /**
      * Read from this mapped file.
      */
-    public MappedByteBuffer map() throws IOException {
+    public ChannelBuffer map() throws IOException {
 
-        if ( map == null ) {
+        try {
 
-            if ( lock ) 
-                memLock = new MemLock( file, in.getFD(), offset, length );
+            if ( map == null ) {
+                
+                int nr_regions = (int)Math.ceil( length / (double)MAX_MMAP );
 
-            map = channel.map( mode, offset, length );
+                int region_offset = 0;
+                int region_length = MAX_MMAP;
+
+                ByteBuffer[] buffs = new ByteBuffer[ nr_regions ];
+                int buff_idx = 0;
+                
+                for( int i = 0 ; i < nr_regions; ++i ) {
+
+                    if ( region_offset + region_length > length ) {
+                        region_length = (int)(length - region_offset);
+                    }
+
+                    if ( lock ) {
+                        closeables.add( new MemLock( file, in.getFD(), region_offset, region_length ) );
+                    }
+
+                    MappedByteBuffer map = channel.map( mode, region_offset, region_length );
+
+                    buffs[buff_idx++] = map;
+                    
+                    closeables.add( new ByteBufferCloser( map ) );
+
+                    region_offset += region_length;
+                    
+                }
+
+                map = ChannelBuffers.wrappedBuffer( buffs );
+                
+            }
+
+            return map;
+
+        } catch ( IOException e ) {
+
+            throw new IOException( String.format( "Failed to map %s of length %,d at %,d",
+                                                  file.getPath(), length, offset ), e );
             
         }
-
-        return map;
         
     }
 
@@ -121,36 +161,17 @@ public class MappedFile implements Closeable {
     }
     
     public void close() throws IOException {
-
+        
         if ( closed )
             return;
-                
-        if ( memLock != null )
-            memLock.release();
-        
-        if ( map != null )
-            close( map );
-        
-        channel.close();
-        
-        if ( in != null )
-            in.close();
-        
-        if ( out != null )
-            out.close();
 
+        closeables.add( in );
+        closeables.add( out );
+        closeables.add( channel );
+
+        Closer.close( closeables );
+        
         closed = true;
-
-    }
-
-    @SuppressWarnings("all")
-    private void close( MappedByteBuffer map ) {
-
-        sun.misc.Cleaner cl = ((sun.nio.ch.DirectBuffer)map).cleaner();
-
-        if (cl != null) {
-            cl.clean();
-        }
 
     }
 
@@ -173,4 +194,25 @@ public class MappedFile implements Closeable {
 
     }
 
+    class ByteBufferCloser implements Closeable {
+
+        private ByteBuffer buff;
+        
+        public ByteBufferCloser( ByteBuffer buff ) {
+            this.buff = buff;
+        }
+        
+        @Override
+        public void close() throws IOException {
+
+            sun.misc.Cleaner cl = ((sun.nio.ch.DirectBuffer)buff).cleaner();
+
+            if (cl != null) {
+                cl.clean();
+            }
+
+        }
+
+    }
+    
 }

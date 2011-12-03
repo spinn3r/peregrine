@@ -1,6 +1,7 @@
 package peregrine.io.util;
 
 import java.io.*;
+import java.util.*;
 
 /**
  * Implements JDK 1.7 try-with-resources style closing for multiple Closeables.
@@ -11,6 +12,12 @@ public class Closer {
 
     public static void close( Closeable... closeables ) throws CloserException {
         close( null, closeables );
+    }
+
+    public static void close( List<Closeable> closeables ) throws CloserException {
+        
+        close( null, closeables.toArray( new Closeable[ closeables.size() ] ) );
+
     }
 
     public static void close( Throwable cause , Closeable... closeables ) throws CloserException {
