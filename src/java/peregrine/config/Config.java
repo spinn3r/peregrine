@@ -4,7 +4,8 @@ import java.lang.reflect.*;
 import java.util.*;
 
 import peregrine.config.router.*;
-import peregrine.util.primitive.LongBytes;
+import peregrine.util.primitive.*;
+import peregrine.util.*;
 
 import com.spinn3r.log5j.Logger;
 
@@ -275,7 +276,20 @@ public class Config {
 		}
     
     }
-    
+
+    public String getChecksum() {
+
+        StringBuilder buff = new StringBuilder();
+
+        // right now only the route and cluster membership matter.
+        
+        buff.append( router.getClass().getName() );
+        buff.append( getMembership().toString() );
+        
+        return Base16.encode( SHA1.encode( buff.toString() ) );
+        
+    }
+
     @Override
     public String toString() {
         return String.format( "host=%s, root=%s, concurrency=%s, replicas=%s, nr_hosts=%s",

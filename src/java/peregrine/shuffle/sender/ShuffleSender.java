@@ -62,7 +62,7 @@ public class ShuffleSender {
 
         } catch ( Exception e ) {
 
-            config.getMembership().sendGossip( client.getHost(), e );
+            config.getMembership().sendGossipToController( client.getHost(), e );
 
             // TODO: I think we have to block here until the controller tells us
             // what to do (in normal situations write to a new host).

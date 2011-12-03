@@ -62,7 +62,7 @@ public class HeartbeatTimer extends Timer {
 
             long delay;
             
-            if ( sendHeartbeatToController() ) {
+            if ( config.getMembership().sendHeartbeatToController() ) {
                 delay = ONLINE_SLEEP_INTERVAL;
             } else {
                 delay = OFFLINE_SLEEP_INTERVAL;
@@ -72,36 +72,6 @@ public class HeartbeatTimer extends Timer {
                 timer.schedule( new HeartbeatTimerTask( timer ), delay );
 
         }
-
-        public boolean sendHeartbeatToController() {
-            
-            Message message = new Message();
-            message.put( "action", "heartbeat" );
-            message.put( "host",    config.getHost().toString() );
-            
-            Host controller = config.getController();
-
-            if ( controller == null )
-                throw new NullPointerException( "controller" );
-            
-            try {           
-                
-                new Client( true ).invoke( controller, "controller", message );
-                
-                return true;
-
-            } catch ( IOException e ) {
-
-                if ( Thread.currentThread().isInterrupted() )
-                    return false;
-
-                // we don't normally need to send this message because we would be overly verbose.
-                log.debug( String.format( "Unable to send heartbeat to %s: %s", controller, e.getMessage() ) );
-                
-                return false;
-            }
-       
-        }           
 
     }
 

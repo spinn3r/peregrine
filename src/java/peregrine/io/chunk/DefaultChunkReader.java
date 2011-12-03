@@ -50,9 +50,9 @@ public class DefaultChunkReader implements ChunkReader, Closeable {
     public DefaultChunkReader( File file )
         throws IOException {
 
-        mappedFile = new MappedFile( file , FileChannel.MapMode.READ_ONLY );
+        mappedFile = new MappedFile( file , "r" );
         
-        buff = ChannelBuffers.wrappedBuffer( mappedFile.map() );
+        buff = mappedFile.map();
       
         init( buff );
         

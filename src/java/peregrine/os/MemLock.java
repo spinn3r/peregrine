@@ -6,7 +6,7 @@ import com.sun.jna.Pointer;
 
 import com.spinn3r.log5j.*;
 
-public class MemLock {
+public class MemLock implements Closeable {
 
     private static final Logger log = Logger.getLogger();
 
@@ -48,7 +48,8 @@ public class MemLock {
      * Release this lock so that the memory can be returned to the OS if it
      * wants to us it.
      */
-    public void release() throws IOException {
+    @Override
+    public void close() throws IOException {
 
         String desc = String.format( "Releasing lock %s to pa: %s ... ", file, pa );
         

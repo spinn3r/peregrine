@@ -77,7 +77,7 @@ public class ShuffleInputReader {
         this.mappedFile = new MappedFile( file, FileChannel.MapMode.READ_ONLY );
         this.mappedFile.setLock( ENABLE_MEMLOCK );
         
-        this.buffer = ChannelBuffers.wrappedBuffer( mappedFile.map() );
+        this.buffer = mappedFile.map();
         
         StructReader struct = new StructReader( buffer );
 
