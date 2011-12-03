@@ -142,7 +142,7 @@ public class MappedFile implements Closeable {
                     
                 }
 
-                map = ChannelBuffers.wrappedBuffer( buffs.toArray( new ByteBuffer[ nr_regions ] ) );
+                map = ChannelBuffers.wrappedBuffer( buffs.toArray( new ByteBuffer[ buffs.size() ] ) );
                 
             }
 
