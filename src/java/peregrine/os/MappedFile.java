@@ -43,7 +43,11 @@ public class MappedFile implements Closeable {
     protected int fd;
 
     protected Config config;
-    
+
+    protected boolean fadviseDontNeedEnabled = false;
+
+    protected long fallocateExtentSize = 0;
+
     protected static Map<String,FileChannel.MapMode> modes = new HashMap() {{
 
         put( "r",  FileChannel.MapMode.READ_ONLY );
@@ -81,6 +85,14 @@ public class MappedFile implements Closeable {
 
         this.config = config;
         this.file = file;
+        this.mode = mode;
+
+        if ( config != null ) {
+
+            fadviseDontNeedEnabled = config.getFadviseDontNeedEnabled();
+            fallocateExtentSize = config.getFallocateExtentSize();
+            
+        }
 
         if( mode.equals( FileChannel.MapMode.READ_ONLY ) ) {
             this.in = new FileInputStream( file );
@@ -95,9 +107,8 @@ public class MappedFile implements Closeable {
             throw new IOException( "Invalid mode: " + mode );
         }
 
-        this.mode = mode;
         this.length = file.length();
-        
+
     }
 
     /**
@@ -173,11 +184,11 @@ public class MappedFile implements Closeable {
 
             length += buff.writerIndex();
 
-            if ( length > allocated && config.getFallocateExtentSize() > 0 ) {
+            if ( length > allocated && fallocateExtentSize > 0 ) {
                 
-                fcntl.posix_fallocate( fd, allocated, config.getFallocateExtentSize() );
+                fcntl.posix_fallocate( fd, allocated, fallocateExtentSize );
 
-                allocated += config.getFallocateExtentSize();
+                allocated += fallocateExtentSize;
                 
             }
 
@@ -213,10 +224,8 @@ public class MappedFile implements Closeable {
                 cl.clean();
             }
 
-            if ( config.getFadviseDontNeedEnabled() ) {
-
+            if ( fadviseDontNeedEnabled ) {
                 fcntl.posix_fadvise( fd, offset, length, fcntl.POSIX_FADV_DONTNEED );
-                
             }
             
         }
