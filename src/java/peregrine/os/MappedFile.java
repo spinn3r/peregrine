@@ -19,12 +19,6 @@ import peregrine.io.util.*;
  */
 public class MappedFile implements Closeable {
 
-    /**
-     * JDK <= 1.6 can only mmap files less than 2GB ... 
-     */
-    //public static final int MAX_MMAP = Integer.MAX_VALUE - 1;
-    public static final int MAX_MMAP = 100000000;
-    
     protected FileInputStream in;
 
     protected FileOutputStream out;
@@ -82,8 +76,6 @@ public class MappedFile implements Closeable {
         this.file = file;
 
         if( mode.equals( FileChannel.MapMode.READ_ONLY ) ) {
-
-            System.out.printf( "FIXME read only\n" );
             this.in = new FileInputStream( file );
             this.channel = in.getChannel();
         } else if ( mode.equals( FileChannel.MapMode.READ_WRITE ) ) {
@@ -112,37 +104,15 @@ public class MappedFile implements Closeable {
             
             if ( map == null ) {
 
-                int nr_regions = (int)Math.ceil( length / (double)MAX_MMAP );
-
-                long region_offset = 0;
-                long region_length = MAX_MMAP;
-
-                List<ByteBuffer> buffs = new ArrayList();
-                
-                for( int i = 0 ; i < nr_regions; ++i ) {
-
-                    if ( region_offset + region_length > length ) {
-                        region_length = (int)(length - region_offset);
-                    }
-
-                    if ( lock ) {
-                        closer.add( new MemLock( file, in.getFD(), region_offset, region_length ) );
-                    }
-
-                    System.out.printf( "FIXME: region_offset=%,d region_length=%,d\n", region_offset, region_length );
-
-                    
-                    MappedByteBuffer map = channel.map( mode, region_offset, region_length );
-
-                    buffs.add( map );
-                    
-                    closer.add( new ByteBufferCloser( map ) );
-
-                    region_offset += region_length;
-                    
+                if ( lock ) {
+                    closer.add( new MemLock( file, in.getFD(), offset, length ) );
                 }
 
-                map = ChannelBuffers.wrappedBuffer( buffs.toArray( new ByteBuffer[ buffs.size() ] ) );
+                MappedByteBuffer map = channel.map( mode, offset, length );
+                
+                closer.add( new ByteBufferCloser( map ) );
+
+                this.map = ChannelBuffers.wrappedBuffer( map );
                 
             }
 
