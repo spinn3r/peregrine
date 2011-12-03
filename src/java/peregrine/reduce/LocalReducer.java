@@ -4,10 +4,10 @@ package peregrine.reduce;
 import java.io.*;
 import java.util.*;
 
-import peregrine.config.Config;
-import peregrine.config.Partition;
+import peregrine.config.*;
 import peregrine.io.*;
 import peregrine.io.chunk.*;
+import peregrine.io.partition.*;
 import peregrine.io.util.*;
 import peregrine.reduce.sorter.*;
 import peregrine.reduce.merger.*;
@@ -112,10 +112,7 @@ public class LocalReducer {
     protected List<ChunkReader> interMerge( List<ChunkReader> readers, int pass )
         throws IOException {
 
-        String target_dir = getTargetDir( pass );
-
-        // make sure the parent dir exists.
-        new File( target_dir ).mkdirs();
+        String target_path = getTargetPath( pass );
         
         // chunk readers pending merge.
         List<ChunkReader> pending = new ArrayList();
@@ -127,8 +124,7 @@ public class LocalReducer {
         
         while( pending.size() != 0 ) {
 
-            String path = String.format( "%s/merged-%s.tmp" , target_dir, id++ );
-            File file = new File( path );
+            String path = String.format( "%s/merged-%s.tmp" , target_path, id++ );
             
             List<ChunkReader> work = new ArrayList( config.getMergeFactor() );
 
@@ -137,23 +133,47 @@ public class LocalReducer {
                 work.add( pending.remove( 0 ) );
             }
 
-            log.info( "Merging %,d readers into %s", work.size(), path );
+            log.info( "Merging %,d readers into %s on intermediate pass %,d", work.size(), path, pass );
             
             ChunkMerger merger = new ChunkMerger( null, partition );
         
-            merger.merge( readers, new DefaultChunkWriter( file ) );
+            merger.merge( readers, newInterChunkWriter( path ) );
 
-            result.add( new DefaultChunkReader( file ) );
+            result.add( newInterChunkReader( path ) );
             
         }
 
         return result;
 
     }
+
+    protected ChunkReader newInterChunkReader( String path ) throws IOException {
+
+        return new LocalPartitionReader( config, partition, path );
+        
+    }
+    
+    protected ChunkWriter newInterChunkWriter( String path ) throws IOException {
+            
+        return new DefaultPartitionWriter( config,
+                                           partition,
+                                           path,
+                                           false,
+                                           new ArrayList() {{
+                                               add( config.getHost() );
+                                           }} );
+
+    }
+
+    protected String getTargetPath( int pass ) {
+
+        return String.format( "/tmp/%s.%s" , shuffleInput.getName(), pass );
+        
+    }
     
     protected String getTargetDir( int pass ) {
 
-        return config.getPath( partition, String.format( "/tmp/%s.%s" , shuffleInput.getName(), pass ) );
+        return config.getPath( partition, getTargetPath( pass ) );
 
     }
 

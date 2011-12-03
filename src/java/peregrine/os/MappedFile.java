@@ -19,11 +19,6 @@ import peregrine.io.util.*;
  */
 public class MappedFile implements Closeable {
 
-    /**
-     * JDK <= 1.6 can only mmap files less than 2GB ... 
-     */
-    public static final int MAX_MMAP = Integer.MAX_VALUE;
-    
     protected FileInputStream in;
 
     protected FileOutputStream out;
@@ -51,6 +46,10 @@ public class MappedFile implements Closeable {
         
     }};
 
+    public MappedFile( String path, String mode ) throws IOException {
+        this( new File( path ), mode );
+    }
+    
     /**
      * Simpler API for opening a file based on a mode string.
      */
@@ -105,35 +104,15 @@ public class MappedFile implements Closeable {
             
             if ( map == null ) {
 
-                int nr_regions = (int)Math.ceil( length / (double)MAX_MMAP );
-
-                int region_offset = 0;
-                int region_length = MAX_MMAP;
-
-                ByteBuffer[] buffs = new ByteBuffer[ nr_regions ];
-                int buff_idx = 0;
-                
-                for( int i = 0 ; i < nr_regions; ++i ) {
-
-                    if ( region_offset + region_length > length ) {
-                        region_length = (int)(length - region_offset);
-                    }
-
-                    if ( lock ) {
-                        closer.add( new MemLock( file, in.getFD(), region_offset, region_length ) );
-                    }
-
-                    MappedByteBuffer map = channel.map( mode, region_offset, region_length );
-
-                    buffs[buff_idx++] = map;
-                    
-                    closer.add( new ByteBufferCloser( map ) );
-
-                    region_offset += region_length;
-                    
+                if ( lock ) {
+                    closer.add( new MemLock( file, in.getFD(), offset, length ) );
                 }
 
-                map = ChannelBuffers.wrappedBuffer( buffs );
+                MappedByteBuffer map = channel.map( mode, offset, length );
+                
+                closer.add( new ByteBufferCloser( map ) );
+
+                this.map = ChannelBuffers.wrappedBuffer( map );
                 
             }
 
@@ -179,6 +158,14 @@ public class MappedFile implements Closeable {
     class MappedChannelBufferWritable implements ChannelBufferWritable {
 
         public void write( ChannelBuffer buff ) throws IOException {
+
+            // we should probably fallocate here but it's going to be very
+            // difficult to figure this out becasue stat() isn't super portable
+            // due to a GCC and libc compilation issue and I won't be able to
+            // get the block usage of a file.
+            
+            //length += buff.writerIndex();
+            //if ( length 
 
             //FIXME: I'm NOT sure that this is the fastest write path
             channel.write( buff.toByteBuffer() );

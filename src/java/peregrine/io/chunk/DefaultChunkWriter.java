@@ -94,11 +94,6 @@ public class DefaultChunkWriter implements ChunkWriter {
         write( buff );
         
     }
-    
-    @Override
-    public int count() {
-        return count;
-    }
 
     @Override
     public long length() {

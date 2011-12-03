@@ -26,11 +26,6 @@ public interface ChunkReader extends Closeable {
     public byte[] value() throws IOException;
 
     /**
-     * Return the number of key/value pairs in this ChunkReader.
-     */
-    public int size() throws IOException;
-
-    /**
      * Close the ChunkReader.
      */
     @Override
