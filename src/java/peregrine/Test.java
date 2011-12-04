@@ -146,9 +146,11 @@ public class Test {
         long before = System.currentTimeMillis();
         
         for( int i = 0; i < count; ++i ) {
-        
-            mman.mmap( new Pointer( 0 ), length, mman.PROT_READ, mman.MAP_SHARED | mman.MAP_LOCKED, fd, offset );
 
+            mman.mmap( new Pointer( 0 ), length, mman.PROT_READ, mman.MAP_SHARED | mman.MAP_LOCKED, fd, offset );
+            fcntl.posix_fadvise(fd, offset, length, fcntl.POSIX_FADV_WILLNEED );
+
+            
         }
 
         long after = System.currentTimeMillis();
