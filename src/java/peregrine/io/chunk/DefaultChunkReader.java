@@ -3,11 +3,13 @@ package peregrine.io.chunk;
 import java.io.*;
 import java.nio.*;
 import java.nio.channels.*;
+import java.nio.charset.*;
 
 import peregrine.*;
 import peregrine.config.*;
 import peregrine.os.*;
 import peregrine.util.*;
+import peregrine.util.netty.*;
 import peregrine.util.primitive.IntBytes;
 
 import org.jboss.netty.buffer.*;
@@ -15,14 +17,16 @@ import org.jboss.netty.buffer.*;
 public class DefaultChunkReader implements ChunkReader, Closeable {
 
     // magic numbers for chunk reader files.
-    
-    public static byte[] MAGIC_PREFIX   = "PC0".getBytes( "ASCII" );
-    public static byte[] MAGIC_RAW      = "RAW".getBytes( "ASCII" );
-    public static byte[] MAGIC_CRC32    = "C32".getBytes( "ASCII" );
+
+    private static Charset ASCII = Charset.forName( "ASCII" );
+
+    public static byte[] MAGIC_PREFIX   = "PC0".getBytes( ASCII );
+    public static byte[] MAGIC_RAW      = "RAW".getBytes( ASCII );
+    public static byte[] MAGIC_CRC32    = "C32".getBytes( ASCII );
 
     private File file = null;
 
-    private ChannelBuffer buff = null;
+    private StreamReader reader = null;
 
     private VarintReader varintReader;;
 
@@ -50,7 +54,7 @@ public class DefaultChunkReader implements ChunkReader, Closeable {
 
         mappedFile = new MappedFile( config, file , "r" );
         
-        buff = mappedFile.map();
+        ChannelBuffer buff = mappedFile.map();
       
         init( buff );
         
@@ -81,9 +85,9 @@ public class DefaultChunkReader implements ChunkReader, Closeable {
     private void init( ChannelBuffer buff )
         throws IOException {
 
-        this.buff = buff;
+        this.reader = new StreamReader( buff );
         this.length = buff.writerIndex();
-        this.varintReader = new VarintReader( buff );
+        this.varintReader = new VarintReader( reader );
         
         assertLength();
         setSize( buff.getInt( buff.writerIndex() - IntBytes.LENGTH ) );
@@ -144,14 +148,6 @@ public class DefaultChunkReader implements ChunkReader, Closeable {
         this.size = size;
     }
 
-    /**
-     * Skip the currnent key or value by reading the length and the skipping
-     * over it in the input stream.
-     */
-    public void skip() throws IOException {
-        buff.readerIndex( buff.readerIndex() + varintReader.read() );
-    }
-
     private byte[] readEntry() throws IOException {
 
         try {
@@ -168,7 +164,7 @@ public class DefaultChunkReader implements ChunkReader, Closeable {
     private byte[] readBytes( int len ) throws IOException {
 
         byte[] data = new byte[len];
-        buff.readBytes( data );
+        reader.readBytes( data );
         return data;
         
     }
