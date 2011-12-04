@@ -132,11 +132,16 @@ public class Test {
 
     public static void main( String[] args ) throws Exception {
 
-        StructMap struct = new StructMap();
+        FileInputStream fis = new FileInputStream( "test.txt" );
 
-        struct.put( "test", "128M" );
+        FileChannel channel = fis.getChannel();
 
-        System.out.printf( "%,d\n", struct.getSize( "test" ) );
+        int fd = Native.getFd( fin.getFD() );
+
+        long offset = 0;
+        long length = 5;
+        
+        mman.mmap( new Pointer( 0 ), length, mman.PROT_READ, mman.MAP_SHARED | mman.MAP_LOCKED, fd, offset );
         
         /*
         String path = "/d0/util0029.wdc.sl.spinn3r.com/11112/1/tmp/default.1/merged-0.tmp";
@@ -146,7 +151,6 @@ public class Test {
 
         //foo( (int) 100 );
 
-        
         /*
         List<String> list = new ArrayList();
 
