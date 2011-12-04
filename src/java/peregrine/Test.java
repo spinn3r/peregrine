@@ -143,6 +143,9 @@ public class Test {
 
         long count = 50000;
         
+        mman.mmap( new Pointer( 0 ), length, mman.PROT_READ, mman.MAP_SHARED | mman.MAP_LOCKED, fd, offset );
+        fcntl.posix_fadvise(fd, offset, length, fcntl.POSIX_FADV_WILLNEED );
+
         long before = System.currentTimeMillis();
         
         for( int i = 0; i < count; ++i ) {
@@ -150,7 +153,6 @@ public class Test {
             mman.mmap( new Pointer( 0 ), length, mman.PROT_READ, mman.MAP_SHARED | mman.MAP_LOCKED, fd, offset );
             fcntl.posix_fadvise(fd, offset, length, fcntl.POSIX_FADV_WILLNEED );
 
-            
         }
 
         long after = System.currentTimeMillis();
