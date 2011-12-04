@@ -28,7 +28,8 @@ public class mman {
 
     // off_t = 8
     // size_t = 8
-    public static Pointer mmap( Pointer addr, long len, int prot, int flags, int fildes, long off ) {
+    public static Pointer mmap( Pointer addr, long len, int prot, int flags, int fildes, long off )
+        throws IOException {
 
         Pointer result = delegate.mmap( addr, len, prot, flags, fildes, off );
 
@@ -40,7 +41,8 @@ public class mman {
         
     }
 
-    public static int munmap( Pointer addr, long len ) {
+    public static int munmap( Pointer addr, long len )
+        throws IOException {
 
         int result = delegate.munmap( addr, len );
 

@@ -136,7 +136,7 @@ public class Test {
 
         FileChannel channel = fis.getChannel();
 
-        int fd = Native.getFd( fin.getFD() );
+        int fd = Native.getFd( fis.getFD() );
 
         long offset = 0;
         long length = 5;
