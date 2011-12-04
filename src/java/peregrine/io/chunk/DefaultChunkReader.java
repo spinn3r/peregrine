@@ -14,14 +14,11 @@ import org.jboss.netty.buffer.*;
 
 public class DefaultChunkReader implements ChunkReader, Closeable {
 
-    public static byte[] MAGIC_PREFIX =
-        new byte[] { (byte)'P', (byte)'C', (byte)'0' };
-
-    public static byte[] MAGIC_RAW = 
-        new byte[] { (byte)'R', (byte)'A', (byte)'W' };
-
-    public static byte[] MAGIC_CRC32 = 
-        new byte[] { (byte)'C', (byte)'3', (byte)'2' };
+    // magic numbers for chunk reader files.
+    
+    public static byte[] MAGIC_PREFIX   = "PC0".getBytes( "ASCII" );
+    public static byte[] MAGIC_RAW      = "RAW".getBytes( "ASCII" );
+    public static byte[] MAGIC_CRC32    = "C32".getBytes( "ASCII" );
 
     private File file = null;
 
