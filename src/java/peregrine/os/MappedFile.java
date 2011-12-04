@@ -210,7 +210,7 @@ public class MappedFile implements Closeable {
             // that it is the correct length.
 
             if ( fallocateExtentSize > 0 ) {
-                fcntl.posix_fallocate( fd, 0, length );
+                channel.truncate( length );
             }
 
             MappedFile.this.close();
