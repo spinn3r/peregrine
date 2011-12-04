@@ -61,7 +61,7 @@ public class TestShuffleOutputWriter extends peregrine.BaseTest {
         List<Partition> partitions = new ArrayList();
         partitions.add( new Partition( 1 ) ) ;
 
-        ShuffleInputReader reader = new ShuffleInputReader( path, partitions );
+        ShuffleInputReader reader = new ShuffleInputReader( null, path, partitions );
 
         int count = 0;
         while( reader.hasNext() ) {

@@ -10,6 +10,7 @@ import org.jboss.netty.buffer.*;
 import peregrine.http.*;
 import peregrine.util.netty.*;
 import peregrine.io.util.*;
+import peregrine.config.*;
 
 /**
  * Facade around a MappedByteBuffer but we also support mlock on the mapped
@@ -39,55 +40,78 @@ public class MappedFile implements Closeable {
 
     protected File file;
 
+    protected int fd;
+
+    protected Config config;
+
+    protected boolean fadviseDontNeedEnabled = false;
+
+    protected long fallocateExtentSize = 0;
+
     protected static Map<String,FileChannel.MapMode> modes = new HashMap() {{
 
         put( "r",  FileChannel.MapMode.READ_ONLY );
         put( "rw", FileChannel.MapMode.READ_WRITE );
+        put( "w", FileChannel.MapMode.READ_WRITE );
         
     }};
 
-    public MappedFile( String path, String mode ) throws IOException {
-        this( new File( path ), mode );
+    public MappedFile( Config config, String path, String mode ) throws IOException {
+        this( config, new File( path ), mode );
     }
     
     /**
      * Simpler API for opening a file based on a mode string.
      */
-    public MappedFile( File file, String mode ) throws IOException {
+    public MappedFile( Config config, File file, String mode ) throws IOException {
 
         FileChannel.MapMode mapMode = modes.get( mode );
 
         if ( mapMode == null )
             throw new IOException( "Invalid mode: " + mode );
 
-        init( file, mapMode );
+        init( config, file, mapMode );
 
     }
 
     /**
      * Open a file based on the mode constant.
      */
-    public MappedFile( File file, FileChannel.MapMode mode ) throws IOException {
-        init( file, mode );
+    public MappedFile( Config config, File file, FileChannel.MapMode mode ) throws IOException {
+        init( config, file, mode );
     }
 
-    private void init( File file, FileChannel.MapMode mode ) throws IOException {
+    private void init( Config config, File file, FileChannel.MapMode mode ) throws IOException {
 
+        this.config = config;
         this.file = file;
+        this.mode = mode;
+
+        if ( config != null ) {
+
+            fadviseDontNeedEnabled = config.getFadviseDontNeedEnabled();
+            fallocateExtentSize = config.getFallocateExtentSize();
+            
+        }
 
         if( mode.equals( FileChannel.MapMode.READ_ONLY ) ) {
+
             this.in = new FileInputStream( file );
             this.channel = in.getChannel();
+            this.fd = Native.getFd( in.getFD() );
+
         } else if ( mode.equals( FileChannel.MapMode.READ_WRITE ) ) {
+
             this.out = new FileOutputStream( file );
+            this.fd = Native.getFd( out.getFD() );
             this.channel = out.getChannel();
+
         } else {
             throw new IOException( "Invalid mode: " + mode );
         }
 
-        this.mode = mode;
         this.length = file.length();
-        
+
     }
 
     /**
@@ -157,15 +181,19 @@ public class MappedFile implements Closeable {
 
     class MappedChannelBufferWritable implements ChannelBufferWritable {
 
+        long allocated = 0;
+        
         public void write( ChannelBuffer buff ) throws IOException {
 
-            // we should probably fallocate here but it's going to be very
-            // difficult to figure this out becasue stat() isn't super portable
-            // due to a GCC and libc compilation issue and I won't be able to
-            // get the block usage of a file.
-            
-            //length += buff.writerIndex();
-            //if ( length 
+            length += buff.writerIndex();
+
+            if ( length > allocated && fallocateExtentSize > 0 ) {
+                
+                fcntl.posix_fallocate( fd, allocated, fallocateExtentSize );
+
+                allocated += fallocateExtentSize;
+                
+            }
 
             //FIXME: I'm NOT sure that this is the fastest write path
             channel.write( buff.toByteBuffer() );
@@ -177,7 +205,16 @@ public class MappedFile implements Closeable {
         }
         
         public void close() throws IOException {
+
+            // if we're in fallocate mode, we now need to truncate the file so
+            // that it is the correct length.
+
+            if ( fallocateExtentSize > 0 ) {
+                channel.truncate( length );
+            }
+
             MappedFile.this.close();
+            
         }
 
     }
@@ -199,6 +236,10 @@ public class MappedFile implements Closeable {
                 cl.clean();
             }
 
+            if ( fadviseDontNeedEnabled ) {
+                fcntl.posix_fadvise( fd, offset, length, fcntl.POSIX_FADV_DONTNEED );
+            }
+            
         }
 
     }

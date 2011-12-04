@@ -48,7 +48,7 @@ public class LocalPartition {
         List<ChunkReader> chunkReaders = new ArrayList();
         
         for( File chunk : chunks ) {
-            chunkReaders.add( new DefaultChunkReader( chunk ) );
+            chunkReaders.add( new DefaultChunkReader( config, chunk ) );
         }
 
         return chunkReaders;

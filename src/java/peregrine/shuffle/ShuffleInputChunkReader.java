@@ -296,7 +296,7 @@ public class ShuffleInputChunkReader implements Closeable {
             // now open the shuffle file and read in the shuffle packets adding
             // them to the right queues.
 
-            this.reader = new ShuffleInputReader( path, partitions );
+            this.reader = new ShuffleInputReader( null, path, partitions );
 
         }
 

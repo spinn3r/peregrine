@@ -1,5 +1,7 @@
 package peregrine.os;
 
+import java.io.*;
+
 import com.sun.jna.Library;
 import com.sun.jna.Native;
 
@@ -16,6 +18,8 @@ public class fcntl {
     public static final int POSIX_FADV_NOREUSE    = 5; /* fadvise.h */
 
     /**
+     * <b>posix documentation</b>
+     * 
      * Actual Linux implementation resides here:
      *
      * http://lxr.linux.no/linux+v3.0.3/mm/fadvise.c#L77
@@ -94,12 +98,28 @@ public class fcntl {
      * Return Value
      * 
      * On success, zero is returned. On error, an error number is returned.
+     * 
+     * <b>java documentation</b>
+     *
+     * We do not return -1 if we fail but instead throw an IOException
+     * 
+     * @throws IOException if this call fails.
      */
-    public static int posix_fadvise(int fd, long offset, long len, int advice ) {
-        return delegate.posix_fadvise(fd, offset, len, advice );
+    public static int posix_fadvise(int fd, long offset, long len, int advice )
+        throws IOException {
+
+        int result = delegate.posix_fadvise(fd, offset, len, advice );
+
+        if ( result != 0 )
+            throw new IOException( errno.strerror( result ) );
+
+        return result;
+
     }
 
     /**
+     * <b>posix documentation</b>
+     * 
      * <p>
      * The function posix_fallocate() ensures that disk space is allocated for
      * the file referred to by the descriptor fd for the bytes in the range
@@ -116,9 +136,24 @@ public class fcntl {
      * 
      * <p> posix_fallocate() returns zero on success, or an error number on
      * failure. Note that errno is not set.
+     * 
+     * <b>java documentation</b>
+     *
+     * We do not return -1 if we fail but instead throw an IOException
+     * 
+     * @throws IOException if this call fails.
+     * 
      */
-    public static int posix_fallocate(int fd, long offset, long len) {
-        return delegate.posix_fallocate(fd, offset, len);
+    public static int posix_fallocate(int fd, long offset, long len )
+        throws IOException {
+
+        int result = delegate.posix_fallocate(fd, offset, len);
+
+        if ( result != 0 )
+            throw new IOException( errno.strerror( result ) );
+
+        return result;
+
     }
     
     interface InterfaceDelegate extends Library {

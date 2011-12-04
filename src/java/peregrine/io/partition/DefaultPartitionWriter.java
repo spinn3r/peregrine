@@ -80,7 +80,7 @@ public class DefaultPartitionWriter implements PartitionWriter, ChunkWriter {
             PartitionWriterDelegate delegate;
 
             if ( host.equals( config.getHost() ) ) {
-                delegate = new LocalPartitionWriterDelegate();
+                delegate = new LocalPartitionWriterDelegate( config );
             } else { 
                 delegate = new RemotePartitionWriterDelegate();
             }

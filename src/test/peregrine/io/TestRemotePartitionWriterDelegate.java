@@ -71,7 +71,7 @@ public class TestRemotePartitionWriterDelegate extends peregrine.PFSTest {
 
         System.out.printf( "Going to read from: %s\n", chunk );
 
-        DefaultChunkReader reader = new DefaultChunkReader( chunk );
+        DefaultChunkReader reader = new DefaultChunkReader( config, chunk );
 
         int count = 0;
 

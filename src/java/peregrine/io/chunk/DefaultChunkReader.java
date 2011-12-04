@@ -5,6 +5,7 @@ import java.nio.*;
 import java.nio.channels.*;
 
 import peregrine.*;
+import peregrine.config.*;
 import peregrine.os.*;
 import peregrine.util.*;
 import peregrine.util.primitive.IntBytes;
@@ -47,10 +48,10 @@ public class DefaultChunkReader implements ChunkReader, Closeable {
 
     private boolean closed = false;
     
-    public DefaultChunkReader( File file )
+    public DefaultChunkReader( Config config, File file )
         throws IOException {
 
-        mappedFile = new MappedFile( file , "r" );
+        mappedFile = new MappedFile( config, file , "r" );
         
         buff = mappedFile.map();
       
@@ -177,6 +178,7 @@ public class DefaultChunkReader implements ChunkReader, Closeable {
     
     public static void main( String[] args ) throws Exception {
 
+    	/*
         ChunkReader reader = new DefaultChunkReader( new File( args[0] ) );
 
         Key key = null;
@@ -205,6 +207,8 @@ public class DefaultChunkReader implements ChunkReader, Closeable {
             }
 
         }
+        
+        */
         
     }
     

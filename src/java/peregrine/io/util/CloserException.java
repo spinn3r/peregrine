@@ -16,6 +16,7 @@ public class CloserException extends IOException {
     
     public CloserException( Throwable cause ) {
         this.cause = cause;
+        initCause( this.cause );
     }
     
     public void addSuppressed( Throwable t ) {

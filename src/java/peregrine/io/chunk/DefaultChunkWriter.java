@@ -8,6 +8,7 @@ import peregrine.os.*;
 import peregrine.util.*;
 import peregrine.util.netty.*;
 import peregrine.util.primitive.*;
+import peregrine.config.*;
 import peregrine.http.*;
 
 import org.jboss.netty.buffer.*;
@@ -37,9 +38,9 @@ public class DefaultChunkWriter implements ChunkWriter {
         init( writer );
     }
 
-    public DefaultChunkWriter( File file ) throws IOException {
+    public DefaultChunkWriter( Config config, File file ) throws IOException {
 
-        MappedFile mapped = new MappedFile( file, "rw" );
+        MappedFile mapped = new MappedFile( config, file, "rw" );
 
         init( mapped.getChannelBufferWritable() );
 

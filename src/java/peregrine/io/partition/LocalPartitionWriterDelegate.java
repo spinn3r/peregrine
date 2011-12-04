@@ -4,6 +4,7 @@ import java.io.*;
 import java.nio.channels.*;
 import java.util.*;
 
+import peregrine.config.*;
 import peregrine.http.*;
 import peregrine.io.chunk.*;
 import peregrine.os.*;
@@ -15,9 +16,15 @@ import com.spinn3r.log5j.*;
  * Write to a logical partition which is a stream of chunk files.... 
  */
 public class LocalPartitionWriterDelegate extends BasePartitionWriterDelegate {
+	private static final Logger log = Logger.getLogger();
+  
+    private Config config;
 
-    private static final Logger log = Logger.getLogger();
-
+    public LocalPartitionWriterDelegate(Config config) {
+		super();
+		this.config = config;
+	}
+    
     @Override
     public String toString() {
         return path;
@@ -60,7 +67,7 @@ public class LocalPartitionWriterDelegate extends BasePartitionWriterDelegate {
         if ( ! file.exists() )
             file.createNewFile();
         
-        return new MappedFile( file, FileChannel.MapMode.READ_WRITE ).getChannelBufferWritable();
+        return new MappedFile( config, file, FileChannel.MapMode.READ_WRITE ).getChannelBufferWritable();
         
     }
 

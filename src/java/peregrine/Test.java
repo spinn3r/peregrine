@@ -138,7 +138,7 @@ public class Test {
         new MappedFile( path, "r" ).map();
         */
 
-        foo( (int) 100 );
+        //foo( (int) 100 );
 
         
         /*
