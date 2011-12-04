@@ -3,10 +3,7 @@ package peregrine.io.partition;
 import java.io.*;
 import java.util.*;
 
-import peregrine.config.Config;
-import peregrine.config.Host;
-import peregrine.config.Membership;
-import peregrine.config.Partition;
+import peregrine.config.*;
 import peregrine.http.*;
 import peregrine.io.chunk.*;
 import peregrine.io.async.*;
@@ -21,11 +18,6 @@ import com.spinn3r.log5j.Logger;
 public class DefaultPartitionWriter implements PartitionWriter, ChunkWriter {
 
     private static final Logger log = Logger.getLogger();
-
-    /**
-     * Chunk size for rollover files.
-     */
-    public static long CHUNK_SIZE = (long) Math.pow(2, 27); // 128MB
 
     protected String path;
 
@@ -140,7 +132,7 @@ public class DefaultPartitionWriter implements PartitionWriter, ChunkWriter {
     
     private void rolloverWhenNecessary() throws IOException {
 
-        if ( chunkWriter.length() > CHUNK_SIZE )
+        if ( chunkWriter.length() > config.getChunkSize() )
             rollover();
         
     }

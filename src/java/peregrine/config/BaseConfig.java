@@ -18,6 +18,8 @@ import com.spinn3r.log5j.Logger;
 public class BaseConfig {
 
     public static boolean DEFAULT_FADVISE_DONT_NEED_ENABLED = true;
+
+    public static long DEFAULT_CHUNK_SIZE = (long) Math.pow(2, 27);
     
     public static long DEFAULT_FALLOCATE_EXTENT_SIZE = 10485760;
     
@@ -93,6 +95,8 @@ public class BaseConfig {
     protected long fallocateExtentSize = DEFAULT_FALLOCATE_EXTENT_SIZE;
 
     protected boolean fadviseDontNeedEnabled = DEFAULT_FADVISE_DONT_NEED_ENABLED;
+
+    private long chunkSize = DEFAULT_CHUNK_SIZE;
 
     public Membership getMembership() {
         return membership;
@@ -198,6 +202,14 @@ public class BaseConfig {
 
     public void setMergeFactor( int mergeFactor ) { 
         this.mergeFactor = mergeFactor;
+    }
+
+    public long getChunkSize() { 
+        return this.chunkSize;
+    }
+
+    public void setChunkSize( long chunkSize ) { 
+        this.chunkSize = chunkSize;
     }
 
 }

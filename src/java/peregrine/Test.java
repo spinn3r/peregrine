@@ -132,6 +132,12 @@ public class Test {
 
     public static void main( String[] args ) throws Exception {
 
+        StructMap struct = new StructMap();
+
+        struct.put( "test", "128M" );
+
+        System.out.printf( "%,d\n", struct.getSize( "test" ) );
+        
         /*
         String path = "/d0/util0029.wdc.sl.spinn3r.com/11112/1/tmp/default.1/merged-0.tmp";
 

@@ -27,7 +27,7 @@ public class TestDefaultPartitionWriter extends peregrine.BaseTestWithMultipleCo
 
         // STEP 1... make a new file and write lots of chunks to it.
         
-        DefaultPartitionWriter.CHUNK_SIZE = 1000;
+        config.setChunkSize( 1000 );
 
         Partition part = new Partition( 0 );
         
