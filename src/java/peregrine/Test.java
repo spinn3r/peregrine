@@ -140,9 +140,25 @@ public class Test {
 
         long offset = 0;
         long length = 5;
+
+        long max = 1000;
         
-        mman.mmap( new Pointer( 0 ), length, mman.PROT_READ, mman.MAP_SHARED | mman.MAP_LOCKED, fd, offset );
+        long before = System.currentTimeMillis();
         
+        for( int i = 0; i < max; ++i ) {
+        
+            mman.mmap( new Pointer( 0 ), length, mman.PROT_READ, mman.MAP_SHARED | mman.MAP_LOCKED, fd, offset );
+
+        }
+
+        long after = System.currentTimeMillis();
+
+        long duration = (after-before);
+
+        long throughput = (duration / max);
+
+        System.out.printf( "duration: %,d ms , throughput: %,d per ms\n", duration, throughput );
+
         /*
         String path = "/d0/util0029.wdc.sl.spinn3r.com/11112/1/tmp/default.1/merged-0.tmp";
 
