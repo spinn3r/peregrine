@@ -205,7 +205,16 @@ public class MappedFile implements Closeable {
         }
         
         public void close() throws IOException {
+
+            // if we're in fallocate mode, we now need to truncate the file so
+            // that it is the correct length.
+
+            if ( fallocateExtentSize > 0 ) {
+                fcntl.posix_fallocate( fd, 0, length );
+            }
+
             MappedFile.this.close();
+            
         }
 
     }
