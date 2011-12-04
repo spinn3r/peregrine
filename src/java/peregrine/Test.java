@@ -141,7 +141,7 @@ public class Test {
         long offset = 0;
         long length = 5;
 
-        long max = 1000;
+        long max = 10000;
         
         long before = System.currentTimeMillis();
         
