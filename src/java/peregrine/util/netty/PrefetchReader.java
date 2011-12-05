@@ -3,6 +3,7 @@ package peregrine.util.netty;
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.*;
 
 import peregrine.os.*;
 import peregrine.util.*;
@@ -37,15 +38,21 @@ public class PrefetchReader implements StreamReaderListener, Closeable {
         = Executors.newCachedThreadPool( new DefaultThreadFactory( PrefetchReader.class ) );
 
     /**
-     * The offset / count of pages read from the stream.
+     * The readIndex / count of pages read from the stream.
      */
-    private long offset = 0;
+    private long readIndex = 0;
 
     /**
-     * The amount of data that has been cached.  Offset must always be <=
-     * cached.
+     * The amount of data that has been cached.
+     *
+     * readIndex must always be <= cacheIndex.
      */ 
-    private long cached = 0;
+    private long cacheIndex = 0;
+
+    /**
+     * The number of bytes currently in the cache. 
+     */
+    private AtomicLong inCache = new AtomicLong();
 
     /**
      * The currently cached page.
@@ -79,7 +86,7 @@ public class PrefetchReader implements StreamReaderListener, Closeable {
     private Future taskFuture = null;
 
     private boolean enableLog = false;
-    
+
     public PrefetchReader() { }
 
     public PrefetchReader( List<MappedFile> files ) {
@@ -168,9 +175,10 @@ public class PrefetchReader implements StreamReaderListener, Closeable {
         
         task.shutdown = true;
 
-        while( cachedPages.size() > 0 ) {
-            consumedPages.put( cachedPages.take() );
-        }
+        // we have to get at least ONE page into consumedPages so that the task
+        // doesn't block waiting on pages to be consumed.  We give it an empty
+        // reference which causes a noop in evict()
+        consumedPages.put( new PageEntry() );
 
         try {
             taskFuture.get();
@@ -199,7 +207,7 @@ public class PrefetchReader implements StreamReaderListener, Closeable {
     private void cache( PageEntry pageEntry ) throws IOException {
 
         log( "Caching %s" , pageEntry );
-        
+
         pageEntry.pa = mman.mmap( pageEntry.length,
                                   mman.PROT_READ, mman.MAP_SHARED | mman.MAP_LOCKED,
                                   pageEntry.file.fd,
@@ -209,25 +217,32 @@ public class PrefetchReader implements StreamReaderListener, Closeable {
                              pageEntry.offset,
                              pageEntry.length,
                              fcntl.POSIX_FADV_WILLNEED );
+        
+        inCache.addAndGet( pageEntry.length );
 
     }
 
     private void evict( PageEntry pageEntry ) throws IOException {
 
+        if ( pageEntry.length == 0 )
+            return;
+
         log( "Evicting %s" , pageEntry );
 
         mman.munmap( pageEntry.pa, pageEntry.length );
+
+        inCache.addAndGet( -1 * pageEntry.length );
 
     }
 
     @Override /* StreamReaderListener */
     public void onRead( int length ) {
 
-        offset += length;
+        readIndex += length;
 
         try {
 
-            if ( offset > cached ) {
+            if ( readIndex > cacheIndex ) {
 
                 // the current page needs to be evicted on the next call so record
                 // it... 
@@ -237,7 +252,7 @@ public class PrefetchReader implements StreamReaderListener, Closeable {
                 
                 current = cachedPages.take();
 
-                cached += offset + current.length;
+                cacheIndex += readIndex + current.length;
 
             }
 
@@ -264,8 +279,6 @@ public class PrefetchReader implements StreamReaderListener, Closeable {
 
             try {
 
-                long inCache = 0;
-
                 while( true ) {
 
                     // if we have pending pages to be read this means that we
@@ -286,7 +299,7 @@ public class PrefetchReader implements StreamReaderListener, Closeable {
                     // and wait for new IO to complete.  Also always FULL drain
                     // consumedPages if there is anything waiting.
 
-                    while( inCache >= capacity || consumedPages.size() > 0 ) {
+                    while( inCache.get() >= capacity || consumedPages.size() > 0 ) {
 
                         if ( shutdown )
                             break;
@@ -299,14 +312,12 @@ public class PrefetchReader implements StreamReaderListener, Closeable {
                             throw new IOException( "Unable to prefetch: " + page, e );
                         }
 
-                        inCache -= page.length;
-
                     }
 
                     // **** step 2. cache any pages while we have too few pages
-                    // available.
+                    // available and we still have pending pages to cache.
 
-                    while( inCache < capacity ) {
+                    while( inCache.get() < capacity && pendingPages.size() > 0 ) {
 
                         if ( shutdown )
                             break;
@@ -323,8 +334,6 @@ public class PrefetchReader implements StreamReaderListener, Closeable {
                         }
 
                         cachedPages.put( page );
-                        
-                        inCache += page.length;
 
                     }
 
@@ -356,12 +365,14 @@ public class PrefetchReader implements StreamReaderListener, Closeable {
     
     class PageEntry {
 
-        FileMeta file;
-        long offset;
-        long length;
+        FileMeta file  = null;
+        long offset    = 0;
+        long length    = 0;
 
         // the pointer of the locked page we will need to unlock later.
         Pointer pa = null;
+
+        public PageEntry() {}
         
         public PageEntry( FileMeta file, long offset, long length ) {
             this.file = file;
