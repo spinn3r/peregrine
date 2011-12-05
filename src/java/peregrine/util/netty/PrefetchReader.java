@@ -7,7 +7,6 @@ import peregrine.os.*;
 
 import com.sun.jna.Pointer;
 
-
 /**
  * Takes a given set of files and listens to a StreamReader and mlocks pages and
  * then requests that they be read.  Once the pages reads are complete, we evict
@@ -100,10 +99,10 @@ public class PrefetchReader implements StreamReaderListener {
      */
     private void cache( PageEntry pageEntry ) throws IOException {
 
-        mman.mmap( pageEntry.length,
-                   mman.PROT_READ, mman.MAP_SHARED | mman.MAP_LOCKED,
-                   pageEntry.file.fd,
-                   pageEntry.offset );
+        pageEntry.pa = mman.mmap( pageEntry.length,
+                                  mman.PROT_READ, mman.MAP_SHARED | mman.MAP_LOCKED,
+                                  pageEntry.file.fd,
+                                  pageEntry.offset );
 
         fcntl.posix_fadvise( pageEntry.file.fd,
                              pageEntry.offset,
@@ -114,7 +113,9 @@ public class PrefetchReader implements StreamReaderListener {
         
     }
 
-    private void cleanup( PageEntry pageEntry ) throws IOException {
+    private void uncache( PageEntry pageEntry ) throws IOException {
+
+        mman.munmap( pageEntry.pa, length );
 
     }
     
@@ -137,6 +138,9 @@ public class PrefetchReader implements StreamReaderListener {
         FileMeta file;
         long offset;
         long length;
+
+        // the pointer of the locked page we will need to unlock later.
+        Pointer pa = null;
         
         public PageEntry( FileMeta file, long offset, long length ) {
             this.file = file;
