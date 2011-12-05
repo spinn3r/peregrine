@@ -1,4 +1,8 @@
 
+- investigate JANA direct mapping:
+
+    https://github.com/twall/jna/blob/master/www/DirectMapping.md
+
 - Split reading and writing in the file mapper into two separate classes.
 
 

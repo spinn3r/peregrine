@@ -2,6 +2,7 @@ package peregrine.util.netty;
 
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.*;
 
 import peregrine.os.*;
 import peregrine.util.*;
@@ -9,20 +10,27 @@ import peregrine.util.*;
 import com.sun.jna.Pointer;
 
 /**
+ * <p>
  * Takes a given set of files and listens to a StreamReader and mlocks pages and
  * then requests that they be read.  Once the pages reads are complete, we evict
  * them from the page cache.
+ *
+ * <p>
+ * The caller can also set the capacity of how much data we need to cache.
  * 
  */
-public class PrefetchReader implements StreamReaderListener {
+public class PrefetchReader implements StreamReaderListener, Closeable {
 
-    /* 2^ 17 is 128k */
-    public static long PAGE_SIZE = (long)Math.pow( 2, 17 ); 
+    /* 2^17 is 128k */
+    public static long DEFAULT_PAGE_SIZE = (long)Math.pow( 2, 17 ); 
 
     /**
      * The minimum number of bytes we should attempt to pre-read at a time.
      */
-    public static long CAPACITY = PAGE_SIZE * 4;
+    public static long DEFAULT_CAPACITY = DEFAULT_PAGE_SIZE * 4;
+
+    private static final ExecutorService executorService
+        = Executors.newCachedThreadPool( new DefaultThreadFactory( PrefetchReader.class ) );
 
     /**
      * The offset / count of pages read from the stream.
@@ -49,15 +57,23 @@ public class PrefetchReader implements StreamReaderListener {
     /**
      * Pages pending to be cached.
      */
-    protected SimpleBlockingQueue<PageEntry> pendingPages
-        = new SimpleBlockingQueue();
+    protected SimpleBlockingQueue<PageEntry> pendingPages = new SimpleBlockingQueue();
 
     /**
      * Pages we have consumed and need to be evicted.
      */
-    protected SimpleBlockingQueue<PageEntry> consumedPages
-        = new SimpleBlockingQueue();
+    protected SimpleBlockingQueue<PageEntry> consumedPages = new SimpleBlockingQueue();
 
+    protected long pageSize = DEFAULT_PAGE_SIZE;
+    
+    protected long capacity = DEFAULT_CAPACITY;
+
+    private boolean closed = false;
+
+    private CachingTask task = null;
+
+    private Future taskFuture = null;
+    
     public PrefetchReader() { }
 
     public PrefetchReader( List<MappedFile> files ) {
@@ -79,9 +95,9 @@ public class PrefetchReader implements StreamReaderListener {
 
         for( FileMeta file : files ) {
 
-            long length = PAGE_SIZE;
+            long length = pageSize;
 
-            for( long offset = 0; offset < file.length; offset += PAGE_SIZE ) {
+            for( long offset = 0; offset < file.length; offset += pageSize ) {
 
                 if ( offset + length > file.length ) {
                     length = file.length - offset;
@@ -91,14 +107,98 @@ public class PrefetchReader implements StreamReaderListener {
 
                 // adjust the length or next time around
 
-                length = PAGE_SIZE - length;
+                length = pageSize - length;
 
                 if ( length == 0 )
-                    length = PAGE_SIZE;
+                    length = pageSize;
 
             }
             
         }
+
+    }
+
+    public void setCapacity( long capacity ) {
+        this.capacity = capacity;
+    }
+
+    public long getCapacity() {
+        return this.capacity;
+    }
+
+    public long getPageSize() { 
+        return this.pageSize;
+    }
+
+    public void setPageSize( long pageSize ) { 
+        this.pageSize = pageSize;
+    }
+
+    /**
+     * Kick off the prefetcher so that it runs in the background.
+     */
+    public void start() {
+
+        task = new CachingTask();
+        
+        taskFuture = executorService.submit( task );
+        
+    }
+
+    @Override /* Closeable */
+    public void close() throws IOException {
+
+        if ( closed )
+            return;
+        
+        closed = true;
+
+        if ( task == null )
+            return;
+        
+        task.shutdown = true;
+
+        try {
+            taskFuture.get();
+        } catch ( Exception e ) {
+            throw new IOException( e );
+        }
+
+        // now go through ALL pages and evict them.
+
+        if ( current != null )
+            evict( current );
+
+        while( consumedPages.size() > 0 ) {
+            evict( consumedPages.take() );
+        }
+
+        while( cachedPages.size() > 0 ) {
+            evict( cachedPages.take() );
+        }
+
+    }
+    
+    /**
+     * Cache a page on disk.  
+     */
+    private void cache( PageEntry pageEntry ) throws IOException {
+
+        pageEntry.pa = mman.mmap( pageEntry.length,
+                                  mman.PROT_READ, mman.MAP_SHARED | mman.MAP_LOCKED,
+                                  pageEntry.file.fd,
+                                  pageEntry.offset );
+
+        fcntl.posix_fadvise( pageEntry.file.fd,
+                             pageEntry.offset,
+                             pageEntry.length,
+                             fcntl.POSIX_FADV_WILLNEED );
+
+    }
+
+    private void evict( PageEntry pageEntry ) throws IOException {
+
+        mman.munmap( pageEntry.pa, pageEntry.length );
 
     }
 
@@ -129,31 +229,10 @@ public class PrefetchReader implements StreamReaderListener {
 
     }
 
-    /**
-     * Cache a page on disk.  
-     */
-    private void cache( PageEntry pageEntry ) throws IOException {
-
-        pageEntry.pa = mman.mmap( pageEntry.length,
-                                  mman.PROT_READ, mman.MAP_SHARED | mman.MAP_LOCKED,
-                                  pageEntry.file.fd,
-                                  pageEntry.offset );
-
-        fcntl.posix_fadvise( pageEntry.file.fd,
-                             pageEntry.offset,
-                             pageEntry.length,
-                             fcntl.POSIX_FADV_WILLNEED );
-
-    }
-
-    private void evict( PageEntry pageEntry ) throws IOException {
-
-        mman.munmap( pageEntry.pa, pageEntry.length );
-
-    }
-
     class CachingTask implements Runnable {
 
+        protected boolean shutdown = false;
+        
         public void run() {
 
             try {
@@ -167,13 +246,11 @@ public class PrefetchReader implements StreamReaderListener {
                     if ( pendingPages.size() == 0 )
                         break;
 
-                    // if these are are consumed then we have to evict them.
-                    if ( consumedPages.size() == 0 )
-                        break;
-
-                    // this is the tricky case. If they are cached the reader
-                    // will eventually add them to consumedPages 
-                    if ( cachedPages.size() == 0 )
+                    // if we have been asked to close externally we need to
+                    // yield to this.  Note that this needs to be done AFTER we
+                    // have gone through one state of eviction so that mlock
+                    // isn't sitting around.
+                    if ( shutdown )
                         break;
 
                     // **** step 1. evict any pages that are consumed.  Note
@@ -182,7 +259,7 @@ public class PrefetchReader implements StreamReaderListener {
                     // and wait for new IO to complete.  Also always FULL drain
                     // consumedPages if there is anything waiting.
 
-                    while( inCache >= CAPACITY || consumedPages.size() > 0 ) {
+                    while( inCache >= capacity || consumedPages.size() > 0 ) {
 
                         PageEntry page = consumedPages.take();
 
@@ -193,14 +270,20 @@ public class PrefetchReader implements StreamReaderListener {
                         }
 
                         inCache -= page.length;
-                        
+
+                        if ( shutdown && consumedPages.size() == 0 )
+                            break;
+
                     }
 
                     // **** step 2. cache any pages while we have too few pages
                     // available.
 
-                    while( inCache < CAPACITY ) {
+                    while( inCache < capacity ) {
 
+                        if ( shutdown )
+                            break;
+                        
                         PageEntry page = pendingPages.take();
 
                         if ( page == null )
@@ -241,7 +324,7 @@ public class PrefetchReader implements StreamReaderListener {
             this.length = length;
             this.fd = fd;
         }
-        
+
     }
     
     class PageEntry {
