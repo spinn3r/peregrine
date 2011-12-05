@@ -288,6 +288,9 @@ public class PrefetchReader implements StreamReaderListener, Closeable {
 
                     while( inCache >= capacity || consumedPages.size() > 0 ) {
 
+                        if ( shutdown )
+                            break;
+
                         PageEntry page = consumedPages.take();
 
                         try {
@@ -297,9 +300,6 @@ public class PrefetchReader implements StreamReaderListener, Closeable {
                         }
 
                         inCache -= page.length;
-
-                        if ( shutdown && consumedPages.size() == 0 )
-                            break;
 
                     }
 
