@@ -51,9 +51,7 @@ public class MemLock implements Closeable {
         
         log.info( "%s ...", desc );
 
-        if ( mman.munmap( pa, length ) != 0 ) {
-            throw new IOException( errno.strerror() );
-        }
+        mman.munmap( pa, length );
 
         log.info( "%s ... done", desc );
 

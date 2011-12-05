@@ -28,9 +28,12 @@ public class mman {
 
     // off_t = 8
     // size_t = 8
-    public static Pointer mmap( Pointer addr, long len, int prot, int flags, int fildes, long off )
+    public static Pointer mmap( long len, int prot, int flags, int fildes, long off )
         throws IOException {
 
+        // we don't really have a need to change the recommended pointer.
+        Pointer addr = new Pointer( 0 );
+        
         Pointer result = delegate.mmap( addr, len, prot, flags, fildes, off );
 
         if ( Pointer.nativeValue( result ) == -1 ) {

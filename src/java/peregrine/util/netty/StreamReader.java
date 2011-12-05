@@ -16,17 +16,43 @@ import java.util.*;
 public class StreamReader {
 
     private ChannelBuffer buff = null;
+
+    private StreamReaderListener listener = null;
     
     public StreamReader( ChannelBuffer buff ) {
         this.buff = buff;
     }
 
     public void readBytes( byte[] data ) {
+        fireOnRead( data.length );
         buff.readBytes( data );
+
     }
 
     public byte readByte() {
+        fireOnRead(1);
         return buff.readByte();
+    }
+
+    public StreamReaderListener getListener() { 
+        return this.listener;
+    }
+
+    public void setListener( StreamReaderListener listener ) { 
+        this.listener = listener;
+    }
+
+    /** 
+     * Event signifying that we are about to read `length' additional bytes from
+     * the stream.
+     */
+    private void fireOnRead( int length ) {
+
+        if ( listener == null )
+            return;
+
+        listener.onRead( length );
+        
     }
     
 }

@@ -165,6 +165,14 @@ public class MappedFile implements Closeable {
     public void setLock( boolean lock ) { 
         this.lock = lock;
     }
+
+    public File getFile() {
+        return file;
+    }
+
+    public int getFd() {
+        return fd;
+    }
     
     public void close() throws IOException {
         
