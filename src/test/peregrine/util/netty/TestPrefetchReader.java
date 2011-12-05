@@ -53,7 +53,7 @@ public class TestPrefetchReader extends peregrine.BaseTest {
 
             cached += page.length;
 
-            if ( cached >= prefetchReader.getCapacity() )
+            if ( cached == file.length() )
                 break;
             
         }
