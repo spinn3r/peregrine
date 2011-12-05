@@ -36,7 +36,7 @@ public class MemLock implements Closeable {
         
         int fd = Native.getFd( descriptor );
         
-        this.pa = mman.mmap( new Pointer( 0 ), length, mman.PROT_READ, mman.MAP_SHARED | mman.MAP_LOCKED, fd, offset );
+        this.pa = mman.mmap( length, mman.PROT_READ, mman.MAP_SHARED | mman.MAP_LOCKED, fd, offset );
 
     }
 
