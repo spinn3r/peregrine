@@ -75,6 +75,11 @@ public class PrefetchReader implements StreamReaderListener, Closeable {
      */
     protected SimpleBlockingQueue<PageEntry> consumedPages = new SimpleBlockingQueue();
 
+    /**
+     * History of pages we have cached for debug purposes.
+     */
+    protected List<PageEntry> cachedHistory = new ArrayList();
+    
     protected long pageSize = DEFAULT_PAGE_SIZE;
     
     protected long capacity = DEFAULT_CAPACITY;
@@ -220,6 +225,8 @@ public class PrefetchReader implements StreamReaderListener, Closeable {
         
         inCache.addAndGet( pageEntry.length );
 
+        cachedHistory.add( pageEntry );
+        
     }
 
     private void evict( PageEntry pageEntry ) throws IOException {

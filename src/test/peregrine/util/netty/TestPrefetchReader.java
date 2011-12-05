@@ -44,6 +44,8 @@ public class TestPrefetchReader extends peregrine.BaseTest {
         prefetchReader.start();
 
         long cached = 0;
+
+        // test reading directly from the queue... 
         
         while( prefetchReader.pendingPages.size() > 0 || prefetchReader.cachedPages.size() > 0 ) {
 
@@ -53,7 +55,7 @@ public class TestPrefetchReader extends peregrine.BaseTest {
 
             cached += page.length;
 
-            if ( cached == file.length() )
+            if ( cached >= prefetchReader.getCapacity() )
                 break;
             
         }
@@ -62,6 +64,9 @@ public class TestPrefetchReader extends peregrine.BaseTest {
 
     }
 
+    // FIXME: build a test reading say 10 bytes at a time form the
+    // StreamReader until we are a the end of the file.
+    
     public static void main( String[] args ) throws Exception {
         runTests();
     }
