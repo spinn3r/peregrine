@@ -1,6 +1,7 @@
 
 package peregrine.util;
 
+import java.util.*;
 import java.util.concurrent.*;
 
 /**
@@ -49,6 +50,10 @@ public class SimpleBlockingQueue<T> {
         }
     }
 
+    public Iterator<T> iterator() {
+        return delegate.iterator();
+    }
+    
     public void putWhenMissing( T value ) {
 
         if ( delegate.contains( value ) == false )

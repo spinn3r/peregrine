@@ -78,7 +78,9 @@ public class PrefetchReader implements StreamReaderListener, Closeable {
     /**
      * History of pages we have cached for debug purposes.
      */
-    protected List<PageEntry> cachedHistory = new ArrayList();
+    protected SimpleBlockingQueue<PageEntry> cachedHistory = new SimpleBlockingQueue();
+
+    protected SimpleBlockingQueue<PageEntry> evictedHistory = new SimpleBlockingQueue();
     
     protected long pageSize = DEFAULT_PAGE_SIZE;
     
@@ -225,7 +227,7 @@ public class PrefetchReader implements StreamReaderListener, Closeable {
         
         inCache.addAndGet( pageEntry.length );
 
-        cachedHistory.add( pageEntry );
+        cachedHistory.put( pageEntry );
         
     }
 
@@ -237,6 +239,8 @@ public class PrefetchReader implements StreamReaderListener, Closeable {
         log( "Evicting %s" , pageEntry );
 
         mman.munmap( pageEntry.pa, pageEntry.length );
+
+        evictedHistory.put( pageEntry );
 
         inCache.addAndGet( -1 * pageEntry.length );
 
