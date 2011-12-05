@@ -39,7 +39,7 @@ public class TestPrefetchReader extends peregrine.BaseTest {
         StreamReader reader = new StreamReader( mappedFile.map() );
 
         PrefetchReader prefetchReader = new PrefetchReader( files );
-        PrefetchReader.setEnableLog( true );
+        prefetchReader.setEnableLog( true );
         prefetchReader.start();
 
         long cached = 0;
