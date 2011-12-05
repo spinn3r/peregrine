@@ -39,20 +39,26 @@ public class TestPrefetchReader extends peregrine.BaseTest {
         StreamReader reader = new StreamReader( mappedFile.map() );
 
         PrefetchReader prefetchReader = new PrefetchReader( files );
+        PrefetchReader.setEnableLog( true );
         prefetchReader.start();
 
+        long cached = 0;
+        
         while( prefetchReader.pendingPages.size() > 0 || prefetchReader.cachedPages.size() > 0 ) {
 
             PrefetchReader.PageEntry page = prefetchReader.cachedPages.take();
 
             System.out.printf( "found cached: %s\n", page );
+
+            cached += page.length;
+
+            if ( cached >= prefetchReader.getCapacity() )
+                break;
             
         }
         
         prefetchReader.close();
 
-        Thread.sleep( 10000 );
-        
     }
 
     public static void main( String[] args ) throws Exception {

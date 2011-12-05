@@ -9,6 +9,8 @@ import peregrine.util.*;
 
 import com.sun.jna.Pointer;
 
+import com.spinn3r.log5j.Logger;
+
 /**
  * <p>
  * Takes a given set of files and listens to a StreamReader and mlocks pages and
@@ -20,6 +22,8 @@ import com.sun.jna.Pointer;
  * 
  */
 public class PrefetchReader implements StreamReaderListener, Closeable {
+
+    private static final Logger log = Logger.getLogger();
 
     /* 2^17 is 128k */
     public static long DEFAULT_PAGE_SIZE = (long)Math.pow( 2, 17 ); 
@@ -73,6 +77,8 @@ public class PrefetchReader implements StreamReaderListener, Closeable {
     private CachingTask task = null;
 
     private Future taskFuture = null;
+
+    private boolean enableLog = false;
     
     public PrefetchReader() { }
 
@@ -134,6 +140,10 @@ public class PrefetchReader implements StreamReaderListener, Closeable {
         this.pageSize = pageSize;
     }
 
+    public void setEnableLog( boolean enableLog ) {
+        this.enableLog = enableLog;
+    }
+    
     /**
      * Kick off the prefetcher so that it runs in the background.
      */
@@ -184,6 +194,8 @@ public class PrefetchReader implements StreamReaderListener, Closeable {
      */
     private void cache( PageEntry pageEntry ) throws IOException {
 
+        log( "Caching %s" , pageEntry );
+        
         pageEntry.pa = mman.mmap( pageEntry.length,
                                   mman.PROT_READ, mman.MAP_SHARED | mman.MAP_LOCKED,
                                   pageEntry.file.fd,
@@ -197,6 +209,8 @@ public class PrefetchReader implements StreamReaderListener, Closeable {
     }
 
     private void evict( PageEntry pageEntry ) throws IOException {
+
+        log( "Evicting %s" , pageEntry );
 
         mman.munmap( pageEntry.pa, pageEntry.length );
 
@@ -229,6 +243,15 @@ public class PrefetchReader implements StreamReaderListener, Closeable {
 
     }
 
+    private void log( String format, Object... args ) {
+
+        if ( enableLog == false )
+            return;
+
+        log.info( format, args );
+        
+    }
+    
     class CachingTask implements Runnable {
 
         protected boolean shutdown = false;
