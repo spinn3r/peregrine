@@ -168,6 +168,10 @@ public class PrefetchReader implements StreamReaderListener, Closeable {
         
         task.shutdown = true;
 
+        while( cachedPages.size() > 0 ) {
+            consumedPages.put( cachedPages.take() );
+        }
+
         try {
             taskFuture.get();
         } catch ( Exception e ) {
