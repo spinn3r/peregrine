@@ -48,6 +48,8 @@ public class MappedFile implements Closeable {
 
     protected long fallocateExtentSize = 0;
 
+    protected StreamReader reader = null;
+    
     protected static Map<String,FileChannel.MapMode> modes = new HashMap() {{
 
         put( "r",  FileChannel.MapMode.READ_ONLY );
@@ -140,6 +142,8 @@ public class MappedFile implements Closeable {
                 
             }
 
+            reader = new StreamReader( map );
+            
             return map;
 
         } catch ( IOException e ) {
@@ -151,6 +155,14 @@ public class MappedFile implements Closeable {
         
     }
 
+    public StreamReader getStreamReader() throws IOException {
+
+        if ( reader == null )
+            map();
+        
+        return reader;
+    }
+    
     /**
      * Enables writing to this mapped file.
      */

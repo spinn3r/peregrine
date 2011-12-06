@@ -20,12 +20,9 @@ public class StreamReader {
     private ChannelBuffer buff = null;
 
     private StreamReaderListener listener = null;
-
-    protected MappedFile mappedFile = null;
     
-    public StreamReader( MappedFile mappedFile ) throws IOException {
-        this.mappedFile = mappedFile;
-        this.buff = mappedFile.map();;
+    public StreamReader( ChannelBuffer buff ) {
+        this.buff = buff;
     }
 
     public void readBytes( byte[] data ) {
@@ -37,10 +34,6 @@ public class StreamReader {
     public byte readByte() {
         fireOnRead(1);
         return buff.readByte();
-    }
-
-    public MappedFile getMappedFile() {
-        return mappedFile;
     }
     
     public StreamReaderListener getListener() { 

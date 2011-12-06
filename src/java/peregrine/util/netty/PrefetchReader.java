@@ -62,11 +62,11 @@ public class PrefetchReader implements Closeable {
 
     public PrefetchReader() { }
 
-    public PrefetchReader( List<StreamReader> files ) {
+    public PrefetchReader( List<MappedFile> files ) throws IOException {
 
-        for( StreamReader reader : files ) {
+        for( MappedFile mappedFile : files ) {
 
-            MappedFile mappedFile = reader.getMappedFile();
+            StreamReader reader = mappedFile.getStreamReader();
             
             File file = mappedFile.getFile();
 
