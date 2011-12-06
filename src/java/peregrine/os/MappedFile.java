@@ -140,7 +140,7 @@ public class MappedFile implements Closeable {
                 
                 closer.add( new ByteBufferCloser( mappedByteBuffer ) );
 
-                this.map = ChannelBuffers.wrappedBuffer( map );
+                this.map = ChannelBuffers.wrappedBuffer( mappedByteBuffer );
                 
             }
 

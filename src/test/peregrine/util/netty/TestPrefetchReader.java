@@ -43,7 +43,7 @@ public class TestPrefetchReader extends peregrine.BaseTest {
 
         prefetchReader.setEnableLog( true );
         //prefetchReader.setCapacity( file.length() );
-        prefetchReader.start();
+        //prefetchReader.start();
 
         long cached = 0;
 
