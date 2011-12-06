@@ -63,6 +63,11 @@ public class PrefetchReader implements Closeable {
      */
     private SimpleBlockingQueue<PageEntry> consumedPages = new SimpleBlockingQueue();
 
+    /**
+     * The total number of bytes of allocated memory in the cache. 
+     */
+    protected AtomicLong allocatedMemory = new AtomicLong();
+
     public PrefetchReader() { }
 
     public PrefetchReader( Config config, List<MappedFile> files ) throws IOException {
@@ -218,6 +223,7 @@ public class PrefetchReader implements Closeable {
                              pageEntry.length,
                              fcntl.POSIX_FADV_WILLNEED );
         
+        allocatedMemory.addAndGet( pageEntry.length );
         pageEntry.fileMeta.inCache.addAndGet( pageEntry.length );
 
         pageEntry.fileMeta.cachedHistory.put( pageEntry );
@@ -235,6 +241,7 @@ public class PrefetchReader implements Closeable {
 
         pageEntry.fileMeta.evictedHistory.put( pageEntry );
 
+        allocatedMemory.addAndGet( -1 * pageEntry.length );
         pageEntry.fileMeta.inCache.addAndGet( -1 * pageEntry.length );
 
     }
@@ -281,6 +288,10 @@ public class PrefetchReader implements Closeable {
                         while( fileMeta.inCache.get() < fileMeta.capacity && fileMeta.pendingPages.size() > 0 ) {
 
                             if ( shutdown )
+                                break;
+
+                            // never allocate more memory than the sort buffer size.
+                            if  ( allocatedMemory.get() + pageSize > config.getSortBufferSize() )
                                 break;
                             
                             PageEntry page = fileMeta.pendingPages.take();
