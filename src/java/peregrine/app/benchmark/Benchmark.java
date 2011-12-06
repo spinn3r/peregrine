@@ -66,23 +66,5 @@ public class Benchmark {
     public Benchmark( Config config ) {
         this.config = config;
     }
-    
-    public void exec( String in, String out ) throws Exception {
 
-        Controller controller = new Controller( config );
-
-        try {
-
-            controller.map( Map.class, in );
-
-            // make sure the shuffle output worked
-            
-            controller.reduce( Reduce.class, new Input(), new Output( out ) );
-
-        } finally {
-            controller.shutdown();
-        }
-
-    }
-    
 }

@@ -12,6 +12,8 @@ import peregrine.util.netty.*;
 import peregrine.io.util.*;
 import peregrine.config.*;
 
+import com.spinn3r.log5j.Logger;
+
 /**
  * Facade around a MappedByteBuffer but we also support mlock on the mapped
  * pages, and closing all dependent resources.
@@ -19,6 +21,8 @@ import peregrine.config.*;
  *
  */
 public class MappedFile implements Closeable {
+
+    private static final Logger log = Logger.getLogger();
 
     /**
      * How often should we force writing pages to disk.
@@ -180,7 +184,11 @@ public class MappedFile implements Closeable {
      * Enables writing to this mapped file.
      */
     public ChannelBufferWritable getChannelBufferWritable() throws IOException {
+
+        log.info( "Creating new writer for %s with autoForce=%s", file, autoForce );
+        
         return new MappedChannelBufferWritable();
+        
     }
     
     public boolean getAutoLock() { 
@@ -231,7 +239,7 @@ public class MappedFile implements Closeable {
         long allocated = 0;
 
         long forced = 0;
-        
+
         @Override
         public void write( ChannelBuffer buff ) throws IOException {
 
