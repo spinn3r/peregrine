@@ -17,6 +17,8 @@ import com.spinn3r.log5j.Logger;
  */
 public class BaseConfig {
 
+    public static long DEFAULT_SORT_BUFFER_SIZE = (long) Math.pow(2, 20);
+    
     public static boolean DEFAULT_FADVISE_DONT_NEED_ENABLED = true;
 
     public static long DEFAULT_CHUNK_SIZE = (long) Math.pow(2, 27);
@@ -97,6 +99,8 @@ public class BaseConfig {
     protected boolean fadviseDontNeedEnabled = DEFAULT_FADVISE_DONT_NEED_ENABLED;
 
     private long chunkSize = DEFAULT_CHUNK_SIZE;
+
+    private long sortBufferSize = DEFAULT_SORT_BUFFER_SIZE;
 
     public Membership getMembership() {
         return membership;
@@ -210,6 +214,14 @@ public class BaseConfig {
 
     public void setChunkSize( long chunkSize ) { 
         this.chunkSize = chunkSize;
+    }
+
+    public long getSortBufferSize() { 
+        return this.sortBufferSize;
+    }
+
+    public void setSortBufferSize( long sortBufferSize ) { 
+        this.sortBufferSize = sortBufferSize;
     }
 
 }

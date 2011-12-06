@@ -37,7 +37,7 @@ public class PrefetchReader implements Closeable {
      */
     public static long DEFAULT_CAPACITY = DEFAULT_PAGE_SIZE * 4;
 
-    public static long DEFAULT_ENABLE_LOG = true;
+    public static boolean DEFAULT_ENABLE_LOG = true;
     
     protected long pageSize = DEFAULT_PAGE_SIZE;
     
@@ -78,7 +78,7 @@ public class PrefetchReader implements Closeable {
 
             FileRef fileRef = new FileRef( file.getPath(), file.length(), mappedFile.getFd() );
             
-            FileMeta fileMeta = new FileMeta( fileRef );
+            FileMeta fileMeta = new FileMeta( fileRef, config.getSortBufferSize() / files.size() );
 
             // tell the stream reader that all events need to be handled by this
             // fileMeta.
@@ -120,14 +120,6 @@ public class PrefetchReader implements Closeable {
             
         }
 
-    }
-
-    public void setCapacity( long capacity ) {
-        this.capacity = capacity;
-    }
-
-    public long getCapacity() {
-        return this.capacity;
     }
 
     public long getPageSize() { 
@@ -286,7 +278,7 @@ public class PrefetchReader implements Closeable {
                         // **** Cache any pages while we have too few pages
                         // available and we still have pending pages to cache.
 
-                        while( fileMeta.inCache.get() < capacity && fileMeta.pendingPages.size() > 0 ) {
+                        while( fileMeta.inCache.get() < fileMeta.capacity && fileMeta.pendingPages.size() > 0 ) {
 
                             if ( shutdown )
                                 break;
@@ -453,8 +445,11 @@ public class PrefetchReader implements Closeable {
 
         protected SimpleBlockingQueue<PageEntry> evictedHistory = new SimpleBlockingQueue();
 
-        public FileMeta( FileRef fileRef ) {
+        protected long capacity = 0;
+        
+        public FileMeta( FileRef fileRef, long capacity ) {
             this.fileRef = fileRef;
+            this.capacity = capacity;
         }
 
         @Override /* Comparable */

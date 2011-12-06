@@ -96,6 +96,7 @@ public class ConfigParser {
         config.setFallocateExtentSize( struct.getSize( "fallocate_extent_size" ) );
         config.setFadviseDontNeedEnabled( struct.getBoolean( "fadvise_dont_need_enabled" ) );
         config.setChunkSize( struct.getSize( "chunk_size" ) );
+        config.setSortBufferSize( struct.getSize( "sort_buffer_size" ) );
         
         // now read the hosts file...
         config.setHosts( readHosts( hosts_file ) );
