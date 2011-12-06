@@ -49,6 +49,8 @@ public class MappedFile implements Closeable {
     protected long fallocateExtentSize = 0;
 
     protected StreamReader reader = null;
+
+    protected MappedByteBuffer mappedByteBuffer = null;
     
     protected static Map<String,FileChannel.MapMode> modes = new HashMap() {{
 
@@ -134,9 +136,9 @@ public class MappedFile implements Closeable {
                     closer.add( new MemLock( file, in.getFD(), offset, length ) );
                 }
 
-                MappedByteBuffer map = channel.map( mode, offset, length );
+                mappedByteBuffer = channel.map( mode, offset, length );
                 
-                closer.add( new ByteBufferCloser( map ) );
+                closer.add( new ByteBufferCloser( mappedByteBuffer ) );
 
                 this.map = ChannelBuffers.wrappedBuffer( map );
                 
@@ -155,6 +157,10 @@ public class MappedFile implements Closeable {
         
     }
 
+    public void force() {
+        mappedByteBuffer.force();
+    }
+    
     public StreamReader getStreamReader() throws IOException {
 
         if ( reader == null )
