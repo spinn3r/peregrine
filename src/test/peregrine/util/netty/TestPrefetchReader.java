@@ -29,7 +29,7 @@ public class TestPrefetchReader extends peregrine.BaseTest {
 
         out.close();
 
-        Config config = new Config();
+        Config config = ConfigParser.parse();
         
         MappedFile mappedFile = new MappedFile( config, file, "r" );
 
@@ -37,8 +37,8 @@ public class TestPrefetchReader extends peregrine.BaseTest {
         
         List<MappedFile> input = new ArrayList();
         input.add( mappedFile );
-
-        PrefetchReader prefetchReader = new PrefetchReader( input );
+        
+        PrefetchReader prefetchReader = new PrefetchReader( config, input );
 
         prefetchReader.setEnableLog( true );
         prefetchReader.setCapacity( file.length() );

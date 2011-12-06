@@ -82,6 +82,13 @@ public class DefaultChunkReader implements ChunkReader, Closeable {
         
     }
 
+    /**
+     * Get the backing file.
+     */
+    public MappedFile getMappedFile() {
+        return mappedFile;
+    }
+    
     private void init( ChannelBuffer buff )
         throws IOException {
 

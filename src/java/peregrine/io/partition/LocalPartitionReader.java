@@ -14,11 +14,11 @@ public class LocalPartitionReader implements ChunkReader {
 
     private String path = null;
 
-    private List<ChunkReader> chunkReaders = new ArrayList();
+    private List<DefaultChunkReader> chunkReaders = new ArrayList();
 
-    private Iterator<ChunkReader> iterator = null;
+    private Iterator<DefaultChunkReader> iterator = null;
 
-    private ChunkReader chunkReader = null;
+    private DefaultChunkReader chunkReader = null;
 
     private List<LocalPartitionReaderListener> listeners = new ArrayList();
 
@@ -57,12 +57,15 @@ public class LocalPartitionReader implements ChunkReader {
         this.iterator = chunkReaders.iterator();
         this.listeners = listeners;
         this.path = path;
-        
-        
+
         this.chunkRef = new ChunkReference( partition );
-         
+
     }
 
+    public List<DefaultChunkReader> getDefaultChunkReaders() {
+        return chunkReaders;
+    }
+    
     public boolean hasNext() throws IOException {
 
         if ( chunkReader != null )

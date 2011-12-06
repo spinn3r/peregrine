@@ -50,7 +50,7 @@ public class TestDefaultPartitionWriter extends peregrine.BaseTestWithMultipleCo
 
         // STEP 2: make sure we have LOTS of chunks on disk.
         
-        List<ChunkReader> readers = LocalPartition.getChunkReaders( configs.get( 0 ), part, path );
+        List<DefaultChunkReader> readers = LocalPartition.getChunkReaders( configs.get( 0 ), part, path );
 
         System.out.printf( "We have %,d readers\n", readers.size() );
         

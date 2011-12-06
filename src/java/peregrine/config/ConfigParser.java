@@ -12,6 +12,10 @@ public class ConfigParser {
 
     private static final Logger log = Logger.getLogger();
 
+    public static Config parse() throws IOException {
+        return parse( new String[0] );
+    }
+
     /**
      * Load the given configuration.
      */

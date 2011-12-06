@@ -5,6 +5,7 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.*;
 
+import peregrine.config.*;
 import peregrine.os.*;
 import peregrine.util.*;
 
@@ -62,8 +63,11 @@ public class PrefetchReader implements Closeable {
 
     public PrefetchReader() { }
 
-    public PrefetchReader( List<MappedFile> files ) throws IOException {
+    public PrefetchReader( Config config, List<MappedFile> files ) throws IOException {
 
+        if ( config.getFadviseDontNeedEnabled() == false )
+            return;
+        
         for( MappedFile mappedFile : files ) {
 
             StreamReader reader = mappedFile.getStreamReader();
@@ -141,6 +145,9 @@ public class PrefetchReader implements Closeable {
      */
     public void start() {
 
+        if ( openFiles.size() == 0 )
+            return;
+        
         task = new CachingTask();
         
         taskFuture = executorService.submit( task );
