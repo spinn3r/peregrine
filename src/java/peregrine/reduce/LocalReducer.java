@@ -234,14 +234,23 @@ public class LocalReducer {
     }
     
     protected DefaultPartitionWriter newInterChunkWriter( String path ) throws IOException {
-            
+
+        boolean append = false;
+
+        // we set autoForce to false for now so that pages don't get
+        // automatically sent do disk.
+        boolean autoForce = false;
+
+        List<Host> hosts = new ArrayList() {{
+            add( config.getHost() );
+        }};
+        
         return new DefaultPartitionWriter( config,
                                            partition,
                                            path,
-                                           false,
-                                           new ArrayList() {{
-                                               add( config.getHost() );
-                                           }} );
+                                           append,
+                                           hosts,
+                                           autoForce );
 
     }
 

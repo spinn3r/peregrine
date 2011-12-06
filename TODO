@@ -1,5 +1,11 @@
 
-- investigate JANA direct mapping:
+- 256MB is probably TOO much memory for the JVM ... Its's actually 488
+  MB... weird... I can do probably 128M or 64MB
+
+    - I could run pagerank and then use jstack to see what the max memory usage
+      of the JVM is ... 
+
+- investigate JAVA direct mapping:
 
     https://github.com/twall/jna/blob/master/www/DirectMapping.md
 
