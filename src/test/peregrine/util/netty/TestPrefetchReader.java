@@ -29,7 +29,8 @@ public class TestPrefetchReader extends peregrine.BaseTest {
 
         out.close();
 
-        Config config = ConfigParser.parse();
+        Config config = new Config();
+        config.initEnabledFeatures();
         
         MappedFile mappedFile = new MappedFile( config, file, "r" );
 
