@@ -394,7 +394,7 @@ public class PrefetchReader implements Closeable {
                 if ( fileMeta.readIndex > fileMeta.cacheIndex ) {
 
                     if ( fileMeta.current != null ) {
-                        evict( fileMeta.current );
+                        consumedPages.put( fileMeta.current );
                     }
                     
                     fileMeta.current = fileMeta.cachedPages.take();
