@@ -318,12 +318,16 @@ public class PrefetchReader implements Closeable {
 
                         PageEntry page = consumedPages.take();
 
+                        System.out.printf( "FIXME evicting: %s\n", page );
+                        
                         try {
                             evict( page );
                         } catch ( Throwable t ) {
                             handleThrowable( page, t );
                         }
 
+                        System.out.printf( "FIXME consumedPages size is now: %,d\n", consumedPages.size() );
+                        
                         if ( consumedPages.size() <= 0 )
                             break;
                         
