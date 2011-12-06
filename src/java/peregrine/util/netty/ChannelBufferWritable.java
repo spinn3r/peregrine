@@ -13,6 +13,8 @@ public interface ChannelBufferWritable {
 
     public void shutdown() throws IOException;
 
+    public void force() throws IOException;
+    
     public void close() throws IOException;
 
 }

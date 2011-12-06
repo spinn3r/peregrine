@@ -48,10 +48,6 @@ public class PrefetchReader implements Closeable {
 
     private boolean closed = false;
 
-    private CachingTask task = null;
-
-    private Future taskFuture = null;
-
     private boolean enableLog = DEFAULT_ENABLE_LOG;
 
     /**
@@ -67,6 +63,8 @@ public class PrefetchReader implements Closeable {
     private SimpleBlockingQueue<PageEntry> consumedPages = new SimpleBlockingQueue();
 
     private Config config = null;
+
+    private PrefetchReaderListener listener = null;
     
     public PrefetchReader( Config config, List<MappedFile> files ) throws IOException {
         
@@ -144,32 +142,14 @@ public class PrefetchReader implements Closeable {
     public void setEnableLog( boolean enableLog ) {
         this.enableLog = enableLog;
     }
-    
-    /**
-     * Kick off the prefetcher so that it runs in the background.
-     */
-    public void start() {
 
-        if ( openFiles.size() == 0 )
+    private void fireCacheExhausted() {
+
+        if ( listener == null )
             return;
-        
-        task = new CachingTask();
-        
-        taskFuture = executorService.submit( task );
-        
-    }
 
-    public void shutdown() throws IOException {
+        listener.onCacheExhausted();
 
-        for( FileMeta file : openFiles ) {
-
-            // we have to get at least ONE page into consumedPages so that the task
-            // doesn't block waiting on pages to be consumed.  We give it an empty
-            // reference which causes a noop in evict()
-            consumedPages.put( new PageEntry() );
-
-        }
-        
     }
 
     @Override /* Closeable */
@@ -180,29 +160,13 @@ public class PrefetchReader implements Closeable {
         
         closed = true;
 
-        if ( task == null )
-            return;
-
-        task.shutdown = true;
-
-        shutdown();
-
-        try {
-            taskFuture.get();
-        } catch ( Exception e ) {
-            throw new IOException( e );
-        }
-
         while( consumedPages.size() > 0 ) {
             evict( consumedPages.take() );
         }
 
+        doEvict();
+        
         for( FileMeta file : openFiles ) {
-
-            // now go through ALL pages and evict them.
-
-            if ( file.current != null )
-                evict( file.current );
 
             while( file.cachedPages.size() > 0 ) {
                 evict( file.cachedPages.take() );
@@ -260,126 +224,91 @@ public class PrefetchReader implements Closeable {
         log.info( format, args );
         
     }
-    
-    class CachingTask implements Runnable {
 
-        protected boolean shutdown = false;
-        
-        public void run() {
+    private void doCache() {
 
+        List<FileMeta> files = getFilesForProcessing();
+
+        if ( files.size() == 0 )
+            return; /* no pending IO */
+
+        for( FileMeta fileMeta : files ) {
+
+            while( fileMeta.inCache.get() < fileMeta.capacity && fileMeta.pendingPages.size() > 0 ) {
+
+                // never allocate more memory than the sort buffer size.
+                if  ( allocatedMemory.get() + pageSize > config.getSortBufferSize() )
+                    break;
+                
+                PageEntry page = fileMeta.pendingPages.take();
+
+                if ( page == null )
+                    break;
+
+                try {
+                    cache( page );
+                } catch ( Throwable t ) {
+                    handleThrowable( page, t );
+                }
+
+                fileMeta.cachedPages.put( page );
+
+            }
+
+        }
+
+    }
+
+    private void doEvict() {
+        doEvict( consumedPages );
+    }
+
+    private void doEvict( SimpleBlockingQueue<PageEntry> queue ) {
+
+        while( queue.size() > 0 ) {
+
+            PageEntry page = queue.take();
+            
             try {
-
-                while( true ) {
-
-                    if ( shutdown )
-                        break;
-
-                    List<FileMeta> files = getFilesForProcessing();
-
-                    if ( files.size() == 0 )
-                        break; /* no pending IO */
-
-                    for( FileMeta fileMeta : files ) {
-                    
-                        // if we have been asked to close externally we need to
-                        // yield to this.  Note that this needs to be done AFTER we
-                        // have gone through one state of eviction so that mlock
-                        // isn't sitting around.
-                        if ( shutdown )
-                            break;
-
-                        // **** Cache any pages while we have too few pages
-                        // available and we still have pending pages to cache.
-
-                        while( fileMeta.inCache.get() < fileMeta.capacity && fileMeta.pendingPages.size() > 0 ) {
-
-                            if ( shutdown )
-                                break;
-
-                            // never allocate more memory than the sort buffer size.
-                            if  ( allocatedMemory.get() + pageSize > config.getSortBufferSize() )
-                                break;
-                            
-                            PageEntry page = fileMeta.pendingPages.take();
-
-                            if ( page == null )
-                                break;
-
-                            try {
-                                cache( page );
-                            } catch ( Throwable t ) {
-                                handleThrowable( page, t );
-                            }
-
-                            fileMeta.cachedPages.put( page );
-
-                        }
-
-                    }
-
-                    // now that we've cached the correct capacity for all of our
-                    // files, wait until at least ONE of them to complete, keep
-                    // evicting until no more are available to evict and then
-                    // attempt to cache more data
-
-                    while( true ) {
-
-                        if ( shutdown )
-                            break;
-
-                        PageEntry page = consumedPages.take();
-                        
-                        try {
-                            evict( page );
-                        } catch ( Throwable t ) {
-                            handleThrowable( page, t );
-                        }
-
-                        if ( consumedPages.size() <= 0 )
-                            break;
-                        
-                    }
-
-                }
-                
+                evict( page );
             } catch ( Throwable t ) {
-                log.error( "Unable to handle prefetching: " , t );
+                handleThrowable( page, t );
             }
 
         }
 
-        private void handleThrowable( PageEntry page, Throwable t ) {
-
-            IOException e = new IOException( "Unable to prefetch: " + page, t );
-
-            page.fileMeta.cachedPages.raise( e );
-            
-        }
+    }
+    
+    private void handleThrowable( PageEntry page, Throwable t ) {
+    
+        IOException e = new IOException( "Unable to prefetch: " + page, t );
         
-        private List<FileMeta> getFilesForProcessing() {
+        page.fileMeta.cachedPages.raise( e );
+        
+    }
+    
+    private List<FileMeta> getFilesForProcessing() {
 
-            List<FileMeta> result = new ArrayList();
+        List<FileMeta> result = new ArrayList();
 
-            Iterator<FileMeta> it = pendingFileQueue.iterator();
+        Iterator<FileMeta> it = pendingFileQueue.iterator();
+        
+        while( it.hasNext() ) {
+
+            FileMeta fileMeta = it.next();
             
-            while( it.hasNext() ) {
-
-                FileMeta fileMeta = it.next();
-                
-                if ( fileMeta.pendingPages.size() == 0 ) {
-                    it.remove();
-                    continue;
-                }
-
-                result.add( fileMeta );
-                
+            if ( fileMeta.pendingPages.size() == 0 ) {
+                it.remove();
+                continue;
             }
 
-            Collections.sort( result );
-
-            return result;
+            result.add( fileMeta );
             
         }
+
+        Collections.sort( result );
+
+        return result;
         
     }
 
@@ -402,6 +331,12 @@ public class PrefetchReader implements Closeable {
 
                     if ( fileMeta.current != null ) {
                         consumedPages.put( fileMeta.current );
+                    }
+
+                    if ( fileMeta.cachedPages.size() == 0 ) {
+                        doEvict();
+                        fireCacheExhausted();
+                        doCache();
                     }
                     
                     fileMeta.current = fileMeta.cachedPages.take();

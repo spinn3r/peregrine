@@ -198,7 +198,6 @@ public class LocalReducer {
 
         PrefetchReader prefetchReader = new PrefetchReader( config, mappedFiles );
         prefetchReader.setEnableLog( true );
-        prefetchReader.start();
         
         return prefetchReader;
 

@@ -157,10 +157,6 @@ public class MappedFile implements Closeable {
         
     }
 
-    public void force() {
-        mappedByteBuffer.force();
-    }
-    
     public StreamReader getStreamReader() throws IOException {
 
         if ( reader == null )
@@ -209,6 +205,7 @@ public class MappedFile implements Closeable {
 
         long allocated = 0;
         
+        @Override
         public void write( ChannelBuffer buff ) throws IOException {
 
             length += buff.writerIndex();
@@ -226,10 +223,17 @@ public class MappedFile implements Closeable {
             
         }
         
+        @Override
         public void shutdown() throws IOException {
             // noop 
         }
-        
+
+        @Override
+        public void force() {
+            mappedByteBuffer.force();
+        }
+
+        @Override
         public void close() throws IOException {
 
             // if we're in fallocate mode, we now need to truncate the file so
