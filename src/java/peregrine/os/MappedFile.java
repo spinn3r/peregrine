@@ -20,6 +20,15 @@ import peregrine.config.*;
  */
 public class MappedFile implements Closeable {
 
+    /**
+     * How often should we force writing pages to disk.
+     */
+    public static long FORCE_PAGE_SIZE = 16384;
+    
+    public static boolean DEFAULT_AUTO_FORCE = false;
+
+    public static boolean DEFAULT_AUTO_LOCK = false;
+
     protected FileInputStream in;
 
     protected FileOutputStream out;
@@ -32,7 +41,9 @@ public class MappedFile implements Closeable {
 
     protected long length = 0;
 
-    protected boolean lock = false;
+    protected boolean autoLock = DEFAULT_AUTO_LOCK;
+
+    protected boolean autoForce = DEFAULT_AUTO_FORCE;
 
     protected Closer closer = new Closer();
 
@@ -132,7 +143,7 @@ public class MappedFile implements Closeable {
             
             if ( map == null ) {
 
-                if ( lock ) {
+                if ( autoLock ) {
                     closer.add( new MemLock( file, in.getFD(), offset, length ) );
                 }
 
@@ -172,12 +183,20 @@ public class MappedFile implements Closeable {
         return new MappedChannelBufferWritable();
     }
     
-    public boolean getLock() { 
-        return this.lock;
+    public boolean getAutoLock() { 
+        return this.autoLock;
     }
 
-    public void setLock( boolean lock ) { 
-        this.lock = lock;
+    public void setAutoLock( boolean autoLock ) { 
+        this.autoLock = autoLock;
+    }
+
+    public boolean getAutoForce() { 
+        return this.autoForce;
+    }
+
+    public void setAutoForce( boolean autoForce ) { 
+        this.autoForce = autoForce;
     }
 
     public File getFile() {
@@ -210,6 +229,8 @@ public class MappedFile implements Closeable {
     class MappedChannelBufferWritable implements ChannelBufferWritable {
 
         long allocated = 0;
+
+        long forced = 0;
         
         @Override
         public void write( ChannelBuffer buff ) throws IOException {
@@ -224,6 +245,11 @@ public class MappedFile implements Closeable {
                 
             }
 
+            if ( autoForce && length > forced + FORCE_PAGE_SIZE ) {
+                force();
+                forced += length;
+            }
+            
             //FIXME: I'm NOT sure that this is the fastest write path
             channel.write( buff.toByteBuffer() );
             
@@ -249,6 +275,10 @@ public class MappedFile implements Closeable {
                 channel.truncate( length );
             }
 
+            if ( autoForce ) {
+                force();
+            }
+            
             MappedFile.this.close();
             
         }

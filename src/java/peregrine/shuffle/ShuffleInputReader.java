@@ -73,7 +73,7 @@ public class ShuffleInputReader {
         // mmap the WHOLE file. We won't actually use these pages if we don't
         // read them so this make it less difficult to figure out what to map.
         this.mappedFile = new MappedFile( config, file, FileChannel.MapMode.READ_ONLY );
-        this.mappedFile.setLock( ENABLE_MEMLOCK );
+        this.mappedFile.setAutoLock( ENABLE_MEMLOCK );
         
         this.buffer = mappedFile.map();
         
