@@ -40,8 +40,11 @@ public class PrefetchReader implements Closeable {
     public static boolean DEFAULT_ENABLE_LOG = true;
     
     protected long pageSize = DEFAULT_PAGE_SIZE;
-    
-    protected long capacity = DEFAULT_CAPACITY;
+
+    /**
+     * The total number of bytes of allocated memory in the cache. 
+     */
+    protected AtomicLong allocatedMemory = new AtomicLong();
 
     private boolean closed = false;
 
@@ -63,15 +66,14 @@ public class PrefetchReader implements Closeable {
      */
     private SimpleBlockingQueue<PageEntry> consumedPages = new SimpleBlockingQueue();
 
-    /**
-     * The total number of bytes of allocated memory in the cache. 
-     */
-    protected AtomicLong allocatedMemory = new AtomicLong();
-
+    private Config config = null;
+    
     public PrefetchReader() { }
 
     public PrefetchReader( Config config, List<MappedFile> files ) throws IOException {
 
+        this.config = config;
+        
         if ( config.getFadviseDontNeedEnabled() == false )
             return;
         
