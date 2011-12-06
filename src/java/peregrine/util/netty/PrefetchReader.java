@@ -72,14 +72,19 @@ public class PrefetchReader implements Closeable {
 
     public PrefetchReader( Config config, List<MappedFile> files ) throws IOException {
 
+        System.out.printf( "FIXME here0\n" );
+        
         this.config = config;
         
         if ( config.getFadviseDontNeedEnabled() == false ) {
+        System.out.printf( "FIXME here1\n" );
             log.warn( "Disabling as fadvise is not enabled." );
             return;
         }
 
         long capacity = config.getSortBufferSize() / files.size();
+
+        System.out.printf( "FIXME here2\n" );
 
         log.info( "Running with buffer size: %,d and per file capacity: %,d", config.getSortBufferSize(), capacity );
 
