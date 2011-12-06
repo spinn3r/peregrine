@@ -56,14 +56,20 @@ public class Config extends BaseConfig {
         router.init( this );
 
         new File( root ).mkdirs();
+
+        initEnabledFeatures();
         
+        log.info( "%s", toDesc() );
+
+    }
+
+    public void initEnabledFeatures() {
+
         // Test posix_fallocate and posix_fadvise on a test file in the
         // basedir to see if they work on this OS and if they fail disable them.
 
         testFallocate();
         testFadvise();
-
-        log.info( "%s", toDesc() );
 
     }
 

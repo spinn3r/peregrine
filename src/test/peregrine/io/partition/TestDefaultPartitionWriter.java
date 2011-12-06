@@ -27,7 +27,7 @@ public class TestDefaultPartitionWriter extends peregrine.BaseTestWithMultipleCo
 
         // STEP 1... make a new file and write lots of chunks to it.
         
-        DefaultPartitionWriter.CHUNK_SIZE = 1000;
+        config.setChunkSize( 1000 );
 
         Partition part = new Partition( 0 );
         
@@ -50,7 +50,7 @@ public class TestDefaultPartitionWriter extends peregrine.BaseTestWithMultipleCo
 
         // STEP 2: make sure we have LOTS of chunks on disk.
         
-        List<ChunkReader> readers = LocalPartition.getChunkReaders( configs.get( 0 ), part, path );
+        List<DefaultChunkReader> readers = LocalPartition.getChunkReaders( configs.get( 0 ), part, path );
 
         System.out.printf( "We have %,d readers\n", readers.size() );
         

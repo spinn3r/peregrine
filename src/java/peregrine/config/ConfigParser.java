@@ -12,6 +12,10 @@ public class ConfigParser {
 
     private static final Logger log = Logger.getLogger();
 
+    public static Config parse() throws IOException {
+        return parse( new String[0] );
+    }
+
     /**
      * Load the given configuration.
      */
@@ -87,10 +91,12 @@ public class ConfigParser {
         config.setReplicas( struct.getInt( "replicas" ) );
         config.setConcurrency( struct.getInt( "concurrency" ) );
 
-        config.setShuffleBufferSize( struct.getLong( "shuffle_buffer_size" ) );
+        config.setShuffleBufferSize( struct.getSize( "shuffle_buffer_size" ) );
         config.setMergeFactor( struct.getInt( "merge_factor" ) );
-        config.setFallocateExtentSize( struct.getLong( "fallocate_extent_size" ) );
+        config.setFallocateExtentSize( struct.getSize( "fallocate_extent_size" ) );
         config.setFadviseDontNeedEnabled( struct.getBoolean( "fadvise_dont_need_enabled" ) );
+        config.setChunkSize( struct.getSize( "chunk_size" ) );
+        config.setSortBufferSize( struct.getSize( "sort_buffer_size" ) );
         
         // now read the hosts file...
         config.setHosts( readHosts( hosts_file ) );

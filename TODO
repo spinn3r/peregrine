@@ -1,10 +1,10 @@
 
-- The reducer APU needs a purge() or cleanup() command to delege shuffle data
-  off disk to avoid there being existing files for the next iteration.  
+- investigate JANA direct mapping:
 
+    https://github.com/twall/jna/blob/master/www/DirectMapping.md
 
-- Go through EVERY queue that we used and see if it needs to use a failure
-  queue.
+- Split reading and writing in the file mapper into two separate classes.
+
 
 - Another architecture I could have had could have been ONE primary listening
   daemon which then forks one mapper/reducer proc PER run.  One downside is that

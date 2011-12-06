@@ -11,6 +11,8 @@ import peregrine.io.partition.*;
 import peregrine.io.util.*;
 import peregrine.reduce.sorter.*;
 import peregrine.reduce.merger.*;
+import peregrine.util.netty.*;
+import peregrine.os.*;
 
 import com.spinn3r.log5j.Logger;
 
@@ -100,9 +102,17 @@ public class LocalReducer {
      */
     protected void finalMerge( List<ChunkReader> readers ) throws IOException {
 
-        ChunkMerger merger = new ChunkMerger( listener, partition );
+        PrefetchReader prefetchReader = null;
+
+        try {
+
+            ChunkMerger merger = new ChunkMerger( listener, partition );
         
-        merger.merge( readers );
+            merger.merge( readers );
+
+        } finally {
+            new Closer( prefetchReader ).close();
+        }
 
     }
 
@@ -112,38 +122,83 @@ public class LocalReducer {
     protected List<ChunkReader> interMerge( List<ChunkReader> readers, int pass )
         throws IOException {
 
-        String target_path = getTargetPath( pass );
-        
-        // chunk readers pending merge.
-        List<ChunkReader> pending = new ArrayList();
-        pending.addAll( readers );
+        PrefetchReader prefetchReader = null;
 
-        List<ChunkReader> result = new ArrayList();
-
-        int id = 0;
-        
-        while( pending.size() != 0 ) {
-
-            String path = String.format( "%s/merged-%s.tmp" , target_path, id++ );
+        try {
             
-            List<ChunkReader> work = new ArrayList( config.getMergeFactor() );
+            prefetchReader = createPrefetchReader( readers );
+        
+            String target_path = getTargetPath( pass );
+            
+            // chunk readers pending merge.
+            List<ChunkReader> pending = new ArrayList();
+            pending.addAll( readers );
 
-            // move readers from pending into work until work is full .
-            while( work.size() < config.getMergeFactor() && pending.size() > 0 ) {
-                work.add( pending.remove( 0 ) );
+            List<ChunkReader> result = new ArrayList();
+
+            int id = 0;
+            
+            while( pending.size() != 0 ) {
+
+                String path = String.format( "%s/merged-%s.tmp" , target_path, id++ );
+                
+                List<ChunkReader> work = new ArrayList( config.getMergeFactor() );
+
+                // move readers from pending into work until work is full .
+                while( work.size() < config.getMergeFactor() && pending.size() > 0 ) {
+                    work.add( pending.remove( 0 ) );
+                }
+
+                log.info( "Merging %,d readers into %s on intermediate pass %,d", work.size(), path, pass );
+                
+                ChunkMerger merger = new ChunkMerger( null, partition );
+            
+                merger.merge( readers, newInterChunkWriter( path ) );
+
+                result.add( newInterChunkReader( path ) );
+                
             }
 
-            log.info( "Merging %,d readers into %s on intermediate pass %,d", work.size(), path, pass );
-            
-            ChunkMerger merger = new ChunkMerger( null, partition );
-        
-            merger.merge( readers, newInterChunkWriter( path ) );
+            return result;
 
-            result.add( newInterChunkReader( path ) );
-            
+        } finally {
+            new Closer( prefetchReader ).close();
         }
 
-        return result;
+    }
+
+    protected PrefetchReader createPrefetchReader( List<ChunkReader> readers ) throws IOException {
+
+        List<MappedFile> mappedFiles = new ArrayList();
+
+        for( ChunkReader reader : readers ) {
+
+            if ( reader instanceof DefaultChunkReader ) {
+
+                DefaultChunkReader defaultChunkReader = (DefaultChunkReader) reader;
+                mappedFiles.add( defaultChunkReader.getMappedFile() );
+
+            }
+
+            if ( reader instanceof LocalPartitionReader ) {
+
+                LocalPartitionReader localPartitionReader = (LocalPartitionReader)reader;
+                
+                List<DefaultChunkReader> defaultChunkReaders = localPartitionReader.getDefaultChunkReaders();
+
+                for( DefaultChunkReader defaultChunkReader : defaultChunkReaders ) {
+                    mappedFiles.add( defaultChunkReader.getMappedFile() );
+                }
+
+            }
+
+        }
+
+        PrefetchReader prefetchReader = new PrefetchReader( config, mappedFiles );
+        prefetchReader.setEnableLog( true );
+        prefetchReader.start();
+        
+        return prefetchReader;
 
     }
 

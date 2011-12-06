@@ -132,6 +132,37 @@ public class Test {
 
     public static void main( String[] args ) throws Exception {
 
+        FileInputStream fis = new FileInputStream( "test.txt" );
+
+        FileChannel channel = fis.getChannel();
+
+        int fd = Native.getFd( fis.getFD() );
+
+        long offset = 0;
+        long length = 5;
+
+        long count = 50000;
+        
+        mman.mmap( length, mman.PROT_READ, mman.MAP_SHARED | mman.MAP_LOCKED, fd, offset );
+        fcntl.posix_fadvise(fd, offset, length, fcntl.POSIX_FADV_WILLNEED );
+
+        long before = System.currentTimeMillis();
+        
+        for( int i = 0; i < count; ++i ) {
+
+            mman.mmap( length, mman.PROT_READ, mman.MAP_SHARED | mman.MAP_LOCKED, fd, offset );
+            fcntl.posix_fadvise(fd, offset, length, fcntl.POSIX_FADV_WILLNEED );
+
+        }
+
+        long after = System.currentTimeMillis();
+
+        long duration = (after-before);
+
+        long throughput = (duration / count);
+
+        System.out.printf( "count: %,d , duration: %,d ms , throughput: %,d per ms\n", count, duration, throughput );
+
         /*
         String path = "/d0/util0029.wdc.sl.spinn3r.com/11112/1/tmp/default.1/merged-0.tmp";
 
@@ -140,7 +171,6 @@ public class Test {
 
         //foo( (int) 100 );
 
-        
         /*
         List<String> list = new ArrayList();
 

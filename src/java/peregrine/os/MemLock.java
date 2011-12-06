@@ -36,11 +36,7 @@ public class MemLock implements Closeable {
         
         int fd = Native.getFd( descriptor );
         
-        this.pa = mman.mmap( new Pointer( 0 ), length, mman.PROT_READ, mman.MAP_SHARED | mman.MAP_LOCKED, fd, offset );
-        
-        if ( Pointer.nativeValue( this.pa ) == -1 ) {
-            throw new IOException( errno.strerror() );
-        }
+        this.pa = mman.mmap( length, mman.PROT_READ, mman.MAP_SHARED | mman.MAP_LOCKED, fd, offset );
 
     }
 
@@ -55,9 +51,7 @@ public class MemLock implements Closeable {
         
         log.info( "%s ...", desc );
 
-        if ( mman.munmap( pa, length ) != 0 ) {
-            throw new IOException( errno.strerror() );
-        }
+        mman.munmap( pa, length );
 
         log.info( "%s ... done", desc );
 
