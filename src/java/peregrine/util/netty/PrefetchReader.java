@@ -36,6 +36,8 @@ public class PrefetchReader implements Closeable {
      * The minimum number of bytes we should attempt to pre-read at a time.
      */
     public static long DEFAULT_CAPACITY = DEFAULT_PAGE_SIZE * 4;
+
+    public static long DEFAULT_ENABLE_LOG = true;
     
     protected long pageSize = DEFAULT_PAGE_SIZE;
     
@@ -47,7 +49,7 @@ public class PrefetchReader implements Closeable {
 
     private Future taskFuture = null;
 
-    private boolean enableLog = false;
+    private boolean enableLog = DEFAULT_ENABLE_LOG;
 
     /**
      * The file metadata for files that still have pending IO.
