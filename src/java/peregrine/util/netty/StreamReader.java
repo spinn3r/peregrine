@@ -2,6 +2,8 @@ package peregrine.util.netty;
 
 import org.jboss.netty.buffer.*;
 
+import peregrine.os.*;
+
 import java.io.*;
 import java.util.*;
 
@@ -18,9 +20,12 @@ public class StreamReader {
     private ChannelBuffer buff = null;
 
     private StreamReaderListener listener = null;
+
+    protected MappedFile mappedFile = null;
     
-    public StreamReader( ChannelBuffer buff ) {
-        this.buff = buff;
+    public StreamReader( MappedFile mappedFile ) throws IOException {
+        this.mappedFile = mappedFile;
+        this.buff = mappedFile.map();;
     }
 
     public void readBytes( byte[] data ) {
@@ -34,6 +39,10 @@ public class StreamReader {
         return buff.readByte();
     }
 
+    public MappedFile getMappedFile() {
+        return mappedFile;
+    }
+    
     public StreamReaderListener getListener() { 
         return this.listener;
     }

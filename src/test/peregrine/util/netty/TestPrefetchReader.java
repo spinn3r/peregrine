@@ -32,33 +32,38 @@ public class TestPrefetchReader extends peregrine.BaseTest {
         Config config = new Config();
         
         MappedFile mappedFile = new MappedFile( config, file, "r" );
+
+        StreamReader reader = new StreamReader( mappedFile );
         
-        List<MappedFile> files = new ArrayList();
-        files.add( mappedFile );
+        List<StreamReader> readers = new ArrayList();
+        readers.add( reader );
 
-        StreamReader reader = new StreamReader( mappedFile.map() );
-
-        PrefetchReader prefetchReader = new PrefetchReader( files );
+        PrefetchReader prefetchReader = new PrefetchReader( readers );
 
         prefetchReader.setEnableLog( true );
         prefetchReader.start();
 
         long cached = 0;
 
-        // test reading directly from the queue... 
+        int read = 0;
+        int width = 10;
+        long length = file.length();
         
-        while( prefetchReader.pendingPages.size() > 0 || prefetchReader.cachedPages.size() > 0 ) {
+        while( true ) {
 
-            PrefetchReader.PageEntry page = prefetchReader.cachedPages.take();
+            if ( read + width > length )
+                width = (int)(length - read);
+            
+            reader.readBytes( new byte[width] );
+            
+            read += width;
 
-            System.out.printf( "found cached: %s\n", page );
-
-            cached += page.length;
-
-            if ( cached >= prefetchReader.getCapacity() )
+            if ( read >= length )
                 break;
             
         }
+
+        // FIXME: make sure the right pages were read.
         
         prefetchReader.close();
 
