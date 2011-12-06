@@ -68,8 +68,6 @@ public class PrefetchReader implements Closeable {
 
     private Config config = null;
     
-    public PrefetchReader() { }
-
     public PrefetchReader( Config config, List<MappedFile> files ) throws IOException {
 
         System.out.printf( "FIXME here0\n" );

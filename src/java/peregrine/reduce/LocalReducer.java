@@ -169,6 +169,8 @@ public class LocalReducer {
 
     protected PrefetchReader createPrefetchReader( List<ChunkReader> readers ) throws IOException {
 
+        System.out.printf( "FIXME gonna create it.\n" );
+        
         List<MappedFile> mappedFiles = new ArrayList();
 
         for( ChunkReader reader : readers ) {
