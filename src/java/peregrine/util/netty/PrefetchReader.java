@@ -511,7 +511,8 @@ public class PrefetchReader implements Closeable {
 
         @Override
         public String toString() {
-            return String.format( "%s at offset=%,d and length=%,d" , file.path, offset, length );
+            return String.format( "%s at offset=%,d and length=%,d and current capacity %,d" ,
+                                  file.path, offset, length, fileMeta.capacity );
         }
         
     }
