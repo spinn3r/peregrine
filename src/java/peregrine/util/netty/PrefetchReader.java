@@ -150,6 +150,8 @@ public class PrefetchReader implements Closeable {
 
     public void shutdown() throws IOException {
 
+        System.out.printf( "FIXME shutting down\n" );
+
         for( FileMeta file : openFiles ) {
 
             // we have to get at least ONE page into consumedPages so that the task
@@ -164,6 +166,8 @@ public class PrefetchReader implements Closeable {
     @Override /* Closeable */
     public void close() throws IOException {
 
+        System.out.printf( "FIXME closing\n" );
+        
         if ( closed )
             return;
         
@@ -320,7 +324,7 @@ public class PrefetchReader implements Closeable {
                             handleThrowable( page, t );
                         }
 
-                        if ( consumedPages.size() == 0 )
+                        if ( consumedPages.size() <= 0 )
                             break;
                         
                     }
