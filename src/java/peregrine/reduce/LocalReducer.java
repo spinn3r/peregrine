@@ -178,9 +178,7 @@ public class LocalReducer {
                 DefaultChunkReader defaultChunkReader = (DefaultChunkReader) reader;
                 mappedFiles.add( defaultChunkReader.getMappedFile() );
 
-            }
-
-            if ( reader instanceof LocalPartitionReader ) {
+            } else if ( reader instanceof LocalPartitionReader ) {
 
                 LocalPartitionReader localPartitionReader = (LocalPartitionReader)reader;
                 
@@ -190,6 +188,8 @@ public class LocalReducer {
                     mappedFiles.add( defaultChunkReader.getMappedFile() );
                 }
 
+            } else {
+                throw new IOException( "Unknown reader type: " + reader.getClass().getName() );
             }
 
         }
