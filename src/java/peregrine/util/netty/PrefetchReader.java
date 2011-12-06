@@ -75,6 +75,9 @@ public class PrefetchReader implements Closeable {
             return;
         }
 
+        if ( files.size() == 0 )
+            return;
+        
         long capacity = config.getSortBufferSize() / files.size();
 
         log.info( "Running with buffer size: %,d and per file capacity: %,d", config.getSortBufferSize(), capacity );

@@ -138,7 +138,7 @@ public class LocalReducer {
 
             String path = String.format( "%s/merged-%s.tmp" , target_path, id++ );
             
-            List<ChunkReader> work = new ArrayList( config.getMergeFactor() );
+            List<ChunkReader> work = new ArrayList();
 
             // move readers from pending into work until work is full .
             while( work.size() < config.getMergeFactor() && pending.size() > 0 ) {
