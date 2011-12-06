@@ -124,48 +124,72 @@ public class LocalReducer {
     protected List<ChunkReader> interMerge( List<ChunkReader> readers, int pass )
         throws IOException {
 
-        PrefetchReader prefetchReader = null;
-
-        try {
-            
-            prefetchReader = createPrefetchReader( readers );
+        String target_path = getTargetPath( pass );
         
-            String target_path = getTargetPath( pass );
+        // chunk readers pending merge.
+        List<ChunkReader> pending = new ArrayList();
+        pending.addAll( readers );
+
+        List<ChunkReader> result = new ArrayList();
+
+        int id = 0;
+        
+        while( pending.size() != 0 ) {
+
+            String path = String.format( "%s/merged-%s.tmp" , target_path, id++ );
             
-            // chunk readers pending merge.
-            List<ChunkReader> pending = new ArrayList();
-            pending.addAll( readers );
+            List<ChunkReader> work = new ArrayList( config.getMergeFactor() );
 
-            List<ChunkReader> result = new ArrayList();
-
-            int id = 0;
-            
-            while( pending.size() != 0 ) {
-
-                String path = String.format( "%s/merged-%s.tmp" , target_path, id++ );
-                
-                List<ChunkReader> work = new ArrayList( config.getMergeFactor() );
-
-                // move readers from pending into work until work is full .
-                while( work.size() < config.getMergeFactor() && pending.size() > 0 ) {
-                    work.add( pending.remove( 0 ) );
-                }
-
-                log.info( "Merging %,d readers into %s on intermediate pass %,d", work.size(), path, pass );
-                
-                ChunkMerger merger = new ChunkMerger( null, partition );
-            
-                merger.merge( readers, newInterChunkWriter( path ) );
-
-                result.add( newInterChunkReader( path ) );
-                
+            // move readers from pending into work until work is full .
+            while( work.size() < config.getMergeFactor() && pending.size() > 0 ) {
+                work.add( pending.remove( 0 ) );
             }
 
-            return result;
+            log.info( "Merging %,d work into %s on intermediate pass %,d", work.size(), path, pass );
 
-        } finally {
-            new Closer( prefetchReader ).close();
+            PrefetchReader prefetchReader = null;
+
+            try { 
+
+                prefetchReader = createPrefetchReader( work );
+
+                ChunkMerger merger = new ChunkMerger( null, partition );
+
+                final DefaultPartitionWriter writer = newInterChunkWriter( path );
+
+                // when the cache is exhausted we first have to flush it to disk.
+                prefetchReader.setListener( new PrefetchReaderListener() {
+                        
+                        public void onCacheExhausted() {
+
+                            try {
+                                log.info( "Writing %s to disk with force()." , writer );
+                                writer.force();
+                            } catch ( IOException e ) {
+                                // this should NOT happen because we are only
+                                // using a MappedByteBuffer here which shouldn't
+                                // throw an exception but we need this interface
+                                // to throw an exception because it could be
+                                // doing other types of IO like networked IO
+                                // which may in fact have an exception.
+                                throw new RuntimeException( e );
+                            }
+                                
+                        }
+
+                    } );
+
+                merger.merge( work, writer );
+
+                result.add( newInterChunkReader( path ) );
+
+            } finally {
+                new Closer( prefetchReader ).close();
+            }
+                
         }
+
+        return result;
 
     }
 
@@ -209,7 +233,7 @@ public class LocalReducer {
         
     }
     
-    protected ChunkWriter newInterChunkWriter( String path ) throws IOException {
+    protected DefaultPartitionWriter newInterChunkWriter( String path ) throws IOException {
             
         return new DefaultPartitionWriter( config,
                                            partition,

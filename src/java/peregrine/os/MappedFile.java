@@ -187,7 +187,8 @@ public class MappedFile implements Closeable {
     public int getFd() {
         return fd;
     }
-    
+
+    @Override
     public void close() throws IOException {
         
         if ( closer.closed() )
@@ -201,6 +202,11 @@ public class MappedFile implements Closeable {
 
     }
 
+    @Override
+    public String toString() {
+        return file.toString();
+    }
+    
     class MappedChannelBufferWritable implements ChannelBufferWritable {
 
         long allocated = 0;
@@ -247,6 +253,11 @@ public class MappedFile implements Closeable {
             
         }
 
+        @Override
+        public String toString() {
+            return MappedFile.this.toString();
+        }
+        
     }
 
     class ByteBufferCloser implements Closeable {

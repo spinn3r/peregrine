@@ -143,6 +143,10 @@ public class PrefetchReader implements Closeable {
         this.enableLog = enableLog;
     }
 
+    public void setListener( PrefetchReaderListener listener ) {
+        this.listener = listener;
+    }
+    
     private void fireCacheExhausted() {
 
         if ( listener == null )

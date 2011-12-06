@@ -35,6 +35,11 @@ public class DefaultPartitionWriter implements PartitionWriter, ChunkWriter {
     private long length = 0;
 
     private Config config;
+
+    /**
+     * Keep track of writables w ehave allocated.
+     */
+    private List<ChannelBufferWritable> writables = new ArrayList();
     
     public DefaultPartitionWriter( Config config,
                                    Partition partition,
@@ -150,7 +155,7 @@ public class DefaultPartitionWriter implements PartitionWriter, ChunkWriter {
 
         closeChunkWriter();
         
-        Map<Host,ChannelBufferWritable> writables = new HashMap();
+        Map<Host,ChannelBufferWritable> writablesPerHost = new HashMap();
 
         HttpClient client = null;
 
@@ -164,14 +169,16 @@ public class DefaultPartitionWriter implements PartitionWriter, ChunkWriter {
 
                 ChannelBufferWritable writable = delegate.newChunkWriter( chunkId );
 
-                writables.put( delegate.getHost(), writable );
+                writablesPerHost.put( delegate.getHost(), writable );
+                writables.add( writable );
                 
             } else if ( client == null ) {
 
                 ChannelBufferWritable writable = delegate.newChunkWriter( chunkId );
                 
                 client = (HttpClient)writable;
-                writables.put( delegate.getHost(), writable );
+                writablesPerHost.put( delegate.getHost(), writable );
+                writables.add( writable );
 
             } else {
                 pipeline += delegate.getHost() + " ";
@@ -184,11 +191,22 @@ public class DefaultPartitionWriter implements PartitionWriter, ChunkWriter {
             client.setHeader( FSHandler.X_PIPELINE_HEADER, pipeline );
         }
         
-        chunkWriter = new DefaultChunkWriter( new MultiChannelBufferWritable( writables ) );
+        chunkWriter = new DefaultChunkWriter( new MultiChannelBufferWritable( writablesPerHost ) );
         
         ++chunkId; // change the chunk ID now for the next file.
 
     }
 
+    /**
+     * For all IO to be written out to disk that has not yet been forced.
+     */
+    public void force() throws IOException {
+
+        for( ChannelBufferWritable writable : writables ) {
+            writable.force();
+        }
+
+    }
+    
 }
 
