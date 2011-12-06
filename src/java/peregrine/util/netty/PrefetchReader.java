@@ -78,7 +78,11 @@ public class PrefetchReader implements Closeable {
             log.warn( "Disabling as fadvise is not enabled." );
             return;
         }
-        
+
+        long capacity = config.getSortBufferSize() / files.size();
+
+        log.info( "Running with buffer size: %,d and per file capacity: %,d", config.getSortBufferSize(), capacity );
+
         for( MappedFile mappedFile : files ) {
 
             StreamReader reader = mappedFile.getStreamReader();
@@ -87,7 +91,7 @@ public class PrefetchReader implements Closeable {
 
             FileRef fileRef = new FileRef( file.getPath(), file.length(), mappedFile.getFd() );
             
-            FileMeta fileMeta = new FileMeta( fileRef, config.getSortBufferSize() / files.size() );
+            FileMeta fileMeta = new FileMeta( fileRef, capacity );
 
             // tell the stream reader that all events need to be handled by this
             // fileMeta.
