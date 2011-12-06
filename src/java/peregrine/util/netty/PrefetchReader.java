@@ -74,8 +74,10 @@ public class PrefetchReader implements Closeable {
 
         this.config = config;
         
-        if ( config.getFadviseDontNeedEnabled() == false )
+        if ( config.getFadviseDontNeedEnabled() == false ) {
+            log.warn( "Disabling as fadvise is not enabled." );
             return;
+        }
         
         for( MappedFile mappedFile : files ) {
 
