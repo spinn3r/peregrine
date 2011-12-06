@@ -19,10 +19,12 @@ public class LocalPartitionWriterDelegate extends BasePartitionWriterDelegate {
 	private static final Logger log = Logger.getLogger();
   
     private Config config;
-
-    public LocalPartitionWriterDelegate(Config config) {
+    private boolean autoForce;
+    
+    public LocalPartitionWriterDelegate( Config config, boolean autoForce ) {
 		super();
 		this.config = config;
+        this.autoForce = autoForce;
 	}
     
     @Override
@@ -66,8 +68,12 @@ public class LocalPartitionWriterDelegate extends BasePartitionWriterDelegate {
 
         if ( ! file.exists() )
             file.createNewFile();
+
+        MappedFile mappedFile = new MappedFile( config, file, FileChannel.MapMode.READ_WRITE );
+
+        mappedFile.setAutoForce( autoForce );
         
-        return new MappedFile( config, file, FileChannel.MapMode.READ_WRITE ).getChannelBufferWritable();
+        return mappedFile.getChannelBufferWritable();
         
     }
 

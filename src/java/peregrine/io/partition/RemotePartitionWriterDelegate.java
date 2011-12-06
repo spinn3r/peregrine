@@ -4,6 +4,7 @@ import java.io.*;
 import java.util.*;
 import java.net.*;
 
+import peregrine.config.*;
 import peregrine.http.*;
 import peregrine.util.netty.*;
 
@@ -15,6 +16,10 @@ import com.spinn3r.log5j.*;
 public class RemotePartitionWriterDelegate extends BasePartitionWriterDelegate {
 
     private static final Logger log = Logger.getLogger();
+
+    public RemotePartitionWriterDelegate( Config config, boolean autoForce ) {
+
+    }
 
     @Override
     public int append() throws IOException {

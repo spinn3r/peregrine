@@ -5,8 +5,9 @@ import java.util.*;
 
 import peregrine.config.*;
 import peregrine.http.*;
-import peregrine.io.chunk.*;
 import peregrine.io.async.*;
+import peregrine.io.chunk.*;
+import peregrine.os.*;
 import peregrine.pfsd.*;
 import peregrine.util.netty.*;
 
@@ -57,12 +58,23 @@ public class DefaultPartitionWriter implements PartitionWriter, ChunkWriter {
         this( config, partition, path, append, config.getMembership().getHosts( partition ) );
         
     }
-    
+
     public DefaultPartitionWriter( Config config,
                                    Partition partition,
                                    String path,
                                    boolean append,
                                    List<Host> hosts ) throws IOException {
+
+        this( config, partition, path, append, hosts, MappedFile.DEFAULT_AUTO_FORCE );
+        
+    }
+
+    public DefaultPartitionWriter( Config config,
+                                   Partition partition,
+                                   String path,
+                                   boolean append,
+                                   List<Host> hosts,
+                                   boolean autoForce ) throws IOException {
 
         this.config = config;
         this.partition = partition;
@@ -77,9 +89,9 @@ public class DefaultPartitionWriter implements PartitionWriter, ChunkWriter {
             PartitionWriterDelegate delegate;
 
             if ( host.equals( config.getHost() ) ) {
-                delegate = new LocalPartitionWriterDelegate( config );
+                delegate = new LocalPartitionWriterDelegate( config, autoForce );
             } else { 
-                delegate = new RemotePartitionWriterDelegate();
+                delegate = new RemotePartitionWriterDelegate( config, autoForce );
             }
 
             delegate.init( config, partition, host, path );
