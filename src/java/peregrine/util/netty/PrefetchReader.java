@@ -304,6 +304,8 @@ public class PrefetchReader implements Closeable {
                     // files, wait until at least ONE of them to complete, keep
                     // evicting until no more are available to evict and then
                     // attempt to cache more data
+
+                    System.out.printf( "FIXME: going to evict ... \n" );
                     
                     while( true ) {
 
