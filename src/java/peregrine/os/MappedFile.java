@@ -269,8 +269,8 @@ public class MappedFile implements Closeable {
         }
 
         @Override
-        public void force() {
-            mappedByteBuffer.force();
+        public void force() throws IOException {
+            channel.force( false );
         }
 
         @Override
