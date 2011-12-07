@@ -142,7 +142,6 @@ public class Test {
         System.out.printf( "done\n" );
         
         Config config = ConfigParser.parse();
-        config.getHosts().add( config.getHost() );
         
         long before = System.currentTimeMillis();
 
@@ -168,7 +167,7 @@ public class Test {
 
         long throughput = (long)((written / (double)duration) * 1000L);
 
-        System.out.printf( "Long wrote %,d bytes in %,d ms at %,d b/s\n",
+        System.out.printf( "Wrote %,d bytes in %,d ms at %,d b/s\n",
                            written, duration, throughput );
         
     }
@@ -179,7 +178,7 @@ public class Test {
 
         MappedFile.DEFAULT_AUTO_FORCE = true;
 
-        System.out.printf( "=== autoForce=true\n" );
+        System.out.printf( "=== autoForce=true and page size=%,d\n", MappedFile.FORCE_PAGE_SIZE );
         
         testDiskThroughput( args[0], Integer.parseInt( args[1] ) );
         testDiskThroughput( args[0], Integer.parseInt( args[1] ) );
@@ -187,7 +186,7 @@ public class Test {
 
         MappedFile.DEFAULT_AUTO_FORCE = false;
 
-        System.out.printf( "=== autoForce=false\n" );
+        System.out.printf( "=== autoForce=false and page size=%,d\n", MappedFile.FORCE_PAGE_SIZE );
 
         testDiskThroughput( args[0], Integer.parseInt( args[1] ) );
         testDiskThroughput( args[0], Integer.parseInt( args[1] ) );
