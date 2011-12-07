@@ -71,7 +71,7 @@ public class MappedFile implements Closeable {
 
         put( "r",  FileChannel.MapMode.READ_ONLY );
         put( "rw", FileChannel.MapMode.READ_WRITE );
-        put( "w", FileChannel.MapMode.READ_WRITE );
+        put( "w",  FileChannel.MapMode.READ_WRITE );
         
     }};
 
@@ -257,9 +257,9 @@ public class MappedFile implements Closeable {
                 force();
                 forced += length;
             }
-            
-            //FIXME: I'm NOT sure that this is the fastest write path
-            channel.write( buff.toByteBuffer() );
+
+            // this should use transferTo for the write.
+            buff.getBytes( 0, channel, buff.writerIndex() );
             
         }
         

@@ -50,7 +50,7 @@ public class Config extends BaseConfig {
             throw new RuntimeException( "Host is not defined in hosts file nor is it the controller: " + getHost() );
         }
 
-        // FIXME: move the hash partitioner implementation to a config directive... 
+        // TODO: move the hash partitioner implementation to a config directive... 
         
         router = new HashPartitionRouter();
         router.init( this );
