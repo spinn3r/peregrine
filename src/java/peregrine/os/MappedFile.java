@@ -29,7 +29,7 @@ public class MappedFile implements Closeable {
      */
     public static long FORCE_PAGE_SIZE = 4096;
     
-    public static boolean DEFAULT_AUTO_FORCE = false;
+    public static boolean DEFAULT_AUTO_FORCE = true;
 
     public static boolean DEFAULT_AUTO_LOCK = false;
 
