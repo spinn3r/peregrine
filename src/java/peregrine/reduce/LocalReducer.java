@@ -1,4 +1,3 @@
-
 package peregrine.reduce;
 
 import java.io.*;
@@ -102,6 +101,9 @@ public class LocalReducer {
      */
     protected void finalMerge( List<ChunkReader> readers ) throws IOException {
 
+        log.info( "Merging on final merge with %,d readers (strategy=finalMerge)",
+                  readers.size());
+        
         PrefetchReader prefetchReader = null;
 
         try {
@@ -145,7 +147,8 @@ public class LocalReducer {
                 work.add( pending.remove( 0 ) );
             }
 
-            log.info( "Merging %,d work into %s on intermediate pass %,d", work.size(), path, pass );
+            log.info( "Merging %,d work readers into %s on intermediate pass %,d (strategy=interMerge)",
+                      work.size(), path, pass );
 
             PrefetchReader prefetchReader = null;
 
