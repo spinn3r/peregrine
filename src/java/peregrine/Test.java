@@ -130,7 +130,7 @@ public class Test {
         System.out.printf( "v: %s\n", v );
     }
 
-    public static void testDiskThroughput( String path ) throws Exception {
+    public static void testDiskThroughput( String path, int max ) throws Exception {
 
         System.out.printf( "Dropping caches and running sync... " );
         
@@ -149,8 +149,6 @@ public class Test {
         byte[] data = new byte[16384];
 
         ChannelBuffer buff = ChannelBuffers.wrappedBuffer( data );
-        
-        int max = 100;
 
         ChannelBufferWritable writable = mappedFile.getChannelBufferWritable();
         
@@ -175,8 +173,22 @@ public class Test {
     
     public static void main( String[] args ) throws Exception {
 
-        testDiskThroughput( args[0] );
+        MappedFile.DEFAULT_AUTO_FORCE = true;
+
+        System.out.printf( "=== autoForce=true\n" );
         
+        testDiskThroughput( args[0], Integer.parseInt( args[1] ) );
+        testDiskThroughput( args[0], Integer.parseInt( args[1] ) );
+        testDiskThroughput( args[0], Integer.parseInt( args[1] ) );
+
+        MappedFile.DEFAULT_AUTO_FORCE = false;
+
+        System.out.printf( "=== autoForce=false\n" );
+
+        testDiskThroughput( args[0], Integer.parseInt( args[1] ) );
+        testDiskThroughput( args[0], Integer.parseInt( args[1] ) );
+        testDiskThroughput( args[0], Integer.parseInt( args[1] ) );
+
         /*
         FileInputStream fis = new FileInputStream( "test.txt" );
 
