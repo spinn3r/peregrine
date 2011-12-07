@@ -144,7 +144,7 @@ public class Test {
 
         long before = System.currentTimeMillis();
 
-        MappedFile mappedFile = new MappedFile( config, "test.dat", "w" );
+        MappedFile mappedFile = new MappedFile( config, path, "w" );
 
         byte[] data = new byte[16384];
 
