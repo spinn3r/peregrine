@@ -130,8 +130,54 @@ public class Test {
         System.out.printf( "v: %s\n", v );
     }
 
+    public static void testDiskThroughput( String path ) throws Exception {
+
+        System.out.printf( "Dropping caches and running sync... " );
+        
+        Linux.dropCaches();
+        unistd.sync();
+
+        System.out.printf( "done\n" );
+        
+        Config config = new Config();
+        config.initEnabledFeatures();
+
+        long before = System.currentTimeMillis();
+
+        MappedFile mappedFile = new MappedFile( config, "test.dat", "w" );
+
+        byte[] data = new byte[16384];
+
+        ChannelBuffer buff = ChannelBuffers.wrappedBuffer( data );
+        
+        int max = 100;
+
+        ChannelBufferWritable writable = mappedFile.getChannelBufferWritable();
+        
+        for( int i = 0; i < max; ++i ) {
+            writable.write( buff );
+        }
+
+        writable.close();
+        
+        long written = data.length * max;
+
+        long after = System.currentTimeMillis();
+
+        long duration = after-before;
+
+        long throughput = (long)((written / (double)duration) * 1000L);
+
+        System.out.printf( "Long wrote %,d bytes in %,d ms at %,d b/s\n",
+                           written, duration, throughput );
+        
+    }
+    
     public static void main( String[] args ) throws Exception {
 
+        testDiskThroughput( args[0] );
+        
+        /*
         FileInputStream fis = new FileInputStream( "test.txt" );
 
         FileChannel channel = fis.getChannel();
@@ -162,7 +208,8 @@ public class Test {
         long throughput = (duration / count);
 
         System.out.printf( "count: %,d , duration: %,d ms , throughput: %,d per ms\n", count, duration, throughput );
-
+        */
+        
         /*
         String path = "/d0/util0029.wdc.sl.spinn3r.com/11112/1/tmp/default.1/merged-0.tmp";
 
