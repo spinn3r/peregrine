@@ -102,7 +102,7 @@ public class LocalReducer {
     protected void finalMerge( List<ChunkReader> readers ) throws IOException {
 
         log.info( "Merging on final merge with %,d readers (strategy=finalMerge)",
-                  readers.size());
+                  readers.size() );
         
         PrefetchReader prefetchReader = null;
 
