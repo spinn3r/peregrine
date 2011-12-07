@@ -142,7 +142,8 @@ public class Test {
         System.out.printf( "done\n" );
         
         Config config = ConfigParser.parse();
-
+        config.getHosts().add( config.getHost() );
+        
         long before = System.currentTimeMillis();
 
         MappedFile mappedFile = new MappedFile( config, path, "w" );
