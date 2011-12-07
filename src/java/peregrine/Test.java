@@ -158,7 +158,11 @@ public class Test {
         }
 
         writable.close();
-        
+
+        // we have to sync to get a realistic performance test when not running
+        // with forced pages
+        unistd.sync();
+
         long written = data.length * max;
 
         long after = System.currentTimeMillis();
@@ -167,18 +171,15 @@ public class Test {
 
         long throughput = (long)((written / (double)duration) * 1000L);
 
-        System.out.printf( "Wrote %,d bytes in %,d ms at %,d b/s\n",
-                           written, duration, throughput );
+        System.out.printf( "Wrote %,d bytes in %,d ms at %,d b/s with autoForce=%s and pageSize=%s\n",
+                           written, duration, throughput,
+                           MappedFile.DEFAULT_AUTO_FORCE, MappedFile.FORCE_PAGE_SIZE );
         
     }
-    
-    public static void main( String[] args ) throws Exception {
 
-        DOMConfigurator.configure( "conf/log4j.xml" );
+    public static void testDiskThroughput() throws Exception {
 
         MappedFile.DEFAULT_AUTO_FORCE = true;
-
-        System.out.printf( "=== autoForce=true and page size=%,d\n", MappedFile.FORCE_PAGE_SIZE );
         
         testDiskThroughput( args[0], Integer.parseInt( args[1] ) );
         testDiskThroughput( args[0], Integer.parseInt( args[1] ) );
@@ -191,6 +192,21 @@ public class Test {
         testDiskThroughput( args[0], Integer.parseInt( args[1] ) );
         testDiskThroughput( args[0], Integer.parseInt( args[1] ) );
         testDiskThroughput( args[0], Integer.parseInt( args[1] ) );
+
+    }
+        
+    public static void main( String[] args ) throws Exception {
+
+        DOMConfigurator.configure( "conf/log4j.xml" );
+
+        MappedFile.FORCE_PAGE_SIZE=4096;
+        testDiskThroughput();
+
+        MappedFile.FORCE_PAGE_SIZE=16384;
+        testDiskThroughput();
+
+        MappedFile.FORCE_PAGE_SIZE=32768;
+        testDiskThroughput();
 
         /*
         FileInputStream fis = new FileInputStream( "test.txt" );
