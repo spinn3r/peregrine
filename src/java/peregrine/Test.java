@@ -177,7 +177,7 @@ public class Test {
         
     }
 
-    public static void testDiskThroughput() throws Exception {
+    public static void testDiskThroughput(String[] args) throws Exception {
 
         MappedFile.DEFAULT_AUTO_FORCE = true;
         
@@ -200,13 +200,13 @@ public class Test {
         DOMConfigurator.configure( "conf/log4j.xml" );
 
         MappedFile.FORCE_PAGE_SIZE=4096;
-        testDiskThroughput();
+        testDiskThroughput(args);
 
         MappedFile.FORCE_PAGE_SIZE=16384;
-        testDiskThroughput();
+        testDiskThroughput(args);
 
         MappedFile.FORCE_PAGE_SIZE=32768;
-        testDiskThroughput();
+        testDiskThroughput(args);
 
         /*
         FileInputStream fis = new FileInputStream( "test.txt" );
