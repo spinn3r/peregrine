@@ -15,6 +15,8 @@ import org.jboss.netty.logging.*;
 
 import org.apache.hadoop.util.*;
 
+import org.apache.log4j.xml.DOMConfigurator;
+
 import com.spinn3r.log5j.Logger;
 
 import com.sun.jna.Pointer;
