@@ -139,8 +139,7 @@ public class Test {
 
         System.out.printf( "done\n" );
         
-        Config config = new Config();
-        config.initEnabledFeatures();
+        Config config = ConfigParser.parse();
 
         long before = System.currentTimeMillis();
 
@@ -172,6 +171,8 @@ public class Test {
     }
     
     public static void main( String[] args ) throws Exception {
+
+        DOMConfigurator.configure( "conf/log4j.xml" );
 
         MappedFile.DEFAULT_AUTO_FORCE = true;
 
