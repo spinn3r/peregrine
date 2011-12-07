@@ -3,6 +3,9 @@ package peregrine.pfsd;
 import static org.jboss.netty.handler.codec.http.HttpResponseStatus.*;
 import static org.jboss.netty.handler.codec.http.HttpVersion.*;
 
+import peregrine.util.netty.*;
+import peregrine.os.*;
+
 import java.io.*;
 import java.nio.channels.*;
 
@@ -15,23 +18,21 @@ import org.jboss.netty.handler.codec.http.*;
 public class FSPutDirectHandler extends FSPutBaseHandler {
 
     public static byte[] EOF = new byte[0];
-
-    public static boolean FORCE = false;
     
-    private FileChannel output = null;
+    private ChannelBufferWritable output = null;
 
     public FSPutDirectHandler( FSDaemon daemon, FSHandler handler ) throws IOException {
         super( handler );
 
-        // FIXME: ALL of this should be async... In fact ALL the IO here should
-        // be async.
-        new File( new File( handler.path ).getParent() ).mkdirs();
+        File file = new File( handler.path );
         
-        // used so that we can get our channel
-        FileOutputStream out = new FileOutputStream( handler.path );
-        
-        output = out.getChannel();
+        // FIXME: this mkdir should be async.
+        new File( file.getParent() ).mkdirs();
 
+        MappedFile mappedFile = new MappedFile( daemon.getConfig(), file, "w" );
+
+        output = mappedFile.getChannelBufferWritable();
+        
     }
 
     @Override
@@ -47,23 +48,12 @@ public class FSPutDirectHandler extends FSPutBaseHandler {
 
             if ( ! chunk.isLast() ) {
 
-                // transferTo the data in this handler... 
-                ChannelBuffer content = chunk.getContent();    
-                content.getBytes( 0, output, content.writerIndex() );
-
+                output.write( chunk.getContent() );
+                
             } else {
 
-                if ( FORCE ) {
-
-                    long before = System.currentTimeMillis();
-
-                    output.force( true );
-
-                    long after = System.currentTimeMillis();
-
-                    log.info( "Took %,d ms to force output to disk." , (after-before) );
-
-                }
+                // FIXME this must be async ... 
+                output.close();
                 
                 // FIXME: I don't like how the status sending is decoupled from
                 // pipeline requests AND non-pipeline requests.  I need to unify

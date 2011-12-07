@@ -19,7 +19,9 @@ public class TestRemotePartitionWriterDelegate extends peregrine.PFSTest {
         config = new Config();
         
         config.setHost( new Host( "localhost" ) );
-
+        
+        config.initEnabledFeatures();
+        
     }
         
     /**
@@ -30,7 +32,7 @@ public class TestRemotePartitionWriterDelegate extends peregrine.PFSTest {
         Partition part = new Partition( 0 );
         String path = "/test/remote-write1" ;
         
-        RemotePartitionWriterDelegate delegate = new RemotePartitionWriterDelegate();
+        RemotePartitionWriterDelegate delegate = new RemotePartitionWriterDelegate( config, false );
         delegate.init( config, part, config.getHost(), path );
 
         int chunk_id = 0;
