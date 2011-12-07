@@ -27,7 +27,7 @@ public class MappedFile implements Closeable {
     /**
      * How often should we force writing pages to disk.
      */
-    public static long FORCE_PAGE_SIZE = 32768;
+    public static long FORCE_PAGE_SIZE = 8192;
     
     public static boolean DEFAULT_AUTO_FORCE = true;
 
