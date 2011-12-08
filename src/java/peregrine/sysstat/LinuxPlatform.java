@@ -105,7 +105,7 @@ public class LinuxPlatform {
             String field_sectorsRead = fields[5];
             String field_sectorsWritten = fields[9];
 
-            System.out.printf( "FIXME field_dev: %s\n", field_dev );
+            System.out.printf( "FIXME field_dev: %s of length %s\n", field_dev, fields.length );
 
             if ( ! dev.equals( field_dev ) ) {
                 continue;
