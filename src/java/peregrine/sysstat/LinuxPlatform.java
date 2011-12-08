@@ -141,8 +141,6 @@ public class LinuxPlatform {
             if ( ! field_net.equals( net ) )
                 continue;
             
-            System.out.printf( "FIXME: field_receive_bytes %s\n", field_receive_bytes );
-            
             statMeta.network.readBytes = new BigDecimal( field_receive_bytes );
             statMeta.network.writtenBytes = new BigDecimal( field_transmit_bytes );
             
