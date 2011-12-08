@@ -14,8 +14,8 @@ import com.spinn3r.log5j.Logger;
  */
 public class InterfaceStat extends BaseStat implements Diffable<InterfaceStat> {
     
-    BigDecimal readBytes     = new BigDecimal( 0 );
-    BigDecimal writtenBytes  = new BigDecimal( 0 );
+    BigDecimal readBits     = new BigDecimal( 0 );
+    BigDecimal writtenBits  = new BigDecimal( 0 );
 
     @Override
     public InterfaceStat diff( InterfaceStat after ) {
@@ -25,8 +25,8 @@ public class InterfaceStat extends BaseStat implements Diffable<InterfaceStat> {
         result.name = name;
         result.duration = after.duration - duration;
 
-        result.readBytes    = after.readBytes.subtract( readBytes );
-        result.writtenBytes = after.writtenBytes.subtract( writtenBytes );
+        result.readBits    = after.readBits.subtract( readBits );
+        result.writtenBits = after.writtenBits.subtract( writtenBits );
 
         return result;
         
@@ -43,8 +43,8 @@ public class InterfaceStat extends BaseStat implements Diffable<InterfaceStat> {
         result.name = name;
         result.duration = duration;
 
-        result.readBytes = overInterval( readBytes, interval );
-        result.writtenBytes = overInterval( writtenBytes, interval );
+        result.readBits = overInterval( readBits, interval );
+        result.writtenBits = overInterval( writtenBits, interval );
 
         return result;
         
@@ -56,7 +56,7 @@ public class InterfaceStat extends BaseStat implements Diffable<InterfaceStat> {
         StringBuilder buff = new StringBuilder();
 
         buff.append( String.format( "%10s %,20d %,20d",
-                                    name, readBytes.longValue(), writtenBytes.longValue() ) );
+                                    name, readBits.longValue(), writtenBits.longValue() ) );
 
         return buff.toString();
 
