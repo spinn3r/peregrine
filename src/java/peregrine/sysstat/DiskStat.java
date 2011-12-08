@@ -23,12 +23,11 @@ public class DiskStat extends BaseStat implements Diffable<DiskStat> {
         DiskStat result = new DiskStat();
         
         result.name = name;
+        result.duration = after.duration = duration;
 
         result.readBytes    = after.readBytes.subtract( readBytes );
         result.writtenBytes = after.writtenBytes.subtract( writtenBytes );
 
-        result.duration = after.duration = duration;
-        
         return result;
         
     }
@@ -40,6 +39,9 @@ public class DiskStat extends BaseStat implements Diffable<DiskStat> {
     public DiskStat rate( long interval ) {
 
         DiskStat result = new DiskStat();
+
+        result.name = name;
+        result.duration = duration;
 
         result.readBytes = overInterval( readBytes, interval );
         result.writtenBytes = overInterval( writtenBytes, interval );

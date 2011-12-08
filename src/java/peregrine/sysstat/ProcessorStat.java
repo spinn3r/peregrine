@@ -58,6 +58,7 @@ public class ProcessorStat extends BaseStat implements Diffable<ProcessorStat> {
         ProcessorStat result = new ProcessorStat();
         
         result.name = name;
+        result.duration = after.duration = duration;
         
         result.user    = after.user.subtract( user );
         result.nice    = after.nice.subtract( nice );
@@ -66,8 +67,6 @@ public class ProcessorStat extends BaseStat implements Diffable<ProcessorStat> {
         result.iowait  = after.iowait.subtract( iowait );
         result.irq     = after.irq.subtract( irq );
         result.softirq = after.softirq.subtract( softirq );
-
-        result.duration = after.duration = duration;
 
         result.init();
 
@@ -82,6 +81,9 @@ public class ProcessorStat extends BaseStat implements Diffable<ProcessorStat> {
     public ProcessorStat rate( long interval ) {
 
         ProcessorStat result = new ProcessorStat();
+
+        result.name = name;
+        result.duration = duration;
 
         result.user    = overInterval( user, interval );
         result.nice    = overInterval( nice, interval );
