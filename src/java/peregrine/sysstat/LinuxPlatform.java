@@ -44,7 +44,8 @@ public class LinuxPlatform {
 
         captureDisk( disk, statMeta );
         captureNetwork( net, statMeta );
-    
+        captureCPU( statMeta );
+        
         return statMeta;
         
     }
@@ -148,6 +149,26 @@ public class LinuxPlatform {
 
     }
 
+    /**
+     * http://www.linuxhowtos.org/System/procstat.htm
+     * http://stackoverflow.com/questions/3017162/how-to-get-total-cpu-usage-in-linux-c
+     */
+    private void captureCPU( StatMeta statMeta ) throws IOException {
+
+        String value = read( "/proc/stat" );
+
+        String[] lines = value.split( "\n" );
+
+        for( String line : lines ) {
+            
+            String[] fields = line.split( "[\t ]+" );
+
+            dump( fields ) ;
+            
+        }
+            
+    }
+        
     private void dump( String[] fields ) {
         for( int i = 0; i < fields.length; ++i ) {
             System.out.printf( "%s=%s\n", i , fields[i] );
