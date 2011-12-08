@@ -35,5 +35,9 @@ public class BaseStat {
     public void init() {
 
     }
+
+    protected boolean isZero( BigDecimal value ) {
+        return value.compareTo( ZERO ) == 0;
+    }
     
 }

@@ -104,7 +104,7 @@ public class DiskStat extends BaseStat implements Diffable<DiskStat> {
 
         // TODO: we can break average request size into reads and writes.
         
-        if( ! nr_ops.equals( ZERO ) ) {
+        if( ! isZero( nr_ops ) ) {
             avg_req_size = nr_bytes.divide( nr_ops, 2, RoundingMode.CEILING ).doubleValue();
         }
 
