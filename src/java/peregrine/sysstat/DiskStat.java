@@ -21,8 +21,6 @@ public class DiskStat implements Diffable<DiskStat> {
 
     @Override
     public DiskStat diff( DiskStat after ) {
-
-        System.out.printf( "FIXME: going to diff %s vs %s\n", this, after );
         
         DiskStat result = new DiskStat();
         
@@ -31,7 +29,7 @@ public class DiskStat implements Diffable<DiskStat> {
         result.readBytes    = after.readBytes.subtract( readBytes );
         result.writtenBytes = after.writtenBytes.subtract( writtenBytes );
 
-        return this;
+        return result;
         
     }
 
