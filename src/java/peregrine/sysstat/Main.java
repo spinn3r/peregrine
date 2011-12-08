@@ -30,10 +30,10 @@ public class Main {
 
             platform.update();
 
-            StatMeta rate = platform.rate();
+            StatMeta stat = platform.diff();
 
-            if ( rate != null )
-                System.out.printf( "%s\n", rate );
+            if ( stat != null )
+                System.out.printf( "%s\n", stat );
             
             Thread.sleep( 5000L );
             
