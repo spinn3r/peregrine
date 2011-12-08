@@ -58,7 +58,7 @@ public class ProcessorStat extends BaseStat implements Diffable<ProcessorStat> {
         ProcessorStat result = new ProcessorStat();
         
         result.name = name;
-        result.duration = after.duration - duration;
+        result.duration = after.timestamp - timestamp;
         
         result.user    = after.user.subtract( user );
         result.nice    = after.nice.subtract( nice );
