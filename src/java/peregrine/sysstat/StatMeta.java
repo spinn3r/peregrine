@@ -24,8 +24,8 @@ public class StatMeta {
 
         StringBuilder buff = new StringBuilder();
 
-        buff.append( String.format( "%12s %20s", "", "% util\n" ) );
-        buff.append( String.format( "%12s %20s", "", "------\n" ) );
+        buff.append( String.format( "%11s %20s", "", "% util\n" ) );
+        buff.append( String.format( "%11s %20s", "", "------\n" ) );
 
         for( CPUStat cpu : cpuStats ) {
 

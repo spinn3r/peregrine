@@ -47,7 +47,9 @@ public class CPUStat implements Diffable<CPUStat> {
                           .add( softirq )
             ;
 
-        active = active_jiffies.divide( total_jiffies, 2, RoundingMode.CEILING ).doubleValue() * 100;
+        if ( ! total_jiffies.equals( new BigDecimal( 0 ) ) ) {
+            active = active_jiffies.divide( total_jiffies, 2, RoundingMode.CEILING ).doubleValue() * 100;
+        }
 
     }
 
