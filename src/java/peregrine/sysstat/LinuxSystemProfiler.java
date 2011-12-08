@@ -10,7 +10,6 @@ import peregrine.os.*;
 
 import com.spinn3r.log5j.Logger;
 
-
 /**
  * 
  * http://www.xaprb.com/blog/2010/01/09/how-linux-iostat-computes-its-results/
@@ -107,8 +106,8 @@ public class LinuxSystemProfiler extends BaseSystemProfiler {
 
             return current;
             
-        } catch ( IOException e ) {
-            log.error( "Unable to handle update: " , e );
+        } catch ( Throwable t ) {
+            log.error( "Unable to handle update: " , t );
             return new StatMeta();
         }
         
@@ -227,8 +226,13 @@ public class LinuxSystemProfiler extends BaseSystemProfiler {
 
         String[] lines = value.split( "\n" );
 
-        for( String line : lines ) {
-            
+        for( int i = 0; i < lines.length; ++i ) {
+
+            if ( i <= 1 )
+                continue;
+
+            String line = lines[i];
+
             String[] fields = line.split( "[\t ]+" );
 
             String field_net = fields[1];
@@ -247,8 +251,6 @@ public class LinuxSystemProfiler extends BaseSystemProfiler {
             InterfaceStat stat = new InterfaceStat();
             stat.name = field_net;
 
-            System.out.printf( "FIXME: %s\n", field_receive_bytes );
-            
             stat.readBits = new BigDecimal( field_receive_bytes )
                 .multiply( new BigDecimal( 8 ) )
                 ;
