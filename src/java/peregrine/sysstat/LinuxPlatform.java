@@ -129,7 +129,7 @@ public class LinuxPlatform {
     }
 
     private void dump( String[] fields ) {
-        for( int i = 0; i < fields.lenght; ++i ) {
+        for( int i = 0; i < fields.length; ++i ) {
             System.out.printf( "%s=%s\n", i , fields[i] );
         }
     }
