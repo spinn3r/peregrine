@@ -21,7 +21,13 @@ public class BaseStat {
 
     protected BigDecimal overInterval( BigDecimal value , long interval ) {
 
-        return value.divide( new BigDecimal( duration / (double)interval ), 2, RoundingMode.CEILING );
+        double range = duration / (double)interval;
+
+        System.out.printf( "FIXME: duration: %s\n", duration );
+        System.out.printf( "FIXME: interval: %s\n", interval );
+        System.out.printf( "FIXME: range: %s\n", range );
+
+        return value.divide( new BigDecimal( range ), 2, RoundingMode.CEILING );
         
     }
 
