@@ -19,8 +19,10 @@ public class Main {
 
         while( true ) {
 
-            platform.update();
+            StatMeta stat = platform.update();
 
+            System.out.printf( "%s\n", platform.format( stat ) );
+            
             Thread.sleep( 1000L );
             
         }

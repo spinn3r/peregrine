@@ -46,7 +46,7 @@ public class LinuxPlatform {
         
     }
 
-    private String format( StatMeta meta ) throws IOException {
+    public String format( StatMeta meta ) {
 
         return String.format( "%10s %,10d %,10d",
                               dev, meta.readBytes.longValue(), meta.writtenBytes.longValue() );
@@ -95,8 +95,6 @@ public class LinuxPlatform {
         String[] lines = value.split( "\n" );
 
         for( String line : lines ) {
-
-            //System.out.printf( "FIXME: line: %s\n", line );
             
             String[] fields = line.split( "[\t ]+" );
 
@@ -108,14 +106,10 @@ public class LinuxPlatform {
             String field_sectorsRead = fields[6];
             String field_sectorsWritten = fields[10];
 
-            //System.out.printf( "FIXME field_dev: %s of length %s\n", field_dev, fields.length );
-
             if ( ! dev.equals( field_dev ) ) {
                 continue;
             }
 
-            System.out.printf( "FIXME FOUND IT: %s\n", dev );
-            
             statMeta.readBytes    = new SectorReference( field_sectorsRead );
             statMeta.writtenBytes = new SectorReference( field_sectorsWritten );
             
