@@ -63,7 +63,7 @@ public class LinuxPlatform {
         for( CPUStat cpu : meta.processors ) {
 
             buff.append( String.format( "%10s %,20.2f\n",
-                                        net, cpu.active ) );
+                                        cpu.name, cpu.active ) );
 
         }
         
@@ -81,6 +81,11 @@ public class LinuxPlatform {
         diff.disk.diff( before.disk, after.disk );
         diff.network.diff( before.network, after.network );
 
+        for( int i = 0; i < before.processors.size(); ++i ) {
+            diff.processors.add( new CPUStat().diff( before.processors.get( i ),
+                                                     after.processors.get( i ) ) );
+        }
+        
         return diff;
         
     }
@@ -184,7 +189,8 @@ public class LinuxPlatform {
             // softirq: servicing softirqs
 
             CPUStat stat = new CPUStat();
-            
+
+            stat.name     = field_cpu;
             stat.user     = new BigDecimal( fields[1] );
             stat.nice     = new BigDecimal( fields[2] );
             stat.system   = new BigDecimal( fields[3] );

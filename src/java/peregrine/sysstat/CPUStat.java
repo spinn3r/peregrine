@@ -14,6 +14,8 @@ import com.spinn3r.log5j.Logger;
  */
 public class CPUStat {
 
+    String name;
+    
     BigDecimal user     = new BigDecimal( 0 );
     BigDecimal nice     = new BigDecimal( 0 );
     BigDecimal system   = new BigDecimal( 0 );
@@ -49,7 +51,7 @@ public class CPUStat {
 
     }
 
-    public void diff( CPUStat before, CPUStat after ) {
+    public CPUStat diff( CPUStat before, CPUStat after ) {
 
         user    = after.user.subtract( before.user );
         nice    = after.nice.subtract( before.nice );
@@ -60,6 +62,8 @@ public class CPUStat {
         softirq = after.softirq.subtract( before.softirq );
 
         init();
+
+        return this;
         
     }
 
