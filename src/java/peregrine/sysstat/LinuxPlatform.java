@@ -77,9 +77,20 @@ public class LinuxPlatform {
 
         File file = new File( "/proc/diskstats" );
         
-        RandomAccessFile raf = new RandomAccessFile( file, "r" );
+        RandomAccessFile fis = new RandomAccessFile( file, "r" );
 
-        for( String line = raf.readLine(); line != null; ) {
+        byte[] buff = new byte[16384];
+        
+        int count = fis.read( buff );
+
+        byte[] result = new byte[ count ];
+        System.arraycopy( buff, 0, result, 0, count );
+
+        String value = new String( result );
+        
+        String[] lines = value.split( "\n" );
+
+        for( String line : lines ) {
 
             System.out.printf( "FIXME: line: %s\n", line );
             
