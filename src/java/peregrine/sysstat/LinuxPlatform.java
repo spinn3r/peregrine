@@ -93,7 +93,7 @@ public class LinuxPlatform {
             
             String[] fields = line.split( "[\t ]+" );
 
-            if ( field.length < 10 )
+            if ( fields.length < 10 )
                 continue;
             
             String field_dev = fields[2];
