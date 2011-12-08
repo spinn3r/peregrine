@@ -92,12 +92,11 @@ public class LinuxPlatform {
 
         for( String line : lines ) {
 
-            System.out.printf( "FIXME: line: %s\n", line );
+            //System.out.printf( "FIXME: line: %s\n", line );
             
             String[] fields = line.split( "[\t ]+" );
 
             if ( fields.length < 10 ) {
-                System.out.printf( "FIXME: skipping: %,d\n", fields.length );
                 continue;
             }
 
@@ -105,12 +104,14 @@ public class LinuxPlatform {
             String field_sectorsRead = fields[6];
             String field_sectorsWritten = fields[10];
 
-            System.out.printf( "FIXME field_dev: %s of length %s\n", field_dev, fields.length );
+            //System.out.printf( "FIXME field_dev: %s of length %s\n", field_dev, fields.length );
 
             if ( ! dev.equals( field_dev ) ) {
                 continue;
             }
 
+            System.out.printf( "FIXME FOUND IT: %s\n", dev );
+            
             statMeta.readBytes    = new SectorReference( field_sectorsRead );
             statMeta.writtenBytes = new SectorReference( field_sectorsWritten );
             
