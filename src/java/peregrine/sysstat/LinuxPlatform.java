@@ -60,6 +60,13 @@ public class LinuxPlatform {
         buff.append( String.format( "%10s %,20d %,20d\n",
                                     net, meta.network.readBytes.longValue(), meta.network.writtenBytes.longValue() ) );
 
+        for( CPUStat cpu : meta.processors ) {
+
+            buff.append( String.format( "%10s %,20d\n",
+                                        net, cpu.active ) );
+
+        }
+        
         return buff.toString();
         
     }
@@ -163,7 +170,32 @@ public class LinuxPlatform {
             
             String[] fields = line.split( "[\t ]+" );
 
-            dump( fields ) ;
+            String field_cpu     = fields[0];
+
+            if ( ! field_cpu.startsWith( "cpu" ) )
+                continue;
+
+            // user: normal processes executing in user mode
+            // nice: niced processes executing in user mode
+            // system: processes executing in kernel mode
+            // idle: twiddling thumbs
+            // iowait: waiting for I/O to complete
+            // irq: servicing interrupts
+            // softirq: servicing softirqs
+
+            CPUStat stat = new CPUStat();
+            
+            stat.user     = new BigDecimal( fields[1] );
+            stat.nice     = new BigDecimal( fields[2] );
+            stat.system   = new BigDecimal( fields[3] );
+            stat.idle     = new BigDecimal( fields[4] );
+            stat.iowait   = new BigDecimal( fields[5] ); 
+            stat.irq      = new BigDecimal( fields[6] );
+            stat.softirq  = new BigDecimal( fields[7] );
+
+            stat.init();
+
+            statMeta.processors.add( stat );
             
         }
             
