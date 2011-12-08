@@ -120,9 +120,7 @@ public class LinuxPlatform {
     class SectorReference extends BigDecimal {
 
         public SectorReference( String value ) {
-            super( value );
-            // sectors are in units of 512 bytes.
-            multiply( new BigDecimal( 512 ) );
+            super( new BigDecimal( value ).multiply( new BigDecimal( 512 ) ) );
         }
         
     }
