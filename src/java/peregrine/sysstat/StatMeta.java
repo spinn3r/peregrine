@@ -15,8 +15,8 @@ import com.spinn3r.log5j.Logger;
  */
 public class StatMeta {
 
-    BigDecimal readBytes;
-    BigDecimal writtenBytes;
+    public DiskStat disk = new DiskStat();
+    public NetworkStat network = new NetworkStat();
     
 }
 

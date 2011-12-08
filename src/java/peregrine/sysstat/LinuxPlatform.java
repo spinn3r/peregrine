@@ -51,8 +51,15 @@ public class LinuxPlatform {
 
     public String format( StatMeta meta ) {
 
-        return String.format( "%10s %,20d %,20d",
-                              disk, meta.readBytes.longValue(), meta.writtenBytes.longValue() );
+        StringBuilder buff = new StringBuilder();
+
+        buff.append( String.format( "%10s %,20d %,20d\n",
+                                    disk, meta.disk.readBytes.longValue(), meta.disk.writtenBytes.longValue() ) );
+
+        buff.append( String.format( "%10s %,20d %,20d\n",
+                                    net, meta.network.readBytes.longValue(), meta.network.writtenBytes.longValue() ) );
+
+        return buff.toString();
         
     }
 
@@ -62,14 +69,14 @@ public class LinuxPlatform {
 
         // FIXME: these values can overflow and go back to zero.  We need to
         // detect this an adjust for it.
-        
-        diff.readBytes    = after.readBytes.subtract( before.readBytes );
-        diff.writtenBytes = after.writtenBytes.subtract( before.writtenBytes );
+
+        diff.disk.diff( before.disk, after.disk );
+        diff.network.diff( before.network, after.network );
 
         return diff;
         
     }
-    
+
     /**
      * Fields are documented here:
      * 
@@ -105,8 +112,8 @@ public class LinuxPlatform {
                 continue;
             }
 
-            statMeta.readBytes    = sectorReference( field_sectorsRead );
-            statMeta.writtenBytes = sectorReference( field_sectorsWritten );
+            statMeta.disk.readBytes    = sectorReference( field_sectorsRead );
+            statMeta.disk.writtenBytes = sectorReference( field_sectorsWritten );
             
         }
 
@@ -122,8 +129,12 @@ public class LinuxPlatform {
             
             String[] fields = line.split( "[\t ]+" );
 
-            dump( fields );
-            
+            String field_net = fields[1];
+            field_net = field_net.substring( 0 , field_net.length() - 1 );
+
+            String field_receive_bytes  = fields[2];
+            String field_transmit_bytes = fields[10];
+
         }
 
     }
