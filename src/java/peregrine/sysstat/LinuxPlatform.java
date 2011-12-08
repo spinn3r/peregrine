@@ -101,9 +101,9 @@ public class LinuxPlatform {
                 continue;
             }
 
-            String field_dev = fields[2];
-            String field_sectorsRead = fields[5];
-            String field_sectorsWritten = fields[9];
+            String field_dev = fields[3];
+            String field_sectorsRead = fields[6];
+            String field_sectorsWritten = fields[10];
 
             System.out.printf( "FIXME field_dev: %s of length %s\n", field_dev, fields.length );
 
