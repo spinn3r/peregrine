@@ -79,7 +79,11 @@ public class LinuxPlatform {
         
         FileInputStream fis = new FileInputStream( file );
 
-        byte[] data = new byte[ (int)file.length() ];
+        int length = (int)file.length();
+
+        System.out.printf( "FIXME: reading %,d bytes\n", length );
+        
+        byte[] data = new byte[ length ];
 
         fis.read( data );
 
