@@ -46,7 +46,7 @@ public class ProcessorStat extends BaseStat implements Diffable<ProcessorStat> {
                           .add( softirq )
             ;
 
-        if ( ! total_jiffies.equals( new BigDecimal( 0 ) ) ) {
+        if ( ! isZero( total_jiffies ) ) {
             active = active_jiffies.divide( total_jiffies, 2, RoundingMode.CEILING ).doubleValue() * 100;
         }
 
