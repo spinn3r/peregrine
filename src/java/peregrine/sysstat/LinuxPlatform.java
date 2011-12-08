@@ -138,6 +138,9 @@ public class LinuxPlatform {
             String field_receive_bytes  = fields[2];
             String field_transmit_bytes = fields[10];
 
+            statMeta.network.readBytes = new BigDecimal( field_receive_bytes );
+            statMeta.network.writtenBytes = new BigDecimal( field_transmit_bytes );
+            
         }
 
     }

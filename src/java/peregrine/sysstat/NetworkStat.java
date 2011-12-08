@@ -14,8 +14,8 @@ import com.spinn3r.log5j.Logger;
  */
 public class NetworkStat {
 
-    BigDecimal readBytes;
-    BigDecimal writtenBytes;
+    BigDecimal readBytes = new BigDecimal();
+    BigDecimal writtenBytes = new BigDecimal();
 
     public void diff( NetworkStat before, NetworkStat after ) {
         
