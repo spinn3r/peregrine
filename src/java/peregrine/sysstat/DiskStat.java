@@ -92,6 +92,10 @@ public class DiskStat extends BaseStat implements Diffable<DiskStat> {
 
         // right now these derived stats are not specified for absolute
         // measurements but only from diff or rate.
+
+
+        System.out.printf( "FIXME: duration: %s timetamp: %s\n", duration, timestamp );
+        
         if ( duration == timestamp )
             return;
 
