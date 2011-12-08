@@ -47,5 +47,9 @@ public interface Platform {
      */
     public long getInterval();
     public void setInterval( long interval );
-    
+
+    public StatMeta diff();
+
+    public StatMeta rate();
+
 }

@@ -28,11 +28,14 @@ public class Main {
 
         while( true ) {
 
-            StatMeta stat = platform.update();
+            platform.update();
 
-            System.out.printf( "%s\n", stat );
+            StatMeta rate = platform.rate();
+
+            if ( rate != null )
+                System.out.printf( "%s\n", rate );
             
-            Thread.sleep( 1000L );
+            Thread.sleep( 5000L );
             
         }
         

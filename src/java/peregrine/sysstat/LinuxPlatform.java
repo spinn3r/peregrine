@@ -14,32 +14,24 @@ public class LinuxPlatform extends BasePlatform {
 
     private static final Logger log = Logger.getLogger();
 
-    private StatMeta current = null;
-
     @Override
     public StatMeta update() {
 
         try {
         
-            StatMeta before = current;
+            last = current;
             
             current = capture();
 
-            StatMeta after = current;
-
-            if ( before == null ) {
-                return current;
-            } else { 
-                return diff( before, after );
-            }
-
+            return current;
+            
         } catch ( IOException e ) {
             log.error( "Unable to handle update: " , e );
             return new StatMeta();
         }
         
     }
-    
+
     private StatMeta capture() throws IOException {
 
         StatMeta statMeta = new StatMeta();
@@ -52,33 +44,6 @@ public class LinuxPlatform extends BasePlatform {
         
     }
 
-    private StatMeta diff( StatMeta before , StatMeta after ) {
-
-        StatMeta diff = new StatMeta();
-
-        // FIXME: these values can overflow and go back to zero.  We need to
-        // detect this an adjust for it.
-
-        diff( diff.diskStats, before.diskStats, after.diskStats );
-        diff( diff.interfaceStats, before.interfaceStats, after.interfaceStats );
-        diff( diff.processorStats, before.processorStats, after.processorStats );
-        
-        return diff;
-        
-    }
-
-    private void diff( List target ,
-                       List before,
-                       List after ) {
-
-        // TODO: I don't understand why I can't use generics for this.
-        
-        for( int i = 0; i < before.size(); ++i ) {
-            target.add( ((Diffable)before.get( i )).diff( after.get( i ) ) );
-        }
-
-    }
-    
     /**
      * Fields are documented here:
      * 
