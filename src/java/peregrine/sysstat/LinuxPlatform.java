@@ -62,7 +62,7 @@ public class LinuxPlatform {
 
         for( CPUStat cpu : meta.processors ) {
 
-            buff.append( String.format( "%10s %,20d\n",
+            buff.append( String.format( "%10s %,20.2f\n",
                                         net, cpu.active ) );
 
         }

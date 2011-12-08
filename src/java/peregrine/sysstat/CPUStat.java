@@ -45,9 +45,6 @@ public class CPUStat {
                           .add( softirq )
             ;
 
-        System.out.printf( "FIXME: active_jiffies: %s\n", active_jiffies );
-        System.out.printf( "FIXME: total_jiffies: %s\n", total_jiffies );
-        
         active = active_jiffies.divide( total_jiffies, 2, RoundingMode.CEILING ).doubleValue() * 100;
 
     }
