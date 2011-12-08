@@ -50,6 +50,7 @@ public class DiskStat extends BaseStat implements Diffable<DiskStat> {
         result.name = name;
         result.duration = after.timestamp - timestamp;
 
+        System.out.printf( "FIXME2: after timestamp %s and before timestamp %s\n", after.timestamp, timestamp );
         System.out.printf( "FIXME0: duration: %s timetamp: %s\n", duration, timestamp );
 
         result.readBytes        = after.readBytes.subtract( readBytes );

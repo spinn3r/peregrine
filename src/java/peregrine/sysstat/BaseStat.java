@@ -19,7 +19,7 @@ public class BaseStat {
     String name;
 
     long timestamp = System.currentTimeMillis();
-    long duration = timestamp;
+    long duration  = timestamp;
 
     protected BigDecimal overInterval( BigDecimal value , long interval ) {
 
