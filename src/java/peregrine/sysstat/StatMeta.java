@@ -11,13 +11,13 @@ import peregrine.os.*;
 import com.spinn3r.log5j.Logger;
 
 /**
- * Stats for disk throughput and network throughput.
+ * Stats for disk throughput and interface throughput.
  */
 public class StatMeta {
 
-    public List<DiskStat>     diskStats      = new ArrayList();
-    public List<NetworkStat>  networkStats   = new ArrayList();
-    public List<CPUStat>      cpuStats       = new ArrayList();
+    public List<DiskStat>       diskStats        = new ArrayList();
+    public List<InterfaceStat>  interfaceStats   = new ArrayList();
+    public List<ProcessorStat>  processorStats   = new ArrayList();
 
     @Override
     public String toString() {
@@ -27,9 +27,9 @@ public class StatMeta {
         buff.append( String.format( "%11s %20s", "", "% util\n" ) );
         buff.append( String.format( "%11s %20s", "", "------\n" ) );
 
-        for( CPUStat cpu : cpuStats ) {
+        for( ProcessorStat processor : processorStats ) {
 
-            buff.append( cpu + "\n" );
+            buff.append( processor + "\n" );
 
         }
 
@@ -49,7 +49,7 @@ public class StatMeta {
         buff.append( String.format( "%10s %20s %20s", "", "bytes rx", "bytes tx\n" ) );
         buff.append( String.format( "%10s %20s %20s", "", "--------", "--------\n" ) );
 
-        for( NetworkStat net : networkStats ) {
+        for( InterfaceStat net : interfaceStats ) {
 
             buff.append( net + "\n" );
 

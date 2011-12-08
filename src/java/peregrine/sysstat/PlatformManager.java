@@ -15,10 +15,10 @@ public class PlatformManager {
         String os = System.getProperty("os.name").toLowerCase();
         
         if ( os.contains("linux") ) {
-            
+            return new LinuxPlatform();
         }
 
-        return null;
+        return new UnsupportedPlatform();
         
     }
 

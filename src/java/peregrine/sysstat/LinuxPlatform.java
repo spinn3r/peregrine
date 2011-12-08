@@ -10,30 +10,32 @@ import peregrine.os.*;
 
 import com.spinn3r.log5j.Logger;
 
-public class LinuxPlatform {
+public class LinuxPlatform extends BasePlatform {
+
+    private static final Logger log = Logger.getLogger();
 
     private StatMeta current = null;
 
-    private String disk;
-    private String net;
-    
-    public LinuxPlatform( String disk, String net ) {
-        this.disk = disk;
-        this.net  = net;
-    }
-    
-    public StatMeta update() throws IOException {
+    @Override
+    public StatMeta update() {
 
-        StatMeta before = current;
+        try {
         
-        current = capture();
+            StatMeta before = current;
+            
+            current = capture();
 
-        StatMeta after = current;
+            StatMeta after = current;
 
-        if ( before == null ) {
-            return current;
-        } else { 
-            return diff( before, after );
+            if ( before == null ) {
+                return current;
+            } else { 
+                return diff( before, after );
+            }
+
+        } catch ( IOException e ) {
+            log.error( "Unable to handle update: " , e );
+            return new StatMeta();
         }
         
     }
@@ -42,9 +44,9 @@ public class LinuxPlatform {
 
         StatMeta statMeta = new StatMeta();
 
-        captureDisk( disk, statMeta );
-        captureNetwork( net, statMeta );
-        captureCPU( statMeta );
+        captureDisk( statMeta );
+        captureInterface( statMeta );
+        captureProcessor( statMeta );
         
         return statMeta;
         
@@ -58,8 +60,8 @@ public class LinuxPlatform {
         // detect this an adjust for it.
 
         diff( diff.diskStats, before.diskStats, after.diskStats );
-        diff( diff.networkStats, before.networkStats, after.networkStats );
-        diff( diff.cpuStats, before.cpuStats, after.cpuStats );
+        diff( diff.interfaceStats, before.interfaceStats, after.interfaceStats );
+        diff( diff.processorStats, before.processorStats, after.processorStats );
         
         return diff;
         
@@ -108,7 +110,7 @@ public class LinuxPlatform {
             String field_sectorsRead = fields[6];
             String field_sectorsWritten = fields[10];
 
-            if ( ! disk.equals( field_disk ) ) {
+            if ( getDisks() != null ! getDisks().contains( field_disk ) ) {
                 continue;
             }
 
@@ -124,7 +126,7 @@ public class LinuxPlatform {
 
     }
 
-    private void captureNetwork( String net, StatMeta statMeta ) throws IOException {
+    private void captureInterface( String net, StatMeta statMeta ) throws IOException {
 
         String value = read( "/proc/net/dev" );
 
@@ -146,13 +148,17 @@ public class LinuxPlatform {
             if ( ! field_net.equals( net ) )
                 continue;
 
-            NetworkStat stat = new NetworkStat();
+            if ( getInterfaces() != null ! getInterfaces().contains( field_net ) ) {
+                continue;
+            }
+
+            InterfaceStat stat = new InterfaceStat();
             stat.name = field_net;
             
             stat.readBytes = new BigDecimal( field_receive_bytes );
             stat.writtenBytes = new BigDecimal( field_transmit_bytes );
 
-            statMeta.networkStats.add( stat );
+            statMeta.interfaceStats.add( stat );
             
         }
 
@@ -162,7 +168,7 @@ public class LinuxPlatform {
      * http://www.linuxhowtos.org/System/procstat.htm
      * http://stackoverflow.com/questions/3017162/how-to-get-total-cpu-usage-in-linux-c
      */
-    private void captureCPU( StatMeta statMeta ) throws IOException {
+    private void captureProcessor( StatMeta statMeta ) throws IOException {
 
         String value = read( "/proc/stat" );
 
@@ -185,7 +191,7 @@ public class LinuxPlatform {
             // irq: servicing interrupts
             // softirq: servicing softirqs
 
-            CPUStat stat = new CPUStat();
+            ProcessorStat stat = new ProcessorStat();
 
             stat.name     = field_cpu;
             stat.user     = new BigDecimal( fields[1] );
@@ -198,7 +204,7 @@ public class LinuxPlatform {
 
             stat.init();
 
-            statMeta.cpuStats.add( stat );
+            statMeta.processorStats.add( stat );
             
         }
             
