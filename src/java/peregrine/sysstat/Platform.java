@@ -27,7 +27,7 @@ public interface Platform {
     /**
      * Filter results.  If null all are returned.
      */
-    public disk Set<String> getDisks();
+    public Set<String> getDisks();
     public void setDisks( Set<String> disks );    
 
     /**

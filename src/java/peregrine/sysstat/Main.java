@@ -13,17 +13,17 @@ public class Main {
 
     public static void main( String[] args ) throws Exception {
 
-        String _disk = args[0];
-        String _interface = args[1];
+        final String _disk = args[0];
+        final String _interface = args[1];
 
         Platform platform = PlatformManager.getPlatform();
 
         platform.setInterfaces( new HashSet() {{
-            .add( _interface );
+            add( _interface );
         }} );
 
         platform.setDisks( new HashSet() {{
-            .add( _disk );
+            add( _disk );
         }} );
 
         while( true ) {

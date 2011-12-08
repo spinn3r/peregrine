@@ -92,7 +92,7 @@ public class LinuxPlatform extends BasePlatform {
      * Field  7 -- # of sectors written
      * 
      */
-    private void captureDisk( String disk, StatMeta statMeta ) throws IOException {
+    private void captureDisk( StatMeta statMeta ) throws IOException {
 
         String value = read( "/proc/diskstats" );
         
@@ -110,7 +110,7 @@ public class LinuxPlatform extends BasePlatform {
             String field_sectorsRead = fields[6];
             String field_sectorsWritten = fields[10];
 
-            if ( getDisks() != null ! getDisks().contains( field_disk ) ) {
+            if ( getDisks() != null && ! getDisks().contains( field_disk ) ) {
                 continue;
             }
 
@@ -126,7 +126,7 @@ public class LinuxPlatform extends BasePlatform {
 
     }
 
-    private void captureInterface( String net, StatMeta statMeta ) throws IOException {
+    private void captureInterface( StatMeta statMeta ) throws IOException {
 
         String value = read( "/proc/net/dev" );
 
@@ -145,10 +145,7 @@ public class LinuxPlatform extends BasePlatform {
             String field_receive_bytes  = fields[2];
             String field_transmit_bytes = fields[10];
 
-            if ( ! field_net.equals( net ) )
-                continue;
-
-            if ( getInterfaces() != null ! getInterfaces().contains( field_net ) ) {
+            if ( getInterfaces() != null && ! getInterfaces().contains( field_net ) ) {
                 continue;
             }
 
