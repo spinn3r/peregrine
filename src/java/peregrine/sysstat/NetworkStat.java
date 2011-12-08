@@ -28,7 +28,7 @@ public class NetworkStat implements Diffable<NetworkStat> {
         result.readBytes    = after.readBytes.subtract( readBytes );
         result.writtenBytes = after.writtenBytes.subtract( writtenBytes );
 
-        return this;
+        return result;
         
     }
 
