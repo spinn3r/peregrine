@@ -100,10 +100,12 @@ public class LinuxPlatform {
                 System.out.printf( "FIXME: skipping: %,d\n", fields.length );
                 continue;
             }
-            
+
             String field_dev = fields[2];
             String field_sectorsRead = fields[5];
             String field_sectorsWritten = fields[9];
+
+            System.out.printf( "%sFIXME field_dev: %s\n", field_dev );
 
             if ( ! dev.equals( field_dev ) ) {
                 continue;
