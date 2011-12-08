@@ -28,7 +28,11 @@ public class LinuxPlatform {
 
         StatMeta after = current;
 
-        return diff( before, after );
+        if ( before == null ) {
+            return current;
+        } else { 
+            return diff( before, after );
+        }
         
     }
     
