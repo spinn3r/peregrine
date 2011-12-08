@@ -22,7 +22,7 @@ public class Main {
 
             StatMeta stat = platform.update();
 
-            System.out.printf( "%s\n", platform.format( stat ) );
+            System.out.printf( "%s\n", stat );
             
             Thread.sleep( 1000L );
             

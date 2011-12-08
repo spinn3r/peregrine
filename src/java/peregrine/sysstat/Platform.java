@@ -11,6 +11,6 @@ import com.spinn3r.log5j.Logger;
 
 public interface Platform {
 
-    public void capture( String dev );
+    public StatMeta capture( String dev ) throws IOException;
 
 }

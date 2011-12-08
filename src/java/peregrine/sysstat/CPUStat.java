@@ -71,5 +71,11 @@ public class CPUStat implements Diffable<CPUStat> {
         
     }
 
+    @Override
+    public String toString() {
+        return String.format( "%10s %,20.2f", name, active );
+
+    }
+    
 }
 

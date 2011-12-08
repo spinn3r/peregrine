@@ -22,6 +22,8 @@ public class DiskStat implements Diffable<DiskStat> {
     @Override
     public DiskStat diff( DiskStat after ) {
 
+        System.out.printf( "FIXME: going to diff %s vs %s\n", this, after );
+        
         DiskStat result = new DiskStat();
         
         result.name = name;
@@ -33,5 +35,13 @@ public class DiskStat implements Diffable<DiskStat> {
         
     }
 
+    @Override
+    public String toString() {
+
+        return String.format( "%10s %,20d %,20d",
+                              name, readBytes.longValue(), writtenBytes.longValue() );
+
+    }
+    
 }
 

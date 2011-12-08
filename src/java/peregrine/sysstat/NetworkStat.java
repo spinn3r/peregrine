@@ -32,5 +32,12 @@ public class NetworkStat implements Diffable<NetworkStat> {
         
     }
 
+    @Override
+    public String toString() {
+        return String.format( "%10s %,20d %,20d",
+                              name, readBytes.longValue(), writtenBytes.longValue() );
+
+    }
+    
 }
 

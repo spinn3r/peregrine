@@ -50,35 +50,6 @@ public class LinuxPlatform {
         
     }
 
-    public String format( StatMeta meta ) {
-
-        StringBuilder buff = new StringBuilder();
-
-        for( DiskStat disk : meta.diskStats ) {
-
-            buff.append( String.format( "%10s %,20d %,20d\n",
-                                        disk.name, disk.readBytes.longValue(), disk.writtenBytes.longValue() ) );
-
-        }
-
-        for( NetworkStat net : meta.networkStats ) {
-
-            buff.append( String.format( "%10s %,20d %,20d\n",
-                                        net.name, net.readBytes.longValue(), net.writtenBytes.longValue() ) );
-
-        }
-
-        for( CPUStat cpu : meta.cpuStats ) {
-
-            buff.append( String.format( "%10s %,20.2f\n",
-                                        cpu.name, cpu.active ) );
-
-        }
-        
-        return buff.toString();
-        
-    }
-
     private StatMeta diff( StatMeta before , StatMeta after ) {
 
         StatMeta diff = new StatMeta();
