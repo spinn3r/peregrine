@@ -76,9 +76,6 @@ public class CPUStat implements Diffable<CPUStat> {
 
         StringBuilder buff = new StringBuilder();
 
-        buff.append( String.format( "%10s %20s", "", "% util\n" ) );
-        buff.append( String.format( "%10s %20s", "", "------" ) );
-
         buff.append( String.format( "%10s %,20.2f", name, active ) );
 
         return buff.toString();

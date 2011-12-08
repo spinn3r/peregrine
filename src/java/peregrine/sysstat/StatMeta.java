@@ -36,6 +36,9 @@ public class StatMeta {
 
         }
 
+        buff.append( String.format( "%10s %20s", "", "% util\n" ) );
+        buff.append( String.format( "%10s %20s", "", "------\n" ) );
+
         for( CPUStat cpu : cpuStats ) {
 
             buff.append( cpu + "\n" );
