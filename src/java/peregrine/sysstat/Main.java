@@ -13,20 +13,20 @@ public class Main {
 
     public static void main( String[] args ) throws Exception {
 
-        SystemProfiler platform = SystemProfilerManager.getPlatform();
+        SystemProfiler profiler = SystemProfilerManager.getInstance();
 
         Getopt getopt = new Getopt( args );
 
-        platform.setInterfaces( toSet( getopt.getString( "interfaces" ) ) );
-        platform.setDisks( toSet( getopt.getString( "disks" ) ) );
-        platform.setProcessors( toSet( getopt.getString( "processors" ) ) );
+        profiler.setInterfaces( toSet( getopt.getString( "interfaces" ) ) );
+        profiler.setDisks( toSet( getopt.getString( "disks" ) ) );
+        profiler.setProcessors( toSet( getopt.getString( "processors" ) ) );
 
         while( true ) {
 
-            platform.update();
+            profiler.update();
 
             //StatMeta stat = platform.diff();
-            StatMeta stat = platform.rate();
+            StatMeta stat = profiler.rate();
 
             if ( stat != null )
                 System.out.printf( "%s\n", stat );

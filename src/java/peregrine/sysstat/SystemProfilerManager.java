@@ -10,7 +10,7 @@ import com.spinn3r.log5j.Logger;
 
 public class SystemProfilerManager {
 
-    public static SystemProfiler getPlatform() {
+    public static SystemProfiler getInstance() {
 
         String os = System.getProperty("os.name").toLowerCase();
         

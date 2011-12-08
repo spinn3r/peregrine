@@ -272,7 +272,7 @@ public class LocalReducer {
 
     protected List<ChunkReader> sort( List<File> input, String target_dir ) throws IOException {
 
-        SystemProfiler platform = SystemProfilerManager.getPlatform();
+        SystemProfiler platform = SystemProfilerManager.getInstance();
         
         try {
 
