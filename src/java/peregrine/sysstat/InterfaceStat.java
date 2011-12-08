@@ -12,16 +12,16 @@ import com.spinn3r.log5j.Logger;
 
 /**
  */
-public class NetworkStat implements Diffable<NetworkStat> {
+public class InterfaceStat implements Diffable<InterfaceStat> {
 
     String name;
     
     BigDecimal readBytes     = new BigDecimal( 0 );
     BigDecimal writtenBytes  = new BigDecimal( 0 );
 
-    public NetworkStat diff( NetworkStat after ) {
+    public InterfaceStat diff( InterfaceStat after ) {
 
-        NetworkStat result = new NetworkStat();
+        InterfaceStat result = new InterfaceStat();
         
         result.name = name;
 

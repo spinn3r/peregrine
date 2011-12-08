@@ -12,7 +12,7 @@ import com.spinn3r.log5j.Logger;
 
 /**
  */
-public class CPUStat implements Diffable<CPUStat> {
+public class ProcessorStat implements Diffable<ProcessorStat> {
 
     String name;
     
@@ -53,9 +53,9 @@ public class CPUStat implements Diffable<CPUStat> {
 
     }
 
-    public CPUStat diff( CPUStat after ) {
+    public ProcessorStat diff( ProcessorStat after ) {
 
-        CPUStat result = new CPUStat();
+        ProcessorStat result = new ProcessorStat();
         
         result.name = name;
         
