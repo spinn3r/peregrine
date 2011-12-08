@@ -110,18 +110,16 @@ public class LinuxPlatform {
                 continue;
             }
 
-            statMeta.readBytes    = new SectorReference( field_sectorsRead );
-            statMeta.writtenBytes = new SectorReference( field_sectorsWritten );
+            statMeta.readBytes    = sectorReference( field_sectorsRead );
+            statMeta.writtenBytes = sectorReference( field_sectorsWritten );
             
         }
 
     }
 
-    class SectorReference extends BigDecimal {
-
-        public SectorReference( String value ) {
-            super( new BigDecimal( value ).multiply( new BigDecimal( 512 ) ) );
-        }
+    public BigDecimal sectorReference( String value ) {
+        
+        return new BigDecimal( value ).multiply( new BigDecimal( 512 ) );    
         
     }
     
