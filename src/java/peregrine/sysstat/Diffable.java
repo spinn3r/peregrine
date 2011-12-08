@@ -11,4 +11,6 @@ public interface Diffable<T> {
 
     public T diff( T after );
 
+    public T rate( long interval );
+    
 }

@@ -12,9 +12,7 @@ import com.spinn3r.log5j.Logger;
 
 /**
  */
-public class ProcessorStat implements Diffable<ProcessorStat> {
-
-    String name;
+public class ProcessorStat extends BaseStat implements Diffable<ProcessorStat> {
     
     BigDecimal user     = new BigDecimal( 0 );
     BigDecimal nice     = new BigDecimal( 0 );
@@ -27,10 +25,11 @@ public class ProcessorStat implements Diffable<ProcessorStat> {
     BigDecimal active_jiffies  = new BigDecimal( 0 );
     BigDecimal total_jiffies   = new BigDecimal( 0 );
 
+    double active = 0;
+    
     /**
      * Percentage of idle CPU from 0 to 100.
      */
-    public double active = 0;
 
     public void init() {
 
@@ -53,6 +52,7 @@ public class ProcessorStat implements Diffable<ProcessorStat> {
 
     }
 
+    @Override
     public ProcessorStat diff( ProcessorStat after ) {
 
         ProcessorStat result = new ProcessorStat();
@@ -66,6 +66,28 @@ public class ProcessorStat implements Diffable<ProcessorStat> {
         result.iowait  = after.iowait.subtract( iowait );
         result.irq     = after.irq.subtract( irq );
         result.softirq = after.softirq.subtract( softirq );
+
+        result.init();
+
+        return result;
+        
+    }
+
+    /**
+     * Compute the rate of this state over the given interval.
+     */
+    @Override
+    public ProcessorStat rate( long interval ) {
+
+        ProcessorStat result = new ProcessorStat();
+
+        result.user    = overInterval( user, interval );
+        result.nice    = overInterval( nice, interval );
+        result.system  = overInterval( system, interval );
+        result.idle    = overInterval( idle, interval );
+        result.iowait  = overInterval( iowait, interval );
+        result.irq     = overInterval( irq, interval );
+        result.softirq = overInterval( softirq, interval );
 
         result.init();
 

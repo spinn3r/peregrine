@@ -42,4 +42,10 @@ public interface Platform {
     public Set<String> getProcessors();
     public void setProcessors( Set<String> processors );
 
+    /**
+     * The interval/rate you would like your throughput stats computed over.
+     */
+    public long getInterval();
+    public void setInterval( long interval );
+    
 }

@@ -15,6 +15,8 @@ import com.spinn3r.log5j.Logger;
  */
 public class StatMeta {
 
+    public long timestamp = System.currentTimeMillis();
+    
     public List<DiskStat>       diskStats        = new ArrayList();
     public List<InterfaceStat>  interfaceStats   = new ArrayList();
     public List<ProcessorStat>  processorStats   = new ArrayList();
