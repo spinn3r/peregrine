@@ -15,7 +15,9 @@ public class SystemProfilerManager {
         String os = System.getProperty("os.name").toLowerCase();
         
         if ( os.contains("linux") ) {
-            return new LinuxSystemProfiler();
+        	SystemProfiler profiler = new LinuxSystemProfiler();
+        	profiler.update();
+        	return profiler;
         }
 
         return new UnsupportedPlatform();

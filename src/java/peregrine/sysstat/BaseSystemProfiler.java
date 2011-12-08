@@ -92,6 +92,8 @@ public abstract class BaseSystemProfiler implements SystemProfiler {
     @Override
     public StatMeta rate() {
 
+        update();
+        
         StatMeta diff = diff();
 
         if ( diff == null )

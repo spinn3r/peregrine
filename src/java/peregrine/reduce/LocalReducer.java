@@ -272,51 +272,39 @@ public class LocalReducer {
 
     protected List<ChunkReader> sort( List<File> input, String target_dir ) throws IOException {
 
-        SystemProfiler platform = SystemProfilerManager.getInstance();
+        SystemProfiler profiler = SystemProfilerManager.getInstance();
+
+        List<ChunkReader> sorted = new ArrayList();
+
+        int id = 0;
+
+        // make the parent dir for holding sort files.
+        new File( target_dir ).mkdirs();
+
+        log.info( "Going to sort %,d files for %s", input.size(), partition );
         
-        try {
+        for ( File in : input ) {
 
-            platform.update();
-
-            List<ChunkReader> sorted = new ArrayList();
-
-            int id = 0;
-
-            // make the parent dir for holding sort files.
-            new File( target_dir ).mkdirs();
-
-            log.info( "Going to sort %,d files for %s", input.size(), partition );
+            String path = String.format( "%s/sorted-%s.tmp" , target_dir, id++ );
+            File out    = new File( path );
             
-            for ( File in : input ) {
+            log.info( "Writing temporary sort file %s", path );
 
-                String path = String.format( "%s/sorted-%s.tmp" , target_dir, id++ );
-                File out    = new File( path );
-                
-                log.info( "Writing temporary sort file %s", path );
+            ChunkSorter sorter = new ChunkSorter( config , partition, shuffleInput );
 
-                ChunkSorter sorter = new ChunkSorter( config , partition, shuffleInput );
+            ChunkReader result = sorter.sort( in, out );
 
-                ChunkReader result = sorter.sort( in, out );
+            if ( result != null )
+                sorted.add( result );
 
-                if ( result != null )
-                    sorted.add( result );
-
-            }
-
-            log.info( "Sorted %,d files for %s", sorted.size(), partition );
-            
-            return sorted;
-
-        } finally {
-
-            platform.update();
-            
-            StatMeta rate = platform.rate();
-            
-            log.info( "Sorted with stats: \n%s", rate );
-            
         }
-            
+
+        log.info( "Sorted %,d files for %s", sorted.size(), partition );
+        
+        log.info( "Sorted with profiler rate: \n%s", profiler.rate() );
+
+        return sorted;
+
     }
     
 }
