@@ -93,6 +93,9 @@ public class LinuxPlatform {
             
             String[] fields = line.split( "[\t ]+" );
 
+            if ( field.length < 10 )
+                continue;
+            
             String field_dev = fields[2];
             String field_sectorsRead = fields[5];
             String field_sectorsWritten = fields[9];
