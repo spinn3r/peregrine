@@ -13,10 +13,18 @@ public class Main {
 
     public static void main( String[] args ) throws Exception {
 
-        String dev = args[0];
-        String net = args[1];
-        
-        LinuxPlatform platform = new LinuxPlatform( dev , net );
+        String _disk = args[0];
+        String _interface = args[1];
+
+        Platform platform = PlatformManager.getPlatform();
+
+        platform.setInterfaces( new HashSet() {{
+            .add( _interface );
+        }} );
+
+        platform.setDisks( new HashSet() {{
+            .add( _disk );
+        }} );
 
         while( true ) {
 
