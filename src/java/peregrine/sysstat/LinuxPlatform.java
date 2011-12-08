@@ -97,7 +97,7 @@ public class LinuxPlatform {
             String[] fields = line.split( "[\t ]+" );
 
             if ( fields.length < 10 ) {
-                System.out.printf( "FIXME: skipping\n" );
+                System.out.printf( "FIXME: skipping: %,d\n", fields.length );
                 continue;
             }
             
