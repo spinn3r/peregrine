@@ -89,6 +89,8 @@ public class LinuxPlatform {
 
         for( String line : lines ) {
 
+            System.out.printf( "FIXME: line: %s\n", line );
+            
             String[] fields = line.split( "[\t ]+" );
 
             String field_dev = fields[2];
