@@ -14,10 +14,12 @@ public class LinuxPlatform {
 
     private StatMeta current = null;
 
-    private String dev;
+    private String disk;
+    private String net;
     
-    public LinuxPlatform( String dev ) {
-        this.dev = dev;
+    public LinuxPlatform( String disk, String net ) {
+        this.disk = disk;
+        this.net  = net;
     }
     
     public StatMeta update() throws IOException {
@@ -40,8 +42,9 @@ public class LinuxPlatform {
 
         StatMeta statMeta = new StatMeta();
 
-        captureDiskstats( dev, statMeta );
-
+        captureDisk( disk, statMeta );
+        captureNetwork( net, statMeta );
+    
         return statMeta;
         
     }
@@ -49,7 +52,7 @@ public class LinuxPlatform {
     public String format( StatMeta meta ) {
 
         return String.format( "%10s %,20d %,20d",
-                              dev, meta.readBytes.longValue(), meta.writtenBytes.longValue() );
+                              disk, meta.readBytes.longValue(), meta.writtenBytes.longValue() );
         
     }
 
@@ -57,6 +60,9 @@ public class LinuxPlatform {
 
         StatMeta diff = new StatMeta();
 
+        // FIXME: these values can overflow and go back to zero.  We need to
+        // detect this an adjust for it.
+        
         diff.readBytes    = after.readBytes.subtract( before.readBytes );
         diff.writtenBytes = after.writtenBytes.subtract( before.writtenBytes );
 
@@ -77,20 +83,9 @@ public class LinuxPlatform {
      * Field  7 -- # of sectors written
      * 
      */
-    private void captureDiskstats( String dev, StatMeta statMeta ) throws IOException {
+    private void captureDisk( String disk, StatMeta statMeta ) throws IOException {
 
-        File file = new File( "/proc/diskstats" );
-        
-        RandomAccessFile fis = new RandomAccessFile( file, "r" );
-
-        byte[] buff = new byte[16384];
-        
-        int count = fis.read( buff );
-
-        byte[] result = new byte[ count ];
-        System.arraycopy( buff, 0, result, 0, count );
-
-        String value = new String( result );
+        String value = read( "/proc/diskstats" );
         
         String[] lines = value.split( "\n" );
 
@@ -102,11 +97,11 @@ public class LinuxPlatform {
                 continue;
             }
 
-            String field_dev = fields[3];
+            String field_disk = fields[3];
             String field_sectorsRead = fields[6];
             String field_sectorsWritten = fields[10];
 
-            if ( ! dev.equals( field_dev ) ) {
+            if ( ! disk.equals( field_disk ) ) {
                 continue;
             }
 
@@ -114,6 +109,48 @@ public class LinuxPlatform {
             statMeta.writtenBytes = sectorReference( field_sectorsWritten );
             
         }
+
+    }
+
+    private void captureNetwork( String net, StatMeta statMeta ) throws IOException {
+
+        String value = read( "/proc/net/dev" );
+
+        String[] lines = value.split( "\n" );
+
+        for( String line : lines ) {
+            
+            String[] fields = line.split( "[\t ]+" );
+
+            dump( fields );
+            
+        }
+
+    }
+
+    private void dump( String[] fields ) {
+        for( int i = 0; i < fields.lenght; ++i ) {
+            System.out.printf( "%s=%s\n", i , fields[i] );
+        }
+    }
+    
+    /**
+     * Perform a consistent read on a /proc file.
+     */
+    private String read( String path ) throws IOException {
+
+        File file = new File( path );
+        
+        RandomAccessFile fis = new RandomAccessFile( file, "r" );
+
+        byte[] buff = new byte[16384];
+        
+        int count = fis.read( buff );
+
+        byte[] result = new byte[ count ];
+        System.arraycopy( buff, 0, result, 0, count );
+
+        return new String( result );
 
     }
 

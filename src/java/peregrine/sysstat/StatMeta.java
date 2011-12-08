@@ -10,6 +10,9 @@ import peregrine.os.*;
 
 import com.spinn3r.log5j.Logger;
 
+/**
+ * Stats for disk throughput and network throughput.
+ */
 public class StatMeta {
 
     BigDecimal readBytes;
