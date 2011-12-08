@@ -96,8 +96,10 @@ public class LinuxPlatform {
             
             String[] fields = line.split( "[\t ]+" );
 
-            if ( fields.length < 10 )
+            if ( fields.length < 10 ) {
+                System.out.printf( "FIXME: skipping\n" );
                 continue;
+            }
             
             String field_dev = fields[2];
             String field_sectorsRead = fields[5];
