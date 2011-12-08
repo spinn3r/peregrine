@@ -9,7 +9,7 @@ import peregrine.os.*;
 
 import com.spinn3r.log5j.Logger;
 
-public interface Platform {
+public interface SystemProfiler {
 
     /**
      * Basic stat update request.  the first time this is called we show the

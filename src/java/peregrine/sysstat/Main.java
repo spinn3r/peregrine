@@ -13,7 +13,7 @@ public class Main {
 
     public static void main( String[] args ) throws Exception {
 
-        Platform platform = PlatformManager.getPlatform();
+        SystemProfiler platform = SystemProfilerManager.getPlatform();
 
         Getopt getopt = new Getopt( args );
 

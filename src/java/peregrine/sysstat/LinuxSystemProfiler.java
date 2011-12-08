@@ -10,7 +10,7 @@ import peregrine.os.*;
 
 import com.spinn3r.log5j.Logger;
 
-public class LinuxPlatform extends BasePlatform {
+public class LinuxSystemProfiler extends BaseSystemProfiler {
 
     private static final Logger log = Logger.getLogger();
 

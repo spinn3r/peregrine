@@ -9,7 +9,7 @@ import peregrine.os.*;
 
 import com.spinn3r.log5j.Logger;
 
-public abstract class BasePlatform implements Platform {
+public abstract class BaseSystemProfiler implements SystemProfiler {
 
     protected StatMeta last = null;
     protected StatMeta current = null;

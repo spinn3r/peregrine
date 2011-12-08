@@ -8,14 +8,14 @@ import peregrine.os.*;
 
 import com.spinn3r.log5j.Logger;
 
-public class PlatformManager {
+public class SystemProfilerManager {
 
-    public static Platform getPlatform() {
+    public static SystemProfiler getPlatform() {
 
         String os = System.getProperty("os.name").toLowerCase();
         
         if ( os.contains("linux") ) {
-            return new LinuxPlatform();
+            return new LinuxSystemProfiler();
         }
 
         return new UnsupportedPlatform();
