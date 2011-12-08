@@ -50,6 +50,8 @@ public class DiskStat extends BaseStat implements Diffable<DiskStat> {
         result.name = name;
         result.duration = after.timestamp - timestamp;
 
+        System.out.printf( "FIXME0: duration: %s timetamp: %s\n", duration, timestamp );
+
         result.readBytes        = after.readBytes.subtract( readBytes );
         result.writtenBytes     = after.writtenBytes.subtract( writtenBytes );
         result.timeSpentReading = after.timeSpentReading.subtract( timeSpentReading );
@@ -93,11 +95,10 @@ public class DiskStat extends BaseStat implements Diffable<DiskStat> {
         // right now these derived stats are not specified for absolute
         // measurements but only from diff or rate.
 
-
-        System.out.printf( "FIXME: duration: %s timetamp: %s\n", duration, timestamp );
-        
         if ( duration == timestamp )
             return;
+
+        System.out.printf( "FIXME1: duration: %s timetamp: %s\n", duration, timestamp );
 
         BigDecimal iotime = timeSpentReading.add( timeSpentWriting );
 
