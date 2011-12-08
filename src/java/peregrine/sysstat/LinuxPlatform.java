@@ -132,6 +132,9 @@ public class LinuxPlatform {
             String field_net = fields[1];
             field_net = field_net.substring( 0 , field_net.length() - 1 );
 
+            if ( fields.length < 11 )
+                continue;
+            
             String field_receive_bytes  = fields[2];
             String field_transmit_bytes = fields[10];
 
