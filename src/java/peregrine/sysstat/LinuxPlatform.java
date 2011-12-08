@@ -77,21 +77,9 @@ public class LinuxPlatform {
 
         File file = new File( "/proc/diskstats" );
         
-        FileInputStream fis = new FileInputStream( file );
+        RandomAccessFile raf = new RandomAccessFile( file, "r" );
 
-        int length = (int)file.length();
-
-        System.out.printf( "FIXME: reading %,d bytes\n", length );
-        
-        byte[] data = new byte[ length ];
-
-        fis.read( data );
-
-        String value = new String( data );
-
-        String[] lines = value.split( "\n" );
-
-        for( String line : lines ) {
+        for( String line = raf.readLine(); line != null; ) {
 
             System.out.printf( "FIXME: line: %s\n", line );
             
