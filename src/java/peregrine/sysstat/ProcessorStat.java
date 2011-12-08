@@ -67,6 +67,8 @@ public class ProcessorStat extends BaseStat implements Diffable<ProcessorStat> {
         result.irq     = after.irq.subtract( irq );
         result.softirq = after.softirq.subtract( softirq );
 
+        result.duration = after.duration = duration;
+
         result.init();
 
         return result;

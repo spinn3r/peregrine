@@ -30,7 +30,8 @@ public class Main {
 
             platform.update();
 
-            StatMeta stat = platform.diff();
+            //StatMeta stat = platform.diff();
+            StatMeta stat = platform.rate();
 
             if ( stat != null )
                 System.out.printf( "%s\n", stat );

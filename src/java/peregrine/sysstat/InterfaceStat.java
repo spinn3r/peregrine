@@ -27,6 +27,8 @@ public class InterfaceStat extends BaseStat implements Diffable<InterfaceStat> {
         result.readBytes    = after.readBytes.subtract( readBytes );
         result.writtenBytes = after.writtenBytes.subtract( writtenBytes );
 
+        result.duration = after.duration = duration;
+
         return result;
         
     }
