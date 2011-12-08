@@ -12,6 +12,7 @@ import peregrine.reduce.sorter.*;
 import peregrine.reduce.merger.*;
 import peregrine.util.netty.*;
 import peregrine.os.*;
+import peregrine.sysstat.*;
 
 import com.spinn3r.log5j.Logger;
 
@@ -271,35 +272,51 @@ public class LocalReducer {
 
     protected List<ChunkReader> sort( List<File> input, String target_dir ) throws IOException {
 
-        List<ChunkReader> sorted = new ArrayList();
-
-        int id = 0;
-
-        // make the parent dir for holding sort files.
-        new File( target_dir ).mkdirs();
-
-        log.info( "Going to sort %,d files for %s", input.size(), partition );
+        Platform platform = PlatformManager.getPlatform();
         
-        for ( File in : input ) {
+        try {
 
-            String path = String.format( "%s/sorted-%s.tmp" , target_dir, id++ );
-            File out    = new File( path );
+            platform.update();
+
+            List<ChunkReader> sorted = new ArrayList();
+
+            int id = 0;
+
+            // make the parent dir for holding sort files.
+            new File( target_dir ).mkdirs();
+
+            log.info( "Going to sort %,d files for %s", input.size(), partition );
             
-            log.info( "Writing temporary sort file %s", path );
+            for ( File in : input ) {
 
-            ChunkSorter sorter = new ChunkSorter( config , partition, shuffleInput );
+                String path = String.format( "%s/sorted-%s.tmp" , target_dir, id++ );
+                File out    = new File( path );
+                
+                log.info( "Writing temporary sort file %s", path );
 
-            ChunkReader result = sorter.sort( in, out );
+                ChunkSorter sorter = new ChunkSorter( config , partition, shuffleInput );
 
-            if ( result != null )
-                sorted.add( result );
+                ChunkReader result = sorter.sort( in, out );
 
+                if ( result != null )
+                    sorted.add( result );
+
+            }
+
+            log.info( "Sorted %,d files for %s", sorted.size(), partition );
+            
+            return sorted;
+
+        } finally {
+
+            platform.update();
+            
+            StatMeta rate = platform.rate();
+            
+            log.info( "Sorted with stats: \n%s", rate );
+            
         }
-
-        log.info( "Sorted %,d files for %s", sorted.size(), partition );
-        
-        return sorted;
-
+            
     }
     
 }
