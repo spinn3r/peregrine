@@ -13,18 +13,13 @@ public class Main {
 
     public static void main( String[] args ) throws Exception {
 
-        final String _disk = args[0];
-        final String _interface = args[1];
-
         Platform platform = PlatformManager.getPlatform();
 
-        platform.setInterfaces( new HashSet() {{
-            add( _interface );
-        }} );
+        Getopt getopt = new Getopt( args );
 
-        platform.setDisks( new HashSet() {{
-            add( _disk );
-        }} );
+        platform.setInterfaces( toSet( getopt.getString( "interfaces" ) ) );
+        platform.setDisks( toSet( getopt.getString( "disks" ) ) );
+        platform.setProcessors( toSet( getopt.getString( "processors" ) ) );
 
         while( true ) {
 
@@ -42,4 +37,21 @@ public class Main {
         
     }
 
+    private static Set<String> toSet( String arg ) {
+
+        if ( arg == null )
+            return null;
+        
+        String[] split = arg.split( "," );
+
+        Set<String> set = new HashSet();
+        
+        for( String str : split ) {
+            set.add( str );
+        }
+
+        return set;
+        
+    }
+    
 }
