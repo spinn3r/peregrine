@@ -24,6 +24,17 @@ public class StatMeta {
 
         StringBuilder buff = new StringBuilder();
 
+        buff.append( String.format( "%10s %20s", "", "  % util\n" ) );
+        buff.append( String.format( "%10s %20s", "", "  ------\n" ) );
+
+        for( CPUStat cpu : cpuStats ) {
+
+            buff.append( cpu + "\n" );
+
+        }
+
+        buff.append( "\n" );
+
         buff.append( String.format( "%10s %20s %20s", "", "bytes read", "bytes written\n" ) );
         buff.append( String.format( "%10s %20s %20s", "", "----------", "-------------\n" ) );
 
@@ -32,6 +43,8 @@ public class StatMeta {
             buff.append( disk + "\n" );
 
         }
+
+        buff.append( "\n" );
 
         buff.append( String.format( "%10s %20s %20s", "", "bytes rx", "bytes tx\n" ) );
         buff.append( String.format( "%10s %20s %20s", "", "--------", "--------\n" ) );
@@ -42,15 +55,6 @@ public class StatMeta {
 
         }
 
-        buff.append( String.format( "%10s %20s", "", "  % util\n" ) );
-        buff.append( String.format( "%10s %20s", "", "  ------\n" ) );
-
-        for( CPUStat cpu : cpuStats ) {
-
-            buff.append( cpu + "\n" );
-
-        }
-        
         return buff.toString();
         
     }
