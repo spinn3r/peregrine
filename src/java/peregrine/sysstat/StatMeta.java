@@ -24,11 +24,17 @@ public class StatMeta {
 
         StringBuilder buff = new StringBuilder();
 
+        buff.append( String.format( "%10s %20s %20s", "", "bytes read", "bytes written\n" ) );
+        buff.append( String.format( "%10s %20s %20s", "", "----------", "-------------\n" ) );
+
         for( DiskStat disk : diskStats ) {
 
             buff.append( disk + "\n" );
 
         }
+
+        buff.append( String.format( "%10s %20s %20s", "", "bytes rx", "bytes tx\n" ) );
+        buff.append( String.format( "%10s %20s %20s", "", "--------", "--------\n" ) );
 
         for( NetworkStat net : networkStats ) {
 
