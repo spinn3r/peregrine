@@ -28,9 +28,7 @@ public class StatMeta {
         buff.append( String.format( "%10s %20s\n", "---------", "------" ) );
 
         for( ProcessorStat processor : processorStats ) {
-
             buff.append( processor + "\n" );
-
         }
 
         buff.append( "\n" );
@@ -39,9 +37,7 @@ public class StatMeta {
         buff.append( String.format( "%10s %20s %20s\n", "----", "----------", "-------------", "------------", "------" ) );
 
         for( DiskStat disk : diskStats ) {
-
             buff.append( disk + "\n" );
-
         }
 
         buff.append( "\n" );
@@ -50,9 +46,7 @@ public class StatMeta {
         buff.append( String.format( "%10s %20s %20s\n", "---------", "-------",  "-------" ) );
 
         for( InterfaceStat net : interfaceStats ) {
-
             buff.append( net + "\n" );
-
         }
 
         return buff.toString();
