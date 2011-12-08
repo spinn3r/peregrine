@@ -21,7 +21,7 @@ public class BaseStat {
 
     protected BigDecimal overInterval( BigDecimal value , long interval ) {
 
-        return value.divide( new BigDecimal( duration / (double)interval ) );
+        return value.divide( new BigDecimal( duration / (double)interval ), 2, RoundingMode.CEILING );
         
     }
 
