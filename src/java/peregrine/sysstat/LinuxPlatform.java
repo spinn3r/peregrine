@@ -48,7 +48,7 @@ public class LinuxPlatform {
 
     public String format( StatMeta meta ) {
 
-        return String.format( "%10s %,10d %,10d",
+        return String.format( "%10s %,15d %,15d",
                               dev, meta.readBytes.longValue(), meta.writtenBytes.longValue() );
         
     }
