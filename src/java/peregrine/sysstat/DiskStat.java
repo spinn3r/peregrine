@@ -23,7 +23,7 @@ public class DiskStat extends BaseStat implements Diffable<DiskStat> {
         DiskStat result = new DiskStat();
         
         result.name = name;
-        result.duration = after.duration = duration;
+        result.duration = after.duration - duration;
 
         result.readBytes    = after.readBytes.subtract( readBytes );
         result.writtenBytes = after.writtenBytes.subtract( writtenBytes );

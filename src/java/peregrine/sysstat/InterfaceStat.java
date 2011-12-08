@@ -23,7 +23,7 @@ public class InterfaceStat extends BaseStat implements Diffable<InterfaceStat> {
         InterfaceStat result = new InterfaceStat();
         
         result.name = name;
-        result.duration = after.duration = duration;
+        result.duration = after.duration - duration;
 
         result.readBytes    = after.readBytes.subtract( readBytes );
         result.writtenBytes = after.writtenBytes.subtract( writtenBytes );
