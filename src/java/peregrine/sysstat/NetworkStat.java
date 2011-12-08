@@ -34,8 +34,16 @@ public class NetworkStat implements Diffable<NetworkStat> {
 
     @Override
     public String toString() {
-        return String.format( "%10s %,20d %,20d",
-                              name, readBytes.longValue(), writtenBytes.longValue() );
+
+        StringBuilder buff = new StringBuilder();
+
+        buff.append( String.format( "%10s %20s %20s", "", "bytes rx", "bytes tx" ) );
+        buff.append( String.format( "%10s %20s %20s", "", "--------", "--------" ) );
+
+        buff.append( String.format( "%10s %,20d %,20d",
+                                    name, readBytes.longValue(), writtenBytes.longValue() ) );
+
+        return buff.toString();
 
     }
     
