@@ -15,10 +15,9 @@ import com.spinn3r.log5j.Logger;
  */
 public class StatMeta {
 
-    public DiskStat disk = new DiskStat();
-    public NetworkStat network = new NetworkStat();
-
-    public List<CPUStat> processors = new ArrayList();
+    public List<DiskStat>     diskStats      = new ArrayList();
+    public List<NetworkStat>  networkStats   = new ArrayList();
+    public List<CPUStat>      cpuStats       = new ArrayList();
     
 }
 

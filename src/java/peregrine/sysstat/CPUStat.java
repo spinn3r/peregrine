@@ -12,7 +12,7 @@ import com.spinn3r.log5j.Logger;
 
 /**
  */
-public class CPUStat {
+public class CPUStat implements Diffable<CPUStat> {
 
     String name;
     
@@ -51,21 +51,23 @@ public class CPUStat {
 
     }
 
-    public CPUStat diff( CPUStat before, CPUStat after ) {
+    public CPUStat diff( CPUStat after ) {
 
-        name = before.name;
+        CPUStat result = new CPUStat();
         
-        user    = after.user.subtract( before.user );
-        nice    = after.nice.subtract( before.nice );
-        system  = after.system.subtract( before.system );
-        idle    = after.idle.subtract( before.idle );
-        iowait  = after.iowait.subtract( before.iowait );
-        irq     = after.irq.subtract( before.irq );
-        softirq = after.softirq.subtract( before.softirq );
+        result.name = name;
+        
+        result.user    = after.user.subtract( user );
+        result.nice    = after.nice.subtract( nice );
+        result.system  = after.system.subtract( system );
+        result.idle    = after.idle.subtract( idle );
+        result.iowait  = after.iowait.subtract( iowait );
+        result.irq     = after.irq.subtract( irq );
+        result.softirq = after.softirq.subtract( softirq );
 
-        init();
+        result.init();
 
-        return this;
+        return result;
         
     }
 

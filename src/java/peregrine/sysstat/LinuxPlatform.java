@@ -54,13 +54,21 @@ public class LinuxPlatform {
 
         StringBuilder buff = new StringBuilder();
 
-        buff.append( String.format( "%10s %,20d %,20d\n",
-                                    disk, meta.disk.readBytes.longValue(), meta.disk.writtenBytes.longValue() ) );
+        for( DiskStat disk : meta.diskStats ) {
 
-        buff.append( String.format( "%10s %,20d %,20d\n",
-                                    net, meta.network.readBytes.longValue(), meta.network.writtenBytes.longValue() ) );
+            buff.append( String.format( "%10s %,20d %,20d\n",
+                                        disk.name, disk.readBytes.longValue(), disk.writtenBytes.longValue() ) );
 
-        for( CPUStat cpu : meta.processors ) {
+        }
+
+        for( NetworkStat net : meta.networkStats ) {
+
+            buff.append( String.format( "%10s %,20d %,20d\n",
+                                        net.name, net.readBytes.longValue(), net.writtenBytes.longValue() ) );
+
+        }
+
+        for( CPUStat cpu : meta.cpuStats ) {
 
             buff.append( String.format( "%10s %,20.2f\n",
                                         cpu.name, cpu.active ) );
@@ -78,19 +86,26 @@ public class LinuxPlatform {
         // FIXME: these values can overflow and go back to zero.  We need to
         // detect this an adjust for it.
 
-        diff.disk.diff( before.disk, after.disk );
-        diff.network.diff( before.network, after.network );
-
-        for( int i = 0; i < before.processors.size(); ++i ) {
-            
-            diff.processors.add( new CPUStat().diff( before.processors.get( i ),
-                                                     after.processors.get( i ) ) );
-        }
+        diff( diff.diskStats, before.diskStats, after.diskStats );
+        diff( diff.networkStats, before.networkStats, after.networkStats );
+        diff( diff.cpuStats, before.cpuStats, after.cpuStats );
         
         return diff;
         
     }
 
+    private void diff( List target ,
+                       List before,
+                       List after ) {
+
+        // TODO: I don't understand why I can't use generics for this.
+        
+        for( int i = 0; i < before.size(); ++i ) {
+            target.add( ((Diffable)before.get( i )).diff( after.get( i ) ) );
+        }
+
+    }
+    
     /**
      * Fields are documented here:
      * 
@@ -126,8 +141,13 @@ public class LinuxPlatform {
                 continue;
             }
 
-            statMeta.disk.readBytes    = sectorReference( field_sectorsRead );
-            statMeta.disk.writtenBytes = sectorReference( field_sectorsWritten );
+            DiskStat stat = new DiskStat();
+            stat.name = field_disk;
+            
+            stat.readBytes    = sectorReference( field_sectorsRead );
+            stat.writtenBytes = sectorReference( field_sectorsWritten );
+
+            statMeta.diskStats.add( stat );
             
         }
 
@@ -154,9 +174,14 @@ public class LinuxPlatform {
 
             if ( ! field_net.equals( net ) )
                 continue;
+
+            NetworkStat stat = new NetworkStat();
+            stat.name = field_net;
             
-            statMeta.network.readBytes = new BigDecimal( field_receive_bytes );
-            statMeta.network.writtenBytes = new BigDecimal( field_transmit_bytes );
+            stat.readBytes = new BigDecimal( field_receive_bytes );
+            stat.writtenBytes = new BigDecimal( field_transmit_bytes );
+
+            statMeta.networkStats.add( stat );
             
         }
 
@@ -202,7 +227,7 @@ public class LinuxPlatform {
 
             stat.init();
 
-            statMeta.processors.add( stat );
+            statMeta.cpuStats.add( stat );
             
         }
             

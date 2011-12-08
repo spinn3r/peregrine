@@ -12,16 +12,25 @@ import com.spinn3r.log5j.Logger;
 
 /**
  */
-public class DiskStat {
+public class DiskStat implements Diffable<DiskStat> {
 
+    String name = null;
+    
     BigDecimal readBytes     = new BigDecimal( 0 );
     BigDecimal writtenBytes  = new BigDecimal( 0 );
 
-    public void diff( DiskStat before, DiskStat after ) {
-        
-        readBytes    = after.readBytes.subtract( before.readBytes );
-        writtenBytes = after.writtenBytes.subtract( before.writtenBytes );
+    @Override
+    public DiskStat diff( DiskStat after ) {
 
+        DiskStat result = new DiskStat();
+        
+        result.name = name;
+
+        result.readBytes    = after.readBytes.subtract( readBytes );
+        result.writtenBytes = after.writtenBytes.subtract( writtenBytes );
+
+        return this;
+        
     }
 
 }
