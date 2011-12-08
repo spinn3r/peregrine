@@ -13,7 +13,7 @@ public class Main {
 
     public static void main( String[] args ) throws Exception {
 
-        String dev = args[1];
+        String dev = args[0];
         
         LinuxPlatform platform = new LinuxPlatform( dev );
 
