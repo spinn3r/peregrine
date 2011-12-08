@@ -14,6 +14,8 @@ import com.spinn3r.log5j.Logger;
  */
 public class BaseStat {
 
+    public static final BigDecimal ZERO = new BigDecimal( 0 );
+    
     String name;
 
     long timestamp = System.currentTimeMillis();
@@ -27,4 +29,11 @@ public class BaseStat {
         
     }
 
+    /**
+     * Perform any derived computation from the metrics on this stat.
+     */
+    public void init() {
+
+    }
+    
 }

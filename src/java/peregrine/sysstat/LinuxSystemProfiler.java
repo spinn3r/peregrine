@@ -52,9 +52,45 @@ public class LinuxSystemProfiler extends BaseSystemProfiler {
      * An example line is here.
      *
      * 8 0 sda 1663183 50370 286417462 8075722 16114577 124388899 1123914366 612454228 0 23049653 620527121
+     *
+     * The primary ones we care about are:
+     * 
      * 
      * Field  3 -- # of sectors read
      * Field  7 -- # of sectors written
+     *
+     * For reference ALL the fields are here:
+     * 
+     *	Field  1 -- # of reads completed
+     *	    This is the total number of reads completed successfully.
+     *	Field  2 -- # of reads merged, field 6 -- # of writes merged
+     *	    Reads and writes which are adjacent to each other may be merged for
+     *	    efficiency.  Thus two 4K reads may become one 8K read before it is
+     *	    ultimately handed to the disk, and so it will be counted (and queued)
+     *	    as only one I/O.  This field lets you know how often this was done.
+     *	Field  3 -- # of sectors read
+     *	    This is the total number of sectors read successfully.
+     *	Field  4 -- # of milliseconds spent reading
+     *	    This is the total number of milliseconds spent by all reads (as
+     *	    measured from __make_request() to end_that_request_last()).
+     *	Field  5 -- # of writes completed
+     *	    This is the total number of writes completed successfully.
+     *	Field  7 -- # of sectors written
+     *	    This is the total number of sectors written successfully.
+     *	Field  8 -- # of milliseconds spent writing
+     *	    This is the total number of milliseconds spent by all writes (as
+     *	    measured from __make_request() to end_that_request_last()).
+     *	Field  9 -- # of I/Os currently in progress
+     *	    The only field that should go to zero. Incremented as requests are
+     *	    given to appropriate struct request_queue and decremented as they finish.
+     *	Field 10 -- # of milliseconds spent doing I/Os
+     *	    This field increases so long as field 9 is nonzero.
+     *	Field 11 -- weighted # of milliseconds spent doing I/Os
+     *	    This field is incremented at each I/O start, I/O completion, I/O
+     *	    merge, or read of these stats by the number of I/Os in progress
+     *	    (field 9) times the number of milliseconds spent doing I/O since the
+     *	    last update of this field.  This can provide an easy measure of both
+     *	    I/O completion time and the backlog that may be accumulating.
      * 
      */
     private void captureDisk( StatMeta statMeta ) throws IOException {
@@ -71,9 +107,16 @@ public class LinuxSystemProfiler extends BaseSystemProfiler {
                 continue;
             }
 
-            String field_disk = fields[3];
-            String field_sectorsRead = fields[6];
-            String field_sectorsWritten = fields[10];
+            // the name of the device.
+            String field_disk                 = fields[3];
+
+            String field_reads                = fields[4];
+            String field_readsMerged          = fields[5];
+            String field_sectorsRead          = fields[6];
+            String field_timeSpentReading     = fields[7];
+            String field_writes               = fields[8];
+            String field_sectorsWritten       = fields[10];
+            String field_timeSpentWriting     = fields[11];
 
             if ( getDisks() != null && ! getDisks().contains( field_disk ) ) {
                 continue;
@@ -81,10 +124,15 @@ public class LinuxSystemProfiler extends BaseSystemProfiler {
 
             DiskStat stat = new DiskStat();
             stat.name = field_disk;
-            
-            stat.readBytes    = sectorReference( field_sectorsRead );
-            stat.writtenBytes = sectorReference( field_sectorsWritten );
 
+            stat.reads             = sectorReference( field_reads );
+            stat.writes            = sectorReference( field_writes );
+
+            stat.readBytes         = sectorReference( field_sectorsRead );
+            stat.writtenBytes      = sectorReference( field_sectorsWritten );
+            stat.timeSpentReading  = new BigDecimal( field_timeSpentReading );
+            stat.timeSpentWriting  = new BigDecimal( field_timeSpentWriting );
+            
             statMeta.diskStats.add( stat );
             
         }
