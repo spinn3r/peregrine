@@ -246,8 +246,10 @@ public class LinuxSystemProfiler extends BaseSystemProfiler {
 
             InterfaceStat stat = new InterfaceStat();
             stat.name = field_net;
+
+            System.out.printf( "FIXME: %s\n", field_receive_bytes );
             
-            stat.readBits    = new BigDecimal( field_receive_bytes )
+            stat.readBits = new BigDecimal( field_receive_bytes )
                 .multiply( new BigDecimal( 8 ) )
                 ;
             
