@@ -53,6 +53,8 @@ public class CPUStat {
 
     public CPUStat diff( CPUStat before, CPUStat after ) {
 
+        name = before.name;
+        
         user    = after.user.subtract( before.user );
         nice    = after.nice.subtract( before.nice );
         system  = after.system.subtract( before.system );

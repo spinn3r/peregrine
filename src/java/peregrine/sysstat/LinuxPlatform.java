@@ -82,6 +82,7 @@ public class LinuxPlatform {
         diff.network.diff( before.network, after.network );
 
         for( int i = 0; i < before.processors.size(); ++i ) {
+            
             diff.processors.add( new CPUStat().diff( before.processors.get( i ),
                                                      after.processors.get( i ) ) );
         }
