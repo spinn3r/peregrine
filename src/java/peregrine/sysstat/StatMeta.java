@@ -35,8 +35,8 @@ public class StatMeta extends BaseStat {
 
         buff.append( "\n" );
 
-        buff.append( format( "Disk", "reads", "writes", "bytes read", "bytes written", "Avg req size", "%util", "\n" ) );
-        buff.append( format( "----", "-----", "------", "----------", "-------------", "------------", "-----", "\n" ) );
+        buff.append( format( "Disk", "reads", "writes", "bytes read", "bytes written", "avg read size", "avg write size", "avg req size", "%util", "\n" ) );
+        buff.append( format( "----", "-----", "------", "----------", "-------------", "-------------", "--------------", "-----------", "-----", "\n" ) );
 
         for( DiskStat disk : diskStats ) {
             buff.append( disk + "\n" );

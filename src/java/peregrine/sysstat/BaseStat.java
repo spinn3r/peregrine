@@ -48,8 +48,17 @@ public class BaseStat {
 
             if ( "\n".equals( arg ) ) {
                 buff.append( arg );
-            } else { 
-                buff.append( format( arg ) );
+            } else {
+
+                if( arg instanceof Double )
+                    buff.append( format( (Double)arg ) );
+                else if( arg instanceof Integer )
+                    buff.append( format( (Integer)arg ) );
+                else if( arg instanceof Long )
+                    buff.append( format( (Long)arg ) );
+                else 
+                    buff.append( format( arg ) );
+
             }
             
         }

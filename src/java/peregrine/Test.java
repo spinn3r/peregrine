@@ -195,8 +195,53 @@ public class Test {
 
     }
 
+    protected static String format( Object... args ) {
+
+        StringBuilder buff = new StringBuilder();
+        
+        for( Object arg : args ) {
+
+            if ( "\n".equals( arg ) ) {
+                buff.append( arg );
+            } else {
+
+                if( arg instanceof Double )
+                    buff.append( format( (Double)arg ) );
+                else if( arg instanceof Integer )
+                    buff.append( format( (Integer)arg ) );
+                else if( arg instanceof Long )
+                    buff.append( format( (Long)arg ) );
+                else 
+                    buff.append( format( arg ) );
+            }
+            
+        }
+
+        return buff.toString();
+        
+    }
+
+    protected static String format( Double obj ) {
+        return String.format( "%,15.2f", obj.doubleValue() );
+    }
+
+    protected static String format( Long obj ) {
+        return String.format( "%,15d", obj.longValue() );
+    }
+
+    protected static String format( Integer obj ) {
+        return String.format( "%,15d", obj.intValue() );
+    }
+
+    protected static String format( Object obj ) {
+        return String.format( "%15s", obj.toString() );
+    }
 
     public static void main( String[] args ) throws Exception {
+
+        String result = format( (int)10000000, (double)1000000.0, (long)100000 );
+
+        System.out.printf( "%s\n" , result );
 
         // DOMConfigurator.configure( "conf/log4j.xml" );
 
