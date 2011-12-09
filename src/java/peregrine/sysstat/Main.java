@@ -23,14 +23,14 @@ public class Main {
 
         while( true ) {
 
+            Thread.sleep( 5000L );
+
             //StatMeta stat = platform.diff();
             StatMeta stat = profiler.rate();
 
             if ( stat != null )
                 System.out.printf( "%s\n", stat );
-            
-            Thread.sleep( 5000L );
-            
+
         }
         
     }
