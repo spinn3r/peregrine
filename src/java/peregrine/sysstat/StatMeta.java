@@ -20,12 +20,15 @@ public class StatMeta {
     public List<ProcessorStat>  processorStats   = new ArrayList();
 
     public long timestamp = System.currentTimeMillis();
-
+    public long duration = timestamp;
+    
     @Override
     public String toString() {
 
         StringBuilder buff = new StringBuilder();
 
+        buff.append( String.format( "Stat duration %,d ms.\n\n", duration ) );
+        
         buff.append( String.format( "%10s %15s\n", "Processor", "%util" ) );
         buff.append( String.format( "%10s %15s\n", "---------", "-----" ) );
 

@@ -71,6 +71,8 @@ public abstract class BaseSystemProfiler implements SystemProfiler {
         // FIXME: these values can overflow and go back to zero.  We need to
         // detect this an adjust for it.
 
+        diff.duration = after.timestamp - before.timestamp;
+        
         diff( diff.diskStats, before.diskStats, after.diskStats );
         diff( diff.interfaceStats, before.interfaceStats, after.interfaceStats );
         diff( diff.processorStats, before.processorStats, after.processorStats );
