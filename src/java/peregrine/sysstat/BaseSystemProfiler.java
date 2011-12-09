@@ -64,6 +64,8 @@ public abstract class BaseSystemProfiler implements SystemProfiler {
 
     private StatMeta diff( StatMeta before , StatMeta after ) {
 
+        System.out.printf( "FIXME3: diff before timestamp %,d after timestamp %,d\n", before.timestamp, after.timestamp );
+        
         StatMeta diff = new StatMeta();
 
         // FIXME: these values can overflow and go back to zero.  We need to
