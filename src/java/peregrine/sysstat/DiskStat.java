@@ -116,7 +116,7 @@ public class DiskStat extends BaseStat implements Diffable<DiskStat> {
 
         StringBuilder buff = new StringBuilder();
 
-        buff.append( String.format( "%10s %,20d %,20d %,20f %20f",
+        buff.append( String.format( "%10s %,15d %,15d %,15f %15f",
                                     name, readBytes.longValue(), writtenBytes.longValue(), util, avg_req_size ) );
 
         return buff.toString();

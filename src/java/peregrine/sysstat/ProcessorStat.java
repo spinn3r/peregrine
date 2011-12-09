@@ -104,7 +104,7 @@ public class ProcessorStat extends BaseStat implements Diffable<ProcessorStat> {
 
         StringBuilder buff = new StringBuilder();
 
-        buff.append( String.format( "%10s %,20.2f", name, active ) );
+        buff.append( String.format( "%10s %,15.2f", name, active ) );
 
         return buff.toString();
 
