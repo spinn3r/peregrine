@@ -24,7 +24,7 @@ public class StatMeta extends BaseStat {
 
         StringBuilder buff = new StringBuilder();
 
-        buff.append( String.format( "Stat duration %s (%,d ms).\n\n", format( duration ), duration ) );
+        buff.append( String.format( "Stat duration %s (%,d ms).\n\n", formatAsDuration( duration ), duration ) );
         
         buff.append( format( "Processor", "%util", "\n" ) );
         buff.append( format( "---------", "-----", "\n" ) );
@@ -55,7 +55,7 @@ public class StatMeta extends BaseStat {
         
     }
 
-    private String format( long duration ) {
+    private String formatAsDuration( long duration ) {
 
         Calendar cal = Calendar.getInstance( TimeZone.getTimeZone( "UTC" ) );
         cal.setTimeInMillis( 61000L );

@@ -110,6 +110,9 @@ public abstract class BaseSystemProfiler implements SystemProfiler {
 
             StatMeta result = new StatMeta();
 
+            result.timestamp = diff.timestamp;
+            result.duration  = diff.duration;
+            
             for( DiskStat stat : diff.diskStats ) {
                 result.diskStats.add( stat.rate( getInterval() ) );
             }
