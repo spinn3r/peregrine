@@ -239,6 +239,8 @@ public class LinuxSystemProfiler extends BaseSystemProfiler {
             stat.timestamp = statMeta.timestamp;
             stat.name = field_disk;
 
+            System.out.printf( "FIXME: field_reads: %s\n", field_reads );
+            
             stat.reads             = sectorReference( field_reads );
             stat.writes            = sectorReference( field_writes );
 
