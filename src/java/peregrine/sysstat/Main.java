@@ -23,8 +23,6 @@ public class Main {
 
         while( true ) {
 
-            profiler.update();
-
             //StatMeta stat = platform.diff();
             StatMeta stat = profiler.rate();
 
