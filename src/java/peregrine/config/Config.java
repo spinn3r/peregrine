@@ -8,6 +8,7 @@ import peregrine.config.router.*;
 import peregrine.util.primitive.*;
 import peregrine.util.*;
 import peregrine.os.*;
+import peregrine.sysstat.*;
 
 import com.spinn3r.log5j.Logger;
 
@@ -160,6 +161,23 @@ public class Config extends BaseConfig {
     	return router.route( key );    
     }
 
+    /**
+     * Get a SystemProfiler for this system with the correct disks, interfaces,
+     * etc used.
+     */
+    public SystemProfiler getSystemProfiler() {
+
+        Set<String> interfaces = null;
+        Set<String> disks      = null;
+        Set<String> processors = null;
+
+        disks = new HashSet();
+        disks.add( getBasedir() );
+        
+        return SystemProfilerManager.getInstance( interfaces, disks, processors );
+        
+    }
+    
     private void testFallocate() {
 
         testConfigOption( new RuntimeTest() {

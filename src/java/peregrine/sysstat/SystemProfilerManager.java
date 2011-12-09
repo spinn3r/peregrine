@@ -25,14 +25,17 @@ public class SystemProfilerManager {
         SystemProfiler profiler = null;
         
         if ( os.contains("linux") ) {
-        	profiler = new LinuxSystemProfiler();
+
+            try {
+                profiler = new LinuxSystemProfiler( interfaces, disks, processors );
+            } catch ( IOException e ) {
+                log.warn( "Unable to create linux profiler: %s", e );
+            }
+
         }
 
         if ( profiler != null ) {
 
-            profiler.setInterfaces( interfaces );
-            profiler.setDisks( disks );
-            profiler.setProcessors( processors );
         	profiler.update();
 
             return profiler;

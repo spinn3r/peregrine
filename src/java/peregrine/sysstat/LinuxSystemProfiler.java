@@ -95,6 +95,34 @@ public class LinuxSystemProfiler extends BaseSystemProfiler {
 
     private static final Logger log = Logger.getLogger();
 
+    public LinuxSystemProfiler( Set<String> interfaces,
+                                Set<String> disks,
+                                Set<String> processors )
+        throws IOException {
+
+        setInterfaces( interfaces );
+        setProcessors( processors );
+        
+        // see if the disks need to be looked at ...
+        Set<String> tmp = new HashSet();
+
+        for ( String disk : disks ) {
+
+            disk = disk.replaceAll( "/dev/" , "" );
+
+            if ( disk.startsWith( "/" ) ) {
+                // this is a mount point so resolve it to a specific path.
+                disk = resolveMountPoint( disk );
+            }
+                
+            tmp.add( disk );
+
+        }
+
+        setDisks( tmp );
+
+    }
+    
     @Override
     public StatMeta update() {
 
@@ -190,7 +218,6 @@ public class LinuxSystemProfiler extends BaseSystemProfiler {
 
             // the name of the device.
             String field_disk                 = fields[3];
-
             String field_reads                = fields[4];
             String field_readsMerged          = fields[5];
             String field_sectorsRead          = fields[6];
@@ -202,7 +229,6 @@ public class LinuxSystemProfiler extends BaseSystemProfiler {
             String field_pending              = fields[12];  // Field 9
             String field_time                 = fields[13];  // Field 10
 
-            
             if ( getDisks() != null && ! getDisks().contains( field_disk ) ) {
                 continue;
             }
@@ -331,7 +357,30 @@ public class LinuxSystemProfiler extends BaseSystemProfiler {
             System.out.printf( "%s=%s\n", i , fields[i] );
         }
     }
-    
+
+    public String resolveMountPoint( String path ) throws IOException {
+
+        String value = read( "/proc/mounts" );
+        
+        String[] lines = value.split( "\n" );
+
+        for( String line : lines ) {
+
+            String[] fields = line.split( "[\t ]+" );
+
+            String device = fields[1];
+            String mntpoint = fields[1];
+            
+            if ( path.indexOf( mntpoint ) == 0 ) {
+                return device.replaceAll( "/dev/", "" );
+            }
+
+        }
+
+        return null;
+        
+    }
+
     /**
      * Perform a consistent read on a /proc file.
      */
