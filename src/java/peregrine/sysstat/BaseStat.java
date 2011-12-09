@@ -42,11 +42,13 @@ public class BaseStat {
 
     protected String format( Object... args ) {
 
+        StringBuilder buff = new StringBuilder();
+        
         for( Object arg : args ) {
-            format( arg );
+            buff.append( format( arg ) );
         }
 
-        return null;
+        return buff.toString();
         
     }
 
