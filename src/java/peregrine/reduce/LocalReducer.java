@@ -109,7 +109,7 @@ public class LocalReducer {
 
         try {
 
-            SystemProfiler profiler = SystemProfilerManager.getInstance();
+            SystemProfiler profiler = config.getSystemProfiler();
 
             prefetchReader = createPrefetchReader( readers );
 
@@ -159,7 +159,7 @@ public class LocalReducer {
 
             try { 
 
-                SystemProfiler profiler = SystemProfilerManager.getInstance();
+                SystemProfiler profiler = config.getSystemProfiler();
 
                 prefetchReader = createPrefetchReader( work );
 
@@ -280,7 +280,7 @@ public class LocalReducer {
 
     protected List<ChunkReader> sort( List<File> input, String target_dir ) throws IOException {
 
-        SystemProfiler profiler = SystemProfilerManager.getInstance();
+        SystemProfiler profiler = config.getSystemProfiler();
 
         List<ChunkReader> sorted = new ArrayList();
 

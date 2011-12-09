@@ -52,7 +52,7 @@ public class ReducerTask extends BaseOutputTask implements Callable {
 
         this.reducer = (Reducer)delegate.newInstance();
 
-        SystemProfiler profiler = SystemProfilerManager.getInstance();
+        SystemProfiler profiler = config.getSystemProfiler();
 
         try {
 

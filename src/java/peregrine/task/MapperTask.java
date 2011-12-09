@@ -19,7 +19,7 @@ public class MapperTask extends BaseMapperTask {
 
         mapper = (Mapper)super.newMapper();
 
-        SystemProfiler profiler = SystemProfilerManager.getInstance();
+        SystemProfiler profiler = config.getSystemProfiler();
 
         try {
 

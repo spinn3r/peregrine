@@ -20,7 +20,7 @@ public class MergerTask extends BaseMapperTask {
 
         merger = (Merger)super.newMapper();
 
-        SystemProfiler profiler = SystemProfilerManager.getInstance();
+        SystemProfiler profiler = config.getSystemProfiler();
 
         try {
 
