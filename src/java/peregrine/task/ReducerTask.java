@@ -10,6 +10,7 @@ import peregrine.config.Config;
 import peregrine.config.Partition;
 import peregrine.io.*;
 import peregrine.reduce.*;
+import peregrine.sysstat.*;
 
 import com.spinn3r.log5j.Logger;
 
@@ -51,6 +52,8 @@ public class ReducerTask extends BaseOutputTask implements Callable {
 
         this.reducer = (Reducer)delegate.newInstance();
 
+        SystemProfiler profiler = SystemProfilerManager.getInstance();
+
         try {
 
             log.info( "Running %s on %s", delegate, partition );
@@ -81,6 +84,7 @@ public class ReducerTask extends BaseOutputTask implements Callable {
             handleFailure( log, t );
         } finally {
             report();
+            log.info( "Ran with profiler rate: \n%s", profiler.rate() );
         }
 
         return null;

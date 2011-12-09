@@ -6,6 +6,7 @@ import peregrine.map.*;
 import peregrine.io.*;
 import peregrine.io.chunk.*;
 import peregrine.io.partition.*;
+import peregrine.sysstat.*;
 
 import com.spinn3r.log5j.*;
 
@@ -18,6 +19,8 @@ public class MergerTask extends BaseMapperTask {
     public Object call() throws Exception {
 
         merger = (Merger)super.newMapper();
+
+        SystemProfiler profiler = SystemProfilerManager.getInstance();
 
         try {
 
@@ -51,6 +54,7 @@ public class MergerTask extends BaseMapperTask {
             handleFailure( log, t );
         } finally {
             report();
+            log.info( "Ran with profiler rate: \n%s", profiler.rate() );
         }
 
         return null;

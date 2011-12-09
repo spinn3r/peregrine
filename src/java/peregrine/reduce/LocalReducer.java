@@ -109,11 +109,15 @@ public class LocalReducer {
 
         try {
 
+            SystemProfiler profiler = SystemProfilerManager.getInstance();
+
             prefetchReader = createPrefetchReader( readers );
 
             ChunkMerger merger = new ChunkMerger( listener, partition );
         
             merger.merge( readers );
+
+            log.info( "Merged with profiler rate: \n%s", profiler.rate() );
 
         } finally {
             new Closer( prefetchReader ).close();
@@ -155,6 +159,8 @@ public class LocalReducer {
 
             try { 
 
+                SystemProfiler profiler = SystemProfilerManager.getInstance();
+
                 prefetchReader = createPrefetchReader( work );
 
                 ChunkMerger merger = new ChunkMerger( null, partition );
@@ -186,6 +192,8 @@ public class LocalReducer {
                 merger.merge( work, writer );
 
                 result.add( newInterChunkReader( path ) );
+
+                log.info( "Merged with profiler rate: \n%s", profiler.rate() );
 
             } finally {
                 new Closer( prefetchReader ).close();
