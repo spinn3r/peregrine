@@ -119,10 +119,16 @@ public class DiskStat extends BaseStat implements Diffable<DiskStat> {
             avg_req_size = nr_bytes.divide( nr_ops, 2, RoundingMode.CEILING ).doubleValue();
         }
 
+        /*
+
+        FIXME: this is wrong for some reason... I'm not sure why. it's coming
+        out to be something like 500k 
+
         tps = reads.add( writes )
                    .subtract( readsMerged )
                    .subtract( writesMerged )
             ;
+        */
         
     }
 
@@ -131,8 +137,8 @@ public class DiskStat extends BaseStat implements Diffable<DiskStat> {
 
         StringBuilder buff = new StringBuilder();
 
-        buff.append( String.format( "%10s %,15d %,15d %,15d %,15.2f %15.2f",
-                                    name, tps.intValue(), readBytes.longValue(), writtenBytes.longValue(), avg_req_size, util ) );
+        buff.append( String.format( "%10s %,15d %,15d %,15d %,15d %,15.2f %15.2f",
+                                    name, reads, writes, readBytes.longValue(), writtenBytes.longValue(), avg_req_size, util ) );
 
         return buff.toString();
         

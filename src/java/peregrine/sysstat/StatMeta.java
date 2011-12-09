@@ -26,8 +26,8 @@ public class StatMeta {
 
         StringBuilder buff = new StringBuilder();
 
-        buff.append( String.format( "%10s %15s\n", "Processor", "% util" ) );
-        buff.append( String.format( "%10s %15s\n", "---------", "------" ) );
+        buff.append( String.format( "%10s %15s\n", "Processor", "%util" ) );
+        buff.append( String.format( "%10s %15s\n", "---------", "-----" ) );
 
         for( ProcessorStat processor : processorStats ) {
             buff.append( processor + "\n" );
@@ -35,8 +35,8 @@ public class StatMeta {
 
         buff.append( "\n" );
 
-        buff.append( String.format( "%10s %15s %15s %15s %15s %15s\n", "Disk", "tps", "bytes read", "bytes written", "Avg req size", "%util" ) );
-        buff.append( String.format( "%10s %15s %15s %15s %15s %15s\n", "----", "---", "----------", "-------------", "------------", "-----" ) );
+        buff.append( String.format( "%10s %15s %15s %15s %15s %15s %15s\n", "Disk", "reads", "writes", "bytes read", "bytes written", "Avg req size", "%util" ) );
+        buff.append( String.format( "%10s %15s %15s %15s %15s %15s %15s\n", "----", "-----", "------", "----------", "-------------", "------------", "-----" ) );
 
         for( DiskStat disk : diskStats ) {
             buff.append( disk + "\n" );
