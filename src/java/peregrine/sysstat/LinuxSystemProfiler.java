@@ -373,10 +373,8 @@ public class LinuxSystemProfiler extends BaseSystemProfiler {
 
             String[] fields = line.split( "[\t ]+" );
 
-            String device = fields[1];
+            String device = fields[0];
             String mntpoint = fields[1];
-
-            System.out.printf( "FIXME: device: %s, mmntpoint: %s\n", device, mntpoint );
             
             if ( path.indexOf( mntpoint ) == 0 ) {
 
