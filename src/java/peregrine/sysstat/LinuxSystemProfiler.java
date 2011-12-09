@@ -196,9 +196,13 @@ public class LinuxSystemProfiler extends BaseSystemProfiler {
             String field_sectorsRead          = fields[6];
             String field_timeSpentReading     = fields[7];
             String field_writes               = fields[8];
-            String field_sectorsWritten       = fields[10];
-            String field_timeSpentWriting     = fields[11];
+            String field_writesMerged         = fields[9];   
+            String field_sectorsWritten       = fields[10];  // Field 7
+            String field_timeSpentWriting     = fields[11];  // Field 8
+            String field_pending              = fields[12];  // Field 9
+            String field_time                 = fields[13];  // Field 10
 
+            
             if ( getDisks() != null && ! getDisks().contains( field_disk ) ) {
                 continue;
             }
@@ -214,6 +218,7 @@ public class LinuxSystemProfiler extends BaseSystemProfiler {
             stat.writtenBytes      = sectorReference( field_sectorsWritten );
             stat.timeSpentReading  = new BigDecimal( field_timeSpentReading );
             stat.timeSpentWriting  = new BigDecimal( field_timeSpentWriting );
+            stat.time              = new BigDecimal( field_time );
 
             stat.init();
             

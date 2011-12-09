@@ -21,6 +21,7 @@ public class DiskStat extends BaseStat implements Diffable<DiskStat> {
     BigDecimal writtenBytes      = new BigDecimal( 0 );
     BigDecimal timeSpentReading  = new BigDecimal( 0 );
     BigDecimal timeSpentWriting  = new BigDecimal( 0 );
+    BigDecimal time              = new BigDecimal( 0 );
 
     /**
      * Disk utilization over the interval [0.0 , 100.0].  This is -1 if not yet
@@ -54,6 +55,7 @@ public class DiskStat extends BaseStat implements Diffable<DiskStat> {
         result.writtenBytes     = after.writtenBytes.subtract( writtenBytes );
         result.timeSpentReading = after.timeSpentReading.subtract( timeSpentReading );
         result.timeSpentWriting = after.timeSpentWriting.subtract( timeSpentWriting );
+        result.time             = after.time.subtract( time );
         result.reads            = after.reads.subtract( reads );
         result.writes           = after.writes.subtract( writes );
 
@@ -78,6 +80,7 @@ public class DiskStat extends BaseStat implements Diffable<DiskStat> {
         result.writtenBytes        = overInterval( writtenBytes, interval );
         result.timeSpentReading    = overInterval( timeSpentReading, interval );
         result.timeSpentWriting    = overInterval( timeSpentWriting, interval );
+        result.time                = overInterval( time, interval );
         result.reads               = overInterval( reads, interval );
         result.writes              = overInterval( writes, interval );
 
@@ -90,7 +93,8 @@ public class DiskStat extends BaseStat implements Diffable<DiskStat> {
     @Override
     public void init() {
 
-        BigDecimal iotime = timeSpentReading.add( timeSpentWriting );
+        //BigDecimal iotime = timeSpentReading.add( timeSpentWriting );
+        BigDecimal iotime = time;
 
         System.out.printf( "FIXME: iotime: %s and duration %s\n", iotime, duration );
 
