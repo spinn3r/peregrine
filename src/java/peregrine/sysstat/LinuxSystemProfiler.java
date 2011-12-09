@@ -220,6 +220,9 @@ public class LinuxSystemProfiler extends BaseSystemProfiler {
             stat.timeSpentWriting  = new BigDecimal( field_timeSpentWriting );
             stat.time              = new BigDecimal( field_time );
 
+            stat.readsMerged       = new BigDecimal( field_readsMerged );
+            stat.writesMerged      = new BigDecimal( field_writesMerged );
+            
             stat.init();
             
             statMeta.diskStats.add( stat );

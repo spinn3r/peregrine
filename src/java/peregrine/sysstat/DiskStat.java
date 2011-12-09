@@ -23,6 +23,9 @@ public class DiskStat extends BaseStat implements Diffable<DiskStat> {
     BigDecimal timeSpentWriting  = new BigDecimal( 0 );
     BigDecimal time              = new BigDecimal( 0 );
 
+    BigDecimal readsMerged       = new BigDecimal( 0 );
+    BigDecimal writesMerged      = new BigDecimal( 0 );
+    
     /**
      * Disk utilization over the interval [0.0 , 100.0].  This is -1 if not yet
      * computed.
@@ -43,6 +46,8 @@ public class DiskStat extends BaseStat implements Diffable<DiskStat> {
      */
     double avg_req_size = 0.0;
 
+    BigDecimal tps = new BigDecimal( 0 );
+    
     @Override
     public DiskStat diff( DiskStat after ) {
         
@@ -58,6 +63,9 @@ public class DiskStat extends BaseStat implements Diffable<DiskStat> {
         result.time             = after.time.subtract( time );
         result.reads            = after.reads.subtract( reads );
         result.writes           = after.writes.subtract( writes );
+
+        result.readsMerged      = after.readsMerged.subtract( readsMerged );
+        result.writesMerged     = after.writesMerged.subtract( writesMerged );
 
         result.init();
         
@@ -84,6 +92,9 @@ public class DiskStat extends BaseStat implements Diffable<DiskStat> {
         result.reads               = overInterval( reads, interval );
         result.writes              = overInterval( writes, interval );
 
+        result.readsMerged         = overInterval( readsMerged, interval );
+        result.writesMerged        = overInterval( writesMerged, interval );
+
         result.init();
 
         return result;
@@ -93,10 +104,9 @@ public class DiskStat extends BaseStat implements Diffable<DiskStat> {
     @Override
     public void init() {
 
-        //BigDecimal iotime = timeSpentReading.add( timeSpentWriting );
+        // it is important to use time here because we can't use reading and
+        // writing as this would be greater than 100% 
         BigDecimal iotime = time;
-
-        System.out.printf( "FIXME: iotime: %s and duration %s\n", iotime, duration );
 
         util = iotime.divide( new BigDecimal( duration ), 2, RoundingMode.CEILING ).doubleValue() * 100;
 
@@ -109,6 +119,8 @@ public class DiskStat extends BaseStat implements Diffable<DiskStat> {
             avg_req_size = nr_bytes.divide( nr_ops, 2, RoundingMode.CEILING ).doubleValue();
         }
 
+        tps = readsMerged.add( writesMerged );
+        
     }
 
     @Override
@@ -116,8 +128,8 @@ public class DiskStat extends BaseStat implements Diffable<DiskStat> {
 
         StringBuilder buff = new StringBuilder();
 
-        buff.append( String.format( "%10s %,15d %,15d %,15.2f %15.2f",
-                                    name, readBytes.longValue(), writtenBytes.longValue(), avg_req_size, util ) );
+        buff.append( String.format( "%10s %,15d %,15d %,15d %,15.2f %15.2f",
+                                    name, tps.intValue(), readBytes.longValue(), writtenBytes.longValue(), avg_req_size, util ) );
 
         return buff.toString();
         
