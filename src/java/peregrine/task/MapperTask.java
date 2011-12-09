@@ -5,6 +5,8 @@ import java.util.*;
 import peregrine.*;
 import peregrine.io.partition.*;
 import peregrine.map.*;
+import peregrine.sysstat.*;
+
 import com.spinn3r.log5j.*;
 
 public class MapperTask extends BaseMapperTask {
@@ -16,6 +18,8 @@ public class MapperTask extends BaseMapperTask {
     public Object call() throws Exception {
 
         mapper = (Mapper)super.newMapper();
+
+        SystemProfiler profiler = SystemProfilerManager.getInstance();
 
         try {
 
@@ -47,6 +51,9 @@ public class MapperTask extends BaseMapperTask {
             handleFailure( log, t );
         } finally {
             report();
+
+            log.info( "Ran with profiler rate: \n%s", profiler.rate() );
+
         }
         
         return null;

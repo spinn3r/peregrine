@@ -12,6 +12,7 @@ import peregrine.reduce.sorter.*;
 import peregrine.reduce.merger.*;
 import peregrine.util.netty.*;
 import peregrine.os.*;
+import peregrine.sysstat.*;
 
 import com.spinn3r.log5j.Logger;
 
@@ -102,17 +103,21 @@ public class LocalReducer {
     protected void finalMerge( List<ChunkReader> readers ) throws IOException {
 
         log.info( "Merging on final merge with %,d readers (strategy=finalMerge)",
-                  readers.size());
+                  readers.size() );
         
         PrefetchReader prefetchReader = null;
 
         try {
+
+            SystemProfiler profiler = SystemProfilerManager.getInstance();
 
             prefetchReader = createPrefetchReader( readers );
 
             ChunkMerger merger = new ChunkMerger( listener, partition );
         
             merger.merge( readers );
+
+            log.info( "Merged with profiler rate: \n%s", profiler.rate() );
 
         } finally {
             new Closer( prefetchReader ).close();
@@ -154,6 +159,8 @@ public class LocalReducer {
 
             try { 
 
+                SystemProfiler profiler = SystemProfilerManager.getInstance();
+
                 prefetchReader = createPrefetchReader( work );
 
                 ChunkMerger merger = new ChunkMerger( null, partition );
@@ -185,6 +192,8 @@ public class LocalReducer {
                 merger.merge( work, writer );
 
                 result.add( newInterChunkReader( path ) );
+
+                log.info( "Merged with profiler rate: \n%s", profiler.rate() );
 
             } finally {
                 new Closer( prefetchReader ).close();
@@ -271,6 +280,8 @@ public class LocalReducer {
 
     protected List<ChunkReader> sort( List<File> input, String target_dir ) throws IOException {
 
+        SystemProfiler profiler = SystemProfilerManager.getInstance();
+
         List<ChunkReader> sorted = new ArrayList();
 
         int id = 0;
@@ -298,6 +309,8 @@ public class LocalReducer {
 
         log.info( "Sorted %,d files for %s", sorted.size(), partition );
         
+        log.info( "Sorted with profiler rate: \n%s", profiler.rate() );
+
         return sorted;
 
     }
