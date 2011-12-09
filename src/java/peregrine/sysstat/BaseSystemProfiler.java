@@ -11,6 +11,8 @@ import com.spinn3r.log5j.Logger;
 
 public abstract class BaseSystemProfiler implements SystemProfiler {
 
+    private static final Logger log = Logger.getLogger();
+
     protected StatMeta last = null;
     protected StatMeta current = null;
 
@@ -94,29 +96,36 @@ public abstract class BaseSystemProfiler implements SystemProfiler {
     @Override
     public StatMeta rate() {
 
-        update();
-        
-        StatMeta diff = diff();
+        try {
+            
+            update();
+            
+            StatMeta diff = diff();
 
-        if ( diff == null )
-            return diff;
+            if ( diff == null )
+                return diff;
 
-        StatMeta result = new StatMeta();
+            StatMeta result = new StatMeta();
 
-        for( DiskStat stat : diff.diskStats ) {
-            result.diskStats.add( stat.rate( getInterval() ) );
+            for( DiskStat stat : diff.diskStats ) {
+                result.diskStats.add( stat.rate( getInterval() ) );
+            }
+
+            for( InterfaceStat stat : diff.interfaceStats ) {
+                result.interfaceStats.add( stat.rate( getInterval() ) );
+            }
+
+            for( ProcessorStat stat : diff.processorStats ) {
+                result.processorStats.add( stat.rate( getInterval() ) );
+            }
+
+            return result;
+
+        } catch ( Throwable t ) {
+            log.error( "Unable to compute rate: " , t );
+            return new StatMeta();
         }
-
-        for( InterfaceStat stat : diff.interfaceStats ) {
-            result.interfaceStats.add( stat.rate( getInterval() ) );
-        }
-
-        for( ProcessorStat stat : diff.processorStats ) {
-            result.processorStats.add( stat.rate( getInterval() ) );
-        }
-
-        return result;
-        
+            
     }
     
 }
