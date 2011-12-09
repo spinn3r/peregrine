@@ -19,6 +19,8 @@ public class StatMeta {
     public List<InterfaceStat>  interfaceStats   = new ArrayList();
     public List<ProcessorStat>  processorStats   = new ArrayList();
 
+    public long timestamp = System.currentTimeMillis();
+
     @Override
     public String toString() {
 

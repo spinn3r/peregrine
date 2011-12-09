@@ -41,7 +41,7 @@ public class DiskStat extends BaseStat implements Diffable<DiskStat> {
      * operations.
      */
     double avg_req_size = -1;
-    
+
     @Override
     public DiskStat diff( DiskStat after ) {
         

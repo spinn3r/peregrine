@@ -20,7 +20,7 @@ public class BaseStat {
 
     long timestamp = System.currentTimeMillis();
     long duration  = timestamp;
-
+    
     protected BigDecimal overInterval( BigDecimal value , long interval ) {
 
         double range = duration / (double)interval;

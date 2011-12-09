@@ -204,6 +204,7 @@ public class LinuxSystemProfiler extends BaseSystemProfiler {
             }
 
             DiskStat stat = new DiskStat();
+            stat.timestamp = statMeta.timestamp;
             stat.name = field_disk;
 
             stat.reads             = sectorReference( field_reads );
@@ -249,6 +250,7 @@ public class LinuxSystemProfiler extends BaseSystemProfiler {
             }
 
             InterfaceStat stat = new InterfaceStat();
+            stat.timestamp = statMeta.timestamp;
             stat.name = field_net;
 
             stat.readBits = new BigDecimal( field_receive_bytes )
@@ -293,6 +295,7 @@ public class LinuxSystemProfiler extends BaseSystemProfiler {
             // softirq: servicing softirqs
 
             ProcessorStat stat = new ProcessorStat();
+            stat.timestamp = statMeta.timestamp;
 
             stat.name     = field_cpu;
             stat.user     = new BigDecimal( fields[1] );
