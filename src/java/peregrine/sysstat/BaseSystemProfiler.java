@@ -65,8 +65,6 @@ public abstract class BaseSystemProfiler implements SystemProfiler {
     }
 
     private StatMeta diff( StatMeta before , StatMeta after ) {
-
-        System.out.printf( "FIXME3: diff before timestamp %,d after timestamp %,d\n", before.timestamp, after.timestamp );
         
         StatMeta diff = new StatMeta();
 
@@ -86,6 +84,9 @@ public abstract class BaseSystemProfiler implements SystemProfiler {
                        List after ) {
 
         // TODO: I don't understand why I can't use generics for this.
+
+        if ( before.size() != after.size() )
+            return; // not compatible.
         
         for( int i = 0; i < before.size(); ++i ) {
             target.add( ((Diffable)before.get( i )).diff( after.get( i ) ) );
