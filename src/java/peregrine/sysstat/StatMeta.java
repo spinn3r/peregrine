@@ -13,15 +13,12 @@ import com.spinn3r.log5j.Logger;
 /**
  * Stats for disk throughput and interface throughput.
  */
-public class StatMeta {
+public class StatMeta extends BaseStat {
 
     public List<DiskStat>       diskStats        = new ArrayList();
     public List<InterfaceStat>  interfaceStats   = new ArrayList();
     public List<ProcessorStat>  processorStats   = new ArrayList();
 
-    public long timestamp = System.currentTimeMillis();
-    public long duration = timestamp;
-    
     @Override
     public String toString() {
 
@@ -38,8 +35,8 @@ public class StatMeta {
 
         buff.append( "\n" );
 
-        buff.append( String.format( "%10s %15s %15s %15s %15s %15s %15s\n", "Disk", "reads", "writes", "bytes read", "bytes written", "Avg req size", "%util" ) );
-        buff.append( String.format( "%10s %15s %15s %15s %15s %15s %15s\n", "----", "-----", "------", "----------", "-------------", "------------", "-----" ) );
+        buff.append( format( "Disk", "reads", "writes", "bytes read", "bytes written", "Avg req size", "%util", "\n" ) );
+        buff.append( format( "----", "-----", "------", "----------", "-------------", "------------", "-----", "\n" ) );
 
         for( DiskStat disk : diskStats ) {
             buff.append( disk + "\n" );

@@ -45,7 +45,13 @@ public class BaseStat {
         StringBuilder buff = new StringBuilder();
         
         for( Object arg : args ) {
-            buff.append( format( arg ) );
+
+            if ( "\n".equals( arg ) ) {
+                buff.append( arg );
+            } else { 
+                buff.append( format( arg ) );
+            }
+            
         }
 
         return buff.toString();
