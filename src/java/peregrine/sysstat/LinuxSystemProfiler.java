@@ -366,20 +366,30 @@ public class LinuxSystemProfiler extends BaseSystemProfiler {
         
         String[] lines = value.split( "\n" );
 
+        String result_device = null;
+        String result_mntpoint = "";
+
         for( String line : lines ) {
 
             String[] fields = line.split( "[\t ]+" );
 
             String device = fields[1];
             String mntpoint = fields[1];
+
+            System.out.printf( "FIXME: device: %s, mmntpoint: %s\n", device, mntpoint );
             
             if ( path.indexOf( mntpoint ) == 0 ) {
-                return device.replaceAll( "/dev/", "" );
+
+                if ( mntpoint.length() > result_mntpoint.length() ) {
+                    result_device = device.replaceAll( "/dev/", "" );
+                    result_mntpoint = mntpoint;
+                }
+
             }
 
         }
 
-        return null;
+        return result_device;
         
     }
 
