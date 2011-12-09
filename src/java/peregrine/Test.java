@@ -197,16 +197,28 @@ public class Test {
         
     public static void main( String[] args ) throws Exception {
 
-        DOMConfigurator.configure( "conf/log4j.xml" );
+        Calendar cal = Calendar.getInstance( TimeZone.getTimeZone( "UTC" ) );
+        cal.setTimeInMillis( 61000L );
+        
+        String time = String.format( "%02d:%02d:%02d",
+                                     cal.get( cal.HOUR_OF_DAY  ),
+                                     cal.get( cal.MINUTE ),
+                                     cal.get( cal.SECOND ) );
 
-        MappedFile.FORCE_PAGE_SIZE=4096;
-        testDiskThroughput(args);
+        System.out.printf( "time: %s\n", time );
 
-        MappedFile.FORCE_PAGE_SIZE=16384;
-        testDiskThroughput(args);
+        System.out.printf( "foo: %d\n", cal.getTimeInMillis() );
+        
+        // DOMConfigurator.configure( "conf/log4j.xml" );
 
-        MappedFile.FORCE_PAGE_SIZE=32768;
-        testDiskThroughput(args);
+        // MappedFile.FORCE_PAGE_SIZE=4096;
+        // testDiskThroughput(args);
+
+        // MappedFile.FORCE_PAGE_SIZE=16384;
+        // testDiskThroughput(args);
+
+        // MappedFile.FORCE_PAGE_SIZE=32768;
+        // testDiskThroughput(args);
 
         /*
         FileInputStream fis = new FileInputStream( "test.txt" );

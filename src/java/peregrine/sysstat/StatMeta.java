@@ -27,7 +27,7 @@ public class StatMeta {
 
         StringBuilder buff = new StringBuilder();
 
-        buff.append( String.format( "Stat duration %,d ms.\n\n", duration ) );
+        buff.append( String.format( "Stat duration %s (%,d ms).\n\n", format( duration ), duration ) );
         
         buff.append( String.format( "%10s %15s\n", "Processor", "%util" ) );
         buff.append( String.format( "%10s %15s\n", "---------", "-----" ) );
@@ -58,5 +58,19 @@ public class StatMeta {
         
     }
 
+    private String format( long duration ) {
+
+        Calendar cal = Calendar.getInstance( TimeZone.getTimeZone( "UTC" ) );
+        cal.setTimeInMillis( 61000L );
+        
+        String time = String.format( "%02d:%02d:%02d",
+                                     cal.get( cal.HOUR_OF_DAY  ),
+                                     cal.get( cal.MINUTE ),
+                                     cal.get( cal.SECOND ) );
+
+        return time;
+
+    }
+    
 }
 

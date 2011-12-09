@@ -16,6 +16,8 @@ public class ShuffleReceiverFactory {
 
     private static final Logger log = Logger.getLogger();
 
+    public static boolean ENABLE_PURGE = true;
+    
     private Map<String,ShuffleReceiver> instances = new HashMap();
 
     protected Config config;
@@ -76,6 +78,11 @@ public class ShuffleReceiverFactory {
 
     public void purge() throws IOException {
 
+        // only done so that we can benchmark the performance of certain
+        // algorithsm.
+        
+        if ( ! ENABLE_PURGE ) return;
+        
         String dir = config.getShuffleDir();
         
         log.info( "Purging shuffler directory: %s", dir );
