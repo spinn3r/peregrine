@@ -7,11 +7,15 @@ import java.util.*;
 import peregrine.util.*;
 import peregrine.os.*;
 
+import org.apache.log4j.xml.DOMConfigurator;
+
 import com.spinn3r.log5j.Logger;
 
 public class Main {
 
     public static void main( String[] args ) throws Exception {
+
+        DOMConfigurator.configure( "conf/log4j.xml" );
 
         SystemProfiler profiler = SystemProfilerManager.getInstance();
 
