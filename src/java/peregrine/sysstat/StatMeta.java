@@ -58,7 +58,7 @@ public class StatMeta extends BaseStat {
     private String formatAsDuration( long duration ) {
 
         Calendar cal = Calendar.getInstance( TimeZone.getTimeZone( "UTC" ) );
-        cal.setTimeInMillis( 61000L );
+        cal.setTimeInMillis( duration );
         
         String time = String.format( "%02d:%02d:%02d",
                                      cal.get( cal.HOUR_OF_DAY  ),
