@@ -239,8 +239,6 @@ public class LinuxSystemProfiler extends BaseSystemProfiler {
             stat.timestamp = statMeta.timestamp;
             stat.name = field_disk;
 
-            System.out.printf( "FIXME: field_reads: %s\n", field_reads );
-            
             stat.reads             = sectorReference( field_reads );
             stat.writes            = sectorReference( field_writes );
 
@@ -252,6 +250,11 @@ public class LinuxSystemProfiler extends BaseSystemProfiler {
 
             stat.readsMerged       = new BigDecimal( field_readsMerged );
             stat.writesMerged      = new BigDecimal( field_writesMerged );
+
+            System.out.printf( "FIXME: field_reads: %s\n", field_reads );
+            System.out.printf( "FIXME: reads: %s\n", stat.reads );
+            System.out.printf( "FIXME: reads as int: %s\n", stat.reads.intValue() );
+
             
             stat.init();
             
