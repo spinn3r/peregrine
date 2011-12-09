@@ -194,21 +194,10 @@ public class Test {
         testDiskThroughput( args[0], Integer.parseInt( args[1] ) );
 
     }
-        
+
+
     public static void main( String[] args ) throws Exception {
 
-        Calendar cal = Calendar.getInstance( TimeZone.getTimeZone( "UTC" ) );
-        cal.setTimeInMillis( 61000L );
-        
-        String time = String.format( "%02d:%02d:%02d",
-                                     cal.get( cal.HOUR_OF_DAY  ),
-                                     cal.get( cal.MINUTE ),
-                                     cal.get( cal.SECOND ) );
-
-        System.out.printf( "time: %s\n", time );
-
-        System.out.printf( "foo: %d\n", cal.getTimeInMillis() );
-        
         // DOMConfigurator.configure( "conf/log4j.xml" );
 
         // MappedFile.FORCE_PAGE_SIZE=4096;

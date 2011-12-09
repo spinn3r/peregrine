@@ -39,5 +39,27 @@ public class BaseStat {
     protected boolean isZero( BigDecimal value ) {
         return value.compareTo( ZERO ) == 0;
     }
-    
+
+    protected String format( Object... args ) {
+
+        for( Object arg : args ) {
+            format( arg );
+        }
+
+        return null;
+        
+    }
+
+    protected String format( Double obj ) {
+        return String.format( "%,15.2f", obj.doubleValue() );
+    }
+
+    protected String format( Integer obj ) {
+        return String.format( "%,15d", obj.intValue() );
+    }
+
+    protected String format( Object obj ) {
+        return String.format( "%15s", obj.toString() );
+    }
+
 }

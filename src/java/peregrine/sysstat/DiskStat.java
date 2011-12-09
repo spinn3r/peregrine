@@ -44,7 +44,10 @@ public class DiskStat extends BaseStat implements Diffable<DiskStat> {
      * avgrq-sz is the number of sectors divided by the number of I/O
      * operations.
      */
-    double avg_req_size = 0.0;
+    double avg_io_size   = 0.0;
+
+    double avg_read_size  = 0.0;
+    double avg_write_size = 0.0;
 
     BigDecimal tps = new BigDecimal( 0 );
     
@@ -115,7 +118,15 @@ public class DiskStat extends BaseStat implements Diffable<DiskStat> {
         // TODO: we can break average request size into reads and writes.
 
         if( ! isZero( nr_ops ) ) {
-            avg_req_size = nr_bytes.divide( nr_ops, 2, RoundingMode.CEILING ).doubleValue();
+            avg_io_size = nr_bytes.divide( nr_ops, 2, RoundingMode.CEILING ).doubleValue();
+        }
+
+        if( ! isZero( reads ) ) {
+            avg_read_size = nr_bytes.divide( reads, 2, RoundingMode.CEILING ).doubleValue();
+        }
+
+        if( ! isZero( writes ) ) {
+            avg_write_size = nr_bytes.divide( writes, 2, RoundingMode.CEILING ).doubleValue();
         }
 
         tps = reads.add( writes );
@@ -127,9 +138,8 @@ public class DiskStat extends BaseStat implements Diffable<DiskStat> {
 
         StringBuilder buff = new StringBuilder();
 
-        buff.append( String.format( "%10s %,15d %,15d %,15d %,15d %,15.2f %15.2f",
-                                    name, reads.intValue(), writes.intValue(),
-                                    readBytes.longValue(), writtenBytes.longValue(), avg_req_size, util ) );
+        buff.append( format( name, reads.intValue(), writes.intValue(),
+                             readBytes.longValue(), writtenBytes.longValue(), avg_io_size, util ) );
 
         return buff.toString();
         
