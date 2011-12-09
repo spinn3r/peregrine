@@ -90,12 +90,6 @@ public class DiskStat extends BaseStat implements Diffable<DiskStat> {
     @Override
     public void init() {
 
-        // right now these derived stats are not specified for absolute
-        // measurements but only from diff or rate.
-
-        if ( duration == timestamp )
-            return;
-
         BigDecimal iotime = timeSpentReading.add( timeSpentWriting );
 
         util = iotime.divide( new BigDecimal( duration ), 2, RoundingMode.CEILING ).doubleValue();

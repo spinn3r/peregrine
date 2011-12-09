@@ -214,6 +214,8 @@ public class LinuxSystemProfiler extends BaseSystemProfiler {
             stat.writtenBytes      = sectorReference( field_sectorsWritten );
             stat.timeSpentReading  = new BigDecimal( field_timeSpentReading );
             stat.timeSpentWriting  = new BigDecimal( field_timeSpentWriting );
+
+            stat.init();
             
             statMeta.diskStats.add( stat );
             
@@ -261,6 +263,8 @@ public class LinuxSystemProfiler extends BaseSystemProfiler {
                 .multiply( new BigDecimal( 8 ) )
                 ;
 
+            stat.init();
+            
             statMeta.interfaceStats.add( stat );
             
         }
