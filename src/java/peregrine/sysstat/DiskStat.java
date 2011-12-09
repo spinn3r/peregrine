@@ -34,13 +34,13 @@ public class DiskStat extends BaseStat implements Diffable<DiskStat> {
      * throughput, because the device could be backed by many disks and hence
      * capable of multiple I/O operations simultaneously."
      */
-    double util = -1;
+    double util = 0.0;
 
     /**
      * avgrq-sz is the number of sectors divided by the number of I/O
      * operations.
      */
-    double avg_req_size = -1;
+    double avg_req_size = 0.0;
 
     @Override
     public DiskStat diff( DiskStat after ) {
@@ -49,9 +49,6 @@ public class DiskStat extends BaseStat implements Diffable<DiskStat> {
         
         result.name = name;
         result.duration = after.timestamp - timestamp;
-
-        System.out.printf( "FIXME2: after timestamp %s and before timestamp %s\n", after.timestamp, timestamp );
-        System.out.printf( "FIXME0: duration: %s timetamp: %s\n", result.duration, timestamp );
 
         result.readBytes        = after.readBytes.subtract( readBytes );
         result.writtenBytes     = after.writtenBytes.subtract( writtenBytes );
@@ -99,8 +96,6 @@ public class DiskStat extends BaseStat implements Diffable<DiskStat> {
         if ( duration == timestamp )
             return;
 
-        System.out.printf( "FIXME1: duration: %s timetamp: %s\n", duration, timestamp );
-
         BigDecimal iotime = timeSpentReading.add( timeSpentWriting );
 
         util = iotime.divide( new BigDecimal( duration ), 2, RoundingMode.CEILING ).doubleValue();
@@ -109,7 +104,7 @@ public class DiskStat extends BaseStat implements Diffable<DiskStat> {
         BigDecimal nr_bytes = readBytes.add( writtenBytes );
 
         // TODO: we can break average request size into reads and writes.
-        
+
         if( ! isZero( nr_ops ) ) {
             avg_req_size = nr_bytes.divide( nr_ops, 2, RoundingMode.CEILING ).doubleValue();
         }

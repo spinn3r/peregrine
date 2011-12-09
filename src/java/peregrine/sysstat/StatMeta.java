@@ -35,8 +35,8 @@ public class StatMeta {
 
         buff.append( "\n" );
 
-        buff.append( String.format( "%10s %20s %20s\n", "Disk", "bytes read", "bytes written", "Avg req size", "% util" ) );
-        buff.append( String.format( "%10s %20s %20s\n", "----", "----------", "-------------", "------------", "------" ) );
+        buff.append( String.format( "%10s %20s %20s %20s %20s\n", "Disk", "bytes read", "bytes written", "Avg req size", "% util" ) );
+        buff.append( String.format( "%10s %20s %20s %20s %20s\n", "----", "----------", "-------------", "------------", "------" ) );
 
         for( DiskStat disk : diskStats ) {
             buff.append( disk + "\n" );
