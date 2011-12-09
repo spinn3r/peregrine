@@ -98,7 +98,7 @@ public class DiskStat extends BaseStat implements Diffable<DiskStat> {
 
         System.out.printf( "FIXME: iotime: %s and duration %s\n", iotime, duration );
 
-        util = iotime.divide( new BigDecimal( duration ), 2, RoundingMode.CEILING ).doubleValue();
+        util = iotime.divide( new BigDecimal( duration ), 2, RoundingMode.CEILING ).doubleValue() * 100;
 
         BigDecimal nr_ops = reads.add( writes );
         BigDecimal nr_bytes = readBytes.add( writtenBytes );
