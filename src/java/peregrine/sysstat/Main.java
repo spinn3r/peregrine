@@ -23,7 +23,9 @@ public class Main {
             SystemProfilerManager.getInstance( toSet( getopt.getString( "interfaces" ) ),
                                                toSet( getopt.getString( "disks" ) ),
                                                toSet( getopt.getString( "processors" ) ) );
-        
+
+        System.out.printf( "%s\n", profiler.update() );
+
         while( true ) {
 
             Thread.sleep( 5000L );
