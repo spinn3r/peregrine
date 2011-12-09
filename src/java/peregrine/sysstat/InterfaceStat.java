@@ -41,7 +41,7 @@ public class InterfaceStat extends BaseStat implements Diffable<InterfaceStat> {
         InterfaceStat result = new InterfaceStat();
 
         result.name = name;
-        result.duration = duration;
+        result.duration = interval;
 
         result.readBits = overInterval( readBits, interval );
         result.writtenBits = overInterval( writtenBits, interval );

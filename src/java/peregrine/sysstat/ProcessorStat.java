@@ -83,7 +83,7 @@ public class ProcessorStat extends BaseStat implements Diffable<ProcessorStat> {
         ProcessorStat result = new ProcessorStat();
 
         result.name = name;
-        result.duration = duration;
+        result.duration = interval;
 
         result.user    = overInterval( user, interval );
         result.nice    = overInterval( nice, interval );
