@@ -108,6 +108,7 @@ public class DiskStat extends BaseStat implements Diffable<DiskStat> {
 
         // it is important to use time here because we can't use reading and
         // writing as this would be greater than 100% 
+
         BigDecimal iotime = time;
 
         util = iotime.divide( new BigDecimal( duration ), 2, RoundingMode.CEILING ).doubleValue() * 100;
