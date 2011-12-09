@@ -138,9 +138,16 @@ public class DiskStat extends BaseStat implements Diffable<DiskStat> {
 
         StringBuilder buff = new StringBuilder();
 
-        buff.append( format( name, reads.intValue(), writes.intValue(),
-                             readBytes.longValue(), writtenBytes.longValue(),
-                             avg_read_size, avg_write_size, avg_io_size, util ) );
+        buff.append( format( name,
+                             tps.longValue(),
+                             reads.intValue(),
+                             writes.intValue(),
+                             readBytes.longValue(),
+                             writtenBytes.longValue(),
+                             avg_read_size,
+                             avg_write_size,
+                             avg_io_size,
+                             util ) );
 
         return buff.toString();
         
