@@ -13,15 +13,32 @@ public class SystemProfilerManager {
     private static final Logger log = Logger.getLogger();
 
     public static SystemProfiler getInstance() {
+        return getInstance( null, null, null );
+    }
+
+    public static SystemProfiler getInstance( Set<String> interfaces,
+                                              Set<String> disks,
+                                              Set<String> processors ) {
 
         String os = System.getProperty("os.name").toLowerCase();
+
+        SystemProfiler profiler = null;
         
         if ( os.contains("linux") ) {
-        	SystemProfiler profiler = new LinuxSystemProfiler();
-        	profiler.update();
-        	return profiler;
+        	profiler = new LinuxSystemProfiler();
         }
 
+        if ( profiler != null ) {
+
+            profiler.setInterfaces( interfaces );
+            profiler.setDisks( disks );
+            profiler.setProcessors( processors );
+        	profiler.update();
+
+            return profiler;
+            
+        }
+        
         log.warn( "Unsupported platform: %s", System.getProperty("os.name") );
         
         return new UnsupportedPlatform();

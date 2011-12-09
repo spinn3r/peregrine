@@ -17,23 +17,20 @@ public class Main {
 
         DOMConfigurator.configure( "conf/log4j.xml" );
 
-        SystemProfiler profiler = SystemProfilerManager.getInstance();
-
         Getopt getopt = new Getopt( args );
-
-        profiler.setInterfaces( toSet( getopt.getString( "interfaces" ) ) );
-        profiler.setDisks( toSet( getopt.getString( "disks" ) ) );
-        profiler.setProcessors( toSet( getopt.getString( "processors" ) ) );
-
+        
+        SystemProfiler profiler =
+            SystemProfilerManager.getInstance( toSet( getopt.getString( "interfaces" ) ),
+                                               toSet( getopt.getString( "disks" ) ),
+                                               toSet( getopt.getString( "processors" ) ) );
+        
         while( true ) {
 
             Thread.sleep( 5000L );
 
-            //StatMeta stat = platform.diff();
             StatMeta stat = profiler.rate();
 
-            if ( stat != null )
-                System.out.printf( "%s\n", stat );
+            System.out.printf( "%s\n", stat );
 
         }
         
