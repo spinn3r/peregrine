@@ -122,11 +122,11 @@ public class DiskStat extends BaseStat implements Diffable<DiskStat> {
         }
 
         if( ! isZero( reads ) ) {
-            avg_read_size = nr_bytes.divide( reads, 2, RoundingMode.CEILING ).doubleValue();
+            avg_read_size = readBytes.divide( reads, 2, RoundingMode.CEILING ).doubleValue();
         }
 
         if( ! isZero( writes ) ) {
-            avg_write_size = nr_bytes.divide( writes, 2, RoundingMode.CEILING ).doubleValue();
+            avg_write_size = writtenBytes.divide( writes, 2, RoundingMode.CEILING ).doubleValue();
         }
 
         tps = reads.add( writes );
