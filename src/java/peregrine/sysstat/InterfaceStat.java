@@ -55,8 +55,7 @@ public class InterfaceStat extends BaseStat implements Diffable<InterfaceStat> {
 
         StringBuilder buff = new StringBuilder();
 
-        buff.append( String.format( "%10s %,15d %,15d",
-                                    name, readBits.longValue(), writtenBits.longValue() ) );
+        buff.append( format( name, readBits.longValue(), writtenBits.longValue() ) );
 
         return buff.toString();
 

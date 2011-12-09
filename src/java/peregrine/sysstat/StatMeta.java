@@ -26,8 +26,8 @@ public class StatMeta extends BaseStat {
 
         buff.append( String.format( "Stat duration %s (%,d ms).\n\n", format( duration ), duration ) );
         
-        buff.append( String.format( "%10s %15s\n", "Processor", "%util" ) );
-        buff.append( String.format( "%10s %15s\n", "---------", "-----" ) );
+        buff.append( format( "Processor", "%util", "\n" ) );
+        buff.append( format( "---------", "-----", "\n" ) );
 
         for( ProcessorStat processor : processorStats ) {
             buff.append( processor + "\n" );
@@ -44,8 +44,8 @@ public class StatMeta extends BaseStat {
 
         buff.append( "\n" );
 
-        buff.append( String.format( "%10s %15s %15s\n", "Interface", "bits rx",  "bits tx" ) );
-        buff.append( String.format( "%10s %15s %15s\n", "---------", "-------",  "-------" ) );
+        buff.append( format( "Interface", "bits rx",  "bits tx", "\n" ) );
+        buff.append( format( "---------", "-------",  "-------", "\n" ) );
 
         for( InterfaceStat net : interfaceStats ) {
             buff.append( net + "\n" );
