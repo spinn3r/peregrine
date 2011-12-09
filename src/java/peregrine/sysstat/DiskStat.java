@@ -119,7 +119,10 @@ public class DiskStat extends BaseStat implements Diffable<DiskStat> {
             avg_req_size = nr_bytes.divide( nr_ops, 2, RoundingMode.CEILING ).doubleValue();
         }
 
-        tps = readsMerged.add( writesMerged );
+        tps = reads.add( writes )
+                   .subtract( readsMerged )
+                   .subtract( writesMerged )
+            ;
         
     }
 
