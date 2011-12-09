@@ -68,19 +68,19 @@ public class BaseStat {
     }
 
     protected String format( Double obj ) {
-        return String.format( "%,15.2f", obj.doubleValue() );
+        return String.format( "%,15.2f ", obj.doubleValue() );
     }
 
     protected String format( Long obj ) {
-        return String.format( "%,15d", obj.longValue() );
+        return String.format( "%,15d ", obj.longValue() );
     }
 
     protected String format( Integer obj ) {
-        return String.format( "%,15d", obj.intValue() );
+        return String.format( "%,15d ", obj.intValue() );
     }
 
     protected String format( Object obj ) {
-        return String.format( "%15s", obj.toString() );
+        return String.format( "%15s ", obj.toString() );
     }
 
 }
