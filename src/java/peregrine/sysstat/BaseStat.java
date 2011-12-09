@@ -56,6 +56,10 @@ public class BaseStat {
         return String.format( "%,15.2f", obj.doubleValue() );
     }
 
+    protected String format( Long obj ) {
+        return String.format( "%,15d", obj.longValue() );
+    }
+
     protected String format( Integer obj ) {
         return String.format( "%,15d", obj.intValue() );
     }
