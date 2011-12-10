@@ -1,4 +1,9 @@
 
+- If I were to use an array backed queue which was just long[] I could then
+  allocate from a direct memory ring buffer and read pointers and lengths from
+  them for sending data over the wire.
+
+
 - 256MB is probably TOO much memory for the JVM ... Its's actually 488
   MB... weird... I can do probably 128M or 64MB
 

@@ -100,7 +100,7 @@ public class LocalReducer {
     /**
      * Do the final merge including writing to listener when we are finished.
      */
-    protected void finalMerge( List<ChunkReader> readers ) throws IOException {
+    public void finalMerge( List<ChunkReader> readers ) throws IOException {
 
         log.info( "Merging on final merge with %,d readers (strategy=finalMerge)",
                   readers.size() );
@@ -128,7 +128,7 @@ public class LocalReducer {
     /**
      * Do an intermediate merge writing to a temp directory.
      */
-    protected List<ChunkReader> interMerge( List<ChunkReader> readers, int pass )
+    public List<ChunkReader> interMerge( List<ChunkReader> readers, int pass )
         throws IOException {
 
         String target_path = getTargetPath( pass );
@@ -278,7 +278,11 @@ public class LocalReducer {
 
     }
 
-    protected List<ChunkReader> sort( List<File> input, String target_dir ) throws IOException {
+    /**
+     * Sort a given set of input files adn wite the results to the output
+     * directory.
+     */
+    public List<ChunkReader> sort( List<File> input, String target_dir ) throws IOException {
 
         SystemProfiler profiler = config.getSystemProfiler();
 

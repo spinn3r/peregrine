@@ -13,12 +13,14 @@ import java.util.concurrent.*;
  */
 public class SimpleBlockingQueueWithFailure<T,E extends Exception> {
 
-    LinkedBlockingQueue<Entry<T,E>> delegate = new LinkedBlockingQueue();
+    BlockingQueue<Entry<T,E>> delegate = null;
 
-    public SimpleBlockingQueueWithFailure() { }
+    public SimpleBlockingQueueWithFailure() {
+        delegate = new LinkedBlockingQueue();
+    }
 
     public SimpleBlockingQueueWithFailure( int capacity ) {
-        delegate = new LinkedBlockingQueue( capacity );
+        delegate = new ArrayBlockingQueue( capacity );
     }
     
     public T peek() throws E {

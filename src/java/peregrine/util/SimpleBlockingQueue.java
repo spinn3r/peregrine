@@ -10,9 +10,11 @@ import java.util.concurrent.*;
  */
 public class SimpleBlockingQueue<T> {
 
-    LinkedBlockingQueue<T> delegate = new LinkedBlockingQueue();
+    BlockingQueue<T> delegate = null;
 
-    public SimpleBlockingQueue() { }
+    public SimpleBlockingQueue() {
+        delegate = new LinkedBlockingQueue();
+    }
 
     public SimpleBlockingQueue( int capacity ) {
         delegate = new LinkedBlockingQueue( capacity );
