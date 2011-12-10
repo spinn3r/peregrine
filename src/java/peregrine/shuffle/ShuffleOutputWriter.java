@@ -7,11 +7,10 @@ import java.util.concurrent.*;
 
 import peregrine.util.primitive.IntBytes;
 import peregrine.values.*;
-import peregrine.config.Config;
-import peregrine.config.Partition;
-import peregrine.config.Replica;
+import peregrine.config.*;
 import peregrine.io.async.*;
 import peregrine.io.util.*;
+import peregrine.util.*;
 
 import org.jboss.netty.buffer.*;
 
@@ -39,7 +38,7 @@ public class ShuffleOutputWriter implements Closeable {
     // we won't need this but for now if multiple threads are writing to the
     // shuffler we can end up with corruption...
     
-    private Queue<ShufflePacket> index = new LinkedBlockingQueue();
+    private SimpleBlockingQueue<ShufflePacket> index = new SimpleBlockingQueue();
 
     /**
      * Path to store this output buffer once closed.
@@ -78,7 +77,7 @@ public class ShuffleOutputWriter implements Closeable {
         
         this.length += data.capacity();
         
-        index.add( pack );
+        index.put( pack );
 
     }
 
@@ -105,8 +104,12 @@ public class ShuffleOutputWriter implements Closeable {
             lookup.put( part.getId(), new ShuffleOutputPartition() );
         }
 
-        for( ShufflePacket current : index ) {
+        Iterator<ShufflePacket> it = index.iterator();
+        
+        while( it.hasNext() ) {
 
+            ShufflePacket current = it.next();
+            
             if ( current == null ) {
                 log.error( "Skipping null packet." );
                 continue;

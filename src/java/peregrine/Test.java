@@ -4,6 +4,8 @@ import java.io.*;
 import java.nio.*;
 import java.nio.channels.*;
 import java.util.*;
+import java.util.concurrent.*;
+
 import org.jboss.netty.buffer.*;
 import peregrine.config.*;
 import peregrine.shuffle.*;
@@ -195,53 +197,41 @@ public class Test {
 
     }
 
-    protected static String format( Object... args ) {
+    public static int capacity = 10000000;
+    
+    public static void testQueue( BlockingQueue<Integer> queue ) throws Exception {
 
-        StringBuilder buff = new StringBuilder();
-        
-        for( Object arg : args ) {
+        long before = System.currentTimeMillis();
 
-            if ( "\n".equals( arg ) ) {
-                buff.append( arg );
-            } else {
-
-                if( arg instanceof Double )
-                    buff.append( format( (Double)arg ) );
-                else if( arg instanceof Integer )
-                    buff.append( format( (Integer)arg ) );
-                else if( arg instanceof Long )
-                    buff.append( format( (Long)arg ) );
-                else 
-                    buff.append( format( arg ) );
-            }
-            
+        for( int i = 0; i < capacity; ++i ) {
+            queue.put( i );
         }
 
-        return buff.toString();
+        for( int i = 0; i < capacity; ++i ) {
+            queue.take();
+        }
+
+        long after = System.currentTimeMillis();
+
+        long duration = after - before;
+
+        System.out.printf( "duration: %,d ms\n", duration );
         
     }
-
-    protected static String format( Double obj ) {
-        return String.format( "%,15.2f", obj.doubleValue() );
-    }
-
-    protected static String format( Long obj ) {
-        return String.format( "%,15d", obj.longValue() );
-    }
-
-    protected static String format( Integer obj ) {
-        return String.format( "%,15d", obj.intValue() );
-    }
-
-    protected static String format( Object obj ) {
-        return String.format( "%15s", obj.toString() );
-    }
-
+    
     public static void main( String[] args ) throws Exception {
 
-        String result = format( (int)10000000, (double)1000000.0, (long)100000 );
+        testQueue( new LinkedBlockingQueue( capacity ) );
+        testQueue( new LinkedBlockingQueue( capacity ) );
+        testQueue( new LinkedBlockingQueue( capacity ) );
 
-        System.out.printf( "%s\n" , result );
+        testQueue( new ArrayBlockingQueue( capacity ) );
+        testQueue( new ArrayBlockingQueue( capacity ) );
+        testQueue( new ArrayBlockingQueue( capacity ) );
+
+        // String result = format( (int)10000000, (double)1000000.0, (long)100000 );
+
+        // System.out.printf( "%s\n" , result );
 
         // DOMConfigurator.configure( "conf/log4j.xml" );
 
