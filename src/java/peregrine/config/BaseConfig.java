@@ -16,35 +16,12 @@ import com.spinn3r.log5j.Logger;
  * 
  */
 public class BaseConfig {
+    
+    private String routerDelegate = null;
 
-    public static long DEFAULT_SORT_BUFFER_SIZE = (long) Math.pow(2, 20);
-    
-    public static boolean DEFAULT_FADVISE_DONT_NEED_ENABLED = true;
-
-    public static long DEFAULT_CHUNK_SIZE = (long) Math.pow(2, 27);
-    
-    public static long DEFAULT_FALLOCATE_EXTENT_SIZE = 10485760;
-    
-    public static int DEFAULT_MERGE_FACTOR = 100;
-    
-    public static long DEFAULT_SHUFFLE_BUFFER_SIZE = 1048576;
-    
-    /**
-     * Default port for serving requests.
-     */
     public static int DEFAULT_PORT = 11112;
-    
-    public static int DEFAULT_CONCURRENCY = 1;
-    
-    /**
-     * Default root directory for serving files.
-     */
-    public static String DEFAULT_BASEDIR = "/tmp/peregrine-fs";
 
-    /**
-     * Default number of replicas.
-     */
-    public static int DEFAULT_REPLICAS = 1;
+    public static String DEFAULT_BASEDIR = "/tmp/peregrine-fs";
     
     /**
      * The root for storing data.
@@ -80,27 +57,51 @@ public class BaseConfig {
     /**
      * The number of replicas per file we are configured for.  Usually 2 or 3.
      */
-    protected int replicas = DEFAULT_REPLICAS;
+    protected int replicas;
 
     /**
      * The concurrency on a per host basis.  How many mappers and reducers each
      * can run.
      */
-    protected int concurrency = DEFAULT_CONCURRENCY;
+    protected int concurrency;
 
-    protected long shuffleBufferSize = DEFAULT_SHUFFLE_BUFFER_SIZE;
+    protected long shuffleBufferSize;
 
-    protected PartitionRouter router = null;
+    protected PartitionRouter router;
 
-    protected int mergeFactor = DEFAULT_MERGE_FACTOR;
+    protected int mergeFactor;
 
-    protected long fallocateExtentSize = DEFAULT_FALLOCATE_EXTENT_SIZE;
+    protected long fallocateExtentSize;
 
-    protected boolean fadviseDontNeedEnabled = DEFAULT_FADVISE_DONT_NEED_ENABLED;
+    protected boolean fadviseDontNeedEnabled;;
 
-    private long chunkSize = DEFAULT_CHUNK_SIZE;
+    protected long chunkSize;
 
-    private long sortBufferSize = DEFAULT_SORT_BUFFER_SIZE;
+    protected long sortBufferSize;
+
+    protected boolean purgeShuffleData;
+
+    protected int port;
+    
+    public void init( StructMap struct ) {
+
+        setBasedir( struct.get( "basedir" ) );
+        setController( Host.parse( struct.get( "controller" ) ) );
+
+        // TODO: consider using reflection to allow these to be set for any
+        // directive without updating the mapping.
+        
+        setReplicas( struct.getInt( "replicas" ) );
+        setConcurrency( struct.getInt( "concurrency" ) );
+        setShuffleBufferSize( struct.getSize( "shuffleBufferSize" ) );
+        setMergeFactor( struct.getInt( "mergeFactor" ) );
+        setFallocateExtentSize( struct.getSize( "fallocateExtentSize" ) );
+        setFadviseDontNeedEnabled( struct.getBoolean( "fadviseDontNeedEnabled" ) );
+        setChunkSize( struct.getSize( "chunkSize" ) );
+        setSortBufferSize( struct.getSize( "sortBufferSize" ) );
+        setRouterDelegate( struct.getString( "routerDelegate" ) );
+        setPurgeShuffleData( struct.getBoolean( "purgeShuffleData" ) );
+    }
 
     public Membership getMembership() {
         return membership;
@@ -222,6 +223,30 @@ public class BaseConfig {
 
     public void setSortBufferSize( long sortBufferSize ) { 
         this.sortBufferSize = sortBufferSize;
+    }
+
+    public boolean getPurgeShuffleData() { 
+        return this.purgeShuffleData;
+    }
+
+    public void setPurgeShuffleData( boolean purgeShuffleData ) { 
+        this.purgeShuffleData = purgeShuffleData;
+    }
+
+    public int getPort() { 
+        return this.port;
+    }
+
+    public void setPort( int port ) { 
+        this.port = port;
+    }
+
+    public String getRouterDelegate() { 
+        return this.routerDelegate;
+    }
+
+    public void setRouterDelegate( String routerDelegate ) { 
+        this.routerDelegate = routerDelegate;
     }
 
 }

@@ -4,12 +4,12 @@ import peregrine.config.*;
 
 public class RangePartitionRouter  extends BasePartitionRouter {
 
-	private int range;
+	private double range;
 	
 	@Override
     public void init( Config config ) {
 		super.init( config );
-    	this.range = 255 / nr_partitions;	
+    	this.range = 255 / (double)nr_partitions;	
     }
 	
 	@Override
@@ -26,7 +26,7 @@ public class RangePartitionRouter  extends BasePartitionRouter {
 			domain = domain & ( key[1] & 0xFF );
 		}
 						
-		int part = domain / range;
+		int part = (int)(domain / range);
 			
 		return new Partition( part );
 		

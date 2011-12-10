@@ -26,7 +26,8 @@ public class TestFullShufflePath extends peregrine.BaseTestWithMultipleDaemons {
     @Override
     public void setUp() {
 
-        Config.DEFAULT_SHUFFLE_BUFFER_SIZE = 134217728;
+        //FIXE: we need to figure out a way to change this globally.
+        //Config.DEFAULT.setShuffleBufferSize( 134217728 );
 
         super.setUp();
         

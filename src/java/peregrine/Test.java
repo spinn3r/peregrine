@@ -218,6 +218,30 @@ public class Test {
         System.out.printf( "duration: %,d ms\n", duration );
         
     }
+
+    /*
+    class HybridBlockingQueue<T> {
+
+        private static int ARRAY_SIZE = 16384;
+
+        private LinkedBlockingQueue<HybridBlockingQueue<T>>
+            overflow = new LinkedBlockingQueue();
+
+        private ArrayBlockingQueue<T> reader;
+        private ArrayBlockingQueue<T> writer;
+
+        public HybridBlockingQueue() 
+        
+        public void put( T value ) {
+
+        }
+        
+        public T take() {
+
+        }
+        
+    }
+    */
     
     public static void main( String[] args ) throws Exception {
 

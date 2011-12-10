@@ -106,6 +106,10 @@ public class Getopt {
 
     }
 
+    public boolean containsKey( String key ) {
+        return params.containsKey( key );
+    }
+    
     public Map<String,String> getParams() {
         return params;
     }

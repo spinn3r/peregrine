@@ -92,4 +92,13 @@ public class StructMap {
         return get( key );
     }
 
+    public List<String> getKeys() {
+        return keys;
+    }
+    
+    @Override
+    public String toString() {
+        return delegate.toString();
+    }
+    
 }

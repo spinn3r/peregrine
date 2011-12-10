@@ -15,8 +15,6 @@ import com.spinn3r.log5j.Logger;
 public class ShuffleReceiverFactory {
 
     private static final Logger log = Logger.getLogger();
-
-    public static boolean ENABLE_PURGE = true;
     
     private Map<String,ShuffleReceiver> instances = new HashMap();
 
@@ -81,7 +79,8 @@ public class ShuffleReceiverFactory {
         // only done so that we can benchmark the performance of certain
         // algorithsm.
         
-        if ( ! ENABLE_PURGE ) return;
+        if ( config.setPurgeShuffleData() == false )
+            return;
         
         String dir = config.getShuffleDir();
         

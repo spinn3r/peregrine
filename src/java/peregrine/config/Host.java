@@ -79,7 +79,12 @@ public class Host implements Comparable<Host> {
 
         String[] split = value.split( ":" );
 
-        return new Host( split[0], Integer.parseInt( split[1] ) );
+        int port =  Config.DEFAULT_PORT;
+
+        if ( split.length > 1 )
+            port = Integer.parseInt( split[1] );
+            
+        return new Host( split[0], port );
         
     }
 
