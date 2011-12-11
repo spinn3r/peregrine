@@ -2,6 +2,7 @@ package peregrine.shuffle.receiver;
 
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.*;
 
 import peregrine.config.*;
 import peregrine.io.util.*;
@@ -18,7 +19,7 @@ public class ShuffleReceiverFactory {
 
     public static boolean ENABLE_PURGE = true;
     
-    private Map<String,ShuffleReceiver> instances = new HashMap();
+    private ConcurrentHashMap<String,ShuffleReceiver> instances = new ConcurrentHashMap();
 
     protected Config config;
 
@@ -43,7 +44,8 @@ public class ShuffleReceiverFactory {
                 if ( result == null ) {
 
                     result = new ShuffleReceiver( config, name );
-                    instances.put( name, result );
+                    instances.putIfAbsent( name, result );
+                    result = instances.get( name );
                     
                 } 
 
@@ -72,7 +74,7 @@ public class ShuffleReceiverFactory {
 
         // now throw the current instances away because we can't use them any
         // more and this will also free up memory.
-        instances = new HashMap();
+        instances = new ConcurrentHashMap();
             
     }
 
