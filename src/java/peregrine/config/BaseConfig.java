@@ -82,8 +82,16 @@ public class BaseConfig {
     protected boolean purgeShuffleData;
 
     protected int port;
+
+    // We keep this around so that the command line can see which fields are set
+    // and then set them directly and override the struct and re-configure the
+    // system.
+    
+    protected StructMap struct = null;
     
     public void init( StructMap struct ) {
+
+        this.struct = struct;
 
         setBasedir( struct.get( "basedir" ) );
         setController( Host.parse( struct.get( "controller" ) ) );

@@ -79,7 +79,7 @@ public class ShuffleReceiverFactory {
         // only done so that we can benchmark the performance of certain
         // algorithsm.
         
-        if ( config.setPurgeShuffleData() == false )
+        if ( config.getPurgeShuffleData() == false )
             return;
         
         String dir = config.getShuffleDir();

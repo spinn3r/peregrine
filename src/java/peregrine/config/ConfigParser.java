@@ -29,15 +29,17 @@ public class ConfigParser {
 
         Getopt getopt = new Getopt( args );
 
-        if ( getopt.containsKey( "basedir" ) ) {
-            config.setBasedir( getopt.getString( "basedir" ) );
+        for ( String key : config.struct.getKeys() ) {
+
+            if( getopt.containsKey( key ) ) {
+                config.struct.put( key, getopt.getString( key ) );
+            }
+            
         }
 
-        if ( getopt.containsKey( "host" ) ) {
-            Host host = Host.parse( getopt.getString( "host" ) );
-            log.info( "Running with custom host: %s" , host );
-            config.setHost( host );
-        }
+        // re-init the config with the params from the command line.  With no
+        // param specified this is essentially idempotent.
+        config.init( config.struct );
         
         config.init();
 
