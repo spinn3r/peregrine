@@ -11,7 +11,7 @@ public class ExecutorServiceManager {
 
     private static final Logger log = Logger.getLogger();
 
-    private Map<Class,ExecutorService> executorServices = new ConcurrentHashMap();
+    private ConcurrentHashMap<Class,ExecutorService> executorServices = new ConcurrentHashMap();
 
     public ExecutorService getExecutorService( Class clazz ) {
 
@@ -29,7 +29,8 @@ public class ExecutorServiceManager {
                 if ( result == null ) {
 
                     result = Executors.newCachedThreadPool( new DefaultThreadFactory( clazz ) );
-                    executorServices.put( clazz, result );
+                    executorServices.putIfAbsent( clazz, result );
+                    result = executorServices.get( clazz );
                     
                 }
                 
