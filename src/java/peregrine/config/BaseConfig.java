@@ -109,6 +109,8 @@ public class BaseConfig {
         setSortBufferSize( struct.getSize( "sortBufferSize" ) );
         setRouterDelegate( struct.getString( "routerDelegate" ) );
         setPurgeShuffleData( struct.getBoolean( "purgeShuffleData" ) );
+        setHost( Host.parse( struct.getString( "host" ) ) );
+
     }
 
     public Membership getMembership() {
