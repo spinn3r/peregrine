@@ -1,8 +1,8 @@
-package peregrine.config.router;
+package peregrine.config.partitioner;
 
 import peregrine.config.*;
 
-public interface PartitionRouter {
+public interface Partitioner {
 
 	/**
 	 * Init the range router with the given config so that we can 
@@ -10,6 +10,6 @@ public interface PartitionRouter {
 	 */
 	public void init( Config config );
 	
-	public Partition route( byte[] key );
+	public Partition partition( byte[] key );
 	
 }

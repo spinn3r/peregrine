@@ -23,7 +23,7 @@ public class ShuffleJobOutputDirect extends ShuffleJobOutputBase {
     @Override
     public void emit( byte[] key , byte[] value ) {
             
-        Partition target = parent.config.route( key );
+        Partition target = parent.config.partition( key );
         
         emit( target.getId(), key, value );
                     

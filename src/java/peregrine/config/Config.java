@@ -4,7 +4,7 @@ import java.io.*;
 import java.lang.reflect.*;
 import java.util.*;
 
-import peregrine.config.router.*;
+import peregrine.config.partitioner.*;
 import peregrine.util.primitive.*;
 import peregrine.util.*;
 import peregrine.os.*;
@@ -56,8 +56,8 @@ public class Config extends BaseConfig {
 
         // TODO: move the hash partitioner implementation to a config directive... 
         
-        router = new HashPartitionRouter();
-        router.init( this );
+        partitioner = new HashPartitioner();
+        partitioner.init( this );
 
         new File( root ).mkdirs();
 
@@ -144,7 +144,7 @@ public class Config extends BaseConfig {
 
         // right now only the route and cluster membership matter.
         
-        buff.append( router.getClass().getName() );
+        buff.append( partitioner.getClass().getName() );
         buff.append( getMembership().toString() );
         
         return Base16.encode( SHA1.encode( buff.toString() ) );
@@ -160,8 +160,8 @@ public class Config extends BaseConfig {
     /**
      * For a given key, in bytes, route it to the correct partition/partition.
      */
-    public Partition route( byte[] key ) {
-    	return router.route( key );    
+    public Partition partition( byte[] key ) {
+    	return partitioner.partition( key );    
     }
 
     /**

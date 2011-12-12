@@ -4,7 +4,7 @@ import java.io.*;
 import java.lang.reflect.*;
 import java.util.*;
 
-import peregrine.config.router.*;
+import peregrine.config.partitioner.*;
 import peregrine.util.primitive.*;
 import peregrine.util.*;
 import peregrine.os.*;
@@ -63,7 +63,7 @@ public class BaseConfig {
 
     protected long shuffleBufferSize;
 
-    protected PartitionRouter router;
+    protected Partitioner partitioner;
 
     protected int mergeFactor;
 
@@ -85,7 +85,7 @@ public class BaseConfig {
     
     protected StructMap struct = null;
 
-    protected String routerDelegate = null;
+    protected String partitionerDelegate = null;
 
     public void init( StructMap struct ) {
 
@@ -105,7 +105,7 @@ public class BaseConfig {
         setFadviseDontNeedEnabled( struct.getBoolean( "fadviseDontNeedEnabled" ) );
         setChunkSize( struct.getSize( "chunkSize" ) );
         setSortBufferSize( struct.getSize( "sortBufferSize" ) );
-        setRouterDelegate( struct.getString( "routerDelegate" ) );
+        setPartitionerDelegate( struct.getString( "partitionerDelegate" ) );
         setPurgeShuffleData( struct.getBoolean( "purgeShuffleData" ) );
 
         if ( struct.containsKey( "host" ) )
@@ -251,12 +251,12 @@ public class BaseConfig {
         this.port = port;
     }
 
-    public String getRouterDelegate() { 
-        return this.routerDelegate;
+    public String getPartitionerDelegate() { 
+        return this.partitionerDelegate;
     }
 
-    public void setRouterDelegate( String routerDelegate ) { 
-        this.routerDelegate = routerDelegate;
+    public void setPartitionerDelegate( String partitionerDelegate ) { 
+        this.partitionerDelegate = partitionerDelegate;
     }
 
     static {

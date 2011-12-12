@@ -1,8 +1,8 @@
-package peregrine.config.router;
+package peregrine.config.partitioner;
 
 import peregrine.config.*;
 
-public abstract class BasePartitionRouter implements PartitionRouter {
+public abstract class BasePartitioner implements Partitioner {
 
 	protected int nr_partitions;
 	protected Config config;

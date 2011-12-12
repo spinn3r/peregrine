@@ -59,7 +59,7 @@ public class ExtractWriter {
     public void write( byte[] key, byte[] value )
         throws IOException {
 
-        Partition partition = config.route( key );
+        Partition partition = config.partition( key );
         
         write( partition, key, value );
         

@@ -1,8 +1,8 @@
-package peregrine.config.router;
+package peregrine.config.partitioner;
 
 import peregrine.config.*;
 
-public class RangePartitionRouter  extends BasePartitionRouter {
+public class RangePartitioner  extends BasePartitioner {
 
 	private double range;
 	
@@ -13,7 +13,7 @@ public class RangePartitionRouter  extends BasePartitionRouter {
     }
 	
 	@Override
-	public Partition route( byte[] key ) {
+	public Partition partition( byte[] key ) {
 		
 		// the domain of the route function...  basically the key space as an
 		// integer so that we can place partitions within that space.

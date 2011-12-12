@@ -1,13 +1,13 @@
-package peregrine.config.router;
+package peregrine.config.partitioner;
 
 import peregrine.config.*;
 import peregrine.util.*;
 import peregrine.util.primitive.*;
 
-public class HashPartitionRouter extends BasePartitionRouter {
+public class HashPartitioner extends BasePartitioner {
 	
 	@Override
-	public Partition route( byte[] key ) {
+	public Partition partition( byte[] key ) {
         
         // we only need a FEW bytes to route a key , not the WHOLE thing if it
         // is a hashcode.  For example... we can route to 255 partitions with
