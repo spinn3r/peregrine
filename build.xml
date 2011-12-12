@@ -314,6 +314,7 @@
              packagenames="peregrine.*">
 
         <group title="Core" packages="peregrine"/>
+        <group title="Example applications" packages="peregrine.app*"/>
         <group title="Config" packages="peregrine.config*"/>
         <group title="IO" packages="peregrine.io*"/>
         <group title="Controller" packages="peregrine.controller*"/>

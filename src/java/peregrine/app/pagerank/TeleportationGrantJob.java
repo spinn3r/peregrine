@@ -1,4 +1,4 @@
-package peregrine.pagerank;
+package peregrine.app.pagerank;
 
 import java.util.*;
 import peregrine.*;
