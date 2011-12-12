@@ -309,10 +309,18 @@
              version="true" 
              sourcepath="src/java" 
              classpathref="project.classpath"
+             overview="src/javadoc/overview.html"
+             stylesheetfile="src/javadoc/stylesheet.css"
              packagenames="peregrine.*">
       
     </javadoc>
-    
+
+    <copy todir="${javadocdir}/resources" >
+
+      <fileset dir="src/javadoc/resources" />
+
+    </copy>
+
   </target>
 
 </project>

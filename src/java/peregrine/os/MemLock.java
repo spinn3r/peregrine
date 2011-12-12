@@ -23,7 +23,7 @@ public class MemLock implements Closeable {
      * @param descriptor The file we should mmap and MAP_LOCKED
      * @param offset
      * @param length
-     * @see #release()
+     * @see #close()
      * @throws IOException
      */
     public MemLock( File file, FileDescriptor descriptor, long offset, long length ) throws IOException {

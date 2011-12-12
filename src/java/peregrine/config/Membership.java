@@ -165,8 +165,8 @@ public class Membership {
      * Send gossip to the controller that a given host is not cooperating for 
      * functioning correctly.
      * 
-     * @param host
-     * @param cause
+     * @param failed The host that failed.
+     * @param cause The cause of the exception.
      * @throws IOException 
      */
     public boolean sendGossipToController( Host failed, Throwable cause ) {
