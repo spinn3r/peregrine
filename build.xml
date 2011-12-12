@@ -312,6 +312,16 @@
              overview="src/javadoc/overview.html"
              stylesheetfile="src/javadoc/stylesheet.css"
              packagenames="peregrine.*">
+
+        <group title="Core" packages="peregrine"/>
+        <group title="Config" packages="peregrine.config*"/>
+        <group title="IO" packages="peregrine.io*"/>
+        <group title="Controller" packages="peregrine.controller*"/>
+        <group title="Shuffling" packages="peregrine.shuffle*"/>
+        <group title="Util" packages="peregrine.util*"/>
+        <group title="PFSd" packages="peregrine.pfsd*"/>
+        <group title="Reduce" packages="peregrine.reduce*"/>
+        <group title="RPC framework" packages="peregrine.rpc*"/>
       
     </javadoc>
 
