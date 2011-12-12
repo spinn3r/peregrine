@@ -18,6 +18,9 @@ import com.spinn3r.log5j.Logger;
 import peregrine.util.netty.*;
 import peregrine.*;
 
+/**
+ * Basic daemon for running the controller only (no FS operations).
+ */
 public class ControllerDaemon extends BaseDaemon {
 
     private static final Logger log = Logger.getLogger();

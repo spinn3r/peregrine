@@ -8,7 +8,6 @@ import java.util.concurrent.*;
 import peregrine.util.primitive.IntBytes;
 import peregrine.values.*;
 import peregrine.config.*;
-import peregrine.io.async.*;
 import peregrine.io.util.*;
 import peregrine.util.*;
 

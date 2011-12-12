@@ -6,6 +6,9 @@ import peregrine.config.*;
 import peregrine.controller.*;
 import peregrine.util.*;
 
+/**
+ * Keeps track of hosts once they come online.
+ */
 public class Online extends MarkMap<Host,Long>{
 
 	private static final Logger log = Logger.getLogger();

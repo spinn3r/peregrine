@@ -5,7 +5,6 @@ import java.util.*;
 
 import peregrine.config.*;
 import peregrine.http.*;
-import peregrine.io.async.*;
 import peregrine.io.chunk.*;
 import peregrine.os.*;
 import peregrine.pfsd.*;

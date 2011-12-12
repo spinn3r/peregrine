@@ -12,7 +12,6 @@ import org.jboss.netty.channel.socket.nio.*;
 import org.jboss.netty.handler.codec.http.*;
 
 import peregrine.config.Host;
-import peregrine.io.async.*;
 import peregrine.pfsd.*;
 import peregrine.util.*;
 import peregrine.util.netty.*;
