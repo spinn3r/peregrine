@@ -42,9 +42,11 @@ public class Config extends BaseConfig {
 
         // update the root directory from the host/port and configured basedir
         setRoot( host );
-        
+
+        new File( root ).mkdirs(); /* make sure the root dir exists */
+
         log.info( "Using root: %s with basedir: %s", root, basedir );
-        
+
         PartitionLayoutEngine engine = new PartitionLayoutEngine( this );
         engine.build();
 
@@ -54,12 +56,20 @@ public class Config extends BaseConfig {
             throw new RuntimeException( "Host is not defined in hosts file nor is it the controller: " + getHost() );
         }
 
-        // TODO: move the hash partitioner implementation to a config directive... 
+        // the partitioner is a config directive 
         
-        partitioner = new HashPartitioner();
-        partitioner.init( this );
+        String partitionerDelegateClassName = getPartitionerDelegate();
 
-        new File( root ).mkdirs();
+        if ( ! partitionerDelegateClassName.contains( "." ) ) {
+            partitionerDelegateClassName = Partitioner.class.getPackage().getName() + "." + partitionerDelegateClassName;
+        }
+
+        try {
+            partitioner = (Partitioner)Class.forName( partitionerDelegateClassName ).newInstance();
+            partitioner.init( this );
+        } catch ( Throwable t ) {
+            throw new RuntimeException( "Unable to create partitioner: ", t );
+        }
 
         initEnabledFeatures();
         
