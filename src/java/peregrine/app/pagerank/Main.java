@@ -2,6 +2,7 @@ package peregrine.app.pagerank;
 
 import peregrine.io.*;
 import peregrine.config.*;
+import peregrine.util.*;
 
 import org.apache.log4j.xml.DOMConfigurator;
 
@@ -9,16 +10,10 @@ public class Main {
 
     public static void main( String[] args ) throws Exception {
 
-        // FIXME: update this to use Getopt.
+        Getopt getopt = new Getopt( args );
         
-        // use some conservative defaults with no args.
-        int nr_nodes = 500;
-        int max_edges_per_node = 10;
-
-        if ( args.length == 2 ) {
-            nr_nodes = Integer.parseInt( args[0] );
-            max_edges_per_node = Integer.parseInt( args[1] );
-        }
+        int nr_nodes = getopt.getInt( "nr_nodes", 500 );
+        int max_edges_per_node = getopt.getInt( "max_edges_per_node", 500 );
         
         System.out.printf( "Running with nr_nodes: %,d , max_edges_per_node: %,d\n", nr_nodes, max_edges_per_node );
         
