@@ -2,6 +2,9 @@ package peregrine.io.chunk;
 
 import java.io.*;
 
+/**
+ * Interface for reading data from a chunk in key/value form.
+ */
 public interface ChunkReader extends Closeable {
 
     /**

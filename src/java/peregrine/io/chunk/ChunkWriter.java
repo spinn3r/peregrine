@@ -2,6 +2,9 @@ package peregrine.io.chunk;
 
 import java.io.*;
 
+/**
+ * Write key/values to chunks.
+ */
 public interface ChunkWriter extends Closeable {
 
     /**
@@ -10,13 +13,13 @@ public interface ChunkWriter extends Closeable {
     public void write( byte[] key, byte[] value ) throws IOException;
 
     /**
-     * Total number of items in this chunk writer.  Basically, a count of the
-     * total number of key value pair writes done to this ChunkWriter.
+     * Return the length of bytes of this chunk.
      */
-    //public int count() throws IOException;
-
     public long length() throws IOException;
 
+    /**
+     * Shutdown any pending IO without blocking.
+     */
     public void shutdown() throws IOException;
 
     @Override

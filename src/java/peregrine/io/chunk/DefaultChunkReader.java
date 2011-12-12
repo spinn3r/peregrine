@@ -14,6 +14,10 @@ import peregrine.util.primitive.IntBytes;
 
 import org.jboss.netty.buffer.*;
 
+/**
+ * Default ChunkReader implementation which uses mmap, and supports features
+ * like CRC32, etc.
+ */
 public class DefaultChunkReader implements ChunkReader, Closeable {
 
     // magic numbers for chunk reader files.
