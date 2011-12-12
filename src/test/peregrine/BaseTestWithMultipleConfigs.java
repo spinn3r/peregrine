@@ -58,7 +58,7 @@ public abstract class BaseTestWithMultipleConfigs extends peregrine.BaseTest {
 
         for( int i = 0; i < hosts; ++i ) {
 
-            Config config = newConfig( "localhost", Config.DEFAULT_PORT + i );
+            Config config = newConfig( "localhost", Host.DEFAULT_PORT + i );
             configs.add( config );
 
             configsByHost.put( config.getHost() , config );
@@ -80,7 +80,7 @@ public abstract class BaseTestWithMultipleConfigs extends peregrine.BaseTest {
         config.setReplicas( replicas );
 
         for( int i = 0; i < hosts; ++i ) {
-            config.getHosts().add( new Host( "localhost", Config.DEFAULT_PORT + i ) );
+            config.getHosts().add( new Host( "localhost", Host.DEFAULT_PORT + i ) );
         }
         
         config.init();

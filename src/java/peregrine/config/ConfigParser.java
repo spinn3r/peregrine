@@ -60,9 +60,6 @@ public class ConfigParser {
         
         String hostname = determineHostname();
 
-        if ( config.getPort() <= 0 )
-            config.setPort( Config.DEFAULT_PORT );
-
         config.setHost( new Host( hostname, config.getPort() ) );
 
         // now read the hosts file...

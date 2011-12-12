@@ -44,7 +44,7 @@ public abstract class BaseTestWithMultipleDaemons extends peregrine.BaseTest {
 
         for( int i = 0; i < nr_daemons; ++i ) {
 
-            Config config = newConfig( "localhost", Config.DEFAULT_PORT + i );
+            Config config = newConfig( "localhost", Host.DEFAULT_PORT + i );
             configs.add( config );
             
             daemons.add( new FSDaemon( config ) );
@@ -64,7 +64,7 @@ public abstract class BaseTestWithMultipleDaemons extends peregrine.BaseTest {
         config.setReplicas( replicas );
 
         for( int i = 0; i < nr_daemons; ++i ) {
-            config.getHosts().add( new Host( "localhost", Config.DEFAULT_PORT + i ) );
+            config.getHosts().add( new Host( "localhost", Host.DEFAULT_PORT + i ) );
         }
         
         config.init();

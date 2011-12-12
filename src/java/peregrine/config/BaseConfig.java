@@ -19,8 +19,6 @@ public class BaseConfig {
     
     public static StructMap DEFAULTS = null;
     
-    public static int DEFAULT_PORT = 11112;
-    
     /**
      * The root for storing data.
      */
