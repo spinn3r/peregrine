@@ -74,10 +74,7 @@ public class ConfigParser {
 
     protected static Config parse( InputStream is ) throws IOException {
 
-        Properties props = new Properties();
-        props.load( is );
-
-        StructMap struct = new StructMap( props );
+        StructMap struct = new StructMap( is );
 
         Config config = new Config();
 

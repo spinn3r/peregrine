@@ -17,23 +17,21 @@ import com.spinn3r.log5j.Logger;
  */
 public class BaseConfig {
     
-    private String routerDelegate = null;
-
+    public static StructMap DEFAULTS = null;
+    
     public static int DEFAULT_PORT = 11112;
-
-    public static String DEFAULT_BASEDIR = "/tmp/peregrine-fs";
     
     /**
      * The root for storing data.
      */
-    public String root = DEFAULT_BASEDIR;
+    public String root = null;
 
-    public String basedir = DEFAULT_BASEDIR;
-    
+    public String basedir = null;
+
     /**
      * Partition membership.
      */
-    protected Membership membership = new Membership();
+    protected Membership membership = null;
 
     /**
      * The current 'host' that we are running on.  This is used so that we can
@@ -88,7 +86,9 @@ public class BaseConfig {
     // system.
     
     protected StructMap struct = null;
-    
+
+    protected String routerDelegate = null;
+
     public void init( StructMap struct ) {
 
         this.struct = struct;
@@ -109,7 +109,9 @@ public class BaseConfig {
         setSortBufferSize( struct.getSize( "sortBufferSize" ) );
         setRouterDelegate( struct.getString( "routerDelegate" ) );
         setPurgeShuffleData( struct.getBoolean( "purgeShuffleData" ) );
-        setHost( Host.parse( struct.getString( "host" ) ) );
+
+        if ( struct.containsKey( "host" ) )
+            setHost( Host.parse( struct.getString( "host" ) ) );
 
     }
 
@@ -257,6 +259,22 @@ public class BaseConfig {
 
     public void setRouterDelegate( String routerDelegate ) { 
         this.routerDelegate = routerDelegate;
+    }
+
+    static {
+
+        try {
+
+            // Load the default configuration on startup.  This is required for
+            // definition of all default values in the system.
+            
+            InputStream is = ConfigParser.class.getResourceAsStream( "/default.conf" );
+            DEFAULTS = new StructMap( is );
+            
+        } catch ( Throwable t ) {
+            throw new RuntimeException( t );
+        }
+        
     }
 
 }

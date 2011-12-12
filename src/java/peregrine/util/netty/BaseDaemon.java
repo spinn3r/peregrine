@@ -33,6 +33,9 @@ public abstract class BaseDaemon {
     public void init() {
 
         String root = config.getRoot();
+
+        if ( root == null )
+            throw new RuntimeException( "Root directory in config not defined." );
         
         new File( root ).mkdirs();
         

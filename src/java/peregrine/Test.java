@@ -245,6 +245,9 @@ public class Test {
     
     public static void main( String[] args ) throws Exception {
 
+        System.out.printf( "config: %s\n", new Config().toDesc() );
+        
+        /*
         testQueue( new LinkedBlockingQueue( capacity ) );
         testQueue( new LinkedBlockingQueue( capacity ) );
         testQueue( new LinkedBlockingQueue( capacity ) );
@@ -252,7 +255,8 @@ public class Test {
         testQueue( new ArrayBlockingQueue( capacity ) );
         testQueue( new ArrayBlockingQueue( capacity ) );
         testQueue( new ArrayBlockingQueue( capacity ) );
-
+        */
+        
         // String result = format( (int)10000000, (double)1000000.0, (long)100000 );
 
         // System.out.printf( "%s\n" , result );

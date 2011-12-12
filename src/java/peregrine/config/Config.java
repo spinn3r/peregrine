@@ -20,15 +20,18 @@ public class Config extends BaseConfig {
 
     private static final Logger log = Logger.getLogger();
 
-    public Config() { }
-
     public Config( String host, int port ) {
         this( new Host( host, port ) );
     }
 
     public Config( Host host ) {
+        this();
         setHost( host );
         setRoot( host );
+    }
+
+    public Config() {
+        super.init( DEFAULTS );
     }
 
     /**
@@ -100,12 +103,12 @@ public class Config extends BaseConfig {
 			StringBuilder buff = new StringBuilder();
 			StringBuilder multi = new StringBuilder();
 			    	
-			Field[] fields = getClass().getDeclaredFields();
-			
+			Field[] fields = BaseConfig.class.getDeclaredFields();
+            
 			buff.append( "\n" );
 			
 			for( Field field : fields ) {
-				
+                
 				if ( Modifier.isStatic( field.getModifiers() ) ) {
 					continue;    		
 				}

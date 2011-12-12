@@ -7,7 +7,7 @@ public abstract class BaseTest extends junit.framework.TestCase {
 
     public void setUp() {
 
-        remove( Config.DEFAULT_BASEDIR );
+        remove( Config.DEFAULTS.getString( "basedir" ) );
 
         //org.apache.log4j.MDC.put( "server.hostname",    Initializer.HOSTNAME );
         

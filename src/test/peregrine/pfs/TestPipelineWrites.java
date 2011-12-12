@@ -12,11 +12,15 @@ import peregrine.pfsd.*;
 
 public class TestPipelineWrites extends peregrine.BaseTest {
 
+    Config config = null;
+
     public void setUp() {
 
         super.setUp();
 
-        new FSDaemon( newConfig( 11112 ) );
+        config = newConfig( 11112 );
+        
+        new FSDaemon( config );
         new FSDaemon( newConfig( 11113 ) );
 
     }
@@ -75,7 +79,7 @@ public class TestPipelineWrites extends peregrine.BaseTest {
 
         byte[] digest_value = digest.digest();
 
-        File file = new File( String.format( "%s/localhost/11112/test-write-hash", Config.DEFAULT_BASEDIR ) );
+        File file = new File( String.format( "%s/localhost/11112/test-write-hash", config.getBasedir() ) );
 
         byte[] data = toByteArray( new FileInputStream( file ) );
 

@@ -2,6 +2,7 @@
 package peregrine.util;
 
 import java.util.*;
+import java.io.*;
 
 /**
  * Simple map for dealing with primitive types stored in a type or anonymous
@@ -21,8 +22,17 @@ public class StructMap {
     protected Map delegate = new HashMap();
 
     protected List<String> keys = new ArrayList();
-    
+
     public StructMap() {}
+
+    public StructMap( InputStream is ) throws IOException {
+
+        Properties props = new Properties();
+        props.load( is );
+
+        this.delegate = props;
+
+    }
     
     public StructMap( Map delegate ) {
         this.delegate = delegate;
@@ -94,6 +104,10 @@ public class StructMap {
 
     public List<String> getKeys() {
         return keys;
+    }
+
+    public boolean containsKey( String key ) {
+        return delegate.containsKey( key );
     }
     
     @Override

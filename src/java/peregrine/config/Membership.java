@@ -19,9 +19,7 @@ public class Membership {
     protected Map<Host,List<Replica>> replicasByHost = new HashMap();
     
     protected Config config;
-    
-    public Membership() {}
-    
+        
     /**
      * Create new membership from an explicit mapping.
      */
