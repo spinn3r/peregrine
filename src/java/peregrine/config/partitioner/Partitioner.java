@@ -9,11 +9,15 @@ import peregrine.config.*;
 public interface Partitioner {
 
 	/**
-	 * Init the range router with the given config so that we can 
-	 * @param config
+	 * Init the range router with the given config so that we can
+     * 
+	 * @param config The config to read configuration data.
 	 */
 	public void init( Config config );
-	
+
+    /**
+     * Route the given key to a given partition.
+     */
 	public Partition partition( byte[] key );
 	
 }

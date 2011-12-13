@@ -6,7 +6,7 @@ import java.util.*;
 import com.spinn3r.log5j.Logger;
 
 /**
- * Manages layout for the partition system.
+ * Manages layout for the partition system by distributing partitions across host.
  */
 public class PartitionLayoutEngine {
 

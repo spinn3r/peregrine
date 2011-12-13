@@ -22,27 +22,23 @@ public class Pagerank {
         Controller controller = new Controller( config );
 
         try {
-            
-            // I think a more ideal API would be Controller.exec( path, mapper, reducer );
 
-            //FIXME: /pr/test.graph will NOT be sorted on input even though the
-            //values are unique.... on stage two we won't be able to join against
-            //it.
-            
-            // FIXME: I think I can elide this and the next step by reading the
-            // input once and writing two two destinations.
+            // TODO: I think I can elide this and the next step by reading the
+            // input once and writing two two destinations but right now we
+            // don't have split support.
             
             controller.map( NodeIndegreeJob.Map.class, path );
 
             controller.reduce( NodeIndegreeJob.Reduce.class,
-                               new Input(),
+                               new Input( "shuffle:default" ),
                                new Output( "/pr/tmp/node_indegree" ) );
 
             // sort the graph by source.. 
             controller.map( Mapper.class, path );
-            controller.reduce( Reducer.class, new Input(), new Output( "/pr/test.graph_by_source" ) );
-
-            System.out.printf( "==================== BEGINNING MERGE \n" );
+            
+            controller.reduce( Reducer.class,
+                               new Input( "shuffle:default" ),
+                               new Output( "/pr/test.graph_by_source" ) );
             
             //now create node metadata...
             controller.merge( NodeMetadataJob.Map.class,
@@ -88,6 +84,11 @@ public class Pagerank {
             log.info( "Pagerank complete" );
             
         } finally {
+
+            // Shutdown the controller and release all resources.  Note that
+            // this must be done in a finally block so that we don't leave the
+            // cluster in an inconsistent state.
+            
             controller.shutdown();
         }
             

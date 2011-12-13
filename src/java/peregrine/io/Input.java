@@ -8,10 +8,41 @@ public final class Input {
 
     public Input() { }
 
-    public Input( String... paths ) {
+    public Input( List<String> paths ) {
+
         for( String path : paths ) {
-            add( new FileInputReference( path ) );
+
+            if ( path.contains( ":" ) ) {
+
+                String[] split = path.split( ":" );
+
+                if ( split.length < 2 )
+                    throw new RuntimeException( "Unable to split: " + path );
+                
+                String type      = split[0];
+                String arg       = split[1];
+
+                if ( "broadcast".equals( type ) )
+                    add( new BroadcastInputReference( arg ) );
+
+                if ( "file".equals( type ) )
+                    add( new FileInputReference( arg ) );
+
+                if ( "shuffle".equals( type ) )
+                    add( new ShuffleInputReference( arg ) );
+
+            } else { 
+                add( new FileInputReference( path ) );
+            }
+
         }
+
+    }
+    
+    public Input( String... paths ) {
+
+        this( Arrays.asList( paths ) );
+        
     }
 
     public Input( InputReference... refs ) {

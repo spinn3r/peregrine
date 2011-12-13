@@ -148,6 +148,10 @@ public class Config extends BaseConfig {
     
     }
 
+    /**
+     * Compute a checksum for the current config for use with determining if two
+     * configs are incompatible.
+     */
     public String getChecksum() {
 
         StringBuilder buff = new StringBuilder();

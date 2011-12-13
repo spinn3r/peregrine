@@ -1,7 +1,7 @@
 package peregrine;
 
 import peregrine.io.*;
-import peregrine.pagerank.*;
+import peregrine.app.pagerank.*;
 
 public class TestPagerank extends peregrine.BaseTestWithMultipleConfigs {
 
