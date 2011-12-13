@@ -59,7 +59,8 @@ h1 {
   line-height:1.2em;
   color:#182737;
   font-size:2em;
-  padding:1.5em;
+  padding-top:1.5em;
+  padding-bottom:0.8em;
   margin-top: 0px;
   text-align:left;
 }

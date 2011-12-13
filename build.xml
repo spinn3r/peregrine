@@ -300,12 +300,12 @@
     </property>
 
     <javadoc bottom="Copyright &amp;copy; 2011 Kevin Burton. All Rights Reserved." 
-             windowtitle="Peregrine API" 
+             windowtitle="Peregrine ${version} API" 
              use="true" 
              private="false" 
              destdir="${javadocdir}" 
              author="true" 
-             doctitle="Peregrine API" 
+             doctitle="Peregrine ${version} API" 
              version="true" 
              sourcepath="src/java" 
              classpathref="project.classpath"

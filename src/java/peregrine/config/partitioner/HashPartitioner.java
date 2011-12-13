@@ -4,6 +4,9 @@ import peregrine.config.*;
 import peregrine.util.*;
 import peregrine.util.primitive.*;
 
+/**
+ * Partitions by hash code mod the number of partitions.
+ */
 public class HashPartitioner extends BasePartitioner {
 	
 	@Override

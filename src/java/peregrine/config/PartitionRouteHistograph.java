@@ -5,6 +5,9 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.*;
 
+/**
+ * Maintains an index of where keys are stored to analyze placement.
+ */
 public class PartitionRouteHistograph {
 
     private AtomicInteger total = new AtomicInteger();

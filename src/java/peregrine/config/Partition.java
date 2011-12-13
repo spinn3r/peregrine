@@ -1,6 +1,9 @@
 
 package peregrine.config;
 
+/**
+ * Represents a partition by identifier.
+ */
 public class Partition {
 
     protected int id = 0;

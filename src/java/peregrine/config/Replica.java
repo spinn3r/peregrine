@@ -1,7 +1,9 @@
 
 package peregrine.config;
 
-
+/**
+ * Represents a specific instance / replica of a partition on a given host.
+ */
 public class Replica implements Comparable<Replica> {
     
     protected Partition partition;

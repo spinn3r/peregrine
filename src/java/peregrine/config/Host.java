@@ -4,6 +4,9 @@ package peregrine.config;
 import peregrine.util.*;
 import peregrine.util.primitive.LongBytes;
 
+/**
+ * Represents a host running a controller or PFS daemon.
+ */
 public class Host implements Comparable<Host> {
 
     public static final int DEFAULT_PORT = 11112;

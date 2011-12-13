@@ -8,6 +8,10 @@ import com.spinn3r.log5j.*;
 import peregrine.rpc.*;
 import peregrine.util.*;
 
+/**
+ * Represents full cluster management , which partitions are stored where,
+ * replica placement, etc.
+ */
 public class Membership {
     
     private static final Logger log = Logger.getLogger();

@@ -2,7 +2,10 @@ package peregrine.config.partitioner;
 
 import peregrine.config.*;
 
-public class RangePartitioner  extends BasePartitioner {
+/**
+ * Partitions by range based on the key and the partition distribution.
+ */
+public class RangePartitioner extends BasePartitioner {
 
 	private double range;
 	
