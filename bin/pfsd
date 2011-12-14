@@ -1,7 +1,5 @@
 #!/bin/sh
 
-export HOSTNAME=$(hostname)
-
 # This option specifies the maximum total size of java.nio (New I/O package)
 # direct buffer allocations.
 

@@ -52,8 +52,12 @@ public class Config extends BaseConfig {
 
         this.membership = engine.toMembership();
 
-        if ( ! hosts.contains( getHost() ) && ! isController() ) {
+        if ( ! getHost().getName().equals( "localhost" ) &&
+             ! hosts.contains( getHost() ) &&
+             ! isController() ) {
+            
             throw new RuntimeException( "Host is not defined in hosts file nor is it the controller: " + getHost() );
+            
         }
 
         // the partitioner is a config directive 
@@ -122,7 +126,10 @@ public class Config extends BaseConfig {
 				if ( Modifier.isStatic( field.getModifiers() ) ) {
 					continue;    		
 				}
-				
+
+                if ( field.getName().equals( "struct" ) )
+                    continue;
+                
 				Object field_value = field.get(this);
 				
 				String value = null;

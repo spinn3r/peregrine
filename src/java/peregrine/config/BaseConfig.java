@@ -97,6 +97,7 @@ public class BaseConfig {
         // TODO: consider using reflection to allow these to be set for any
         // directive without updating the mapping.
         
+        setPort( struct.getInt( "port" ) );
         setReplicas( struct.getInt( "replicas" ) );
         setConcurrency( struct.getInt( "concurrency" ) );
         setShuffleBufferSize( struct.getSize( "shuffleBufferSize" ) );

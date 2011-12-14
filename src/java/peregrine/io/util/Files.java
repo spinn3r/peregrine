@@ -28,7 +28,7 @@ public class Files {
     }
 
     /**
-     * Read the file data as an ISO-8601 string.
+     * Read the file data as UTF8 string.
      */
     public static String toString( File file ) throws IOException {
 
@@ -37,7 +37,7 @@ public class Files {
         byte[] data = new byte[ (int)file.length() ];
         fis.read( data );
 
-        return new String( data, "ISO-8601" );
+        return new String( data, "UTF8" );
 
     }
     

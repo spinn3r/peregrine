@@ -334,4 +334,43 @@
 
   </target>
 
+  <target name="jxr">
+
+    <exec executable="mvn">
+      <arg value="jxr:jxr"/>
+    </exec>
+
+  </target>
+
+  <target name="static">
+
+    <exec executable="awestruct" dir="../peregrine-website">
+      <arg value="-g"/>
+    </exec>
+
+  </target>
+
+  <target name="site" depends="javadoc,jxr,static">
+
+    <move file="compile/javadoc" todir="../peregrine_mapreduce.bitbucket.org" />
+    <move file="target/xref" todir="../peregrine_mapreduce.bitbucket.org" />
+
+    <copy todir="../peregrine_mapreduce.bitbucket.org" >
+
+      <fileset dir="../peregrine-website/_site/" />
+
+    </copy>
+
+  </target>
+
+  <target name="foo" depends="static">
+
+    <copy todir="../peregrine_mapreduce.bitbucket.org" >
+
+      <fileset dir="../peregrine-website/_site/" />
+
+    </copy>
+
+  </target>
+
 </project>

@@ -119,15 +119,17 @@ public class ConfigParser {
     protected static String determineHostname() throws IOException {
 
         String hostname = System.getenv( "HOSTNAME" );
-
-        File file = new File( "/etc/hostname" );
-
-        if ( file.exists() ) {
-
-            hostname = Files.toString( file );
- 
-        }
         
+        if ( hostname == null ) {
+        
+            File file = new File( "/etc/hostname" );
+
+            if ( file.exists() ) {
+                hostname = Files.toString( file );
+            }
+
+        }
+            
         if ( hostname == null )
             hostname = "localhost";
 
