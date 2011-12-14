@@ -64,6 +64,8 @@
         <delete dir=".clover"/>
         <delete dir="compile"/>
         <delete dir="target"/>
+        <delete file="lib/${project}-${version}.jar"/>
+
     </target>
 
     <target name="jar" depends="compile">
@@ -72,7 +74,7 @@
 
         <copy file="conf/peregrine.conf" tofile="compile/default.conf" />
 
-        <jar compress="yes" jarfile="target/${project}-${version}.jar">
+        <jar compress="yes" jarfile="lib/${project}-${version}.jar">
 
             <fileset dir="compile">
 
@@ -350,23 +352,59 @@
 
   </target>
 
-  <target name="site" depends="javadoc,jxr,static">
+    <target name="site" depends="javadoc,jxr,static">
 
-    <move file="compile/javadoc" todir="../peregrine_mapreduce.bitbucket.org" />
-    <move file="target/xref" todir="../peregrine_mapreduce.bitbucket.org" />
+        <move file="compile/javadoc" todir="../peregrine_mapreduce.bitbucket.org" />
+        <move file="target/xref"     todir="../peregrine_mapreduce.bitbucket.org" />
 
-    <copy todir="../peregrine_mapreduce.bitbucket.org" >
+        <copy todir="../peregrine_mapreduce.bitbucket.org" >
+            <fileset dir="../peregrine-website/_site/" />
+        </copy>
 
-      <fileset dir="../peregrine-website/_site/" />
+    </target>
 
-    </copy>
+    <target name="tar.gz">
 
-  </target>
+        <mkdir dir="target/peregrine-${version}" />
+        <copy todir="target/peregrine-${version}">
 
-  <target name="dist" depends="jar,javadoc">
+            <fileset dir=".">
+                 <include name="README"/>
+                 <include name="build.xml"/>
+                 <include name="bin/**"/>
+                 <include name="conf/**"/>
+                 <include name="lib/**"/>
+                 <include name="src/**"/>
+            </fileset>
 
-    <!-- bin, conf, lib -->    
+            <fileset dir="compile">
+                 <include name="javadoc/**"/>
+            </fileset>
 
-  </target>
+        </copy>
+
+        <copy file="target/peregrine-${version}.jar" 
+              todir="target/peregrine-${version}/lib" />
+
+        <tar destfile="target/peregrine-${version}.tar.gz"
+             longfile="gnu"
+             compression="gzip">
+
+            <tarfileset dir="target" filemode="755">
+                <include name="peregrine-${version}/bin/**"/>
+            </tarfileset>
+
+            <tarfileset dir="target">
+                <include name="peregrine-${version}/**"/>
+                <exclude name="peregrine-${version}/bin/**"/>
+            </tarfileset>
+
+        </tar>
+
+    </target>
+
+    <target name="dist" depends="clean, jar, javadoc, tar.gz">
+
+    </target>
 
 </project>
