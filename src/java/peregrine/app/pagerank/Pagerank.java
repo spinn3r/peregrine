@@ -23,9 +23,10 @@ public class Pagerank {
 
         try {
 
-            // TODO: I think I can elide this and the next step by reading the
-            // input once and writing two two destinations but right now we
-            // don't have split support.
+            // TODO: We can elide this and the next step by reading the input
+            // once and writing two two destinations.  this would read from
+            // 'path' and then wrote to node_indegree and graph_by_source at the
+            // same time.
             
             controller.map( NodeIndegreeJob.Map.class, path );
 
@@ -33,7 +34,8 @@ public class Pagerank {
                                new Input( "shuffle:default" ),
                                new Output( "/pr/tmp/node_indegree" ) );
 
-            // sort the graph by source.. 
+            // sort the graph by source since we aren't gauranteed to have have
+            // the keys in the right order.
             controller.map( Mapper.class, path );
             
             controller.reduce( Reducer.class,
@@ -42,32 +44,35 @@ public class Pagerank {
             
             //now create node metadata...
             controller.merge( NodeMetadataJob.Map.class,
-                              new Input( "/pr/tmp/node_indegree", "/pr/test.graph_by_source" ),
-                              new Output( new FileOutputReference( "/pr/out/node_metadata" ),
-                                          new FileOutputReference( "/pr/out/dangling" ),
-                                          new FileOutputReference( "/pr/out/nonlinked" ),
-                                          new BroadcastOutputReference( "nr_nodes" ),
-                                          new BroadcastOutputReference( "nr_dangling" ) ) );
+                              new Input( "/pr/tmp/node_indegree",
+                                         "/pr/test.graph_by_source" ),
+                              new Output( "/pr/out/node_metadata" ,
+                                          "/pr/out/dangling" ,
+                                          "/pr/out/nonlinked" ,
+                                          "broadcast:nr_nodes" ,
+                                          "broadcast:nr_dangling" ) );
 
             controller.reduce( NodeMetadataJob.Reduce.class,
-                               new Input( new ShuffleInputReference( "nr_nodes" ) ),
+                               new Input( "shuffle:nr_nodes" ),
                                new Output( "/pr/out/nr_nodes" ) );
 
             controller.reduce( NodeMetadataJob.Reduce.class,
-                               new Input( new ShuffleInputReference( "nr_dangling" ) ),
+                               new Input( "shuffle:nr_dangling" ),
                                new Output( "/pr/out/nr_dangling" ) );
 
             // init the empty rank_vector table ... we need to merge against it.
-            controller.map( Mapper.class, new Input(), new Output( "/pr/out/rank_vector" ) );
+            controller.map( Mapper.class,
+                            new Input(),
+                            new Output( "/pr/out/rank_vector" ) );
             
             controller.merge( IterJob.Map.class,
-                              new Input( new FileInputReference( "/pr/test.graph_by_source" ),
-                                         new FileInputReference( "/pr/out/rank_vector" ),
-                                         new FileInputReference( "/pr/out/dangling" ),
-                                         new FileInputReference( "/pr/out/nonlinked" ),
-                                         new BroadcastInputReference( "/pr/out/nr_nodes" ) ),
-                              new Output( new ShuffleOutputReference(),
-                                          new BroadcastOutputReference( "dangling_rank_sum" ) ) );
+                              new Input( "/pr/test.graph_by_source" ,
+                                         "/pr/out/rank_vector" ,
+                                         "/pr/out/dangling" ,
+                                         "/pr/out/nonlinked" ,
+                                         "broadcast:/pr/out/nr_nodes" ) ,
+                              new Output( "shuffle:default",
+                                          "broadcast:dangling_rank_sum" ) );
 
             controller.reduce( IterJob.Reduce.class,
                                new Input( new ShuffleInputReference(),
@@ -90,6 +95,7 @@ public class Pagerank {
             // cluster in an inconsistent state.
             
             controller.shutdown();
+            
         }
             
     }
