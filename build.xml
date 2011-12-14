@@ -383,9 +383,6 @@
 
         </copy>
 
-        <copy file="target/peregrine-${version}.jar" 
-              todir="target/peregrine-${version}/lib" />
-
         <tar destfile="target/peregrine-${version}.tar.gz"
              longfile="gnu"
              compression="gzip">
