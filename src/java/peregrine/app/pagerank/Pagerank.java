@@ -75,15 +75,15 @@ public class Pagerank {
                                           "broadcast:dangling_rank_sum" ) );
 
             controller.reduce( IterJob.Reduce.class,
-                               new Input( new ShuffleInputReference(),
-                                          new BroadcastInputReference( "/pr/out/nr_nodes" ) ),
+                               new Input( "shuffle:default",
+                                          "broadcast:/pr/out/nr_nodes" ),
                                new Output( "/pr/out/rank_vector_new" ) );
 
             // now compute the dangling rank sum for the next iteration
 
             controller.reduce( TeleportationGrantJob.Reduce.class, 
-                               new Input( new ShuffleInputReference( "dangling_rank_sum" ),
-                                          new BroadcastInputReference( "/pr/out/nr_nodes" ) ),
+                               new Input( "shuffle:dangling_rank_sum",
+                                          "broadcast:/pr/out/nr_nodes" ),
                                new Output( "/pr/out/teleportation_grant" ) );
 
             log.info( "Pagerank complete" );
