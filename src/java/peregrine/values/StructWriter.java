@@ -18,14 +18,23 @@ public class StructWriter {
     
     private ChannelBuffer buff = null;
 
+    /**
+     * StructWriter with max capacity for holding primitive types (8 bytes).
+     */
     public StructWriter() {
         this( LongBytes.LENGTH );
     }
 
+    /**
+     * StructWriter for a raw ChannelBuffer.
+     */
     public StructWriter( ChannelBuffer buff ) {
     	this.buff = buff;
     }
 
+    /**
+     * With a specific capacity.
+     */
     public StructWriter( int capacity ) {
     	this( ChannelBuffers.buffer( capacity ) );
     }

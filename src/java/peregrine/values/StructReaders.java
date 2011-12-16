@@ -51,11 +51,8 @@ public class StructReaders {
 
     public static StructReader wrap( byte[] value ) {
 
-        return new StructWriter()
-            .writeBytes( value )
-            .toStructReader()
-            ;
-        
+        return new StructReader( value );
+
     }
 
     public static StructReader hashcode( String value ) {

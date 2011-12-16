@@ -1,7 +1,7 @@
 
 
 
-StructWriter refactor notes:
+Additional burton-struct-api-change before merging.
 
 
     - remove .keys and .values packages
@@ -19,11 +19,23 @@ StructWriter refactor notes:
         - they're basically the same but one is fixed width and the other is
           variable.
 
+        - 
+          
     - The DefaultChunkWriter I think is broken... try to test it with just raw
       byte arrays.
 
-      - 
+    - which tests fail so I can write reductions for them and fix them?
 
+        - these tests fail...
+
+        TEST-peregrine.TestBroadcastMapReduce.txt
+        TEST-peregrine.TestMapReduce.txt
+        TEST-peregrine.TestMapReduceWithMergeFactor.txt
+        TEST-peregrine.TestPagerank.txt
+        TEST-peregrine.io.TestFullOuterJoin.txt
+        TEST-peregrine.shuffle.TestParallelShuffleInputChunkReader.txt
+        TEST-peregrine.shuffle.TestShuffleInputChunkReader.txt
+        
 
 
 

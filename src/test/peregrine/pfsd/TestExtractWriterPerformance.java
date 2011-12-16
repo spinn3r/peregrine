@@ -50,7 +50,7 @@ public class TestExtractWriterPerformance extends BaseTestWithMultipleConfigs {
         //byte[] value = new byte[8];
         StructReader value = StructReaders.wrap( new byte[8192] );
         
-        for ( int i = 0; i < max; ++i ) {
+        for ( long i = 0; i < max; ++i ) {
 
         	StructReader key = StructReaders.wrap( i );
 

@@ -12,9 +12,12 @@ public class HashPartitioner extends BasePartitioner {
 	
 	@Override
 	public Partition partition( StructReader key ) {
-        
+
+        if ( key.length() < 8 )
+            throw new IllegalArgumentException( "key too short: " + key.length() );
+
 		byte[] bytes = key.toByteArray();
-		
+
         // we only need a FEW bytes to route a key , not the WHOLE thing if it
         // is a hashcode.  For example... we can route to 255 partitions with
         // just one byte... that IS if it is a hashode.  with just TWO bytes we
