@@ -25,6 +25,16 @@ public class TestMapReduceWithMergeFactor extends peregrine.BaseTestWithTwoDaemo
 
     }
 
+    @Override
+    public void setUp() {
+
+        super.setUp();
+        
+        config.setMergeFactor( 10 );
+        config0.setMergeFactor( 10 );
+        config1.setMergeFactor( 10 );
+    }
+    
     public void test() throws Exception {
 
         // change the shuffle buffer so we have lots of smaller files.
@@ -62,8 +72,6 @@ public class TestMapReduceWithMergeFactor extends peregrine.BaseTestWithTwoDaemo
 
             int nr_shuffles = new File( "/tmp/peregrine-fs//localhost/11112/tmp/shuffle/default" ).list().length;
 
-            System.out.printf( "FIXME: found nr_shuffles: %,d\n", nr_shuffles );
-            
             controller.reduce( Reduce.class, new Input(), new Output( output ) );
 
         } finally {

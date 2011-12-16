@@ -21,6 +21,7 @@ import peregrine.util.netty.*;
 import com.spinn3r.log5j.*;
 
 /**
+ * Netty support for handling controller message.
  */
 public class ControllerHandler extends DefaultChannelUpstreamHandler {
 

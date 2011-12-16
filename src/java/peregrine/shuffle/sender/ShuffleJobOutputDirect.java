@@ -24,7 +24,7 @@ public class ShuffleJobOutputDirect extends ShuffleJobOutputBase {
     @Override
     public void emit( StructReader key , StructReader value ) {
             
-        Partition target = parent.config.route( key.toByteArray() );
+        Partition target = parent.config.partition( key );
         
         emit( target.getId(), key, value );
                     

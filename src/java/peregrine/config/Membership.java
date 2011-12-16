@@ -6,7 +6,12 @@ import java.util.*;
 import com.spinn3r.log5j.*;
 
 import peregrine.rpc.*;
+import peregrine.util.*;
 
+/**
+ * Represents full cluster management , which partitions are stored where,
+ * replica placement, etc.
+ */
 public class Membership {
     
     private static final Logger log = Logger.getLogger();
@@ -18,9 +23,7 @@ public class Membership {
     protected Map<Host,List<Replica>> replicasByHost = new HashMap();
     
     protected Config config;
-    
-    public Membership() {}
-    
+        
     /**
      * Create new membership from an explicit mapping.
      */
@@ -166,11 +169,11 @@ public class Membership {
      * Send gossip to the controller that a given host is not cooperating for 
      * functioning correctly.
      * 
-     * @param host
-     * @param cause
+     * @param failed The host that failed.
+     * @param cause The cause of the exception.
      * @throws IOException 
      */
-    public void sendGossip( Host failed, Throwable cause ) {
+    public boolean sendGossipToController( Host failed, Throwable cause ) {
     	
         try {
         	
@@ -184,6 +187,8 @@ public class Membership {
 			new Client().invoke( config.getController(), "controller", message );
 
             log.info( "Sent gossip that %s failed: %s", failed, cause.getMessage() );
+
+            return true;
             
 		} catch (IOException e) {
 			
@@ -192,9 +197,48 @@ public class Membership {
 			// down anyway.  AKA *we* are the failed host.
             
 			log.error( "Unable to send gossip: ", e );
-			
+
+            return false;
+            
 		}
         
     }
-    
+
+        public boolean sendHeartbeatToController() {
+            
+            Message message = new Message();
+            
+            message.put( "action",          "heartbeat" );
+            message.put( "host",            config.getHost().toString() );
+
+            // Include a checksum of the config.  This used so that the
+            // controller and the hosts can verify that they are running in the
+            // same configuration.
+            
+            message.put( "config_checksum", config.getChecksum() );
+            
+            Host controller = config.getController();
+
+            if ( controller == null )
+                throw new NullPointerException( "controller" );
+            
+            try {           
+                
+                new Client( true ).invoke( controller, "controller", message );
+                
+                return true;
+
+            } catch ( IOException e ) {
+
+                if ( Thread.currentThread().isInterrupted() )
+                    return false;
+
+                // we don't normally need to send this message because we would be overly verbose.
+                log.debug( String.format( "Unable to send heartbeat to %s: %s", controller, e.getMessage() ) );
+                
+                return false;
+            }
+       
+        }           
+
 }

@@ -5,8 +5,6 @@ import java.net.*;
 import java.util.*;
 import java.util.concurrent.*;
 
-import com.spinn3r.log5j.Logger;
-
 import org.jboss.netty.bootstrap.*;
 import org.jboss.netty.channel.*;
 import org.jboss.netty.channel.socket.nio.*;
@@ -17,6 +15,8 @@ import peregrine.shuffle.receiver.*;
 import peregrine.task.*;
 import peregrine.util.*;
 import peregrine.util.netty.*;
+
+import com.spinn3r.log5j.Logger;
 
 public abstract class BaseDaemon {
 
@@ -33,6 +33,9 @@ public abstract class BaseDaemon {
     public void init() {
 
         String root = config.getRoot();
+
+        if ( root == null )
+            throw new RuntimeException( "Root directory in config not defined." );
         
         new File( root ).mkdirs();
         

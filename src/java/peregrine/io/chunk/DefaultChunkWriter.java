@@ -3,11 +3,11 @@ package peregrine.io.chunk;
 import java.io.*;
 import java.nio.channels.*;
 
-import peregrine.io.async.*;
 import peregrine.os.*;
 import peregrine.util.*;
 import peregrine.util.netty.*;
 import peregrine.util.primitive.*;
+import peregrine.config.*;
 import peregrine.http.*;
 import peregrine.values.*;
 
@@ -38,9 +38,9 @@ public class DefaultChunkWriter implements ChunkWriter {
         init( writer );
     }
 
-    public DefaultChunkWriter( File file ) throws IOException {
+    public DefaultChunkWriter( Config config, File file ) throws IOException {
 
-        MappedFile mapped = new MappedFile( file, FileChannel.MapMode.READ_WRITE );
+        MappedFile mapped = new MappedFile( config, file, "rw" );
 
         init( mapped.getChannelBufferWritable() );
 
@@ -95,11 +95,6 @@ public class DefaultChunkWriter implements ChunkWriter {
         VarintWriter.write( buff, value );
         return write( writer, buff );
         
-    }
-    
-    @Override
-    public int count() {
-        return count;
     }
 
     @Override

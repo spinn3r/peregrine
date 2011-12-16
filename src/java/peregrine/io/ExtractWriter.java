@@ -53,7 +53,7 @@ public class ExtractWriter {
     public void write( StructReader key, StructReader value )
         throws IOException {
 
-        Partition partition = config.route( key.toByteArray() );
+        Partition partition = config.partition( key );
         
         write( partition, key, value );
         

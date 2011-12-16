@@ -5,8 +5,10 @@ import peregrine.map.BaseMapper;
 import peregrine.values.*;
 
 /**
- * Perform a merge against two data sets.
  * 
+ * A merger implementation that performs a merge against two data sets.
+ *
+ * <p>
  * Both datasets must be sorted by key.  An extract can do this with the 
  * ExtractWriter if the original input was sorted.  If not, you will need to run 
  * an identity map job to re-emit the data and reduce it so that 

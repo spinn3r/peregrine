@@ -2,7 +2,11 @@ package peregrine.shuffle.receiver;
 
 import java.io.*;
 import java.util.*;
-import peregrine.config.Config;
+import java.util.concurrent.*;
+
+import peregrine.config.*;
+import peregrine.io.util.*;
+
 import com.spinn3r.log5j.Logger;
 
 /**
@@ -12,8 +16,8 @@ import com.spinn3r.log5j.Logger;
 public class ShuffleReceiverFactory {
 
     private static final Logger log = Logger.getLogger();
-
-    private Map<String,ShuffleReceiver> instances = new HashMap();
+    
+    private ConcurrentHashMap<String,ShuffleReceiver> instances = new ConcurrentHashMap();
 
     protected Config config;
 
@@ -38,7 +42,8 @@ public class ShuffleReceiverFactory {
                 if ( result == null ) {
 
                     result = new ShuffleReceiver( config, name );
-                    instances.put( name, result );
+                    instances.putIfAbsent( name, result );
+                    result = instances.get( name );
                     
                 } 
 
@@ -67,10 +72,26 @@ public class ShuffleReceiverFactory {
 
         // now throw the current instances away because we can't use them any
         // more and this will also free up memory.
-        instances = new HashMap();
+        instances = new ConcurrentHashMap();
             
     }
 
+    public void purge() throws IOException {
+
+        // only done so that we can benchmark the performance of certain
+        // algorithsm.
+        
+        if ( config.getPurgeShuffleData() == false )
+            return;
+        
+        String dir = config.getShuffleDir();
+        
+        log.info( "Purging shuffler directory: %s", dir );
+
+        Files.remove( dir );
+        
+    }
+    
     public long lastFlushed() {
         return lastFlushed();
     }

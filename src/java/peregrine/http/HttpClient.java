@@ -12,7 +12,6 @@ import org.jboss.netty.channel.socket.nio.*;
 import org.jboss.netty.handler.codec.http.*;
 
 import peregrine.config.Host;
-import peregrine.io.async.*;
 import peregrine.pfsd.*;
 import peregrine.util.*;
 import peregrine.util.netty.*;
@@ -325,6 +324,7 @@ public class HttpClient implements ChannelBufferWritable {
     /**
      * Send a close request to the remote client.  This is non-blocking.
      */
+    @Override
     public void shutdown() throws IOException {
 
         // if we aren't opened there is no reason to do any work.  This could
@@ -342,7 +342,11 @@ public class HttpClient implements ChannelBufferWritable {
         write( EOF );
 
     }
-    
+
+    @Override
+    public void force() throws IOException { }
+
+    @Override
     public void close() throws IOException {
         close(true);
     }

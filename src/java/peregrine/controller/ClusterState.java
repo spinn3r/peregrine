@@ -19,6 +19,10 @@ import peregrine.*;
 
 import com.spinn3r.log5j.Logger;
 
+/**
+ * Keeps track of the state of the whole cluster.  Holds references go gossip,
+ * offline and online status, the config, controller, etc.
+ */
 public class ClusterState {
     
     private Gossip gossip = null;

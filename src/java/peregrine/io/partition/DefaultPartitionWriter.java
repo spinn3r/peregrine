@@ -3,13 +3,10 @@ package peregrine.io.partition;
 import java.io.*;
 import java.util.*;
 
-import peregrine.config.Config;
-import peregrine.config.Host;
-import peregrine.config.Membership;
-import peregrine.config.Partition;
+import peregrine.config.*;
 import peregrine.http.*;
 import peregrine.io.chunk.*;
-import peregrine.io.async.*;
+import peregrine.os.*;
 import peregrine.pfsd.*;
 import peregrine.util.netty.*;
 import peregrine.values.*;
@@ -19,14 +16,9 @@ import com.spinn3r.log5j.Logger;
 /**
  * 
  */
-public class DefaultPartitionWriter implements PartitionWriter {
+public class DefaultPartitionWriter implements PartitionWriter, ChunkWriter {
 
     private static final Logger log = Logger.getLogger();
-
-    /**
-     * Chunk size for rollover files.
-     */
-    public static long CHUNK_SIZE = (long) Math.pow(2, 27); // 128MB
 
     protected String path;
 
@@ -36,35 +28,57 @@ public class DefaultPartitionWriter implements PartitionWriter {
 
     private ChunkWriter chunkWriter = null;
 
-    private int chunk_id = 0;
+    private int chunkId = 0;
 
     /**
-     * Total lengh of this file (bytes written) to this partition writer..
+     * Total length of this file (bytes written) to this partition writer..
      */
     private long length = 0;
 
     private Config config;
+
+    /**
+     * Keep track of writables w ehave allocated.
+     */
+    private List<ChannelBufferWritable> writables = new ArrayList();
     
     public DefaultPartitionWriter( Config config,
                                    Partition partition,
                                    String path ) throws IOException {
         this( config, partition, path, false );
     }
-    
+
     public DefaultPartitionWriter( Config config,
                                    Partition partition,
                                    String path,
                                    boolean append ) throws IOException {
 
+        // TODO/FIXME: we need make sure we first contact the closest host first by route.
+
+        this( config, partition, path, append, config.getMembership().getHosts( partition ) );
+        
+    }
+
+    public DefaultPartitionWriter( Config config,
+                                   Partition partition,
+                                   String path,
+                                   boolean append,
+                                   List<Host> hosts ) throws IOException {
+
+        this( config, partition, path, append, hosts, MappedFile.DEFAULT_AUTO_FORCE );
+        
+    }
+
+    public DefaultPartitionWriter( Config config,
+                                   Partition partition,
+                                   String path,
+                                   boolean append,
+                                   List<Host> hosts,
+                                   boolean autoForce ) throws IOException {
+
         this.config = config;
         this.partition = partition;
         this.path = path;
-
-        Membership membership = config.getMembership();
-
-        // TODO/FIXME: we need make sure we first contact the closest host first by route.
-
-        List<Host> hosts = membership.getHosts( partition );
 
         partitionWriterDelegates = new ArrayList();
 
@@ -75,9 +89,9 @@ public class DefaultPartitionWriter implements PartitionWriter {
             PartitionWriterDelegate delegate;
 
             if ( host.equals( config.getHost() ) ) {
-                delegate = new LocalPartitionWriterDelegate();
+                delegate = new LocalPartitionWriterDelegate( config, autoForce );
             } else { 
-                delegate = new RemotePartitionWriterDelegate();
+                delegate = new RemotePartitionWriterDelegate( config, autoForce );
             }
 
             delegate.init( config, partition, host, path );
@@ -85,7 +99,7 @@ public class DefaultPartitionWriter implements PartitionWriter {
             partitionWriterDelegates.add( delegate );
 
             if ( append ) 
-                chunk_id = delegate.append();
+                chunkId = delegate.append();
             else
                 delegate.erase();
 
@@ -135,7 +149,7 @@ public class DefaultPartitionWriter implements PartitionWriter {
     
     private void rolloverWhenNecessary() throws IOException {
 
-        if ( chunkWriter.length() > CHUNK_SIZE )
+        if ( chunkWriter.length() > config.getChunkSize() )
             rollover();
         
     }
@@ -153,7 +167,7 @@ public class DefaultPartitionWriter implements PartitionWriter {
 
         closeChunkWriter();
         
-        Map<Host,ChannelBufferWritable> writables = new HashMap();
+        Map<Host,ChannelBufferWritable> writablesPerHost = new HashMap();
 
         HttpClient client = null;
 
@@ -165,16 +179,18 @@ public class DefaultPartitionWriter implements PartitionWriter {
             
             if ( delegate.getHost().equals( local ) ) {
 
-                ChannelBufferWritable writable = delegate.newChunkWriter( chunk_id );
+                ChannelBufferWritable writable = delegate.newChunkWriter( chunkId );
 
-                writables.put( delegate.getHost(), writable );
+                writablesPerHost.put( delegate.getHost(), writable );
+                writables.add( writable );
                 
             } else if ( client == null ) {
 
-                ChannelBufferWritable writable = delegate.newChunkWriter( chunk_id );
+                ChannelBufferWritable writable = delegate.newChunkWriter( chunkId );
                 
                 client = (HttpClient)writable;
-                writables.put( delegate.getHost(), writable );
+                writablesPerHost.put( delegate.getHost(), writable );
+                writables.add( writable );
 
             } else {
                 pipeline += delegate.getHost() + " ";
@@ -187,11 +203,22 @@ public class DefaultPartitionWriter implements PartitionWriter {
             client.setHeader( FSHandler.X_PIPELINE_HEADER, pipeline );
         }
         
-        chunkWriter = new DefaultChunkWriter( new MultiChannelBufferWritable( writables ) );
+        chunkWriter = new DefaultChunkWriter( new MultiChannelBufferWritable( writablesPerHost ) );
         
-        ++chunk_id; // change the chunk ID now for the next file.
+        ++chunkId; // change the chunk ID now for the next file.
 
     }
 
+    /**
+     * For all IO to be written out to disk that has not yet been forced.
+     */
+    public void force() throws IOException {
+
+        for( ChannelBufferWritable writable : writables ) {
+            writable.force();
+        }
+
+    }
+    
 }
 

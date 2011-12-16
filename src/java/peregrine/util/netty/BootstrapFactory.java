@@ -55,7 +55,7 @@ public class BootstrapFactory {
 	private static void setOption( Bootstrap bootstrap, String name, Object value ) {
 		
 		if ( ! logged )
-			log.info( "Setting bootstrap option on %s: %s=%s", bootstrap, name, value );
+			log.info( "Setting bootstrap: %s=%s", name, value );
 		
 		bootstrap.setOption( name, value );
 		

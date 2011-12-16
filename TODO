@@ -28,9 +28,15 @@ StructWriter refactor notes:
 
 
 
+- centralizing log4j initialization needs to be done.
 
-- go through EVERY queue that we used and see if it needs to use a failure
-  queue.
+- If I were to use an array backed queue which was just long[] I could then
+  allocate from a direct memory ring buffer and read pointers and lengths from
+  them for sending data over the wire.
+
+
+- Split reading and writing in the file mapper into two separate classes.
+
 
 - Another architecture I could have had could have been ONE primary listening
   daemon which then forks one mapper/reducer proc PER run.  One downside is that
@@ -43,26 +49,24 @@ StructWriter refactor notes:
 
 - CRC32 support https://issues.apache.org/jira/browse/HADOOP-6148
 
-    - use the native zlib with largish buffers for computing the checksum.
+    - Use the native zlib with largish buffers for computing the checksum.
 
+    - should there be a generic CRC32 container because we ALSO need this for
+      shuffling.
+        
 
-- if we do speculative execution, I need a way to say "stop doing work" to a
+- If we do speculative execution, I need a way to say "stop doing work" to a
   node...  I guess I could check BETWEEN files as I process them in the
   map/merge task and I would need similar checks in the reduce phase. 
 
-- we need support for fallocate and fadvise (test them on startup).
-
+  
 - I need to implement break points so that a job can terminate itself.
 
-    - in between map / merge chunks and between reduce files as they are written
-      to disk.
+    - In between map / merge chunks and between reduce files as they are written
+      to disk...
 
+        - Another way to do this is to terminate the 
 
-- before a job is executed we need to make sure we aren't running something
-  already on the cluster... this is a GOOD reason why we should use a secondary
-  JVM for jobs so we can just kill it 
-
-- Refactor DefaultChunkWriter to use BufferedChannelBuffer ... 
 
 - ExtractWriter needs buffered IO ... the throughput was nearly 2x ... I think
   the ShuffleSender needs the same change.

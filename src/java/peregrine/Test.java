@@ -4,15 +4,20 @@ import java.io.*;
 import java.nio.*;
 import java.nio.channels.*;
 import java.util.*;
+import java.util.concurrent.*;
+
 import org.jboss.netty.buffer.*;
 import peregrine.config.*;
 import peregrine.shuffle.*;
 import peregrine.util.*;
 import peregrine.util.netty.*;
 import peregrine.os.*;
+
 import org.jboss.netty.logging.*;
 
 import org.apache.hadoop.util.*;
+
+import org.apache.log4j.xml.DOMConfigurator;
 
 import com.spinn3r.log5j.Logger;
 
@@ -117,8 +122,218 @@ public class Test {
 
     }
 
+    public static void dump( String[] data ) {
+
+        for( String v : data ) {
+            System.out.printf( "  %s\n", v );
+        }
+        
+    }
+
+    public static void foo( long v ) {
+        System.out.printf( "v: %s\n", v );
+    }
+
+    public static void testDiskThroughput( String path, int max ) throws Exception {
+
+        System.out.printf( "Dropping caches and running sync... " );
+        
+        Linux.dropCaches();
+        unistd.sync();
+
+        System.out.printf( "done\n" );
+        
+        Config config = ConfigParser.parse();
+        
+        long before = System.currentTimeMillis();
+
+        MappedFile mappedFile = new MappedFile( config, path, "w" );
+
+        byte[] data = new byte[16384];
+
+        ChannelBuffer buff = ChannelBuffers.wrappedBuffer( data );
+
+        ChannelBufferWritable writable = mappedFile.getChannelBufferWritable();
+        
+        for( int i = 0; i < max; ++i ) {
+            writable.write( buff );
+        }
+
+        writable.close();
+
+        // we have to sync to get a realistic performance test when not running
+        // with forced pages
+        unistd.sync();
+
+        long written = data.length * max;
+
+        long after = System.currentTimeMillis();
+
+        long duration = after-before;
+
+        long throughput = (long)((written / (double)duration) * 1000L);
+
+        System.out.printf( "Wrote %,d bytes in %,d ms at %,d b/s with autoForce=%s and pageSize=%s\n",
+                           written, duration, throughput,
+                           MappedFile.DEFAULT_AUTO_FORCE, MappedFile.FORCE_PAGE_SIZE );
+        
+    }
+
+    public static void testDiskThroughput(String[] args) throws Exception {
+
+        MappedFile.DEFAULT_AUTO_FORCE = true;
+        
+        testDiskThroughput( args[0], Integer.parseInt( args[1] ) );
+        testDiskThroughput( args[0], Integer.parseInt( args[1] ) );
+        testDiskThroughput( args[0], Integer.parseInt( args[1] ) );
+
+        MappedFile.DEFAULT_AUTO_FORCE = false;
+
+        System.out.printf( "=== autoForce=false and page size=%,d\n", MappedFile.FORCE_PAGE_SIZE );
+
+        testDiskThroughput( args[0], Integer.parseInt( args[1] ) );
+        testDiskThroughput( args[0], Integer.parseInt( args[1] ) );
+        testDiskThroughput( args[0], Integer.parseInt( args[1] ) );
+
+    }
+
+    public static int capacity = 10000000;
+    
+    public static void testQueue( BlockingQueue<Integer> queue ) throws Exception {
+
+        long before = System.currentTimeMillis();
+
+        for( int i = 0; i < capacity; ++i ) {
+            queue.put( i );
+        }
+
+        for( int i = 0; i < capacity; ++i ) {
+            queue.take();
+        }
+
+        long after = System.currentTimeMillis();
+
+        long duration = after - before;
+
+        System.out.printf( "duration: %,d ms\n", duration );
+        
+    }
+
+    /*
+    class HybridBlockingQueue<T> {
+
+        private static int ARRAY_SIZE = 16384;
+
+        private LinkedBlockingQueue<HybridBlockingQueue<T>>
+            overflow = new LinkedBlockingQueue();
+
+        private ArrayBlockingQueue<T> reader;
+        private ArrayBlockingQueue<T> writer;
+
+        public HybridBlockingQueue() 
+        
+        public void put( T value ) {
+
+        }
+        
+        public T take() {
+
+        }
+        
+    }
+    */
+    
     public static void main( String[] args ) throws Exception {
 
+        System.out.printf( "config: %s\n", new Config().toDesc() );
+        
+        /*
+        testQueue( new LinkedBlockingQueue( capacity ) );
+        testQueue( new LinkedBlockingQueue( capacity ) );
+        testQueue( new LinkedBlockingQueue( capacity ) );
+
+        testQueue( new ArrayBlockingQueue( capacity ) );
+        testQueue( new ArrayBlockingQueue( capacity ) );
+        testQueue( new ArrayBlockingQueue( capacity ) );
+        */
+        
+        // String result = format( (int)10000000, (double)1000000.0, (long)100000 );
+
+        // System.out.printf( "%s\n" , result );
+
+        // DOMConfigurator.configure( "conf/log4j.xml" );
+
+        // MappedFile.FORCE_PAGE_SIZE=4096;
+        // testDiskThroughput(args);
+
+        // MappedFile.FORCE_PAGE_SIZE=16384;
+        // testDiskThroughput(args);
+
+        // MappedFile.FORCE_PAGE_SIZE=32768;
+        // testDiskThroughput(args);
+
+        /*
+        FileInputStream fis = new FileInputStream( "test.txt" );
+
+        FileChannel channel = fis.getChannel();
+
+        int fd = Native.getFd( fis.getFD() );
+
+        long offset = 0;
+        long length = 5;
+
+        long count = 50000;
+        
+        mman.mmap( length, mman.PROT_READ, mman.MAP_SHARED | mman.MAP_LOCKED, fd, offset );
+        fcntl.posix_fadvise(fd, offset, length, fcntl.POSIX_FADV_WILLNEED );
+
+        long before = System.currentTimeMillis();
+        
+        for( int i = 0; i < count; ++i ) {
+
+            mman.mmap( length, mman.PROT_READ, mman.MAP_SHARED | mman.MAP_LOCKED, fd, offset );
+            fcntl.posix_fadvise(fd, offset, length, fcntl.POSIX_FADV_WILLNEED );
+
+        }
+
+        long after = System.currentTimeMillis();
+
+        long duration = (after-before);
+
+        long throughput = (duration / count);
+
+        System.out.printf( "count: %,d , duration: %,d ms , throughput: %,d per ms\n", count, duration, throughput );
+        */
+        
+        /*
+        String path = "/d0/util0029.wdc.sl.spinn3r.com/11112/1/tmp/default.1/merged-0.tmp";
+
+        new MappedFile( path, "r" ).map();
+        */
+
+        //foo( (int) 100 );
+
+        /*
+        List<String> list = new ArrayList();
+
+        list.add( "foo" );
+        list.add( "bar" );
+
+        System.out.printf( "%s\n", list );
+
+        System.out.printf( "--\n" );
+
+        String[] array = new String[2];
+        list.toArray( array );
+        
+        dump( array );
+        */
+        
+        /*
+        dump( (String[]) list.toArray() );
+        */
+        
+        /*
         int capacity = 19;
         
         ChannelBuffer buff = ChannelBuffers.buffer( capacity );
@@ -136,6 +351,7 @@ public class Test {
         for( ChannelBuffer current : split ) {
             System.out.printf( "%s\n", Hex.pretty( current ) );
         }
+        */
         
         // test1();
         // test1();

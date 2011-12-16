@@ -4,7 +4,12 @@ package peregrine.config;
 import peregrine.util.*;
 import peregrine.util.primitive.LongBytes;
 
+/**
+ * Represents a host running a controller or PFS daemon.
+ */
 public class Host implements Comparable<Host> {
+
+    public static final int DEFAULT_PORT = 11112;
 
     protected long id = 0;
     protected String name = null;
@@ -16,7 +21,7 @@ public class Host implements Comparable<Host> {
     protected String ref;
     
     public Host( String name ) {
-        this( name, Config.DEFAULT_PORT );
+        this( name, DEFAULT_PORT );
     }
 
     public Host( String name, int port ) {
@@ -79,7 +84,12 @@ public class Host implements Comparable<Host> {
 
         String[] split = value.split( ":" );
 
-        return new Host( split[0], Integer.parseInt( split[1] ) );
+        int port =  DEFAULT_PORT;
+
+        if ( split.length > 1 )
+            port = Integer.parseInt( split[1] );
+            
+        return new Host( split[0], port );
         
     }
 

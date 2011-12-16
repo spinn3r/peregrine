@@ -5,11 +5,11 @@ import java.io.*;
 import java.util.*;
 import java.util.concurrent.*;
 import peregrine.*;
-import peregrine.map.*;
-import peregrine.config.Config;
-import peregrine.config.Partition;
+import peregrine.config.*;
 import peregrine.io.*;
+import peregrine.map.*;
 import peregrine.reduce.*;
+import peregrine.sysstat.*;
 import peregrine.values.*;
 
 import com.spinn3r.log5j.Logger;
@@ -52,6 +52,8 @@ public class ReducerTask extends BaseOutputTask implements Callable {
 
         this.reducer = (Reducer)delegate.newInstance();
 
+        SystemProfiler profiler = config.getSystemProfiler();
+
         try {
 
             log.info( "Running %s on %s", delegate, partition );
@@ -82,6 +84,7 @@ public class ReducerTask extends BaseOutputTask implements Callable {
             handleFailure( log, t );
         } finally {
             report();
+            log.info( "Ran with profiler rate: \n%s", profiler.rate() );
         }
 
         return null;

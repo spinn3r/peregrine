@@ -11,8 +11,8 @@ import peregrine.config.*;
 import peregrine.pfsd.*;
 
 /**
+ * Netty pipeline handler for our controller.
  *
- * @version $Rev: 2226 $, $Date: 2010-03-31 11:26:51 +0900 (Wed, 31 Mar 2010) $
  */
 public class ControllerPipelineFactory implements ChannelPipelineFactory {
 

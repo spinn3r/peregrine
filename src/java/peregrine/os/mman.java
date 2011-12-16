@@ -1,5 +1,7 @@
 package peregrine.os;
 
+import java.io.*;
+
 import com.sun.jna.Library;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
@@ -26,12 +28,33 @@ public class mman {
 
     // off_t = 8
     // size_t = 8
-    public static Pointer mmap( Pointer addr, long len, int prot, int flags, int fildes, long off ) {
-        return delegate.mmap( addr, len, prot, flags, fildes, off );
+    public static Pointer mmap( long len, int prot, int flags, int fildes, long off )
+        throws IOException {
+
+        // we don't really have a need to change the recommended pointer.
+        Pointer addr = new Pointer( 0 );
+        
+        Pointer result = delegate.mmap( addr, len, prot, flags, fildes, off );
+
+        if ( Pointer.nativeValue( result ) == -1 ) {
+            throw new IOException( errno.strerror() );
+        }
+
+        return result;
+        
     }
 
-    public static int munmap( Pointer addr, long len ) {
-        return delegate.munmap( addr, len );
+    public static int munmap( Pointer addr, long len )
+        throws IOException {
+
+        int result = delegate.munmap( addr, len );
+
+        if ( result != 0 ) {
+            throw new IOException( errno.strerror() );
+        }
+
+        return result;
+
     }
 
     interface InterfaceDelegate extends Library {

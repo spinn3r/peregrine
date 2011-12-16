@@ -6,4 +6,4 @@ clover_html
 .idea
 hg.status
 hg.diff
-
+lib/peregrine*

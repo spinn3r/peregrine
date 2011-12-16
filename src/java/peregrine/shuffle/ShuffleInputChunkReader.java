@@ -296,7 +296,7 @@ public class ShuffleInputChunkReader implements Closeable {
             // now open the shuffle file and read in the shuffle packets adding
             // them to the right queues.
 
-            this.reader = new ShuffleInputReader( path, partitions );
+            this.reader = new ShuffleInputReader( null, path, partitions );
 
         }
 
@@ -407,7 +407,7 @@ public class ShuffleInputChunkReader implements Closeable {
 
         private static final Logger log = Logger.getLogger();
 
-        static Map<String,PrefetchReader> instances = new ConcurrentHashMap();
+        static ConcurrentHashMap<String,PrefetchReader> instances = new ConcurrentHashMap();
 
         public void reset( String path ) {
 
@@ -441,7 +441,8 @@ public class ShuffleInputChunkReader implements Closeable {
                         log.info( "Creating new prefetch reader for path: %s", path );
                         
                         result = new PrefetchReader( this, config, path );
-                        instances.put( path, result );
+                        instances.putIfAbsent( path, result );
+                        result = instances.get( path );
 
                         result.executor.submit( result );
 

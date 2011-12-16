@@ -5,13 +5,13 @@ import java.nio.channels.*;
 import java.util.*;
 import java.util.concurrent.*;
 
-import peregrine.util.primitive.IntBytes;
-import peregrine.values.*;
-import peregrine.config.Config;
-import peregrine.config.Partition;
-import peregrine.config.Replica;
-import peregrine.io.async.*;
+import peregrine.config.*;
 import peregrine.io.util.*;
+import peregrine.os.*;
+import peregrine.util.*;
+import peregrine.util.netty.*;
+import peregrine.util.primitive.*;
+import peregrine.values.*;
 
 import org.jboss.netty.buffer.*;
 
@@ -39,25 +39,22 @@ public class ShuffleOutputWriter implements Closeable {
     // we won't need this but for now if multiple threads are writing to the
     // shuffler we can end up with corruption...
     
-    private Queue<ShufflePacket> index = new LinkedBlockingQueue();
+    private SimpleBlockingQueue<ShufflePacket> index = new SimpleBlockingQueue();
 
     /**
      * Path to store this output buffer once closed.
      */
     private String path;
 
-    /**
-     * True if we are closed so that we don't corupt ourselves.
-     */
-    private boolean closed = false;
-
     private int length = 0;
 
     private Config config;
-
-    private FileOutputStream fos;
     
-    private FileChannel output;
+    private ChannelBufferWritable output;
+
+    private Closer closer = new Closer();
+
+    private boolean closed = false;
     
     public ShuffleOutputWriter( Config config, String path ) {
 
@@ -79,7 +76,7 @@ public class ShuffleOutputWriter implements Closeable {
         
         this.length += data.capacity();
         
-        index.add( pack );
+        index.put( pack );
 
     }
 
@@ -106,8 +103,12 @@ public class ShuffleOutputWriter implements Closeable {
             lookup.put( part.getId(), new ShuffleOutputPartition() );
         }
 
-        for( ShufflePacket current : index ) {
+        Iterator<ShufflePacket> it = index.iterator();
+        
+        while( it.hasNext() ) {
 
+            ShufflePacket current = it.next();
+            
             if ( current == null ) {
                 log.error( "Skipping null packet." );
                 continue;
@@ -132,7 +133,7 @@ public class ShuffleOutputWriter implements Closeable {
     }
     
     private void write( ChannelBuffer buff ) throws IOException {
-    	output.write( buff.toByteBuffer() );
+    	output.write( buff );
     }
 
     @Override
@@ -154,10 +155,9 @@ public class ShuffleOutputWriter implements Closeable {
             // make sure the parent directory exists first.
             new File( file.getParent() ).mkdirs();
 
-            // FIXME: use MappedFile here... 
+            MappedFile mapped = new MappedFile( config, file, "w" );
             
-            this.fos = new FileOutputStream( file );
-            this.output = fos.getChannel();
+            this.output = mapped.getChannelBufferWritable();
             
             write( ChannelBuffers.wrappedBuffer( MAGIC ) );
             
@@ -265,7 +265,9 @@ public class ShuffleOutputWriter implements Closeable {
 
         } finally {
 
-            Closer.close( output, fos );
+            closer.add( output );
+            
+            closer.close();
             
         }
         

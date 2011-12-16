@@ -20,6 +20,10 @@ import peregrine.pfsd.*;
 import com.spinn3r.log5j.Logger;
 import peregrine.util.netty.*;
 
+/**
+ * Timer for marking a host offline if we do not receive heartbeat messages in a
+ * timely manner.
+ */
 public class MarkOfflineTimer extends Timer {
 
     private static final Logger log = Logger.getLogger();

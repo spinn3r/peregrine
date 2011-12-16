@@ -64,6 +64,11 @@ public class MultiChannelBufferWritable implements ChannelBufferWritable {
 
     }
 
+    @Override
+    public void force() throws IOException {
+        flush();
+    }
+
     public void shutdown() throws IOException {
 
         new MultiOutputStreamIterator( this ) {

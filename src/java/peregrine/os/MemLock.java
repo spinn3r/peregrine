@@ -6,7 +6,7 @@ import com.sun.jna.Pointer;
 
 import com.spinn3r.log5j.*;
 
-public class MemLock {
+public class MemLock implements Closeable {
 
     private static final Logger log = Logger.getLogger();
 
@@ -23,7 +23,7 @@ public class MemLock {
      * @param descriptor The file we should mmap and MAP_LOCKED
      * @param offset
      * @param length
-     * @see #release()
+     * @see #close()
      * @throws IOException
      */
     public MemLock( File file, FileDescriptor descriptor, long offset, long length ) throws IOException {
@@ -36,11 +36,7 @@ public class MemLock {
         
         int fd = Native.getFd( descriptor );
         
-        this.pa = mman.mmap( new Pointer( 0 ), length, mman.PROT_READ, mman.MAP_SHARED | mman.MAP_LOCKED, fd, offset );
-        
-        if ( Pointer.nativeValue( this.pa ) == -1 ) {
-            throw new IOException( errno.strerror() );
-        }
+        this.pa = mman.mmap( length, mman.PROT_READ, mman.MAP_SHARED | mman.MAP_LOCKED, fd, offset );
 
     }
 
@@ -48,15 +44,14 @@ public class MemLock {
      * Release this lock so that the memory can be returned to the OS if it
      * wants to us it.
      */
-    public void release() throws IOException {
+    @Override
+    public void close() throws IOException {
 
         String desc = String.format( "Releasing lock %s to pa: %s ... ", file, pa );
         
         log.info( "%s ...", desc );
 
-        if ( mman.munmap( pa, length ) != 0 ) {
-            throw new IOException( errno.strerror() );
-        }
+        mman.munmap( pa, length );
 
         log.info( "%s ... done", desc );
 

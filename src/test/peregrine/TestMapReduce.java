@@ -90,7 +90,7 @@ public class TestMapReduce extends peregrine.BaseTestWithMultipleConfigs {
                     
                     log.info( "Checking %s on %s", relative, host );
                     
-                    RemotePartitionWriterDelegate delegate = new RemotePartitionWriterDelegate();
+                    RemotePartitionWriterDelegate delegate = new RemotePartitionWriterDelegate( config, false );
                     delegate.init( config, part, host, relative );
                     
                     java.util.Map stat = delegate.stat();

@@ -73,6 +73,11 @@ public class BufferedChannelBufferWritable implements ChannelBufferWritable {
     }
 
     @Override
+    public void force() throws IOException {
+        flush();
+    }
+
+    @Override
     public void close() throws IOException {
 
         flush();

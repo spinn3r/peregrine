@@ -23,7 +23,7 @@ public class TestPartitionWriter extends BaseTestWithTwoPartitions {
         Partition part = new Partition( 0 );
         config.getHost();
 
-        List<ChunkReader> readers = LocalPartition.getChunkReaders( config, part, path );
+        List<DefaultChunkReader> readers = LocalPartition.getChunkReaders( config, part, path );
 
         assertEquals( readers.size(), 1 ) ;
 
@@ -44,7 +44,7 @@ public class TestPartitionWriter extends BaseTestWithTwoPartitions {
 
         // STEP 1... make a new file and write lots of chunks to it.
         
-        DefaultPartitionWriter.CHUNK_SIZE = 1000;
+        config.setChunkSize( 1000 );
 
         PartitionWriter writer = new DefaultPartitionWriter( config, new Partition( 0 ), path );
 
@@ -62,7 +62,7 @@ public class TestPartitionWriter extends BaseTestWithTwoPartitions {
 
         // STEP 2: make sure we have LOTS of chunks.
         
-        List<ChunkReader> readers = LocalPartition.getChunkReaders( config, part, path );
+        List<DefaultChunkReader> readers = LocalPartition.getChunkReaders( config, part, path );
 
         System.out.printf( "We have %,d readers\n", readers.size() );
         
@@ -106,7 +106,7 @@ public class TestPartitionWriter extends BaseTestWithTwoPartitions {
 
         System.out.printf( "step1\n" );
         
-        DefaultPartitionWriter.CHUNK_SIZE = 1000;
+        config.setChunkSize( 1000 );
 
         PartitionWriter writer = new DefaultPartitionWriter( config, new Partition( 0 ), path );
 

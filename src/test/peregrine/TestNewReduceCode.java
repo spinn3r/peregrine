@@ -68,7 +68,7 @@ public class TestNewReduceCode extends peregrine.BaseTestWithTwoDaemons {
 
         String path = String.format( "/test/%s/test1.in", getClass().getName() );
 
-        DefaultPartitionWriter.CHUNK_SIZE = 16384;
+        config.setChunkSize( 16384 );
         
         ExtractWriter writer = new ExtractWriter( config, path );
 
