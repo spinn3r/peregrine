@@ -10,10 +10,10 @@ import peregrine.util.primitive.*;
  */
 public class StructReaders {
 	
-	public static final StructReader TRUE  = create( true );
-	public static final StructReader FALSE = create( false );
+	public static final StructReader TRUE  = wrap( true );
+	public static final StructReader FALSE = wrap( false );
 
-    public static StructReader create( double value ) {
+    public static StructReader wrap( double value ) {
 
         return new StructWriter()
             .writeDouble( value )
@@ -22,7 +22,7 @@ public class StructReaders {
         
     }
 
-    public static StructReader create( int value ) {
+    public static StructReader wrap( int value ) {
 
         return new StructWriter()
             .writeInt( value )
@@ -31,7 +31,7 @@ public class StructReaders {
         
     }
 
-    public static StructReader create( long value ) {
+    public static StructReader wrap( long value ) {
 
         return new StructWriter()
             .writeLong( value )
@@ -40,7 +40,7 @@ public class StructReaders {
         
     }
 
-    public static StructReader create( boolean value ) {
+    public static StructReader wrap( boolean value ) {
 
         return new StructWriter()
             .writeBoolean( value )
@@ -49,7 +49,7 @@ public class StructReaders {
         
     }
 
-    public static StructReader create( byte[] value ) {
+    public static StructReader wrap( byte[] value ) {
 
         return new StructWriter()
             .writeBytes( value )

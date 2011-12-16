@@ -40,7 +40,7 @@ public class TestFullShufflePath extends peregrine.BaseTestWithMultipleDaemons {
 
             byte[] value = new byte[] { (byte)'x', (byte)'x', (byte)'x', (byte)'x', (byte)'x', (byte)'x', (byte)'x' };
 
-            output.emit( StructReaders.create( i ), StructReaders.create( value ) );
+            output.emit( StructReaders.wrap( i ), StructReaders.wrap( value ) );
         }
 
     }

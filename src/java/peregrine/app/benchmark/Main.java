@@ -27,7 +27,7 @@ public class Main {
         log.info( "Testing with %,d records." , max );
 
         ExtractWriter writer = new ExtractWriter( config, in );
-        StructReader value = StructReaders.create( new byte[ width ] );
+        StructReader value = StructReaders.wrap( new byte[ width ] );
         
         for( long i = 0; i < max; ++i ) {
 

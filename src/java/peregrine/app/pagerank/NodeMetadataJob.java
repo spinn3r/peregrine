@@ -85,10 +85,10 @@ public class NodeMetadataJob {
 
             StructReader key = StructReaders.hashcode( "id" );
             
-            nrNodesBroadcastOutput.emit( key, StructReaders.create( nrNodes ) );
+            nrNodesBroadcastOutput.emit( key, StructReaders.wrap( nrNodes ) );
 
             // *** broadcast nr dangling.
-            nrDanglingBroadcastOutput.emit( key, StructReaders.create( nrDangling ) );
+            nrDanglingBroadcastOutput.emit( key, StructReaders.wrap( nrDangling ) );
 
         }
 
@@ -105,7 +105,7 @@ public class NodeMetadataJob {
                 count += val.readInt();
             }
 
-            emit( key, StructReaders.create( count ) );
+            emit( key, StructReaders.wrap( count ) );
 
         }
 

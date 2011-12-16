@@ -46,7 +46,7 @@ public class TestBroadcastMapReduce extends peregrine.BaseTestWithMultipleConfig
             System.out.printf( "Writing count: %,d to %s\n", count, countBroadcast );
 
             StructReader key = StructReaders.hashcode( "id" );
-            StructReader value = StructReaders.create( count );
+            StructReader value = StructReaders.wrap( count );
             
             countBroadcast.emit( key, value );
             
@@ -65,7 +65,7 @@ public class TestBroadcastMapReduce extends peregrine.BaseTestWithMultipleConfig
                 count += val.readInt();
             }
             
-            emit( key, StructReaders.create( count ) );
+            emit( key, StructReaders.wrap( count ) );
             
         }
 
@@ -82,7 +82,7 @@ public class TestBroadcastMapReduce extends peregrine.BaseTestWithMultipleConfig
          
          for( long i = 0; i < 1000; ++i ) {
              
-             StructReader key = StructReaders.create( i );
+             StructReader key = StructReaders.wrap( i );
              StructReader value = key;
              writer.write( key, value );
              

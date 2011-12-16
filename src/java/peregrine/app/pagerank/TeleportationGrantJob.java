@@ -40,7 +40,7 @@ public class TeleportationGrantJob {
 
             double result = (1.0 - (IterJob.DAMPENING * (1.0 - sum))) / nr_nodes;
 
-            emit( key, StructReaders.create( result ) );
+            emit( key, StructReaders.wrap( result ) );
             
         }
 

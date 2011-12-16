@@ -100,7 +100,7 @@ public class IterJob {
         public void cleanup() {
 
             StructReader key = StructReaders.hashcode( "id" );
-            StructReader value = StructReaders.create( dangling_rank_sum );
+            StructReader value = StructReaders.wrap( dangling_rank_sum );
 
             danglingRankSumBroadcast.emit( key, value );
             
@@ -169,7 +169,7 @@ public class IterJob {
                 ;
             */
                             
-            emit( key, StructReaders.create( rank ) );
+            emit( key, StructReaders.wrap( rank ) );
             
         }
 

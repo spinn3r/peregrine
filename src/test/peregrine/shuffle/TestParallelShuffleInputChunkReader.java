@@ -41,7 +41,7 @@ public class TestParallelShuffleInputChunkReader extends peregrine.BaseTestWithM
         
         for( long i = 0; i < max; ++i ) {
 
-        	StructReader key = StructReaders.create( i );
+        	StructReader key = StructReaders.wrap( i );
         	StructReader value = key;
             
             writer.write( key, value );

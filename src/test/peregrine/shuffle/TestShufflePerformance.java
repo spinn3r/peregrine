@@ -48,7 +48,7 @@ public class TestShufflePerformance extends BaseTestWithMultipleConfigs {
 
             for ( long i = 0; i < max_emits; ++i ) {
 
-                StructReader key = StructReaders.create( i );
+                StructReader key = StructReaders.wrap( i );
                 
                 output.emit( key, key );
                 

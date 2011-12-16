@@ -71,7 +71,7 @@ public class TestFullOuterJoin extends peregrine.BaseTestWithTwoPartitions {
     public static void write( PartitionWriter writer,
                               int v ) throws IOException {
 
-    	StructReader key = StructReaders.create(v);
+    	StructReader key = StructReaders.wrap(v);
     	StructReader value = key;
         
         writer.write( key, value );

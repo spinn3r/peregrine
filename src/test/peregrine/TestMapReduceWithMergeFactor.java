@@ -55,7 +55,7 @@ public class TestMapReduceWithMergeFactor extends peregrine.BaseTestWithTwoDaemo
         for( int i = 0; i < max; ++i ) {
 
         	StructReader key = StructReaders.hashcode( i );
-        	StructReader value = StructReaders.create( i );
+        	StructReader value = StructReaders.wrap( i );
 
             writer.write( key, value );
         }

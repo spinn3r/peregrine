@@ -30,7 +30,7 @@ public class TestMapOnlyJobs extends peregrine.BaseTestWithTwoDaemons {
 
         for( int i = 0; i < 10; ++i ) {
 
-        	StructReader key = StructReaders.create((long)i);
+        	StructReader key = StructReaders.wrap((long)i);
         	StructReader value = key;
             writer.write( key, value );
             

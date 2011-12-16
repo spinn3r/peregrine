@@ -76,7 +76,7 @@ public class TestNewReduceCode extends peregrine.BaseTestWithTwoDaemons {
         
         for( long i = 0; i < max; ++i ) {
 
-        	StructReader key =StructReaders.create( i );
+        	StructReader key =StructReaders.wrap( i );
         	StructReader value = key;
             writer.write( key, value );
             
@@ -84,7 +84,7 @@ public class TestNewReduceCode extends peregrine.BaseTestWithTwoDaemons {
 
         for( long i = 0; i < max; ++i ) {
 
-        	StructReader key =StructReaders.create( i );
+        	StructReader key =StructReaders.wrap( i );
         	StructReader value = key;
             writer.write( key, value );
             
