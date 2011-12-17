@@ -38,6 +38,18 @@ Additional burton-struct-api-change before merging.
         
 
 
+    - the issue is that pulling apart the packets isn't working... 
+        - what components could be failing 
+        - sending the packets to the server
+        - receiving the packets and writing them to the shuffle output writer
+        - writing them to disk
+        - reading them from disk
+        
+
+        - come up with a BASIC assertion test...    
+          - write ONE key/value with unique setup to one partition on one server... then
+            read the values back out and make sure they look ok.
+
 
 
 - centralizing log4j initialization needs to be done.

@@ -50,6 +50,8 @@ public class ShuffleSender {
         try {
         
             length += DefaultChunkWriter.write( client, key, value );
+
+            ++client.count;
             ++count;
 
         } catch ( Exception e ) {
@@ -128,8 +130,13 @@ public class ShuffleSender {
      */
     class ShuffleOutputTarget extends BufferedChannelBufferWritable {
 
-        private Host host;
-        private HttpClient client;
+        protected Host host;
+        protected HttpClient client;
+
+        /**
+         * The number of entries written (count) to this target since the last flush.
+         */
+        protected int count = 0;
         
         public ShuffleOutputTarget( Host host, HttpClient client, int capacity ) {
             super( client, capacity - HttpClient.CHUNK_OVERHEAD );
@@ -140,10 +147,13 @@ public class ShuffleSender {
         @Override
         public void preFlush() throws IOException {
 
-            // add the number of entries written to this buffer 
-            byte[] data = IntBytes.toByteArray( this.buffers.size() );
+            // add the number of entries written to this buffer (AKA the count)
+
+            byte[] data = IntBytes.toByteArray( count );
 
             this.buffers.add( ChannelBuffers.wrappedBuffer( data ) );
+
+            count = 0;
             
         }
 

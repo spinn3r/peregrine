@@ -103,7 +103,7 @@ public class ShuffleInputChunkReader implements Closeable {
     public void next() throws IOException {
 
         assertPrefetchReaderNotFailed();
-        
+
         while( true ) {
 
             if ( pack != null && pack.data.readerIndex() < pack.data.capacity() ) {
@@ -219,8 +219,8 @@ public class ShuffleInputChunkReader implements Closeable {
      */
     static class Index {
 
-        private int idx = 0;
-        private int max;
+        protected int idx = 0;
+        protected int max;
         
         public Index( int max ) {
             this.max = max;

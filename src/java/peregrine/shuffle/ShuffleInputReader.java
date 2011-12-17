@@ -110,7 +110,6 @@ public class ShuffleInputReader {
         }
 
         // make sure we have headers for ALL the partitions we requested
-
         for( Partition partition : partitions ) {
 
             ShuffleHeader header = headersByPartition.get( partition );
