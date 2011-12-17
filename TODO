@@ -27,14 +27,11 @@ Additional burton-struct-api-change before merging.
     - which tests fail so I can write reductions for them and fix them?
 
         - these tests fail...
+            TEST-peregrine.TestBroadcastMapReduce.txt
+            TEST-peregrine.TestPagerank.txt
+            TEST-peregrine.shuffle.TestParallelShuffleInputChunkReader.txt
+            TEST-peregrine.shuffle.TestShuffleInputChunkReader.txt
 
-        TEST-peregrine.TestBroadcastMapReduce.txt
-        TEST-peregrine.TestMapReduce.txt
-        TEST-peregrine.TestMapReduceWithMergeFactor.txt
-        TEST-peregrine.TestPagerank.txt
-        TEST-peregrine.io.TestFullOuterJoin.txt
-        TEST-peregrine.shuffle.TestParallelShuffleInputChunkReader.txt
-        TEST-peregrine.shuffle.TestShuffleInputChunkReader.txt
         
 
 
@@ -51,6 +48,8 @@ Additional burton-struct-api-change before merging.
             read the values back out and make sure they look ok.
 
 
+    - ShuffleInputChunkReader still uses byte[] ... 
+            
 
 - centralizing log4j initialization needs to be done.
 

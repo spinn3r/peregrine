@@ -106,8 +106,8 @@ public class ShuffleInputChunkReader implements Closeable {
 
         while( true ) {
 
-            if ( pack != null && pack.data.readerIndex() < pack.data.capacity() ) {
-
+            if ( pack != null && pack.data.readerIndex() < pack.data.capacity() - 1 ) {
+                
                 this.key_length     = varintReader.read();
                 this.key_offset     = pack.data.readerIndex();
 

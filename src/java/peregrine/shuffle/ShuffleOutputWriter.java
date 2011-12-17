@@ -191,7 +191,7 @@ public class ShuffleOutputWriter implements Closeable {
                 for( ShufflePacket pack : shuffleOutputPartition.packets ) {
                     
                     length += PACKET_HEADER_SIZE;
-                    length += pack.data.capacity();
+                    length += pack.data.writerIndex();
                     
                 }
 
@@ -229,7 +229,7 @@ public class ShuffleOutputWriter implements Closeable {
                 				.writeInt( pack.from_partition )
                 				.writeInt( pack.from_chunk )
                 				.writeInt( pack.to_partition )
-                				.writeInt( pack.data.capacity() )
+                				.writeInt( pack.data.writerIndex() )
                 				.getChannelBuffer() );
 
                     // TODO: migrate this to using a zero copy system and write it

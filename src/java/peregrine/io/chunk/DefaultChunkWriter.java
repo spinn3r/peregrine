@@ -71,29 +71,18 @@ public class DefaultChunkWriter implements ChunkWriter {
                              StructReader value ) throws IOException {
         
     	int result = 0;
-    	
-        result += writeVarint( writer, key.length() );
-        result += write( writer, key.getChannelBuffer() );
-        result += writeVarint( writer, value.length() );
-        result += write( writer, value.getChannelBuffer() );
+
+        ChannelBuffer wrapped =
+            ChannelBuffers.wrappedBuffer( StructReaders.varint( key.length() ).getChannelBuffer(),
+                                          key.getChannelBuffer(),
+                                          StructReaders.varint( value.length() ).getChannelBuffer(),
+                                          value.getChannelBuffer() );
+
+        writer.write( wrapped );
         
+        result += wrapped.writerIndex();
+
         return result;
-        
-    }
-
-    private static int write( ChannelBufferWritable writer, ChannelBuffer buff ) throws IOException {
-
-        writer.write( buff );
-        
-        return buff.writerIndex();
-        
-    }
-
-    private static int writeVarint( ChannelBufferWritable writer, int value ) throws IOException {
-
-        ChannelBuffer buff = ChannelBuffers.buffer( IntBytes.LENGTH );
-        VarintWriter.write( buff, value );
-        return write( writer, buff );
         
     }
 
@@ -111,7 +100,8 @@ public class DefaultChunkWriter implements ChunkWriter {
 
         ChannelBuffer buff = ChannelBuffers.buffer( IntBytes.LENGTH );
         buff.writeInt( count );
-        length += write( writer, buff );
+        writer.write( buff );
+        length += IntBytes.LENGTH;
 
         if ( writer instanceof MultiChannelBufferWritable ) {
 

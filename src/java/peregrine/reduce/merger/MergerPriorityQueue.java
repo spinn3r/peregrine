@@ -12,8 +12,6 @@ public class MergerPriorityQueue {
 
     protected int key_offset = 0;
 
-    protected MergeQueueEntry result = null;
-
     protected ChunkMergeComparator comparator = new ChunkMergeComparator();
     
     public MergerPriorityQueue( List<ChunkReader> readers ) throws IOException {
@@ -26,8 +24,6 @@ public class MergerPriorityQueue {
                 continue;
             
             MergeQueueEntry entry = new MergeQueueEntry( reader );
-
-            entry.queue = this;
 
             queue.add( entry );
             
@@ -45,17 +41,16 @@ public class MergerPriorityQueue {
         if ( entry == null )
             return null;
 
-        this.result.key = entry.key;
-        this.result.value = entry.value;
+        MergeQueueEntry result = entry.copy();
 
         if ( entry.reader.hasNext() ) {
             // add this back in with the next value.
-            entry.key = entry.reader.key();
-            entry.value = entry.reader.value();
+            entry.setKey( entry.reader.key() );
+            entry.setValue( entry.reader.value() );
             add( entry );
         }
 
-        return this.result;
+        return result;
         
     }
     

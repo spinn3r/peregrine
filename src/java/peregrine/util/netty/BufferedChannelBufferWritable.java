@@ -27,7 +27,7 @@ public class BufferedChannelBufferWritable implements ChannelBufferWritable {
     private ChannelBufferWritable delegate;
     
     public BufferedChannelBufferWritable( ChannelBufferWritable delegate,
-                                  int capacity ) {
+                                          int capacity ) {
         this.delegate = delegate;
         this.capacity = capacity;
     }

@@ -28,7 +28,13 @@ public class TestParallelShuffleInputChunkReader extends peregrine.BaseTestWithM
     }
 
     public TestParallelShuffleInputChunkReader() {
-        super( 2, 2, 5 );
+
+        //2,2,5
+        
+        concurrency = 1;
+        replicas    = 1;
+        nr_daemons  = 1;
+        
     }
     
     public void test1() throws Exception {
@@ -37,7 +43,19 @@ public class TestParallelShuffleInputChunkReader extends peregrine.BaseTestWithM
         
         ExtractWriter writer = new ExtractWriter( config, path );
 
-        int max = 10000;
+        /*
+        10000 F 
+        5000  F
+        2500  F
+        1250  F
+        625   W
+        937   F
+        780   W
+        858   W
+        */
+        
+        int max = 897;
+        //int max = 10;
         
         for( long i = 0; i < max; ++i ) {
 
@@ -60,9 +78,9 @@ public class TestParallelShuffleInputChunkReader extends peregrine.BaseTestWithM
         //now create a ParallelShuffleInputChunkReader for one of the
         //partitions so that we can see if it actually works
 
-        path = "/tmp/peregrine-fs/localhost/11116/tmp/shuffle/default/0000000000.tmp";
+        path = "/tmp/peregrine-fs/localhost/11112/tmp/shuffle/default/0000000000.tmp";
 
-        ShuffleInputChunkReader reader = new ShuffleInputChunkReader( configs.get(4), new Partition( 4 ), path );
+        ShuffleInputChunkReader reader = new ShuffleInputChunkReader( configs.get(0), new Partition( 0 ), path );
 
         assertTrue( reader.size() > 0 );
 

@@ -9,21 +9,47 @@ import peregrine.values.*;
 public class MergeQueueEntry {
     
 	public byte[] keyAsByteArray;
-	
     public StructReader key;
     public StructReader value;
-    
-    protected MergerPriorityQueue queue = null;
 
     protected ChunkReader reader = null;
-    
+
+    private MergeQueueEntry() {}
+
     public MergeQueueEntry( ChunkReader reader ) throws IOException {
-    	this.reader = reader;
-    	this.key = reader.key();
-    	this.value = reader.value();
-    	this.keyAsByteArray = key.toByteArray();
-    
+
+        this( reader.key(), reader.value() );
+        
+        this.reader = reader;
+
     }
 
+    public MergeQueueEntry( StructReader key, StructReader value ) {
+        setKey( key );
+        setValue( value );
+    }
+
+    public void setKey( StructReader key ) {
+    	this.keyAsByteArray = key.toByteArray();
+    	this.key = key;
+
+    }
+
+    public void setValue( StructReader value ) {
+        this.value = value;
+    }
+
+    public MergeQueueEntry copy() {
+
+        MergeQueueEntry copy = new MergeQueueEntry();
+
+        copy.keyAsByteArray = keyAsByteArray;
+        copy.key = key;
+        copy.value = value;
+        
+        return copy;
+        
+    }
+    
 }
 
