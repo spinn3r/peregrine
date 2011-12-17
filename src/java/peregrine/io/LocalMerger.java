@@ -19,10 +19,13 @@ public class LocalMerger {
     private FileComparator comparator = new FileComparator();
 
     private List<LocalPartitionReader> readers;
-    
+
     public LocalMerger( List<LocalPartitionReader> readers )
         throws IOException {
 
+        if ( readers.size() == 0 )
+            throw new IllegalArgumentException( "readers" );
+        
         this.readers = readers;
         
         this.queue = new FilePriorityQueue();
@@ -43,7 +46,7 @@ public class LocalMerger {
 
         int nr_readers = readers.size();
         
-        List<StructReader> joined = new ArrayList( nr_readers );
+        List<StructReader> joined = newEmptyList( nr_readers );
         
         while( true ) {
 
@@ -54,15 +57,16 @@ public class LocalMerger {
                 if ( ref == null && last == null )
                     return null;
 
-                if ( last != null )
+                if ( last != null ) {
                     joined.set( last.id, last.value );
+                }
 
                 boolean changed = ref == null || ( last != null && comparator.compare( last, ref ) != 0 );
                 
                 if ( changed ) {
                     
                     JoinedTuple result = new JoinedTuple( last.key, joined );
-                    joined = new ArrayList( nr_readers );
+                    joined = newEmptyList( nr_readers );
                     
                     return result;
                     
@@ -76,6 +80,18 @@ public class LocalMerger {
         
     }
 
+    private List<StructReader> newEmptyList(int size) {
+
+        List<StructReader> result = new ArrayList( size );
+
+        for( int i = 0; i < size; ++i ) {
+            result.add( null );
+        }
+        
+        return result;
+        
+    }
+    
 }
 
 class FilePriorityQueue {
@@ -87,9 +103,9 @@ class FilePriorityQueue {
         if ( ref.reader.hasNext() == false )
             return;
         
-        ref.key   = ref.reader.key();
-        ref.value = ref.reader.value();
-
+        ref.setKey( ref.reader.key() );
+        ref.setValue( ref.reader.value() );
+        
         delegate.add( ref );
 
     }
@@ -113,9 +129,10 @@ class FilePriorityQueue {
 
 class FileReference {
 
-	public byte[] keyAsByteArray;
-    public StructReader key;
-    public StructReader value;
+	public byte[] keyAsByteArray = null;;
+
+    protected StructReader key = null;
+    protected StructReader value = null;
     
     public int id = -1;
     protected LocalPartitionReader reader;
@@ -127,11 +144,19 @@ class FileReference {
 
     public FileReference( int id, StructReader key, StructReader value ) {
         this.id = id;
-        this.keyAsByteArray = key.toByteArray();
-        this.key = key;
-        this.value = value;
+        this.setKey( key );
+        this.setValue( value );
     }
 
+    public void setKey( StructReader key ) {
+        this.keyAsByteArray = key.toByteArray();
+        this.key = key;
+    }
+
+    public void setValue( StructReader value ) {
+        this.value = value;
+    }
+    
 }
 
 class FileComparator implements Comparator<FileReference> {

@@ -17,7 +17,12 @@ public class Hex {
     }
 
     public static String encode( StructReader reader ) {
+
+        if ( reader == null )
+            return "null";
+        
     	return encode( reader.getChannelBuffer() );
+        
     }
     
     public static String encode( ChannelBuffer buff ) {
