@@ -14,7 +14,7 @@ public class MergeQueueEntry {
 
     protected ChunkReader reader = null;
 
-    private MergeQueueEntry() {}
+    protected MergeQueueEntry() {}
 
     public MergeQueueEntry( ChunkReader reader ) throws IOException {
 
@@ -46,6 +46,7 @@ public class MergeQueueEntry {
         copy.keyAsByteArray = keyAsByteArray;
         copy.key = key;
         copy.value = value;
+        copy.reader = reader;
         
         return copy;
         

@@ -64,7 +64,7 @@ public class DefaultChunkWriter implements ChunkWriter {
     }
 
     /**
-     * Perform a DIRECT write on a ChannelBuffer.  
+     * Perform a DIRECT write on a ChannelBuffer of a key/value pair.
      */
     public static int write( ChannelBufferWritable writer ,
                              StructReader key,
@@ -72,6 +72,10 @@ public class DefaultChunkWriter implements ChunkWriter {
         
     	int result = 0;
 
+        // TODO: we have to use an atomic write so that the buffered writer can
+        // make sure to get one key/value pair without truncating it
+        // incorrectly.
+        
         ChannelBuffer wrapped =
             ChannelBuffers.wrappedBuffer( StructReaders.varint( key.length() ).getChannelBuffer(),
                                           key.getChannelBuffer(),

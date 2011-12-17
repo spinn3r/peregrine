@@ -131,8 +131,12 @@ public class ChunkMerger {
 
             log.info( "Merged %,d entries for %s" , entries, partition );
 
+            //new Closer( input ).close();
+
+            //new Closer( (List<Closeable>)input ).close();
+
             // close all the readers to free up resources on the server.
-            for( ChunkReader reader : input ) {
+            for( Closeable reader : input ) {
                 reader.close();
             }
             

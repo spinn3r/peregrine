@@ -20,6 +20,8 @@ import java.util.*;
  */
 public class StreamReader {
 
+    // TODO should this be Closeable ?
+    
     private ChannelBuffer buff = null;
 
     private StreamReaderListener listener = null;
@@ -28,11 +30,17 @@ public class StreamReader {
         this.buff = buff;
     }
 
+    /**
+     * Read length `length' bytes from the reader.
+     */
     public StructReader read( int length ) {
         fireOnRead( length );
         return new StructReader( buff.readSlice( length ) );
     }
 
+    /**
+     * Read a single byte from the stream.
+     */
     public byte read() {
         fireOnRead(1);
         return buff.readByte();

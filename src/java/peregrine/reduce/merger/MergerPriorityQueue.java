@@ -42,12 +42,15 @@ public class MergerPriorityQueue {
             return null;
 
         MergeQueueEntry result = entry.copy();
-
+        
         if ( entry.reader.hasNext() ) {
+
             // add this back in with the next value.
             entry.setKey( entry.reader.key() );
             entry.setValue( entry.reader.value() );
+            
             add( entry );
+            
         }
 
         return result;
