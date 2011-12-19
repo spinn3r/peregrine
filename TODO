@@ -4,9 +4,7 @@
 Additional burton-struct-api-change before merging.
 
 
-    - remove .keys and .values packages
-
-    - Allocating a ThreadLocal value in the new framework is NOT a good idea I
+   - Allocating a ThreadLocal value in the new framework is NOT a good idea I
       think because I can create TWO StructWriters and I need to use a NEW
       buffer for the second one.  The problem is what should be the default
       size?  Probably 8 bytes... to store one primitive.
@@ -21,15 +19,7 @@ Additional burton-struct-api-change before merging.
 
         - 
           
-   
-
-    - ShuffleInputChunkReader still uses byte[] ... 
-
-
-    - The segfault does NOT seem to have anything to do with mlock
-
-        FOUND IT ... it has to do with my explicit MappedByteBuffer closing 
-
+  
     - refactor Closer so it is small and tight
 
     - Make sure ALL the WithMultiConfigs test are configured and running.

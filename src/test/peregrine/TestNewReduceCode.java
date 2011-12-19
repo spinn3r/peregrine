@@ -105,7 +105,7 @@ public class TestNewReduceCode extends peregrine.BaseTestWithMultipleConfigs {
 
         try {
             controller.map( Map.class, path );
-            //controller.reduce( Reduce.class, new Input(), new Output( output ) );
+            controller.reduce( Reduce.class, new Input(), new Output( output ) );
         } finally {
             controller.shutdown();
         }

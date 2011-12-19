@@ -188,22 +188,19 @@ public class ShuffleInputChunkReader implements Closeable {
         return key_offset;
     }
 
-    public byte[] key() throws IOException {
+    public ChannelBuffer key() throws IOException {
         return readBytes( key_offset, key_length );
         
     }
 
-    public byte[] value() throws IOException {
+    public ChannelBuffer value() throws IOException {
         return readBytes( value_offset, value_length );
     }
 
-    private byte[] readBytes( int offset, int length ) throws IOException {
+    public ChannelBuffer readBytes( int offset, int length ) throws IOException {
 
-        byte[] data = new byte[ length ];
-        pack.data.getBytes( offset, data );
+        return pack.data.slice( offset, length );
 
-        return data;
-        
     }
 
     public int size() {
