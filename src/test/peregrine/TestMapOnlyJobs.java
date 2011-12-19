@@ -4,7 +4,6 @@ import java.io.*;
 import peregrine.config.Partition;
 import peregrine.controller.*;
 import peregrine.io.*;
-import peregrine.keys.*;
 import peregrine.values.*;
 import peregrine.io.partition.*;
 

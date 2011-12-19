@@ -4,7 +4,6 @@ import java.util.*;
 
 import peregrine.controller.*;
 import peregrine.io.*;
-import peregrine.keys.*;
 import peregrine.util.primitive.IntBytes;
 import peregrine.values.*;
 import peregrine.config.*;
