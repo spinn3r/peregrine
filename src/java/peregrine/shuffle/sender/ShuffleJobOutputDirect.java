@@ -11,7 +11,7 @@ import peregrine.io.chunk.*;
 import com.spinn3r.log5j.Logger;
 import peregrine.values.*;
 
-public class ShuffleJobOutputDirect extends ShuffleJobOutputBase {
+public class ShuffleJobOutputDirect extends ShuffleJobOutputBase implements Closeable, Flushable {
 
     private ShuffleJobOutput parent;
 
@@ -42,20 +42,30 @@ public class ShuffleJobOutputDirect extends ShuffleJobOutputBase {
 
     }
 
+    private void rollover( ChunkReference chunkRef ) {
+        closeWithUncheckedException();
+        sender = new ShuffleSender( parent.config, parent.name, chunkRef );
+    }
+    
     @Override 
     public void onChunk( ChunkReference chunkRef ) {
-
-        try {
-            close();
-        } catch ( IOException e ) {
-            throw new RuntimeException( e );
-        }
-
-        sender = new ShuffleSender( parent.config, parent.name, chunkRef );
+        rollover( chunkRef );
     }
 
     @Override 
-    public void onChunkEnd( ChunkReference chunkRef ) {}
+    public void onChunkEnd( ChunkReference chunkRef ) {
+        rollover( chunkRef );
+    }
+
+    @Override 
+    public void flush() throws IOException {
+
+        if ( sender != null ) {
+            sender.flush();
+            length += sender.length();
+        }
+
+    }
 
     @Override 
     public void close() throws IOException {
@@ -68,6 +78,16 @@ public class ShuffleJobOutputDirect extends ShuffleJobOutputBase {
             
     }
 
+    private void closeWithUncheckedException() {
+
+        try {
+            close();
+        } catch ( IOException e ) {
+            throw new RuntimeException( e );
+        }
+
+    }
+    
     @Override
     public String toString() {
         return String.format( "%s:%s", getClass().getSimpleName(), parent.name );

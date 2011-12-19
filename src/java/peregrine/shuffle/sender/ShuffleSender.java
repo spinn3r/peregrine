@@ -17,7 +17,7 @@ import com.spinn3r.log5j.Logger;
 import static peregrine.pfsd.FSPipelineFactory.*;
 import peregrine.values.*;
 
-public class ShuffleSender {
+public class ShuffleSender implements Flushable, Closeable {
 
     private static final Logger log = Logger.getLogger();
 
@@ -70,7 +70,17 @@ public class ShuffleSender {
     public long length() {
         return length;
     }
-    
+
+    @Override
+    public void flush() throws IOException {
+
+        for( ShuffleOutputTarget client : partitionOutput.values() ) {
+            client.flush();
+        }
+
+    }
+
+    @Override
     public void close() throws IOException {
 
         // now close all clients and we are done.
@@ -149,9 +159,10 @@ public class ShuffleSender {
 
             // add the number of entries written to this buffer (AKA the count)
 
-            byte[] data = IntBytes.toByteArray( count );
-
-            this.buffers.add( ChannelBuffers.wrappedBuffer( data ) );
+            ChannelBuffer buff = ChannelBuffers.buffer( IntBytes.LENGTH ) ;
+            buff.writeInt( count );
+            
+            this.buffers.add( buff );
 
             count = 0;
             

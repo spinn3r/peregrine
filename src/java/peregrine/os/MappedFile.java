@@ -159,7 +159,7 @@ public class MappedFile implements Closeable {
                 
             }
 
-            reader = new StreamReader( map );
+            reader = new StreamReader( map, this );
             
             return map;
 
@@ -229,6 +229,10 @@ public class MappedFile implements Closeable {
 
     }
 
+    public boolean isClosed() {
+        return closer.closed();
+    }
+    
     @Override
     public String toString() {
         return file.toString();
@@ -238,7 +242,7 @@ public class MappedFile implements Closeable {
 
         long allocated = 0;
 
-        long forced = 0;
+        long flushed = 0;
 
         @Override
         public void write( ChannelBuffer buff ) throws IOException {
@@ -253,9 +257,9 @@ public class MappedFile implements Closeable {
                 
             }
 
-            if ( autoForce && length > forced + FORCE_PAGE_SIZE ) {
-                force();
-                forced += length;
+            if ( autoForce && length > flushed + FORCE_PAGE_SIZE ) {
+                flush();
+                flushed += length;
             }
 
             // this should use transferTo for the write.
@@ -269,7 +273,7 @@ public class MappedFile implements Closeable {
         }
 
         @Override
-        public void force() throws IOException {
+        public void flush() throws IOException {
             channel.force( false );
         }
 
@@ -284,7 +288,7 @@ public class MappedFile implements Closeable {
             }
 
             if ( autoForce ) {
-                force();
+                flush();
             }
             
             MappedFile.this.close();

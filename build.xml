@@ -273,7 +273,7 @@
                 <fileset dir="src/test">
 
                   <include name="peregrine/TestPagerank.java"/>
-                  
+                  <include name="peregrine/TestNewReduceCode.java"/>
                   <include name="peregrine/TestMapReduce.java"/>
                   <include name="peregrine/io/partition/TestDefaultPartitionWriter.java"/>
                   <include name="peregrine/pfs/TestRemoteChunkWriterClient.java"/>

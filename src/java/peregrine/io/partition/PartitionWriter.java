@@ -7,7 +7,7 @@ import peregrine.values.*;
 /**
  * Main PartitionWriter interface. 
  */
-public interface PartitionWriter {
+public interface PartitionWriter extends Closeable, Flushable {
 
     public void write( StructReader key, StructReader value ) throws IOException;
 

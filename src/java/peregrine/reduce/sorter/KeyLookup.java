@@ -30,7 +30,7 @@ public class KeyLookup {
                       ChannelBuffer buffer ) {
 
         if ( buffer == null )
-            throw new RuntimeException();
+            throw new NullPointerException( "buffer" );
         
         this.lookup = lookup;
         this.end = lookup.length - 1;

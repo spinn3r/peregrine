@@ -64,11 +64,6 @@ public class MultiChannelBufferWritable implements ChannelBufferWritable {
 
     }
 
-    @Override
-    public void force() throws IOException {
-        flush();
-    }
-
     public void shutdown() throws IOException {
 
         new MultiOutputStreamIterator( this ) {
@@ -91,7 +86,7 @@ public class MultiChannelBufferWritable implements ChannelBufferWritable {
         new MultiOutputStreamIterator( this ) {
             
             public void handle( ChannelBufferWritable writer ) throws IOException {
-                writer.close();
+                writer.flush();
             }
             
         }.iterate();

@@ -5,7 +5,9 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.*;
 import peregrine.util.*;
+import peregrine.util.netty.*;
 import peregrine.config.*;
+
 import org.jboss.netty.buffer.*;
 
 import com.spinn3r.log5j.Logger;
@@ -173,6 +175,15 @@ public class ShuffleInputChunkReader implements Closeable {
         return prefetcher.reader.getBuffer();
     }
 
+    public StreamReader getStreamReader() {
+
+        ChannelBuffer buffer = prefetcher.reader.getBuffer();
+        buffer = buffer.slice( 0, buffer.writerIndex() );
+
+        return new StreamReader( buffer,
+                                 prefetcher.reader.mappedFile );
+    }
+    
     public int keyOffset() {
         return key_offset;
     }

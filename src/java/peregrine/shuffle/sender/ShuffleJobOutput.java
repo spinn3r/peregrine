@@ -12,7 +12,8 @@ import peregrine.io.chunk.*;
 import com.spinn3r.log5j.Logger;
 import peregrine.values.*;
 
-public class ShuffleJobOutput implements JobOutput, LocalPartitionReaderListener {
+public class ShuffleJobOutput
+    implements JobOutput, LocalPartitionReaderListener, Closeable, Flushable {
 
     private static final Logger log = Logger.getLogger();
 
@@ -53,6 +54,11 @@ public class ShuffleJobOutput implements JobOutput, LocalPartitionReaderListener
     public void emit( int to_partition, StructReader key , StructReader value ) {
         jobOutputDelegate.emit( to_partition, key, value );
         ++emits;
+    }
+
+    @Override 
+    public void flush() throws IOException {
+        jobOutputDelegate.flush();
     }
 
     @Override 

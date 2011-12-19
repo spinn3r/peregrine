@@ -11,6 +11,7 @@ import peregrine.io.chunk.*;
 import peregrine.io.util.*;
 import peregrine.shuffle.*;
 import peregrine.util.*;
+import peregrine.util.netty.*;
 import peregrine.values.*;
 
 import org.jboss.netty.buffer.*;
@@ -32,7 +33,7 @@ public class ChunkSorter extends BaseChunkSorter {
         
     }
 
-    public ChunkReader sort( File input, File output )
+    public ChunkReader sort( File input, File output, JobOutput[] jobOutput )
         throws IOException {
 
         FileInputStream inputStream   = null;
@@ -48,7 +49,7 @@ public class ChunkSorter extends BaseChunkSorter {
         try {
 
             inputStream   = new FileInputStream( input );
-            outputStream = new FileOutputStream( output );
+            outputStream  = new FileOutputStream( output );
         
             inputChannel  = inputStream.getChannel();
             outputChannel = outputStream.getChannel();
@@ -112,12 +113,15 @@ public class ChunkSorter extends BaseChunkSorter {
             
         } finally {
 
-            new Closer( inputChannel,
+            new Flusher( jobOutput )
+                .flush();
+
+            new Closer( writer,
+                        inputChannel,
                         outputChannel,
                         inputStream,
                         outputStream,
-                        reader,
-                        writer )
+                        reader )
                 .close();
             
         }

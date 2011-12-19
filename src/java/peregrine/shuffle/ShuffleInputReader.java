@@ -14,7 +14,7 @@ import org.jboss.netty.buffer.*;
 /**
  * 
  */
-public class ShuffleInputReader {
+public class ShuffleInputReader implements Closeable {
 
     public static boolean ENABLE_MEMLOCK = false;
     
@@ -191,6 +191,7 @@ public class ShuffleInputReader {
         
     }
 
+    @Override
     public void close() throws IOException {
 
         mappedFile.close();

@@ -67,6 +67,7 @@ public class LocalPartitionReader implements ChunkReader {
         return chunkReaders;
     }
     
+    @Override
     public boolean hasNext() throws IOException {
 
         if ( chunkReader != null )
@@ -109,7 +110,7 @@ public class LocalPartitionReader implements ChunkReader {
     
     private void fireOnChunkEnd() {
 
-        if ( chunkRef.local >= 0 ) {
+        if ( chunkRef != null && chunkRef.local >= 0 ) {
 
             for( LocalPartitionReaderListener listener : listeners ) {
                 listener.onChunkEnd( chunkRef );
@@ -118,15 +119,18 @@ public class LocalPartitionReader implements ChunkReader {
         }
 
     }
-    
+
+    @Override
     public StructReader key() throws IOException {
         return chunkReader.key();
     }
 
+    @Override
     public StructReader value() throws IOException {
         return chunkReader.value();
     }
 
+    @Override
     public void close() throws IOException {
 
         if ( chunkReader != null ) {
@@ -136,8 +140,13 @@ public class LocalPartitionReader implements ChunkReader {
 
     }
 
+    @Override
     public String toString() {
         return String.format( "%s (%s):%s", path, partition, chunkReaders );
     }
-    
+
+    public void addListener( LocalPartitionReaderListener listener ) {
+        listeners.add( listener );
+    }
+
 }

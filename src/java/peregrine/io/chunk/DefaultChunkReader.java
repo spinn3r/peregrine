@@ -62,7 +62,7 @@ public class DefaultChunkReader implements ChunkReader, Closeable {
         
         ChannelBuffer buff = mappedFile.map();
       
-        init( buff );
+        init( buff, mappedFile.getStreamReader() );
         
     }
 
@@ -94,13 +94,20 @@ public class DefaultChunkReader implements ChunkReader, Closeable {
     public MappedFile getMappedFile() {
         return mappedFile;
     }
-    
+
     private void init( ChannelBuffer buff )
         throws IOException {
 
-        this.reader = new StreamReader( buff );
-        this.length = buff.writerIndex();
+        init( buff, new StreamReader( buff ) );
+        
+    }
+    
+    private void init( ChannelBuffer buff, StreamReader reader )
+        throws IOException {
+
+        this.reader = reader;
         this.varintReader = new VarintReader( reader );
+        this.length = buff.writerIndex();
         
         assertLength();
         setSize( buff.getInt( buff.writerIndex() - IntBytes.LENGTH ) );

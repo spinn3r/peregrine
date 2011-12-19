@@ -27,15 +27,19 @@ public class LocalReducer {
     private Partition partition;
     private ShuffleInputReference shuffleInput;
 
+    private JobOutput[] jobOutput = null;
+
     public LocalReducer( Config config,
                          Partition partition,
                          SortListener listener,
-                         ShuffleInputReference shuffleInput ) {
+                         ShuffleInputReference shuffleInput,
+                         JobOutput[] jobOutput ) {
 
         this.config = config;
         this.partition = partition;
         this.listener = listener;
         this.shuffleInput = shuffleInput;
+        this.jobOutput = jobOutput;
 
     }
 
@@ -102,8 +106,7 @@ public class LocalReducer {
      */
     public void finalMerge( List<ChunkReader> readers ) throws IOException {
 
-        log.info( "Merging on final merge with %,d readers (strategy=finalMerge)",
-                  readers.size() );
+        log.info( "Merging on final merge with %,d readers (strategy=finalMerge)", readers.size() );
         
         PrefetchReader prefetchReader = null;
 
@@ -113,7 +116,7 @@ public class LocalReducer {
 
             prefetchReader = createPrefetchReader( readers );
 
-            ChunkMerger merger = new ChunkMerger( listener, partition );
+            ChunkMerger merger = new ChunkMerger( listener, partition, jobOutput );
         
             merger.merge( readers );
 
@@ -163,7 +166,7 @@ public class LocalReducer {
 
                 prefetchReader = createPrefetchReader( work );
 
-                ChunkMerger merger = new ChunkMerger( null, partition );
+                ChunkMerger merger = new ChunkMerger( null, partition, jobOutput );
 
                 final DefaultPartitionWriter writer = newInterChunkWriter( path );
 
@@ -173,8 +176,8 @@ public class LocalReducer {
                         public void onCacheExhausted() {
 
                             try {
-                                log.info( "Writing %s to disk with force()." , writer );
-                                writer.force();
+                                log.info( "Writing %s to disk with flush()." , writer );
+                                writer.flush();
                             } catch ( IOException e ) {
                                 // this should NOT happen because we are only
                                 // using a MappedByteBuffer here which shouldn't
@@ -304,7 +307,7 @@ public class LocalReducer {
 
             ChunkSorter sorter = new ChunkSorter( config , partition, shuffleInput );
 
-            ChunkReader result = sorter.sort( in, out );
+            ChunkReader result = sorter.sort( in, out, jobOutput  );
 
             if ( result != null )
                 sorted.add( result );

@@ -25,7 +25,14 @@ Additional burton-struct-api-change before merging.
 
     - ShuffleInputChunkReader still uses byte[] ... 
 
-    - The segfault does NOT seem to have anything to do with reading.. 
+
+    - The segfault does NOT seem to have anything to do with mlock
+
+        FOUND IT ... it has to do with my explicit MappedByteBuffer closing 
+
+    - refactor Closer so it is small and tight
+
+    - Make sure ALL the WithMultiConfigs test are configured and running.
     
 
 - centralizing log4j initialization needs to be done.

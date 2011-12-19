@@ -7,10 +7,11 @@ import peregrine.io.*;
 import peregrine.keys.*;
 import peregrine.util.primitive.IntBytes;
 import peregrine.values.*;
+import peregrine.config.*;
 import peregrine.io.partition.*;
 import peregrine.task.*;
 
-public class TestNewReduceCode extends peregrine.BaseTestWithTwoDaemons {
+public class TestNewReduceCode extends peregrine.BaseTestWithMultipleConfigs {
 
     public static class Map extends Mapper {
 
@@ -43,7 +44,8 @@ public class TestNewReduceCode extends peregrine.BaseTestWithTwoDaemons {
             
             // full of fail... 
             if ( values.size() != 2 )
-                throw new RuntimeException( String.format( "%s does not equal %s (%s) on nth reduce %s" , values.size(), 2, ints, nth ) );
+                throw new RuntimeException( String.format( "%s does not equal %s (%s) on nth reduce %s" ,
+                                                           values.size(), 2, ints, nth ) );
 
             ++nth;
             
@@ -60,11 +62,17 @@ public class TestNewReduceCode extends peregrine.BaseTestWithTwoDaemons {
     }
 
     public void setUp() {
+        
         super.setUp();
-        ReducerTask.DELETE_SHUFFLE_FILES=false;
+
+        for ( Config config : configs ) {
+            config.setPurgeShuffleData( false );
+        }
+
     }
-    
-    public void test1() throws Exception {
+
+    @Override
+    public void doTest() throws Exception {
 
         String path = String.format( "/test/%s/test1.in", getClass().getName() );
 
@@ -98,7 +106,7 @@ public class TestNewReduceCode extends peregrine.BaseTestWithTwoDaemons {
 
         try {
             controller.map( Map.class, path );
-            controller.reduce( Reduce.class, new Input(), new Output( output ) );
+            //controller.reduce( Reduce.class, new Input(), new Output( output ) );
         } finally {
             controller.shutdown();
         }
@@ -106,6 +114,8 @@ public class TestNewReduceCode extends peregrine.BaseTestWithTwoDaemons {
     }
 
     public static void main( String[] args ) throws Exception {
+        System.setProperty( "peregrine.test.factor", "10" ); // 1m
+        System.setProperty( "peregrine.test.config", "01:01:1" ); // takes 3 seconds
         runTests();
     }
 

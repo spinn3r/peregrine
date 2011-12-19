@@ -119,6 +119,11 @@ public class DefaultChunkWriter implements ChunkWriter {
     }
 
     @Override
+    public void flush() throws IOException {
+        writer.flush();
+    }
+
+    @Override
     public void close() throws IOException {
 
         if ( closed )
@@ -129,7 +134,7 @@ public class DefaultChunkWriter implements ChunkWriter {
         writer.close();
 
         closed = true;
-        
+
     }
 
 }
