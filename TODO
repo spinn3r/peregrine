@@ -24,6 +24,20 @@ Additional burton-struct-api-change before merging.
 
     - Make sure ALL the WithMultiConfigs test are configured and running.
 
+    - Replace HashSetValue with StructReader ...
+
+    - Replace Struct with StructReader ... 
+
+
+- It would be nice if we could take a Struct and unpack it or use an
+  enumerator/iterator pattern on it...
+
+    while( reader.isReadable()() ) {
+        byte[] key = reader.getBytes();
+    }
+  
+    
+    
 - officially deprecate ShuffleInputReference , etc so that I can use paths... 
     
 

@@ -93,15 +93,31 @@ public class StructReader {
         return buff.readChar();
     }
 
+    /**
+     * Read a byte array and return it.  The byte byte array is length prefixed
+     * so that this StructReader can hold mulitiple byte arrays.
+     */
     public byte[] readBytes() {
         requireOpen();
+        return readBytesFixed( readVarint() );
+    }
 
-        int len = readVarint();
-        byte[] data = new byte[ len ];
+    /**
+     * Read a fixed width byte array from the stream.  The size must be known
+     * ahead of time.  This can be useful for writing a large number of objects
+     * like longs, hashcodes (8 bytes), etc which are all fixed without having
+     * to store the length prefix which would yield overhead.
+     */
+    public byte[] readBytesFixed( int size ) {
+        requireOpen();
+        byte[] data = new byte[ size ];
         buff.readBytes( data );
         return data;
     }
 
+    /**
+     * Read a length prefixed string.
+     */
     public String readString() {
         requireOpen();
 
@@ -146,6 +162,20 @@ public class StructReader {
      */
     public void reset() {
         buff.readerIndex( 0 );
+    }
+
+    /**
+     * <p>
+     * Return true if the struct is currently readable and there is data ready
+     * to be returned.  Every read call increments the readerIndex and once
+     * readerIndex = writerIndex then this StructReader is no longer readable.
+     *
+     * <p>
+     * This can be used in loops where you want to keep reading from the
+     * StructReader like an enumeration.
+     */
+    public boolean isReadable() {
+        return buff.readerIndex() < buff.writerIndex();
     }
 
     private void requireOpen() {
