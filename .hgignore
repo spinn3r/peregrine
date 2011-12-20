@@ -2,8 +2,9 @@ compile
 target
 logs
 clover_html
-.clover
+\.clover
 .idea
 hg.status
 hg.diff
 lib/peregrine*
+\.DS_Store

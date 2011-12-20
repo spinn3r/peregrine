@@ -27,226 +27,30 @@ public class Test {
 
     private static final Logger log = Logger.getLogger();
 
-    public static void test1() {
-
-        long before = System.currentTimeMillis();
-
-        byte[] data = new byte[ 1000000 ];
-
-        for( int j = 0; j < 3000; ++j ) {
-            
-            int val = 0;
-            for( int i = 0; i < data.length; ++i ) {
-                val += data[i];
-            }
-
-        }
-            
-        long after = System.currentTimeMillis();
-        System.out.printf( "test1 duration: %,d ms\n" , (after-before) );
-        
-    }
-
     public static void test2() {
 
-        long before = System.currentTimeMillis();
-
-        byte[] data = new byte[ 1000000 ];
-
-        for( int j = 0; j < 3000; ++j ) {
-            
-            int val = 0;
-            for( int i = 0; i < data.length; ++i ) {
-                val += getByte( data, i );
-            }
-
-        }
-            
-        long after = System.currentTimeMillis();
-        System.out.printf( "test2 duration: %,d ms\n" , (after-before) );
-        
     }
 
-    public static byte getByte( byte[] data, int idx ) {
-        return data[idx];
-    }
-
-    public static final int CHECKSUM_CAPACITY = 1024;
-    public static final int CHECKSUM_ITERS    = 5000000;
-    
-    public static void test3() {
-
-        PureJavaCrc32C checksum = new PureJavaCrc32C();
+    public static void test1( int max ) {
 
         long before = System.currentTimeMillis();
-
-        byte[] data = new byte[ CHECKSUM_CAPACITY ];
-        
-        for( int i = 0; i < CHECKSUM_ITERS; ++i ) {
-            checksum.update( data, 0, data.length );
-        }
-
-        long after = System.currentTimeMillis();
-
-        long written = (long)data.length * (long)CHECKSUM_ITERS;
-
-        long duration = (after-before);
-
-        long throughput = (written / duration) * 1000L; 
-        
-        System.out.printf( "test3: Wrote %,d bytes in duration %,d ms at %,d b/s\n" , written, duration, throughput );
-
-    }
-    
-    public static void test4() {
-
-        PureJavaCrc32C checksum = new PureJavaCrc32C();
-
-        long before = System.currentTimeMillis();
-        
-        ChannelBuffer buff = ChannelBuffers.buffer( CHECKSUM_CAPACITY );
-        
-        for( int i = 0; i < CHECKSUM_ITERS; ++i ) {
-            checksum.update( buff, 0, CHECKSUM_CAPACITY );
-        }
-
-        long after = System.currentTimeMillis();
-
-        long written = (long)CHECKSUM_CAPACITY * (long)CHECKSUM_ITERS;
-
-        long duration = (after-before);
-
-        long throughput = (written / duration) * 1000L; 
-        
-        System.out.printf( "test4: Wrote %,d bytes in duration %,d ms at %,d b/s\n" , written, duration, throughput );
-
-    }
-
-    public static void dump( String[] data ) {
-
-        for( String v : data ) {
-            System.out.printf( "  %s\n", v );
-        }
-        
-    }
-
-    public static void foo( long v ) {
-        System.out.printf( "v: %s\n", v );
-    }
-
-    public static void testDiskThroughput( String path, int max ) throws Exception {
-
-        System.out.printf( "Dropping caches and running sync... " );
-        
-        Linux.dropCaches();
-        unistd.sync();
-
-        System.out.printf( "done\n" );
-        
-        Config config = ConfigParser.parse();
-        
-        long before = System.currentTimeMillis();
-
-        MappedFile mappedFile = new MappedFile( config, path, "w" );
-
-        byte[] data = new byte[16384];
-
-        ChannelBuffer buff = ChannelBuffers.wrappedBuffer( data );
-
-        ChannelBufferWritable writable = mappedFile.getChannelBufferWritable();
         
         for( int i = 0; i < max; ++i ) {
-            writable.write( buff );
-        }
-
-        writable.close();
-
-        // we have to sync to get a realistic performance test when not running
-        // with forced pages
-        unistd.sync();
-
-        long written = data.length * max;
-
-        long after = System.currentTimeMillis();
-
-        long duration = after-before;
-
-        long throughput = (long)((written / (double)duration) * 1000L);
-
-        System.out.printf( "Wrote %,d bytes in %,d ms at %,d b/s with autoForce=%s and pageSize=%s\n",
-                           written, duration, throughput,
-                           MappedFile.DEFAULT_AUTO_FORCE, MappedFile.FORCE_PAGE_SIZE );
-        
-    }
-
-    public static void testDiskThroughput(String[] args) throws Exception {
-
-        MappedFile.DEFAULT_AUTO_FORCE = true;
-        
-        testDiskThroughput( args[0], Integer.parseInt( args[1] ) );
-        testDiskThroughput( args[0], Integer.parseInt( args[1] ) );
-        testDiskThroughput( args[0], Integer.parseInt( args[1] ) );
-
-        MappedFile.DEFAULT_AUTO_FORCE = false;
-
-        System.out.printf( "=== autoForce=false and page size=%,d\n", MappedFile.FORCE_PAGE_SIZE );
-
-        testDiskThroughput( args[0], Integer.parseInt( args[1] ) );
-        testDiskThroughput( args[0], Integer.parseInt( args[1] ) );
-        testDiskThroughput( args[0], Integer.parseInt( args[1] ) );
-
-    }
-
-    public static int capacity = 10000000;
-    
-    public static void testQueue( BlockingQueue<Integer> queue ) throws Exception {
-
-        long before = System.currentTimeMillis();
-
-        for( int i = 0; i < capacity; ++i ) {
-            queue.put( i );
-        }
-
-        for( int i = 0; i < capacity; ++i ) {
-            queue.take();
+            test2();
         }
 
         long after = System.currentTimeMillis();
 
-        long duration = after - before;
-
-        System.out.printf( "duration: %,d ms\n", duration );
+        System.out.printf( "duration: %,d ms\n", (after-before) );
         
     }
-
-    /*
-    class HybridBlockingQueue<T> {
-
-        private static int ARRAY_SIZE = 16384;
-
-        private LinkedBlockingQueue<HybridBlockingQueue<T>>
-            overflow = new LinkedBlockingQueue();
-
-        private ArrayBlockingQueue<T> reader;
-        private ArrayBlockingQueue<T> writer;
-
-        public HybridBlockingQueue() 
-        
-        public void put( T value ) {
-
-        }
-        
-        public T take() {
-
-        }
-        
-    }
-    */
     
     public static void main( String[] args ) throws Exception {
 
-        System.out.printf( "config: %s\n", new Config().toDesc() );
-        
+        test1( Integer.parseInt( args[0] ) );
+
+        test1( Integer.parseInt( args[0] ) );
+
         /*
         testQueue( new LinkedBlockingQueue( capacity ) );
         testQueue( new LinkedBlockingQueue( capacity ) );

@@ -20,7 +20,7 @@
 
     </path>
 
-    <property name="clover.jar" location="./lib/clover-ant-3.1.0.jar"/>
+    <property name="clover.jar" location="lib/build/clover-ant-3.1.2.jar"/>
 
     <taskdef resource="cloverlib.xml" classpath="${clover.jar}"/>
 
@@ -45,8 +45,8 @@
 
         <javac classpathref="project.classpath"
                nowarn="on"
-               source="1.5"
-               target="1.5"
+               source="1.6"
+               target="1.6"
                srcdir="src/java"
                destdir="compile"
                fork="true"
@@ -93,8 +93,8 @@
 
         <javac classpathref="project.classpath"
                nowarn="on"
-               source="1.5"
-               target="1.5"
+               source="1.6"
+               target="1.6"
                srcdir="src/test"
                destdir="compile"
                fork="true"
