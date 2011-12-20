@@ -124,8 +124,8 @@
                timeout="1000000"
                maxmemory="512m"
                filtertrace="false"
-               haltonfailure="true"
-               haltonerror="true"
+               haltonfailure="false"
+               haltonerror="false"
                showoutput="true" 
                logfailedtests="true">
 
@@ -254,8 +254,8 @@
                timeout="1000000"
                maxmemory="512m"
                filtertrace="false"
-               haltonfailure="true"
-               haltonerror="true"
+               haltonfailure="false"
+               haltonerror="false"
                showoutput="true" 
                logfailedtests="true">
 

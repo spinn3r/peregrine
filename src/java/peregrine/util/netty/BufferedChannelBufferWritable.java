@@ -89,7 +89,7 @@ public class BufferedChannelBufferWritable implements ChannelBufferWritable {
 
     @Override
     public void shutdown() throws IOException {
-        flush();
+        delegate.shutdown();
     }
 
     @Override

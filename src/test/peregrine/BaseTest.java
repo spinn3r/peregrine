@@ -11,7 +11,8 @@ public abstract class BaseTest extends junit.framework.TestCase {
 
         //org.apache.log4j.MDC.put( "server.hostname",    Initializer.HOSTNAME );
         
-        // init log4j ... 
+        // init log4j ...
+
         org.apache.log4j.xml.DOMConfigurator.configure( "conf/log4j.xml" );
 
     }
