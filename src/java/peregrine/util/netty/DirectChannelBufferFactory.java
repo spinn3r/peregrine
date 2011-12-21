@@ -5,12 +5,6 @@ import java.nio.*;
 import org.jboss.netty.buffer.*;
 
 public class DirectChannelBufferFactory extends AbstractChannelBufferFactory {
-
-    /**
-     * True if we should require that the GC be run before attempting another
-     * allocation.
-     */
-    public volatile boolean requireGC = false;
     
 	@Override
 	public ChannelBuffer getBuffer(ByteOrder endianness, int capacity) {
