@@ -29,9 +29,9 @@ public class TestMapReduceWithMergeFactor extends peregrine.BaseTestWithTwoDaemo
 
         super.setUp();
         
-        config.setMergeFactor( 10 );
-        config0.setMergeFactor( 10 );
-        config1.setMergeFactor( 10 );
+        config.setShuffleSegmentMergeParallelism( 10 );
+        config0.setShuffleSegmentMergeParallelism( 10 );
+        config1.setShuffleSegmentMergeParallelism( 10 );
     }
     
     public void test() throws Exception {

@@ -65,7 +65,7 @@ public class BaseConfig {
 
     protected Partitioner partitioner;
 
-    protected int mergeFactor;
+    protected int shuffleSegmentMergeParallelism;
 
     protected long fallocateExtentSize;
 
@@ -101,7 +101,7 @@ public class BaseConfig {
         setReplicas( struct.getInt( "replicas" ) );
         setConcurrency( struct.getInt( "concurrency" ) );
         setShuffleBufferSize( struct.getSize( "shuffleBufferSize" ) );
-        setMergeFactor( struct.getInt( "mergeFactor" ) );
+        setShuffleSegmentMergeParallelism( struct.getInt( "shuffleSegmentMergeParallelism" ) );
         setFallocateExtentSize( struct.getSize( "fallocateExtentSize" ) );
         setFadviseDontNeedEnabled( struct.getBoolean( "fadviseDontNeedEnabled" ) );
         setChunkSize( struct.getSize( "chunkSize" ) );
@@ -196,8 +196,8 @@ public class BaseConfig {
         this.shuffleBufferSize = shuffleBufferSize;
     }
 
-    public int getMergeFactor() { 
-        return this.mergeFactor;
+    public int getShuffleSegmentMergeParallelism() { 
+        return this.shuffleSegmentMergeParallelism;
     }
 
     public long getFallocateExtentSize() { 
@@ -216,8 +216,8 @@ public class BaseConfig {
         return this.fadviseDontNeedEnabled;
     }
 
-    public void setMergeFactor( int mergeFactor ) { 
-        this.mergeFactor = mergeFactor;
+    public void setShuffleSegmentMergeParallelism( int shuffleSegmentMergeParallelism ) { 
+        this.shuffleSegmentMergeParallelism = shuffleSegmentMergeParallelism;
     }
 
     public long getChunkSize() { 

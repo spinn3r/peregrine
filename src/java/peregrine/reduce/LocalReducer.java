@@ -59,7 +59,7 @@ public class LocalReducer {
 
             log.info( "Working with %,d readers now." , readers.size() );
             
-            if ( readers.size() < config.getMergeFactor() ) {
+            if ( readers.size() < config.getShuffleSegmentMergeParallelism() ) {
 
                 finalMerge( readers );
                 
@@ -148,7 +148,7 @@ public class LocalReducer {
             List<ChunkReader> work = new ArrayList();
 
             // move readers from pending into work until work is full .
-            while( work.size() < config.getMergeFactor() && pending.size() > 0 ) {
+            while( work.size() < config.getShuffleSegmentMergeParallelism() && pending.size() > 0 ) {
                 work.add( pending.remove( 0 ) );
             }
 

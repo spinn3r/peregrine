@@ -1,4 +1,6 @@
 
+- I think we should call mergeFactor shuffleSegmentMergeParallelism or 
+
 - when buffering the output from the shuffle data, I need to make sure that I
 
 
