@@ -4,6 +4,7 @@ import java.io.*;
 import java.nio.channels.*;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.*;
 
 import peregrine.config.*;
 import peregrine.io.util.*;
@@ -46,7 +47,7 @@ public class ShuffleOutputWriter implements Closeable {
      */
     private String path;
 
-    private int length = 0;
+    private AtomicLong length = new AtomicLong();
 
     private Config config;
     
@@ -74,14 +75,17 @@ public class ShuffleOutputWriter implements Closeable {
 
         ShufflePacket pack = new ShufflePacket( from_partition, from_chunk, to_partition, -1, count, data );
         
-        this.length += data.capacity();
+        this.length.getAndAdd( data.capacity() );
         
         index.put( pack );
 
     }
 
     public boolean hasCapacity() {
-        return length < config.getShuffleBufferSize();
+
+        // we must use /2 here becauuse we keep two copies of writers while we
+        // are accepting data from remote
+        return length.get() < (config.getShuffleBufferSize() / 2);
     }
 
     private Map<Integer,ShuffleOutputPartition> buildLookup() throws IOException {

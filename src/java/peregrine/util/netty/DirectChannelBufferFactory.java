@@ -6,21 +6,16 @@ import org.jboss.netty.buffer.*;
 
 public class DirectChannelBufferFactory extends AbstractChannelBufferFactory {
 
+    /**
+     * True if we should require that the GC be run before attempting another
+     * allocation.
+     */
+    public volatile boolean requireGC = false;
+    
 	@Override
 	public ChannelBuffer getBuffer(ByteOrder endianness, int capacity) {
 
-        try {
-            return ChannelBuffers.directBuffer( endianness, capacity );
-        } catch ( OutOfMemoryError e ) {
-
-            // try to GC at LEAST once so that we can attempt to free up memory
-            // used by buffers which haven't yet been reclaimed. If this fails
-            // then go ahead and throw an OutOfMemoryError ...
-            System.gc();
-
-            return ChannelBuffers.directBuffer( endianness, capacity );
-            
-        }
+        return ChannelBuffers.directBuffer( endianness, capacity );
 
 	}
 
