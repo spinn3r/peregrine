@@ -367,6 +367,9 @@ public class LinuxSystemProfiler extends BaseSystemProfiler {
 
     public String resolveMountPoint( String path ) throws IOException {
 
+        // resolve symlinks, etc.
+        path = new File( path ).getCanonicalPath();
+        
         String value = read( "/proc/mounts" );
         
         String[] lines = value.split( "\n" );
