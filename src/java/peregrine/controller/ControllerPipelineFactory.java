@@ -32,7 +32,7 @@ public class ControllerPipelineFactory implements ChannelPipelineFactory {
         // Create a default pipeline implementation.
         ChannelPipeline pipeline = pipeline();
 
-        pipeline.addLast("hex",            new HexPipelineEncoder());
+        //pipeline.addLast("hex",            new HexPipelineEncoder());
         pipeline.addLast("decoder",        new HttpRequestDecoder( MAX_INITIAL_LINE_LENGTH ,
                                                                    MAX_HEADER_SIZE,
                                                                    MAX_CHUNK_SIZE ) );
