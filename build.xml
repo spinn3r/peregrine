@@ -16,6 +16,7 @@
 
         <fileset dir="lib">
              <include name="*.jar"/>
+             <include name="build/*.jar"/>
         </fileset>
 
     </path>
@@ -35,7 +36,7 @@
     </target>
 
     <target name="clover.html">
-        <clover-html-report outdir="clover_html" title="Peregrine ${version}"/>
+        <clover-html-report outdir="target/coverage" title="Peregrine ${version}"/>
     </target>
 
     <target name="compile">
@@ -287,51 +288,48 @@
 
     </target> 
 
-  <target name="javadoc" description="Generate javadoc" depends="compile">
+    <target name="javadoc" description="Generate javadoc" depends="compile">
 
-    <mkdir dir="${javadocdir}">
-    </mkdir>
-    <tstamp>
-      <format pattern="2000-yyyy" property="year">
-      </format>
-    </tstamp>
-    <property name="copyright" value="Copyright &amp;copy; 2011 Kevin Burton. All Rights Reserved.">
-    </property>
-    <property name="title" value="Peregrine API">
-    </property>
+        <mkdir dir="${javadocdir}"/>
+        <tstamp>
+            <format pattern="2000-yyyy" property="year"/>
+        </tstamp>
 
-    <javadoc bottom="Copyright &amp;copy; 2011 Kevin Burton. All Rights Reserved." 
-             windowtitle="Peregrine ${version} API" 
-             use="true" 
-             private="false" 
-             destdir="${javadocdir}" 
-             author="true" 
-             doctitle="Peregrine ${version} API" 
-             version="true" 
-             sourcepath="src/java" 
-             classpathref="project.classpath"
-             overview="src/javadoc/overview.html"
-             stylesheetfile="src/javadoc/stylesheet.css"
-             packagenames="peregrine.*">
+        <property name="copyright" value="Copyright &amp;copy; 2011 Kevin Burton. All Rights Reserved."/>
+        <property name="title" value="Peregrine ${version} API"/>
+    
+        <javadoc bottom="Copyright &amp;copy; 2011 Kevin Burton. All Rights Reserved." 
+                 windowtitle="Peregrine ${version} API" 
+                 use="true" 
+                 private="false" 
+                 destdir="${javadocdir}" 
+                 author="true" 
+                 doctitle="Peregrine ${version} API" 
+                 version="true" 
+                 sourcepath="src/java" 
+                 classpathref="project.classpath"
+                 overview="src/javadoc/overview.html"
+                 stylesheetfile="src/javadoc/stylesheet.css"
+                 packagenames="peregrine.*">
 
-        <group title="Core" packages="peregrine"/>
-        <group title="Example applications" packages="peregrine.app*"/>
-        <group title="Controller" packages="peregrine.controller*"/>
-        <group title="Config" packages="peregrine.config*"/>
-        <group title="IO" packages="peregrine.io*"/>
-        <group title="Shuffling" packages="peregrine.shuffle*"/>
-        <group title="Util" packages="peregrine.util*"/>
-        <group title="PFSd" packages="peregrine.pfsd*"/>
-        <group title="Sort and merge backend for shuffle/reduce phase." packages="peregrine.reduce*"/>
-        <group title="RPC framework" packages="peregrine.rpc*"/>
-      
-    </javadoc>
+            <group title="Core" packages="peregrine"/>
+            <group title="Example applications" packages="peregrine.app*"/>
+            <group title="Controller" packages="peregrine.controller*"/>
+            <group title="Config" packages="peregrine.config*"/>
+            <group title="IO" packages="peregrine.io*"/>
+            <group title="Shuffling" packages="peregrine.shuffle*"/>
+            <group title="Util" packages="peregrine.util*"/>
+            <group title="PFSd" packages="peregrine.pfsd*"/>
+            <group title="Sort and merge backend for shuffle/reduce phase." packages="peregrine.reduce*"/>
+            <group title="RPC framework" packages="peregrine.rpc*"/>
+          
+        </javadoc>
+        
+        <copy todir="${javadocdir}/resources" >
+          
+            <fileset dir="src/javadoc/resources" />
 
-    <copy todir="${javadocdir}/resources" >
-
-      <fileset dir="src/javadoc/resources" />
-
-    </copy>
+        </copy>
 
   </target>
 
@@ -351,10 +349,15 @@
 
   </target>
 
-    <target name="site" depends="javadoc,jxr,static">
+    <target name="coverage" depends="clean, with.clover, jar, test, clover.html">
 
-        <move file="compile/javadoc" todir="../peregrine_mapreduce.bitbucket.org" />
-        <move file="target/xref"     todir="../peregrine_mapreduce.bitbucket.org" />
+    </target>
+
+    <target name="site" depends="clean,coverage,javadoc,jxr,static">
+
+        <move file="compile/javadoc"  todir="../peregrine_mapreduce.bitbucket.org" />
+        <move file="target/xref"      todir="../peregrine_mapreduce.bitbucket.org" />
+        <move file="target/coverage"  todir="../peregrine_mapreduce.bitbucket.org" />
 
         <copy todir="../peregrine_mapreduce.bitbucket.org" >
             <fileset dir="../peregrine-website/_site/" />
