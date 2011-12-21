@@ -113,7 +113,12 @@ public class LinuxSystemProfiler extends BaseSystemProfiler {
             if ( disk.startsWith( "/" ) ) {
                 // this is a mount point so resolve it to a specific path.
                 disk = resolveMountPoint( disk );
-                log.info( "Mount point resolved to: %s" , disk );
+
+                if( disk != null ) {
+                    log.info( "Mount point resolved to: %s" , disk );
+                } else {
+                    log.warn( "Mount point NOT resolved" );
+                }
                 
             }
                 

@@ -153,7 +153,7 @@ public class MappedFile implements Closeable {
 
                 mappedByteBuffer = channel.map( mode, offset, length );
                 
-                closer.add( new ByteBufferCloser( mappedByteBuffer ) );
+                closer.add( new ByteBufferCloser() );
 
                 this.map = ChannelBuffers.wrappedBuffer( mappedByteBuffer );
                 
@@ -233,7 +233,11 @@ public class MappedFile implements Closeable {
     public String toString() {
         return file.toString();
     }
-    
+
+    /**
+     * A writable which supports additional features such as continually forcing
+     * pages to disk, fallocating the file in extents, etc.
+     */
     class MappedChannelBufferWritable implements ChannelBufferWritable {
 
         long allocated = 0;
@@ -298,18 +302,15 @@ public class MappedFile implements Closeable {
         
     }
 
+    /**
+     * A closeable which is smart enough to work on byte buffers.
+     */
     class ByteBufferCloser implements Closeable {
-
-        private ByteBuffer buff;
-        
-        public ByteBufferCloser( ByteBuffer buff ) {
-            this.buff = buff;
-        }
         
         @Override
         public void close() throws IOException {
 
-            sun.misc.Cleaner cl = ((sun.nio.ch.DirectBuffer)buff).cleaner();
+            sun.misc.Cleaner cl = ((sun.nio.ch.DirectBuffer)mappedByteBuffer).cleaner();
 
             if (cl != null) {
                 cl.clean();

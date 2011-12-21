@@ -1,4 +1,6 @@
 
+- using 10MB shuffle files isn't going to be super efficient I think 
+
 - centralizing log4j initialization needs to be done.
 
 
