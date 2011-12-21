@@ -132,10 +132,6 @@ public class ShuffleOutputWriter implements Closeable {
         
     }
     
-    private void write( ChannelBuffer buff ) throws IOException {
-    	output.write( buff );
-    }
-
     @Override
     public void close() throws IOException {
 
@@ -159,11 +155,11 @@ public class ShuffleOutputWriter implements Closeable {
             
             this.output = mapped.getChannelBufferWritable();
             
-            write( ChannelBuffers.wrappedBuffer( MAGIC ) );
+            output.write( ChannelBuffers.wrappedBuffer( MAGIC ) );
             
-            write( new StructWriter( IntBytes.LENGTH )
-                           .writeInt( lookup.size() )
-                           .getChannelBuffer() );
+            output.write( new StructWriter( IntBytes.LENGTH )
+                          .writeInt( lookup.size() )
+                          .getChannelBuffer() );
             
             // the offset in this chunk to start reading the data from this
             // partition and chunk.
@@ -203,13 +199,13 @@ public class ShuffleOutputWriter implements Closeable {
 
                 int count = shuffleOutputPartition.count;
 
-                write( new StructWriter( LOOKUP_HEADER_SIZE )
-                           .writeInt( part )
-                           .writeInt( offset )
-                           .writeInt( nr_packets )
-                           .writeInt( count )
-                           .writeInt( length )
-                           .getChannelBuffer() );
+                output.write( new StructWriter( LOOKUP_HEADER_SIZE )
+                              .writeInt( part )
+                              .writeInt( offset )
+                              .writeInt( nr_packets )
+                              .writeInt( count )
+                              .writeInt( length )
+                              .getChannelBuffer() );
                 
                 offset += length;
                     
@@ -225,17 +221,17 @@ public class ShuffleOutputWriter implements Closeable {
 
                 for( ShufflePacket pack : shuffleOutputPartition.packets ) {
 
-                    write( new StructWriter( PACKET_HEADER_SIZE )
-                				.writeInt( pack.from_partition )
-                				.writeInt( pack.from_chunk )
-                				.writeInt( pack.to_partition )
-                				.writeInt( pack.data.capacity() )
-                				.getChannelBuffer() );
+                    output.write( new StructWriter( PACKET_HEADER_SIZE )
+                                  .writeInt( pack.from_partition )
+                                  .writeInt( pack.from_chunk )
+                                  .writeInt( pack.to_partition )
+                                  .writeInt( pack.data.capacity() )
+                                  .getChannelBuffer() );
 
                     // TODO: migrate this to using a zero copy system and write it
                     // directly to disk and avoid this copy.
                     
-                    write( pack.data );
+                    output.write( pack.data );
 
                 }
                 

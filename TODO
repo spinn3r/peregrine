@@ -1,4 +1,7 @@
 
+- when buffering the output from the shuffle data, I need to make sure that I
+
+
 - using 10MB shuffle files isn't going to be super efficient I think 
 
 - centralizing log4j initialization needs to be done.

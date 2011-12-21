@@ -153,7 +153,7 @@ public class MappedFile implements Closeable {
 
                 mappedByteBuffer = channel.map( mode, offset, length );
                 
-                closer.add( new ByteBufferCloser() );
+                closer.add( new MappedByteBufferCloser( mappedByteBuffer ) );
 
                 this.map = ChannelBuffers.wrappedBuffer( mappedByteBuffer );
                 
@@ -305,16 +305,16 @@ public class MappedFile implements Closeable {
     /**
      * A closeable which is smart enough to work on byte buffers.
      */
-    class ByteBufferCloser implements Closeable {
+    class MappedByteBufferCloser extends ByteBufferCloser {
+        
+        public MappedByteBufferCloser( ByteBuffer buff ) {
+            super( buff );
+        }
         
         @Override
         public void close() throws IOException {
 
-            sun.misc.Cleaner cl = ((sun.nio.ch.DirectBuffer)mappedByteBuffer).cleaner();
-
-            if (cl != null) {
-                cl.clean();
-            }
+            super.close();
 
             if ( fadviseDontNeedEnabled ) {
                 fcntl.posix_fadvise( fd, offset, length, fcntl.POSIX_FADV_DONTNEED );
