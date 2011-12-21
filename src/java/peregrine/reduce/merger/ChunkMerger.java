@@ -56,7 +56,7 @@ import com.spinn3r.log5j.Logger;
  * the pointers points to the lowest item, which can be accomplished with a
  * heap-based priority queue in O(log n) time, for O(m log n) time, where n is the
  * number of lists being merged and m is the sum of the lengths of the lists. When
- * merging two lists of length m, there is a lower bound of 2m Å| 1 comparisons
+ * merging two lists of length m, there is a lower bound of 2m - 1 comparisons
  * required in the worst case.
  * 
  * <p>

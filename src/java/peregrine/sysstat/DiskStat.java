@@ -34,7 +34,7 @@ public class DiskStat extends BaseStat implements Diffable<DiskStat> {
      * 
      * "%util is the total time spent doing I/Os, divided by the sampling
      * interval. This tells you how much of the time the device was busy, but
-     * it doesn’t really tell you whether it’s reaching its limit of
+     * it doesn't really tell you whether it's reaching its limit of
      * throughput, because the device could be backed by many disks and hence
      * capable of multiple I/O operations simultaneously."
      */
