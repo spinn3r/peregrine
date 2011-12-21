@@ -1,9 +1,6 @@
 
 - centralizing log4j initialization needs to be done.
 
-- If I were to use an array backed queue which was just long[] I could then
-  allocate from a direct memory ring buffer and read pointers and lengths from
-  them for sending data over the wire.
 
 
 - Split reading and writing in the file mapper into two separate classes.

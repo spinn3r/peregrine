@@ -35,8 +35,7 @@
     </target>
 
     <target name="clover.html">
-      <clover-html-report outdir="clover_html"
-                          title="My Project"/>
+        <clover-html-report outdir="clover_html" title="Peregrine ${version}"/>
     </target>
 
     <target name="compile">
