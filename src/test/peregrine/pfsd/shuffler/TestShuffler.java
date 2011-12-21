@@ -34,7 +34,7 @@ public class TestShuffler extends peregrine.BaseTest {
 
         int max_writes = 1000;
         int max_partitions = config.getMembership().size();
-
+        
         for( int i = 0; i < max_writes; ++i ) {
         
             for( int j = 0 ; j < max_partitions; ++j ) {
@@ -42,8 +42,10 @@ public class TestShuffler extends peregrine.BaseTest {
                 int from_partition = i;
                 int from_chunk = i;
                 int to_partition = j;
+
+                ChannelBuffer buff = ChannelBuffers.directBuffer( 2048 );
                 
-                shuffleReceiver.accept( from_partition, from_chunk, to_partition, 1, ChannelBuffers.wrappedBuffer( new byte[2048] ) );
+                shuffleReceiver.accept( from_partition, from_chunk, to_partition, 1, buff );
 
             }
 

@@ -227,12 +227,11 @@ public class ShuffleOutputWriter implements Closeable {
                                   .writeInt( pack.to_partition )
                                   .writeInt( pack.data.capacity() )
                                   .getChannelBuffer() );
-
-                    // TODO: migrate this to using a zero copy system and write it
-                    // directly to disk and avoid this copy.
                     
                     output.write( pack.data );
 
+                    new ByteBufferCloser( pack.data ).close();
+                    
                 }
                 
             }

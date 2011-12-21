@@ -38,8 +38,6 @@ public class TestShuffleOutputWriter extends peregrine.BaseTest {
         int max_writes = 10;
         int max_partitions = config.getMembership().size();
 
-        byte[] value = new byte[] { (byte)6, (byte)7, (byte)8, (byte)9 };
-
         for( int i = 0; i < max_writes; ++i ) {
         
             for( int j = 0 ; j < max_partitions; ++j ) {
@@ -48,7 +46,12 @@ public class TestShuffleOutputWriter extends peregrine.BaseTest {
                 int from_chunk = i;
                 int to_partition = j;
 
-                buff.accept( from_partition, from_chunk, to_partition, 1, ChannelBuffers.wrappedBuffer( value ) );
+                byte[] bytes = new byte[] { (byte)6, (byte)7, (byte)8, (byte)9 };
+
+                ChannelBuffer value = ChannelBuffers.directBuffer( bytes.length );
+                value.writeBytes( bytes );
+
+                buff.accept( from_partition, from_chunk, to_partition, 1, value );
                 
             }
 

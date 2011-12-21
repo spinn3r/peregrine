@@ -20,7 +20,16 @@ import com.spinn3r.log5j.Logger;
 public class ByteBufferCloser implements Closeable {
 
     private ByteBuffer buff;
-    
+
+    public ByteBufferCloser( ChannelBuffer buff ) {
+
+        if ( buff instanceof ByteBufferBackedChannelBuffer )
+            this.buff = buff.toByteBuffer();
+        else
+            throw new RuntimeException( "Unable to handle: " + buff.getClass().getName() );
+
+    }
+
     public ByteBufferCloser( ByteBuffer buff ) {
         this.buff = buff;
     }
