@@ -8,7 +8,7 @@ import peregrine.io.*;
 import peregrine.io.partition.*;
 import peregrine.keys.*;
 import peregrine.task.*;
-import peregrine.util.primitive.IntBytes;
+import peregrine.util.primitive.*;
 
 /**
  * Tests running a reduce but also has some code to benchmark them so that we
@@ -35,12 +35,20 @@ public class TestLocalReducerPerformance extends peregrine.BaseTestWithMultipleC
         
         ExtractWriter writer = new ExtractWriter( config, path );
 
-        int max = 10000 * getFactor();
+        int size = 10000000; // 10MB by default.
+        int value_size = 1024;
         
-        for( int i = 0; i < max; ++i ) {
+        // each write 9 bytes per key, plus 2 bytes plus the the value length.
+        int write_width = 9 + 2 + value_size;
+
+        int writes = size / write_width;
+        
+        int max = writes * getFactor();
+        
+        for( long i = 0; i < max; ++i ) {
             
-            byte[] key = new IntKey( i ).toBytes();
-            byte[] value = new byte[1024];
+            byte[] key = LongBytes.toByteArray( i );
+            byte[] value = new byte[value_size];
             writer.write( key, value );
             
         }
@@ -50,8 +58,15 @@ public class TestLocalReducerPerformance extends peregrine.BaseTestWithMultipleC
         Controller controller = new Controller( config );
 
         try {
+
             controller.map( peregrine.Mapper.class, path );
+
+            // drop caches here so that I can benchmark raw IO
+
+            Linux.dropCaches();
+            
             controller.reduce( peregrine.Reducer.class, new Input(), new Output( "blackhole:" ) );
+            
         } finally {
             controller.shutdown();
         }
@@ -59,9 +74,11 @@ public class TestLocalReducerPerformance extends peregrine.BaseTestWithMultipleC
     }
 
     public static void main( String[] args ) throws Exception {
-        System.setProperty( "peregrine.test.factor", "30" ); 
+
+        System.setProperty( "peregrine.test.factor", "50" ); 
         System.setProperty( "peregrine.test.config", "1:1:1" ); 
         runTests();
+
     }
 
 }
