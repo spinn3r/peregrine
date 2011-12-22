@@ -2,12 +2,13 @@ package peregrine.reduce;
 
 import java.util.*;
 
+import peregrine.config.*;
 import peregrine.controller.*;
 import peregrine.io.*;
-import peregrine.keys.*;
-import peregrine.util.primitive.IntBytes;
 import peregrine.io.partition.*;
+import peregrine.keys.*;
 import peregrine.task.*;
+import peregrine.util.primitive.IntBytes;
 
 /**
  * Tests running a reduce but also has some code to benchmark them so that we
@@ -15,13 +16,26 @@ import peregrine.task.*;
  */
 public class TestLocalReducerPerformance extends peregrine.BaseTestWithMultipleConfigs {
 
-    public void test1() throws Exception {
+    @Override
+    public void setUp() {
+
+        super.setUp();
+        
+        for( Config config : configs ) {
+            // so we can do post mortem on how much was written.
+            config.setPurgeShuffleData( false );
+        }
+        
+    }
+
+    @Override
+    public void doTest() throws Exception {
 
         String path = String.format( "/test/%s/test1.in", getClass().getName() );
         
         ExtractWriter writer = new ExtractWriter( config, path );
 
-        int max = 10000;
+        int max = 10000 * getFactor();
         
         for( int i = 0; i < max; ++i ) {
             
@@ -45,6 +59,7 @@ public class TestLocalReducerPerformance extends peregrine.BaseTestWithMultipleC
     }
 
     public static void main( String[] args ) throws Exception {
+        System.setProperty( "peregrine.test.factor", "30" ); 
         System.setProperty( "peregrine.test.config", "1:1:1" ); 
         runTests();
     }

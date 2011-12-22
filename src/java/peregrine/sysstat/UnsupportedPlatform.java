@@ -17,7 +17,12 @@ import com.spinn3r.log5j.Logger;
 public class UnsupportedPlatform extends BaseSystemProfiler {
 
     public StatMeta update() {
-        return new StatMeta();
+        return new StatMeta() {
+            public String toString() {
+                return "unsupported platform";
+            }
+        };
+        
     }
 
 }

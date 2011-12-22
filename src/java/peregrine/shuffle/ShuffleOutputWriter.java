@@ -86,6 +86,7 @@ public class ShuffleOutputWriter implements Closeable {
         // we must use /2 here becauuse we keep two copies of writers while we
         // are accepting data from remote
         return length.get() < (config.getShuffleBufferSize() / 2);
+
     }
 
     private Map<Integer,ShuffleOutputPartition> buildLookup() throws IOException {

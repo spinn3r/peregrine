@@ -48,8 +48,10 @@ public abstract class BaseTestWithMultipleConfigs extends peregrine.BaseTest {
         configs = new ArrayList();
         configsByHost = new HashMap();
         
-        if ( concurrency == 0 )
+        if ( concurrency == 0 ) {
+            log.error( "Concurrency was zero" );
             return;
+        }
         
         log.info( "Working with concurrency=%s, replicas=%s, hosts=%s" , concurrency, replicas, hosts );
 
@@ -135,8 +137,12 @@ public abstract class BaseTestWithMultipleConfigs extends peregrine.BaseTest {
     
     public void test() throws Exception {
 
-        if ( config == null )
+        System.out.printf( "FIXME here3\n" );
+        
+        if ( config == null ) {
+            log.warn( "Config was null.  Not running." );
             return;
+        }
         
         try {
 
