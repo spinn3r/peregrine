@@ -2,7 +2,7 @@ package peregrine.io;
 
 import java.io.*;
 
-public interface JobOutput {
+public interface JobOutput extends Closeable {
 
     public void emit( byte[] key , byte[] value );
 

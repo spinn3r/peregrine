@@ -30,6 +30,9 @@ public final class Output {
                 if ( "shuffle".equals( type ) )
                     add( new ShuffleOutputReference( arg ) );
 
+               if ( "blackhole".equals( type ) )
+                    add( new BlackholeOutputReference() );
+
             } else {
                 add( new FileOutputReference( path ) );
             }

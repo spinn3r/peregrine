@@ -39,6 +39,10 @@ public class JobOutputFactory {
                 
                 result.add( new ShuffleJobOutput( config, sref.getName(), partition ) );
 
+            } else if ( ref instanceof BlackholeOutputReference ) {
+
+                result.add( new BlackholeJobOutput() );
+
             } else {
                 throw new IOException( "ref not supported: " + ref.getClass().getName() );
             }
