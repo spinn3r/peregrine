@@ -2,6 +2,10 @@ package peregrine.io;
 
 import java.io.*;
 
+/**
+ * Represents the output stream from a Mapper / Merger job which can write to an
+ * emit stream of key/value pairs.
+ */
 public interface JobOutput extends Closeable {
 
     /**
