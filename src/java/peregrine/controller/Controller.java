@@ -126,9 +126,9 @@ public class Controller {
     }
     
     /**
-     * http://en.wikipedia.org/wiki/Join_(SQL)#Full_outer_join
      * 
-     * Conceptually, a full outer join combines the effect of applying both left
+     * Conceptually, <a href='http://en.wikipedia.org/wiki/Join_(SQL)#Full_outer_join'>
+     * a full outer join</a> combines the effect of applying both left
      * and right outer joins. Where records in the FULL OUTER JOINed tables do not
      * match, the result set will have NULL values for every column of the table
      * that lacks a matching row. For those records that do match, a single row
@@ -159,7 +159,10 @@ public class Controller {
 		                 .setInput( input )
 		                 .setOutput( output ) );    	
     }
-    
+
+    /**
+     * Perform a reduce over the previous shuffle data (or broadcast data).
+     */
     public void reduce( final Job job ) 
         throws Exception {
 
@@ -240,7 +243,12 @@ public class Controller {
         
     }
 
-    public void purgeAllShufflers() throws Exception {
+    /**
+     * Purge the shuffle data on disk so that it does not conflict with other jobs.
+     * 
+     * @throws Exception
+     */
+    private void purgeAllShufflers() throws Exception {
 
         Message message = new Message();
         message.put( "action", "purge" );
