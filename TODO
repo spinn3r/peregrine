@@ -1,5 +1,6 @@
 
-- I think we should call mergeFactor shuffleSegmentMergeParallelism or 
+- before I build make sure I have mvn, and awestruct in teh path.
+
 
 - when buffering the output from the shuffle data, I need to make sure that I
 
