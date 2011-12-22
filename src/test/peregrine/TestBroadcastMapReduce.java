@@ -98,13 +98,13 @@ public class TestBroadcastMapReduce extends peregrine.BaseTestWithMultipleConfig
          
              controller.map( Map.class,
                              new Input( path ),
-                             new Output( new ShuffleOutputReference(),
-                                         new BroadcastOutputReference( "count" ) ) );
+                             new Output( "shuffle:default",
+                                         "broadcast:count" ) );
 
              String count_out = String.format( "/test/%s/test1.count", getClass().getName() );
              
              controller.reduce( Reduce.class,
-                                new Input( new ShuffleInputReference( "count" ) ),
+                                new Input( "shuffle:count" ),
                                 new Output( count_out ) );
              
              // now read all partition values...
