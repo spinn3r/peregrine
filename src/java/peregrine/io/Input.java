@@ -40,17 +40,15 @@ public final class Input {
     }
     
     public Input( String... paths ) {
-
         this( Arrays.asList( paths ) );
-        
     }
 
-    public Input( InputReference... refs ) {
+    protected Input( InputReference... refs ) {
         for( InputReference ref : refs )
             add( ref );
     }
 
-    public Input( InputReference ref ) {
+    protected Input( InputReference ref ) {
         add( ref );
     }
     

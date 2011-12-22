@@ -42,16 +42,16 @@ public final class Output {
         this( Arrays.asList( paths ) );
     }
 
-    public Output( OutputReference... refs ) {
+    protected Output( OutputReference... refs ) {
         for( OutputReference ref : refs )
             add( ref );
     }
     
-    public Output( OutputReference ref ) {
+    protected Output( OutputReference ref ) {
         add( ref );
     }
 
-    public Output add( OutputReference ref ) {
+    protected Output add( OutputReference ref ) {
         this.references.add( ref );
         return this;
     }
