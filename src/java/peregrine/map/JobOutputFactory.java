@@ -1,6 +1,8 @@
 package peregrine.map;
 
 import java.io.*;
+import java.util.*;
+
 import peregrine.config.Config;
 import peregrine.config.Partition;
 import peregrine.io.*;
@@ -9,13 +11,12 @@ import peregrine.shuffle.sender.*;
 
 public class JobOutputFactory {
 
-    public static JobOutput[] getJobOutput( Config config,
-                                            Partition partition,
-                                            Output output ) throws IOException {
+    public static List<JobOutput> getJobOutput( Config config,
+                                                Partition partition,
+                                                Output output ) throws IOException {
 
-        JobOutput[] jobOutput = new JobOutput[ output.getReferences().size() ];
+        List<JobOutput> result = new ArrayList( output.getReferences().size() );
 
-        int idx = 0;
         for( OutputReference ref : output.getReferences() ) {
 
             if ( ref instanceof FileOutputReference ) {
@@ -24,19 +25,19 @@ public class JobOutputFactory {
 
                 PartitionWriter writer = new DefaultPartitionWriter( config, partition, fileref.getPath(), fileref.getAppend() );
 
-                jobOutput[idx++] = new PartitionWriterJobOutput( writer );
+                result.add( new PartitionWriterJobOutput( writer ) );
 
             } else if ( ref instanceof BroadcastOutputReference ) {
 
                 BroadcastOutputReference bcast = (BroadcastOutputReference) ref;
                 
-                jobOutput[idx++] = new BroadcastJobOutput( config, bcast.getName(), partition );
+                result.add( new BroadcastJobOutput( config, bcast.getName(), partition ) );
 
             } else if ( ref instanceof ShuffleOutputReference ) {
 
                 ShuffleOutputReference sref = (ShuffleOutputReference) ref;
                 
-                jobOutput[idx++] = new ShuffleJobOutput( config, sref.getName(), partition );
+                result.add( new ShuffleJobOutput( config, sref.getName(), partition ) );
 
             } else {
                 throw new IOException( "ref not supported: " + ref.getClass().getName() );
@@ -44,8 +45,8 @@ public class JobOutputFactory {
 
         }
 
-        return jobOutput;
-
+        return result;
+        
     }
     
 }

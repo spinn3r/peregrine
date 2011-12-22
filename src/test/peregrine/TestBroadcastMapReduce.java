@@ -23,10 +23,10 @@ public class TestBroadcastMapReduce extends peregrine.BaseTestWithMultipleConfig
         private JobOutput countBroadcast = null;
         
         @Override
-        public void init( JobOutput... output ) {
+        public void init( List<JobOutput> output ) {
 
             super.init( output );
-            countBroadcast = output[1];
+            countBroadcast = output.get(1);
             
         }
 

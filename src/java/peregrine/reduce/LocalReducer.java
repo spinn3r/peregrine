@@ -39,6 +39,9 @@ public class LocalReducer {
 
     }
 
+    /**
+     * Add a given file to sort. 
+     */
     public void add( File in ) {
         this.input.add( in );
     }
@@ -52,6 +55,8 @@ public class LocalReducer {
         int pass = 0;
         
         String sort_dir = getTargetDir( pass );
+
+        // on the first pass we're going to sort and use shuffle input...
 
         List<ChunkReader> readers = sort( input, sort_dir );
 

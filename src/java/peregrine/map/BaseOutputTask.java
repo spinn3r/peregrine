@@ -2,6 +2,8 @@
 package peregrine.map;
 
 import java.io.*;
+import java.util.*;
+
 import peregrine.config.Config;
 import peregrine.config.Partition;
 import peregrine.io.*;
@@ -16,7 +18,7 @@ public abstract class BaseOutputTask {
 
     protected Output output = null;
 
-    protected JobOutput[] jobOutput = null;
+    protected List<JobOutput> jobOutput = null;
 
     protected Partition partition = null;
 
@@ -43,11 +45,11 @@ public abstract class BaseOutputTask {
         this.output = output;
     }
     
-    public JobOutput[] getJobOutput() {
+    public List<JobOutput> getJobOutput() {
         return this.jobOutput;
     }
 
-    public void setJobOutput( JobOutput[] jobOutput ) {
+    public void setJobOutput( List<JobOutput> jobOutput ) {
         this.jobOutput = jobOutput;
     }
 
@@ -74,8 +76,8 @@ public abstract class BaseOutputTask {
 
         this.jobOutput = JobOutputFactory.getJobOutput( config, partition, output );
 
-        for( int i = 0; i < jobOutput.length; ++i ) {
-            log.info( "Job output %,d is %s" , i , jobOutput[i] );
+        for( JobOutput current : jobOutput ) {
+            log.info( "Job output: %s" , current );
         }
         
     }

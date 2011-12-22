@@ -12,10 +12,10 @@ public abstract class BaseMapper {
 
     private List<BroadcastInput> broadcastInput = new ArrayList();
 
-    public void init( JobOutput... output ) {
+    public void init( List<JobOutput> output ) {
 
-        if ( output.length > 0 )
-            this.stdout = output[0];
+        if ( output.size() > 0 )
+            this.stdout = output.get(0);
 
         if ( this.stdout instanceof BroadcastJobOutput ) {
             throw new RuntimeException( "Standard out may not be a broadcast reference: " + this.stdout );

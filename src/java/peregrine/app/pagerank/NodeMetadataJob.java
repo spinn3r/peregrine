@@ -22,12 +22,12 @@ public class NodeMetadataJob {
         int nrDangling = 0;
         
         @Override
-        public void init( JobOutput... output ) {
-            nodeMetadataOutput           = output[0];
-            danglingOutput               = output[1];
-            nonlinkedOutput              = output[2];
-            nrNodesBroadcastOutput       = output[3];
-            nrDanglingBroadcastOutput    = output[4];
+        public void init( List<JobOutput> output ) {
+            nodeMetadataOutput           = output.get(0);
+            danglingOutput               = output.get(1);
+            nonlinkedOutput              = output.get(2);
+            nrNodesBroadcastOutput       = output.get(3);
+            nrDanglingBroadcastOutput    = output.get(4);
         }
 
         @Override

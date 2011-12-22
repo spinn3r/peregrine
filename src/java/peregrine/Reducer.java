@@ -10,8 +10,8 @@ public class Reducer {
 
     private List<BroadcastInput> broadcastInput = new ArrayList();
     
-    public void init( JobOutput... output ) {
-        this.stdout = output[0];
+    public void init( List<JobOutput> output ) {
+        this.stdout = output.get(0);
     }
 
     public void cleanup() {}

@@ -12,7 +12,7 @@ public class TeleportationGrantJob {
         int nr_nodes;
 
         @Override
-        public void init( JobOutput... output ) {
+        public void init( List<JobOutput> output ) {
 
             super.init( output );
 
