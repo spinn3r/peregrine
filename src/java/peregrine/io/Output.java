@@ -17,7 +17,10 @@ public final class Output {
                 String[] split = path.split( ":" );
 
                 String type      = split[0];
-                String arg       = split[1];
+                String arg       = null;
+
+                if ( split.length == 2 )
+                    arg = split[1];
 
                 if ( "broadcast".equals( type ) )
                     add( new BroadcastOutputReference( arg ) );
