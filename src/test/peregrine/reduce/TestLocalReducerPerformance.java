@@ -9,6 +9,7 @@ import peregrine.io.partition.*;
 import peregrine.keys.*;
 import peregrine.task.*;
 import peregrine.util.primitive.*;
+import peregrine.os.*;
 
 /**
  * Tests running a reduce but also has some code to benchmark them so that we
