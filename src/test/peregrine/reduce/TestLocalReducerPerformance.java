@@ -76,7 +76,12 @@ public class TestLocalReducerPerformance extends peregrine.BaseTestWithMultipleC
 
     public static void main( String[] args ) throws Exception {
 
-        System.setProperty( "peregrine.test.factor", "50" ); 
+        if ( args.length == 1 ) {
+            System.setProperty( "peregrine.test.factor", args[0] );
+        } else { 
+            System.setProperty( "peregrine.test.factor", "50" );
+        }
+
         System.setProperty( "peregrine.test.config", "1:1:1" ); 
         runTests();
 
