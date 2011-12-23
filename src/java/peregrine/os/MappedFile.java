@@ -58,6 +58,8 @@ public class MappedFile implements Closeable {
 
     protected long fallocateExtentSize = 0;
 
+    protected long syncWriteSize = 0;
+
     protected StreamReader reader = null;
 
     protected MappedByteBuffer mappedByteBuffer = null;
@@ -103,8 +105,9 @@ public class MappedFile implements Closeable {
 
         if ( config != null ) {
 
-            fadviseDontNeedEnabled = config.getFadviseDontNeedEnabled();
-            fallocateExtentSize = config.getFallocateExtentSize();
+            fadviseDontNeedEnabled  = config.getFadviseDontNeedEnabled();
+            fallocateExtentSize     = config.getFallocateExtentSize();
+            syncWriteSize           = config.getSyncWriteSize();
             
         }
 
@@ -242,13 +245,16 @@ public class MappedFile implements Closeable {
          * boundary for now).
          */
         long synced = 0;
-
+                   
         @Override
         public void write( ChannelBuffer buff ) throws IOException {
 
-            length += buff.writerIndex();
+            long newLength = length + buff.writerIndex();
 
-            if ( length > allocated && fallocateExtentSize > 0 ) {
+            // see if we're about to write past the previous fallocate extent
+            // size.
+            
+            if ( newLength > allocated && fallocateExtentSize > 0 ) {
                 
                 fcntl.posix_fallocate( fd, allocated, fallocateExtentSize );
 
@@ -256,20 +262,64 @@ public class MappedFile implements Closeable {
                 
             }
 
-            // TODO: we should consider slicing the channel buffer into smaller
-            // regions which are page aligned and then writing these aligned
-            // pages and then syncing when the pages are aligned.  Right now
-            // we're writing a page 2x because we first do a partial write then
-            // it is dirtied again and then we re-write it out.  For a 100MB
-            // file this could be up to 4MB of extra data written ut in practice
-            // it will average out to about 2MB of extra data written.
-            if ( autoSync && length > synced + config.getSyncWriteSize() ) {
+            if ( autoSync && newLength > synced + syncWriteSize ) {
+
+                // slice the channel buffer into smaller regions which are page
+                // aligned and then write these aligned pages then sync when the
+                // pages are aligned.  Otherwise we would write a page 2x
+                // because we first do a partial write, then when it is dirtied
+                // again we re-write the same page.  For a 100MB file this would
+                // be up to 4MB of extra data written but in practice it will
+                // average out to about 2MB of extra data written.  This is a
+                // small performance improvement (about 2%) but doesn't make
+                // sense to do something obviously foolish.
+
+                // the extra data that would be written.
+                long extra = newLength % syncWriteSize;
+
+                /*
+                 * 
+                 * This is a visual diagram of the page alignment.  Each
+                 * character is a 512 byte sector to shorten the visual
+                 * representation.
+                 * 
+                 * bytes written:   |===========|
+                 * page alignment:  |==============|
+                 * the write:                    |=====|
+                 */
+                
+                if ( extra > 0 ) {
+                    
+                    // the boundary between page aligned and extra data for THIS
+                    // buffer.
+                    int boundary = (int)(buff.writerIndex() - extra);
+
+                    // write the filled page BEFORE the extra data... 
+                    write0( buff.readSlice( boundary ) );
+
+                    // now update the buffer so that we write the data after the
+                    // current filled page before we exit.
+                    
+                    buff = buff.readSlice( buff.writerIndex() - boundary );
+                    
+                }
+                
                 sync();
+
             }
 
-            // this should use transferTo for the write.
-            buff.getBytes( 0, channel, buff.writerIndex() );
+            write0( buff );
             
+        }
+
+        /**
+         * Write the entire ChannelBuffer RAW and update the length of bytes
+         * we've written (and perform no other operations) to the current
+         * channel.
+         */
+        private void write0( ChannelBuffer buff ) throws IOException {
+            buff.getBytes( 0, channel, buff.writerIndex() );
+            length += buff.writerIndex();
         }
         
         @Override
