@@ -262,7 +262,7 @@ public class MappedFile implements Closeable {
                 
             }
 
-            if ( autoSync && newLength > synced + syncWriteSize ) {
+            if ( autoSync && syncWriteSize > 0 && newLength > synced + syncWriteSize ) {
 
                 // slice the channel buffer into smaller regions which are page
                 // aligned and then write these aligned pages then sync when the
