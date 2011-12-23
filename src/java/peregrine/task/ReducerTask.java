@@ -17,13 +17,6 @@ import com.spinn3r.log5j.Logger;
 public class ReducerTask extends BaseOutputTask implements Callable {
 
     private static final Logger log = Logger.getLogger();
-
-    /**
-     * When true, we should delete the on disk shuffle files after reduce runs
-     * to free up disk space.  This should be enabled in production but in test
-     * environments disabling this can enable us to run unit testing, etc.
-     */
-    public static boolean DELETE_SHUFFLE_FILES = false;
     
     private Input input = null;
 
@@ -121,18 +114,6 @@ public class ReducerTask extends BaseOutputTask implements Callable {
 
         log.info( "Sorted %,d entries in %,d chunk readers for partition %s",
                   listener.nr_tuples , nr_readers, partition );
-
-        // FIXME: we can't delete these until ALL reduces are done because we
-        // may do speculative execution and need this data again.
-
-        if ( DELETE_SHUFFLE_FILES ) {
-            
-            // we have to close ALL of our output streams now.
-            for( File shuffle : shuffles ) {
-                shuffle.delete();
-            }
-
-        }
 
     }
 

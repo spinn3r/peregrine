@@ -70,7 +70,6 @@ public class LocalPartitionWriterDelegate extends BasePartitionWriterDelegate {
             file.createNewFile();
 
         MappedFile mappedFile = new MappedFile( config, file, FileChannel.MapMode.READ_WRITE );
-
         mappedFile.setAutoForce( autoForce );
         
         return mappedFile.getChannelBufferWritable();

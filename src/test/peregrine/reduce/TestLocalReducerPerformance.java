@@ -7,9 +7,10 @@ import peregrine.controller.*;
 import peregrine.io.*;
 import peregrine.io.partition.*;
 import peregrine.keys.*;
-import peregrine.task.*;
-import peregrine.util.primitive.*;
 import peregrine.os.*;
+import peregrine.task.*;
+import peregrine.util.*;
+import peregrine.util.primitive.*;
 
 /**
  * Tests running a reduce but also has some code to benchmark them so that we
@@ -17,6 +18,8 @@ import peregrine.os.*;
  */
 public class TestLocalReducerPerformance extends peregrine.BaseTestWithMultipleConfigs {
 
+    public static String OUTPUT = "blackhole:";
+    
     @Override
     public void setUp() {
 
@@ -76,12 +79,14 @@ public class TestLocalReducerPerformance extends peregrine.BaseTestWithMultipleC
 
     public static void main( String[] args ) throws Exception {
 
-        if ( args.length == 1 ) {
-            System.setProperty( "peregrine.test.factor", args[0] );
-        } else { 
-            System.setProperty( "peregrine.test.factor", "50" );
-        }
+        Getopt getopt = new Getopt( args );
 
+        System.setProperty( "peregrine.test.factor", getopt.getString( "factor", "50" ) );
+        TestLocalReducerPerformance.OUTPUT = getopt.getString( "output", "blackhole:" );
+
+        System.out.printf( "Using factor: %s\n", System.getProperty( "peregrine.test.factor" ) );
+        System.out.printf( "Using output: %s\n", TestLocalReducerPerformance.OUTPUT );
+        
         System.setProperty( "peregrine.test.config", "1:1:1" ); 
         runTests();
 
