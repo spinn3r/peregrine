@@ -93,14 +93,6 @@ public class KeyLookup {
         ++idx;
     }
 
-    /**
-     *
-     * @return The offset for the current item.
-     */
-    public int offset() {
-        return lookup[idx];
-    }
-
     /** 
      * Set the buffer and offset for the given entry.
      */
