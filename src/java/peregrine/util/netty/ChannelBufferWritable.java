@@ -13,7 +13,7 @@ public interface ChannelBufferWritable extends Closeable {
 
     public void shutdown() throws IOException;
 
-    public void force() throws IOException;
+    public void sync() throws IOException;
 
     @Override
     public void close() throws IOException;

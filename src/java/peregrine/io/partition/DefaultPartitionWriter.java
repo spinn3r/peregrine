@@ -64,7 +64,7 @@ public class DefaultPartitionWriter implements PartitionWriter, ChunkWriter {
                                    boolean append,
                                    List<Host> hosts ) throws IOException {
 
-        this( config, partition, path, append, hosts, MappedFile.DEFAULT_AUTO_FORCE );
+        this( config, partition, path, append, hosts, MappedFile.DEFAULT_AUTO_SYNC );
         
     }
 
@@ -214,7 +214,7 @@ public class DefaultPartitionWriter implements PartitionWriter, ChunkWriter {
     public void force() throws IOException {
 
         for( ChannelBufferWritable writable : writables ) {
-            writable.force();
+            writable.sync();
         }
 
     }

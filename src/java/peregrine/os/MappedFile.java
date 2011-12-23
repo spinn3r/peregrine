@@ -25,11 +25,11 @@ public class MappedFile implements Closeable {
     private static final Logger log = Logger.getLogger();
 
     /**
-     * How often should we force writing pages to disk.
+     * How often should we sync writing pages to disk.
      */
-    public static long FORCE_PAGE_SIZE = 8192;
+    public static long SYNC_PAGE_SIZE = 8192;
     
-    public static boolean DEFAULT_AUTO_FORCE = true;
+    public static boolean DEFAULT_AUTO_SYNC = true;
 
     public static boolean DEFAULT_AUTO_LOCK = false;
 
@@ -47,7 +47,7 @@ public class MappedFile implements Closeable {
 
     protected boolean autoLock = DEFAULT_AUTO_LOCK;
 
-    protected boolean autoForce = DEFAULT_AUTO_FORCE;
+    protected boolean autoSync = DEFAULT_AUTO_SYNC;
 
     protected Closer closer = new Closer();
 
@@ -185,7 +185,7 @@ public class MappedFile implements Closeable {
      */
     public ChannelBufferWritable getChannelBufferWritable() throws IOException {
 
-        log.info( "Creating new writer for %s with autoForce=%s", file, autoForce );
+        log.info( "Creating new writer for %s with autoSync=%s", file, autoSync );
         
         return new MappedChannelBufferWritable();
         
@@ -199,12 +199,12 @@ public class MappedFile implements Closeable {
         this.autoLock = autoLock;
     }
 
-    public boolean getAutoForce() { 
-        return this.autoForce;
+    public boolean getAutoSync() { 
+        return this.autoSync;
     }
 
-    public void setAutoForce( boolean autoForce ) { 
-        this.autoForce = autoForce;
+    public void setAutoSync( boolean autoSync ) { 
+        this.autoSync = autoSync;
     }
 
     public File getFile() {
@@ -242,7 +242,11 @@ public class MappedFile implements Closeable {
 
         long allocated = 0;
 
-        long forced = 0;
+        /**
+         * The number of bytes we have written out to disk (aligned on a 4k page
+         * boundary for now).
+         */
+        long synced = 0;
 
         @Override
         public void write( ChannelBuffer buff ) throws IOException {
@@ -257,9 +261,8 @@ public class MappedFile implements Closeable {
                 
             }
 
-            if ( autoForce && length > forced + FORCE_PAGE_SIZE ) {
-                force();
-                forced += length;
+            if ( autoSync && length > synced + SYNC_PAGE_SIZE ) {
+                sync();
             }
 
             // this should use transferTo for the write.
@@ -273,8 +276,11 @@ public class MappedFile implements Closeable {
         }
 
         @Override
-        public void force() throws IOException {
+        public void sync() throws IOException {
+
             channel.force( false );
+            synced = length;
+
         }
 
         @Override
@@ -287,8 +293,8 @@ public class MappedFile implements Closeable {
                 channel.truncate( length );
             }
 
-            if ( autoForce ) {
-                force();
+            if ( autoSync ) {
+                sync();
             }
             
             MappedFile.this.close();

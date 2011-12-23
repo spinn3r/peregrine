@@ -344,7 +344,7 @@ public class HttpClient implements ChannelBufferWritable {
     }
 
     @Override
-    public void force() throws IOException { }
+    public void sync() throws IOException { }
 
     @Override
     public void close() throws IOException {
