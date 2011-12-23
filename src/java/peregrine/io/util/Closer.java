@@ -18,8 +18,8 @@ public class Closer implements Closeable {
 
     public Closer() { }
 
-    public Closer( List<Closeable> closeables ) {
-        this.closeables = closeables;
+    public Closer( List closeables ) {
+        this.closeables = (List<Closeable>)closeables;
     }
     
     public Closer( Closeable... closeables ) {

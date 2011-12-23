@@ -75,11 +75,10 @@ public class KeyLookup {
     	
     }
 
-    public KeyLookup( ShuffleInputChunkReader reader, 
-                      ChannelBuffer[] buffers )
+    public KeyLookup( CompositeShuffleInputChunkReader reader )
         throws IOException {
 
-        this( reader.size(), buffers );
+        this( reader.size(), reader.getBuffers().toArray( new ChannelBuffer[0] ) );
 
         while ( reader.hasNext() ) {
 
@@ -89,9 +88,12 @@ public class KeyLookup {
             // advance the lookup
             next();
 
-            //FIXME this is incorrect but will work until I implement a MultiShuffleInputChunkReader
-            KeyEntry entry = new KeyEntry( (byte)0, reader.getShufflePacket().getOffset() + reader.keyOffset() );
-            entry.backing = buffers[0];
+            ShuffleInputChunkReader delegate = reader.getShuffleInputChunkReader();
+           
+            KeyEntry entry = new KeyEntry( (byte)reader.index(), 
+            		                       delegate.getShufflePacket().getOffset() + delegate.keyOffset() );
+            
+            entry.backing = reader.getBuffer();
             
             set( entry );
 

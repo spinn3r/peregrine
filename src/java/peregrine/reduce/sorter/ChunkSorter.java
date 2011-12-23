@@ -3,6 +3,7 @@ package peregrine.reduce.sorter;
 
 import java.io.*;
 import java.nio.channels.*;
+import java.util.*;
 
 import peregrine.config.*;
 import peregrine.io.*;
@@ -30,10 +31,10 @@ public class ChunkSorter extends BaseChunkSorter {
         
     }
 
-    public ChunkReader sort( File input, File output )
+    public ChunkReader sort( final File input, File output )
         throws IOException {
 
-        ShuffleInputChunkReader reader = null;
+        CompositeShuffleInputChunkReader reader = null;
 
         ChunkWriter writer = null;
 
@@ -45,15 +46,13 @@ public class ChunkSorter extends BaseChunkSorter {
             // the same time... we need a background thread to trigger the
             // pre-read.
 
-            reader = new ShuffleInputChunkReader( config, partition, input.getPath() );
+            //FIXME this needs to be cleaned up
+            List<File> files = new ArrayList();
+            files.add( input );
             
-            ChannelBuffer buffer = reader.getBuffer();
-
-            // we need our OWN copy of this buffer so that other thread don't
-            // update the readerIndex and writerIndex
-            buffer = buffer.slice( 0, buffer.writerIndex() );
+            reader = new CompositeShuffleInputChunkReader( config, partition, files );
             
-            lookup = new KeyLookup( reader, new ChannelBuffer[] { buffer } );
+            lookup = new KeyLookup( reader );
 
             log.info( "Key lookup for %s has %,d entries." , partition, lookup.size() );
             
@@ -62,8 +61,6 @@ public class ChunkSorter extends BaseChunkSorter {
             lookup = sort( lookup, depth );
             
             //write this into the final ChunkWriter now.
-
-            VarintReader varintReader = new VarintReader( buffer );
 
             writer = new DefaultChunkWriter( config, output );
 
@@ -74,6 +71,8 @@ public class ChunkSorter extends BaseChunkSorter {
                 lookup.next();
 
                 KeyEntry current = lookup.get();
+                
+                VarintReader varintReader = new VarintReader( current.backing );
                 
                 int start = current.offset - 1;
                 current.backing.readerIndex( start );
@@ -91,7 +90,7 @@ public class ChunkSorter extends BaseChunkSorter {
                 
             }
 
-            log.info( "Sort output file %s has %,d entries.", output, reader.size() );
+            log.info( "Sort output file %s has %,d entries.", output, lookup.size() );
 
         } catch ( Throwable t ) {
 

@@ -19,9 +19,7 @@ public class BaseChunkSorter {
     protected Config config;
     protected Partition partition;
     protected ShuffleInputReference shuffleInput;
-
-    protected ChannelBuffer buffer = null;
-
+    
     protected KeyLookup lookup = null;
     
     public BaseChunkSorter( Config config,
