@@ -11,6 +11,10 @@ public class KeyEntry {
 	
 	public ChannelBuffer backing; 
 	
+	public KeyEntry() {
+		
+	}
+	
 	public KeyEntry( byte buffer, int offset ) {
 		this.buffer = buffer;
 		this.offset = offset;
