@@ -31,7 +31,7 @@ public class ChunkSorter extends BaseChunkSorter {
         
     }
 
-    public ChunkReader sort( final File input, File output )
+    public ChunkReader sort( List<File> input, File output )
         throws IOException {
 
         CompositeShuffleInputChunkReader reader = null;
@@ -40,17 +40,13 @@ public class ChunkSorter extends BaseChunkSorter {
 
         try {
 
-            log.info( "Going to sort: %s which is %,d bytes", input, input.length() );
+            log.info( "Going to sort: %s", input );
 
             // TODO: do this async so that we can read from disk and compute at
             // the same time... we need a background thread to trigger the
             // pre-read.
-
-            //FIXME this needs to be cleaned up
-            List<File> files = new ArrayList();
-            files.add( input );
             
-            reader = new CompositeShuffleInputChunkReader( config, partition, files );
+            reader = new CompositeShuffleInputChunkReader( config, partition, input );
             
             lookup = new KeyLookup( reader );
 

@@ -300,8 +300,31 @@ public class LocalReducer {
 
         log.info( "Going to sort %,d files for %s", input.size(), partition );
         
-        for ( File in : input ) {
-
+        List<File> pending = new ArrayList();
+        pending.addAll( input );
+        
+        Iterator<File> it = pending.iterator();
+        
+        while( it.hasNext() ) {
+        	
+        	List<File> work = new ArrayList();
+        	long workSize = 0;
+        	
+        	while( it.hasNext() ) {
+        		
+        		File current = it.next();
+        		workSize += current.length();
+        		
+        		if ( workSize > config.getSortBufferSize() ) {
+        			it = pending.iterator();
+        			break;        			
+        		}
+        		
+        		work.add( current );
+        		it.remove();
+        		
+        	}
+        	
             String path = String.format( "%s/sorted-%s.tmp" , target_dir, id++ );
             File out    = new File( path );
             
@@ -309,7 +332,7 @@ public class LocalReducer {
 
             ChunkSorter sorter = new ChunkSorter( config , partition, shuffleInput );
 
-            ChunkReader result = sorter.sort( in, out );
+            ChunkReader result = sorter.sort( work, out );
 
             if ( result != null )
                 sorted.add( result );

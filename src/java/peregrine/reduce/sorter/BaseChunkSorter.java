@@ -9,6 +9,7 @@ import peregrine.io.*;
 import org.jboss.netty.buffer.*;
 
 /**
+ * Base sorter which includes the core logic behind sorting.
  * 
  */
 public class BaseChunkSorter {
