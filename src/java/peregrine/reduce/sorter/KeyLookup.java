@@ -20,15 +20,14 @@ public class KeyLookup {
 	 * the pointer data.
 	 */
 	public static int KEY_SIZE = 5;
-	
-	// FIXME: the buffer and lookup data MUST be kept in a direct buffer NOT 
-	// inside the JVM and this memory MUST count against sortBufferSize.  For a 
-	// 128MB buffer using 8 byte keys and 8 byte values this would take 40MB of 
-	// memory to store the lookup data.	
 
     /**
-     * The lookup for index to offset within the buffer to read this.  For a 
-     * given entry, we can lookup the buffer and offset where it is stored. 
+     * The lookup for index to offset within the buffer to read this.  For a
+     * given entry, we can lookup the buffer and offset where it is stored.  The
+     * buffer and lookup data MUST be kept in a direct buffer NOT inside the JVM
+     * and this memory MUST count against sortBufferSize.  For a 128MB buffer
+     * using 8 byte keys and 8 byte values this would take 40MB of memory to
+     * store the lookup data.
      * 
      */
     private ChannelBuffer lookup;

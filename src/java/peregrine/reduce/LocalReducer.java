@@ -309,7 +309,10 @@ public class LocalReducer {
         	
         	List<File> work = new ArrayList();
         	long workSize = 0;
-        	
+
+            //FIXME: factor in the overhead of the key lookup before we sort.
+            //We will have to create the shuffle input readers HERE and then
+            //pass them INTO the chunk sorter.
         	while( it.hasNext() ) {
         		
         		File current = it.next();
