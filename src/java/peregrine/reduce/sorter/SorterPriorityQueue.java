@@ -53,7 +53,7 @@ public class SorterPriorityQueue {
         this.result.lookup = lookup;
 
         //return a copy of the ptr so that we can read the ptr value.           
-        this.result.ptr = lookup.get();
+        this.result.entry = lookup.get();
         
         if ( lookup.hasNext() ) {
             lookup.next();
@@ -76,19 +76,15 @@ class SortMergeComparator implements Comparator<SortQueueEntry> {
 
         KeyLookup lookup0 = e0.lookup;
         KeyLookup lookup1 = e1.lookup;
+                
+        KeyEntry entry0 = lookup0.get();
+        KeyEntry entry1 = lookup1.get();
         
-        ChannelBuffer buff1 = lookup1.buffer;
-        
-        int idx0 = lookup0.get();
-        int idx1 = lookup1.get();
-        
-        int len = LongBytes.LENGTH;
-
         int diff = 0;
 
-        for( int offset = 0; offset < len; ++offset ) {
+        for( int offset = 0; offset < LongBytes.LENGTH; ++offset ) {
 
-            diff = buff1.getByte( idx0 + offset ) - buff1.getByte( idx1 + offset );
+            diff = entry0.read( offset ) - entry1.read( offset );
 
             if ( diff != 0 )
                 return diff;
@@ -110,7 +106,7 @@ class SortQueueEntry {
     /**
      * Used to store the offset pointer.
      */
-    protected int ptr = 0;
+    protected KeyEntry entry = null;
     
 }
 

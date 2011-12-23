@@ -14,40 +14,56 @@ import org.jboss.netty.buffer.*;
  */
 public class KeyLookup {
 
-    int[] lookup;
+	/**
+	 * The buffer where the given entry is stored.  A byte is fine as 255 100MB 
+	 * files is a LOT of data. 
+	 */
+    private byte[] buffer;
 
-    int idx = -1;
+    /**
+     * The lookup for index to offset within the buffer to read this.  For a 
+     * given entry, we can lookup the buffer and offset where it is stored.
+     * 
+     */
+    private int[] lookup;
 
-    int start = 0;
+    private int idx = -1;
 
-    int end = 0;
+    private int start = 0;
 
-    int size = 0;
+    private int end = 0;
 
-    ChannelBuffer buffer;
-    
-    public KeyLookup( int[] lookup,
-                      ChannelBuffer buffer ) {
+    private int size = 0;
+
+    protected ChannelBuffer[] buffers;
+ 
+    private KeyLookup( byte[] buffer,
+    			       int[] lookup,
+                       ChannelBuffer[] buffers ) {
 
         if ( buffer == null )
             throw new RuntimeException();
         
-        this.lookup = lookup;
+        this.lookup = new int[size];
+        this.buffer = new byte[size];
         this.end = lookup.length - 1;
         this.size = lookup.length;
-        this.buffer = buffer;
+        this.buffers = buffers;
+        
     }
-
+    	
     public KeyLookup( int size,
-                      ChannelBuffer buffer ) {
-        this( new int[size], buffer );
+                       ChannelBuffer[] buffers ) {
+
+    	this( new byte[size], new int[size], buffers );
+    	
     }
 
     public KeyLookup( ShuffleInputChunkReader reader, 
-                      ChannelBuffer buffer )
+                      ChannelBuffer[] buffers )
         throws IOException {
 
-        this( reader.size(), buffer );
+        this( reader.size(), buffers );
 
         while ( reader.hasNext() ) {
 
@@ -57,7 +73,11 @@ public class KeyLookup {
             // advance the lookup
             next();
 
-            set( reader.getShufflePacket().getOffset() + reader.keyOffset() );
+            //FIXME this is incorrect but will work until I implement a MultiShuffleInputChunkReader
+            KeyEntry entry = new KeyEntry( (byte)0, reader.getShufflePacket().getOffset() + reader.keyOffset() );
+            entry.backing = buffers[0];
+            
+            set( entry );
 
         }
 
@@ -73,16 +93,29 @@ public class KeyLookup {
         ++idx;
     }
 
+    /**
+     *
+     * @return The offset for the current item.
+     */
     public int offset() {
         return lookup[idx];
     }
 
-    public void set( int value ) {
-        lookup[idx] = value;
+    /** 
+     * Set the buffer and offset for the given entry.
+     */
+    public void set( KeyEntry entry ) {
+    	buffer[idx] = entry.buffer;
+        lookup[idx] = entry.offset;
     }
 
-    public int get() {
-        return lookup[idx];
+    public KeyEntry get() {
+    	
+    	KeyEntry result = new KeyEntry( buffer[idx], lookup[idx] );
+    	result.backing = buffers[(int)result.buffer];
+
+    	return result;
+        
     }
 
     public int size() {
@@ -94,19 +127,13 @@ public class KeyLookup {
     }
 
     public byte[] key() {
-        return key( get() );
-    }
-
-    public byte[] key( int ptr ) {
-        byte[] data = new byte[LongBytes.LENGTH];
-        buffer.getBytes( ptr, data );
-        return data;
+        return get().read();
     }
     
     // zero copy slice implementation.
     public KeyLookup slice( int slice_start, int slice_end ) {
 
-        KeyLookup slice = new KeyLookup( lookup, buffer );
+        KeyLookup slice = new KeyLookup( buffer, lookup, buffers );
 
         slice.size    = (slice_end - slice_start) + 1;
         

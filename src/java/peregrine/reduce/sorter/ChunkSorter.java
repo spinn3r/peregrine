@@ -53,7 +53,7 @@ public class ChunkSorter extends BaseChunkSorter {
             // update the readerIndex and writerIndex
             buffer = buffer.slice( 0, buffer.writerIndex() );
             
-            lookup = new KeyLookup( reader, buffer );
+            lookup = new KeyLookup( reader, new ChannelBuffer[] { buffer } );
 
             log.info( "Key lookup for %s has %,d entries." , partition, lookup.size() );
             
@@ -73,17 +73,19 @@ public class ChunkSorter extends BaseChunkSorter {
 
                 lookup.next();
 
-                int start = lookup.get() - 1;
-                buffer.readerIndex( start );
+                KeyEntry current = lookup.get();
+                
+                int start = current.offset - 1;
+                current.backing.readerIndex( start );
 
                 int key_length = varintReader.read();
 
                 byte[] key = new byte[ key_length ];
-                buffer.readBytes( key );
+                current.backing.readBytes( key );
 
                 int value_length = varintReader.read();
                 byte[] value = new byte[ value_length ];
-                buffer.readBytes( value );
+                current.backing.readBytes( value );
 
                 writer.write( key, value );
                 
