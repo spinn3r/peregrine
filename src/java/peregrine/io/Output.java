@@ -19,7 +19,7 @@ public final class Output {
                 String type      = split[0];
                 String arg       = null;
 
-                if ( split.length == 2 )
+                if ( split.length >= 2 )
                     arg = split[1];
 
                 if ( "broadcast".equals( type ) )
