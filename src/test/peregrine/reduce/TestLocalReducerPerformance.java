@@ -82,12 +82,14 @@ public class TestLocalReducerPerformance extends peregrine.BaseTestWithMultipleC
         Getopt getopt = new Getopt( args );
 
         System.setProperty( "peregrine.test.factor", getopt.getString( "factor", "50" ) );
+        System.setProperty( "peregrine.test.config", getopt.getString( "config", "1:1:1" ) );
         TestLocalReducerPerformance.OUTPUT = getopt.getString( "output", "blackhole:" );
 
-        System.out.printf( "Using factor: %s\n", System.getProperty( "peregrine.test.factor" ) );
-        System.out.printf( "Using output: %s\n", TestLocalReducerPerformance.OUTPUT );
+        System.out.printf( "Using: \n" );
+        System.out.printf( "  factor: %s\n", System.getProperty( "peregrine.test.factor" ) );
+        System.out.printf( "  config: %s\n", System.getProperty( "peregrine.test.config" ) );
+        System.out.printf( "  output: %s\n", TestLocalReducerPerformance.OUTPUT );
         
-        System.setProperty( "peregrine.test.config", "1:1:1" ); 
         runTests();
 
     }
