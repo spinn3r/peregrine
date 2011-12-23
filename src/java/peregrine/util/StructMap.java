@@ -70,18 +70,24 @@ public class StructMap {
 
         String value = get( key );
 
-        int len = value.length();
+        if ( value.matches( "[0-9]+[a-zA-Z]" ) ) {
         
-        String suffix;
-        suffix = value.substring( len - 1, len );
-        suffix = suffix.toUpperCase();
+            int len = value.length();
+            
+            String suffix;
+            suffix = value.substring( len - 1, len );
+            suffix = suffix.toUpperCase();
         
-        String prefix = value.substring( 0, len - 1 );
+            String prefix = value.substring( 0, len - 1 );
+            
+            long result = Long.parseLong( prefix );
+            
+            return result * SIZES.get( suffix );
 
-        long result = Long.parseLong( prefix );
-
-        return result * SIZES.get( suffix );
-        
+        } else {
+            return getLong( key );
+        }
+            
     }
     
     public long getLong( String key ) {
