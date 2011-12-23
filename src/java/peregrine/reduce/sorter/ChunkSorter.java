@@ -33,23 +33,11 @@ public class ChunkSorter extends BaseChunkSorter {
     public ChunkReader sort( File input, File output )
         throws IOException {
 
-        FileInputStream inputStream   = null;
-        FileOutputStream outputStream = null;
-        
-        FileChannel inputChannel  = null;
-        FileChannel outputChannel = null;
-
         ShuffleInputChunkReader reader = null;
 
         ChunkWriter writer = null;
 
         try {
-
-            inputStream   = new FileInputStream( input );
-            outputStream = new FileOutputStream( output );
-        
-            inputChannel  = inputStream.getChannel();
-            outputChannel = outputStream.getChannel();
 
             log.info( "Going to sort: %s which is %,d bytes", input, input.length() );
 
@@ -112,15 +100,7 @@ public class ChunkSorter extends BaseChunkSorter {
             throw new IOException( error , t );
             
         } finally {
-
-            new Closer( inputChannel,
-                        outputChannel,
-                        inputStream,
-                        outputStream,
-                        reader,
-                        writer )
-                .close();
-            
+            new Closer( reader, writer ).close();
         }
 
         // if we got to this part we're done... 

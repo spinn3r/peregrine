@@ -137,8 +137,6 @@ public abstract class BaseTestWithMultipleConfigs extends peregrine.BaseTest {
     
     public void test() throws Exception {
 
-        System.out.printf( "FIXME here3\n" );
-        
         if ( config == null ) {
             log.warn( "Config was null.  Not running." );
             return;
