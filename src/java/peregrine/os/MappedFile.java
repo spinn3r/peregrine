@@ -23,13 +23,8 @@ import com.spinn3r.log5j.Logger;
 public class MappedFile implements Closeable {
 
     private static final Logger log = Logger.getLogger();
-
-    /**
-     * How often should we force writing pages to disk.
-     */
-    public static long FORCE_PAGE_SIZE = 8192;
     
-    public static boolean DEFAULT_AUTO_FORCE = true;
+    public static boolean DEFAULT_AUTO_SYNC = true;
 
     public static boolean DEFAULT_AUTO_LOCK = false;
 
@@ -47,7 +42,7 @@ public class MappedFile implements Closeable {
 
     protected boolean autoLock = DEFAULT_AUTO_LOCK;
 
-    protected boolean autoForce = DEFAULT_AUTO_FORCE;
+    protected boolean autoSync = DEFAULT_AUTO_SYNC;
 
     protected Closer closer = new Closer();
 
@@ -62,6 +57,8 @@ public class MappedFile implements Closeable {
     protected boolean fadviseDontNeedEnabled = false;
 
     protected long fallocateExtentSize = 0;
+
+    protected long syncWriteSize = 0;
 
     protected StreamReader reader = null;
 
@@ -108,8 +105,9 @@ public class MappedFile implements Closeable {
 
         if ( config != null ) {
 
-            fadviseDontNeedEnabled = config.getFadviseDontNeedEnabled();
-            fallocateExtentSize = config.getFallocateExtentSize();
+            fadviseDontNeedEnabled  = config.getFadviseDontNeedEnabled();
+            fallocateExtentSize     = config.getFallocateExtentSize();
+            syncWriteSize           = config.getSyncWriteSize();
             
         }
 
@@ -185,7 +183,7 @@ public class MappedFile implements Closeable {
      */
     public ChannelBufferWritable getChannelBufferWritable() throws IOException {
 
-        log.info( "Creating new writer for %s with autoForce=%s", file, autoForce );
+        log.info( "Creating new writer for %s with autoSync=%s", file, autoSync );
         
         return new MappedChannelBufferWritable();
         
@@ -199,12 +197,12 @@ public class MappedFile implements Closeable {
         this.autoLock = autoLock;
     }
 
-    public boolean getAutoForce() { 
-        return this.autoForce;
+    public boolean getAutoSync() { 
+        return this.autoSync;
     }
 
-    public void setAutoForce( boolean autoForce ) { 
-        this.autoForce = autoForce;
+    public void setAutoSync( boolean autoSync ) { 
+        this.autoSync = autoSync;
     }
 
     public File getFile() {
@@ -242,14 +240,21 @@ public class MappedFile implements Closeable {
 
         long allocated = 0;
 
-        long forced = 0;
-
+        /**
+         * The number of bytes we have written out to disk (aligned on a 4k page
+         * boundary for now).
+         */
+        long synced = 0;
+                   
         @Override
         public void write( ChannelBuffer buff ) throws IOException {
 
-            length += buff.writerIndex();
+            long newLength = length + buff.writerIndex();
 
-            if ( length > allocated && fallocateExtentSize > 0 ) {
+            // see if we're about to write past the previous fallocate extent
+            // size.
+            
+            if ( newLength > allocated && fallocateExtentSize > 0 ) {
                 
                 fcntl.posix_fallocate( fd, allocated, fallocateExtentSize );
 
@@ -257,28 +262,68 @@ public class MappedFile implements Closeable {
                 
             }
 
-            if ( autoForce && length > forced + FORCE_PAGE_SIZE ) {
-                force();
-                forced += length;
+            if ( autoSync && newLength > synced + syncWriteSize ) {
+
+                // slice the channel buffer into smaller regions which are page
+                // aligned and then write these aligned pages then sync when the
+                // pages are aligned.  Otherwise we would write a page 2x
+                // because we first do a partial write, then when it is dirtied
+                // again we re-write the same page.  For a 100MB file this would
+                // be up to 4MB of extra data written but in practice it will
+                // average out to about 2MB of extra data written.  This is a
+                // small performance improvement (about 2%) but doesn't make
+                // sense to do something obviously foolish.
+
+                // the extra data that would be written.
+                long extra = newLength % syncWriteSize;
+
+                /*
+                 * 
+                 * This is a visual diagram of the page alignment.  Each
+                 * character is a 512 byte sector to shorten the visual
+                 * representation.
+                 * 
+                 * bytes written:   |===========|
+                 * page alignment:  |==============|
+                 * the write:                    |=====|
+                 */
+                
+                if ( extra > 0 ) {
+                    
+                    // the boundary between page aligned and extra data for THIS
+                    // buffer.
+                    int boundary = (int)(buff.writerIndex() - extra);
+
+                    // write the filled page BEFORE the extra data... 
+                    write0( buff.readSlice( boundary ) );
+
+                    // now update the buffer so that we write the data after the
+                    // current filled page before we exit.
+                    
+                    buff = buff.readSlice( buff.writerIndex() - boundary );
+                    
+                }
+                
+                sync();
+
             }
 
-            // this should use transferTo for the write.
-            buff.getBytes( 0, channel, buff.writerIndex() );
+            write0( buff );
             
+        }
+
+        /**
+         * Write the entire ChannelBuffer RAW and update the length of bytes
+         * we've written (and perform no other operations) to the current
+         * channel.
+         */
+        private void write0( ChannelBuffer buff ) throws IOException {
+            buff.getBytes( 0, channel, buff.writerIndex() );
+            length += buff.writerIndex();
         }
         
         @Override
         public void shutdown() throws IOException {
-            // noop 
-        }
-
-        @Override
-        public void force() throws IOException {
-            channel.force( false );
-        }
-
-        @Override
-        public void close() throws IOException {
 
             // if we're in fallocate mode, we now need to truncate the file so
             // that it is the correct length.
@@ -287,9 +332,36 @@ public class MappedFile implements Closeable {
                 channel.truncate( length );
             }
 
-            if ( autoForce ) {
-                force();
+            if ( autoSync ) {
+                sync();
             }
+
+        }
+
+        @Override
+        public void sync() throws IOException {
+
+            channel.force( false );
+
+            // now evict these pages from the page cache.
+
+            // TODO: I'm not sure this is the right strategy for ALL writes
+            // ... temporary files should probably ALL be evicted but writes may
+            // benefit if in situations where a box isn't tuned perfectly but it
+            // doesn't make sense to optimize for poorly configured machines.
+            
+            if ( fadviseDontNeedEnabled ) {
+                fcntl.posix_fadvise( fd, offset, length, fcntl.POSIX_FADV_DONTNEED );
+            }
+
+            synced = length;
+
+        }
+
+        @Override
+        public void close() throws IOException {
+
+            shutdown();
             
             MappedFile.this.close();
             
@@ -303,7 +375,7 @@ public class MappedFile implements Closeable {
     }
 
     /**
-     * A closeable which is smart enough to work on byte buffers.
+     * A closeable which is smart enough to work on mapped byte buffers.
      */
     class MappedByteBufferCloser extends ByteBufferCloser {
         

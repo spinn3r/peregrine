@@ -10,12 +10,12 @@ import java.io.*;
  */
 public class StructMap {
 
-    private static final Map<Character,Long> SIZES = new HashMap() {{
+    private static final Map<String,Long> SIZES = new HashMap() {{
 
-        put( 'K', (long) Math.pow(2, 10) );
-        put( 'M', (long) Math.pow(2, 20) );
-        put( 'G', (long) Math.pow(2, 30) );
-        put( 'T', (long) Math.pow(2, 40) );
+        put( "K", (long) Math.pow(2, 10) );
+        put( "M", (long) Math.pow(2, 20) );
+        put( "G", (long) Math.pow(2, 30) );
+        put( "T", (long) Math.pow(2, 40) );
         
     }};
     
@@ -69,10 +69,14 @@ public class StructMap {
     public long getSize( String key ) {
 
         String value = get( key );
-        
-        char suffix = value.charAt( value.length() - 1 );
 
-        String prefix = value.substring( 0, value.length() - 1 );
+        int len = value.length();
+        
+        String suffix;
+        suffix = value.substring( len - 1, len );
+        suffix = suffix.toUpperCase();
+        
+        String prefix = value.substring( 0, len - 1 );
 
         long result = Long.parseLong( prefix );
 
