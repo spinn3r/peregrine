@@ -12,6 +12,7 @@ import peregrine.reduce.sorter.*;
 import peregrine.reduce.merger.*;
 import peregrine.util.netty.*;
 import peregrine.os.*;
+import peregrine.shuffle.*;
 import peregrine.sysstat.*;
 
 import com.spinn3r.log5j.Logger;
@@ -300,29 +301,34 @@ public class LocalReducer {
 
         log.info( "Going to sort %,d files for %s", input.size(), partition );
         
-        List<File> pending = new ArrayList();
-        pending.addAll( input );
-        
-        Iterator<File> it = pending.iterator();
+        List<ShuffleInputChunkReader> pending = new ArrayList();
+        for( File file : input ) {
+            pending.add( new ShuffleInputChunkReader( config, partition, file.getPath() ) );
+        }
+
+        Iterator<ShuffleInputChunkReader> it = pending.iterator();
         
         while( it.hasNext() ) {
         	
-        	List<File> work = new ArrayList();
+        	List<ShuffleInputChunkReader> work = new ArrayList();
         	long workSize = 0;
 
             //FIXME: factor in the overhead of the key lookup before we sort.
             //We will have to create the shuffle input readers HERE and then
-            //pass them INTO the chunk sorter.
+            //pass them INTO the chunk sorter.  I also need to factor in the
+            //amount of data IN this partition and not the ENTIRE file size.
         	while( it.hasNext() ) {
         		
-        		File current = it.next();
-        		workSize += current.length();
-        		
+        		ShuffleInputChunkReader current = it.next();
+
+        		workSize += current.getShuffleHeader().length;
+                workSize += current.getShuffleHeader().count * KeyLookup.KEY_SIZE;
+                
         		if ( workSize > config.getSortBufferSize() ) {
         			it = pending.iterator();
         			break;        			
         		}
-        		
+
         		work.add( current );
         		it.remove();
         		

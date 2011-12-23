@@ -31,7 +31,7 @@ public class ChunkSorter extends BaseChunkSorter {
         
     }
 
-    public ChunkReader sort( List<File> input, File output )
+    public ChunkReader sort( List<ShuffleInputChunkReader> input, File output )
         throws IOException {
 
         CompositeShuffleInputChunkReader reader = null;
