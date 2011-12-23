@@ -344,6 +344,12 @@ public class MappedFile implements Closeable {
             channel.force( false );
 
             // now evict these pages from the page cache.
+
+            // TODO: I'm not sure this is the right strategy for ALL writes
+            // ... temporary files should probably ALL be evicted but writes may
+            // benefit if in situations where a box isn't tuned perfectly but it
+            // doesn't make sense to optimize for poorly configured machines.
+            
             if ( fadviseDontNeedEnabled ) {
                 fcntl.posix_fadvise( fd, offset, length, fcntl.POSIX_FADV_DONTNEED );
             }
