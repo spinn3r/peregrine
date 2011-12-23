@@ -27,14 +27,30 @@ public class KeyLookup {
      */
     private int[] lookup;
 
-    private int idx = -1;
+    /**
+     * The current index we're working on in the lookup and buffer structures.
+     */
+    private int index = -1;
 
+    /**
+     * For slices, this is the start of where we are working.
+     */
     private int start = 0;
 
+    /**
+     * For slices, the end of where we are working.
+     */
     private int end = 0;
 
+    /**
+     * The total number of items in this lookup.
+     */
     private int size = 0;
 
+    /**
+     * The actual buffers storing the data.  Each entry has a buffer which we
+     * resolve from `buffer` based on the index (index).
+     */
     protected ChannelBuffer[] buffers;
  
     private KeyLookup( byte[] buffer,
@@ -44,8 +60,8 @@ public class KeyLookup {
         if ( buffer == null )
             throw new RuntimeException();
         
-        this.lookup = new int[size];
-        this.buffer = new byte[size];
+        this.buffer = buffer;
+        this.lookup = lookup;
         this.end = lookup.length - 1;
         this.size = lookup.length;
         this.buffers = buffers;
@@ -86,24 +102,24 @@ public class KeyLookup {
     }
 
     public boolean hasNext() {
-        return idx < end;
+        return index < end;
     }
 
     public void next() {
-        ++idx;
+        ++index;
     }
 
     /** 
      * Set the buffer and offset for the given entry.
      */
     public void set( KeyEntry entry ) {
-    	buffer[idx] = entry.buffer;
-        lookup[idx] = entry.offset;
+    	buffer[index] = entry.buffer;
+        lookup[index] = entry.offset;
     }
 
     public KeyEntry get() {
     	
-    	KeyEntry result = new KeyEntry( buffer[idx], lookup[idx] );
+    	KeyEntry result = new KeyEntry( buffer[index], lookup[index] );
     	result.backing = buffers[(int)result.buffer];
 
     	return result;
@@ -115,7 +131,7 @@ public class KeyLookup {
     }
     
     public void reset() {
-        this.idx = start - 1;
+        this.index = start - 1;
     }
 
     public byte[] key() {
@@ -130,7 +146,7 @@ public class KeyLookup {
         slice.size    = (slice_end - slice_start) + 1;
         
         slice.start   = this.start + slice_start;
-        slice.idx     = slice.start - 1;
+        slice.index   = slice.start - 1;
         slice.end     = slice.start + slice.size - 1;
         
         return slice;
@@ -145,13 +161,13 @@ public class KeyLookup {
 
         System.out.printf( "%s:\n", name );
 
-        //clone it so we don't change the idx... this doesn't need to be fast.
+        //clone it so we don't change the index... this doesn't need to be fast.
         KeyLookup clone = clone();
 
-        System.out.printf( "\tidx:   %,d\n", clone.idx );
-        System.out.printf( "\tstart: %,d\n", clone.start );
-        System.out.printf( "\tend:   %,d\n", clone.end );
-        System.out.printf( "\tsize:  %,d\n", clone.size );
+        System.out.printf( "\tindex:   %,d\n", clone.index );
+        System.out.printf( "\tstart:   %,d\n", clone.start );
+        System.out.printf( "\tend:     %,d\n", clone.end );
+        System.out.printf( "\tsize:    %,d\n", clone.size );
 
         while( clone.hasNext() ) {
             clone.next();
