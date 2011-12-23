@@ -16,7 +16,11 @@ import com.spinn3r.log5j.Logger;
  * 
  */
 public class BaseConfig {
-    
+
+    /**
+     * The default params we have been started with.  These are loaded from the
+     * .conf which we store in the .jar.
+     */
     public static StructMap DEFAULTS = null;
     
     /**
@@ -87,6 +91,8 @@ public class BaseConfig {
 
     protected String partitionerDelegate = null;
 
+    protected long syncWriteSize = 0;
+
     public void init( StructMap struct ) {
 
         this.struct = struct;
@@ -108,6 +114,7 @@ public class BaseConfig {
         setSortBufferSize( struct.getSize( "sortBufferSize" ) );
         setPartitionerDelegate( struct.getString( "partitionerDelegate" ) );
         setPurgeShuffleData( struct.getBoolean( "purgeShuffleData" ) );
+        setSyncWriteSize( struct.getSize( "syncWriteSize" ) );
 
         if ( struct.containsKey( "host" ) )
             setHost( Host.parse( struct.getString( "host" ) ) );
@@ -258,6 +265,14 @@ public class BaseConfig {
 
     public void setPartitionerDelegate( String partitionerDelegate ) { 
         this.partitionerDelegate = partitionerDelegate;
+    }
+
+    public void setSyncWriteSize( long syncWriteSize ) { 
+        this.syncWriteSize = syncWriteSize;
+    }
+
+    public long getSyncWriteSize() { 
+        return this.syncWriteSize;
     }
 
     static {

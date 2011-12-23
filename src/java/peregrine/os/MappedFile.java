@@ -23,11 +23,6 @@ import com.spinn3r.log5j.Logger;
 public class MappedFile implements Closeable {
 
     private static final Logger log = Logger.getLogger();
-
-    /**
-     * How often should we sync writing pages to disk.
-     */
-    public static long SYNC_PAGE_SIZE = 8192;
     
     public static boolean DEFAULT_AUTO_SYNC = true;
 
@@ -261,7 +256,14 @@ public class MappedFile implements Closeable {
                 
             }
 
-            if ( autoSync && length > synced + SYNC_PAGE_SIZE ) {
+            // TODO: we should consider slicing the channel buffer into smaller
+            // regions which are page aligned and then writing these aligned
+            // pages and then syncing when the pages are aligned.  Right now
+            // we're writing a page 2x because we first do a partial write then
+            // it is dirtied again and then we re-write it out.  For a 100MB
+            // file this could be up to 4MB of extra data written ut in practice
+            // it will average out to about 2MB of extra data written.
+            if ( autoSync && length > synced + config.getSyncWriteSize() ) {
                 sync();
             }
 
@@ -272,7 +274,18 @@ public class MappedFile implements Closeable {
         
         @Override
         public void shutdown() throws IOException {
-            // noop 
+
+            // if we're in fallocate mode, we now need to truncate the file so
+            // that it is the correct length.
+
+            if ( fallocateExtentSize > 0 ) {
+                channel.truncate( length );
+            }
+
+            if ( autoSync ) {
+                sync();
+            }
+
         }
 
         @Override
@@ -286,16 +299,7 @@ public class MappedFile implements Closeable {
         @Override
         public void close() throws IOException {
 
-            // if we're in fallocate mode, we now need to truncate the file so
-            // that it is the correct length.
-
-            if ( fallocateExtentSize > 0 ) {
-                channel.truncate( length );
-            }
-
-            if ( autoSync ) {
-                sync();
-            }
+            shutdown();
             
             MappedFile.this.close();
             
