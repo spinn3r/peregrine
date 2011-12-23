@@ -292,6 +292,12 @@ public class MappedFile implements Closeable {
         public void sync() throws IOException {
 
             channel.force( false );
+
+            // now evict these pages from the page cache.
+            if ( fadviseDontNeedEnabled ) {
+                fcntl.posix_fadvise( fd, offset, length, fcntl.POSIX_FADV_DONTNEED );
+            }
+
             synced = length;
 
         }
@@ -313,7 +319,7 @@ public class MappedFile implements Closeable {
     }
 
     /**
-     * A closeable which is smart enough to work on byte buffers.
+     * A closeable which is smart enough to work on mapped byte buffers.
      */
     class MappedByteBufferCloser extends ByteBufferCloser {
         
