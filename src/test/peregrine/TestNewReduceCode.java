@@ -60,7 +60,6 @@ public class TestNewReduceCode extends peregrine.BaseTestWithTwoDaemons {
 
     public void setUp() {
         super.setUp();
-        ReducerTask.DELETE_SHUFFLE_FILES=false;
     }
     
     public void test1() throws Exception {
