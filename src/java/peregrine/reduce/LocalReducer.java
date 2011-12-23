@@ -313,9 +313,9 @@ public class LocalReducer {
         	List<ShuffleInputChunkReader> work = new ArrayList();
         	long workSize = 0;
 
-            //FIXME: factor in the overhead of the key lookup before we sort.
+            //factor in the overhead of the key lookup before we sort.
             //We will have to create the shuffle input readers HERE and then
-            //pass them INTO the chunk sorter.  I also need to factor in the
+            //pass them INTO the chunk sorter.  I also factor in the
             //amount of data IN this partition and not the ENTIRE file size.
         	while( it.hasNext() ) {
         		
