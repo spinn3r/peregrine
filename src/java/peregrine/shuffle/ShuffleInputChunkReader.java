@@ -87,6 +87,10 @@ public class ShuffleInputChunkReader implements Closeable {
         return pack;
     }
 
+    public ShuffleHeader getShuffleHeader() {
+        return header;
+    }
+    
     public boolean hasNext() throws IOException {
 
         assertPrefetchReaderNotFailed();

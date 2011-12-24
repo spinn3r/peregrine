@@ -12,6 +12,7 @@ import peregrine.reduce.sorter.*;
 import peregrine.reduce.merger.*;
 import peregrine.util.netty.*;
 import peregrine.os.*;
+import peregrine.shuffle.*;
 import peregrine.sysstat.*;
 
 import com.spinn3r.log5j.Logger;
@@ -300,8 +301,39 @@ public class LocalReducer {
 
         log.info( "Going to sort %,d files for %s", input.size(), partition );
         
-        for ( File in : input ) {
+        List<ShuffleInputChunkReader> pending = new ArrayList();
+        for( File file : input ) {
+            pending.add( new ShuffleInputChunkReader( config, partition, file.getPath() ) );
+        }
 
+        Iterator<ShuffleInputChunkReader> it = pending.iterator();
+        
+        while( it.hasNext() ) {
+        	
+        	List<ShuffleInputChunkReader> work = new ArrayList();
+        	long workSize = 0;
+
+            //factor in the overhead of the key lookup before we sort.
+            //We will have to create the shuffle input readers HERE and then
+            //pass them INTO the chunk sorter.  I also factor in the
+            //amount of data IN this partition and not the ENTIRE file size.
+        	while( it.hasNext() ) {
+        		
+        		ShuffleInputChunkReader current = it.next();
+
+        		workSize += current.getShuffleHeader().length;
+                workSize += current.getShuffleHeader().count * KeyLookup.KEY_SIZE;
+                
+        		if ( workSize > config.getSortBufferSize() ) {
+        			it = pending.iterator();
+        			break;        			
+        		}
+
+        		work.add( current );
+        		it.remove();
+        		
+        	}
+        	
             String path = String.format( "%s/sorted-%s.tmp" , target_dir, id++ );
             File out    = new File( path );
             
@@ -309,7 +341,7 @@ public class LocalReducer {
 
             ChunkSorter sorter = new ChunkSorter( config , partition, shuffleInput );
 
-            ChunkReader result = sorter.sort( in, out );
+            ChunkReader result = sorter.sort( work, out );
 
             if ( result != null )
                 sorted.add( result );

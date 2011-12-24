@@ -3,6 +3,7 @@ package peregrine.reduce.sorter;
 
 import java.io.*;
 import java.nio.channels.*;
+import java.util.*;
 
 import peregrine.config.*;
 import peregrine.io.*;
@@ -30,30 +31,24 @@ public class ChunkSorter extends BaseChunkSorter {
         
     }
 
-    public ChunkReader sort( File input, File output )
+    public ChunkReader sort( List<ShuffleInputChunkReader> input, File output )
         throws IOException {
 
-        ShuffleInputChunkReader reader = null;
+        CompositeShuffleInputChunkReader reader = null;
 
         ChunkWriter writer = null;
 
         try {
 
-            log.info( "Going to sort: %s which is %,d bytes", input, input.length() );
+            log.info( "Going to sort: %s", input );
 
             // TODO: do this async so that we can read from disk and compute at
             // the same time... we need a background thread to trigger the
             // pre-read.
-
-            reader = new ShuffleInputChunkReader( config, partition, input.getPath() );
             
-            ChannelBuffer buffer = reader.getBuffer();
-
-            // we need our OWN copy of this buffer so that other thread don't
-            // update the readerIndex and writerIndex
-            buffer = buffer.slice( 0, buffer.writerIndex() );
+            reader = new CompositeShuffleInputChunkReader( config, partition, input );
             
-            lookup = new KeyLookup( reader, buffer );
+            lookup = new KeyLookup( reader );
 
             log.info( "Key lookup for %s has %,d entries." , partition, lookup.size() );
             
@@ -63,8 +58,6 @@ public class ChunkSorter extends BaseChunkSorter {
             
             //write this into the final ChunkWriter now.
 
-            VarintReader varintReader = new VarintReader( buffer );
-
             writer = new DefaultChunkWriter( config, output );
 
             while( lookup.hasNext() ) {
@@ -73,23 +66,27 @@ public class ChunkSorter extends BaseChunkSorter {
 
                 lookup.next();
 
-                int start = lookup.get() - 1;
-                buffer.readerIndex( start );
+                KeyEntry current = lookup.get();
+                
+                VarintReader varintReader = new VarintReader( current.backing );
+                
+                int start = current.offset - 1;
+                current.backing.readerIndex( start );
 
                 int key_length = varintReader.read();
 
                 byte[] key = new byte[ key_length ];
-                buffer.readBytes( key );
+                current.backing.readBytes( key );
 
                 int value_length = varintReader.read();
                 byte[] value = new byte[ value_length ];
-                buffer.readBytes( value );
+                current.backing.readBytes( value );
 
                 writer.write( key, value );
                 
             }
 
-            log.info( "Sort output file %s has %,d entries.", output, reader.size() );
+            log.info( "Sort output file %s has %,d entries.", output, lookup.size() );
 
         } catch ( Throwable t ) {
 

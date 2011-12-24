@@ -9,6 +9,7 @@ import peregrine.io.*;
 import org.jboss.netty.buffer.*;
 
 /**
+ * Base sorter which includes the core logic behind sorting.
  * 
  */
 public class BaseChunkSorter {
@@ -19,9 +20,7 @@ public class BaseChunkSorter {
     protected Config config;
     protected Partition partition;
     protected ShuffleInputReference shuffleInput;
-
-    protected ChannelBuffer buffer = null;
-
+    
     protected KeyLookup lookup = null;
     
     public BaseChunkSorter( Config config,
@@ -46,14 +45,14 @@ public class BaseChunkSorter {
     protected KeyLookup sort( KeyLookup input, int depth )
         throws IOException {
 
-        if ( input.size <= 1 ) {
+        if ( input.size() <= 1 ) {
             return input;
         }
 
-        int middle = input.size / 2; 
+        int middle = input.size() / 2; 
 
         KeyLookup left  = input.slice( 0, middle - 1 );
-        KeyLookup right = input.slice( middle, input.size - 1 );
+        KeyLookup right = input.slice( middle, input.size() - 1 );
 
         left  = sort( left  , depth + 1 );
         right = sort( right , depth + 1 );
@@ -73,7 +72,7 @@ public class BaseChunkSorter {
                                int depth )
         throws IOException {
         
-        KeyLookup result = new KeyLookup( left.size + right.size, left.buffer );
+        KeyLookup result = new KeyLookup( left.size() + right.size(), left.buffers );
         
         // now merge both left and right and we're done.
         List<KeyLookup> list = new ArrayList( 2 );
@@ -84,13 +83,13 @@ public class BaseChunkSorter {
 
         while( true ) {
             
-            SortQueueEntry entry = queue.poll();
+            SortQueueEntry poll = queue.poll();
 
-            if ( entry == null )
+            if ( poll == null )
                 break;
             
             result.next();
-            result.set( entry.ptr );
+            result.set( poll.entry );
             
         }
 

@@ -14,40 +14,72 @@ import org.jboss.netty.buffer.*;
  */
 public class KeyLookup {
 
-    int[] lookup;
+	/**
+	 * Number of bytes needed to store a key in memory.  This is used so that 
+	 * we can predict how much additional memory will be needed to store just 
+	 * the pointer data.
+	 */
+	public static int KEY_SIZE = 5;
 
-    int idx = -1;
-
-    int start = 0;
-
-    int end = 0;
-
-    int size = 0;
-
-    ChannelBuffer buffer;
+    /**
+     * The lookup for index to offset within the buffer to read this.  For a
+     * given entry, we can lookup the buffer and offset where it is stored.  The
+     * buffer and lookup data MUST be kept in a direct buffer NOT inside the JVM
+     * and this memory MUST count against sortBufferSize.  For a 128MB buffer
+     * using 8 byte keys and 8 byte values this would take 40MB of memory to
+     * store the lookup data.
+     * 
+     */
+    private ChannelBuffer lookup;
     
-    public KeyLookup( int[] lookup,
-                      ChannelBuffer buffer ) {
+    /**
+     * The current index we're working on in the lookup and buffer structures.
+     */
+    private int index = -1;
 
-        if ( buffer == null )
-            throw new RuntimeException();
-        
+    /**
+     * For slices, this is the start of where we are working.
+     */
+    private int start = 0;
+
+    /**
+     * For slices, the end of where we are working.
+     */
+    private int end = 0;
+
+    /**
+     * The total number of items in this lookup.
+     */
+    private int size = 0;
+
+    /**
+     * The actual buffers storing the data.  Each entry has a buffer which we
+     * resolve from `buffer` based on the index (index).
+     */
+    protected ChannelBuffer[] buffers;
+ 
+    private KeyLookup( ChannelBuffer lookup, 
+                       int size,
+                       ChannelBuffer[] buffers ) {
+
         this.lookup = lookup;
-        this.end = lookup.length - 1;
-        this.size = lookup.length;
-        this.buffer = buffer;
+        this.end = size - 1;
+        this.size = size;
+        this.buffers = buffers;
+        
     }
-
+    	
     public KeyLookup( int size,
-                      ChannelBuffer buffer ) {
-        this( new int[size], buffer );
+                      ChannelBuffer[] buffers ) {
+
+    	this( ChannelBuffers.directBuffer( size * KEY_SIZE ), size, buffers );
+    	
     }
 
-    public KeyLookup( ShuffleInputChunkReader reader, 
-                      ChannelBuffer buffer )
+    public KeyLookup( CompositeShuffleInputChunkReader reader )
         throws IOException {
 
-        this( reader.size(), buffer );
+        this( reader.size(), reader.getBuffers().toArray( new ChannelBuffer[0] ) );
 
         while ( reader.hasNext() ) {
 
@@ -57,7 +89,14 @@ public class KeyLookup {
             // advance the lookup
             next();
 
-            set( reader.getShufflePacket().getOffset() + reader.keyOffset() );
+            ShuffleInputChunkReader delegate = reader.getShuffleInputChunkReader();
+           
+            KeyEntry entry = new KeyEntry( (byte)reader.index(), 
+            		                       delegate.getShufflePacket().getOffset() + delegate.keyOffset() );
+            
+            entry.backing = reader.getBuffer();
+            
+            set( entry );
 
         }
 
@@ -66,23 +105,35 @@ public class KeyLookup {
     }
 
     public boolean hasNext() {
-        return idx < end;
+        return index < end;
     }
 
     public void next() {
-        ++idx;
+        ++index;
     }
 
-    public int offset() {
-        return lookup[idx];
+    /** 
+     * Set the buffer and offset for the given entry.
+     */
+    public void set( KeyEntry entry ) {
+        
+        lookup.writerIndex( index * KEY_SIZE );
+        lookup.writeByte( entry.buffer );
+        lookup.writeInt( entry.offset );
+        
     }
 
-    public void set( int value ) {
-        lookup[idx] = value;
-    }
+    public KeyEntry get() {
+    	
+    	KeyEntry result = new KeyEntry();
+    	
+        lookup.readerIndex( index * KEY_SIZE );
+        result.buffer  = lookup.readByte();
+        result.offset  = lookup.readInt();
+    	result.backing = buffers[(int)result.buffer];
 
-    public int get() {
-        return lookup[idx];
+    	return result;
+        
     }
 
     public int size() {
@@ -90,28 +141,22 @@ public class KeyLookup {
     }
     
     public void reset() {
-        this.idx = start - 1;
+        this.index = start - 1;
     }
 
     public byte[] key() {
-        return key( get() );
-    }
-
-    public byte[] key( int ptr ) {
-        byte[] data = new byte[LongBytes.LENGTH];
-        buffer.getBytes( ptr, data );
-        return data;
+        return get().read();
     }
     
     // zero copy slice implementation.
     public KeyLookup slice( int slice_start, int slice_end ) {
 
-        KeyLookup slice = new KeyLookup( lookup, buffer );
+        KeyLookup slice = new KeyLookup( lookup, size, buffers );
 
         slice.size    = (slice_end - slice_start) + 1;
         
         slice.start   = this.start + slice_start;
-        slice.idx     = slice.start - 1;
+        slice.index   = slice.start - 1;
         slice.end     = slice.start + slice.size - 1;
         
         return slice;
@@ -126,13 +171,13 @@ public class KeyLookup {
 
         System.out.printf( "%s:\n", name );
 
-        //clone it so we don't change the idx... this doesn't need to be fast.
+        //clone it so we don't change the index... this doesn't need to be fast.
         KeyLookup clone = clone();
 
-        System.out.printf( "\tidx:   %,d\n", clone.idx );
-        System.out.printf( "\tstart: %,d\n", clone.start );
-        System.out.printf( "\tend:   %,d\n", clone.end );
-        System.out.printf( "\tsize:  %,d\n", clone.size );
+        System.out.printf( "\tindex:   %,d\n", clone.index );
+        System.out.printf( "\tstart:   %,d\n", clone.start );
+        System.out.printf( "\tend:     %,d\n", clone.end );
+        System.out.printf( "\tsize:    %,d\n", clone.size );
 
         while( clone.hasNext() ) {
             clone.next();
