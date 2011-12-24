@@ -70,17 +70,19 @@ public class ChunkSorter extends BaseChunkSorter {
                 lookup.next();
 
                 KeyEntry current = lookup.get();
+
+                ChannelBuffer backing = current.backing;
                 
-                VarintReader varintReader = new VarintReader( current.backing );
+                VarintReader varintReader = new VarintReader( backing );
                 
                 int start = current.offset - 1;
-                current.backing.readerIndex( start );
+                backing.readerIndex( start );
 
-                int key_length = varintReader.read();
-                StructReader key = new StructReader( current.backing.readSlice( key_length ) );
+                StructReader key =
+                    new StructReader( backing.readSlice( varintReader.read() ) );
 
-                int value_length = varintReader.read();
-                StructReader value = new StructReader( current.backing.readSlice( value_length ) );
+                StructReader value =
+                    new StructReader( backing.readSlice( varintReader.read() ) );
 
                 writer.write( key, value );
                 
@@ -98,10 +100,12 @@ public class ChunkSorter extends BaseChunkSorter {
             
         } finally {
 
-            new Flusher( jobOutput )
-                .flush();
+            new Flusher( jobOutput ).flush();
 
-            new Closer( reader, writer ).close();
+            // NOTE: it is important that the writer be closed before the reader
+            // because if not then the writer will attempt to read values from a
+            // closed reader.
+            new Closer( writer, reader ).close();
 
         }
 
