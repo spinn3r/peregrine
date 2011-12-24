@@ -38,6 +38,11 @@ public class MemLock implements Closeable {
         
         this.pa = mman.mmap( length, mman.PROT_READ, mman.MAP_SHARED | mman.MAP_LOCKED, fd, offset );
 
+        // even though technically we have specified MAP_LOCKED this isn't
+        // supported on OpenSolaris or older Linux kernels (or OS X).
+        
+        mman.mlock( this.pa, length );
+        
     }
 
     /**
@@ -51,6 +56,7 @@ public class MemLock implements Closeable {
         
         log.info( "%s ...", desc );
 
+        mman.munlock( this.pa, length );
         mman.munmap( pa, length );
 
         log.info( "%s ... done", desc );
