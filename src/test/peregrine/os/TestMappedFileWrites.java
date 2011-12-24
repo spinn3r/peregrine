@@ -22,7 +22,7 @@ public class TestMappedFileWrites extends BaseTest {
         ChannelBufferWritable writable = mappedFile.getChannelBufferWritable();
 
         int size = 1024;
-        int max = 10 * 1024;
+        int max = 200 * 1024;
 
         for( int i = 0; i < max; ++i ) {
             writable.write( ChannelBuffers.buffer( size ) );
