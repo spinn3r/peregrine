@@ -268,12 +268,8 @@ public class MappedFile implements Closeable {
                 // aligned and then write these aligned pages then sync when the
                 // pages are aligned.  Otherwise we would write a page 2x
                 // because we first do a partial write, then when it is dirtied
-                // again we re-write the same page.  For a 100MB file this would
-                // be up to 4MB of extra data written but in practice it will
-                // average out to about 2MB of extra data written.  This is a
-                // small performance improvement (about 2%) but doesn't make
-                // sense to do something obviously foolish.
-
+                // again we re-write the same page.
+                
                 // the extra data that would be written.
                 long extra = newLength % syncWriteSize;
 
@@ -340,7 +336,7 @@ public class MappedFile implements Closeable {
 
         @Override
         public void sync() throws IOException {
-
+            
             channel.force( false );
 
             // TODO: I'm not sure this is the right strategy for ALL writes
