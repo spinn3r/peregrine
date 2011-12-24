@@ -29,6 +29,8 @@ public class TestMappedFileWrites extends BaseTest {
         }
         
         // now write a ton of data.
+
+        writable.close();
         
 	}
 	
