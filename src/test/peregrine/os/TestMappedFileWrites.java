@@ -12,7 +12,7 @@ public class TestMappedFileWrites extends BaseTest {
 	public void test1() throws Exception {
 
         Config config = new Config();
-        config.init();
+        //config.init();
         config.initEnabledFeatures();
 
         System.out.printf( "%s\n", config.toDesc() );
