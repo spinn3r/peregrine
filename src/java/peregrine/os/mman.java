@@ -95,8 +95,8 @@ public class mman {
         Pointer addr = mmap( file.length(), PROT_READ, mman.MAP_SHARED | mman.MAP_LOCKED, fd, 0 );
 
         // try to mlock it directly
-        mlock( addr, file.length() );
-        munlock( addr, file.length() );
+        //mlock( addr, file.length() );
+        //munlock( addr, file.length() );
         
         munmap( addr, file.length() );
         
