@@ -123,8 +123,8 @@
                timeout="1000000"
                maxmemory="512m"
                filtertrace="false"
-               haltonfailure="false"
-               haltonerror="false"
+               haltonfailure="true"
+               haltonerror="true"
                showoutput="true" 
                logfailedtests="true">
 
@@ -253,8 +253,8 @@
                timeout="1000000"
                maxmemory="512m"
                filtertrace="false"
-               haltonfailure="false"
-               haltonerror="false"
+               haltonfailure="true"
+               haltonerror="true"
                showoutput="true" 
                logfailedtests="true">
 
