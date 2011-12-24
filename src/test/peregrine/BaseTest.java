@@ -1,7 +1,9 @@
 package peregrine;
 
 import java.io.*;
-import peregrine.config.Config;
+
+import peregrine.io.util.*;
+import peregrine.config.*;
 
 import org.junit.runner.*;
 
@@ -69,11 +71,20 @@ public abstract class BaseTest extends junit.framework.TestCase {
 
     public static void copy( File source, File target ) throws IOException {
 
-        FileInputStream in = new FileInputStream( source );
-        FileOutputStream out = new FileOutputStream( target );
+        FileInputStream in = null;
+        FileOutputStream out = null;
 
-        out.getChannel().transferFrom( in.getChannel(), 0, source.length() );
-        
+        try {
+
+            in = new FileInputStream( source );
+            out = new FileOutputStream( target );
+
+            out.getChannel().transferFrom( in.getChannel(), 0, source.length() );
+
+        } finally {
+            new Closer( in, out ).close();
+        }
+
     }
     
     /**

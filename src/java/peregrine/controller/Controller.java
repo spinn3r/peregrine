@@ -196,6 +196,8 @@ public class Controller {
 
                 ShuffleInputReference shuffle = (ShuffleInputReference)ref;
 
+                log.info( "Going to purge %s for job %s", shuffle.getName(), job );
+                
                 purgeShuffleData( shuffle.getName() );
 
             }

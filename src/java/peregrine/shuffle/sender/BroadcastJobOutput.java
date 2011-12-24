@@ -20,6 +20,8 @@ public class BroadcastJobOutput extends ShuffleJobOutput {
 
         for ( Partition target : membership.getPartitions() ) {
             emit( target.getId() , key, value );
+            key.reset();
+            value.reset();
         }
 
     }

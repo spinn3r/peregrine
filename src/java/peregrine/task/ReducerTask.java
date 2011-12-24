@@ -115,20 +115,6 @@ public class ReducerTask extends BaseOutputTask implements Callable {
         log.info( "Sorted %,d entries in %,d chunk readers for partition %s",
                   listener.nr_tuples , nr_readers, partition );
 
-        // FIXME: we can't delete these until ALL reduces are done because we
-        // may do speculative execution and need this data again.
-
-        if ( config.getPurgeShuffleData() ) {
-
-            //FIXME: use Files.remove
-            
-            // we have to close ALL of our output streams now.
-            for( File shuffle : shuffles ) {
-                shuffle.delete();
-            }
-
-        }
-
     }
 
     public void setInput( Input input ) { 

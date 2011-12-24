@@ -93,7 +93,7 @@ public class ShuffleReceiverFactory {
     }
     
     public long lastFlushed() {
-        return lastFlushed();
+        return lastFlushed;
     }
     
 }
