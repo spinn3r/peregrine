@@ -40,55 +40,46 @@ public class StructReader {
     }
 
     public byte readByte() {
-        requireOpen();
 
         return buff.readByte();
     }
 
     public short readShort() {
-        requireOpen();
 
         return buff.readShort();
     }
 
     public int readVarint() {
-        requireOpen();
 
         return varintReader.read();
     }
 
     public int readInt() {
-        requireOpen();
 
         return buff.readInt();
     }
 
     public long readLong() {
-        requireOpen();
 
         return buff.readLong();
     }
 
     public float readFloat() {
-        requireOpen();
 
         return buff.readFloat();
     }
 
     public double readDouble() {
-        requireOpen();
 
         return buff.readDouble();
     }
 
     public boolean readBoolean() {
-        requireOpen();
 
     	return buff.readByte() == 1;
     }
     
     public char readChar() {
-        requireOpen();
 
         return buff.readChar();
     }
@@ -98,7 +89,6 @@ public class StructReader {
      * so that this StructReader can hold mulitiple byte arrays.
      */
     public byte[] readBytes() {
-        requireOpen();
         return readBytesFixed( readVarint() );
     }
 
@@ -109,38 +99,42 @@ public class StructReader {
      * to store the length prefix which would yield overhead.
      */
     public byte[] readBytesFixed( int size ) {
-        requireOpen();
         byte[] data = new byte[ size ];
         buff.readBytes( data );
         return data;
     }
 
     /**
-     * Read a length prefixed string.
+     * Read all the data in this StructReader as a byte array.  Useful if you
+     * have some alternative form of data representation you with to work with
+     * and need the bytes directly.
+     */
+    public byte[] readBytesFixed() {
+        return readBytesFixed( length() );
+    }
+    
+    /**
+     * Read a length prefixed string UTF8 string from the stream.
      */
     public String readString() {
-        requireOpen();
 
         byte[] data = readBytes();
         return new String( data, StructWriter.UTF8 );
+        
     }
     
     public byte[] read( byte[] data ) {
-        requireOpen();
 
         buff.readBytes( data );
         return data;
     }
 
     public byte[] readHashcode() {
-        requireOpen();
 
         return read(new byte[Hashcode.HASH_WIDTH]);
     }
 
     public byte[] toByteArray() {
-
-        requireOpen();
 
         byte[] result = new byte[ length() ];
         buff.getBytes( 0, result, 0, result.length );
@@ -176,13 +170,6 @@ public class StructReader {
      */
     public boolean isReadable() {
         return buff.readerIndex() < buff.writerIndex();
-    }
-
-    private void requireOpen() {
-
-        if ( backing != null && backing.isClosed() )
-            throw new RuntimeException( "closed" );
-        
     }
     
 }

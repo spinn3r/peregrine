@@ -15,8 +15,6 @@ Additional burton-struct-api-change before merging.
         - 
           
   
-    - refactor Closer so it is small and tight
-
     - Make sure ALL the WithMultiConfigs test are configured and running.
 
     - Replace HashSetValue with StructReader ...
