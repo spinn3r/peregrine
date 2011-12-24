@@ -25,8 +25,7 @@ public class TestMappedFileWrites extends BaseTest {
         int max = 200 * 1024;
 
         for( int i = 0; i < max; ++i ) {
-            System.out.printf( "." );
-            writable.write( ChannelBuffers.buffer( size ) );
+            writable.write( ChannelBuffers.wrappedBuffer( new byte[size] ) );
         }
         
         // now write a ton of data.
