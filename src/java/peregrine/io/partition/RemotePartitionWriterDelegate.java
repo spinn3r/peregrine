@@ -17,7 +17,7 @@ public class RemotePartitionWriterDelegate extends BasePartitionWriterDelegate {
 
     private static final Logger log = Logger.getLogger();
 
-    public RemotePartitionWriterDelegate( Config config, boolean autoForce ) {
+    public RemotePartitionWriterDelegate( Config config, boolean autoSync ) {
 
     }
 

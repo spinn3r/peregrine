@@ -73,7 +73,7 @@ public class DefaultPartitionWriter implements PartitionWriter, ChunkWriter {
                                    String path,
                                    boolean append,
                                    List<Host> hosts,
-                                   boolean autoForce ) throws IOException {
+                                   boolean autoSync ) throws IOException {
 
         this.config = config;
         this.partition = partition;
@@ -88,9 +88,9 @@ public class DefaultPartitionWriter implements PartitionWriter, ChunkWriter {
             PartitionWriterDelegate delegate;
 
             if ( host.equals( config.getHost() ) ) {
-                delegate = new LocalPartitionWriterDelegate( config,  autoForce );
+                delegate = new LocalPartitionWriterDelegate( config,  autoSync );
             } else { 
-                delegate = new RemotePartitionWriterDelegate( config, autoForce );
+                delegate = new RemotePartitionWriterDelegate( config, autoSync );
             }
 
             delegate.init( config, partition, host, path );

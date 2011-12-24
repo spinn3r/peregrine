@@ -254,9 +254,9 @@ public class LocalReducer {
 
         boolean append = false;
 
-        // we set autoForce to false for now so that pages don't get
+        // we set autoSync to false for now so that pages don't get
         // automatically sent do disk.
-        boolean autoForce = false;
+        boolean autoSync = false;
 
         List<Host> hosts = new ArrayList() {{
             add( config.getHost() );
@@ -267,7 +267,7 @@ public class LocalReducer {
                                            path,
                                            append,
                                            hosts,
-                                           autoForce );
+                                           autoSync );
 
     }
 
