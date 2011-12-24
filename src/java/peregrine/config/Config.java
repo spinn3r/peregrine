@@ -7,6 +7,7 @@ import java.util.*;
 import peregrine.config.partitioner.*;
 import peregrine.util.primitive.*;
 import peregrine.util.*;
+import peregrine.values.*;
 import peregrine.os.*;
 import peregrine.sysstat.*;
 
@@ -197,7 +198,7 @@ public class Config extends BaseConfig {
     /**
      * For a given key, in bytes, route it to the correct partition/partition.
      */
-    public Partition partition( byte[] key ) {
+    public Partition partition( StructReader key ) {
     	return partitioner.partition( key );    
     }
 

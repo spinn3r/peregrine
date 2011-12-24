@@ -3,6 +3,7 @@ package peregrine.io;
 import java.io.*;
 import java.util.*;
 import peregrine.reduce.*;
+import peregrine.values.*;
 import peregrine.io.partition.*;
 
 /**
@@ -18,10 +19,13 @@ public class LocalMerger {
     private FileComparator comparator = new FileComparator();
 
     private List<LocalPartitionReader> readers;
-    
+
     public LocalMerger( List<LocalPartitionReader> readers )
         throws IOException {
 
+        if ( readers.size() == 0 )
+            throw new IllegalArgumentException( "readers" );
+        
         this.readers = readers;
         
         this.queue = new FilePriorityQueue();
@@ -42,7 +46,7 @@ public class LocalMerger {
 
         int nr_readers = readers.size();
         
-        byte[][] joined = new byte[nr_readers][];
+        List<StructReader> joined = newEmptyList( nr_readers );
         
         while( true ) {
 
@@ -53,15 +57,16 @@ public class LocalMerger {
                 if ( ref == null && last == null )
                     return null;
 
-                if ( last != null )
-                    joined[last.id] = last.value;
+                if ( last != null ) {
+                    joined.set( last.id, last.value );
+                }
 
                 boolean changed = ref == null || ( last != null && comparator.compare( last, ref ) != 0 );
                 
                 if ( changed ) {
                     
                     JoinedTuple result = new JoinedTuple( last.key, joined );
-                    joined = new byte[nr_readers][];
+                    joined = newEmptyList( nr_readers );
                     
                     return result;
                     
@@ -75,6 +80,18 @@ public class LocalMerger {
         
     }
 
+    private List<StructReader> newEmptyList(int size) {
+
+        List<StructReader> result = new ArrayList( size );
+
+        for( int i = 0; i < size; ++i ) {
+            result.add( null );
+        }
+        
+        return result;
+        
+    }
+    
 }
 
 class FilePriorityQueue {
@@ -86,9 +103,9 @@ class FilePriorityQueue {
         if ( ref.reader.hasNext() == false )
             return;
         
-        ref.key   = ref.reader.key();
-        ref.value = ref.reader.value();
-
+        ref.setKey( ref.reader.key() );
+        ref.setValue( ref.reader.value() );
+        
         delegate.add( ref );
 
     }
@@ -112,9 +129,10 @@ class FilePriorityQueue {
 
 class FileReference {
 
-    public byte[] key;
+	public byte[] keyAsByteArray = null;;
 
-    public byte[] value;
+    protected StructReader key = null;
+    protected StructReader value = null;
     
     public int id = -1;
     protected LocalPartitionReader reader;
@@ -124,12 +142,21 @@ class FileReference {
         this.reader = reader;
     }
 
-    public FileReference( int id, byte[] key, byte[] value ) {
+    public FileReference( int id, StructReader key, StructReader value ) {
         this.id = id;
-        this.key = key;
-        this.value = value;
+        this.setKey( key );
+        this.setValue( value );
     }
 
+    public void setKey( StructReader key ) {
+        this.keyAsByteArray = key.toByteArray();
+        this.key = key;
+    }
+
+    public void setValue( StructReader value ) {
+        this.value = value;
+    }
+    
 }
 
 class FileComparator implements Comparator<FileReference> {
@@ -139,7 +166,7 @@ class FileComparator implements Comparator<FileReference> {
     
     public int compare( FileReference r1, FileReference r2 ) {
 
-        return delegate.compare( r1.key , r2.key );
+        return delegate.compare( r1.keyAsByteArray , r2.keyAsByteArray );
 
     }
 

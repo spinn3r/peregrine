@@ -2,7 +2,6 @@ package peregrine.io;
 
 import java.io.*;
 import java.util.*;
-import peregrine.keys.*;
 import peregrine.values.*;
 import peregrine.util.*;
 import peregrine.util.primitive.LongBytes;

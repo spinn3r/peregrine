@@ -15,8 +15,9 @@ import peregrine.io.chunk.*;
 import com.spinn3r.log5j.Logger;
 
 import static peregrine.pfsd.FSPipelineFactory.*;
+import peregrine.values.*;
 
-public class ShuffleSender {
+public class ShuffleSender implements Flushable, Closeable {
 
     private static final Logger log = Logger.getLogger();
 
@@ -42,23 +43,16 @@ public class ShuffleSender {
 
     }
 
-    public void emit( int to_partition, byte[] key, byte[] value ) throws ShuffleFailedException {
+    public void emit( int to_partition, StructReader key, StructReader value ) throws ShuffleFailedException {
 
         ShuffleOutputTarget client = partitionOutput.get( to_partition );
-
-        // TODO: WARNING in practice using a direct buffer turned out ot be a
-        // BIG performance penalty.
-
-        //ChannelBuffer buff = ChannelBuffers.directBuffer( IntBytes.LENGTH * 2 + key.length + value.length );
-        ChannelBuffer buff = ChannelBuffers.buffer( IntBytes.LENGTH * 2 + key.length + value.length );
-
-        DefaultChunkWriter.write( buff, key, value );
         
         try {
         
-            client.write( buff );
+            length += DefaultChunkWriter.write( client, key, value );
+
+            ++client.count;
             ++count;
-            length += buff.writerIndex();
 
         } catch ( Exception e ) {
 
@@ -76,16 +70,32 @@ public class ShuffleSender {
     public long length() {
         return length;
     }
-    
-    public void close() throws IOException {
 
-        // now close all clients and we are done.
+    @Override
+    public void flush() throws IOException {
 
         for( ShuffleOutputTarget client : partitionOutput.values() ) {
             client.flush();
-            client.getClient().shutdown();
         }
-        
+
+    }
+
+    @Override
+    public void close() throws IOException {
+
+        // flush the pending IO first 
+        for( ShuffleOutputTarget client : partitionOutput.values() ) {
+            client.flush();
+        }
+
+        // now close all clients and we are done.  To make this faster we first
+        // call shutdown on all of them.
+
+        for( ShuffleOutputTarget client : partitionOutput.values() ) {
+            client.shutdown();
+        }
+
+        // now close the targets since they should all be shutdown.
         for( ShuffleOutputTarget client : partitionOutput.values() ) {
             client.close();
         }
@@ -136,8 +146,13 @@ public class ShuffleSender {
      */
     class ShuffleOutputTarget extends BufferedChannelBufferWritable {
 
-        private Host host;
-        private HttpClient client;
+        protected Host host;
+        protected HttpClient client;
+
+        /**
+         * The number of entries written (count) to this target since the last flush.
+         */
+        protected int count = 0;
         
         public ShuffleOutputTarget( Host host, HttpClient client, int capacity ) {
             super( client, capacity - HttpClient.CHUNK_OVERHEAD );
@@ -148,10 +163,14 @@ public class ShuffleSender {
         @Override
         public void preFlush() throws IOException {
 
-            // add the number of entries written to this buffer 
-            byte[] data = IntBytes.toByteArray( this.buffers.size() );
+            // add the number of entries written to this buffer (AKA the count)
 
-            this.buffers.add( ChannelBuffers.wrappedBuffer( data ) );
+            ChannelBuffer buff = ChannelBuffers.buffer( IntBytes.LENGTH ) ;
+            buff.writeInt( count );
+            
+            this.buffers.add( buff );
+
+            count = 0;
             
         }
 

@@ -1,6 +1,7 @@
 package peregrine.io.partition;
 
 import java.io.*;
+import peregrine.values.*;
 import peregrine.io.*;
 
 public class PartitionWriterJobOutput implements JobOutput {
@@ -11,7 +12,8 @@ public class PartitionWriterJobOutput implements JobOutput {
         this.writer = writer;
     }
 
-    public void emit( byte[] key , byte[] value ) {
+    @Override
+    public void emit( StructReader key , StructReader value ) {
 
         try {
 
@@ -23,6 +25,13 @@ public class PartitionWriterJobOutput implements JobOutput {
         
     }
 
+
+    @Override
+    public void flush() throws IOException {
+        writer.flush();
+    }
+
+    @Override
     public void close() throws IOException {
         writer.close();
     }

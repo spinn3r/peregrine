@@ -4,7 +4,9 @@ package peregrine.reduce.merger;
 import java.io.*;
 import java.util.*;
 import peregrine.config.*;
+import peregrine.io.*;
 import peregrine.io.chunk.*;
+import peregrine.io.util.*;
 import peregrine.reduce.*;
 
 import com.spinn3r.log5j.Logger;
@@ -79,12 +81,15 @@ public class ChunkMerger {
 
     private Partition partition;
 
+    private List<JobOutput> output;
+    
     public ChunkMerger() {
     }
 
-    public ChunkMerger( SortListener listener, Partition partition ) {
+    public ChunkMerger( SortListener listener, Partition partition, List<JobOutput> output ) {
         this.listener = listener;
         this.partition = partition;
+        this.output = output;
     }
 
     public void merge( List<ChunkReader> input ) throws IOException {
@@ -106,10 +111,12 @@ public class ChunkMerger {
                 log.info( "No input to sort." );
                 return;
             }
+
+            log.info( "Merging %,d readers." , input.size() );
             
             MergerPriorityQueue queue = new MergerPriorityQueue( input );
                             
-            SortResult result = new SortResult( writer, listener );
+            SortResult sortResult = new SortResult( writer, listener );
 
             while( true ) {
                 
@@ -118,22 +125,30 @@ public class ChunkMerger {
                 if ( entry == null )
                     break;
 
-                result.accept( topLevelSortEntryFactory.newSortEntry( entry.key, entry.value ) );
+                sortResult.accept( topLevelSortEntryFactory.newSortEntry( entry.key, entry.value ) );
 
                 ++entries;
 
             }
 
-            result.close();
+            sortResult.close();
 
             if ( writer != null )         
                 writer.close();
 
             log.info( "Merged %,d entries for %s" , entries, partition );
 
-            // close all the readers to free up resources on the server.
-            for( ChunkReader reader : input ) {
+            new Flusher( output ).flush();
+
+            // TODO: migrate this to use Closer... 
+
+            // close all the readers to free up resources.
+            for( Closeable reader : input ) {
+
+                //FIXME: ok THIS is the bug... if I comment this out it will work!!!
+                
                 reader.close();
+                
             }
             
         } catch ( Throwable t ) {

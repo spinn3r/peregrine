@@ -3,6 +3,7 @@ package peregrine;
 import java.util.*;
 import peregrine.values.*;
 import peregrine.io.*;
+import peregrine.values.*;
 
 /**
  * Take a key and list of values, and reduce them and emit result.
@@ -19,19 +20,19 @@ public class Reducer {
 
     public void cleanup() {}
     
-    public void reduce( byte[] key, List<byte[]> values ) {
+    public void reduce( StructReader key, List<StructReader> values ) {
 
         Struct struct = new Struct();
 
-        for( byte[] val : values ) {
+        for( StructReader val : values ) {
             struct.write( val );
         }
 
-        emit( key, struct.toBytes() );
+        emit( key, new StructReader( struct.toChannelBuffer() ) );
 
     }
         
-    public void emit( byte[] key, byte[] value ) {
+    public void emit( StructReader key, StructReader value ) {
         stdout.emit( key, value );
     }
 

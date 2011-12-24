@@ -116,6 +116,8 @@
             <classpath refid="project.classpath"/>
         </taskdef>	
 
+        <mkdir dir="target/test-reports" />
+
         <junit printsummary="withOutAndErr"
                fork="true"
                forkmode="perTest"
@@ -127,7 +129,7 @@
                showoutput="true" 
                logfailedtests="true">
 
-            <formatter type="plain" usefile="false" />
+            <formatter type="plain" usefile="true" />
 
             <classpath>
                 <path refid="project.classpath"/>
@@ -260,7 +262,7 @@
             <jvmarg value="-Dperegrine.test.config=${peregrine.test.config}"/>
             <jvmarg value="-Dperegrine.test.factor=${peregrine.test.factor}"/>
 
-            <formatter type="plain" usefile="false" />
+            <formatter type="plain" usefile="true" />
 
             <classpath>
                 <path refid="project.classpath"/>
@@ -271,7 +273,7 @@
                 <fileset dir="src/test">
 
                   <include name="peregrine/TestPagerank.java"/>
-                  
+                  <include name="peregrine/TestNewReduceCode.java"/>
                   <include name="peregrine/TestMapReduce.java"/>
                   <include name="peregrine/io/partition/TestDefaultPartitionWriter.java"/>
                   <include name="peregrine/pfs/TestRemoteChunkWriterClient.java"/>

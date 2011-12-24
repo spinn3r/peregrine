@@ -14,14 +14,11 @@ public class TestExtractWriter extends BaseTestWithTwoPartitions {
         
         ExtractWriter writer = new ExtractWriter( config, path );
 
-        for ( int i = 0; i < 100; ++i ) {
+        for ( long i = 0; i < 100; ++i ) {
 
-            byte[] key = new StructWriter()
-                .writeLong( i )
-                .toBytes()
-                ;
+        	StructReader key = StructReaders.wrap( i );
 
-            byte[] value = key;
+        	StructReader value = key;
 
             writer.write( key, value );
             

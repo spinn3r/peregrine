@@ -1,9 +1,13 @@
 
 package peregrine.task;
 
+import java.io.*;
 import java.util.*;
+
 import peregrine.*;
+import peregrine.io.chunk.*;
 import peregrine.io.partition.*;
+import peregrine.io.util.*;
 import peregrine.map.*;
 import peregrine.sysstat.*;
 
@@ -53,7 +57,7 @@ public class MapperTask extends BaseMapperTask {
             report();
 
             log.info( "Ran with profiler rate: \n%s", profiler.rate() );
-
+            
         }
         
         return null;
@@ -76,6 +80,22 @@ public class MapperTask extends BaseMapperTask {
         
         LocalPartitionReader reader = readers.get( 0 );
 
+        reader.addListener( new LocalPartitionReaderListener() {
+
+                public void onChunk( ChunkReference ref ) { }
+                
+                public void onChunkEnd( ChunkReference ref ) {
+
+                    try {
+                        new Flusher( jobOutput ).flush();
+                    } catch ( IOException e ) {
+                        throw new RuntimeException( e );
+                    }
+
+                }
+
+            } );
+        
         int count = 0;
         
         while( reader.hasNext() ) {

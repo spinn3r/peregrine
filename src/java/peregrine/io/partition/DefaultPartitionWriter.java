@@ -9,6 +9,7 @@ import peregrine.io.chunk.*;
 import peregrine.os.*;
 import peregrine.pfsd.*;
 import peregrine.util.netty.*;
+import peregrine.values.*;
 
 import com.spinn3r.log5j.Logger;
 
@@ -35,11 +36,6 @@ public class DefaultPartitionWriter implements PartitionWriter, ChunkWriter {
     private long length = 0;
 
     private Config config;
-
-    /**
-     * Keep track of writables w ehave allocated.
-     */
-    private List<ChannelBufferWritable> writables = new ArrayList();
     
     public DefaultPartitionWriter( Config config,
                                    Partition partition,
@@ -110,13 +106,23 @@ public class DefaultPartitionWriter implements PartitionWriter, ChunkWriter {
     }
 
     @Override
-    public void write( byte[] key_bytes, byte[] value_bytes )
+    public void write( StructReader key, StructReader value )
         throws IOException {
 
-        chunkWriter.write( key_bytes, value_bytes );
+        chunkWriter.write( key, value );
 
         rolloverWhenNecessary();
         
+    }
+
+    @Override
+    public void flush() throws IOException {
+    
+        if ( chunkWriter != null ) {
+            chunkWriter.flush();
+            length += chunkWriter.length();
+        }
+
     }
 
     @Override
@@ -181,7 +187,6 @@ public class DefaultPartitionWriter implements PartitionWriter, ChunkWriter {
                 ChannelBufferWritable writable = delegate.newChunkWriter( chunkId );
 
                 writablesPerHost.put( delegate.getHost(), writable );
-                writables.add( writable );
                 
             } else if ( client == null ) {
 
@@ -189,7 +194,6 @@ public class DefaultPartitionWriter implements PartitionWriter, ChunkWriter {
                 
                 client = (HttpClient)writable;
                 writablesPerHost.put( delegate.getHost(), writable );
-                writables.add( writable );
 
             } else {
                 pipeline += delegate.getHost() + " ";
@@ -208,16 +212,5 @@ public class DefaultPartitionWriter implements PartitionWriter, ChunkWriter {
 
     }
 
-    /**
-     * For all IO to be written out to disk that has not yet been forced.
-     */
-    public void force() throws IOException {
-
-        for( ChannelBufferWritable writable : writables ) {
-            writable.sync();
-        }
-
-    }
-    
 }
 

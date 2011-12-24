@@ -3,7 +3,6 @@ package peregrine.util.netty;
 import java.io.*;
 import java.util.*;
 
-import peregrine.keys.*;
 import peregrine.values.*;
 import peregrine.util.*;
 import peregrine.util.primitive.LongBytes;
@@ -56,7 +55,7 @@ public class TestPrefetchReader extends peregrine.BaseTest {
             if ( read + width > length )
                 width = (int)(length - read);
             
-            reader.readBytes( new byte[width] );
+            reader.read( width );
             
             read += width;
 

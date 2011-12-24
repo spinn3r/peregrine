@@ -9,11 +9,19 @@ import peregrine.io.partition.*;
 import peregrine.util.*;
 import peregrine.io.chunk.*;
 import com.spinn3r.log5j.Logger;
+import peregrine.values.*;
 
-public interface ShuffleJobOutputDelegate extends JobOutput, LocalPartitionReaderListener {
+public interface ShuffleJobOutputDelegate
+    extends JobOutput, LocalPartitionReaderListener, Closeable, Flushable {
 
-    public void emit( int to_partition, byte[] key , byte[] value );
+    public void emit( int to_partition, StructReader key , StructReader value );
 
     public long length();
+
+    @Override
+    public void flush() throws IOException;
+
+    @Override
+    public void close() throws IOException;
     
 }

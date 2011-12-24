@@ -46,12 +46,12 @@ public class DefaultChannelUpstreamHandler extends SimpleChannelUpstreamHandler 
         Channel ch = e.getChannel();
         Throwable cause = e.getCause();
 
-        String tag = request.getHeader( HttpClient.X_TAG );
-        
-        if ( request == null )
-            log.error( String.format( "Could not handle initial request (tag=%s): ", tag ), cause );
-        else
+        if ( request == null ) {
+            log.error( String.format( "Could not handle initial request: " ), cause );
+        } else {
+            String tag = request.getHeader( HttpClient.X_TAG );
             log.error( String.format( "Could not handle request (tag=%s): %s %s", tag, request.getMethod(), request.getUri() ) , cause );
+        }
 
         if (cause instanceof TooLongFrameException) {
             sendError(ctx, BAD_REQUEST);

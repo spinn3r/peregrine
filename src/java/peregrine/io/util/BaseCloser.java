@@ -6,33 +6,33 @@ import java.util.*;
 /**
  * Implements JDK 1.7 try-with-resources style closing for multiple Closeables.
  *
- * @see http://docs.oracle.com/javase/tutorial/essential/exceptions/tryResourceClose.html
+ * http://docs.oracle.com/javase/tutorial/essential/exceptions/tryResourceClose.html
  */
-public class Closer implements Closeable {
+public abstract class BaseCloser<T> {
 
-    private List<Closeable> closeables = new ArrayList();
+    protected List<T> delegates = new ArrayList();
 
     private Throwable cause = null;
 
-    private boolean closed = false;
+    private boolean executed = false;
 
-    public Closer() { }
+    public BaseCloser() { }
 
-    public Closer( List closeables ) {
-        this.closeables = (List<Closeable>)closeables;
+    public BaseCloser( List<T> delegates ) {
+        this.delegates = delegates;
     }
     
-    public Closer( Closeable... closeables ) {
-        add( closeables );
+    public BaseCloser( T... delegates ) {
+        add( delegates );
     }
 
-    public void add( Closeable closeable ) {
-        closeables.add( closeable );
+    public void add( T delegate ) {
+        delegates.add( delegate );
     }
 
-    public void add( Closeable... closeables ) {
-        for( Closeable current : closeables ) {
-            this.closeables.add( current );
+    public void add( T... delegates ) {
+        for( T current : delegates ) {
+            this.delegates.add( current );
         }
     }
 
@@ -40,14 +40,13 @@ public class Closer implements Closeable {
         this.cause = cause;
     }
 
-    public boolean closed() {
-        return closed;
+    protected boolean executed() {
+        return executed;
     }
     
-    @Override
-    public void close() throws GroupIOException {
+    protected void exec() throws GroupIOException {
 
-        if ( closed )
+        if ( executed )
             return;
         
         GroupIOException exc = null;
@@ -55,14 +54,14 @@ public class Closer implements Closeable {
         if ( cause != null )
             exc = new GroupIOException( cause );
         
-        for ( Closeable current : closeables ) {
+        for ( T current : delegates ) {
 
             if ( current == null )
                 continue;
             
             try {
 
-                current.close();
+                onDelegate( current );
 
             } catch ( Throwable t ) {
 
@@ -76,12 +75,14 @@ public class Closer implements Closeable {
 
         }
 
-        closed = true;
+        executed = true;
         
         if ( exc != null )
             throw exc;
         
     }
+
+    protected abstract void onDelegate( T delegate ) throws IOException;
     
 }
     

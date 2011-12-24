@@ -8,6 +8,7 @@ import java.util.concurrent.atomic.*;
 import peregrine.*;
 import peregrine.config.*;
 import peregrine.io.partition.*;
+import peregrine.values.*;
 
 import com.spinn3r.log5j.Logger;
 
@@ -45,18 +46,11 @@ public class ExtractWriter {
         partitionWriteHistograph = new PartitionRouteHistograph( config );
         
     }
-
-    public void write( Key key, Value value ) 
-        throws IOException {
-
-        write( key.toBytes(), value.toBytes() );
-        
-    }
     
     /**
      * If the Key is already a hashcode and we can route over it specify keyIsHashcode=true.
      */
-    public void write( byte[] key, byte[] value )
+    public void write( StructReader key, StructReader value )
         throws IOException {
 
         Partition partition = config.partition( key );
@@ -65,7 +59,7 @@ public class ExtractWriter {
         
     }
 
-    private void write( Partition part, byte[] key, byte[] value )
+    private void write( Partition part, StructReader key, StructReader value )
         throws IOException {
 
         partitionWriteHistograph.incr( part );

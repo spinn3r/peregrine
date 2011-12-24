@@ -2,6 +2,7 @@
 package peregrine.reduce.sorter;
 
 import java.io.*;
+
 import java.nio.channels.*;
 import java.util.*;
 
@@ -11,6 +12,8 @@ import peregrine.io.chunk.*;
 import peregrine.io.util.*;
 import peregrine.shuffle.*;
 import peregrine.util.*;
+import peregrine.util.netty.*;
+import peregrine.values.*;
 
 import org.jboss.netty.buffer.*;
 
@@ -31,7 +34,7 @@ public class ChunkSorter extends BaseChunkSorter {
         
     }
 
-    public ChunkReader sort( List<ShuffleInputChunkReader> input, File output )
+    public ChunkReader sort( List<ShuffleInputChunkReader> input, File output, List<JobOutput> jobOutput )
         throws IOException {
 
         CompositeShuffleInputChunkReader reader = null;
@@ -74,13 +77,10 @@ public class ChunkSorter extends BaseChunkSorter {
                 current.backing.readerIndex( start );
 
                 int key_length = varintReader.read();
-
-                byte[] key = new byte[ key_length ];
-                current.backing.readBytes( key );
+                StructReader key = new StructReader( current.backing.readSlice( key_length ) );
 
                 int value_length = varintReader.read();
-                byte[] value = new byte[ value_length ];
-                current.backing.readBytes( value );
+                StructReader value = new StructReader( current.backing.readSlice( value_length ) );
 
                 writer.write( key, value );
                 
@@ -97,7 +97,12 @@ public class ChunkSorter extends BaseChunkSorter {
             throw new IOException( error , t );
             
         } finally {
+
+            new Flusher( jobOutput )
+                .flush();
+
             new Closer( reader, writer ).close();
+
         }
 
         // if we got to this part we're done... 

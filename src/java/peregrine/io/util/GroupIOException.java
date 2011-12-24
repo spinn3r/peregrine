@@ -8,13 +8,13 @@ import java.io.*;
  *
  * http://docs.oracle.com/javase/tutorial/essential/exceptions/tryResourceClose.html
  */
-public class CloserException extends IOException {
+public class GroupIOException extends IOException {
 
     List<Throwable> suppressed = new ArrayList();
 
     private Throwable cause;
     
-    public CloserException( Throwable cause ) {
+    public GroupIOException( Throwable cause ) {
         this.cause = cause;
         initCause( this.cause );
     }

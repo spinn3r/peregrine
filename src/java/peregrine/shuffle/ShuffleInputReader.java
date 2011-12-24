@@ -14,9 +14,9 @@ import org.jboss.netty.buffer.*;
 /**
  * 
  */
-public class ShuffleInputReader {
+public class ShuffleInputReader implements Closeable {
 
-    public static boolean ENABLE_MEMLOCK = true;
+    public static boolean ENABLE_MEMLOCK = false;
     
     /**
      * The current packet index we're on.
@@ -110,7 +110,6 @@ public class ShuffleInputReader {
         }
 
         // make sure we have headers for ALL the partitions we requested
-
         for( Partition partition : partitions ) {
 
             ShuffleHeader header = headersByPartition.get( partition );
@@ -192,6 +191,7 @@ public class ShuffleInputReader {
         
     }
 
+    @Override
     public void close() throws IOException {
 
         mappedFile.close();

@@ -4,6 +4,7 @@ import java.io.*;
 import peregrine.*;
 import peregrine.util.*;
 import peregrine.util.primitive.LongBytes;
+import peregrine.values.*;
 import peregrine.reduce.*;
 import peregrine.config.Partition;
 import peregrine.controller.*;
@@ -45,11 +46,11 @@ public class TestShufflePerformance extends BaseTestWithMultipleConfigs {
             // we need to call onChunk to init the shuffle job output.
             output.onChunk( chunkRef );
 
-            for ( int i = 0; i < max_emits; ++i ) {
+            for ( long i = 0; i < max_emits; ++i ) {
 
-                byte[] key = LongBytes.toByteArray( i );
-
-                output.emit( key, value );
+                StructReader key = StructReaders.wrap( i );
+                
+                output.emit( key, key );
                 
             }
 

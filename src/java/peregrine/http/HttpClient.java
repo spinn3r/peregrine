@@ -50,7 +50,7 @@ public class HttpClient implements ChannelBufferWritable {
      */
     public static long tag = 0;
     
-    public static int LIMIT = 10;
+    public static int QUEUE_CAPACITY = 10;
 
     /**
      * The write timeout for requests.
@@ -62,7 +62,7 @@ public class HttpClient implements ChannelBufferWritable {
     /**
      * Stores writes waiting to be sent over the wire.
      */
-    protected SimpleBlockingQueue<ChannelBuffer> queue = new SimpleBlockingQueue( LIMIT );
+    protected SimpleBlockingQueue<ChannelBuffer> queue = new SimpleBlockingQueue( QUEUE_CAPACITY );
 
     /**
      * Stores the result of this IO operation.  Boolean.TRUE if it was success
@@ -81,12 +81,12 @@ public class HttpClient implements ChannelBufferWritable {
     protected HttpRequest request;
 
     /**
-     * True when the open() method has been called.
+     * True when the open method has been called.
      */
     private boolean opened = false;
 
     /**
-     * Request that we close()
+     * Request that we close the connection.
      */
     private boolean closed = false;
 
@@ -103,7 +103,7 @@ public class HttpClient implements ChannelBufferWritable {
     /**
      * Clear to directly send a packet. 
      */
-    protected boolean clearToSend = false;
+    protected SimpleBlockingQueue<Boolean> clearToSend = new SimpleBlockingQueue();
 
     /**
      * True when we have initialized the client.
@@ -115,6 +115,9 @@ public class HttpClient implements ChannelBufferWritable {
      */
     protected Channel channel = null;
 
+    /**
+     * The default method to use (normally HTTP PUT).
+     */
     protected HttpMethod method = HttpMethod.PUT;
     
     public HttpClient( List<Host> hosts, String path ) throws IOException {
@@ -343,9 +346,15 @@ public class HttpClient implements ChannelBufferWritable {
 
     }
 
+    // TODO: add this later as it would be nice to flush pending output but
+    // right now it's not strictly needed.
+
+    @Override
+    public void flush() throws IOException { }
+
     @Override
     public void sync() throws IOException { }
-
+    
     @Override
     public void close() throws IOException {
         close(true);
@@ -367,6 +376,9 @@ public class HttpClient implements ChannelBufferWritable {
         // even in block mode we must enter this once to send the last packet
         // directly if necessary.
         waitForClose( block );
+
+        // prevent any more write requests
+        closed = true;
 
         // we need to return here becuase we would then block for the result.
         if ( block == false )
@@ -410,7 +422,9 @@ public class HttpClient implements ChannelBufferWritable {
 
         while( true ) { 
         
-            if ( clearToSend && queue.peek() != null ) {
+            if ( clearToSend.peek() != null && queue.peek() != null ) {
+
+                clearToSend.take();
                 
                 ChannelBuffer data = queue.take();
                 
@@ -433,9 +447,6 @@ public class HttpClient implements ChannelBufferWritable {
             }
 
         }
-
-        // prevent any more write requests
-        closed = true;
 
     }
 
@@ -470,9 +481,9 @@ public class HttpClient implements ChannelBufferWritable {
         
         try {
             
-            if ( clearToSend ) {
+            if ( clearToSend.peek() != null ) {
                 
-                clearToSend = false;
+                clearToSend.take();
 
                 // NOTE it is required to put a packet on to the queue and pull
                 // one back off because technically there could be a race in the
@@ -557,7 +568,7 @@ public class HttpClient implements ChannelBufferWritable {
 
             // the queue was drained so the next packet should be sent direc
 
-            client.clearToSend = true;
+            client.clearToSend.put( Boolean.TRUE );
 
         }
 

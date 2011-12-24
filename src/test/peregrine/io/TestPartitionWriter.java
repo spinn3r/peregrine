@@ -50,12 +50,9 @@ public class TestPartitionWriter extends BaseTestWithTwoPartitions {
 
         for ( int i = 0; i < 10000; ++i ) {
 
-            byte[] key = new StructWriter()
-                .writeVarint( i )
-                .toBytes()
-                ;
+        	StructReader key = StructReaders.varint(i);
 
-            byte[] value = key;
+        	StructReader value = key;
 
             writer.write( key, value );
             
@@ -115,12 +112,9 @@ public class TestPartitionWriter extends BaseTestWithTwoPartitions {
 
         for ( int i = 0; i < max_per_round; ++i ) {
 
-            byte[] key = new StructWriter()
-                .writeVarint( i )
-                .toBytes()
-                ;
+        	StructReader key = StructReaders.varint(i);
 
-            byte[] value = key;
+        	StructReader value = key;
 
             writer.write( key, value );
             
@@ -139,12 +133,9 @@ public class TestPartitionWriter extends BaseTestWithTwoPartitions {
 
         for ( int i = 0; i < max_per_round; ++i ) {
 
-            byte[] key = new StructWriter()
-                .writeVarint( i )
-                .toBytes()
-                ;
+        	StructReader key = StructReaders.varint(i);
 
-            byte[] value = key;
+        	StructReader value = key;
 
             writer.write( key, value );
             
@@ -167,10 +158,9 @@ public class TestPartitionWriter extends BaseTestWithTwoPartitions {
             try {
             
                 reader.key();
-                byte[] value = reader.value();
+                StructReader value = reader.value();
                 
-                int intval = new StructReader( value )
-                    .readVarint();
+                int intval = value.readVarint();
                 
                 if ( count < 10000 )
                     assertEquals( intval, count );
