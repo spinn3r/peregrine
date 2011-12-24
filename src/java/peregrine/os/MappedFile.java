@@ -262,51 +262,51 @@ public class MappedFile implements Closeable {
                 
             }
 
-            if ( autoSync && syncWriteSize > 0 && newLength > synced + syncWriteSize ) {
+            // if ( autoSync && syncWriteSize > 0 && newLength > synced + syncWriteSize ) {
 
-                // slice the channel buffer into smaller regions which are page
-                // aligned and then write these aligned pages then sync when the
-                // pages are aligned.  Otherwise we would write a page 2x
-                // because we first do a partial write, then when it is dirtied
-                // again we re-write the same page.  For a 100MB file this would
-                // be up to 4MB of extra data written but in practice it will
-                // average out to about 2MB of extra data written.  This is a
-                // small performance improvement (about 2%) but doesn't make
-                // sense to do something obviously foolish.
+            //     // slice the channel buffer into smaller regions which are page
+            //     // aligned and then write these aligned pages then sync when the
+            //     // pages are aligned.  Otherwise we would write a page 2x
+            //     // because we first do a partial write, then when it is dirtied
+            //     // again we re-write the same page.  For a 100MB file this would
+            //     // be up to 4MB of extra data written but in practice it will
+            //     // average out to about 2MB of extra data written.  This is a
+            //     // small performance improvement (about 2%) but doesn't make
+            //     // sense to do something obviously foolish.
 
-                // the extra data that would be written.
-                long extra = newLength % syncWriteSize;
+            //     // the extra data that would be written.
+            //     long extra = newLength % syncWriteSize;
 
-                /*
-                 * 
-                 * This is a visual diagram of the page alignment.  Each
-                 * character is a 512 byte sector to shorten the visual
-                 * representation.
-                 * 
-                 * bytes written:   |===========|
-                 * page alignment:  |==============|
-                 * the write:                    |=====|
-                 */
+            //     /*
+            //      * 
+            //      * This is a visual diagram of the page alignment.  Each
+            //      * character is a 512 byte sector to shorten the visual
+            //      * representation.
+            //      * 
+            //      * bytes written:   |===========|
+            //      * page alignment:  |==============|
+            //      * the write:                    |=====|
+            //      */
                 
-                if ( extra > 0 ) {
+            //     if ( extra > 0 ) {
                     
-                    // the boundary between page aligned and extra data for THIS
-                    // buffer.
-                    int boundary = (int)(buff.writerIndex() - extra);
+            //         // the boundary between page aligned and extra data for THIS
+            //         // buffer.
+            //         int boundary = (int)(buff.writerIndex() - extra);
 
-                    // write the filled page BEFORE the extra data... 
-                    write0( buff.readSlice( boundary ) );
+            //         // write the filled page BEFORE the extra data... 
+            //         write0( buff.readSlice( boundary ) );
 
-                    // now update the buffer so that we write the data after the
-                    // current filled page before we exit.
+            //         // now update the buffer so that we write the data after the
+            //         // current filled page before we exit.
                     
-                    buff = buff.readSlice( buff.writerIndex() - boundary );
+            //         buff = buff.readSlice( buff.writerIndex() - boundary );
                     
-                }
+            //     }
                 
-                sync();
+            //     sync();
 
-            }
+            // }
 
             write0( buff );
             
