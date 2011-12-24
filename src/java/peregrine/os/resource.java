@@ -16,7 +16,7 @@ public class resource {
      * FIXME: This works but on OS X this is defined as 8 and on Linux it's 7 ... WTF
      * that isn't helpful.
      */
-    public static final int RLIMIT_NOFILE = 8; /* max number of open files */
+    public static final int RLIMIT_NOFILE = 7; /* max number of open files */
 
     public static class Rlimit extends Structure {
         
@@ -32,6 +32,8 @@ public class resource {
     
     public static Rlimit getrlimit( int resource ) throws Exception {
 
+        assertLinux();
+
         Rlimit result = new Rlimit();
 
         if ( delegate.getrlimit( resource, result ) != 0 ) {
@@ -44,12 +46,21 @@ public class resource {
 
     public static void setrlimit( int resource, Rlimit limit ) throws Exception {
 
+        assertLinux();
+        
         if ( delegate.setrlimit( resource, limit ) != 0 ) {
             throw new Exception( errno.strerror() );
         }
         
     }
 
+    private static void assertLinux() {
+        
+        if ( Platform.isLinux() == false )
+            throw new RuntimeException( "Platform is not linux" );
+        
+    }
+    
     interface InterfaceDelegate extends Library {
 
         int getrlimit(int resource, Rlimit rlimit );

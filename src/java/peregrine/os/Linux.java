@@ -4,16 +4,17 @@ import java.io.*;
 
 import com.spinn3r.log5j.Logger;
 
+/**
+ * Linux specific functions.
+ */
 public class Linux {
 
     private static final Logger log = Logger.getLogger();
 
     public static void dropCaches() throws IOException {
 
-        String os = System.getProperty("os.name").toLowerCase();
-
         // only attempt to run this on Linux.
-        if ( ! os.contains("linux") ) {
+        if ( ! Platform.isLinux() ) {
             return;
         }
 
