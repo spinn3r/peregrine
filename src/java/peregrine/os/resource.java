@@ -12,12 +12,16 @@ public class resource {
     private static InterfaceDelegate delegate
         = (InterfaceDelegate)Native.loadLibrary( "c", InterfaceDelegate.class); 
 
-    public static final int RLIMIT_NOFILE         = 7;       /* max number of open files */
+    /**
+     * FIXME: This works but on OS X this is defined as 8 and on Linux it's 7 ... WTF
+     * that isn't helpful.
+     */
+    public static final int RLIMIT_NOFILE = 8; /* max number of open files */
 
     public static class Rlimit extends Structure {
         
-        public int rlim_cur = -1;  /* Soft limit */
-        public int rlim_max = -1;  /* Hard limit (ceiling for rlim_cur) */
+        public long rlim_cur = -1;  /* Soft limit */
+        public long rlim_max = -1;  /* Hard limit (ceiling for rlim_cur) */
 
         @Override
         public String toString() {
