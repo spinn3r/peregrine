@@ -57,9 +57,49 @@ public class mman {
 
     }
 
+    public static void mlock( Pointer addr, long len )
+        throws IOException {
+
+        if ( delegate.mlock( addr, len ) != 0 ) {
+            throw new IOException( errno.strerror() );
+        }
+
+    }
+
+    public static void munlock( Pointer addr, long len )
+        throws IOException {
+
+        if ( delegate.munlock( addr, len ) != 0 ) {
+            throw new IOException( errno.strerror() );
+        }
+
+    }
+
     interface InterfaceDelegate extends Library {
         Pointer mmap( Pointer addr, long len, int prot, int flags, int fildes, long off );
         int munmap( Pointer addr, long len );
+
+        int mlock( Pointer addr, long len );
+        int munlock( Pointer addr, long len );
     }
 
+    public static void main( String[] args ) throws Exception {
+
+        String path = args[0];
+
+        File file = new File( path );
+        FileInputStream in = new FileInputStream( file );
+        int fd = peregrine.os.Native.getFd( in.getFD() );
+
+        // mmap a large file... 
+        Pointer addr = mmap( file.length(), PROT_READ, mman.MAP_SHARED | mman.MAP_LOCKED, fd, 0 );
+
+        // try to mlock it directly
+        mlock( addr, file.length() );
+        munlock( addr, file.length() );
+        
+        munmap( addr, file.length() );
+        
+    }
+                            
 }
