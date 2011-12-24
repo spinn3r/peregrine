@@ -336,8 +336,6 @@ public class MappedFile implements Closeable {
 
         @Override
         public void sync() throws IOException {
-
-            System.out.printf( "FIXME sync\n" );
             
             channel.force( false );
 
