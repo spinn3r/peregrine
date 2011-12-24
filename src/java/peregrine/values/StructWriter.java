@@ -8,7 +8,14 @@ import peregrine.util.*;
 import peregrine.util.primitive.*;
 
 /**
+ * <p>
+ * Write data to a struct and convert it to a StructReader when done.  This is
+ * generally used for more complicated data structures consisting of multiple
+ * values / types strung together.
  * 
+ * <p>Also see StructReaders for a simbling class which provides easy factory
+ * methods for creating StructReaders instead of always having to use
+ * StructWriter.
  */
 public class StructWriter {
 
