@@ -190,6 +190,18 @@ public class Controller {
                 
             } );
 
+        for( InputReference ref : input.getReferences() ) {
+
+            if ( ref instanceof ShuffleInputReference ) {
+
+                ShuffleInputReference shuffle = (ShuffleInputReference)ref;
+
+                purgeShuffleData( shuffle.getName() );
+
+            }
+            
+        }
+
     }
 
     private void withScheduler( Job job, Scheduler scheduler ) 
@@ -219,9 +231,6 @@ public class Controller {
         if ( "map".equals( operation ) || "merge".equals( operation ) )
             flushAllShufflers();
 
-        if ( "reduce".equals( operation ) )
-            purgeAllShufflers();
-
         long after = System.currentTimeMillis();
 
         long duration = after - before;
@@ -240,10 +249,11 @@ public class Controller {
         
     }
 
-    public void purgeAllShufflers() throws Exception {
+    public void purgeShuffleData( String name ) throws Exception {
 
         Message message = new Message();
         message.put( "action", "purge" );
+        message.put( "name",   name );
 
         callMethodOnCluster( message );
         

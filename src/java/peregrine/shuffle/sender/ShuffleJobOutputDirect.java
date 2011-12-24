@@ -8,11 +8,14 @@ import peregrine.io.*;
 import peregrine.io.partition.*;
 import peregrine.util.*;
 import peregrine.io.chunk.*;
-import com.spinn3r.log5j.Logger;
 import peregrine.values.*;
+
+import com.spinn3r.log5j.Logger;
 
 public class ShuffleJobOutputDirect extends ShuffleJobOutputBase implements Closeable, Flushable {
 
+    private static final Logger log = Logger.getLogger();
+    
     private ShuffleJobOutput parent;
 
     private ShuffleSender sender = null;

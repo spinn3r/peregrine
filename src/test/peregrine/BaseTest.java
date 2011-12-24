@@ -3,6 +3,8 @@ package peregrine;
 import java.io.*;
 import peregrine.config.Config;
 
+import org.junit.runner.*;
+
 public abstract class BaseTest extends junit.framework.TestCase {
 
     public void setUp() {
@@ -82,7 +84,10 @@ public abstract class BaseTest extends junit.framework.TestCase {
     public static void runTests() throws Exception {
 
         String classname = Thread.currentThread().getStackTrace()[2].getClassName();
-        org.junit.runner.JUnitCore.main( classname );
+
+        JUnitCore core = new JUnitCore();
+        
+        core.run( Class.forName( classname ) );
 
     }
 
