@@ -83,7 +83,7 @@ public class ShuffleSender implements Flushable, Closeable {
     @Override
     public void close() throws IOException {
 
-        // flush the IO first.
+        // flush the pending IO first 
         for( ShuffleOutputTarget client : partitionOutput.values() ) {
             client.flush();
         }
@@ -95,6 +95,7 @@ public class ShuffleSender implements Flushable, Closeable {
             client.shutdown();
         }
 
+        // now close the targets since they should all be shutdown.
         for( ShuffleOutputTarget client : partitionOutput.values() ) {
             client.close();
         }
