@@ -4,6 +4,9 @@ import java.util.*;
 import peregrine.values.*;
 import peregrine.io.*;
 
+/**
+ * Take a key and list of values, and reduce them and emit result.
+ */
 public class Reducer {
 
     private JobOutput stdout = null;
