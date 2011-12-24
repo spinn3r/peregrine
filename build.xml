@@ -333,35 +333,39 @@
 
   </target>
 
-  <target name="jxr">
+    <target name="jxr">
 
-    <exec executable="mvn">
-      <arg value="jxr:jxr"/>
-    </exec>
+        <exec executable="mvn">
+            <arg value="jxr:jxr"/>
+        </exec>
 
-  </target>
+    </target>
 
-  <target name="static">
+    <target name="static">
 
-    <exec executable="awestruct" dir="../peregrine-website">
-      <arg value="-g"/>
-    </exec>
+        <exec executable="awestruct" dir="../peregrine-website">
+            <arg value="-g"/>
+        </exec>
 
-  </target>
+    </target>
 
     <target name="coverage" depends="clean, with.clover, jar, test, clover.html">
 
     </target>
 
-    <target name="site" depends="clean,coverage,javadoc,jxr,static">
+    <target name="site.update">
+
+        <copy todir="../peregrine_mapreduce.bitbucket.org" >
+            <fileset dir="../peregrine-website/_site/" />
+        </copy>
 
         <move file="compile/javadoc"  todir="../peregrine_mapreduce.bitbucket.org" />
         <move file="target/xref"      todir="../peregrine_mapreduce.bitbucket.org" />
         <move file="target/coverage"  todir="../peregrine_mapreduce.bitbucket.org" />
 
-        <copy todir="../peregrine_mapreduce.bitbucket.org" >
-            <fileset dir="../peregrine-website/_site/" />
-        </copy>
+    </target>
+
+    <target name="site" depends="clean,coverage,javadoc,jxr,static,site.update">
 
     </target>
 
