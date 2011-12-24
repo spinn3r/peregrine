@@ -52,5 +52,11 @@ public class resource {
         int setrlimit(int resource, Rlimit rlimit );
         
     }
+
+    public static void main( String[] args ) throws Exception {
+
+        System.out.printf( "getrlimit(RLIMIT_NOFILE): %s\n", resource.getrlimit( resource.RLIMIT_NOFILE ) );
+
+    }
     
 }
