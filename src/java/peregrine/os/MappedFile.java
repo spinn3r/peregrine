@@ -349,10 +349,12 @@ public class MappedFile implements Closeable {
             // ... temporary files should probably ALL be evicted but writes may
             // benefit if in situations where a box isn't tuned perfectly but it
             // doesn't make sense to optimize for poorly configured machines.
-            
+
+            /*
             if ( fadviseDontNeedEnabled ) {
                 fcntl.posix_fadvise( fd, offset, length, fcntl.POSIX_FADV_DONTNEED );
             }
+            */
 
             synced = length;
 
