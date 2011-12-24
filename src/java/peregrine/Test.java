@@ -47,10 +47,13 @@ public class Test {
     
     public static void main( String[] args ) throws Exception {
 
-        test1( Integer.parseInt( args[0] ) );
+        System.out.printf( "%s\n", resource.getrlimit( resource.RLIMIT_NOFILE ) );
 
-        test1( Integer.parseInt( args[0] ) );
+        
+   //      test1( Integer.parseInt( args[0] ) );
 
+//         test1( Integer.parseInt( args[0] ) );
+// com
         /*
         testQueue( new LinkedBlockingQueue( capacity ) );
         testQueue( new LinkedBlockingQueue( capacity ) );
