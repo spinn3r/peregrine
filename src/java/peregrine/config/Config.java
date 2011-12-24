@@ -75,6 +75,22 @@ public class Config extends BaseConfig {
             throw new RuntimeException( "Unable to create partitioner: ", t );
         }
 
+        if ( getMaxOpenFileHandles() > 0 ) {
+
+            try {
+
+                resource.Rlimit limit = new resource.Rlimit( getMaxOpenFileHandles() );
+
+                resource.setrlimit( resource.RLIMIT_NOFILE, limit );
+
+                log.info( "Max open file handle = %,d set via setrlimit", getMaxOpenFileHandles() );
+                
+            } catch ( Exception e ) {
+                log.warn( "Unable to set max open file handles via setrlimit", e );
+            }
+            
+        }
+        
         initEnabledFeatures();
         
         log.info( "%s", toDesc() );

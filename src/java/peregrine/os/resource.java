@@ -19,6 +19,13 @@ public class resource {
     public static final int RLIMIT_NOFILE = 7; /* max number of open files */
 
     public static class Rlimit extends Structure {
+
+        public Rlimit() {};
+        
+        public Rlimit( long value ) {
+            rlim_cur = value;
+            rlim_max = value;
+        }
         
         public long rlim_cur = -1;  /* Soft limit */
         public long rlim_max = -1;  /* Hard limit (ceiling for rlim_cur) */

@@ -93,6 +93,8 @@ public class BaseConfig {
 
     protected long syncWriteSize = 0;
 
+    protected int maxOpenFileHandles = 0;
+
     public void init( StructMap struct ) {
 
         this.struct = struct;
@@ -115,7 +117,8 @@ public class BaseConfig {
         setPartitionerDelegate( struct.getString( "partitionerDelegate" ) );
         setPurgeShuffleData( struct.getBoolean( "purgeShuffleData" ) );
         setSyncWriteSize( struct.getSize( "syncWriteSize" ) );
-
+        setMaxOpenFileHandles( struct.getInt( "maxOpenFileHandles" ) );
+        
         if ( struct.containsKey( "host" ) )
             setHost( Host.parse( struct.getString( "host" ) ) );
 
@@ -273,6 +276,14 @@ public class BaseConfig {
 
     public long getSyncWriteSize() { 
         return this.syncWriteSize;
+    }
+
+    public int getMaxOpenFileHandles() { 
+        return this.maxOpenFileHandles;
+    }
+
+    public void setMaxOpenFileHandles( int maxOpenFileHandles ) { 
+        this.maxOpenFileHandles = maxOpenFileHandles;
     }
 
     static {
