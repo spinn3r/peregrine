@@ -332,7 +332,7 @@ public class MappedFile implements Closeable {
                 channel.truncate( length );
             }
 
-            if ( autoSync ) {
+            if ( autoSync && syncWriteSize > 0 ) {
                 sync();
             }
 
