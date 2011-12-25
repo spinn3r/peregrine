@@ -12,12 +12,9 @@ import java.io.*;
 public class GroupIOException extends IOException {
 
     List<Throwable> suppressed = new ArrayList();
-
-    private Throwable cause;
     
     public GroupIOException( Throwable cause ) {
-        this.cause = cause;
-        initCause( this.cause );
+        super( cause );
     }
     
     public void addSuppressed( Throwable t ) {
@@ -26,7 +23,8 @@ public class GroupIOException extends IOException {
 
     public void printStackTrace( PrintStream out ) {
 
-        cause.printStackTrace( out );
+        // this will print ourselves AND the cause... 
+        printStackTrace( out );
 
         for ( Throwable current : suppressed ) {
             current.printStackTrace( out );
@@ -36,7 +34,8 @@ public class GroupIOException extends IOException {
 
     public void printStackTrace( PrintWriter out ) {
 
-        cause.printStackTrace( out );
+        // this will print ourselves AND the cause... 
+        printStackTrace( out );
 
         for ( Throwable current : suppressed ) {
             current.printStackTrace( out );

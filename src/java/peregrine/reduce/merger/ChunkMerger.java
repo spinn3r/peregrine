@@ -140,17 +140,8 @@ public class ChunkMerger {
 
             new Flusher( output ).flush();
 
-            // TODO: migrate this to use Closer... 
+            new Closer( input ).close();
 
-            // close all the readers to free up resources.
-            for( Closeable reader : input ) {
-
-                //FIXME: ok THIS is the bug... if I comment this out it will work!!!
-                
-                reader.close();
-                
-            }
-            
         } catch ( Throwable t ) {
             throw new IOException( "Unable to merge chunks: " + input, t );
         }
