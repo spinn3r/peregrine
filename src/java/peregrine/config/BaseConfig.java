@@ -134,6 +134,10 @@ public class BaseConfig {
         return host;
     }
 
+    public void setHost( String host ) {
+        setHost( Host.parse( host ) );
+    }
+    
     public void setHost( Host host ) {
         this.host = host;
     }
