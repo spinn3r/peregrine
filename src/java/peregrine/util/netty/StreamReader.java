@@ -2,6 +2,7 @@ package peregrine.util.netty;
 
 import org.jboss.netty.buffer.*;
 
+import peregrine.*;
 import peregrine.os.*;
 import peregrine.values.*;
 

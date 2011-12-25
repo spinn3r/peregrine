@@ -2,6 +2,8 @@
 package peregrine.reduce;
 
 import java.util.*;
+
+import peregrine.*;
 import peregrine.values.*;
 
 public final class SortEntry {

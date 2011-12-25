@@ -3,6 +3,7 @@ package peregrine.reduce;
 
 import java.util.*;
 
+import peregrine.*;
 import peregrine.config.*;
 import peregrine.controller.*;
 import peregrine.io.*;

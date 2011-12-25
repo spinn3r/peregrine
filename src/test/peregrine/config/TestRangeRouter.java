@@ -1,6 +1,6 @@
 package peregrine.config;
 
-import peregrine.BaseTestWithMultipleDaemons;
+import peregrine.*;
 import peregrine.config.partitioner.*;
 import peregrine.values.*;
 

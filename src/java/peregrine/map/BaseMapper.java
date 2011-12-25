@@ -1,6 +1,8 @@
 package peregrine.map;
 
 import java.util.*;
+
+import peregrine.*;
 import peregrine.io.*;
 import peregrine.shuffle.sender.*;
 import peregrine.values.*;

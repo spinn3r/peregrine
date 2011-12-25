@@ -1,6 +1,7 @@
 
 package peregrine.reduce;
 
+import peregrine.*;
 import peregrine.util.*;
 import peregrine.values.*;
 

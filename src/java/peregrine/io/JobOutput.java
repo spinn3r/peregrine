@@ -1,6 +1,8 @@
 package peregrine.io;
 
 import java.io.*;
+
+import peregrine.*;
 import peregrine.values.*;
 
 /**

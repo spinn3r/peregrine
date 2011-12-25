@@ -5,6 +5,7 @@ import java.nio.*;
 import java.util.*;
 import java.nio.channels.*;
 
+import peregrine.*;
 import peregrine.os.*;
 import peregrine.util.*;
 import peregrine.values.*;

@@ -1,4 +1,4 @@
-package peregrine.values;
+package peregrine;
 
 import org.jboss.netty.buffer.*;
 

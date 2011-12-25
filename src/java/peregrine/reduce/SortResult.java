@@ -1,6 +1,8 @@
 package peregrine.reduce;
 
 import java.io.*;
+
+import peregrine.*;
 import peregrine.util.*;
 import peregrine.values.*;
 import peregrine.io.chunk.*;

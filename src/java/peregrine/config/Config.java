@@ -4,6 +4,7 @@ import java.io.*;
 import java.lang.reflect.*;
 import java.util.*;
 
+import peregrine.*;
 import peregrine.config.partitioner.*;
 import peregrine.util.primitive.*;
 import peregrine.util.*;

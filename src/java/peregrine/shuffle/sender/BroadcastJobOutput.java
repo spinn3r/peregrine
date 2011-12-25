@@ -1,5 +1,6 @@
 package peregrine.shuffle.sender;
 
+import peregrine.*;
 import peregrine.config.*;
 import peregrine.values.*;
 

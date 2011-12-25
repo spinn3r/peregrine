@@ -3,6 +3,7 @@ package peregrine.reduce.merger;
 
 import java.io.*;
 
+import peregrine.*;
 import peregrine.io.chunk.*;
 import peregrine.values.*;
 

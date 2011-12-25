@@ -3,6 +3,7 @@ package peregrine.shuffle.sender;
 import java.io.*;
 import java.util.concurrent.*;
 
+import peregrine.*;
 import peregrine.config.*;
 import peregrine.io.*;
 import peregrine.io.partition.*;

@@ -6,6 +6,7 @@ import java.io.*;
 import java.nio.channels.*;
 import java.util.*;
 
+import peregrine.*;
 import peregrine.config.*;
 import peregrine.io.*;
 import peregrine.io.chunk.*;

@@ -1,5 +1,6 @@
 package peregrine.config.partitioner;
 
+import peregrine.*;
 import peregrine.config.*;
 import peregrine.values.*;
 

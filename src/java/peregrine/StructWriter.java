@@ -1,4 +1,4 @@
-package peregrine.values;
+package peregrine;
 
 import java.nio.charset.Charset;
 

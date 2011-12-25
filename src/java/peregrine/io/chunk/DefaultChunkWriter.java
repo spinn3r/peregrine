@@ -3,6 +3,7 @@ package peregrine.io.chunk;
 import java.io.*;
 import java.nio.channels.*;
 
+import peregrine.*;
 import peregrine.os.*;
 import peregrine.util.*;
 import peregrine.util.netty.*;

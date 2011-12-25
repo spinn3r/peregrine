@@ -1,6 +1,8 @@
 package peregrine.io.partition;
 
 import java.io.*;
+
+import peregrine.*;
 import peregrine.values.*;
 import peregrine.io.*;
 

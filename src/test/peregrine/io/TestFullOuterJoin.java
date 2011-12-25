@@ -2,6 +2,8 @@ package peregrine.io;
 
 import java.io.*;
 import java.util.*;
+
+import peregrine.*;
 import peregrine.config.Partition;
 import peregrine.io.partition.*;
 import peregrine.util.*;

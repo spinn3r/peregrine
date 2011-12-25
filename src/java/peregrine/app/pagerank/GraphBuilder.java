@@ -1,6 +1,8 @@
 package peregrine.app.pagerank;
 
 import java.util.*;
+
+import peregrine.*;
 import peregrine.io.*;
 import peregrine.values.*;
 import peregrine.util.*;

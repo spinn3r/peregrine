@@ -3,6 +3,7 @@ package peregrine.io.partition;
 import java.io.*;
 import java.util.*;
 
+import peregrine.*;
 import peregrine.config.*;
 import peregrine.http.*;
 import peregrine.io.chunk.*;

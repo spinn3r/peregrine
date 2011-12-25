@@ -8,7 +8,7 @@
 
     <property name="project" value="peregrine"/>
     <property name="javadocdir" value="compile/javadoc"/>
-    <property name="version" value="0.4.0"/>
+    <property name="version" value="0.5.0"/>
 
     <path id="project.classpath">
 
@@ -64,7 +64,13 @@
         <delete dir=".clover"/>
         <delete dir="compile"/>
         <delete dir="target"/>
-        <delete file="lib/${project}-${version}.jar"/>
+
+        <delete>
+          <fileset dir="lib">
+            <include name="${project}*.jar"/>
+          </fileset>
+
+        </delete>
 
     </target>
 

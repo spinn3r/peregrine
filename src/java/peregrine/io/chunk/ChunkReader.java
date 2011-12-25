@@ -1,6 +1,8 @@
 package peregrine.io.chunk;
 
 import java.io.*;
+
+import peregrine.*;
 import peregrine.values.*;
 
 /**

@@ -3,6 +3,8 @@ package peregrine.app.benchmark;
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.atomic.*;
+
+import peregrine.*;
 import peregrine.config.*;
 import peregrine.controller.*;
 import peregrine.io.*;

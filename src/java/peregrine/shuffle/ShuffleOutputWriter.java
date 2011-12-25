@@ -6,6 +6,7 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.*;
 
+import peregrine.*;
 import peregrine.config.*;
 import peregrine.io.util.*;
 import peregrine.os.*;

@@ -6,6 +6,7 @@ import java.util.concurrent.*;
 
 import org.jboss.netty.buffer.*;
 
+import peregrine.*;
 import peregrine.config.*;
 import peregrine.http.*;
 import peregrine.util.netty.*;

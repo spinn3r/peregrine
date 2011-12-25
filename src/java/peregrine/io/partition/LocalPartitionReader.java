@@ -4,6 +4,7 @@ import java.io.*;
 
 import java.util.*;
 
+import peregrine.*;
 import peregrine.config.*;
 import peregrine.io.chunk.*;
 import peregrine.values.*;
