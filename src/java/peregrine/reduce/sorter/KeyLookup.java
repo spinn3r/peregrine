@@ -31,7 +31,7 @@ public class KeyLookup {
      * 
      */
     private ChannelBuffer lookup;
-    
+   
     /**
      * The current index we're working on in the lookup and buffer structures.
      */
@@ -163,7 +163,7 @@ public class KeyLookup {
         
     }
 
-    public KeyLookup clone() {
+    public KeyLookup copy() {
         return slice( 0, size - 1 );
     }
 
@@ -171,17 +171,17 @@ public class KeyLookup {
 
         System.out.printf( "%s:\n", name );
 
-        //clone it so we don't change the index... this doesn't need to be fast.
-        KeyLookup clone = clone();
+        //copy it so we don't change the index... this doesn't need to be fast.
+        KeyLookup copy = copy();
 
-        System.out.printf( "\tindex:   %,d\n", clone.index );
-        System.out.printf( "\tstart:   %,d\n", clone.start );
-        System.out.printf( "\tend:     %,d\n", clone.end );
-        System.out.printf( "\tsize:    %,d\n", clone.size );
+        System.out.printf( "\tindex:   %,d\n", copy.index );
+        System.out.printf( "\tstart:   %,d\n", copy.start );
+        System.out.printf( "\tend:     %,d\n", copy.end );
+        System.out.printf( "\tsize:    %,d\n", copy.size );
 
-        while( clone.hasNext() ) {
-            clone.next();
-            System.out.printf( "\t\t%s\n", Hex.encode( clone.key() ) );
+        while( copy.hasNext() ) {
+            copy.next();
+            System.out.printf( "\t\t%s\n", Hex.encode( copy.key() ) );
         }
 
     }

@@ -24,7 +24,7 @@ public class GroupIOException extends IOException {
     public void printStackTrace( PrintStream out ) {
 
         // this will print ourselves AND the cause... 
-        printStackTrace( out );
+        super.printStackTrace( out );
 
         for ( Throwable current : suppressed ) {
             current.printStackTrace( out );
@@ -35,7 +35,7 @@ public class GroupIOException extends IOException {
     public void printStackTrace( PrintWriter out ) {
 
         // this will print ourselves AND the cause... 
-        printStackTrace( out );
+        super.printStackTrace( out );
 
         for ( Throwable current : suppressed ) {
             current.printStackTrace( out );

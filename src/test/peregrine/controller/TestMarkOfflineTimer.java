@@ -17,11 +17,9 @@ public class TestMarkOfflineTimer extends peregrine.BaseTestWithTwoDaemons {
 
         MarkOfflineTimer.SCHEDULE_DELAY = 1000L;
         
-        Controller controller = null;
+        Controller controller = new Controller( config );;
         
         try {
-
-            controller = new Controller( config );
 
             System.out.printf( "sleeping...\n" );
 

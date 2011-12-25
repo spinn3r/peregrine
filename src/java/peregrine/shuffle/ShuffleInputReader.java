@@ -30,11 +30,6 @@ public class ShuffleInputReader implements Closeable {
 
     protected Map<Partition,ShuffleHeader> headersByPartition = new HashMap();
     
-    /**
-     * The currently parsed header information for the given partition.
-     */
-    protected ShuffleHeader header = null;
-
     protected ChannelBuffer buffer = null;
 
     /**
@@ -144,10 +139,6 @@ public class ShuffleInputReader implements Closeable {
     
     public ChannelBuffer getBuffer() {
         return buffer;
-    }
-    
-    public ShuffleHeader getHeader() {
-        return header;
     }
 
     public ShuffleHeader getHeader( Partition partition ) {

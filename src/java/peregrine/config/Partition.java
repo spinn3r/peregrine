@@ -18,7 +18,12 @@ public class Partition {
 
     @Override
     public boolean equals( Object obj ) {
-        return id == ((Partition)obj).id;
+    	    	
+    	if ( obj != null && obj instanceof Partition )
+    	    return id == ((Partition)obj).id;
+        
+    	return false;
+    	
     }
 
     @Override

@@ -106,13 +106,8 @@ public class DefaultChunkWriter implements ChunkWriter {
         writer.write( buff );
         length += IntBytes.LENGTH;
 
-        if ( writer instanceof MultiChannelBufferWritable ) {
-
-            MultiChannelBufferWritable multi = (MultiChannelBufferWritable)writer;
-            multi.shutdown();
-            
-        }
-
+        writer.shutdown();
+        
         shutdown = true;
         
     }

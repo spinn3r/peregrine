@@ -336,9 +336,13 @@ class Fail {
     
     public boolean equals( Object o ) {
 
-        Fail f = (Fail)o;
-        
-        return host.equals( f.host ) && partition.equals( f.partition );
+    	if ( o != null && o instanceof Fail ) {
+            Fail f = (Fail)o;            
+            return host.equals( f.host ) && partition.equals( f.partition );            
+    	}
+    	
+    	return false;
+
     }
 
     public String toString() {
