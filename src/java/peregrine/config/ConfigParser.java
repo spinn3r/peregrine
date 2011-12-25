@@ -34,13 +34,20 @@ public class ConfigParser {
         Getopt getopt = new Getopt( args );
 
         for ( String key : config.struct.getKeys() ) {
-
+            
             if( getopt.containsKey( key ) ) {
                 config.struct.put( key, getopt.getString( key ) );
             }
             
         }
 
+        // the 'host' specified on the command line is the only special command
+        // line option right now since we don't define this in the .conf.
+
+        if ( getopt.containsKey( "host" ) ) {
+            config.setHost( getopt.getString( "host" ) );
+        }
+        
         // re-init the config with the params from the command line.  With no
         // param specified this is essentially idempotent.
         config.init( config.struct );
