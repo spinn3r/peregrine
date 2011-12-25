@@ -4,7 +4,7 @@ import java.io.*;
 import java.util.*;
 
 /**
- * Flusher similar to {@link Closer} which calls {@ #flush}.
+ * Flusher similar to {@link Closer} which calls {@link #flush}.
  */
 public class Flusher extends BaseCloser<Flushable> implements Flushable {
 

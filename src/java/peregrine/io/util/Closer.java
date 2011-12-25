@@ -7,7 +7,7 @@ import java.util.*;
  *
  * Implements JDK 1.7 try-with-resources style closing for multiple Closeables.
  *
- * @see http://docs.oracle.com/javase/tutorial/essential/exceptions/tryResourceClose.html
+ * @see <a href='http://docs.oracle.com/javase/tutorial/essential/exceptions/tryResourceClose.html'>try-with-resources</a>
  */
 public class Closer extends BaseCloser<Closeable> implements Closeable {
 

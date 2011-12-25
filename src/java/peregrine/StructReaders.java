@@ -6,7 +6,7 @@ import peregrine.util.*;
 import peregrine.util.primitive.*;
 
 /**
- * 
+ * Create a StructReader around primitive types, varints, hashcodes, etc.
  */
 public class StructReaders {
 	

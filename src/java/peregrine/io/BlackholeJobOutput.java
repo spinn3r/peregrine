@@ -6,7 +6,7 @@ import peregrine.*;
 import peregrine.values.*;
 
 /**
- * @see BlacholeOutputReference
+ * @see BlackholeOutputReference
  */
 public class BlackholeJobOutput implements JobOutput {
 

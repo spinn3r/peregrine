@@ -26,7 +26,7 @@ public class Merger extends BaseMapper {
 	 * 
 	 * @param key
 	 * @param values
-	 * @see Mapper#map(byte[], byte[])
+	 * @see Mapper#map(StructReader, StructReader)
 	 */
     public void merge( StructReader key, List<StructReader> values ) {}
 

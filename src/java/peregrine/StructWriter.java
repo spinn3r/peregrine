@@ -99,7 +99,7 @@ public class StructWriter {
 
     /**
      * Write a length prefixed byte array to this struct.  Call
-     * {@link #StructReader.readBytes} to read it back out.  The length of the
+     * {@link StructReader#readBytes} to read it back out.  The length of the
      * array will be preserved.
      */
     public StructWriter writeBytes( byte[] bytes ) {
@@ -113,7 +113,7 @@ public class StructWriter {
      * included so you will need to keep track of the lenght after the fact.
      * 
      * <p>
-     * One can call {@link StructReader.readBytesFixed(int)} and specify the
+     * One can call {@link StructReader#readBytesFixed(int)} and specify the
      * number of bytes you want to read.
      */
     public StructWriter writeBytesFixed( byte[] bytes ) {
