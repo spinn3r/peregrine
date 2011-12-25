@@ -3,9 +3,11 @@ package peregrine.util.netty;
 import java.io.*;
 import java.util.*;
 
+import peregrine.util.*;
+import peregrine.util.netty.*;
+
 import org.jboss.netty.buffer.*;
 
-import peregrine.util.netty.*;
 
 /**
  * Buffer output until it is ready to be sent in one CHUNK.  Not N chunks.  This
@@ -25,9 +27,11 @@ public class BufferedChannelBufferWritable implements ChannelBufferWritable {
     private int capacity;
 
     private ChannelBufferWritable delegate;
+
+    private boolean closed = false;
     
     public BufferedChannelBufferWritable( ChannelBufferWritable delegate,
-                                  int capacity ) {
+                                          int capacity ) {
         this.delegate = delegate;
         this.capacity = capacity;
     }
@@ -35,6 +39,9 @@ public class BufferedChannelBufferWritable implements ChannelBufferWritable {
     @Override
     public void write( ChannelBuffer buff ) throws IOException {
 
+        if ( closed )
+            throw new IOException( "closed" );
+        
         if ( ! hasCapacity( buff ) ) { 
             flush();
         }
@@ -53,18 +60,31 @@ public class BufferedChannelBufferWritable implements ChannelBufferWritable {
     /**
      * Write out all buffers to the delegate.
      */
+    @Override
     public void flush() throws IOException {
 
         if ( writeLength == 0 )
             return;
-        
+
+        if ( closed )
+            return;
+
+        if ( buffers.size() == 0 ) {
+            return;
+        }
+
         preFlush();
-        
-        delegate.write( getChannelBuffer() );
+
+        ChannelBuffer writeBuffer = getChannelBuffer();
+
+        delegate.write( writeBuffer );
         
         buffers = new ArrayList();
         writeLength = 0;
 
+        // flush the underlying delegate too
+        delegate.flush();
+        
     }
 
     @Override
@@ -80,10 +100,15 @@ public class BufferedChannelBufferWritable implements ChannelBufferWritable {
     @Override
     public void close() throws IOException {
 
+        if ( closed )
+            return;
+        
         flush();
 
         delegate.close();
-        
+
+        closed = true;
+
     }
 
     @Override

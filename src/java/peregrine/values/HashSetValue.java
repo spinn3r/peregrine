@@ -3,27 +3,29 @@ package peregrine.values;
 import java.io.*;
 import java.util.*;
 
+import org.jboss.netty.buffer.*;
+
 import peregrine.*;
 import peregrine.util.*;
 
 /**
  * A set of hashcodes.
  */
-public class HashSetValue implements Value {
+public class HashSetValue {
 
-    public List<byte[]> values = new ArrayList();
+    public List<StructReader> values = new ArrayList();
     
     public HashSetValue() {}
 
-    public HashSetValue( byte[] data ) {
-        fromBytes( data );
+    public HashSetValue( StructReader data ) {
+        fromChannelBuffer( data.getChannelBuffer() );
     }
 
-    public void add( byte[] value ) {
+    public void add( StructReader value ) {
         values.add( value );
     }
 
-    public Collection<byte[]> getValues() {
+    public Collection<StructReader> getValues() {
         return values;
     }
 
@@ -31,38 +33,26 @@ public class HashSetValue implements Value {
         return values.size();
     }
     
-    public byte[] toBytes() {
+    public ChannelBuffer toChannelBuffer() {
 
-        try {
-
-            //TODO: we could create a fixed width array and then System.arrayCopy into it 
-            ByteArrayOutputStream bos = new ByteArrayOutputStream( values.size() * Hashcode.HASH_WIDTH );
-
-            for( byte[] value : values ) {
-                bos.write( value);
-            }
-            
-            return bos.toByteArray();
-            
-        } catch ( Exception e ) {
-            throw new RuntimeException( e );
+        ChannelBuffer buff = ChannelBuffers.buffer( values.size() * Hashcode.HASH_WIDTH );
+        
+        for( StructReader value : values ) {
+            buff.writeBytes( value.getChannelBuffer() );
         }
         
+        return buff;
+
     }
 
-    public void fromBytes( byte[] data ) {
+    public void fromChannelBuffer( ChannelBuffer buff ) {
 
-        int nr_entries = data.length / Hashcode.HASH_WIDTH;
+        int nr_entries = buff.writerIndex() / Hashcode.HASH_WIDTH;
 
         for ( int i = 0; i < nr_entries; ++i ) {
 
-            int offset = i * Hashcode.HASH_WIDTH;
-            byte[] entry = new byte[ Hashcode.HASH_WIDTH ];
+            values.add( new StructReader( buff.readSlice( Hashcode.HASH_WIDTH ) ) );
 
-            System.arraycopy( data, offset, entry, 0, Hashcode.HASH_WIDTH );
-
-            values.add( entry );
-            
         }
         
     }
@@ -71,9 +61,9 @@ public class HashSetValue implements Value {
 
         StringBuffer buff = new StringBuffer();
         
-        for ( byte[] val : getValues() ) {
+        for ( StructReader val : getValues() ) {
 
-            buff.append( String.format( "%s ", Hex.encode( val ) ) );
+            buff.append( String.format( "%s ", Hex.encode( val.getChannelBuffer() ) ) );
             
         }
 

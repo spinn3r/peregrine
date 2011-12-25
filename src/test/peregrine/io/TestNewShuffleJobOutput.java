@@ -22,12 +22,9 @@ public class TestNewShuffleJobOutput extends peregrine.BaseTestWithTwoDaemons {
 
         for ( int i = 0; i < max_emits; ++i ) {
 
-            byte[] key = new StructWriter()
-                .writeHashcode( "" + i )
-                .toBytes()
-                ;
+            StructReader key = StructReaders.hashcode( i );
 
-            byte[] value = key;
+            StructReader value = key;
 
             output.emit( key, value );
             

@@ -4,84 +4,39 @@ import java.io.*;
 import java.util.*;
 
 /**
+ *
  * Implements JDK 1.7 try-with-resources style closing for multiple Closeables.
  *
- * http://docs.oracle.com/javase/tutorial/essential/exceptions/tryResourceClose.html
+ * @see http://docs.oracle.com/javase/tutorial/essential/exceptions/tryResourceClose.html
  */
-public class Closer implements Closeable {
-
-    private List<Closeable> closeables = new ArrayList();
-
-    private Throwable cause = null;
-
-    private boolean closed = false;
+public class Closer extends BaseCloser<Closeable> implements Closeable {
 
     public Closer() { }
 
-    public Closer( List closeables ) {
-        this.closeables = (List<Closeable>)closeables;
-    }
-    
-    public Closer( Closeable... closeables ) {
-        add( closeables );
+    public Closer( List delegates ) {
+        this.delegates = (List<Closeable>)delegates;
     }
 
-    public void add( Closeable closeable ) {
-        closeables.add( closeable );
+    public Closer( Closeable... delegates ) {
+        add( delegates );
     }
 
-    public void add( Closeable... closeables ) {
-        for( Closeable current : closeables ) {
-            this.closeables.add( current );
-        }
-    }
-
-    public void setCause( Throwable cause ) {
-        this.cause = cause;
+    @Override
+    public void close() throws IOException {
+        exec();
     }
 
     public boolean closed() {
-        return closed;
+        return executed();
     }
-    
-    @Override
-    public void close() throws CloserException {
 
-        if ( closed )
-            return;
-        
-        CloserException exc = null;
+    public boolean isClosed() {
+        return executed();
+    }
 
-        if ( cause != null )
-            exc = new CloserException( cause );
-        
-        for ( Closeable current : closeables ) {
-
-            if ( current == null )
-                continue;
-            
-            try {
-
-                current.close();
-
-            } catch ( Throwable t ) {
-
-                if ( exc == null ) {
-                    exc = new CloserException( t );
-                } else { 
-                    exc.addSuppressed( t );
-                }
-                
-            }
-
-        }
-
-        closed = true;
-        
-        if ( exc != null )
-            throw exc;
-        
+    protected void onDelegate( Closeable delegate ) throws IOException {
+        delegate.close();
     }
 
 }
-    
+

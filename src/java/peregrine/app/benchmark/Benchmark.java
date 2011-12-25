@@ -9,8 +9,9 @@ import peregrine.config.*;
 import peregrine.controller.*;
 import peregrine.io.*;
 import peregrine.io.partition.*;
-import peregrine.util.primitive.*;
 import peregrine.util.*;
+import peregrine.util.primitive.*;
+import peregrine.values.*;
 
 import com.spinn3r.log5j.*;
 
@@ -23,8 +24,8 @@ public class Benchmark {
         public static boolean EMIT = true;
         
         @Override
-        public void map( byte[] key,
-                         byte[] value ) {
+        public void map( StructReader key,
+                         StructReader value ) {
 
             if ( EMIT )
                 emit( key, value );
@@ -38,13 +39,13 @@ public class Benchmark {
         AtomicInteger count = new AtomicInteger();
         
         @Override
-        public void reduce( byte[] key, List<byte[]> values ) {
+        public void reduce( StructReader key, List<StructReader> values ) {
 
             List<Integer> ints = new ArrayList();
 
             // decode these so we know what they actually mean.
-            for( byte[] val : values ) {
-                ints.add( IntBytes.toInt( val ) );
+            for( StructReader val : values ) {
+                ints.add( val.readInt() );
             }
 
             count.getAndIncrement();

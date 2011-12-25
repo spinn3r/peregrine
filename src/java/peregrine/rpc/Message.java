@@ -13,7 +13,7 @@ public class Message extends StructMap {
     public Message( String data ) {
 
         Map<String,List<String>> decoded
-            = new QueryStringDecoder( new String( data ) ).getParameters();
+            = new QueryStringDecoder( data ).getParameters();
 
         for( String key : decoded.keySet() ) {
             delegate.put( key , decoded.get( key ).get(0) );

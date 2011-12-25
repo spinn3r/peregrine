@@ -2,6 +2,7 @@
 package peregrine.reduce.sorter;
 
 import java.io.*;
+
 import java.nio.channels.*;
 import java.util.*;
 
@@ -11,6 +12,8 @@ import peregrine.io.chunk.*;
 import peregrine.io.util.*;
 import peregrine.shuffle.*;
 import peregrine.util.*;
+import peregrine.util.netty.*;
+import peregrine.values.*;
 
 import org.jboss.netty.buffer.*;
 
@@ -31,7 +34,7 @@ public class ChunkSorter extends BaseChunkSorter {
         
     }
 
-    public ChunkReader sort( List<ShuffleInputChunkReader> input, File output )
+    public ChunkReader sort( List<ShuffleInputChunkReader> input, File output, List<JobOutput> jobOutput )
         throws IOException {
 
         CompositeShuffleInputChunkReader reader = null;
@@ -67,20 +70,19 @@ public class ChunkSorter extends BaseChunkSorter {
                 lookup.next();
 
                 KeyEntry current = lookup.get();
+
+                ChannelBuffer backing = current.backing;
                 
-                VarintReader varintReader = new VarintReader( current.backing );
+                VarintReader varintReader = new VarintReader( backing );
                 
                 int start = current.offset - 1;
-                current.backing.readerIndex( start );
+                backing.readerIndex( start );
 
-                int key_length = varintReader.read();
+                StructReader key =
+                    new StructReader( backing.readSlice( varintReader.read() ) );
 
-                byte[] key = new byte[ key_length ];
-                current.backing.readBytes( key );
-
-                int value_length = varintReader.read();
-                byte[] value = new byte[ value_length ];
-                current.backing.readBytes( value );
+                StructReader value =
+                    new StructReader( backing.readSlice( varintReader.read() ) );
 
                 writer.write( key, value );
                 
@@ -97,7 +99,14 @@ public class ChunkSorter extends BaseChunkSorter {
             throw new IOException( error , t );
             
         } finally {
-            new Closer( reader, writer ).close();
+
+            new Flusher( jobOutput ).flush();
+
+            // NOTE: it is important that the writer be closed before the reader
+            // because if not then the writer will attempt to read values from a
+            // closed reader.
+            new Closer( writer, reader ).close();
+
         }
 
         // if we got to this part we're done... 

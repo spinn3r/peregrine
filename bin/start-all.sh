@@ -44,7 +44,7 @@ start() {
 
         if [ "$HOSTNAME" = "$hostname" ]; then
             echo $host $basedir
-            ./bin/pfsd --host=$host --basedir=$basedir > $LOGDIR/peregrine-$host.log 2> $LOGDIR/peregrine-$host.err &
+            ./bin/pfsd --host=$host --port=$port --basedir=$basedir > $LOGDIR/peregrine-$host.log 2> $LOGDIR/peregrine-$host.err &
         fi
 
     done

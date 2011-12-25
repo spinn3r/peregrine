@@ -5,10 +5,11 @@ import java.io.*;
 import peregrine.config.Config;
 import peregrine.config.Partition;
 import peregrine.io.partition.*;
+import peregrine.values.*;
 
 public final class BroadcastInput {
 
-    byte[] value ;
+	StructReader value ;
 
     public BroadcastInput( Config config,
                            Partition part,
@@ -20,7 +21,7 @@ public final class BroadcastInput {
             throw new IOException( "No broadcast values found at: " + reader );
 
         reader.key();
-        byte[] value = reader.value();
+        StructReader value = reader.value();
 
         if ( reader.hasNext() )
             throw new IOException( "Too many broadcast values for: " + path );
@@ -29,11 +30,11 @@ public final class BroadcastInput {
 
     }
     
-    public BroadcastInput( byte[] value ) {
+    public BroadcastInput( StructReader value ) {
         this.value = value;
     }
 
-    public byte[] getValue() {
+    public StructReader getValue() {
         return value;
     }
     

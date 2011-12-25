@@ -23,7 +23,7 @@ public class ShufflerRPCDelegate extends RPCDelegate<FSDaemon> {
         }
 
         if ( "purge".equals( action ) ) {
-            daemon.shuffleReceiverFactory.purge();
+            daemon.shuffleReceiverFactory.purge( message.get( "name" ) );
             return;
 
         }

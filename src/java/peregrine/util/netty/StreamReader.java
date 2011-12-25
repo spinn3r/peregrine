@@ -3,35 +3,52 @@ package peregrine.util.netty;
 import org.jboss.netty.buffer.*;
 
 import peregrine.os.*;
+import peregrine.values.*;
 
 import java.io.*;
 import java.util.*;
 
 /**
- * Class which resricts the usage of a ChannelBuffer to JUST relative sequential
+ * <p>
+ * Class which restricts the usage of a ChannelBuffer to JUST relative sequential
  * read operations.  This will enable us to support prefetch and mlock, fadvise
  * on a buffer as well as CRC32 after a page has been mlocked and easy to read.
  *
+ * <p>
  * This is primarily used by a DefaultChunkReader so that all operations that it
  * needs to function can be easily provided (AKA CRC32 and prefetch/mlock).
  */
 public class StreamReader {
 
+    // TODO should this be Closeable ?
+    
     private ChannelBuffer buff = null;
 
     private StreamReaderListener listener = null;
+
+    private MappedFile mappedFile = null;
     
     public StreamReader( ChannelBuffer buff ) {
         this.buff = buff;
     }
 
-    public void readBytes( byte[] data ) {
-        fireOnRead( data.length );
-        buff.readBytes( data );
-
+    public StreamReader( ChannelBuffer buff, MappedFile mappedFile ) {
+        this.buff = buff;
+        this.mappedFile = mappedFile;
     }
 
-    public byte readByte() {
+    /**
+     * Read length `length' bytes from the reader.
+     */
+    public StructReader read( int length ) {
+        fireOnRead( length );
+        return new StructReader( buff.readSlice( length ), mappedFile );
+    }
+
+    /**
+     * Read a single byte from the stream.
+     */
+    public byte read() {
         fireOnRead(1);
         return buff.readByte();
     }

@@ -5,9 +5,17 @@ import java.nio.charset.Charset;
 import org.jboss.netty.buffer.*;
 
 import peregrine.util.*;
+import peregrine.util.primitive.*;
 
 /**
+ * <p>
+ * Write data to a struct and convert it to a StructReader when done.  This is
+ * generally used for more complicated data structures consisting of multiple
+ * values / types strung together.
  * 
+ * <p>Also see StructReaders for a simbling class which provides easy factory
+ * methods for creating StructReaders instead of always having to use
+ * StructWriter.
  */
 public class StructWriter {
 
@@ -17,17 +25,23 @@ public class StructWriter {
     
     private ChannelBuffer buff = null;
 
-    private static ThreadLocalChannelBuffer threadLocal =
-        new ThreadLocalChannelBuffer( BUFFER_SIZE );
-
+    /**
+     * StructWriter with max capacity for holding primitive types (8 bytes).
+     */
     public StructWriter() {
-        this( threadLocal.get() );
+        this( LongBytes.LENGTH );
     }
 
+    /**
+     * StructWriter for a raw ChannelBuffer.
+     */
     public StructWriter( ChannelBuffer buff ) {
     	this.buff = buff;
     }
 
+    /**
+     * With a specific capacity.
+     */
     public StructWriter( int capacity ) {
     	this( ChannelBuffers.buffer( capacity ) );
     }
@@ -52,7 +66,7 @@ public class StructWriter {
     	return this;
     }
 
-    public StructWriter writeLong( int value ) {
+    public StructWriter writeLong( long value ) {
     	buff.writeLong(value);
     	return this;
     }
@@ -67,20 +81,42 @@ public class StructWriter {
         return this;
     }
 
-    /*
     public StructWriter writeBoolean( boolean value ) {
-    	buff.writeBoolean(value);
+    	
+    	if ( value )
+    	    buff.writeByte((byte)1);
+    	else 
+    	    buff.writeByte((byte)0);
+
         return this;
+        
     }
-    */
     
     public StructWriter writeChar( char value ) {
     	buff.writeChar(value);
         return this;
     }
 
+    /**
+     * Write a length prefixed byte array to this struct.  Call
+     * {@link #StructReader.readBytes} to read it back out.  The length of the
+     * array will be preserved.
+     */
     public StructWriter writeBytes( byte[] bytes ) {
         writeVarint( bytes.length );
+        writeBytesFixed( bytes );
+        return this;
+    }
+
+    /**
+     * Write a fixed length byte array to the struct.  The length is NOT
+     * included so you will need to keep track of the lenght after the fact.
+     * 
+     * <p>
+     * One can call {@link StructReader.readBytesFixed(int)} and specify the
+     * number of bytes you want to read.
+     */
+    public StructWriter writeBytesFixed( byte[] bytes ) {
         buff.writeBytes( bytes );
         return this;
     }
@@ -90,30 +126,32 @@ public class StructWriter {
         return this;
     }
 
-    public StructWriter writeHashcode( String key ) {
+    public StructWriter writeHashcode( int value ) {
+        return writeHashcode( (long)value );
+    }
+
+    public StructWriter writeHashcode( long value ) {
+        return writeHashcode( LongBytes.toByteArray( value ) );
+    }
+
+    public StructWriter writeHashcode( byte[] value ) {
         // our hash codes right now are fixed width.
-        buff.writeBytes( Hashcode.getHashcode( key ) );
+        buff.writeBytes( Hashcode.getHashcode( value ) );
         return this;
+    }
         
+    public StructWriter writeHashcode( String value ) {
+        // our hash codes right now are fixed width.
+        buff.writeBytes( Hashcode.getHashcode( value ) );
+        return this;
     }
 
     public ChannelBuffer getChannelBuffer() {
-    	return buff;
+        return buff.duplicate();
     }
 
     public StructReader toStructReader() {
-        return new StructReader( buff );
-    }
-    
-    public byte[] toBytes() {
-
-        int len = buff.writerIndex();
-        byte[] result = new byte[ len ];
-
-        buff.readBytes( result );
-        
-        return result;
-        
+        return new StructReader( getChannelBuffer() );
     }
 
     static {

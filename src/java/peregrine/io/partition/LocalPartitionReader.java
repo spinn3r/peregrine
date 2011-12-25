@@ -1,11 +1,12 @@
 package peregrine.io.partition;
 
 import java.io.*;
+
 import java.util.*;
 
-import peregrine.config.Config;
-import peregrine.config.Partition;
+import peregrine.config.*;
 import peregrine.io.chunk.*;
+import peregrine.values.*;
 
 /**
  * Read data from a partition from local storage.
@@ -66,6 +67,7 @@ public class LocalPartitionReader implements ChunkReader {
         return chunkReaders;
     }
     
+    @Override
     public boolean hasNext() throws IOException {
 
         if ( chunkReader != null )
@@ -108,7 +110,7 @@ public class LocalPartitionReader implements ChunkReader {
     
     private void fireOnChunkEnd() {
 
-        if ( chunkRef.local >= 0 ) {
+        if ( chunkRef != null && chunkRef.local >= 0 ) {
 
             for( LocalPartitionReaderListener listener : listeners ) {
                 listener.onChunkEnd( chunkRef );
@@ -117,15 +119,18 @@ public class LocalPartitionReader implements ChunkReader {
         }
 
     }
-    
-    public byte[] key() throws IOException {
+
+    @Override
+    public StructReader key() throws IOException {
         return chunkReader.key();
     }
 
-    public byte[] value() throws IOException {
+    @Override
+    public StructReader value() throws IOException {
         return chunkReader.value();
     }
 
+    @Override
     public void close() throws IOException {
 
         if ( chunkReader != null ) {
@@ -135,8 +140,13 @@ public class LocalPartitionReader implements ChunkReader {
 
     }
 
+    @Override
     public String toString() {
         return String.format( "%s (%s):%s", path, partition, chunkReaders );
     }
-    
+
+    public void addListener( LocalPartitionReaderListener listener ) {
+        listeners.add( listener );
+    }
+
 }

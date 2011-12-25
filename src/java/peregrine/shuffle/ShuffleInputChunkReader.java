@@ -5,7 +5,9 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.*;
 import peregrine.util.*;
+import peregrine.util.netty.*;
 import peregrine.config.*;
+
 import org.jboss.netty.buffer.*;
 
 import com.spinn3r.log5j.Logger;
@@ -107,11 +109,11 @@ public class ShuffleInputChunkReader implements Closeable {
     public void next() throws IOException {
 
         assertPrefetchReaderNotFailed();
-        
+
         while( true ) {
 
-            if ( pack != null && pack.data.readerIndex() < pack.data.capacity() ) {
-
+            if ( pack != null && pack.data.readerIndex() < pack.data.capacity() - 1 ) {
+                
                 this.key_length     = varintReader.read();
                 this.key_offset     = pack.data.readerIndex();
 
@@ -177,26 +179,32 @@ public class ShuffleInputChunkReader implements Closeable {
         return prefetcher.reader.getBuffer();
     }
 
+    public StreamReader getStreamReader() {
+
+        ChannelBuffer buffer = prefetcher.reader.getBuffer();
+        buffer = buffer.slice( 0, buffer.writerIndex() );
+
+        return new StreamReader( buffer,
+                                 prefetcher.reader.mappedFile );
+    }
+    
     public int keyOffset() {
         return key_offset;
     }
 
-    public byte[] key() throws IOException {
+    public ChannelBuffer key() throws IOException {
         return readBytes( key_offset, key_length );
         
     }
 
-    public byte[] value() throws IOException {
+    public ChannelBuffer value() throws IOException {
         return readBytes( value_offset, value_length );
     }
 
-    private byte[] readBytes( int offset, int length ) throws IOException {
+    public ChannelBuffer readBytes( int offset, int length ) throws IOException {
 
-        byte[] data = new byte[ length ];
-        pack.data.getBytes( offset, data );
+        return pack.data.slice( offset, length );
 
-        return data;
-        
     }
 
     public int size() {
@@ -223,8 +231,8 @@ public class ShuffleInputChunkReader implements Closeable {
      */
     static class Index {
 
-        private int idx = 0;
-        private int max;
+        protected int idx = 0;
+        protected int max;
         
         public Index( int max ) {
             this.max = max;

@@ -7,8 +7,9 @@ import peregrine.config.*;
 import peregrine.controller.*;
 import peregrine.io.*;
 import peregrine.io.partition.*;
-import peregrine.util.primitive.*;
 import peregrine.util.*;
+import peregrine.util.primitive.*;
+import peregrine.values.*;
 
 import org.apache.log4j.xml.DOMConfigurator;
 
@@ -26,12 +27,11 @@ public class Main {
         log.info( "Testing with %,d records." , max );
 
         ExtractWriter writer = new ExtractWriter( config, in );
-
-        byte[] value = new byte[ width ];
+        StructReader value = StructReaders.wrap( new byte[ width ] );
         
         for( long i = 0; i < max; ++i ) {
 
-            byte[] key = MD5.encode( "" + i );
+            StructReader key  = StructReaders.hashcode( i );
 
             writer.write( key, value );
 

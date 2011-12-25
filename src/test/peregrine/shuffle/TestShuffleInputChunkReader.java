@@ -1,8 +1,11 @@
 package peregrine.shuffle;
 
+import java.util.*;
+
 import peregrine.*;
 import peregrine.util.*;
 import peregrine.util.primitive.LongBytes;
+import peregrine.values.*;
 import peregrine.config.Partition;
 import peregrine.controller.*;
 import peregrine.io.*;
@@ -17,8 +20,8 @@ public class TestShuffleInputChunkReader extends peregrine.BaseTestWithMultipleD
     public static class Map extends Mapper {
 
         @Override
-        public void map( byte[] key,
-                         byte[] value ) {
+        public void map( StructReader key,
+                         StructReader value ) {
 
             emit( key, value );
             
@@ -27,7 +30,11 @@ public class TestShuffleInputChunkReader extends peregrine.BaseTestWithMultipleD
     }
 
     public TestShuffleInputChunkReader() {
-        super( 2, 2, 5 );
+
+        concurrency = 1;
+        replicas    = 1;
+        nr_daemons  = 1;
+
     }
     
     public void test1() throws Exception {
@@ -36,14 +43,15 @@ public class TestShuffleInputChunkReader extends peregrine.BaseTestWithMultipleD
         
         ExtractWriter writer = new ExtractWriter( config, path );
 
+        // FIXME: the partition count seems to be off by 4x... W T F.. 
         int max = 10000;
         
-        for( int i = 0; i < max; ++i ) {
+        for( long i = 0; i < max; ++i ) {
 
-            byte[] key = LongBytes.toByteArray( i );
-            byte[] value = key;
-
+        	StructReader key = StructReaders.wrap( i );
+        	StructReader value = key;
             writer.write( key, value );
+            
         }
 
         writer.close();
@@ -59,11 +67,18 @@ public class TestShuffleInputChunkReader extends peregrine.BaseTestWithMultipleD
         //now create a ParallelShuffleInputChunkReader for one of the
         //partitions so that we can see if it actually works
 
-        path = "/tmp/peregrine-fs/localhost/11116/tmp/shuffle/default/0000000000.tmp";
+        path = "/tmp/peregrine-fs/localhost/11112/tmp/shuffle/default/0000000000.tmp";
 
-        Partition partition = new Partition( 4 );
+        Partition partition = new Partition( 0 );
 
-        ShuffleInputChunkReader reader = new ShuffleInputChunkReader( configs.get(4), partition, path );
+        List<Partition> partitions = new ArrayList();
+        partitions.add( partition );
+        
+        ShuffleInputReader shuffleInputReader = new ShuffleInputReader( config, path, partitions );
+
+        System.out.printf( "Shuffle header: %s\n", shuffleInputReader.getHeader( partition ) );
+        
+        ShuffleInputChunkReader reader = new ShuffleInputChunkReader( configs.get(0), partition, path );
 
         assertTrue( reader.size() > 0 );
 

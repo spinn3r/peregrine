@@ -3,6 +3,7 @@ package peregrine.map;
 import java.util.*;
 import peregrine.io.*;
 import peregrine.shuffle.sender.*;
+import peregrine.values.*;
 
 public abstract class BaseMapper {
 
@@ -23,8 +24,8 @@ public abstract class BaseMapper {
         
     }
 
-    public final void emit( byte[] key,
-                            byte[] value ) {
+    public final void emit( StructReader key,
+                            StructReader value ) {
 
         if ( stdout == null )
             throw new RuntimeException( "stdout not defined." );

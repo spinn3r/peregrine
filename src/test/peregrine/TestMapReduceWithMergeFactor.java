@@ -9,10 +9,11 @@ import peregrine.io.*;
 import peregrine.io.partition.*;
 import peregrine.util.primitive.*;
 import peregrine.util.*;
+import peregrine.values.*;
 
 import com.spinn3r.log5j.*;
 
-public class TestMapReduceWithMergeFactor extends peregrine.BaseTestWithTwoDaemons {
+public class TestMapReduceWithMergeFactor extends peregrine.BaseTestWithMultipleConfigs {
 
     private static final Logger log = Logger.getLogger();
 
@@ -28,18 +29,19 @@ public class TestMapReduceWithMergeFactor extends peregrine.BaseTestWithTwoDaemo
     public void setUp() {
 
         super.setUp();
-        
-        config.setShuffleSegmentMergeParallelism( 10 );
-        config0.setShuffleSegmentMergeParallelism( 10 );
-        config1.setShuffleSegmentMergeParallelism( 10 );
+
+        for( Config config : configs ) {
+            config.setShuffleSegmentMergeParallelism( 10 );
+        }
+
     }
     
-    public void test() throws Exception {
+    public void doTest() throws Exception {
 
         // change the shuffle buffer so we have lots of smaller files.
-        config.setShuffleBufferSize( 1000 );
-        config0.setShuffleBufferSize( 1000 );
-        config1.setShuffleBufferSize( 1000 );
+        for( Config config : configs ) {
+            config.setShuffleBufferSize( 1000 );
+        }
         
         doTest( 25000 );
         
@@ -49,12 +51,12 @@ public class TestMapReduceWithMergeFactor extends peregrine.BaseTestWithTwoDaemo
 
         String path = String.format( "/test/%s/test1.in", getClass().getName() );
         
-        ExtractWriter writer = new ExtractWriter( config, path );
+        ExtractWriter writer = new ExtractWriter( configs.get(0), path );
 
         for( int i = 0; i < max; ++i ) {
 
-            byte[] key = MD5.encode( "" + i );
-            byte[] value = IntBytes.toByteArray( i );
+        	StructReader key = StructReaders.hashcode( i );
+        	StructReader value = StructReaders.wrap( i );
 
             writer.write( key, value );
         }

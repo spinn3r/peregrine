@@ -23,7 +23,7 @@ import com.spinn3r.log5j.Logger;
 public class MappedFile implements Closeable {
 
     private static final Logger log = Logger.getLogger();
-    
+
     public static boolean DEFAULT_AUTO_SYNC = true;
 
     public static boolean DEFAULT_AUTO_LOCK = false;
@@ -157,7 +157,7 @@ public class MappedFile implements Closeable {
                 
             }
 
-            reader = new StreamReader( map );
+            reader = new StreamReader( map, this );
             
             return map;
 
@@ -227,6 +227,10 @@ public class MappedFile implements Closeable {
 
     }
 
+    public boolean isClosed() {
+        return closer.closed();
+    }
+    
     @Override
     public String toString() {
         return file.toString();
@@ -321,15 +325,15 @@ public class MappedFile implements Closeable {
         @Override
         public void shutdown() throws IOException {
 
+            if ( autoSync && syncWriteSize > 0 ) {
+                sync();
+            }
+
             // if we're in fallocate mode, we now need to truncate the file so
             // that it is the correct length.
 
             if ( fallocateExtentSize > 0 ) {
                 channel.truncate( length );
-            }
-
-            if ( autoSync && syncWriteSize > 0 ) {
-                sync();
             }
 
         }
@@ -352,6 +356,11 @@ public class MappedFile implements Closeable {
 
             synced = length;
 
+        }
+
+        @Override
+        public void flush() throws IOException {
+            sync();
         }
 
         @Override
