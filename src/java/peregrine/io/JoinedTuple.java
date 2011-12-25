@@ -3,7 +3,6 @@ package peregrine.io;
 import java.util.*;
 
 import peregrine.*;
-import peregrine.values.*;
 
 public final class JoinedTuple {
 

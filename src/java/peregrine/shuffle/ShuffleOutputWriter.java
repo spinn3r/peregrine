@@ -13,8 +13,6 @@ import peregrine.os.*;
 import peregrine.util.*;
 import peregrine.util.netty.*;
 import peregrine.util.primitive.*;
-import peregrine.values.*;
-
 import org.jboss.netty.buffer.*;
 
 import com.spinn3r.log5j.Logger;

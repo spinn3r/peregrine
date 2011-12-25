@@ -4,7 +4,6 @@ import java.io.*;
 
 import peregrine.*;
 import peregrine.util.*;
-import peregrine.values.*;
 import peregrine.io.chunk.*;
 
 public class SortResult {
@@ -57,12 +56,8 @@ public class SortResult {
             listener.onFinalValue( entry.key , entry.getValues() );
         }
 
-        Struct struct = new Struct();
-
-        struct.write( entry.getValues() );
-
         if ( writer != null )
-            writer.write( entry.key, new StructReader( struct.toChannelBuffer() ) );
+            writer.write( entry.key, StructReaders.wrap( entry.getValues() ) );
 
     }
     

@@ -11,8 +11,6 @@ import peregrine.io.*;
 import peregrine.io.partition.*;
 import peregrine.util.*;
 import peregrine.util.primitive.*;
-import peregrine.values.*;
-
 import org.apache.log4j.xml.DOMConfigurator;
 
 import com.spinn3r.log5j.*;

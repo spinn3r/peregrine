@@ -4,7 +4,6 @@ import peregrine.*;
 import peregrine.config.*;
 import peregrine.util.*;
 import peregrine.util.primitive.*;
-import peregrine.values.*;
 
 /**
  * Partitions by hash code mod the number of partitions.

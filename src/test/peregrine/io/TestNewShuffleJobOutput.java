@@ -1,7 +1,6 @@
 package peregrine.io;
 
 import peregrine.*;
-import peregrine.values.*;
 import peregrine.config.Partition;
 import peregrine.controller.*;
 import peregrine.io.chunk.*;

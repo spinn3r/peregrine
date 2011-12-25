@@ -3,7 +3,6 @@ package peregrine.reduce;
 
 import peregrine.*;
 import peregrine.util.*;
-import peregrine.values.*;
 
 public class TopLevelSortEntryFactory implements SortEntryFactory {
     

@@ -5,7 +5,6 @@ import java.util.*;
 import peregrine.*;
 import peregrine.util.*;
 import peregrine.util.primitive.LongBytes;
-import peregrine.values.*;
 import peregrine.config.Partition;
 import peregrine.controller.*;
 import peregrine.io.*;

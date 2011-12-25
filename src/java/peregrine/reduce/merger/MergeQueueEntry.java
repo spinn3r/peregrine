@@ -5,7 +5,6 @@ import java.io.*;
 
 import peregrine.*;
 import peregrine.io.chunk.*;
-import peregrine.values.*;
 
 public class MergeQueueEntry {
     

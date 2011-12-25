@@ -1,7 +1,6 @@
 package peregrine.io;
 
 import peregrine.*;
-import peregrine.values.*;
 
 public class TestExtractWriter extends BaseTestWithTwoPartitions {
 

@@ -7,7 +7,6 @@ import java.util.*;
 import peregrine.*;
 import peregrine.config.*;
 import peregrine.io.chunk.*;
-import peregrine.values.*;
 
 /**
  * Read data from a partition from local storage.

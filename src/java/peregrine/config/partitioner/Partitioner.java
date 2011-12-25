@@ -2,7 +2,6 @@ package peregrine.config.partitioner;
 
 import peregrine.*;
 import peregrine.config.*;
-import peregrine.values.*;
 
 /**
  * Interface for handling partitioning keys.  Takes a given key and routes it to

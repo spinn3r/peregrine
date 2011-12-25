@@ -14,8 +14,6 @@ import peregrine.io.util.*;
 import peregrine.shuffle.*;
 import peregrine.util.*;
 import peregrine.util.netty.*;
-import peregrine.values.*;
-
 import org.jboss.netty.buffer.*;
 
 import com.spinn3r.log5j.Logger;

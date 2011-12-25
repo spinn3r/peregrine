@@ -1,7 +1,6 @@
 package peregrine;
 
 import peregrine.map.BaseMapper;
-import peregrine.values.*;
 
 /**
  * A map task implementation which maps keys to values and then emits them.

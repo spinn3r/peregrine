@@ -3,7 +3,6 @@ package peregrine.io;
 import java.io.*;
 
 import peregrine.*;
-import peregrine.values.*;
 
 /**
  * Represents the output stream from a Mapper / Merger job which can write to an

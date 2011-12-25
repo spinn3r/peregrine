@@ -3,7 +3,6 @@ package peregrine.io.chunk;
 import java.io.*;
 
 import peregrine.*;
-import peregrine.values.*;
 
 /**
  * Interface for reading data from a chunk in key/value form.

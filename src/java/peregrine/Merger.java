@@ -2,7 +2,6 @@ package peregrine;
 
 import java.util.*;
 import peregrine.map.BaseMapper;
-import peregrine.values.*;
 
 /**
  * 

@@ -9,8 +9,6 @@ import peregrine.io.*;
 import peregrine.io.partition.*;
 import peregrine.util.primitive.*;
 import peregrine.util.*;
-import peregrine.values.*;
-
 import com.spinn3r.log5j.*;
 
 public class TestMapReduce extends peregrine.BaseTestWithMultipleConfigs {

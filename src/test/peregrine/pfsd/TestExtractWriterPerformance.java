@@ -2,7 +2,6 @@ package peregrine.pfsd;
 
 import peregrine.*;
 import peregrine.io.*;
-import peregrine.values.*;
 
 public class TestExtractWriterPerformance extends BaseTestWithMultipleConfigs {
 

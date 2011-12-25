@@ -11,7 +11,6 @@ import peregrine.reduce.sorter.*;
 import peregrine.shuffle.sender.*;
 import peregrine.util.*;
 import peregrine.util.primitive.*;
-import peregrine.values.*;
 
 /**
  * Test the FULL shuffle path, not just pats of it...including running with two

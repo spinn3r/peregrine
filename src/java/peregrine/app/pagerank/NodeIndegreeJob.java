@@ -3,7 +3,6 @@ package peregrine.app.pagerank;
 import java.util.*;
 import peregrine.*;
 import peregrine.util.*;
-import peregrine.values.*;
 
 public class NodeIndegreeJob {
 

@@ -16,7 +16,6 @@ import peregrine.io.chunk.*;
 import com.spinn3r.log5j.Logger;
 
 import static peregrine.pfsd.FSPipelineFactory.*;
-import peregrine.values.*;
 
 public class ShuffleSender implements Flushable, Closeable {
 

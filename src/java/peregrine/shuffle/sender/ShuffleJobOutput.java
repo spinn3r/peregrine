@@ -11,7 +11,6 @@ import peregrine.util.*;
 import peregrine.io.chunk.*;
 
 import com.spinn3r.log5j.Logger;
-import peregrine.values.*;
 
 public class ShuffleJobOutput
     implements JobOutput, LocalPartitionReaderListener, Closeable, Flushable {

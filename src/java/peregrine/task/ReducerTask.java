@@ -10,8 +10,6 @@ import peregrine.io.*;
 import peregrine.map.*;
 import peregrine.reduce.*;
 import peregrine.sysstat.*;
-import peregrine.values.*;
-
 import com.spinn3r.log5j.Logger;
 
 public class ReducerTask extends BaseOutputTask implements Callable {

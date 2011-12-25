@@ -3,7 +3,6 @@ package peregrine.io.partition;
 import java.io.*;
 
 import peregrine.*;
-import peregrine.values.*;
 
 /**
  * Main PartitionWriter interface. 

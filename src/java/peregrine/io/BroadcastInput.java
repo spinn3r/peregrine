@@ -6,7 +6,6 @@ import peregrine.*;
 import peregrine.config.Config;
 import peregrine.config.Partition;
 import peregrine.io.partition.*;
-import peregrine.values.*;
 
 public final class BroadcastInput {
 

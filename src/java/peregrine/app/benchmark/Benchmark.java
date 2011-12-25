@@ -11,8 +11,6 @@ import peregrine.io.*;
 import peregrine.io.partition.*;
 import peregrine.util.*;
 import peregrine.util.primitive.*;
-import peregrine.values.*;
-
 import com.spinn3r.log5j.*;
 
 public class Benchmark {

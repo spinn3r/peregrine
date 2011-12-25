@@ -10,8 +10,6 @@ import peregrine.util.netty.*;
 import peregrine.util.primitive.*;
 import peregrine.config.*;
 import peregrine.http.*;
-import peregrine.values.*;
-
 import org.jboss.netty.buffer.*;
 
 /**

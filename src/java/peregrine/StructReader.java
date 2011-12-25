@@ -85,6 +85,13 @@ public class StructReader {
     }
 
     /**
+     * Read a varint prefixed slice from this StructReader.
+     */
+    public StructReader readSlice() {
+        return readSlice( readVarint() );
+    }
+    
+    /**
      * Read a slice of bytes from this struct reader and return another
      * StructReader.
      */

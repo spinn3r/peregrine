@@ -4,7 +4,6 @@ import org.jboss.netty.buffer.*;
 
 import peregrine.*;
 import peregrine.util.primitive.IntBytes;
-import peregrine.values.*;
 
 public class Hex {
 

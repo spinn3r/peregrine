@@ -5,7 +5,6 @@ import java.util.*;
 
 import peregrine.*;
 import peregrine.reduce.*;
-import peregrine.values.*;
 import peregrine.io.partition.*;
 
 /**

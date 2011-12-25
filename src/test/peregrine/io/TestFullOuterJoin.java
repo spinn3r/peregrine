@@ -7,7 +7,6 @@ import peregrine.*;
 import peregrine.config.Partition;
 import peregrine.io.partition.*;
 import peregrine.util.*;
-import peregrine.values.*;
 
 /**
  * 

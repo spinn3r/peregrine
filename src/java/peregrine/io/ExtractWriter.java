@@ -8,8 +8,6 @@ import java.util.concurrent.atomic.*;
 import peregrine.*;
 import peregrine.config.*;
 import peregrine.io.partition.*;
-import peregrine.values.*;
-
 import com.spinn3r.log5j.Logger;
 
 /**

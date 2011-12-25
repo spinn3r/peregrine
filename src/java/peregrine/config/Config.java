@@ -8,7 +8,6 @@ import peregrine.*;
 import peregrine.config.partitioner.*;
 import peregrine.util.primitive.*;
 import peregrine.util.*;
-import peregrine.values.*;
 import peregrine.os.*;
 import peregrine.sysstat.*;
 

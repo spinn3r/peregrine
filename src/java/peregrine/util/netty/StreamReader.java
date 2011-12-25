@@ -4,8 +4,6 @@ import org.jboss.netty.buffer.*;
 
 import peregrine.*;
 import peregrine.os.*;
-import peregrine.values.*;
-
 import java.io.*;
 import java.util.*;
 

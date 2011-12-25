@@ -8,7 +8,6 @@ import peregrine.config.Membership;
 import peregrine.config.Partition;
 import peregrine.controller.*;
 import peregrine.io.*;
-import peregrine.values.*;
 import peregrine.util.*;
 import peregrine.util.primitive.IntBytes;
 import peregrine.io.partition.*;

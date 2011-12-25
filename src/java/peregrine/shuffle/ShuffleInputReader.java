@@ -8,7 +8,6 @@ import java.nio.channels.*;
 import peregrine.*;
 import peregrine.os.*;
 import peregrine.util.*;
-import peregrine.values.*;
 import peregrine.config.*;
 import org.jboss.netty.buffer.*;
 

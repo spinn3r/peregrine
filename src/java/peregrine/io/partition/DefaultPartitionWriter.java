@@ -10,8 +10,6 @@ import peregrine.io.chunk.*;
 import peregrine.os.*;
 import peregrine.pfsd.*;
 import peregrine.util.netty.*;
-import peregrine.values.*;
-
 import com.spinn3r.log5j.Logger;
 
 /**

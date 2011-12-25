@@ -2,7 +2,6 @@ package peregrine.config;
 
 import peregrine.*;
 import peregrine.config.partitioner.*;
-import peregrine.values.*;
 
 public class TestRangeRouter extends BaseTestWithMultipleDaemons {
 

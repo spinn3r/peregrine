@@ -2,7 +2,6 @@ package peregrine.config.partitioner;
 
 import peregrine.*;
 import peregrine.config.*;
-import peregrine.values.*;
 
 /**
  * Partitions by range based on the key and the partition distribution.
