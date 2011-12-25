@@ -85,6 +85,14 @@ public class StructReader {
     }
 
     /**
+     * Read a slice of bytes from this struct reader and return another
+     * StructReader.
+     */
+    public StructReader readSlice( int length ) {
+        return new StructReader( buff.readSlice( length ) );
+    }
+    
+    /**
      * Read a byte array and return it.  The byte byte array is length prefixed
      * so that this StructReader can hold mulitiple byte arrays.
      */

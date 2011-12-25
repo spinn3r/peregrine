@@ -44,9 +44,8 @@ public class IterJob {
         public void merge( StructReader key,
                            List<StructReader> values ) {
 
-        	StructReader graph_by_source  = values.get( 0 );
+        	StructReader outbound         = values.get( 0 );
         	StructReader dangling         = values.get( 2 );
-            
 
             /*
             System.out.printf( "key: %s , graph_by_source: %s, rank_vector: %s, dangling=%s, nonlinked=%s\n",
@@ -70,20 +69,14 @@ public class IterJob {
 
             } else { 
             
-                HashSetValue outbound = new HashSetValue( graph_by_source );
-
-                int outdegree = outbound.size();
+                int outdegree = outbound.length() / Hashcode.HASH_WIDTH;
 
                 double grant = rank / outdegree;
                 
-                for ( StructReader target : outbound.getValues() ) {
+                while ( outbound.isReadable() ) {
 
-                    /*
-                    byte[] value = new StructWriter()
-                        .writeDouble( grant )
-                        .toBytes();
-                    */
-
+                    StructReader target = outbound.readSlice( Hashcode.HASH_WIDTH );
+                    
                     StructReader value = new StructWriter()
                     	.writeDouble( grant )
                     	.toStructReader();

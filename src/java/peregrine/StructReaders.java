@@ -1,5 +1,7 @@
 package peregrine;
 
+import java.util.*;
+
 import org.jboss.netty.buffer.*;
 
 import peregrine.util.*;
@@ -70,6 +72,22 @@ public class StructReaders {
             .writeHashcode( value )
             .toStructReader()
             ;
+        
+    }
+
+    /**
+     * Generate a StructReader that writes the given list of primitives to a set
+     * of hashcodes.
+     */
+    public static StructReader hashcode( List<Long> values ) {
+
+        StructWriter writer = new StructWriter( values.size() * Hashcode.HASH_WIDTH );
+        
+        for( long current : values ) {
+            writer.writeHashcode( current );
+        }
+
+        return writer.toStructReader();
         
     }
 

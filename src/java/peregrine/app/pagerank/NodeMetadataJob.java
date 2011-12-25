@@ -45,11 +45,10 @@ public class NodeMetadataJob {
 
             if ( values.get(1) != null ) {
 
-                HashSetValue set = new HashSetValue();
-                set.fromChannelBuffer( values.get(1).getChannelBuffer() );
+                StructReader graph_by_source = values.get(1);
 
-                outdegree = set.size();
-
+                outdegree = graph_by_source.length() / Hashcode.HASH_WIDTH;
+                
             }
 
             if ( outdegree == 0 ) {

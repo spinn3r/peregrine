@@ -30,13 +30,13 @@ public class GraphBuilder {
 
             int source = i;
 
-            int first = (int)(gap * r.nextFloat());
+            long first = (int)(gap * r.nextFloat());
 
-            int target = first;
+            long target = first;
 
-            List<Integer> targets = new ArrayList( max_edges_per_node );
+            List<Long> targets = new ArrayList( max_edges_per_node );
             
-            for( int j = 0; j < max_edges_per_node && j < i ; ++j ) {
+            for( long j = 0; j < max_edges_per_node && j < i ; ++j ) {
                 targets.add( target );
                 target = target + gap;
             }
@@ -62,43 +62,29 @@ public class GraphBuilder {
     }
     
     public static void addRecord( ExtractWriter writer,
-                                  int source,
-                                  int... targets ) throws Exception {
+                                  long source,
+                                  long... targets ) throws Exception {
 
-        List<Integer> list = new ArrayList();
+        List<Long> list = new ArrayList();
 
-        for( int t : targets ) {
+        for( long t : targets ) {
             list.add( t ) ;
         }
 
         addRecord( writer, source, list );
         
     }
-
-    public static StructReader hash( long value ) {
-
-    	return new StructWriter( 8 )
-    	    .writeHashcode( LongBytes.toByteArray( value ) )
-    	    .toStructReader();
-        
-    }
     
     public static void addRecord( ExtractWriter writer,
-                                  int source,
-                                  List<Integer> targets ) throws Exception {
+                                  long source,
+                                  List<Long> targets ) throws Exception {
 
-        //byte[] hash = Hashcode.getHashcode( ""+source );
+        StructReader key = StructReaders.hashcode( source );
 
-        StructReader key = hash( source );
+        StructReader value = StructReaders.hashcode( targets );
         
-        HashSetValue value = new HashSetValue();
-        for ( int target : targets ) {
-            StructReader target_key = hash( target );
-            value.add( target_key );
-        }
-        
-        writer.write( key, new StructReader( value.toChannelBuffer() ) );
+        writer.write( key, value );
 
     }
-
+    
 }

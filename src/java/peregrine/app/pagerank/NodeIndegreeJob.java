@@ -2,6 +2,7 @@ package peregrine.app.pagerank;
 
 import java.util.*;
 import peregrine.*;
+import peregrine.util.*;
 import peregrine.values.*;
 
 public class NodeIndegreeJob {
@@ -12,10 +13,8 @@ public class NodeIndegreeJob {
         public void map( StructReader key,
                          StructReader value) {
 
-            HashSetValue hashSetValue = new HashSetValue();
-            hashSetValue.fromChannelBuffer( value.getChannelBuffer() );
-            
-            for( StructReader target : hashSetValue.getValues() ) {
+            while( value.isReadable() ) {
+                StructReader target = value.readSlice( Hashcode.HASH_WIDTH );
                 emit( target, key );
             }
             
