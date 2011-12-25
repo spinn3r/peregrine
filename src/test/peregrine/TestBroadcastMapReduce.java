@@ -94,8 +94,6 @@ public class TestBroadcastMapReduce extends peregrine.BaseTestWithMultipleConfig
          Controller controller = new Controller( config );
 
          try {
-
-             //FIXME: make these URIs not classes... 
              
              controller.map( Map.class,
                              new Input( path ),

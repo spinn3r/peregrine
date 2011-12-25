@@ -103,15 +103,6 @@ public class StructReader {
         buff.readBytes( data );
         return data;
     }
-
-    /**
-     * Read all the data in this StructReader as a byte array.  Useful if you
-     * have some alternative form of data representation you with to work with
-     * and need the bytes directly.
-     */
-    public byte[] readBytesFixed() {
-        return readBytesFixed( length() );
-    }
     
     /**
      * Read a length prefixed string UTF8 string from the stream.
@@ -134,6 +125,11 @@ public class StructReader {
         return read(new byte[Hashcode.HASH_WIDTH]);
     }
 
+    /**
+     * Read all the data in this StructReader as a byte array.  Useful if you
+     * have some alternative form of data representation you with to work with
+     * and need the bytes directly.
+     */
     public byte[] toByteArray() {
 
         byte[] result = new byte[ length() ];
