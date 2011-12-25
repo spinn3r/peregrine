@@ -11,6 +11,7 @@ import peregrine.reduce.sorter.*;
 import peregrine.shuffle.sender.*;
 import peregrine.util.*;
 import peregrine.util.primitive.*;
+import peregrine.values.*;
 
 /**
  * Test the FULL shuffle path, not just pats of it...including running with two
@@ -35,14 +36,11 @@ public class TestFullShufflePath extends peregrine.BaseTestWithMultipleDaemons {
     
     private void doTestIter( ShuffleJobOutput output, int max_emits ) throws Exception {
 
-        for ( int i = 0; i < max_emits; ++i ) {
-
-            byte[] key = LongBytes.toByteArray( i );
-                ;
+        for ( long i = 0; i < max_emits; ++i ) {
 
             byte[] value = new byte[] { (byte)'x', (byte)'x', (byte)'x', (byte)'x', (byte)'x', (byte)'x', (byte)'x' };
 
-            output.emit( key, value );
+            output.emit( StructReaders.wrap( i ), StructReaders.wrap( value ) );
         }
 
     }
@@ -118,19 +116,19 @@ public class TestFullShufflePath extends peregrine.BaseTestWithMultipleDaemons {
 
     public static void assertResults( ChunkReader reader, int max ) throws Exception {
 
-        byte[] last = null;
+    	StructReader last = null;
 
         FullKeyComparator comparator = new FullKeyComparator();
 
         int count = 0;
         while( reader.hasNext() ) {
             
-            byte[] key = reader.key();
-            byte[] value = reader.value();
+        	StructReader key   = reader.key();
+        	StructReader value = reader.value();
 
             System.out.printf( "%s\n", Hex.encode( key ) );
             
-            if ( last != null && comparator.compare( last, value ) > 0 )
+            if ( last != null && comparator.compare( last.toByteArray(), value.toByteArray() ) > 0 )
                 throw new RuntimeException( "value is NOT less than last value" );
 
             LongBytes.toByteArray( count );

@@ -1,13 +1,38 @@
+Additional burton-struct-api-change before merging.
+   - Allocating a ThreadLocal value in the new framework is NOT a good idea I
+      think because I can create TWO StructWriters and I need to use a NEW
+      buffer for the second one.  The problem is what should be the default
+      size?  Probably 8 bytes... to store one primitive.
 
-- null: input reference.
+      - I *could* pool these by using direct channel buffers.
 
-- before I build make sure I have mvn, and awestruct in teh path.
+    - HashSetValue seems the SAME as Struct I think.
+        - refactor this AFTER I get everything working probably..
+
+        - they're basically the same but one is fixed width and the other is
+          variable.
+
+        - 
+          
+  
+    - Make sure ALL the WithMultiConfigs test are configured and running.
+
+    - Replace HashSetValue with StructReader ...
+
+    - Replace Struct with StructReader ... 
 
 
-- when buffering the output from the shuffle data, I need to make sure that I
+- It would be nice if we could take a Struct and unpack it or use an
+  enumerator/iterator pattern on it...
 
-
-- using 10MB shuffle files isn't going to be super efficient I think 
+    while( reader.isReadable()() ) {
+        byte[] key = reader.getBytes();
+    }
+  
+    
+    
+- officially deprecate ShuffleInputReference , etc so that I can use paths... 
+    
 
 - centralizing log4j initialization needs to be done.
 

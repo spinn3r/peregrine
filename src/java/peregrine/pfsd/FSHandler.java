@@ -160,7 +160,7 @@ public class FSHandler extends DefaultChannelUpstreamHandler {
                     x_pipeline += hosts[i] + " ";
                 }
                 
-                x_pipeline.trim();
+                x_pipeline = x_pipeline.trim();
 
                 if ( ! "".equals( x_pipeline ) )
                     request.setHeader( X_PIPELINE_HEADER, x_pipeline );

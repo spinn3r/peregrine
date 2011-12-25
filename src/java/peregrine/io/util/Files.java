@@ -32,12 +32,20 @@ public class Files {
      */
     public static String toString( File file ) throws IOException {
 
-        FileInputStream fis = new FileInputStream( file );
+        FileInputStream fis = null;
 
-        byte[] data = new byte[ (int)file.length() ];
-        fis.read( data );
+        try {
+            
+            fis = new FileInputStream( file );
+            
+            byte[] data = new byte[ (int)file.length() ];
+            fis.read( data );
+            
+            return new String( data, "UTF8" );
 
-        return new String( data, "UTF8" );
+        } finally {
+            new Closer( fis ).close();
+        }
 
     }
     

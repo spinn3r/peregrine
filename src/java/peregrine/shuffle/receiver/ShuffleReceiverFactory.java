@@ -76,15 +76,15 @@ public class ShuffleReceiverFactory {
             
     }
 
-    public void purge() throws IOException {
+    public void purge( String name ) throws IOException {
 
         // only done so that we can benchmark the performance of certain
-        // algorithsm.
+        // algorithms.
         
         if ( config.getPurgeShuffleData() == false )
             return;
         
-        String dir = config.getShuffleDir();
+        String dir = config.getShuffleDir( name );
         
         log.info( "Purging shuffler directory: %s", dir );
 
@@ -93,7 +93,7 @@ public class ShuffleReceiverFactory {
     }
     
     public long lastFlushed() {
-        return lastFlushed();
+        return lastFlushed;
     }
     
 }

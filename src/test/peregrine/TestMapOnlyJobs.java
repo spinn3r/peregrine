@@ -4,7 +4,7 @@ import java.io.*;
 import peregrine.config.Partition;
 import peregrine.controller.*;
 import peregrine.io.*;
-import peregrine.keys.*;
+import peregrine.values.*;
 import peregrine.io.partition.*;
 
 public class TestMapOnlyJobs extends peregrine.BaseTestWithTwoDaemons {
@@ -12,8 +12,8 @@ public class TestMapOnlyJobs extends peregrine.BaseTestWithTwoDaemons {
     public static class Map extends Mapper {
 
         @Override
-        public void map( byte[] key,
-                         byte[] value ) {
+        public void map( StructReader key,
+        		         StructReader value ) {
 
             emit( key, value );
             
@@ -29,8 +29,8 @@ public class TestMapOnlyJobs extends peregrine.BaseTestWithTwoDaemons {
 
         for( int i = 0; i < 10; ++i ) {
 
-            byte[] key = new IntKey( i ).toBytes();
-            byte[] value = key;
+        	StructReader key = StructReaders.wrap((long)i);
+        	StructReader value = key;
             writer.write( key, value );
             
         }

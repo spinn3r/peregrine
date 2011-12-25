@@ -1,8 +1,7 @@
 package peregrine.shuffle.sender;
 
-import peregrine.config.Config;
-import peregrine.config.Membership;
-import peregrine.config.Partition;
+import peregrine.config.*;
+import peregrine.values.*;
 
 public class BroadcastJobOutput extends ShuffleJobOutput {
 
@@ -15,12 +14,14 @@ public class BroadcastJobOutput extends ShuffleJobOutput {
     }
     
     @Override
-    public void emit( byte[] key , byte[] value ) {
+    public void emit( StructReader key , StructReader value ) {
 
         Membership membership = config.getMembership();
 
         for ( Partition target : membership.getPartitions() ) {
             emit( target.getId() , key, value );
+            key.reset();
+            value.reset();
         }
 
     }

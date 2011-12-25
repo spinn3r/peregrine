@@ -9,6 +9,7 @@ import peregrine.io.*;
 import peregrine.io.partition.*;
 import peregrine.util.primitive.*;
 import peregrine.util.*;
+import peregrine.values.*;
 
 import com.spinn3r.log5j.*;
 
@@ -19,8 +20,8 @@ public class TestMapReduce extends peregrine.BaseTestWithMultipleConfigs {
     public static class Map extends Mapper {
 
         @Override
-        public void map( byte[] key,
-                         byte[] value ) {
+        public void map( StructReader key,
+                         StructReader value ) {
 
             emit( key, value );
             
@@ -33,13 +34,13 @@ public class TestMapReduce extends peregrine.BaseTestWithMultipleConfigs {
         AtomicInteger count = new AtomicInteger();
         
         @Override
-        public void reduce( byte[] key, List<byte[]> values ) {
+        public void reduce( StructReader key, List<StructReader> values ) {
 
             List<Integer> ints = new ArrayList();
 
             // decode these so we know what they actually mean.
-            for( byte[] val : values ) {
-                ints.add( IntBytes.toInt( val ) );
+            for( StructReader val : values ) {
+                ints.add( val.readInt() );
             }
 
             if ( values.size() != 2 ) {
@@ -125,16 +126,32 @@ public class TestMapReduce extends peregrine.BaseTestWithMultipleConfigs {
 
         for( int i = 0; i < max; ++i ) {
 
-            byte[] key = MD5.encode( "" + i );
-            byte[] value = IntBytes.toByteArray( i );
-
+            StructReader key = new StructWriter()
+                .writeHashcode(i)
+                .toStructReader()
+                ;
+            
+            StructReader value = new StructWriter()
+                .writeInt(i)
+                .toStructReader()
+                 ;
+            
             writer.write( key, value );
+            
         }
 
         // write data 2x to verify that sorting works.
         for( int i = 0; i < max; ++i ) {
-            byte[] key = MD5.encode( "" + i );
-            byte[] value = IntBytes.toByteArray( i );
+        	
+            StructReader key = new StructWriter()
+                .writeHashcode(i)
+                .toStructReader()
+            ;
+        
+            StructReader value = new StructWriter()
+                .writeInt(i)
+                .toStructReader()
+             ;
 
             writer.write( key, value );
         }

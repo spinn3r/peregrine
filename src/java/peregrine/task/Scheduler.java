@@ -235,7 +235,7 @@ public abstract class Scheduler {
                 }
 
                 // throw the current position.
-                throw new Exception( "Failed: " + failure );
+                throw new Exception( String.format( "Failed job %s due to %s", job, failure ) );
                 
             }
 

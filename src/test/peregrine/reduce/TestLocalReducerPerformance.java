@@ -1,3 +1,4 @@
+
 package peregrine.reduce;
 
 import java.util.*;
@@ -6,11 +7,11 @@ import peregrine.config.*;
 import peregrine.controller.*;
 import peregrine.io.*;
 import peregrine.io.partition.*;
-import peregrine.keys.*;
 import peregrine.os.*;
 import peregrine.task.*;
 import peregrine.util.*;
 import peregrine.util.primitive.*;
+import peregrine.values.*;
 
 /**
  * Tests running a reduce but also has some code to benchmark them so that we
@@ -51,8 +52,8 @@ public class TestLocalReducerPerformance extends peregrine.BaseTestWithMultipleC
         
         for( long i = 0; i < max; ++i ) {
             
-            byte[] key = LongBytes.toByteArray( i );
-            byte[] value = new byte[value_size];
+            StructReader key = StructReaders.wrap( i );
+            StructReader value = StructReaders.wrap( new byte[value_size] );
             writer.write( key, value );
             
         }
@@ -66,7 +67,6 @@ public class TestLocalReducerPerformance extends peregrine.BaseTestWithMultipleC
             controller.map( peregrine.Mapper.class, path );
 
             // drop caches here so that I can benchmark raw IO
-
             Linux.dropCaches();
             
             controller.reduce( peregrine.Reducer.class, new Input(), new Output( "blackhole:" ) );

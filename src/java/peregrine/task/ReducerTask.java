@@ -5,12 +5,12 @@ import java.io.*;
 import java.util.*;
 import java.util.concurrent.*;
 import peregrine.*;
-import peregrine.map.*;
-import peregrine.config.Config;
-import peregrine.config.Partition;
+import peregrine.config.*;
 import peregrine.io.*;
+import peregrine.map.*;
 import peregrine.reduce.*;
 import peregrine.sysstat.*;
+import peregrine.values.*;
 
 import com.spinn3r.log5j.Logger;
 
@@ -89,7 +89,7 @@ public class ReducerTask extends BaseOutputTask implements Callable {
         ReducerTaskSortListener listener =
             new ReducerTaskSortListener( reducer );
         
-        LocalReducer reducer = new LocalReducer( config, partition, listener, shuffleInput );
+        LocalReducer reducer = new LocalReducer( config, partition, listener, shuffleInput, getJobOutput() );
 
         String shuffle_dir = config.getShuffleDir( shuffleInput.getName() );
 
@@ -137,7 +137,7 @@ class ReducerTaskSortListener implements SortListener {
         this.reducer = reducer;
     }
     
-    public void onFinalValue( byte[] key, List<byte[]> values ) {
+    public void onFinalValue( StructReader key, List<StructReader> values ) {
 
         try {
 

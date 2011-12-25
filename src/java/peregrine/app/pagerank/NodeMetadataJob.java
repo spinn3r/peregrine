@@ -31,22 +31,22 @@ public class NodeMetadataJob {
         }
 
         @Override
-        public void merge( byte[] key,
-                           byte[]... values ) {
+        public void merge( StructReader key,
+                           List<StructReader> values ) {
 
             // left should be node_indegree , right should be the graph... 
 
             int indegree  = 0;
             int outdegree = 0;
             
-            if ( values[0] != null ) {
-                indegree = new IntValue( values[0] ).value;
+            if ( values.get(0) != null ) {
+                indegree = values.get(0).readInt();
             }
 
-            if ( values[1] != null ) {
+            if ( values.get(1) != null ) {
 
                 HashSetValue set = new HashSetValue();
-                set.fromBytes( values[1] );
+                set.fromChannelBuffer( values.get(1).getChannelBuffer() );
 
                 outdegree = set.size();
 
@@ -58,18 +58,18 @@ public class NodeMetadataJob {
                 
                 // TODO would be NICE to support a sequence file where the
                 // values are optional for better storage.
-                danglingOutput.emit( key, BooleanValue.TRUE );
+                danglingOutput.emit( key, StructReaders.TRUE );
                 
             }
 
             if ( indegree == 0 ) {
-                nonlinkedOutput.emit( key, BooleanValue.TRUE );
+                nonlinkedOutput.emit( key, StructReaders.TRUE );
             }
 
             nodeMetadataOutput.emit( key, new StructWriter()
                                              .writeInt( indegree )
                                              .writeInt( outdegree )
-                                             .toBytes() );
+                                             .toStructReader() );
 
             ++nrNodes;
             
@@ -83,12 +83,12 @@ public class NodeMetadataJob {
 
             // *** broadcast nr dangling.
 
-            byte[] key = Hashcode.getHashcode( "id" );
+            StructReader key = StructReaders.hashcode( "id" );
             
-            nrNodesBroadcastOutput.emit( key, IntBytes.toByteArray( nrNodes ) );
+            nrNodesBroadcastOutput.emit( key, StructReaders.wrap( nrNodes ) );
 
             // *** broadcast nr dangling.
-            nrDanglingBroadcastOutput.emit( key, IntBytes.toByteArray( nrDangling ) );
+            nrDanglingBroadcastOutput.emit( key, StructReaders.wrap( nrDangling ) );
 
         }
 
@@ -97,15 +97,15 @@ public class NodeMetadataJob {
     public static class Reduce extends Reducer {
 
         @Override
-        public void reduce( byte[] key, List<byte[]> values ) {
+        public void reduce( StructReader key, List<StructReader> values ) {
 
             int count = 0;
             
-            for( byte[] val : values ) {
-                count += IntBytes.toInt( val );
+            for( StructReader val : values ) {
+                count += val.readInt();
             }
 
-            emit( key, IntBytes.toByteArray( count ) );
+            emit( key, StructReaders.wrap( count ) );
 
         }
 

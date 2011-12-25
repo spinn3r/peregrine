@@ -2,10 +2,11 @@
 package peregrine.reduce;
 
 import peregrine.util.*;
+import peregrine.values.*;
 
 public class TopLevelSortEntryFactory implements SortEntryFactory {
     
-    public SortEntry newSortEntry( byte[] key, byte[] value ) {
+    public SortEntry newSortEntry( StructReader key, StructReader value ) {
 
         // the first value is a literal... 
         SortEntry entry = new SortEntry( key );

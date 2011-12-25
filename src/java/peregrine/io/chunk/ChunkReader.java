@@ -1,6 +1,7 @@
 package peregrine.io.chunk;
 
 import java.io.*;
+import peregrine.values.*;
 
 /**
  * Interface for reading data from a chunk in key/value form.
@@ -19,14 +20,14 @@ public interface ChunkReader extends Closeable {
      *
      * Both key() and value() must be called before moving to the next item.
      */
-    public byte[] key() throws IOException;
+    public StructReader key() throws IOException;
 
     /**
      * Read the value from the current entry.
      *
      * Both key() and value() must be called before moving to the next item.
      */
-    public byte[] value() throws IOException;
+    public StructReader value() throws IOException;
 
     /**
      * Close the ChunkReader.

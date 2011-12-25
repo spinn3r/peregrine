@@ -69,7 +69,7 @@ public class ShuffleOutputWriter implements Closeable {
                         int to_partition,
                         int count,
                         ChannelBuffer data ) throws IOException {
-        
+
         if ( closed )
             throw new IOException( "closed" );
 
@@ -192,7 +192,7 @@ public class ShuffleOutputWriter implements Closeable {
                 for( ShufflePacket pack : shuffleOutputPartition.packets ) {
                     
                     length += PACKET_HEADER_SIZE;
-                    length += pack.data.capacity();
+                    length += pack.data.writerIndex();
                     
                 }
 
@@ -230,7 +230,7 @@ public class ShuffleOutputWriter implements Closeable {
                                   .writeInt( pack.from_partition )
                                   .writeInt( pack.from_chunk )
                                   .writeInt( pack.to_partition )
-                                  .writeInt( pack.data.capacity() )
+                                  .writeInt( pack.data.writerIndex() )
                                   .getChannelBuffer() );
                     
                     output.write( pack.data );

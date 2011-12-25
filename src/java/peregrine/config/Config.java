@@ -7,6 +7,7 @@ import java.util.*;
 import peregrine.config.partitioner.*;
 import peregrine.util.primitive.*;
 import peregrine.util.*;
+import peregrine.values.*;
 import peregrine.os.*;
 import peregrine.sysstat.*;
 
@@ -75,6 +76,7 @@ public class Config extends BaseConfig {
             throw new RuntimeException( "Unable to create partitioner: ", t );
         }
 
+        // attempt to adjust the open file handles with setrlimit ... 
         if ( getMaxOpenFileHandles() > 0 ) {
 
             try {
@@ -86,7 +88,7 @@ public class Config extends BaseConfig {
                 log.info( "Max open file handle = %,d set via setrlimit", getMaxOpenFileHandles() );
                 
             } catch ( Exception e ) {
-                log.warn( "Unable to set max open file handles via setrlimit", e );
+                log.warn( "Unable to set max open file handles via setrlimit: %s ", e.getMessage() );
             }
             
         }
@@ -197,7 +199,7 @@ public class Config extends BaseConfig {
     /**
      * For a given key, in bytes, route it to the correct partition/partition.
      */
-    public Partition partition( byte[] key ) {
+    public Partition partition( StructReader key ) {
     	return partitioner.partition( key );    
     }
 

@@ -1,6 +1,7 @@
 package peregrine.io.chunk;
 
 import java.io.*;
+
 import java.nio.*;
 import java.nio.channels.*;
 import java.nio.charset.*;
@@ -10,7 +11,8 @@ import peregrine.config.*;
 import peregrine.os.*;
 import peregrine.util.*;
 import peregrine.util.netty.*;
-import peregrine.util.primitive.IntBytes;
+import peregrine.util.primitive.*;
+import peregrine.values.*;
 
 import org.jboss.netty.buffer.*;
 
@@ -60,7 +62,7 @@ public class DefaultChunkReader implements ChunkReader, Closeable {
         
         ChannelBuffer buff = mappedFile.map();
       
-        init( buff );
+        init( buff, mappedFile.getStreamReader() );
         
     }
 
@@ -92,13 +94,20 @@ public class DefaultChunkReader implements ChunkReader, Closeable {
     public MappedFile getMappedFile() {
         return mappedFile;
     }
-    
+
     private void init( ChannelBuffer buff )
         throws IOException {
 
-        this.reader = new StreamReader( buff );
-        this.length = buff.writerIndex();
+        init( buff, new StreamReader( buff ) );
+        
+    }
+    
+    private void init( ChannelBuffer buff, StreamReader reader )
+        throws IOException {
+
+        this.reader = reader;
         this.varintReader = new VarintReader( reader );
+        this.length = buff.writerIndex();
         
         assertLength();
         setSize( buff.getInt( buff.writerIndex() - IntBytes.LENGTH ) );
@@ -117,13 +126,13 @@ public class DefaultChunkReader implements ChunkReader, Closeable {
     }
 
     @Override
-    public byte[] key() throws IOException {
+    public StructReader key() throws IOException {
         ++idx;
         return readEntry();
     }
 
     @Override
-    public byte[] value() throws IOException {
+    public StructReader value() throws IOException {
         return readEntry();
     }
 
@@ -159,61 +168,18 @@ public class DefaultChunkReader implements ChunkReader, Closeable {
         this.size = size;
     }
 
-    private byte[] readEntry() throws IOException {
+    private StructReader readEntry() throws IOException {
 
         try {
 
             int len = varintReader.read();
-            return readBytes( len );
+            
+            return reader.read( len );
             
         } catch ( Throwable t ) {
             throw new IOException( "Unable to parse: " + toString() , t );
         }
         
     }
-    
-    private byte[] readBytes( int len ) throws IOException {
 
-        byte[] data = new byte[len];
-        reader.readBytes( data );
-        return data;
-        
-    }
-    
-    public static void main( String[] args ) throws Exception {
-
-    	/*
-        ChunkReader reader = new DefaultChunkReader( new File( args[0] ) );
-
-        Key key = null;
-        Value value = null;
-        
-        if ( args.length > 1 ) {
-
-            key   = (Key)  Class.forName( args[1] ).newInstance();
-            value = (Value)Class.forName( args[2] ).newInstance();
-            
-        }
-        
-        while( reader.hasNext() ) {
-
-            if ( key == null ) {
-
-                System.out.printf( "%s = %s\n", Hex.encode( reader.key() ), Hex.encode( reader.value() ) );
-
-            } else {
-
-                key.fromBytes( reader.key() );
-                value.fromBytes( reader.value() );
-                
-                System.out.printf( "%s = %s\n", key, value );
-
-            }
-
-        }
-        
-        */
-        
-    }
-    
 }

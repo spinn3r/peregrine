@@ -3,6 +3,7 @@ package peregrine.shuffle;
 import peregrine.*;
 import peregrine.util.*;
 import peregrine.util.primitive.LongBytes;
+import peregrine.values.*;
 import peregrine.config.Partition;
 import peregrine.controller.*;
 import peregrine.io.*;
@@ -17,8 +18,8 @@ public class TestParallelShuffleInputChunkReader extends peregrine.BaseTestWithM
     public static class Map extends Mapper {
 
         @Override
-        public void map( byte[] key,
-                         byte[] value ) {
+        public void map( StructReader key,
+        		         StructReader value ) {
 
             emit( key, value );
             
@@ -27,7 +28,13 @@ public class TestParallelShuffleInputChunkReader extends peregrine.BaseTestWithM
     }
 
     public TestParallelShuffleInputChunkReader() {
-        super( 2, 2, 5 );
+
+        //2,2,5
+        
+        concurrency = 1;
+        replicas    = 1;
+        nr_daemons  = 1;
+        
     }
     
     public void test1() throws Exception {
@@ -36,13 +43,25 @@ public class TestParallelShuffleInputChunkReader extends peregrine.BaseTestWithM
         
         ExtractWriter writer = new ExtractWriter( config, path );
 
-        int max = 10000;
+        /*
+        10000 F 
+        5000  F
+        2500  F
+        1250  F
+        625   W
+        937   F
+        780   W
+        858   W
+        */
         
-        for( int i = 0; i < max; ++i ) {
+        int max = 897;
+        //int max = 10;
+        
+        for( long i = 0; i < max; ++i ) {
 
-            byte[] key = LongBytes.toByteArray( i );
-            byte[] value = key;
-
+        	StructReader key = StructReaders.wrap( i );
+        	StructReader value = key;
+            
             writer.write( key, value );
         }
 
@@ -59,9 +78,9 @@ public class TestParallelShuffleInputChunkReader extends peregrine.BaseTestWithM
         //now create a ParallelShuffleInputChunkReader for one of the
         //partitions so that we can see if it actually works
 
-        path = "/tmp/peregrine-fs/localhost/11116/tmp/shuffle/default/0000000000.tmp";
+        path = "/tmp/peregrine-fs/localhost/11112/tmp/shuffle/default/0000000000.tmp";
 
-        ShuffleInputChunkReader reader = new ShuffleInputChunkReader( configs.get(4), new Partition( 4 ), path );
+        ShuffleInputChunkReader reader = new ShuffleInputChunkReader( configs.get(0), new Partition( 0 ), path );
 
         assertTrue( reader.size() > 0 );
 
@@ -72,6 +91,8 @@ public class TestParallelShuffleInputChunkReader extends peregrine.BaseTestWithM
             System.out.printf( "%s = %s\n", Hex.encode( reader.key() ), Hex.encode( reader.value() ) );
             
         }
+
+        reader.close();
         
     }
 

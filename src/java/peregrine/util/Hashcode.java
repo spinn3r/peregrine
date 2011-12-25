@@ -14,7 +14,7 @@ public class Hashcode {
     }
 
     public static byte[] getHashcode( byte[] input ) {
-        return getHashcodeWithSHA1( input );
+        return getHashcodeWithMD5( input );
     }
 
     public static byte[] getHashcodeWithSHA1( byte[] input ) {

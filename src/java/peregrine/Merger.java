@@ -1,6 +1,8 @@
 package peregrine;
 
+import java.util.*;
 import peregrine.map.BaseMapper;
+import peregrine.values.*;
 
 /**
  * 
@@ -17,7 +19,7 @@ import peregrine.map.BaseMapper;
  *
  */
 public class Merger extends BaseMapper {
-
+	
 	/**
 	 * Run a merge over the given data.  Note the merge method is different 
 	 * from that of Mapper in that only one value is provided. 
@@ -26,6 +28,6 @@ public class Merger extends BaseMapper {
 	 * @param values
 	 * @see Mapper#map(byte[], byte[])
 	 */
-    public void merge( byte[] key, byte[]... values ) {}
+    public void merge( StructReader key, List<StructReader> values ) {}
 
 }

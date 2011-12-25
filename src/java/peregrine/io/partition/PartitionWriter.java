@@ -2,12 +2,14 @@ package peregrine.io.partition;
 
 import java.io.*;
 
+import peregrine.values.*;
+
 /**
  * Main PartitionWriter interface. 
  */
-public interface PartitionWriter {
+public interface PartitionWriter extends Closeable, Flushable {
 
-    public void write( byte[] key, byte[] value ) throws IOException;
+    public void write( StructReader key, StructReader value ) throws IOException;
 
     public void shutdown() throws IOException;
 

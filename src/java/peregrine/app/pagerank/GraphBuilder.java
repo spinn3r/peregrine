@@ -2,7 +2,6 @@ package peregrine.app.pagerank;
 
 import java.util.*;
 import peregrine.io.*;
-import peregrine.keys.*;
 import peregrine.values.*;
 import peregrine.util.*;
 import peregrine.util.primitive.*;
@@ -74,11 +73,11 @@ public class GraphBuilder {
         
     }
 
-    public static byte[] hash( long value ) {
+    public static StructReader hash( long value ) {
 
-        return Hashcode.getHashcodeWithMD5( LongBytes.toByteArray( value ) );
-        
-        //return LongBytes.toByteArray( value );
+    	return new StructWriter( 8 )
+    	    .writeHashcode( LongBytes.toByteArray( value ) )
+    	    .toStructReader();
         
     }
     
@@ -88,16 +87,15 @@ public class GraphBuilder {
 
         //byte[] hash = Hashcode.getHashcode( ""+source );
 
-        byte[] hash = hash( source );
-        ByteArrayKey key = new ByteArrayKey( hash );
-
+        StructReader key = hash( source );
+        
         HashSetValue value = new HashSetValue();
         for ( int target : targets ) {
-            byte[] target_key = hash( target );
+            StructReader target_key = hash( target );
             value.add( target_key );
         }
         
-        writer.write( key, value );
+        writer.write( key, new StructReader( value.toChannelBuffer() ) );
 
     }
 

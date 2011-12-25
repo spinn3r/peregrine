@@ -1,7 +1,11 @@
 package peregrine;
 
 import java.io.*;
-import peregrine.config.Config;
+
+import peregrine.io.util.*;
+import peregrine.config.*;
+
+import org.junit.runner.*;
 
 public abstract class BaseTest extends junit.framework.TestCase {
 
@@ -11,7 +15,8 @@ public abstract class BaseTest extends junit.framework.TestCase {
 
         //org.apache.log4j.MDC.put( "server.hostname",    Initializer.HOSTNAME );
         
-        // init log4j ... 
+        // init log4j ...
+
         org.apache.log4j.xml.DOMConfigurator.configure( "conf/log4j.xml" );
 
     }
@@ -66,11 +71,20 @@ public abstract class BaseTest extends junit.framework.TestCase {
 
     public static void copy( File source, File target ) throws IOException {
 
-        FileInputStream in = new FileInputStream( source );
-        FileOutputStream out = new FileOutputStream( target );
+        FileInputStream in = null;
+        FileOutputStream out = null;
 
-        out.getChannel().transferFrom( in.getChannel(), 0, source.length() );
-        
+        try {
+
+            in = new FileInputStream( source );
+            out = new FileOutputStream( target );
+
+            out.getChannel().transferFrom( in.getChannel(), 0, source.length() );
+
+        } finally {
+            new Closer( in, out ).close();
+        }
+
     }
     
     /**
@@ -81,7 +95,10 @@ public abstract class BaseTest extends junit.framework.TestCase {
     public static void runTests() throws Exception {
 
         String classname = Thread.currentThread().getStackTrace()[2].getClassName();
-        org.junit.runner.JUnitCore.main( classname );
+
+        JUnitCore core = new JUnitCore();
+        
+        core.run( Class.forName( classname ) );
 
     }
 

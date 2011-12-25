@@ -109,11 +109,7 @@ public abstract class BaseMapperTask extends BaseOutputTask implements Callable 
         throws IOException {
 
         for( ShuffleJobOutput current : shuffleJobOutput ) {
-            
-            if ( current instanceof LocalPartitionReaderListener ) {
-                listeners.add( (LocalPartitionReaderListener) current );
-            }
-
+            listeners.add( current );
         }
         
         List<LocalPartitionReader> readers = new ArrayList();
