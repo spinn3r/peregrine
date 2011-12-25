@@ -34,7 +34,7 @@ public class ConfigParser {
         Getopt getopt = new Getopt( args );
 
         for ( String key : config.struct.getKeys() ) {
-
+            
             if( getopt.containsKey( key ) ) {
                 config.struct.put( key, getopt.getString( key ) );
             }

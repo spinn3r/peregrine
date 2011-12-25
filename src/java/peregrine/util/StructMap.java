@@ -29,15 +29,25 @@ public class StructMap {
 
         Properties props = new Properties();
         props.load( is );
+        delegate = props;
 
-        this.delegate = props;
+        init();
 
     }
     
     public StructMap( Map delegate ) {
         this.delegate = delegate;
+        init();
     }
 
+    private void init() {
+
+        for( Object key : delegate.keySet() ) {
+            keys.add( key.toString() );
+        }
+
+    }
+    
     public void put( String key, String value ) {
         keys.add( key );
         delegate.put( key, value );
@@ -113,7 +123,11 @@ public class StructMap {
     }
 
     public List<String> getKeys() {
-        return keys;
+
+        List<String> result = new ArrayList();
+        result.addAll( keys );
+        return result;
+        
     }
 
     public boolean containsKey( String key ) {
