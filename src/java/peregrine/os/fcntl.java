@@ -7,9 +7,6 @@ import com.sun.jna.Native;
 
 public class fcntl {
 
-    private static InterfaceDelegate delegate
-        = (InterfaceDelegate)Native.loadLibrary( "c", InterfaceDelegate.class); 
-
     public static final int POSIX_FADV_NORMAL     = 0; /* fadvise.h */
     public static final int POSIX_FADV_RANDOM     = 1; /* fadvise.h */
     public static final int POSIX_FADV_SEQUENTIAL = 2; /* fadvise.h */
@@ -108,7 +105,7 @@ public class fcntl {
     public static int posix_fadvise(int fd, long offset, long len, int advice )
         throws IOException {
 
-        int result = delegate.posix_fadvise(fd, offset, len, advice );
+        int result = Delegate.posix_fadvise(fd, offset, len, advice );
 
         if ( result != 0 )
             throw new IOException( errno.strerror( result ) );
@@ -147,7 +144,7 @@ public class fcntl {
     public static int posix_fallocate(int fd, long offset, long len )
         throws IOException {
 
-        int result = delegate.posix_fallocate(fd, offset, len);
+        int result = Delegate.posix_fallocate(fd, offset, len);
 
         if ( result != 0 )
             throw new IOException( errno.strerror( result ) );
@@ -155,10 +152,16 @@ public class fcntl {
         return result;
 
     }
-    
-    interface InterfaceDelegate extends Library {
-        int posix_fadvise(int fd, long offset, long len, int advice );
-        int posix_fallocate(int fd, long offset, long len);
+
+    static class Delegate {
+
+        public static native int posix_fadvise(int fd, long offset, long len, int advice );
+        public static native int posix_fallocate(int fd, long offset, long len);
+
+        static {
+            Native.register( "c" );
+        }
+
     }
     
 }

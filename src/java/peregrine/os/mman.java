@@ -8,9 +8,6 @@ import com.sun.jna.Pointer;
 
 public class mman {
 
-    private static InterfaceDelegate delegate
-        = (InterfaceDelegate)Native.loadLibrary( "c", InterfaceDelegate.class); 
-
     public static final int PROT_READ   = 0x1;      /* Page can be read.  */
     public static final int PROT_WRITE  = 0x2;      /* Page can be written.  */
     public static final int PROT_EXEC   = 0x4;      /* Page can be executed.  */
@@ -34,7 +31,7 @@ public class mman {
         // we don't really have a need to change the recommended pointer.
         Pointer addr = new Pointer( 0 );
         
-        Pointer result = delegate.mmap( addr, len, prot, flags, fildes, off );
+        Pointer result = Delegate.mmap( addr, len, prot, flags, fildes, off );
 
         if ( Pointer.nativeValue( result ) == -1 ) {
             throw new IOException( errno.strerror() );
@@ -47,7 +44,7 @@ public class mman {
     public static int munmap( Pointer addr, long len )
         throws IOException {
 
-        int result = delegate.munmap( addr, len );
+        int result = Delegate.munmap( addr, len );
 
         if ( result != 0 ) {
             throw new IOException( errno.strerror() );
@@ -60,7 +57,7 @@ public class mman {
     public static void mlock( Pointer addr, long len )
         throws IOException {
 
-        if ( delegate.mlock( addr, len ) != 0 ) {
+        if ( Delegate.mlock( addr, len ) != 0 ) {
             throw new IOException( errno.strerror() );
         }
 
@@ -69,18 +66,24 @@ public class mman {
     public static void munlock( Pointer addr, long len )
         throws IOException {
 
-        if ( delegate.munlock( addr, len ) != 0 ) {
+        if ( Delegate.munlock( addr, len ) != 0 ) {
             throw new IOException( errno.strerror() );
         }
 
     }
 
-    interface InterfaceDelegate extends Library {
-        Pointer mmap( Pointer addr, long len, int prot, int flags, int fildes, long off );
-        int munmap( Pointer addr, long len );
+    static class Delegate {
+    
+        public static native Pointer mmap( Pointer addr, long len, int prot, int flags, int fildes, long off );
+        public static native int munmap( Pointer addr, long len );
+        
+        public static native int mlock( Pointer addr, long len );
+        public static native int munlock( Pointer addr, long len );
+        
+        static {
+            Native.register( "c" );
+        }
 
-        int mlock( Pointer addr, long len );
-        int munlock( Pointer addr, long len );
     }
 
     public static void main( String[] args ) throws Exception {
