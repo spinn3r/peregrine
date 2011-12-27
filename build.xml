@@ -351,6 +351,11 @@
 
     <target name="static">
 
+        <exec executable="hg" dir="../peregrine-website">
+            <arg value="pull"/>
+            <arg value="-u"/>
+        </exec>
+
         <exec executable="awestruct" dir="../peregrine-website">
             <arg value="-g"/>
         </exec>
@@ -389,6 +394,9 @@
                  <include name="conf/**"/>
                  <include name="lib/**"/>
                  <include name="src/**"/>
+
+                 <exclude name="lib/build/clover*.jar"/>
+
             </fileset>
 
             <fileset dir="compile">
