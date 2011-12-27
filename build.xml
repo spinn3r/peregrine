@@ -388,7 +388,8 @@
         <copy todir="target/peregrine-${version}">
 
             <fileset dir=".">
-                 <include name="README"/>
+                 <include name="README.txt"/>
+                 <include name="LICENSE.txt"/>
                  <include name="build.xml"/>
                  <include name="bin/**"/>
                  <include name="conf/**"/>
