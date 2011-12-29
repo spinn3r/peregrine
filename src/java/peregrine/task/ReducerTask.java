@@ -32,8 +32,6 @@ public class ReducerTask extends BaseTask implements Callable {
 
     private static final Logger log = Logger.getLogger();
     
-    private Reducer reducer;
-
     private ShuffleInputReference shuffleInput;
 
     private AtomicInteger nrTuples = new AtomicInteger();
@@ -50,50 +48,14 @@ public class ReducerTask extends BaseTask implements Callable {
         
     }
 
+    @Override
     public Object call() throws Exception {
 
         if ( output.getReferences().size() == 0 )
             throw new IOException( "Reducer tasks require output." );
 
-        this.reducer = (Reducer)delegate.newInstance();
-
-        SystemProfiler profiler = config.getSystemProfiler();
-
-        try {
-
-            log.info( "Running %s on %s", delegate, partition );
-            
-            setup();
-            reducer.setBroadcastInput( BroadcastInputFactory.getBroadcastInput( config, getInput(), partition ) );
-            reducer.init( getJobOutput() );
-
-            try {
-                doCall();
-            } catch ( Throwable t ) {
-                handleFailure( log, t );
-            }
-
-            try {
-                reducer.cleanup();
-            } catch ( Throwable t ) {
-                handleFailure( log, t );
-            }
-
-            try {
-                teardown();
-            } catch ( Throwable t ) {
-                handleFailure( log, t );
-            }
-
-        } catch ( Throwable t ) { 
-            handleFailure( log, t );
-        } finally {
-            report();
-            log.info( "Ran with profiler rate: \n%s", profiler.rate() );
-        }
-
-        return null;
-
+        return super.call();
+        
     }
 
     protected void doCall() throws Exception {
@@ -130,6 +92,8 @@ public class ReducerTask extends BaseTask implements Callable {
 
     class ReducerTaskSortListener implements SortListener {
         
+    	Reducer reducer = (Reducer)jobDelegate;
+    	
         public void onFinalValue( StructReader key, List<StructReader> values ) {
 
             try {
