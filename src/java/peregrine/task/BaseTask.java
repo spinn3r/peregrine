@@ -46,11 +46,21 @@ public abstract class BaseTask {
      * The job we should be running.
      */
     protected Class delegate = null;
+
+    protected Input input = null;
     
     protected void init( Partition partition ) {
         this.partition = partition;
     }
 
+    public Input getInput() { 
+        return this.input;
+    }
+
+    public void setInput( Input input ) { 
+        this.input = input;
+    }    
+    
     public Output getOutput() { 
         return this.output;
     }

@@ -32,8 +32,6 @@ public class ReducerTask extends BaseTask implements Callable {
 
     private static final Logger log = Logger.getLogger();
     
-    private Input input = null;
-
     private Reducer reducer;
 
     private ShuffleInputReference shuffleInput;
@@ -130,14 +128,6 @@ public class ReducerTask extends BaseTask implements Callable {
         log.info( "Sorted %,d entries in %,d chunk readers for partition %s",
                   nrTuples , nr_readers, partition );
 
-    }
-
-    public void setInput( Input input ) { 
-        this.input = input;
-    }
-
-    public Input getInput() { 
-        return this.input;
     }
 
     class ReducerTaskSortListener implements SortListener {

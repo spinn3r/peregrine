@@ -40,8 +40,6 @@ public abstract class BaseMapperTask extends BaseTask implements Callable {
      */
     protected List<LocalPartitionReaderListener> listeners = new ArrayList();
 
-    private Input input = null;
-
     public void init( Config config, 
                       Membership partitionMembership,
                       Partition partition,
@@ -58,14 +56,6 @@ public abstract class BaseMapperTask extends BaseTask implements Callable {
 
     public List<BroadcastInput> getBroadcastInput() { 
         return this.broadcastInput;
-    }
-
-    public Input getInput() { 
-        return this.input;
-    }
-
-    public void setInput( Input input ) { 
-        this.input = input;
     }
 
     @Override
