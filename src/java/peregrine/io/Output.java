@@ -63,16 +63,16 @@ public final class Output {
         this( Arrays.asList( paths ) );
     }
 
-    protected Output( OutputReference... refs ) {
+    public Output( OutputReference... refs ) {
         for( OutputReference ref : refs )
             add( ref );
     }
     
-    protected Output( OutputReference ref ) {
+    public Output( OutputReference ref ) {
         add( ref );
     }
 
-    protected Output add( OutputReference ref ) {
+    public Output add( OutputReference ref ) {
         this.references.add( ref );
         return this;
     }
@@ -81,6 +81,10 @@ public final class Output {
         return references;
     }
 
+    public int size() {
+    	return references.size();    	
+    }
+    
     @Override
     public String toString() {
         return references.toString();

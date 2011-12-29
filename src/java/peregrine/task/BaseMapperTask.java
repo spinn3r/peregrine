@@ -29,40 +29,10 @@ import peregrine.shuffle.sender.*;
 
 public abstract class BaseMapperTask extends BaseTask implements Callable {
 
-    protected List<ShuffleJobOutput> shuffleJobOutput = new ArrayList();
-
     /**
      * This tasks partition listeners.
      */
     protected List<LocalPartitionReaderListener> listeners = new ArrayList();
-
-    @Override
-    public void setup() throws IOException {
-
-        if ( output == null || output.getReferences().size() == 0 ) {
-        
-        	// force shuffle output... 
-            setJobOutput( new ArrayList() {{ add( new ShuffleJobOutput( config, partition ) ); }} );
-
-        } else {
-            super.setup();
-        }
-
-        // now process the job output correctly...
-        
-        for ( JobOutput current : jobOutput ) {
-
-            if ( current instanceof ShuffleJobOutput ) {
-                shuffleJobOutput.add( (ShuffleJobOutput)current );
-            }
-            
-        }
-
-        // setup broadcast input... 
-
-        broadcastInput = BroadcastInputFactory.getBroadcastInput( config, getInput(), partition );
-
-    }
 
     /**
      * Construct a set of partition readers from the input.
@@ -80,6 +50,8 @@ public abstract class BaseMapperTask extends BaseTask implements Callable {
 
             if ( ref instanceof BroadcastInputReference )
                 continue;
+
+            System.out.printf( "FIXME: working with ref: %s\n", ref );
             
             FileInputReference file = (FileInputReference) ref;
 

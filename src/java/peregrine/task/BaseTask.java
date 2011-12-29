@@ -22,6 +22,7 @@ import peregrine.*;
 import peregrine.config.*;
 import peregrine.io.*;
 import peregrine.rpc.*;
+import peregrine.shuffle.sender.*;
 import peregrine.sysstat.*;
 import peregrine.task.*;
 
@@ -38,6 +39,8 @@ public abstract class BaseTask {
     protected List<JobOutput> jobOutput = null;
 
     protected List<BroadcastInput> broadcastInput = new ArrayList();
+    
+    protected List<ShuffleJobOutput> shuffleJobOutput = new ArrayList();
     
     protected Partition partition = null;
 
@@ -110,19 +113,41 @@ public abstract class BaseTask {
         this.cause = cause;
     }
     
-    public void setup() throws IOException {
+    public void setup() throws Exception {
 
+        jobDelegate = (JobDelegate)delegate.newInstance();
+    	
+    	if ( jobDelegate instanceof Mapper ||
+             jobDelegate instanceof Reducer ) {
+    		
+    		if ( output == null || output.size() == 0 ) {
+    			
+    			if ( output == null )
+    				output = new Output();
+    			
+    			output.add( new ShuffleOutputReference() );
+    			
+    		}
+    		
+    
+    	}
+    	
         this.jobOutput = JobOutputFactory.getJobOutput( config, partition, output );
-
+       
         for( JobOutput current : jobOutput ) {
             log.info( "Job output: %s" , current );
+            
+            if ( current instanceof ShuffleJobOutput ) {
+                shuffleJobOutput.add( (ShuffleJobOutput)current );
+            }       
+            
         }
+        
+        broadcastInput = BroadcastInputFactory.getBroadcastInput( config, getInput(), partition );
         
     }
     
     public Object call() throws Exception {
-
-        jobDelegate = (JobDelegate)delegate.newInstance();
 
         SystemProfiler profiler = config.getSystemProfiler();
 
@@ -152,6 +177,10 @@ public abstract class BaseTask {
                 handleFailure( log, t );
             }
 
+            // if nothing above has failed, we are complete... 
+            if ( status == TaskStatus.UNKNOWN )
+                setStatus( TaskStatus.COMPLETE );
+            	
         } catch ( Throwable t ) { 
             handleFailure( log, t );
         } finally {

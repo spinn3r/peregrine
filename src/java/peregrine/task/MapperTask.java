@@ -31,6 +31,7 @@ public class MapperTask extends BaseMapperTask {
 
     private static final Logger log = Logger.getLogger();
 
+    @Override
     protected void doCall() throws Exception {
 
         // note a map job with ZERO input files is acceptable.  This would be

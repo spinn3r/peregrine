@@ -75,7 +75,11 @@ public final class Input {
     public List<InputReference> getReferences() {
         return references;
     }
-
+    
+    public int size() {
+    	return references.size();    	
+    }
+    
     @Override
     public String toString() {
         return references.toString();

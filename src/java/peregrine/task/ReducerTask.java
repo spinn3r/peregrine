@@ -124,7 +124,7 @@ public class ReducerTask extends BaseTask implements Callable {
         localReducer.sort();
 
         log.info( "Sorted %,d entries in %,d chunk readers for partition %s",
-                  nrTuples , nr_readers, partition );
+                  nrTuples.get() , nr_readers, partition );
 
     }
 

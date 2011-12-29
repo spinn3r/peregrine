@@ -44,6 +44,9 @@ public class IterJob {
 
             super.init( output );
 
+            System.out.printf( "FIXME output: %s\n" , output );
+            System.out.printf( "FIXME getBroadcastInput: %s\n" , getBroadcastInput() );
+            
             danglingRankSumBroadcast = output.get(1);
             
             BroadcastInput nrNodesBroadcastInput = getBroadcastInput().get( 0 );
