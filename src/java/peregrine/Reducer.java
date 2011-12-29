@@ -1,55 +1,37 @@
+/*
+ * Copyright 2011 Kevin A. Burton
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+*/
 package peregrine;
 
 import java.util.*;
-import peregrine.values.*;
 import peregrine.io.*;
-import peregrine.values.*;
+import peregrine.task.*;
 
 /**
  * Take a key and list of values, and reduce them and emit result.
  */
-public class Reducer {
+public class Reducer extends BaseJobDelegate {
 
-    private JobOutput stdout = null;
-
-    private List<BroadcastInput> broadcastInput = new ArrayList();
-    
-    public void init( List<JobOutput> output ) {
-        this.stdout = output.get(0);
-    }
-
-    public void cleanup() {}
-    
     public void reduce( StructReader key, List<StructReader> values ) {
 
         if( values.size() == 1 ) {
-
             emit( key, values.get( 0 ) );
-
         } else if ( values.size() > 1 ) {
-            
-            Struct struct = new Struct();
-            
-            for( StructReader val : values ) {
-                struct.write( val );
-            }
-            
-            emit( key, new StructReader( struct.toChannelBuffer() ) );
-
+            emit( key, StructReaders.wrap( values ) );
         }
 
-    }
-        
-    public void emit( StructReader key, StructReader value ) {
-        stdout.emit( key, value );
-    }
-
-    public List<BroadcastInput> getBroadcastInput() { 
-        return this.broadcastInput;
-    }
-
-    public void setBroadcastInput( List<BroadcastInput> broadcastInput ) { 
-        this.broadcastInput = broadcastInput;
     }
 
 }

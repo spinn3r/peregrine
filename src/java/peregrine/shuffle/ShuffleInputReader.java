@@ -1,3 +1,18 @@
+/*
+ * Copyright 2011 Kevin A. Burton
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+*/
 package peregrine.shuffle;
 
 import java.io.*;
@@ -8,7 +23,6 @@ import java.nio.channels.*;
 import peregrine.*;
 import peregrine.os.*;
 import peregrine.util.*;
-import peregrine.values.*;
 import peregrine.config.*;
 import org.jboss.netty.buffer.*;
 
@@ -31,11 +45,6 @@ public class ShuffleInputReader implements Closeable {
 
     protected Map<Partition,ShuffleHeader> headersByPartition = new HashMap();
     
-    /**
-     * The currently parsed header information for the given partition.
-     */
-    protected ShuffleHeader header = null;
-
     protected ChannelBuffer buffer = null;
 
     /**
@@ -145,10 +154,6 @@ public class ShuffleInputReader implements Closeable {
     
     public ChannelBuffer getBuffer() {
         return buffer;
-    }
-    
-    public ShuffleHeader getHeader() {
-        return header;
     }
 
     public ShuffleHeader getHeader( Partition partition ) {

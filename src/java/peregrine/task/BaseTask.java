@@ -1,25 +1,47 @@
-
-package peregrine.map;
+/*
+ * Copyright 2011 Kevin A. Burton
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+*/
+package peregrine.task;
 
 import java.io.*;
 import java.util.*;
 
-import peregrine.config.Config;
-import peregrine.config.Partition;
+import peregrine.*;
+import peregrine.config.*;
 import peregrine.io.*;
 import peregrine.rpc.*;
+import peregrine.shuffle.sender.*;
+import peregrine.sysstat.*;
 import peregrine.task.*;
 
 import com.spinn3r.log5j.*;
 
-public abstract class BaseOutputTask {
+public abstract class BaseTask {
 
     private static final Logger log = Logger.getLogger();
 
+    protected Host host;
+    
     protected Output output = null;
 
     protected List<JobOutput> jobOutput = null;
 
+    protected List<BroadcastInput> broadcastInput = new ArrayList();
+    
+    protected List<ShuffleJobOutput> shuffleJobOutput = new ArrayList();
+    
     protected Partition partition = null;
 
     protected Config config = null;
@@ -32,11 +54,30 @@ public abstract class BaseOutputTask {
      * The job we should be running.
      */
     protected Class delegate = null;
+
+    protected Input input = null;
     
-    protected void init( Partition partition ) {
-        this.partition = partition;
+    protected JobDelegate jobDelegate = null;
+    
+    public void init( Config config, Partition partition, Class delegate ) {
+    	this.config      = config;
+        this.host        = config.getHost();
+        this.partition   = partition;
+        this.delegate    = delegate;
     }
 
+    public List<BroadcastInput> getBroadcastInput() { 
+        return this.broadcastInput;
+    }
+    
+    public Input getInput() { 
+        return this.input;
+    }
+
+    public void setInput( Input input ) { 
+        this.input = input;
+    }    
+    
     public Output getOutput() { 
         return this.output;
     }
@@ -72,15 +113,93 @@ public abstract class BaseOutputTask {
         this.cause = cause;
     }
     
-    public void setup() throws IOException {
+    public void setup() throws Exception {
 
+        jobDelegate = (JobDelegate)delegate.newInstance();
+    	
+    	if ( jobDelegate instanceof Mapper ||
+             jobDelegate instanceof Reducer ) {
+    		
+    		if ( output == null || output.size() == 0 ) {
+    			
+    			if ( output == null )
+    				output = new Output();
+    			
+    			output.add( new ShuffleOutputReference() );
+    			
+    		}
+    		
+    
+    	}
+    	
         this.jobOutput = JobOutputFactory.getJobOutput( config, partition, output );
-
+       
         for( JobOutput current : jobOutput ) {
             log.info( "Job output: %s" , current );
+            
+            if ( current instanceof ShuffleJobOutput ) {
+                shuffleJobOutput.add( (ShuffleJobOutput)current );
+            }       
+            
         }
         
+        broadcastInput = BroadcastInputFactory.getBroadcastInput( config, getInput(), partition );
+        
     }
+    
+    public Object call() throws Exception {
+
+        SystemProfiler profiler = config.getSystemProfiler();
+
+        try {
+
+            log.info( "Running %s on %s", delegate, partition );
+            
+            setup();
+            jobDelegate.setBroadcastInput( getBroadcastInput() );
+            jobDelegate.init( getJobOutput() );
+
+            try {
+                doCall();
+            } catch ( Throwable t ) {
+                handleFailure( log, t );
+            }
+
+            try {
+            	jobDelegate.cleanup();
+            } catch ( Throwable t ) {
+                handleFailure( log, t );
+            }
+
+            try {
+                teardown();
+            } catch ( Throwable t ) {
+                handleFailure( log, t );
+            }
+
+            // if nothing above has failed, we are complete... 
+            if ( status == TaskStatus.UNKNOWN )
+                setStatus( TaskStatus.COMPLETE );
+            	
+        } catch ( Throwable t ) { 
+            handleFailure( log, t );
+        } finally {
+            report();
+
+            log.info( "Ran with profiler rate: \n%s", profiler.rate() );
+            
+        }
+        
+        return null;
+        
+    }
+    
+    /**
+     * Perform delegate specific call execution.
+     * 
+     * @throws Exception on a failure.
+     */
+    protected abstract void doCall() throws Exception;
 
     public void teardown() throws IOException {
 

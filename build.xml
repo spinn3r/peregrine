@@ -7,7 +7,7 @@
     <property file="build.properties"/>
 
     <property name="project" value="peregrine"/>
-    <property name="javadocdir" value="compile/javadoc"/>
+    <property name="javadocdir" value="target/javadoc"/>
     <property name="version" value="0.5.0"/>
 
     <path id="project.classpath">
@@ -351,6 +351,11 @@
 
     <target name="static">
 
+        <exec executable="hg" dir="../peregrine-website">
+            <arg value="pull"/>
+            <arg value="-u"/>
+        </exec>
+
         <exec executable="awestruct" dir="../peregrine-website">
             <arg value="-g"/>
         </exec>
@@ -367,7 +372,7 @@
             <fileset dir="../peregrine-website/_site/" />
         </copy>
 
-        <move file="compile/javadoc"  todir="../peregrine_mapreduce.bitbucket.org" />
+        <move file="target/javadoc"   todir="../peregrine_mapreduce.bitbucket.org" />
         <move file="target/xref"      todir="../peregrine_mapreduce.bitbucket.org" />
         <move file="target/coverage"  todir="../peregrine_mapreduce.bitbucket.org" />
 
@@ -383,12 +388,16 @@
         <copy todir="target/peregrine-${version}">
 
             <fileset dir=".">
-                 <include name="README"/>
+                 <include name="README.txt"/>
+                 <include name="LICENSE.txt"/>
                  <include name="build.xml"/>
                  <include name="bin/**"/>
                  <include name="conf/**"/>
                  <include name="lib/**"/>
                  <include name="src/**"/>
+
+                 <exclude name="lib/build/clover*.jar"/>
+
             </fileset>
 
             <fileset dir="compile">

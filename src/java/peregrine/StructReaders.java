@@ -1,6 +1,22 @@
+/*
+ * Copyright 2011 Kevin A. Burton
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+*/
 package peregrine;
 
 import java.util.*;
+import java.nio.*;
 
 import org.jboss.netty.buffer.*;
 
@@ -57,6 +73,31 @@ public class StructReaders {
 
     }
 
+    /**
+     * Wrap a list of StructReader so that we can have a new struct which has
+     * each StructReader in this list prefixed with a varint so we can unpack it
+     * with {@link StructReader#readSlice()}.
+     */
+    public static StructReader wrap( List<StructReader> list ) {
+
+        // TODO: I'm not sure it just wouldn't be faster to just copy the bytes.
+        
+        ChannelBuffer[] buffers = new ChannelBuffer[ list.size() * 2 ];
+        int idx = 0;
+        
+        for( StructReader current : list ) {
+
+            buffers[ idx++ ] = varint( current.length() ).getChannelBuffer();
+            buffers[ idx++ ] = current.getChannelBuffer();
+            
+        }
+
+        ChannelBuffer composite = ChannelBuffers.wrappedBuffer( buffers );
+        
+        return new StructReader( composite );
+        
+    }
+    
     public static StructReader hashcode( String value ) {
 
         return new StructWriter()
