@@ -31,53 +31,6 @@ public class MapperTask extends BaseMapperTask {
 
     private static final Logger log = Logger.getLogger();
 
-    private Mapper mapper;
-
-    public Object call() throws Exception {
-
-        mapper = (Mapper)delegate.newInstance();
-
-        SystemProfiler profiler = config.getSystemProfiler();
-
-        try {
-
-            log.info( "Running %s on %s", delegate, partition );
-            
-            setup();
-            mapper.setBroadcastInput( getBroadcastInput() );
-            mapper.init( getJobOutput() );
-
-            try {
-                doCall();
-            } catch ( Throwable t ) {
-                handleFailure( log, t );
-            }
-
-            try {
-                mapper.cleanup();
-            } catch ( Throwable t ) {
-                handleFailure( log, t );
-            }
-
-            try {
-                teardown();
-            } catch ( Throwable t ) {
-                handleFailure( log, t );
-            }
-
-        } catch ( Throwable t ) { 
-            handleFailure( log, t );
-        } finally {
-            report();
-
-            log.info( "Ran with profiler rate: \n%s", profiler.rate() );
-            
-        }
-        
-        return null;
-        
-    }
-
     protected void doCall() throws Exception {
 
         // note a map job with ZERO input files is acceptable.  This would be
@@ -111,6 +64,8 @@ public class MapperTask extends BaseMapperTask {
             } );
         
         int count = 0;
+        
+        Mapper mapper = (Mapper)jobDelegate;
         
         while( reader.hasNext() ) {
             mapper.map( reader.key(), reader.value() );

@@ -96,7 +96,7 @@ public class ReducerTask extends BaseTask implements Callable {
 
     }
 
-    private void doCall() throws Exception {
+    protected void doCall() throws Exception {
     	
     	SortListener listener = new ReducerTaskSortListener();
         

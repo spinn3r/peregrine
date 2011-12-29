@@ -76,7 +76,7 @@ public class MergerTask extends BaseMapperTask {
 
     }
 
-    private void doCall() throws Exception {
+    protected void doCall() throws Exception {
 
         log.info( "Running merge jobs on host: %s ...", host );
 

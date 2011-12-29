@@ -18,9 +18,11 @@ package peregrine.task;
 import java.io.*;
 import java.util.*;
 
+import peregrine.*;
 import peregrine.config.*;
 import peregrine.io.*;
 import peregrine.rpc.*;
+import peregrine.sysstat.*;
 import peregrine.task.*;
 
 import com.spinn3r.log5j.*;
@@ -51,6 +53,8 @@ public abstract class BaseTask {
     protected Class delegate = null;
 
     protected Input input = null;
+    
+    protected JobDelegate jobDelegate = null;
     
     public void init( Config config, Partition partition, Class delegate ) {
     	this.config      = config;
@@ -115,6 +119,58 @@ public abstract class BaseTask {
         }
         
     }
+    
+    public Object call() throws Exception {
+
+        jobDelegate = (JobDelegate)delegate.newInstance();
+
+        SystemProfiler profiler = config.getSystemProfiler();
+
+        try {
+
+            log.info( "Running %s on %s", delegate, partition );
+            
+            setup();
+            jobDelegate.setBroadcastInput( getBroadcastInput() );
+            jobDelegate.init( getJobOutput() );
+
+            try {
+                doCall();
+            } catch ( Throwable t ) {
+                handleFailure( log, t );
+            }
+
+            try {
+            	jobDelegate.cleanup();
+            } catch ( Throwable t ) {
+                handleFailure( log, t );
+            }
+
+            try {
+                teardown();
+            } catch ( Throwable t ) {
+                handleFailure( log, t );
+            }
+
+        } catch ( Throwable t ) { 
+            handleFailure( log, t );
+        } finally {
+            report();
+
+            log.info( "Ran with profiler rate: \n%s", profiler.rate() );
+            
+        }
+        
+        return null;
+        
+    }
+    
+    /**
+     * Perform delegate specific call execution.
+     * 
+     * @throws Exception on a failure.
+     */
+    protected abstract void doCall() throws Exception;
 
     public void teardown() throws IOException {
 
