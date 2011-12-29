@@ -23,7 +23,9 @@ import peregrine.config.Host;
 import peregrine.config.Membership;
 import peregrine.config.Partition;
 import peregrine.io.*;
+import peregrine.io.chunk.*;
 import peregrine.io.partition.*;
+import peregrine.io.util.*;
 import peregrine.map.*;
 import peregrine.shuffle.sender.*;
 
@@ -37,21 +39,21 @@ public abstract class BaseMapperTask extends BaseTask implements Callable {
     /**
      * Construct a set of partition readers from the input.
      */
-    protected List<LocalPartitionReader> getLocalPartitionReaders()
+    protected List<ChunkReader> getLocalPartitionReaders()
         throws IOException {
 
         for( ShuffleJobOutput current : shuffleJobOutput ) {
             listeners.add( current );
         }
         
-        List<LocalPartitionReader> readers = new ArrayList();
+        List<ChunkReader> readers = new ArrayList();
 
+        listeners.add( new FlushLocalPartitionReaderListener() );
+        
         for( InputReference ref : getInput().getReferences() ) {
 
             if ( ref instanceof BroadcastInputReference )
                 continue;
-
-            System.out.printf( "FIXME: working with ref: %s\n", ref );
             
             FileInputReference file = (FileInputReference) ref;
 
@@ -63,4 +65,25 @@ public abstract class BaseMapperTask extends BaseTask implements Callable {
         
     }
 
+    /**
+     * Make sure to always flush the output between chunks. This is only 1 
+     * flush per every 100MB or so and isn't the end of the world.
+     * 
+     */
+    class FlushLocalPartitionReaderListener implements LocalPartitionReaderListener{
+
+        public void onChunk( ChunkReference ref ) { }
+        
+        public void onChunkEnd( ChunkReference ref ) {
+
+            try {
+                new Flusher( jobOutput ).flush();
+            } catch ( IOException e ) {
+                throw new RuntimeException( e );
+            }
+
+        }
+
+    }
+    
 }

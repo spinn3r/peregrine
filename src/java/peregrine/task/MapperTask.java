@@ -41,28 +41,12 @@ public class MapperTask extends BaseMapperTask {
             throw new Exception( "Map jobs must not have more than one input." );
         }
 
-        List<LocalPartitionReader> readers = getLocalPartitionReaders();
+        List<ChunkReader> readers = getLocalPartitionReaders();
 
         if ( readers.size() == 0 )
             return;
         
-        LocalPartitionReader reader = readers.get( 0 );
-
-        reader.addListener( new LocalPartitionReaderListener() {
-
-                public void onChunk( ChunkReference ref ) { }
-                
-                public void onChunkEnd( ChunkReference ref ) {
-
-                    try {
-                        new Flusher( jobOutput ).flush();
-                    } catch ( IOException e ) {
-                        throw new RuntimeException( e );
-                    }
-
-                }
-
-            } );
+        ChunkReader reader = readers.get( 0 );
         
         int count = 0;
         

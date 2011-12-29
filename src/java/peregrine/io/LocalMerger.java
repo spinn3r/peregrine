@@ -20,6 +20,7 @@ import java.util.*;
 
 import peregrine.*;
 import peregrine.reduce.*;
+import peregrine.io.chunk.*;
 import peregrine.io.partition.*;
 
 /**
@@ -34,9 +35,9 @@ public class LocalMerger {
 
     private FileComparator comparator = new FileComparator();
 
-    private List<LocalPartitionReader> readers;
+    private List<ChunkReader> readers;
 
-    public LocalMerger( List<LocalPartitionReader> readers )
+    public LocalMerger( List<ChunkReader> readers )
         throws IOException {
 
         if ( readers.size() == 0 )
@@ -47,7 +48,7 @@ public class LocalMerger {
         this.queue = new FilePriorityQueue();
         
         int id = 0;
-        for( LocalPartitionReader reader : readers ) {
+        for( ChunkReader reader : readers ) {
 
             System.out.printf( "merging with %s as %s\n", reader, id );
             
@@ -151,9 +152,9 @@ class FileReference {
     protected StructReader value = null;
     
     public int id = -1;
-    protected LocalPartitionReader reader;
+    protected ChunkReader reader;
     
-    public FileReference( int id, LocalPartitionReader reader ) {
+    public FileReference( int id, ChunkReader reader ) {
         this.id = id;
         this.reader = reader;
     }

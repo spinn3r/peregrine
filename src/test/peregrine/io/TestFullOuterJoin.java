@@ -20,6 +20,7 @@ import java.util.*;
 
 import peregrine.*;
 import peregrine.config.Partition;
+import peregrine.io.chunk.*;
 import peregrine.io.partition.*;
 import peregrine.util.*;
 
@@ -60,7 +61,7 @@ public class TestFullOuterJoin extends peregrine.BaseTestWithTwoPartitions {
 
         writer.close();
 
-        List<LocalPartitionReader> readers = new ArrayList();
+        List<ChunkReader> readers = new ArrayList();
         
         readers.add( new LocalPartitionReader( config, part, "/tmp/left" ) );
         readers.add( new LocalPartitionReader( config, part, "/tmp/right" ) );

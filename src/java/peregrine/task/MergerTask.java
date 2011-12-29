@@ -35,7 +35,7 @@ public class MergerTask extends BaseMapperTask {
 
         listeners.add( new MergerLocalPartitionListener() );
         
-        List<LocalPartitionReader> readers = getLocalPartitionReaders();
+        List<ChunkReader> readers = getLocalPartitionReaders();
 
         LocalMerger localMerger = new LocalMerger( readers );
 
