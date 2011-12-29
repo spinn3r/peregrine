@@ -29,40 +29,19 @@ import peregrine.shuffle.sender.*;
 
 public abstract class BaseMapperTask extends BaseTask implements Callable {
 
-    protected Host host;
-
     protected List<ShuffleJobOutput> shuffleJobOutput = new ArrayList();
-
-    protected List<BroadcastInput> broadcastInput = new ArrayList();
 
     /**
      * This tasks partition listeners.
      */
     protected List<LocalPartitionReaderListener> listeners = new ArrayList();
 
-    public void init( Config config, 
-                      Membership partitionMembership,
-                      Partition partition,
-                      Host host,
-                      Class delegate ) {
-
-        super.init( partition );
-
-        this.config         = config;
-        this.host           = host;
-        this.delegate       = delegate;
-        
-    }
-
-    public List<BroadcastInput> getBroadcastInput() { 
-        return this.broadcastInput;
-    }
-
     @Override
     public void setup() throws IOException {
 
         if ( output == null || output.getReferences().size() == 0 ) {
         
+        	// force shuffle output... 
             setJobOutput( new ArrayList() {{ add( new ShuffleJobOutput( config, partition ) ); }} );
 
         } else {

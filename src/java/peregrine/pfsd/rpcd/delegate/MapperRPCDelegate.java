@@ -74,7 +74,7 @@ public class MapperRPCDelegate extends RPCDelegate<FSDaemon> {
 
         MapperTask task = new MapperTask();
         
-        task.init( config, config.getMembership(), partition, config.getHost(), delegate );
+        task.init( config, partition, delegate );
         
         task.setInput( input );
         task.setOutput( output );

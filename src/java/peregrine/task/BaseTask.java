@@ -18,8 +18,7 @@ package peregrine.task;
 import java.io.*;
 import java.util.*;
 
-import peregrine.config.Config;
-import peregrine.config.Partition;
+import peregrine.config.*;
 import peregrine.io.*;
 import peregrine.rpc.*;
 import peregrine.task.*;
@@ -30,10 +29,14 @@ public abstract class BaseTask {
 
     private static final Logger log = Logger.getLogger();
 
+    protected Host host;
+    
     protected Output output = null;
 
     protected List<JobOutput> jobOutput = null;
 
+    protected List<BroadcastInput> broadcastInput = new ArrayList();
+    
     protected Partition partition = null;
 
     protected Config config = null;
@@ -49,10 +52,17 @@ public abstract class BaseTask {
 
     protected Input input = null;
     
-    protected void init( Partition partition ) {
-        this.partition = partition;
+    public void init( Config config, Partition partition, Class delegate ) {
+    	this.config      = config;
+        this.host        = config.getHost();
+        this.partition   = partition;
+        this.delegate    = delegate;
     }
 
+    public List<BroadcastInput> getBroadcastInput() { 
+        return this.broadcastInput;
+    }
+    
     public Input getInput() { 
         return this.input;
     }

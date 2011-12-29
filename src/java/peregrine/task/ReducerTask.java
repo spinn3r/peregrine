@@ -44,10 +44,8 @@ public class ReducerTask extends BaseTask implements Callable {
                         ShuffleInputReference shuffleInput )
         throws Exception {
 
-        super.init( partition );
+        super.init( config, partition, delegate );
 
-        this.config = config;
-        this.delegate = delegate;
         this.shuffleInput = shuffleInput;
         
     }
@@ -102,7 +100,7 @@ public class ReducerTask extends BaseTask implements Callable {
     	
     	SortListener listener = new ReducerTaskSortListener();
         
-        LocalReducer reducer = new LocalReducer( config, partition, listener, shuffleInput, getJobOutput() );
+        LocalReducer localReducer = new LocalReducer( config, partition, listener, shuffleInput, getJobOutput() );
 
         String shuffle_dir = config.getShuffleDir( shuffleInput.getName() );
 
@@ -118,12 +116,12 @@ public class ReducerTask extends BaseTask implements Callable {
 
         //TODO: we should probably make sure these look like shuffle files.
         for( File shuffle : shuffles ) {
-            reducer.add( shuffle );
+        	localReducer.add( shuffle );
         }
         
         int nr_readers = shuffles.length;
 
-        reducer.sort();
+        localReducer.sort();
 
         log.info( "Sorted %,d entries in %,d chunk readers for partition %s",
                   nrTuples , nr_readers, partition );

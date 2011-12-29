@@ -13,21 +13,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
 */
-package peregrine;
+package peregrine.task;
 
 import java.util.*;
+
+import peregrine.*;
 import peregrine.io.*;
-import peregrine.task.*;
 
 /**
- * Take a key and list of values, and reduce them and emit result.
+ * Represents a basic Map/Merge/Reduce code backend provided by a developer for 
+ * running their job.  emit, setup, teardown, etc.
+ * 
  */
-public class Reducer extends BaseJobDelegate {
+public interface JobDelegate {
 
-    public void reduce( StructReader key, List<StructReader> values ) {
-
-        emit( key, StructReaders.wrap( values ) );
-
-    }
-
+    public void setBroadcastInput( List<BroadcastInput> broadcastInput );
+	
+    /**
+     * Init this job with the output it is supposed to handle.
+     */
+    public void init( List<JobOutput> output );
+    
+    /**
+     * Emit a key / value pair from the job.
+     */
+    public void emit( StructReader key, StructReader value );
+    
+    /**
+     * Cleanup after this job.  Close all output, etc.
+     */
+    public void cleanup();
+	
 }
