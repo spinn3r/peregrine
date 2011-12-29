@@ -33,7 +33,7 @@ public class MergerTask extends BaseMapperTask {
 
     public Object call() throws Exception {
 
-        merger = (Merger)super.newMapper();
+        merger = (Merger)delegate.newInstance();
 
         SystemProfiler profiler = config.getSystemProfiler();
 

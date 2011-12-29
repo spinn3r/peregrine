@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
 */
-package peregrine.map;
+package peregrine.task;
 
 import java.io.*;
 import java.util.*;
@@ -24,12 +24,12 @@ import peregrine.config.Membership;
 import peregrine.config.Partition;
 import peregrine.io.*;
 import peregrine.io.partition.*;
+import peregrine.map.*;
 import peregrine.shuffle.sender.*;
 
 public abstract class BaseMapperTask extends BaseOutputTask implements Callable {
 
     protected Host host;
-    protected int nr_partitions;
 
     protected List<ShuffleJobOutput> shuffleJobOutput = new ArrayList();
 
@@ -52,7 +52,6 @@ public abstract class BaseMapperTask extends BaseOutputTask implements Callable 
 
         this.config         = config;
         this.host           = host;
-        this.nr_partitions  = partitionMembership.size();
         this.delegate       = delegate;
         
     }
@@ -67,26 +66,6 @@ public abstract class BaseMapperTask extends BaseOutputTask implements Callable 
 
     public void setInput( Input input ) { 
         this.input = input;
-    }
-
-    /**
-     * Create the mapper backing.
-     */
-    protected Object newMapper() {
-
-        try {
-
-            return delegate.newInstance();
-
-        } catch ( Exception e ) {
-
-            // this IS a runtime exeption because we have actually already
-            // instantiated the class, we just need another instance to use.
-
-            throw new RuntimeException( e );
-            
-        }
-
     }
 
     @Override

@@ -19,8 +19,8 @@ import peregrine.io.*;
 import java.util.concurrent.atomic.*;
 
 /**
- * Represents a job which much be run by Peregrine.  All necessary metadata is 
- * included here and specified for an entire job.
+ * Represents a job (map, merge, or ,reduce) which much be run by Peregrine.  
+ * All necessary metadata is included here and specified for an entire job.
  * 
  * @author burton
  *

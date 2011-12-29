@@ -18,6 +18,8 @@ package peregrine.task;
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.*;
+
 import peregrine.*;
 import peregrine.config.*;
 import peregrine.io.*;
@@ -36,6 +38,8 @@ public class ReducerTask extends BaseOutputTask implements Callable {
 
     private ShuffleInputReference shuffleInput;
 
+    private AtomicInteger nrTuples = new AtomicInteger();
+    
     public ReducerTask( Config config,
                         Partition partition,
                         Class delegate,
@@ -97,9 +101,8 @@ public class ReducerTask extends BaseOutputTask implements Callable {
     }
 
     private void doCall() throws Exception {
-
-        ReducerTaskSortListener listener =
-            new ReducerTaskSortListener( reducer );
+    	
+    	SortListener listener = new ReducerTaskSortListener();
         
         LocalReducer reducer = new LocalReducer( config, partition, listener, shuffleInput, getJobOutput() );
 
@@ -125,7 +128,7 @@ public class ReducerTask extends BaseOutputTask implements Callable {
         reducer.sort();
 
         log.info( "Sorted %,d entries in %,d chunk readers for partition %s",
-                  listener.nr_tuples , nr_readers, partition );
+                  nrTuples , nr_readers, partition );
 
     }
 
@@ -137,30 +140,24 @@ public class ReducerTask extends BaseOutputTask implements Callable {
         return this.input;
     }
 
-}
+    class ReducerTaskSortListener implements SortListener {
+        
+        public void onFinalValue( StructReader key, List<StructReader> values ) {
 
-class ReducerTaskSortListener implements SortListener {
+            try {
 
-    private Reducer reducer = null;
+                reducer.reduce( key, values );
+                nrTuples.getAndIncrement();
 
-    public int nr_tuples = 0;
-    
-    public ReducerTaskSortListener( Reducer reducer ) {
-        this.reducer = reducer;
-    }
-    
-    public void onFinalValue( StructReader key, List<StructReader> values ) {
-
-        try {
-
-            reducer.reduce( key, values );
-            ++nr_tuples;
-
-        } catch ( Exception e ) {
-            throw new RuntimeException( "Reduce failed: " , e );
+            } catch ( Exception e ) {
+                throw new RuntimeException( "Reduce failed: " , e );
+            }
+                
         }
-            
-    }
 
+    }
+    
 }
+
+
 

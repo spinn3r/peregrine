@@ -35,7 +35,7 @@ public class MapperTask extends BaseMapperTask {
 
     public Object call() throws Exception {
 
-        mapper = (Mapper)super.newMapper();
+        mapper = (Mapper)delegate.newInstance();
 
         SystemProfiler profiler = config.getSystemProfiler();
 
@@ -78,7 +78,7 @@ public class MapperTask extends BaseMapperTask {
         
     }
 
-    private void doCall() throws Exception {
+    protected void doCall() throws Exception {
 
         // note a map job with ZERO input files is acceptable.  This would be
         // used for some generator that just emits values on init.
