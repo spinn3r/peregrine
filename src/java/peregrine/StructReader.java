@@ -173,7 +173,9 @@ public class StructReader {
      * StructReader like an enumeration.
      */
     public boolean isReadable() {
+    	
         return buff.readerIndex() < buff.writerIndex();
+        
     }
     
 }

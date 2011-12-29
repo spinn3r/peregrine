@@ -22,13 +22,21 @@ public class Reducer {
     
     public void reduce( StructReader key, List<StructReader> values ) {
 
-        Struct struct = new Struct();
+        if( values.size() == 1 ) {
 
-        for( StructReader val : values ) {
-            struct.write( val );
+            emit( key, values.get( 0 ) );
+
+        } else if ( values.size() > 1 ) {
+            
+            Struct struct = new Struct();
+            
+            for( StructReader val : values ) {
+                struct.write( val );
+            }
+            
+            emit( key, new StructReader( struct.toChannelBuffer() ) );
+
         }
-
-        emit( key, new StructReader( struct.toChannelBuffer() ) );
 
     }
         
