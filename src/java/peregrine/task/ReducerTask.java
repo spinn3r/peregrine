@@ -28,7 +28,7 @@ import peregrine.reduce.*;
 import peregrine.sysstat.*;
 import com.spinn3r.log5j.Logger;
 
-public class ReducerTask extends BaseOutputTask implements Callable {
+public class ReducerTask extends BaseTask implements Callable {
 
     private static final Logger log = Logger.getLogger();
     

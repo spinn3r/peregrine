@@ -26,7 +26,7 @@ import peregrine.task.*;
 
 import com.spinn3r.log5j.*;
 
-public abstract class BaseOutputTask {
+public abstract class BaseTask {
 
     private static final Logger log = Logger.getLogger();
 

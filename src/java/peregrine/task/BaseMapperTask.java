@@ -27,7 +27,7 @@ import peregrine.io.partition.*;
 import peregrine.map.*;
 import peregrine.shuffle.sender.*;
 
-public abstract class BaseMapperTask extends BaseOutputTask implements Callable {
+public abstract class BaseMapperTask extends BaseTask implements Callable {
 
     protected Host host;
 
