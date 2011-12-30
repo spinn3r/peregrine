@@ -17,12 +17,21 @@ package peregrine.io.util;
 
 import java.io.*;
 
+/**
+ * Handles a facade on top of various bulk filesystem manipulation primitives.
+ */
 public class Files {
-    
+
+    /**
+     * @see #remove(File)
+     */
     public static void remove( String path ) {
         remove( new File( path ) );
     }
 
+    /**
+     * Recursive removal of all files on the given path.
+     */
     public static void remove( File file ) {
 
         if ( ! file.exists() )

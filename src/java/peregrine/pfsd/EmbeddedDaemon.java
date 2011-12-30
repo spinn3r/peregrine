@@ -49,7 +49,7 @@ public class EmbeddedDaemon {
 
         for( Host host : config.getHosts() ) {
 
-            config = ConfigParser.parse();
+            config = ConfigParser.parse( args );
             config.setHost( host );
             config.init();
 
