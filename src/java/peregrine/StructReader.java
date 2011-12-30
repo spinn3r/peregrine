@@ -34,7 +34,6 @@ public class StructReader {
 
     private VarintReader varintReader;
     private ChannelBuffer buff;
-    private MappedFile backing = null;
     
     public StructReader( byte[] data ) {
         this( ChannelBuffers.wrappedBuffer( data ) );
@@ -47,11 +46,6 @@ public class StructReader {
     public StructReader( ChannelBuffer buff ) {
     	this.buff = buff;
         this.varintReader = new VarintReader( buff );
-    }
-
-    public StructReader( ChannelBuffer buff, MappedFile backing ) {
-        this( buff );
-        this.backing = backing;
     }
 
     public byte readByte() {

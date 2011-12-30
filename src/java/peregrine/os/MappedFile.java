@@ -171,7 +171,7 @@ public class MappedFile implements Closeable {
                 
             }
 
-            reader = new StreamReader( map, this );
+            reader = new StreamReader( map );
             
             return map;
 

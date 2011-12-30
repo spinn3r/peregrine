@@ -40,8 +40,6 @@ public class MappedFileWriter extends BaseMappedFile implements Closeable, Chann
 
     public static boolean DEFAULT_AUTO_SYNC = true;
 
-    public static boolean DEFAULT_AUTO_LOCK = false;
-
     protected FileOutputStream out;
 
     protected FileChannel channel;
@@ -49,8 +47,6 @@ public class MappedFileWriter extends BaseMappedFile implements Closeable, Chann
     protected long offset = 0;
 
     protected long length = 0;
-
-    protected boolean autoLock = DEFAULT_AUTO_LOCK;
 
     protected boolean autoSync = DEFAULT_AUTO_SYNC;
 
@@ -108,14 +104,6 @@ public class MappedFileWriter extends BaseMappedFile implements Closeable, Chann
 
         this.length = file.length();
 
-    }
-
-    public boolean getAutoLock() { 
-        return this.autoLock;
-    }
-
-    public void setAutoLock( boolean autoLock ) { 
-        this.autoLock = autoLock;
     }
 
     public boolean getAutoSync() { 
