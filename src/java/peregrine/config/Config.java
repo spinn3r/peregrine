@@ -23,6 +23,7 @@ import peregrine.*;
 import peregrine.config.partitioner.*;
 import peregrine.util.primitive.*;
 import peregrine.util.*;
+import peregrine.io.util.*;
 import peregrine.os.*;
 import peregrine.sysstat.*;
 
