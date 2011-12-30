@@ -43,7 +43,7 @@ public class MemLock implements Closeable {
      */
     public MemLock( File file, FileDescriptor descriptor, long offset, long length ) throws IOException {
 
-    	log.info( "Going to mlock %s", file );
+    	log.info( "mlocking %s with length %,d", file, length );
 
         this.file = file;
     	this.descriptor = descriptor;
@@ -67,14 +67,10 @@ public class MemLock implements Closeable {
     @Override
     public void close() throws IOException {
 
-        String desc = String.format( "Releasing lock %s to pa: %s ... ", file, pa );
-        
-        log.info( "%s ...", desc );
-
         mman.munlock( pa, length );
         mman.munmap( pa, length );
 
-        log.info( "%s ... done", desc );
+        log.info( "munlocking %s to pa %s with length %,d", file, pa, length );
 
     }
 
