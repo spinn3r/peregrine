@@ -32,12 +32,20 @@ public class EmbeddedDaemon {
 
     protected List<FSDaemon> daemons = new ArrayList();
 
+    private String[] args = new String[0];
+    
+    public EmbeddedDaemon() { }
+
+    public EmbeddedDaemon( String[] args ) {
+        this.args = args;
+    }
+
     /**
      * Startup all daemons.
      */
     public void start() throws IOException {
 
-        Config config = ConfigParser.parse();
+        Config config = ConfigParser.parse( args );
 
         for( Host host : config.getHosts() ) {
 
