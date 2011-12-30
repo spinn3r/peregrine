@@ -45,12 +45,12 @@ public class TestPrefetchReader extends peregrine.BaseTest {
         Config config = new Config();
         config.initEnabledFeatures();
         
-        MappedFile mappedFile = new MappedFile( config, file, "r" );
+        MappedFileReader mappedFileReader = new MappedFileReader( config, file );
 
-        StreamReader reader = mappedFile.getStreamReader();
+        StreamReader reader = mappedFileReader.getStreamReader();
         
-        List<MappedFile> input = new ArrayList();
-        input.add( mappedFile );
+        List<MappedFileReader> input = new ArrayList();
+        input.add( mappedFileReader );
         
         PrefetchReader prefetchReader = new PrefetchReader( config, input );
 

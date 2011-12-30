@@ -235,7 +235,7 @@ public class ReduceRunner {
 
     protected PrefetchReader createPrefetchReader( List<ChunkReader> readers ) throws IOException {
         
-        List<MappedFile> mappedFiles = new ArrayList();
+        List<MappedFileReader> mappedFiles = new ArrayList();
 
         for( ChunkReader reader : readers ) {
 
