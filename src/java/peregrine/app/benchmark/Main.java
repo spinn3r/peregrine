@@ -102,7 +102,7 @@ public class Main {
 
             System.out.printf( "Starting embedded daemon...\n" );
             
-            embedded = new EmbeddedDaemon();
+            embedded = new EmbeddedDaemon( args );
             embedded.start();
             
         }
