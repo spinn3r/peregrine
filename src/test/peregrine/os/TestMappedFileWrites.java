@@ -32,9 +32,7 @@ public class TestMappedFileWrites extends BaseTest {
 
         System.out.printf( "%s\n", config.toDesc() );
         
-        MappedFile mappedFile = new MappedFile( config, config.getBasedir() + "/test.dat", "w" );
-
-        ChannelBufferWritable writable = mappedFile.getChannelBufferWritable();
+        ChannelBufferWritable writable = new MappedFileWriter( config, config.getBasedir() + "/test.dat" );
 
         int size = 1024;
         int max = 200 * 1024;

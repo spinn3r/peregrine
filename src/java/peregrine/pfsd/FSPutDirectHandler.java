@@ -20,6 +20,7 @@ import static org.jboss.netty.handler.codec.http.HttpVersion.*;
 
 import peregrine.util.netty.*;
 import peregrine.os.*;
+import peregrine.io.util.*;
 
 import java.io.*;
 import java.nio.channels.*;
@@ -42,11 +43,9 @@ public class FSPutDirectHandler extends FSPutBaseHandler {
         File file = new File( handler.path );
         
         // FIXME: this mkdir should be async.
-        new File( file.getParent() ).mkdirs();
-
-        MappedFile mappedFile = new MappedFile( daemon.getConfig(), file, "w" );
-
-        output = mappedFile.getChannelBufferWritable();
+        Files.mkdirs( file.getParent() );
+        
+        output = new MappedFileWriter( daemon.getConfig(), file );
         
     }
 
