@@ -72,11 +72,15 @@ public class BufferedChannelBufferWritable implements ChannelBufferWritable {
      */
     public void preFlush() throws IOException { }
 
+    @Override
+    public void flush() throws IOException {
+        flush( true );
+    }
+    
     /**
      * Write out all buffers to the delegate.
      */
-    @Override
-    public void flush() throws IOException {
+    public void flush( boolean flushDelegate ) throws IOException {
 
         if ( writeLength == 0 )
             return;
@@ -98,7 +102,8 @@ public class BufferedChannelBufferWritable implements ChannelBufferWritable {
         writeLength = 0;
 
         // flush the underlying delegate too
-        delegate.flush();
+        if ( flushDelegate ) 
+            delegate.flush();
         
     }
 
