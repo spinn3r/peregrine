@@ -48,7 +48,7 @@ public class TestRangeRouter extends BaseTest {
 
         long key = 0;
         
-	    for( long i = 0; i < 500; ++i ) {
+	    for( long i = 0; i < 5000; ++i ) {
 
 			Partition result = partitioner.partition( StructReaders.hashcode( i ) );
 

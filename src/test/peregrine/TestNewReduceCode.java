@@ -97,7 +97,7 @@ public class TestNewReduceCode extends peregrine.BaseTestWithMultipleConfigs {
         
         for( long i = 0; i < max; ++i ) {
 
-        	StructReader key =StructReaders.wrap( i );
+        	StructReader key =StructReaders.hashcode( i );
         	StructReader value = key;
             writer.write( key, value );
             
@@ -105,7 +105,7 @@ public class TestNewReduceCode extends peregrine.BaseTestWithMultipleConfigs {
 
         for( long i = 0; i < max; ++i ) {
 
-        	StructReader key =StructReaders.wrap( i );
+        	StructReader key =StructReaders.hashcode( i );
         	StructReader value = key;
             writer.write( key, value );
             

@@ -41,21 +41,15 @@ public class TestMapOnlyJobs extends peregrine.BaseTestWithTwoDaemons {
         
         ExtractWriter writer = new ExtractWriter( config, path );
 
-        for( int i = 0; i < 10; ++i ) {
+        for( int i = 0; i < 100; ++i ) {
 
-        	StructReader key = StructReaders.wrap((long)i);
+        	StructReader key = StructReaders.hashcode((long)i);
         	StructReader value = key;
             writer.write( key, value );
             
         }
         
         writer.close();
-
-        // I think a more ideal API would be Controller.exec( path, mapper, reducer );
-
-        //FIXME: /pr/test.graph will NOT be sorted on input even though the
-        //values are unique.... on stage two we won't be able to join against
-        //it.
 
         String output = "/test/map.only/test1.out";
 

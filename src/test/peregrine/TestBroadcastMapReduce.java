@@ -53,7 +53,7 @@ public class TestBroadcastMapReduce extends peregrine.BaseTestWithMultipleConfig
         public void cleanup() {
             
             if ( count == 0 ) {
-                throw new RuntimeException();
+                throw new RuntimeException( "no results" );
             }
 
             System.out.printf( "Writing count: %,d to %s\n", count, countBroadcast );
@@ -97,7 +97,7 @@ public class TestBroadcastMapReduce extends peregrine.BaseTestWithMultipleConfig
          
          for( long i = 0; i < max; ++i ) {
              
-             StructReader key = StructReaders.wrap( i );
+             StructReader key = StructReaders.hashcode( i );
              StructReader value = key;
              writer.write( key, value );
              

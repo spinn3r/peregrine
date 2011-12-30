@@ -16,11 +16,13 @@
 package peregrine;
 
 import java.io.*;
+import java.util.*;
 
 import peregrine.io.util.*;
 import peregrine.config.*;
 
 import org.junit.runner.*;
+import org.junit.runner.notification.*;
 
 public abstract class BaseTest extends junit.framework.TestCase {
 
@@ -113,8 +115,17 @@ public abstract class BaseTest extends junit.framework.TestCase {
 
         JUnitCore core = new JUnitCore();
         
-        core.run( Class.forName( classname ) );
+        Result result = core.run( Class.forName( classname ) );
 
+        List<Failure> failures = result.getFailures();
+
+        for( Failure fail : failures ) {
+            fail.getException().printStackTrace();
+        }
+        
+        if ( failures.size() > 0 )
+            System.exit( 1 );
+        
     }
 
 }

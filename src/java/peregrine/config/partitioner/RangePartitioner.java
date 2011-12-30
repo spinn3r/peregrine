@@ -23,6 +23,8 @@ import peregrine.config.*;
  */
 public class RangePartitioner extends BasePartitioner {
 
+    private static final int WIDTH = (int)Math.pow( 2, 16 );
+    
 	private double range;
 	
 	@Override
@@ -38,7 +40,7 @@ public class RangePartitioner extends BasePartitioner {
     }
 
     public void init() {
-    	this.range = 255 / (double)nr_partitions;	
+    	this.range = WIDTH / (double)nr_partitions;	
     }
     
 	@Override
@@ -48,16 +50,12 @@ public class RangePartitioner extends BasePartitioner {
 		
 		// the domain of the route function...  basically the key space as an
 		// integer so that we can place partitions within that space.
-		int domain = (int)bytes[0] & 0xFF;
 
-		// right now we only support 2^16 or 64k partitions.  I don't think we 
-		// will hit this limit any time soon.  This might be famous last words.
-		if ( nr_partitions > 255 ) {
-			domain = domain << 8;
-			domain = domain & ( bytes[1] & 0xFF );
-		}
-						
-		int part = (int)(domain / range);
+        int value = ((((int) bytes[7]) & 0xFF)     ) +
+                    ((((int) bytes[6]) & 0xFF) << 8)
+            ;
+
+		int part = (int)(value / range);
 			
 		return new Partition( part );
 		
