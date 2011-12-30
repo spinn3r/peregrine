@@ -45,7 +45,7 @@ public class Files {
     public static void mkdirs( String path ) throws IOException {
 
         if ( new File( path ).mkdirs() == false ) {
-            throw new IOException( "Unable to make directory" );
+            throw new IOException( "Unable to make directory: " + path );
         }
         
     }
