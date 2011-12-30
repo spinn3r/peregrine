@@ -58,7 +58,7 @@ public class BufferedChannelBufferWritable implements ChannelBufferWritable {
             throw new IOException( "closed" );
         
         if ( ! hasCapacity( buff ) ) { 
-            flush();
+            flush( false );
         }
 
         buffers.add( buff );
