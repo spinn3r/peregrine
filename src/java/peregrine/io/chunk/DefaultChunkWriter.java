@@ -54,9 +54,7 @@ public class DefaultChunkWriter implements ChunkWriter {
 
     public DefaultChunkWriter( Config config, File file ) throws IOException {
 
-        MappedFile mapped = new MappedFile( config, file, "rw" );
-
-        init( mapped.getChannelBufferWritable() );
+        init( new MappedFileWriter( config, file ) );
 
     }
 

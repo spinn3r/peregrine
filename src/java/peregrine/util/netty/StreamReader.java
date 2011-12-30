@@ -39,16 +39,9 @@ public class StreamReader {
     private ChannelBuffer buff = null;
 
     private StreamReaderListener listener = null;
-
-    private MappedFile mappedFile = null;
     
     public StreamReader( ChannelBuffer buff ) {
         this.buff = buff;
-    }
-
-    public StreamReader( ChannelBuffer buff, MappedFile mappedFile ) {
-        this.buff = buff;
-        this.mappedFile = mappedFile;
     }
 
     /**
@@ -56,7 +49,7 @@ public class StreamReader {
      */
     public StructReader read( int length ) {
         fireOnRead( length );
-        return new StructReader( buff.readSlice( length ), mappedFile );
+        return new StructReader( buff.readSlice( length ) );
     }
 
     /**

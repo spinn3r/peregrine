@@ -74,7 +74,7 @@ public class DefaultPartitionWriter implements PartitionWriter, ChunkWriter {
                                    boolean append,
                                    List<Host> hosts ) throws IOException {
 
-        this( config, partition, path, append, hosts, MappedFile.DEFAULT_AUTO_SYNC );
+        this( config, partition, path, append, hosts, MappedFileWriter.DEFAULT_AUTO_SYNC );
         
     }
 

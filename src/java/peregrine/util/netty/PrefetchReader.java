@@ -81,7 +81,7 @@ public class PrefetchReader implements Closeable {
 
     private PrefetchReaderListener listener = null;
     
-    public PrefetchReader( Config config, List<MappedFile> files ) throws IOException {
+    public PrefetchReader( Config config, List<MappedFileReader> files ) throws IOException {
         
         this.config = config;
         
@@ -97,7 +97,7 @@ public class PrefetchReader implements Closeable {
 
         log.info( "Running with buffer size: %,d and per file capacity: %,d", config.getSortBufferSize(), capacity );
 
-        for( MappedFile mappedFile : files ) {
+        for( MappedFileReader mappedFile : files ) {
 
             StreamReader reader = mappedFile.getStreamReader();
             

@@ -201,8 +201,7 @@ public class ShuffleInputChunkReader implements Closeable {
         ChannelBuffer buffer = prefetcher.reader.getBuffer();
         buffer = buffer.slice( 0, buffer.writerIndex() );
 
-        return new StreamReader( buffer,
-                                 prefetcher.reader.mappedFile );
+        return new StreamReader( buffer );
     }
     
     public int keyOffset() {

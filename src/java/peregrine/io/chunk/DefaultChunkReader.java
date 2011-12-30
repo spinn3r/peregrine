@@ -64,14 +64,14 @@ public class DefaultChunkReader implements ChunkReader, Closeable {
      */
     private int idx = 0;
 
-    private MappedFile mappedFile;
+    private MappedFileReader mappedFile;
 
     private boolean closed = false;
     
     public DefaultChunkReader( Config config, File file )
         throws IOException {
 
-        mappedFile = new MappedFile( config, file , "r" );
+        mappedFile = new MappedFileReader( config, file );
         
         ChannelBuffer buff = mappedFile.map();
       
@@ -104,7 +104,7 @@ public class DefaultChunkReader implements ChunkReader, Closeable {
     /**
      * Get the backing file.
      */
-    public MappedFile getMappedFile() {
+    public MappedFileReader getMappedFile() {
         return mappedFile;
     }
 

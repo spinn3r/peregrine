@@ -64,7 +64,7 @@ public class ShuffleInputReader implements Closeable {
      */
     protected Partition current = null;
     
-    protected MappedFile mappedFile = null;;
+    protected MappedFileReader mappedFile = null;;
      
     public ShuffleInputReader( Config config, String path, final Partition partition ) throws IOException {
         this( config, path, new ArrayList() {{ add( partition ); }} );
@@ -88,7 +88,7 @@ public class ShuffleInputReader implements Closeable {
         // mmap the WHOLE file. We won't actually use these pages if we don't
         // read them so this make it less difficult to figure out what to map.
 
-        this.mappedFile = new MappedFile( config, file, FileChannel.MapMode.READ_ONLY );
+        this.mappedFile = new MappedFileReader( config, file );
         this.mappedFile.setAutoLock( ENABLE_MEMLOCK );
         
         this.buffer = mappedFile.map();
