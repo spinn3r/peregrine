@@ -30,15 +30,20 @@ public class MergerPriorityQueue {
     
     public MergerPriorityQueue( List<ChunkReader> readers ) throws IOException {
 
+        if ( readers.size() == 0 )
+            throw new IllegalArgumentException( "readers" );
+    	
         this.queue = new PriorityQueue( readers.size(), comparator );
         
-        for( ChunkReader reader : readers ) {
+        for( int id = 0; id < readers.size(); ++id  ) {
 
+            ChunkReader reader = readers.get( id );
+                        
             if ( reader.hasNext() == false )
                 continue;
             
-            MergeQueueEntry entry = new MergeQueueEntry( reader );
-
+            MergeQueueEntry entry = new MergeQueueEntry( reader, id );
+            
             queue.add( entry );
             
         }
@@ -63,27 +68,12 @@ public class MergerPriorityQueue {
             entry.setKey( entry.reader.key() );
             entry.setValue( entry.reader.value() );
             
-            add( entry );
+            queue.add( entry );
             
         }
 
         return result;
         
-    }
-    
-    private void add( MergeQueueEntry entry ) {
-        queue.add( entry );
-    }
-
-}
-
-class ChunkMergeComparator implements Comparator<MergeQueueEntry> {
-
-    //private DepthBasedKeyComparator delegate = new DepthBasedKeyComparator();
-    private FullKeyComparator delegate = new FullKeyComparator();
-    
-    public int compare( MergeQueueEntry k0, MergeQueueEntry k1 ) {
-        return delegate.compare( k0.keyAsByteArray, k1.keyAsByteArray );
     }
 
 }

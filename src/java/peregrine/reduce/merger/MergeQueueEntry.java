@@ -23,24 +23,29 @@ import peregrine.io.chunk.*;
 public class MergeQueueEntry {
     
 	public byte[] keyAsByteArray;
-    public StructReader key;
+    
+	public StructReader key;
+    
     public StructReader value;
 
+    public int id = -1;
+    
     protected ChunkReader reader = null;
 
     protected MergeQueueEntry() {}
 
-    public MergeQueueEntry( ChunkReader reader ) throws IOException {
+    public MergeQueueEntry( ChunkReader reader, int id ) throws IOException {
 
-        this( reader.key(), reader.value() );
+        this( reader.key(), reader.value(), id );
         
         this.reader = reader;
 
     }
 
-    public MergeQueueEntry( StructReader key, StructReader value ) {
+    public MergeQueueEntry( StructReader key, StructReader value, int id ) {
         setKey( key );
         setValue( value );
+        this.id = id;
     }
 
     public void setKey( StructReader key ) {
@@ -61,6 +66,7 @@ public class MergeQueueEntry {
         copy.key = key;
         copy.value = value;
         copy.reader = reader;
+        copy.id = id;
         
         return copy;
         

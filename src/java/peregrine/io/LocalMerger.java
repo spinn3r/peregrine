@@ -22,6 +22,7 @@ import peregrine.*;
 import peregrine.reduce.*;
 import peregrine.io.chunk.*;
 import peregrine.io.partition.*;
+import peregrine.reduce.merger.*;
 
 /**
  *
@@ -29,11 +30,9 @@ import peregrine.io.partition.*;
  */
 public class LocalMerger {
 
-    private FilePriorityQueue queue;
-
-    private FileReference last = null;
-
-    private FileComparator comparator = new FileComparator();
+    private MergerPriorityQueue queue;
+    private MergeQueueEntry last = null;
+    private ChunkMergeComparator comparator = new ChunkMergeComparator();
 
     private List<ChunkReader> readers;
 
@@ -45,17 +44,7 @@ public class LocalMerger {
         
         this.readers = readers;
         
-        this.queue = new FilePriorityQueue();
-        
-        int id = 0;
-        for( ChunkReader reader : readers ) {
-
-            System.out.printf( "merging with %s as %s\n", reader, id );
-            
-            FileReference ref = new FileReference( id++, reader );
-            queue.add( ref );
-            
-        }
+        this.queue = new MergerPriorityQueue( readers );
 
     }
     
@@ -67,7 +56,7 @@ public class LocalMerger {
         
         while( true ) {
 
-            FileReference ref = queue.poll();
+        	MergeQueueEntry ref = queue.poll();
 
             try {
 
@@ -109,82 +98,4 @@ public class LocalMerger {
         
     }
     
-}
-
-class FilePriorityQueue {
-
-    private PriorityQueue<FileReference> delegate = new PriorityQueue( 10, new FileComparator() );
-
-    public void add( FileReference ref ) throws IOException {
-
-        if ( ref.reader.hasNext() == false )
-            return;
-        
-        ref.setKey( ref.reader.key() );
-        ref.setValue( ref.reader.value() );
-        
-        delegate.add( ref );
-
-    }
-
-    public FileReference poll() throws IOException {
-
-        FileReference poll = delegate.poll();
-
-        if ( poll == null )
-            return null;
-
-        FileReference result = new FileReference( poll.id, poll.key, poll.value );
-
-        add( poll );
-
-        return result;
-        
-    }
-    
-}
-
-class FileReference {
-
-	public byte[] keyAsByteArray = null;;
-
-    protected StructReader key = null;
-    protected StructReader value = null;
-    
-    public int id = -1;
-    protected ChunkReader reader;
-    
-    public FileReference( int id, ChunkReader reader ) {
-        this.id = id;
-        this.reader = reader;
-    }
-
-    public FileReference( int id, StructReader key, StructReader value ) {
-        this.id = id;
-        this.setKey( key );
-        this.setValue( value );
-    }
-
-    public void setKey( StructReader key ) {
-        this.keyAsByteArray = key.toByteArray();
-        this.key = key;
-    }
-
-    public void setValue( StructReader value ) {
-        this.value = value;
-    }
-    
-}
-
-class FileComparator implements Comparator<FileReference> {
-
-    //DepthBasedKeyComparator delegate = new DepthBasedKeyComparator();
-    FullKeyComparator delegate = new FullKeyComparator();
-    
-    public int compare( FileReference r1, FileReference r2 ) {
-
-        return delegate.compare( r1.keyAsByteArray , r2.keyAsByteArray );
-
-    }
-
 }
