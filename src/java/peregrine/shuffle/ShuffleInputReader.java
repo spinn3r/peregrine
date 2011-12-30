@@ -27,7 +27,8 @@ import peregrine.config.*;
 import org.jboss.netty.buffer.*;
 
 /**
- * 
+ * Read packets from a shuffle file for a given set of partitions (usually the
+ * primary).
  */
 public class ShuffleInputReader implements Closeable {
 

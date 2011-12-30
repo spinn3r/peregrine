@@ -230,6 +230,8 @@ public class MappedFile implements Closeable {
 
     @Override
     public void close() throws IOException {
+
+        System.out.printf( "FIXME: closing %s\n", file.getPath() );
         
         if ( closer.closed() )
             return;

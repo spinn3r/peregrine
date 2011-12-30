@@ -28,6 +28,8 @@ import org.jboss.netty.buffer.*;
 import com.spinn3r.log5j.Logger;
 
 /**
+ * Reads packets from a shuffle (usually in 16k blocks) and then splits these
+ * packets into key/value pairs and implements 
  * 
  */
 public class ShuffleInputChunkReader implements Closeable {
@@ -226,6 +228,7 @@ public class ShuffleInputChunkReader implements Closeable {
         return header.count;
     }
 
+    @Override
     public void close() {
 
         if ( closed )
@@ -441,7 +444,7 @@ public class ShuffleInputChunkReader implements Closeable {
             synchronized( instances ) {
 
                 // FIXME: right now this means that we startup 1 thread per
-                // chunk which is not super efficient.
+                // chunk which is not super efficient... 
                 PrefetchReader reader = instances.remove( path );
                 reader.executor.shutdown();
                 
@@ -465,7 +468,7 @@ public class ShuffleInputChunkReader implements Closeable {
                     
                     if ( result == null ) {
 
-                        log.info( "Creating new prefetch reader for path: %s", path );
+                        log.debug( "Creating new prefetch reader for path: %s", path );
                         
                         result = new PrefetchReader( this, config, path );
                         instances.putIfAbsent( path, result );
