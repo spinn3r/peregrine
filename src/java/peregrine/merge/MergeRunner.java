@@ -25,7 +25,7 @@ import peregrine.io.partition.*;
 import peregrine.reduce.merger.*;
 
 /**
- *
+ * Run a merge by taking to chunk readers and blending them into a merge stream.
  * 
  */
 public class MergeRunner {

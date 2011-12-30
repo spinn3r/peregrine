@@ -32,6 +32,9 @@ public class ConfigParser {
 
     protected static final Logger log = Logger.getLogger();
 
+    /**
+     * Parse without any command line arguments.
+     */
     public static Config parse() throws IOException {
         return parse( new String[0] );
     }
