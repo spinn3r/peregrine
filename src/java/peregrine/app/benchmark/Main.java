@@ -86,9 +86,11 @@ public class Main {
             System.exit( 1 );
             
         }
-        
-        int width            = getopt.getInt( "width", 32 );
-        int max              = getopt.getInt( "max", 10000 );
+
+        // 10MB by default.
+        int width            = getopt.getInt( "width", 1024 );
+        int max              = getopt.getInt( "max", 10000 ); 
+
         Benchmark.Map.EMIT   = getopt.getBoolean( "emit", true );
         String stage         = getopt.getString( "stage", "all" );
         Main.OUT             = getopt.getString( "out", "/test/benchmark.out" );
