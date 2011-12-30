@@ -60,7 +60,12 @@ public class Config extends BaseConfig {
         // update the root directory from the host/port and configured basedir
         setRoot( host );
 
-        new File( root ).mkdirs(); /* make sure the root dir exists */
+        try {
+            Files.mkdirs( root ); /* make sure the root dir exists */
+            Files.mkdirs( basedir );
+        } catch ( IOException e ) {
+            throw new RuntimeException( e );
+        }
 
         log.info( "Using root: %s with basedir: %s", root, basedir );
 
