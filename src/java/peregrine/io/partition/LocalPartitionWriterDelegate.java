@@ -84,10 +84,10 @@ public class LocalPartitionWriterDelegate extends BasePartitionWriterDelegate {
         if ( ! file.exists() )
             file.createNewFile();
 
-        MappedFile mappedFile = new MappedFile( config, file, FileChannel.MapMode.READ_WRITE );
+        MappedFileWriter mappedFile = new MappedFileWriter( config, file );
         mappedFile.setAutoSync( autoSync );
         
-        return mappedFile.getChannelBufferWritable();
+        return mappedFile;
         
     }
 
