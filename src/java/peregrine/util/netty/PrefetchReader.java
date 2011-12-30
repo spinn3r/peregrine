@@ -203,7 +203,7 @@ public class PrefetchReader implements Closeable {
      */
     private void cache( PageEntry pageEntry ) throws IOException {
 
-        log( "Caching %s" , pageEntry );
+        //log( "Caching %s" , pageEntry );
 
         pageEntry.pa = mman.mmap( pageEntry.length,
                                   mman.PROT_READ, mman.MAP_SHARED | mman.MAP_LOCKED,
@@ -227,7 +227,7 @@ public class PrefetchReader implements Closeable {
         if ( pageEntry.length == 0 )
             return;
 
-        log( "Evicting %s" , pageEntry );
+        //log( "Evicting %s" , pageEntry );
 
         mman.munmap( pageEntry.pa, pageEntry.length );
 

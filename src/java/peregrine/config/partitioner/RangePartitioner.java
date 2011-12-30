@@ -28,9 +28,19 @@ public class RangePartitioner extends BasePartitioner {
 	@Override
     public void init( Config config ) {
 		super.init( config );
+        init();
+    }
+
+	@Override
+    public void init( int nr_partitions ) {
+        super.init( nr_partitions );
+        init();
+    }
+
+    public void init() {
     	this.range = 255 / (double)nr_partitions;	
     }
-	
+    
 	@Override
 	public Partition partition( StructReader key ) {
 		

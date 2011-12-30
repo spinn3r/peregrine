@@ -15,31 +15,53 @@
 */
 package peregrine.config;
 
+import java.util.*;
+import java.util.concurrent.atomic.*;
+
 import peregrine.*;
 import peregrine.config.partitioner.*;
 
-public class TestRangeRouter extends BaseTestWithMultipleDaemons {
-
-	public TestRangeRouter() {
-		super(5, 2, 51);
-	}
+public class TestRangeRouter extends BaseTest {
 
 	public void test1() {
 
-		RangePartitioner router = new RangePartitioner();
-		router.init(config);
-		
-	    for( int i = 0; i < 255; ++i ) {
-	    	byte[] key = new byte[8];
-	    	key[0] = (byte)i;
-	    	
-			Partition result = router.partition( StructReaders.wrap( key ) );
-			
-			System.out.printf( "result: %s\n", result );
-			assertEquals( i , result.getId() );
+        Config config = new Config();
+
+        int nr_partitions = 10;
+        
+		//Partitioner partitioner = new HashPartitioner();
+        Partitioner partitioner = new RangePartitioner();
+		partitioner.init(nr_partitions);
+
+        // keep track of our results.
+        
+        Map<Partition,AtomicInteger> map = new HashMap();
+
+        for( int i = 0; i < nr_partitions; ++i ) {
+            map.put( new Partition( i ), new AtomicInteger() );
+        }
+
+        // the max value to distribute... 
+        int max = 500;
+
+        long gap = (long)((Math.pow( 2, 63 ) / 500));
+
+        long key = 0;
+        
+	    for( long i = 0; i < 500; ++i ) {
+
+			Partition result = partitioner.partition( StructReaders.hashcode( i ) );
+
+            map.get( result ).getAndIncrement();
+
+            key += gap;
+
+			//System.out.printf( "result: %s\n", result );
+			//assertEquals( i , result.getId() );
 			
 	    }
-		
+
+        System.out.printf( "map: %s\n", map );
 
 	}
 	

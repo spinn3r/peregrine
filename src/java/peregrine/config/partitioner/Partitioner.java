@@ -31,6 +31,8 @@ public interface Partitioner {
 	 */
 	public void init( Config config );
 
+	public void init( int nr_partitions );
+
     /**
      * Route the given key to a given partition.
      */

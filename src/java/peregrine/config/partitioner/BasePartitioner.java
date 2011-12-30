@@ -20,12 +20,19 @@ import peregrine.config.*;
 public abstract class BasePartitioner implements Partitioner {
 
 	protected int nr_partitions;
-	protected Config config;
-	
+
 	@Override
     public void init( Config config ) {
-        this.config = config;
-    	this.nr_partitions = config.getMembership().size();    	    	
+    	init( config.getMembership().size() );
+
+    }
+
+    /**
+     * Used to make it easier to create directly from various basic
+     * configurations.
+     */
+    public void init( int nr_partitions ) {
+        this.nr_partitions = nr_partitions;
     }
 
 	@Override
