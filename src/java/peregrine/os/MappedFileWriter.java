@@ -42,23 +42,7 @@ public class MappedFileWriter extends BaseMappedFile implements Closeable, Chann
 
     protected FileOutputStream out;
 
-    protected FileChannel channel;
-
-    protected long offset = 0;
-
-    protected long length = 0;
-
     protected boolean autoSync = DEFAULT_AUTO_SYNC;
-
-    protected Closer closer = new Closer();
-
-    protected File file;
-
-    protected int fd;
-
-    protected Config config;
-
-    protected boolean fadviseDontNeedEnabled = false;
 
     protected long fallocateExtentSize = 0;
 
@@ -114,14 +98,6 @@ public class MappedFileWriter extends BaseMappedFile implements Closeable, Chann
         this.autoSync = autoSync;
     }
 
-    public File getFile() {
-        return file;
-    }
-
-    public int getFd() {
-        return fd;
-    }
-
     @Override
     public void close() throws IOException {
 
@@ -135,15 +111,6 @@ public class MappedFileWriter extends BaseMappedFile implements Closeable, Chann
 
         closer.close();
 
-    }
-
-    public boolean isClosed() {
-        return closer.isClosed();
-    }
-    
-    @Override
-    public String toString() {
-        return file.toString();
     }
 
     @Override

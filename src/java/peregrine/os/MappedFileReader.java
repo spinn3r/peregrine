@@ -34,7 +34,7 @@ import com.spinn3r.log5j.Logger;
  * pages, and closing all dependent resources.
  *
  */
-public class MappedFileReader implements Closeable {
+public class MappedFileReader extends BaseMappedFile implements Closeable {
 
     private static final Logger log = Logger.getLogger();
 
@@ -42,25 +42,9 @@ public class MappedFileReader implements Closeable {
 
     protected FileInputStream in;
 
-    protected FileChannel channel;
-
     protected ChannelBuffer map;
 
-    protected long offset = 0;
-
-    protected long length = 0;
-
     protected boolean autoLock = DEFAULT_AUTO_LOCK;
-
-    protected Closer closer = new Closer();
-
-    protected File file;
-
-    protected int fd;
-
-    protected Config config;
-
-    protected boolean fadviseDontNeedEnabled = false;
 
     protected StreamReader reader = null;
 
@@ -148,14 +132,6 @@ public class MappedFileReader implements Closeable {
         this.autoLock = autoLock;
     }
 
-    public File getFile() {
-        return file;
-    }
-
-    public int getFd() {
-        return fd;
-    }
-
     @Override
     public void close() throws IOException {
 
@@ -167,15 +143,6 @@ public class MappedFileReader implements Closeable {
 
         closer.close();
 
-    }
-
-    public boolean isClosed() {
-        return closer.isClosed();
-    }
-    
-    @Override
-    public String toString() {
-        return file.toString();
     }
 
     /**
