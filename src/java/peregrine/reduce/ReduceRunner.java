@@ -32,7 +32,7 @@ import peregrine.sysstat.*;
 
 import com.spinn3r.log5j.Logger;
 
-public class LocalReducer {
+public class ReduceRunner {
 
     private static final Logger log = Logger.getLogger();
 
@@ -45,7 +45,7 @@ public class LocalReducer {
 
     private List<JobOutput> jobOutput = null;
 
-    public LocalReducer( Config config,
+    public ReduceRunner( Config config,
                          Partition partition,
                          SortListener listener,
                          ShuffleInputReference shuffleInput,

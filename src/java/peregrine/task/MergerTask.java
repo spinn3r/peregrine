@@ -18,6 +18,7 @@ package peregrine.task;
 import java.util.*;
 import peregrine.*;
 import peregrine.map.*;
+import peregrine.merge.*;
 import peregrine.io.*;
 import peregrine.io.chunk.*;
 import peregrine.io.partition.*;
@@ -37,13 +38,13 @@ public class MergerTask extends BaseMapperTask {
         
         List<ChunkReader> readers = getLocalPartitionReaders();
 
-        LocalMerger localMerger = new LocalMerger( readers );
+        MergeRunner localMerger = new MergeRunner( readers );
 
         Merger merger = (Merger)jobDelegate;
         
         while( true ) {
 
-            JoinedTuple joined = localMerger.next();
+            MergedValue joined = localMerger.next();
 
             if ( joined == null )
                 break;

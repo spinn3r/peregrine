@@ -13,18 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
 */
-package peregrine.io;
+package peregrine.merge;
 
 import java.util.*;
 
 import peregrine.*;
 
-public final class JoinedTuple {
+public final class MergedValue {
 
     public StructReader key = null;
     public List<StructReader> values = null;
     
-    public JoinedTuple( StructReader key, List<StructReader> values ) {
+    public MergedValue( StructReader key, List<StructReader> values ) {
 
         this.key = key;
         this.values = values;

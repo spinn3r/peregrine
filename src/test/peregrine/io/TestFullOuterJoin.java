@@ -22,6 +22,7 @@ import peregrine.*;
 import peregrine.config.Partition;
 import peregrine.io.chunk.*;
 import peregrine.io.partition.*;
+import peregrine.merge.*;
 import peregrine.util.*;
 
 /**
@@ -66,13 +67,13 @@ public class TestFullOuterJoin extends peregrine.BaseTestWithTwoPartitions {
         readers.add( new LocalPartitionReader( config, part, "/tmp/left" ) );
         readers.add( new LocalPartitionReader( config, part, "/tmp/right" ) );
         
-        LocalMerger merger = new LocalMerger( readers );
+        MergeRunner merger = new MergeRunner( readers );
 
         //FIXME: make sure the results come back ordered correctly... 
         
         while( true ) {
 
-            JoinedTuple joined = merger.next();
+            MergedValue joined = merger.next();
 
             if ( joined == null )
                 break;

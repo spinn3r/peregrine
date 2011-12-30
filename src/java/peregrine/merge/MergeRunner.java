@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
 */
-package peregrine.io;
+package peregrine.merge;
 
 import java.io.*;
 import java.util.*;
@@ -28,7 +28,7 @@ import peregrine.reduce.merger.*;
  *
  * 
  */
-public class LocalMerger {
+public class MergeRunner {
 
     private MergerPriorityQueue queue;
     private MergeQueueEntry last = null;
@@ -36,7 +36,7 @@ public class LocalMerger {
 
     private List<ChunkReader> readers;
 
-    public LocalMerger( List<ChunkReader> readers )
+    public MergeRunner( List<ChunkReader> readers )
         throws IOException {
 
         if ( readers.size() == 0 )
@@ -48,7 +48,7 @@ public class LocalMerger {
 
     }
     
-    public JoinedTuple next() throws IOException {
+    public MergedValue next() throws IOException {
 
         int nr_readers = readers.size();
         
@@ -71,7 +71,7 @@ public class LocalMerger {
                 
                 if ( changed ) {
                     
-                    JoinedTuple result = new JoinedTuple( last.key, joined );
+                    MergedValue result = new MergedValue( last.key, joined );
                     joined = newEmptyList( nr_readers );
                     
                     return result;
