@@ -33,7 +33,6 @@ import com.spinn3r.log5j.Logger;
  * Facade around a MappedByteBuffer but we also support mlock on the mapped
  * pages, and closing all dependent resources.
  *
- *
  */
 public class MappedFile implements Closeable {
 
@@ -231,9 +230,7 @@ public class MappedFile implements Closeable {
     @Override
     public void close() throws IOException {
 
-        System.out.printf( "FIXME: closing %s\n", file.getPath() );
-        
-        if ( closer.closed() )
+        if ( closer.isClosed() )
             return;
 
         closer.add( channel );
@@ -245,7 +242,7 @@ public class MappedFile implements Closeable {
     }
 
     public boolean isClosed() {
-        return closer.closed();
+        return closer.isClosed();
     }
     
     @Override

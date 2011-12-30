@@ -43,7 +43,7 @@ public class MemLock implements Closeable {
      */
     public MemLock( File file, FileDescriptor descriptor, long offset, long length ) throws IOException {
 
-    	log.info( "Going to mlock %s", file );
+    	log.info( "mlocking %s with length %,d", file, length );
 
         this.file = file;
     	this.descriptor = descriptor;
@@ -51,12 +51,12 @@ public class MemLock implements Closeable {
         
         int fd = Native.getFd( descriptor );
         
-        this.pa = mman.mmap( length, mman.PROT_READ, mman.MAP_SHARED | mman.MAP_LOCKED, fd, offset );
+        pa = mman.mmap( length, mman.PROT_READ, mman.MAP_SHARED | mman.MAP_LOCKED, fd, offset );
 
         // even though technically we have specified MAP_LOCKED this isn't
         // supported on OpenSolaris or older Linux kernels (or OS X).
         
-        mman.mlock( this.pa, length );
+        mman.mlock( pa, length );
         
     }
 
@@ -67,14 +67,10 @@ public class MemLock implements Closeable {
     @Override
     public void close() throws IOException {
 
-        String desc = String.format( "Releasing lock %s to pa: %s ... ", file, pa );
-        
-        log.info( "%s ...", desc );
-
-        mman.munlock( this.pa, length );
+        mman.munlock( pa, length );
         mman.munmap( pa, length );
 
-        log.info( "%s ... done", desc );
+        log.info( "munlocking %s to pa %s with length %,d", file, pa, length );
 
     }
 
