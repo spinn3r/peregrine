@@ -258,7 +258,9 @@ public class Config extends BaseConfig {
 
                 @Override
                 public void cleanup() throws Exception {
-                    fos.close();
+
+                    new Closer( fos ).close();
+
                     file.delete(); //cleanup
                 }
 
