@@ -44,6 +44,17 @@ public class Files {
 
     public static void mkdirs( String path ) throws IOException {
 
+        File file = new File( path );
+        
+        if ( file.exists() ) {
+
+            if ( file.isDirectory() )
+                return; /* we're done */
+            else
+                throw new IOException( "Path exist and is a regular file: " + path );
+
+        }
+        
         if ( new File( path ).mkdirs() == false ) {
             throw new IOException( "Unable to make directory: " + path );
         }
