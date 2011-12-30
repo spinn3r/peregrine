@@ -231,10 +231,10 @@ public class MappedFile implements Closeable {
     @Override
     public void close() throws IOException {
 
-        System.out.printf( "FIXME: closing %s\n", file.getPath() );
-        
-        if ( closer.closed() )
+        if ( closer.isClosed() )
             return;
+
+        System.out.printf( "FIXME: closing %s\n", file.getPath() );
 
         closer.add( channel );
         closer.add( in );
@@ -245,7 +245,7 @@ public class MappedFile implements Closeable {
     }
 
     public boolean isClosed() {
-        return closer.closed();
+        return closer.isClosed();
     }
     
     @Override

@@ -51,12 +51,12 @@ public class MemLock implements Closeable {
         
         int fd = Native.getFd( descriptor );
         
-        this.pa = mman.mmap( length, mman.PROT_READ, mman.MAP_SHARED | mman.MAP_LOCKED, fd, offset );
+        pa = mman.mmap( length, mman.PROT_READ, mman.MAP_SHARED | mman.MAP_LOCKED, fd, offset );
 
         // even though technically we have specified MAP_LOCKED this isn't
         // supported on OpenSolaris or older Linux kernels (or OS X).
         
-        mman.mlock( this.pa, length );
+        mman.mlock( pa, length );
         
     }
 
@@ -71,7 +71,7 @@ public class MemLock implements Closeable {
         
         log.info( "%s ...", desc );
 
-        mman.munlock( this.pa, length );
+        mman.munlock( pa, length );
         mman.munmap( pa, length );
 
         log.info( "%s ... done", desc );

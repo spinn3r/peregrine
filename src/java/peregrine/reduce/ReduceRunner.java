@@ -32,6 +32,10 @@ import peregrine.sysstat.*;
 
 import com.spinn3r.log5j.Logger;
 
+/**
+ * Run a reduce over the the given partition.  This handles intermerging, memory
+ * allocation of sorting, etc.
+ */
 public class ReduceRunner {
 
     private static final Logger log = Logger.getLogger();
@@ -317,16 +321,24 @@ public class ReduceRunner {
         // make the parent dir for holding sort files.
         new File( target_dir ).mkdirs();
 
-        log.info( "Going to sort %,d files for %s", input.size(), partition );
+        log.info( "Going to sort() %,d files for %s", input.size(), partition );
+
+        //FIXME: we can't do this here because ShuffleInputChunkReader
+        //automatically starts pre-reading the data once we create ... I think
+        //this is actaully a bad design decision actually.
+
+        List<File> pending = new ArrayList();
+        pending.addAll( input );
         
-        List<ShuffleInputChunkReader> pending = new ArrayList();
+        /*FIXME remove this
         for( File file : input ) {
             pending.add( new ShuffleInputChunkReader( config, partition, file.getPath() ) );
         }
+        */
 
-        Iterator<ShuffleInputChunkReader> it = pending.iterator();
+        Iterator<File> pendingIterator = pending.iterator();
         
-        while( it.hasNext() ) {
+        while( pendingIterator.hasNext() ) {
         	
         	List<ShuffleInputChunkReader> work = new ArrayList();
         	long workSize = 0;
@@ -335,20 +347,33 @@ public class ReduceRunner {
             //We will have to create the shuffle input readers HERE and then
             //pass them INTO the chunk sorter.  I also factor in the
             //amount of data IN this partition and not the ENTIRE file size.
-        	while( it.hasNext() ) {
+        	while( pendingIterator.hasNext() ) {
         		
-        		ShuffleInputChunkReader current = it.next();
+        		File current = pendingIterator.next();
+                String path = current.getPath();                
+                
+                ShuffleInputReader reader = null;
+                ShuffleHeader header = null;
 
-        		workSize += current.getShuffleHeader().length;
-                workSize += current.getShuffleHeader().count * KeyLookup.KEY_SIZE;
+                try {
+
+                    reader = new ShuffleInputReader( config, path, partition );
+                    header = reader.getHeader( partition );
+                     
+                } finally {
+                    new Closer( reader ).close();
+                }
+
+        		workSize += header.length;
+                workSize += header.count * KeyLookup.KEY_SIZE;
                 
         		if ( workSize > config.getSortBufferSize() ) {
-        			it = pending.iterator();
+        			pendingIterator = pending.iterator();
         			break;        			
         		}
 
-        		work.add( current );
-        		it.remove();
+        		work.add( new ShuffleInputChunkReader( config, partition, path ) );
+        		pendingIterator.remove();
         		
         	}
         	

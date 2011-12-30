@@ -78,6 +78,9 @@ public class mman {
 
     }
 
+    /**
+     * Unlock the given region, throw an IOException if we fail.
+     */
     public static void munlock( Pointer addr, long len )
         throws IOException {
 
