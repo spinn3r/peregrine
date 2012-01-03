@@ -21,6 +21,11 @@ import peregrine.*;
 import peregrine.util.*;
 import peregrine.io.chunk.*;
 
+/**
+ * Take the result of a sort request, and potentially merge values and when that 
+ * value is complete emit and write it to disk.
+ *
+ */
 public class SortResult {
 
     public int idx = 0;
@@ -31,11 +36,15 @@ public class SortResult {
 
     private ChunkWriter writer = null;
     
+    public SortResult( ChunkWriter writer ) {
+    	this.writer = writer;
+    }
+    
     public SortResult( ChunkWriter writer,
                        SortListener listener ) {
         
-        this.listener = listener;
         this.writer = writer;
+        this.listener = listener;
         
     }
 

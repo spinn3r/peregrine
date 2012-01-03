@@ -26,6 +26,11 @@ public final class SortEntry {
     
     private List<StructReader> values = new ArrayList();
 
+    public SortEntry( StructReader key, StructReader first ) {
+    	this(key);
+    	addValue( first );
+    }
+    
     public SortEntry( StructReader key ) {
         this.key = key;
         this.keyAsByteArray = key.toByteArray();

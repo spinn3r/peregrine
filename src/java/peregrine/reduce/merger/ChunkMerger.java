@@ -91,8 +91,6 @@ public class ChunkMerger {
 
     public int entries = 0;
         
-    private SortEntryFactory topLevelSortEntryFactory = new TopLevelSortEntryFactory();
-
     private Partition partition;
 
     private List<JobOutput> output;
@@ -139,7 +137,7 @@ public class ChunkMerger {
                 if ( entry == null )
                     break;
 
-                sortResult.accept( topLevelSortEntryFactory.newSortEntry( entry.key, entry.value ) );
+                sortResult.accept( new SortEntry( entry.key, entry.value ) );
 
                 ++entries;
 
