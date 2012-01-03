@@ -334,6 +334,10 @@ public class PrefetchReader implements Closeable {
         
     }
 
+    /**
+     * Allows us to block on reads if the prefetch reader hasn't yet cached
+     * these.
+     */
     class PrefetchStreamReaderListener implements StreamReaderListener {
 
         private FileMeta fileMeta;

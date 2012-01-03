@@ -28,7 +28,8 @@ import peregrine.util.netty.*;
 import com.spinn3r.log5j.Logger;
 
 /**
- * 
+ * Write a partition as a given stream of key/value pairs and rollover chunks as
+ * they are filled.
  */
 public class DefaultPartitionWriter implements PartitionWriter, ChunkWriter {
 

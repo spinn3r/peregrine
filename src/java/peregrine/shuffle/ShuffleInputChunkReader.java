@@ -19,9 +19,12 @@ import java.io.*;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.*;
+
+import peregrine.*;
 import peregrine.util.*;
 import peregrine.util.netty.*;
 import peregrine.config.*;
+import peregrine.io.chunk.*;
 
 import org.jboss.netty.buffer.*;
 

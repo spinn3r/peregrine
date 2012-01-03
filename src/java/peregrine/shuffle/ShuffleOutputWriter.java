@@ -247,6 +247,8 @@ public class ShuffleOutputWriter implements Closeable {
                     
                     output.write( pack.data );
 
+                    // release the bytes after we are done with them.
+                    
                     new ByteBufferCloser( pack.data ).close();
                     
                 }

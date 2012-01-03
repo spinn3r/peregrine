@@ -74,7 +74,8 @@ public class ShuffleReceiver {
 
                 if ( needsRollover() ) {
 
-                    log.info( "Rolling over %s " , writer );
+                    if ( writer != null )
+                        log.info( "Rolling over %s " , writer );
 
                     ShuffleOutputWriter last = writer;
 

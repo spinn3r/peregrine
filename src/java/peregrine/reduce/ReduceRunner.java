@@ -140,7 +140,7 @@ public class ReduceRunner {
             SystemProfiler profiler = config.getSystemProfiler();
 
             prefetchReader = createPrefetchReader( readers );
-
+            
             ChunkMerger merger = new ChunkMerger( listener, partition, jobOutput );
         
             merger.merge( readers );
@@ -323,18 +323,8 @@ public class ReduceRunner {
 
         log.info( "Going to sort() %,d files for %s", input.size(), partition );
 
-        //FIXME: we can't do this here because ShuffleInputChunkReader
-        //automatically starts pre-reading the data once we create ... I think
-        //this is actaully a bad design decision actually.
-
         List<File> pending = new ArrayList();
         pending.addAll( input );
-        
-        /*FIXME remove this
-        for( File file : input ) {
-            pending.add( new ShuffleInputChunkReader( config, partition, file.getPath() ) );
-        }
-        */
 
         Iterator<File> pendingIterator = pending.iterator();
         

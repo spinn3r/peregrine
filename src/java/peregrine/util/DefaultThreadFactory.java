@@ -18,6 +18,10 @@ package peregrine.util;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.*;
 
+/**
+ * Thread factory which names the given thread based on a class template and
+ * makes it a daemon thread as well.
+ */
 public class DefaultThreadFactory implements ThreadFactory {
 
     public AtomicInteger idx = new AtomicInteger();;

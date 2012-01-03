@@ -22,6 +22,9 @@ import java.util.concurrent.*;
 
 import com.spinn3r.log5j.Logger;
 
+/**
+ * Keeps track of ExecutorService instances per a given class.
+ */
 public class ExecutorServiceManager {
 
     private static final Logger log = Logger.getLogger();

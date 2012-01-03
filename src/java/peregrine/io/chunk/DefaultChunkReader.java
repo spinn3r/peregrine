@@ -195,4 +195,8 @@ public class DefaultChunkReader implements ChunkReader, Closeable {
         
     }
 
+    public static void main( String[] args ) throws Exception {
+
+    }
+    
 }

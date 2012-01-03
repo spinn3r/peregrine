@@ -28,11 +28,8 @@ import peregrine.http.*;
 import org.jboss.netty.buffer.*;
 
 /**
- * Export chunks are used in both the Extract phase of ETL jobs with
- * ExtractWriter to write data to individual partitions and chunks AND with map
- * jobs so that we can spool data to disk in the from the mappers directly to
- * the R partition files BEFORE we sort the output so that we can perform reduce
- * on each (K,V...) pair.
+ * Write key/value pairs to a given file on disk and include any additional
+ * metadata (size, etc).
  */
 public class DefaultChunkWriter implements ChunkWriter {
 
@@ -53,9 +50,7 @@ public class DefaultChunkWriter implements ChunkWriter {
     }
 
     public DefaultChunkWriter( Config config, File file ) throws IOException {
-
         init( new MappedFileWriter( config, file ) );
-
     }
 
     private void init( ChannelBufferWritable writer ) {
