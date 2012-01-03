@@ -17,6 +17,8 @@ package peregrine.reduce.merger;
 
 import java.io.*;
 import java.util.*;
+
+import peregrine.*;
 import peregrine.config.*;
 import peregrine.io.*;
 import peregrine.io.chunk.*;
@@ -137,7 +139,7 @@ public class ChunkMerger {
                 if ( entry == null )
                     break;
 
-                sortResult.accept( new SortEntry( entry.key, entry.value ) );
+                sortResult.accept( new SortEntry( entry.key, StructReaders.unwrap( entry.value ) ) );
 
                 ++entries;
 

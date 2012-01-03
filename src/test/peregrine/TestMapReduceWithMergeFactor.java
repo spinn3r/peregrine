@@ -30,12 +30,22 @@ public class TestMapReduceWithMergeFactor extends peregrine.BaseTestWithMultiple
 
     private static final Logger log = Logger.getLogger();
 
+    private static final int NR_VALUES_PER_KEY = 5;
+    
     public static class Map extends Mapper {
 
     }
 
     public static class Reduce extends Reducer {
 
+        public void reduce( StructReader key, List<StructReader> values ) {
+
+            if ( values.size() != NR_VALUES_PER_KEY ) {
+                throw new RuntimeException( String.format( "%s != %s", values.size(), NR_VALUES_PER_KEY ) );
+            }
+            
+        }
+        
     }
 
     @Override
@@ -67,12 +77,17 @@ public class TestMapReduceWithMergeFactor extends peregrine.BaseTestWithMultiple
         
         ExtractWriter writer = new ExtractWriter( configs.get(0), path );
 
-        for( int i = 0; i < max; ++i ) {
+        for( int j = 0; j < NR_VALUES_PER_KEY; ++j ) {
+        
+            for( long i = 0; i < max; ++i ) {
 
-        	StructReader key = StructReaders.hashcode( i );
-        	StructReader value = StructReaders.wrap( i );
+            	StructReader key = StructReaders.hashcode( i );
+            	StructReader value = StructReaders.wrap( i );
 
-            writer.write( key, value );
+                writer.write( key, value );
+                
+            }
+            
         }
 
         writer.close();

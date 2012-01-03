@@ -26,7 +26,7 @@ import peregrine.io.chunk.*;
  * value is complete emit and write it to disk.
  *
  */
-public class SortResult {
+public class SortResult implements Closeable {
 
     public int idx = 0;
 

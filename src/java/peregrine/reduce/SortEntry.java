@@ -19,6 +19,9 @@ import java.util.*;
 
 import peregrine.*;
 
+/**
+ * When merging, keep track of each key and the values it supports.
+ */
 public final class SortEntry {
 
     public StructReader key;
@@ -30,7 +33,12 @@ public final class SortEntry {
     	this(key);
     	addValue( first );
     }
-    
+
+    public SortEntry( StructReader key, List<StructReader> values ) {
+    	this(key);
+    	this.values = values;
+    }
+
     public SortEntry( StructReader key ) {
         this.key = key;
         this.keyAsByteArray = key.toByteArray();

@@ -97,6 +97,21 @@ public class StructReaders {
         return new StructReader( composite );
         
     }
+
+    public static List<StructReader> unwrap( StructReader reader ) {
+
+        List<StructReader> result = new ArrayList();
+        
+        while( reader.isReadable() ) {
+
+            int len = reader.readVarint();
+            result.add( reader.readSlice( len ) );
+            
+        }
+
+        return result;
+        
+    }
     
     public static StructReader hashcode( String value ) {
 

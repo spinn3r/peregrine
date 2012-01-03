@@ -25,6 +25,7 @@ import peregrine.config.*;
 import peregrine.io.*;
 import peregrine.io.chunk.*;
 import peregrine.io.util.*;
+import peregrine.reduce.*;
 import peregrine.shuffle.*;
 import peregrine.util.*;
 import peregrine.util.netty.*;
@@ -55,6 +56,8 @@ public class ChunkSorter extends BaseChunkSorter {
 
         ChunkWriter writer = null;
 
+        SortResult sortResult = null;
+        
         try {
 
             log.info( "Going to sort: %s", input );
@@ -77,6 +80,8 @@ public class ChunkSorter extends BaseChunkSorter {
 
             writer = new DefaultChunkWriter( config, output );
 
+            sortResult = new SortResult( writer );
+            
             while( lookup.hasNext() ) {
 
                 // TODO: move this to use transferTo ... 
@@ -98,7 +103,7 @@ public class ChunkSorter extends BaseChunkSorter {
                 StructReader value =
                     new StructReader( backing.readSlice( varintReader.read() ) );
 
-                writer.write( key, value );
+                sortResult.accept( new SortEntry( key, value ) );
                 
             }
 
@@ -117,22 +122,15 @@ public class ChunkSorter extends BaseChunkSorter {
             new Flusher( jobOutput ).flush();
 
             // NOTE: it is important that the writer be closed before the reader
-            // because if not then the writer will attempt to read values from a
+            // because if not then the writer will attempt to read values from 
             // closed reader.
-            new Closer( writer, reader ).close();
+            new Closer( sortResult, writer, reader ).close();
 
         }
 
         // if we got to this part we're done... 
         return new DefaultChunkReader( config, output );
 
-    }
-
-    private void transferTo( FileChannel inputChannel, FileChannel outputChannel, long position, long count )
-        throws IOException {
-        
-        if ( inputChannel.transferTo( position, count, outputChannel ) != count )
-            throw new IOException( "Incomplete write to: " + outputChannel );
     }
 
 }
