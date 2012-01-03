@@ -41,14 +41,23 @@ public class Files {
         
         for ( File current : files ) {
 
-            if ( current.isDirectory() == false ) {
-                current.delete();
-            } else {
+            if ( current.isDirectory() ) {
                 remove( current );
+            } else { 
+                remove0( current );
             }
-            
+
         }
-        
+
+        remove0( file );
+
+    }
+
+    private static void remove0( File file ) {
+
+        if ( ! file.delete() )
+            throw new RuntimeException( "Unable to delete: " + file.getPath() );
+
     }
 
     public static void mkdirs( String path ) throws IOException {

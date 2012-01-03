@@ -87,25 +87,43 @@ public class ReduceRunner {
         while( true ) {
 
             log.info( "Working with %,d readers now." , readers.size() );
-            
-            if ( readers.size() < config.getShuffleSegmentMergeParallelism() ) {
 
-                finalMerge( readers );
+            ++pass;
+
+            try {
                 
-                break;
+                if ( readers.size() < config.getShuffleSegmentMergeParallelism() ) {
 
-            } else {
+                    finalMerge( readers, pass );
+                    break;
 
-                readers = interMerge( readers, ++pass );
-                
+                } else {
+                    readers = interMerge( readers, pass );
+                }
+
+            } finally {
+                purge( pass - 1 );
             }
-            
+                
         }
 
         cleanup();
         
     }
 
+    /**
+     * Purge shuffle data for a given pass.
+     */
+    private void purge( int pass ) {
+
+        String dir = getTargetDir( pass );
+
+        log.info( "Purging directory %s for pass %,d", dir, pass );
+        
+        Files.remove( dir );
+
+    }
+    
     private void cleanup() throws IOException {
 
         // Now cleanup after ourselves.  See if the temporary directories exists
@@ -129,9 +147,9 @@ public class ReduceRunner {
     /**
      * Do the final merge including writing to listener when we are finished.
      */
-    public void finalMerge( List<ChunkReader> readers ) throws IOException {
+    public void finalMerge( List<ChunkReader> readers, int pass ) throws IOException {
 
-        log.info( "Merging on final merge with %,d readers (strategy=finalMerge)", readers.size() );
+        log.info( "Merging on final merge with %,d readers (strategy=finalMerge, pass=%,d)", readers.size(), pass );
         
         PrefetchReader prefetchReader = null;
 

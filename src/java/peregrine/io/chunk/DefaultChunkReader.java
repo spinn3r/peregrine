@@ -67,7 +67,7 @@ public class DefaultChunkReader implements ChunkReader, Closeable {
     private MappedFileReader mappedFile;
 
     private boolean closed = false;
-    
+
     public DefaultChunkReader( Config config, File file )
         throws IOException {
 
@@ -100,7 +100,7 @@ public class DefaultChunkReader implements ChunkReader, Closeable {
         init( buff );
         
     }
-
+    
     /**
      * Get the backing file.
      */

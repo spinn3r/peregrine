@@ -53,10 +53,11 @@ public class TestMapReduceWithMergeFactor extends peregrine.BaseTestWithMultiple
 
         // change the shuffle buffer so we have lots of smaller files.
         for( Config config : configs ) {
-            config.setShuffleBufferSize( 1000 );
+            config.setShuffleBufferSize( 2000 );
+            config.setSortBufferSize( 100000 );
         }
         
-        doTest( 25000 );
+        doTest( 100000 );
         
     }
 
@@ -84,10 +85,13 @@ public class TestMapReduceWithMergeFactor extends peregrine.BaseTestWithMultiple
             
             controller.map( Map.class, path );
 
-            int nr_shuffles = new File( "/tmp/peregrine-fs//localhost/11112/tmp/shuffle/default" ).list().length;
-
+            int nr_shuffles = new File( "/tmp/peregrine-fs/localhost/11112/tmp/shuffle/default" ).list().length;
+            
             controller.reduce( Reduce.class, new Input(), new Output( output ) );
 
+            //FIXME: add a feature to make sure that the strategy we wanted was
+            //actually working.
+            
         } finally {
             controller.shutdown();
         }

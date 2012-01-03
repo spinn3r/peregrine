@@ -89,12 +89,16 @@ public class CompositeShuffleInputChunkReader implements Closeable {
         readerIterator = readers.iterator();
         bufferIterator = buffers.iterator();
 
-        nextReader();
+        if ( readerIterator.hasNext() )
+            nextReader();
         
 	}	
 
     public boolean hasNext() throws IOException {
 
+        if ( reader == null )
+            return false;
+        
         boolean result = reader.hasNext();
         
         while ( result == false && readerIterator.hasNext() ) {
