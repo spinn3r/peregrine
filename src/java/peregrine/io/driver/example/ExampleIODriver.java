@@ -21,6 +21,7 @@ import java.util.*;
 import peregrine.*;
 import peregrine.config.*;
 import peregrine.io.*;
+import peregrine.io.chunk.*;
 import peregrine.io.driver.*;
 
 public class ExampleIODriver implements IODriver {
@@ -32,19 +33,17 @@ public class ExampleIODriver implements IODriver {
 
 	@Override
 	public InputReference getInputReference(String uri) {
-		// TODO Auto-generated method stub
-		return null;
+		return new ExampleInputReference();
 	}
 
 	@Override
 	public JobInput getJobInput( Config config, Partition partition ) throws IOException {		
-	    return new ExampleJobInput();
+	    return new ExampleJobInput( partition );
 	}
 
 	@Override
 	public OutputReference getOutputReference(String uri) {
-		// TODO Auto-generated method stub
-		return null;
+		return new ExampleOutputReference();
 	}
 
 	@Override
@@ -66,27 +65,38 @@ class ExampleJobInput extends BaseJobInput implements JobInput {
 	private Iterator<StructReader> iterator = null;
 	
 	private StructReader current = null;
-	
-	public ExampleJobInput() {
 
+    private boolean fired = false;
+    
+	public ExampleJobInput( Partition partition ) {
+
+        // stick in example data.
 		for( long i = 0; i < 100; ++i ) {
-			
-			list.add( StructReaders.wrap( i ) );
-			
+			list.add( StructReaders.hashcode( i ) );
 		}
 
 	    iterator = list.iterator();
-		
+
+        chunkRef = new ChunkReference( partition );
+
 	}
 	
 	@Override
 	public boolean hasNext() throws IOException {
-		return iterator.hasNext();
+        return iterator.hasNext();
 	}
 
 	@Override
 	public StructReader key() throws IOException {
+
+        if ( fired == false ) {
+            chunkRef.incr();
+            fireOnChunk();
+            fired = true;
+        }
+
 		current = iterator.next();
+
 		return current;
 		
 	}
@@ -97,7 +107,8 @@ class ExampleJobInput extends BaseJobInput implements JobInput {
 	}
 
 	@Override
-	public void close() throws IOException {		
+	public void close() throws IOException {
+        fireOnChunkEnd();
 	}
 	
 }
@@ -129,7 +140,12 @@ class ExampleInputReference implements InputReference {
 	public String getScheme() {
 		return "example";
 	}
-	
+
+    @Override
+    public String toString() {
+        return getScheme() + ":";
+    }
+
 }
 
 class ExampleOutputReference implements OutputReference {
@@ -138,7 +154,11 @@ class ExampleOutputReference implements OutputReference {
 	public String getScheme() {
 		return "example";
 	}
-	
-}
 
+    @Override
+    public String toString() {
+        return getScheme() + ":";
+    }
+    
+}
 

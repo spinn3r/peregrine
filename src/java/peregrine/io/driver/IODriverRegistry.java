@@ -35,12 +35,12 @@ public class IODriverRegistry {
 
     public static Map<String,IODriver> registry = new ConcurrentHashMap();
     
-    public static void register( String scheme, IODriver driver ) {
-        registry.put( scheme, driver );
+    public static void register( IODriver driver ) {
+        registry.put( driver.getScheme(), driver );
     }
 
-    public static IODriver getInputDriver( String scheme ) {
+    public static IODriver getInstance( String scheme ) {
         return registry.get( scheme );
     }
-    
+
 }

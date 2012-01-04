@@ -24,6 +24,7 @@ import peregrine.config.Membership;
 import peregrine.config.Partition;
 import peregrine.io.*;
 import peregrine.io.chunk.*;
+import peregrine.io.driver.*;
 import peregrine.io.partition.*;
 import peregrine.io.util.*;
 import peregrine.map.*;
@@ -60,8 +61,21 @@ public abstract class BaseMapperTask extends BaseTask implements Callable {
             if ( ref instanceof FileInputReference ) {
                 FileInputReference file = (FileInputReference) ref;
                 readers.add( new LocalPartitionReader( config, partition, file.getPath(), listeners ) );
+                continue;
             }
+
+            IODriver driver = IODriverRegistry.getInstance( ref.getScheme() );
             
+            // see if it is registered as a driver.
+            if ( driver != null ) {
+
+                JobInput ji = driver.getJobInput( config, partition );
+                ji.addListeners( listeners );
+                
+                readers.add( ji );
+                continue;
+            }
+
             throw new IOException( "Reference not supported: " + ref );
             
         }

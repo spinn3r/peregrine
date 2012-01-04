@@ -16,6 +16,7 @@
 package peregrine.io;
 
 import java.util.*;
+import peregrine.io.driver.*;
 
 /**
  * Represents input to the peregrine IO system. 
@@ -35,27 +36,38 @@ public final class Input {
 
                 String[] split = path.split( ":" );
 
-                if ( split.length < 2 )
-                    throw new RuntimeException( "Unable to split: " + path );
-                
-                String type      = split[0];
-                String arg       = split[1];
+                String scheme      = split[0];
 
-                if ( "broadcast".equals( type ) )
+                String arg       = null;
+
+                if ( split.length >= 2 )
+                    arg       = split[1];
+
+                if ( "broadcast".equals( scheme ) )
                     add( new BroadcastInputReference( arg ) );
 
-                if ( "file".equals( type ) )
+                if ( "file".equals( scheme ) )
                     add( new FileInputReference( arg ) );
 
-                if ( "shuffle".equals( type ) )
+                if ( "shuffle".equals( scheme ) )
                     add( new ShuffleInputReference( arg ) );
+
+                IODriver driver = IODriverRegistry.getInstance( scheme );
+                
+                // see if it is registered as a driver.
+                if ( driver != null ) {
+                    add( driver.getInputReference( path ) );
+                }
 
             } else { 
                 add( new FileInputReference( path ) );
             }
 
         }
-
+        
+        if( references.size() == 0 )
+            throw new IllegalArgumentException( "No input found for: " + paths );
+        
     }
     
     public Input( String... paths ) {
