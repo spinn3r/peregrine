@@ -27,7 +27,7 @@ import peregrine.io.chunk.*;
 import com.spinn3r.log5j.Logger;
 
 public interface ShuffleJobOutputDelegate
-    extends JobOutput, LocalPartitionReaderListener, Closeable, Flushable {
+    extends JobOutput, ChunkStreamListener, Closeable, Flushable {
 
     public void emit( int to_partition, StructReader key , StructReader value );
 

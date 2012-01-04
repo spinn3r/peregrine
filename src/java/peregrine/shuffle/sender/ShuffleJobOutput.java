@@ -28,7 +28,7 @@ import peregrine.io.chunk.*;
 import com.spinn3r.log5j.Logger;
 
 public class ShuffleJobOutput
-    implements JobOutput, LocalPartitionReaderListener, Closeable, Flushable {
+    implements JobOutput, ChunkStreamListener, Closeable, Flushable {
 
     private static final Logger log = Logger.getLogger();
 
@@ -38,7 +38,7 @@ public class ShuffleJobOutput
 
     protected ShuffleJobOutputDelegate jobOutputDelegate;
 
-    protected LocalPartitionReaderListener localPartitionReaderListener;
+    protected ChunkStreamListener localPartitionReaderListener;
 
     private long started = System.currentTimeMillis();
 
@@ -56,7 +56,7 @@ public class ShuffleJobOutput
         
         jobOutputDelegate = new ShuffleJobOutputDirect( this );
 
-        localPartitionReaderListener = (LocalPartitionReaderListener) jobOutputDelegate;
+        localPartitionReaderListener = (ChunkStreamListener) jobOutputDelegate;
         
     }
     

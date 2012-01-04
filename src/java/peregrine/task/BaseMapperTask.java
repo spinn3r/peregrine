@@ -34,7 +34,7 @@ public abstract class BaseMapperTask extends BaseTask implements Callable {
     /**
      * This tasks partition listeners.
      */
-    protected List<LocalPartitionReaderListener> listeners = new ArrayList();
+    protected List<ChunkStreamListener> listeners = new ArrayList();
 
     /**
      * Construct a set of ChunkReaders (one per input source) for the given
@@ -75,7 +75,7 @@ public abstract class BaseMapperTask extends BaseTask implements Callable {
      * flush per every 100MB or so and isn't the end of the world.
      * 
      */
-    class FlushLocalPartitionReaderListener implements LocalPartitionReaderListener{
+    class FlushLocalPartitionReaderListener implements ChunkStreamListener{
 
         public void onChunk( ChunkReference ref ) { }
         

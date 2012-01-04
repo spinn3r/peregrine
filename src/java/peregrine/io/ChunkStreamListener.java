@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
 */
-package peregrine.io.partition;
+package peregrine.io;
 
 import peregrine.io.chunk.*;
 
 /**
  * Read data from a partition from local storage.
  */
-public interface LocalPartitionReaderListener {
+public interface ChunkStreamListener {
 
     /**
      * Called when we find a new chunk to process.

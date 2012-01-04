@@ -21,6 +21,7 @@ import java.util.*;
 
 import peregrine.*;
 import peregrine.config.*;
+import peregrine.io.*;
 import peregrine.io.chunk.*;
 
 /**
@@ -36,7 +37,7 @@ public class LocalPartitionReader implements ChunkReader, JobInput {
 
     private DefaultChunkReader chunkReader = null;
 
-    private List<LocalPartitionReaderListener> listeners = new ArrayList();
+    private List<ChunkStreamListener> listeners = new ArrayList();
 
     private ChunkReference chunkRef = null;
 
@@ -55,7 +56,7 @@ public class LocalPartitionReader implements ChunkReader, JobInput {
     public LocalPartitionReader( Config config,
                                  Partition partition,
                                  String path,
-                                 LocalPartitionReaderListener listener ) throws IOException {
+                                 ChunkStreamListener listener ) throws IOException {
 
         this( config, partition, path, new ArrayList() );
 
@@ -66,7 +67,7 @@ public class LocalPartitionReader implements ChunkReader, JobInput {
     public LocalPartitionReader( Config config,
                                  Partition partition,
                                  String path,
-                                 List<LocalPartitionReaderListener> listeners ) throws IOException {
+                                 List<ChunkStreamListener> listeners ) throws IOException {
 
         this.partition = partition;
         this.chunkReaders = LocalPartition.getChunkReaders( config, partition, path );
@@ -117,7 +118,7 @@ public class LocalPartitionReader implements ChunkReader, JobInput {
 
     private void fireOnChunk() {
 
-        for( LocalPartitionReaderListener listener : listeners ) {
+        for( ChunkStreamListener listener : listeners ) {
             listener.onChunk( chunkRef );
         }
         
@@ -127,7 +128,7 @@ public class LocalPartitionReader implements ChunkReader, JobInput {
 
         if ( chunkRef != null && chunkRef.local >= 0 ) {
 
-            for( LocalPartitionReaderListener listener : listeners ) {
+            for( ChunkStreamListener listener : listeners ) {
                 listener.onChunkEnd( chunkRef );
             }
 
@@ -160,7 +161,7 @@ public class LocalPartitionReader implements ChunkReader, JobInput {
         return String.format( "%s (%s):%s", path, partition, chunkReaders );
     }
 
-    public void addListener( LocalPartitionReaderListener listener ) {
+    public void addListener( ChunkStreamListener listener ) {
         listeners.add( listener );
     }
 
