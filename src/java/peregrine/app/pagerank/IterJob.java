@@ -43,9 +43,6 @@ public class IterJob {
         public void init( List<JobOutput> output ) {
 
             super.init( output );
-
-            System.out.printf( "FIXME output: %s\n" , output );
-            System.out.printf( "FIXME getBroadcastInput: %s\n" , getBroadcastInput() );
             
             danglingRankSumBroadcast = output.get(1);
             
@@ -63,15 +60,6 @@ public class IterJob {
 
         	StructReader outbound         = values.get( 0 );
         	StructReader dangling         = values.get( 2 );
-
-            /*
-            System.out.printf( "key: %s , graph_by_source: %s, rank_vector: %s, dangling=%s, nonlinked=%s\n",
-                               Hex.encode( key ),
-                               Hex.encode( graph_by_source ),
-                               Hex.encode( rank_vector ),
-                               Hex.encode( dangling ),
-                               Hex.encode( nonlinked ) );
-            */
 
             // for the first pass, the rank_vector will be null.
             // TODO expand this in the future to support iter > 0 

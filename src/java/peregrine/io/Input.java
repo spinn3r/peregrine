@@ -17,6 +17,10 @@ package peregrine.io;
 
 import java.util.*;
 
+/**
+ * Represents input to the peregrine IO system. 
+ *
+ */
 public final class Input {
 
     private List<InputReference> references = new ArrayList();

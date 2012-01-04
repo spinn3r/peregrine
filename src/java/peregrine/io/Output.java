@@ -17,6 +17,11 @@ package peregrine.io;
 
 import java.util.*;
 
+/**
+ * Represents job output and constructs references to said output so that we can 
+ * pass these to the JobOutputFactory. 
+ *
+ */
 public final class Output {
 
     private List<OutputReference> references = new ArrayList();

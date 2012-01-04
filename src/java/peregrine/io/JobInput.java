@@ -13,34 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
 */
-package peregrine.io.partition;
+package peregrine.io;
 
 import java.io.*;
+import java.util.*;
+import java.util.concurrent.*;
 
-import peregrine.*;
+import peregrine.config.*;
+import peregrine.io.chunk.*;
+import peregrine.io.partition.*;
+import peregrine.shuffle.sender.*;
 
 /**
- * Main PartitionWriter interface. 
+ * Input for a job which provides a set of key/value pairs.
  */
-public interface PartitionWriter extends Closeable, Flushable {
-
-    /**
-     * Write a key/value pair to the partition.
-     */
-    public void write( StructReader key, StructReader value ) throws IOException;
-
-    public void shutdown() throws IOException;
-
-    @Override
-    public void close() throws IOException;
-
-    /**
-     * Total lengh of this file (bytes written) to this partition writer..
-     */
-    public long length();
-
-    @Override
-    public String toString();
+public interface JobInput extends ChunkReader {
 
 }
 

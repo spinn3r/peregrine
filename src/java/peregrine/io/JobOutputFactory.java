@@ -18,12 +18,15 @@ package peregrine.io;
 import java.io.*;
 import java.util.*;
 
-import peregrine.config.Config;
-import peregrine.config.Partition;
-import peregrine.io.*;
+import peregrine.config.*;
 import peregrine.io.partition.*;
 import peregrine.shuffle.sender.*;
 
+
+/**
+ * Factory for obtaining job output from a given Output definition.  
+ *
+ */
 public class JobOutputFactory {
 
     public static List<JobOutput> getJobOutput( Config config,

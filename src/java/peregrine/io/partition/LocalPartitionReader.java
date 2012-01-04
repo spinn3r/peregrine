@@ -26,7 +26,7 @@ import peregrine.io.chunk.*;
 /**
  * Read data from a partition from local storage.
  */
-public class LocalPartitionReader implements ChunkReader {
+public class LocalPartitionReader implements ChunkReader, JobInput {
 
     private String path = null;
 

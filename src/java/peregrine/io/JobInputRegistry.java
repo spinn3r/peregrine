@@ -13,34 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
 */
-package peregrine.io.partition;
+package peregrine.io;
 
 import java.io.*;
+import java.util.*;
+import java.util.concurrent.*;
 
-import peregrine.*;
+import peregrine.config.*;
+import peregrine.io.partition.*;
+import peregrine.shuffle.sender.*;
 
 /**
- * Main PartitionWriter interface. 
+ * Keeps track of URI schemes and registered drivers.
+ * 
  */
-public interface PartitionWriter extends Closeable, Flushable {
+public class JobInputRegistry {
 
-    /**
-     * Write a key/value pair to the partition.
-     */
-    public void write( StructReader key, StructReader value ) throws IOException;
+    public static Map<String,InputDriver> registry = new ConcurrentHashMap();
+    
+    public static void register( String scheme, InputDriver driver ) {
+        registry.put( scheme, driver );
+    }
 
-    public void shutdown() throws IOException;
-
-    @Override
-    public void close() throws IOException;
-
-    /**
-     * Total lengh of this file (bytes written) to this partition writer..
-     */
-    public long length();
-
-    @Override
-    public String toString();
-
+    public static InputDriver getInputDriver( String scheme ) {
+        return registry.get( scheme );
+    }
+    
 }
-

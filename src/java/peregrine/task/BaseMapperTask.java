@@ -37,27 +37,32 @@ public abstract class BaseMapperTask extends BaseTask implements Callable {
     protected List<LocalPartitionReaderListener> listeners = new ArrayList();
 
     /**
-     * Construct a set of partition readers from the input.
+     * Construct a set of ChunkReaders (one per input source) for the given
+     * input.
      */
-    protected List<ChunkReader> getLocalPartitionReaders()
-        throws IOException {
+    protected List<ChunkReader> getJobInput() throws IOException {
 
         for( ShuffleJobOutput current : shuffleJobOutput ) {
             listeners.add( current );
         }
-        
-        List<ChunkReader> readers = new ArrayList();
 
         listeners.add( new FlushLocalPartitionReaderListener() );
         
+        List<ChunkReader> readers = new ArrayList();
+        
         for( InputReference ref : getInput().getReferences() ) {
 
-            if ( ref instanceof BroadcastInputReference )
+            if ( ref instanceof BroadcastInputReference ) {
+            	// right now we handle broadcast input differently.
                 continue;
+            }
             
-            FileInputReference file = (FileInputReference) ref;
-
-            readers.add( new LocalPartitionReader( config, partition, file.getPath(), listeners ) );
+            if ( ref instanceof FileInputReference ) {
+                FileInputReference file = (FileInputReference) ref;
+                readers.add( new LocalPartitionReader( config, partition, file.getPath(), listeners ) );
+            }
+            
+            throw new IOException( "Reference not supported: " + ref );
             
         }
 
@@ -77,7 +82,7 @@ public abstract class BaseMapperTask extends BaseTask implements Callable {
         public void onChunkEnd( ChunkReference ref ) {
 
             try {
-                new Flusher( jobOutput ).flush();
+                new Flusher( getJobOutput() ).flush();
             } catch ( IOException e ) {
                 throw new RuntimeException( e );
             }
