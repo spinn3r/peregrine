@@ -33,8 +33,13 @@ public final class ShuffleOutputReference implements OutputReference {
 
     @Override
     public String toString() {
-        return "shuffle:" + getName();
+        return String.format( "%s:%s", getScheme(), getName() );
     }
+    
+    @Override
+	public String getScheme() {
+    	return "shuffle";
+    }    
     
 }
     

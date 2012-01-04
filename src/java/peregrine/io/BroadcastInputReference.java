@@ -34,5 +34,10 @@ public final class BroadcastInputReference implements InputReference {
         return "broadcast:" + getName();
     }
 
+    @Override 
+    public String getScheme() {
+    	return "broadcast";
+    }
+    
 }
     

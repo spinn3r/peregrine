@@ -72,9 +72,7 @@ public class LocalPartitionReader extends BaseJobInput implements ChunkReader, J
 
         this.chunkRef = new ChunkReference( partition );
 
-        for( ChunkStreamListener listener : listeners ) {
-            addListener( listener );
-        }
+        addListeners( listeners );
         
     }
 

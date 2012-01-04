@@ -29,7 +29,12 @@ public final class BroadcastOutputReference implements OutputReference {
 
     @Override
     public String toString() {
-        return "broadcast:" + getName();
+        return String.format( "%s:%s", getScheme() , getName() );
+    }
+ 
+    @Override
+	public String getScheme() {
+    	return "broadcast";
     }
     
 }

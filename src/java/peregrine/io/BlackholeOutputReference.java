@@ -23,7 +23,12 @@ public final class BlackholeOutputReference implements OutputReference {
 
     @Override
     public String toString() {
-        return "blackhole:";
+        return getScheme() + ":";
+    }
+
+    @Override
+	public String getScheme() {
+    	return "blackhole";
     }
     
 }

@@ -35,5 +35,7 @@ public interface JobInput extends ChunkReader {
      */
     public void addListener( ChunkStreamListener listener );
 
+    public void addListeners( List<ChunkStreamListener> listeners );
+    
 }
 

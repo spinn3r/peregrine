@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
 */
-package peregrine.io;
+package peregrine.io.driver;
 
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.*;
 
 import peregrine.config.*;
+import peregrine.io.driver.*;
 import peregrine.io.partition.*;
 import peregrine.shuffle.sender.*;
 
@@ -27,15 +28,18 @@ import peregrine.shuffle.sender.*;
  * Keeps track of URI schemes and registered drivers.
  * 
  */
-public class JobInputRegistry {
+public class IODriverRegistry {
+	
+	//TODO: this should probably be moved to some sort of bootstrap for the 
+	//entire peregrine system so that we have no global state. 
 
-    public static Map<String,InputDriver> registry = new ConcurrentHashMap();
+    public static Map<String,IODriver> registry = new ConcurrentHashMap();
     
-    public static void register( String scheme, InputDriver driver ) {
+    public static void register( String scheme, IODriver driver ) {
         registry.put( scheme, driver );
     }
 
-    public static InputDriver getInputDriver( String scheme ) {
+    public static IODriver getInputDriver( String scheme ) {
         return registry.get( scheme );
     }
     

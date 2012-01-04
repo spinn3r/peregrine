@@ -36,5 +36,10 @@ public final class ShuffleInputReference implements InputReference {
         return "shuffle:" + getName();
     }
     
+    @Override 
+    public String getScheme() {
+    	return "shuffle";
+    }
+    
 }
     

@@ -40,8 +40,13 @@ public final class FileOutputReference implements OutputReference {
 
     @Override
     public String toString() {
-        return String.format( "file:%s:%s", getPath(), append );
+        return String.format( "%s:%s:%s", getScheme(), getPath(), append );
     }
 
+    @Override
+	public String getScheme() {
+    	return "file";
+    }    
+    
 }
     

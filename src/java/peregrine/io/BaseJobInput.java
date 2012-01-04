@@ -57,4 +57,12 @@ public abstract class BaseJobInput {
         listeners.add( listener );
     }
 
+    public void addListeners( List<ChunkStreamListener> listeners ) {
+
+        for( ChunkStreamListener listener : listeners ) {
+            addListener( listener );
+        }
+
+    }
+
 }

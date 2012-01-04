@@ -32,5 +32,10 @@ public final class FileInputReference implements InputReference {
         return "file:" + getPath();
     }
 
+    @Override 
+    public String getScheme() {
+    	return "file";
+    }
+    
 }
     
