@@ -17,6 +17,8 @@ package peregrine.io;
 
 import java.util.*;
 
+import peregrine.io.driver.*;
+
 /**
  * Represents job output and constructs references to said output so that we can 
  * pass these to the JobOutputFactory. 
@@ -36,31 +38,38 @@ public final class Output {
 
                 String[] split = path.split( ":" );
 
-                String type      = split[0];
+                String scheme      = split[0];
                 String arg       = null;
 
                 if ( split.length >= 2 )
                     arg = split[1];
 
-                if ( "broadcast".equals( type ) )
+                if ( "broadcast".equals( scheme ) )
                     add( new BroadcastOutputReference( arg ) );
 
-                if ( "file".equals( type ) ) {
+                if ( "file".equals( scheme ) ) {
                     boolean append = split[2].equals( "true" );
                     add( new FileOutputReference( arg, append ) );
                 }
 
-                if ( "shuffle".equals( type ) )
+                if ( "shuffle".equals( scheme ) )
                     add( new ShuffleOutputReference( arg ) );
 
-               if ( "blackhole".equals( type ) )
+               if ( "blackhole".equals( scheme ) )
                     add( new BlackholeOutputReference() );
+
+                IODriver driver = IODriverRegistry.getInstance( scheme );
+                
+                // see if it is registered as a driver.
+                if ( driver != null ) {
+                    add( driver.getOutputReference( path ) );
+                }
 
             } else {
                 add( new FileOutputReference( path ) );
             }
-
-        }
+                
+            }
 
     }
     

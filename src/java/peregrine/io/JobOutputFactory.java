@@ -19,9 +19,9 @@ import java.io.*;
 import java.util.*;
 
 import peregrine.config.*;
+import peregrine.io.driver.*;
 import peregrine.io.partition.*;
 import peregrine.shuffle.sender.*;
-
 
 /**
  * Factory for obtaining job output from a given Output definition.  
@@ -62,7 +62,17 @@ public class JobOutputFactory {
                 result.add( new BlackholeJobOutput() );
 
             } else {
+
+                IODriver driver = IODriverRegistry.getInstance( ref.getScheme() );
+                
+                // see if it is registered as a driver.
+                if ( driver != null ) {
+                    result.add( driver.getJobOutput( config, partition ) );
+                    continue;
+                }
+
                 throw new IOException( "ref not supported: " + ref.getClass().getName() );
+
             }
 
         }

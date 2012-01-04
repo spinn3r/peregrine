@@ -117,6 +117,7 @@ class ExampleJobOutput implements JobOutput {
 
 	@Override
 	public void flush() throws IOException {
+        
 	}
 
 	@Override
