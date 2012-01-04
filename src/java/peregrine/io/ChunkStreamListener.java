@@ -27,6 +27,9 @@ public interface ChunkStreamListener {
      */
     public void onChunk( ChunkReference ref );
 
+    /**
+     * Called when a chunk is finished being read.
+     */
     public void onChunkEnd( ChunkReference ref );
 
 }

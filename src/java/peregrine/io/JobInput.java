@@ -29,5 +29,11 @@ import peregrine.shuffle.sender.*;
  */
 public interface JobInput extends ChunkReader {
 
+    /**
+     * Add a listener so that we can can see which chunks are being read as 
+     * they are open and closed.
+     */
+    public void addListener( ChunkStreamListener listener );
+
 }
 

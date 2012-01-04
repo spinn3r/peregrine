@@ -27,7 +27,7 @@ import peregrine.io.chunk.*;
 /**
  * Read data from a partition from local storage.
  */
-public class LocalPartitionReader implements ChunkReader, JobInput {
+public class LocalPartitionReader extends BaseJobInput implements ChunkReader, JobInput {
 
     private String path = null;
 
@@ -36,10 +36,6 @@ public class LocalPartitionReader implements ChunkReader, JobInput {
     private Iterator<DefaultChunkReader> iterator = null;
 
     private DefaultChunkReader chunkReader = null;
-
-    private List<ChunkStreamListener> listeners = new ArrayList();
-
-    private ChunkReference chunkRef = null;
 
     private boolean hasNext = false;
 
@@ -60,7 +56,7 @@ public class LocalPartitionReader implements ChunkReader, JobInput {
 
         this( config, partition, path, new ArrayList() );
 
-        listeners.add( listener );
+        addListener( listener );
         
     }
     
@@ -72,11 +68,14 @@ public class LocalPartitionReader implements ChunkReader, JobInput {
         this.partition = partition;
         this.chunkReaders = LocalPartition.getChunkReaders( config, partition, path );
         this.iterator = chunkReaders.iterator();
-        this.listeners = listeners;
         this.path = path;
 
         this.chunkRef = new ChunkReference( partition );
 
+        for( ChunkStreamListener listener : listeners ) {
+            addListener( listener );
+        }
+        
     }
 
     public List<DefaultChunkReader> getDefaultChunkReaders() {
@@ -116,26 +115,6 @@ public class LocalPartitionReader implements ChunkReader, JobInput {
         
     }
 
-    private void fireOnChunk() {
-
-        for( ChunkStreamListener listener : listeners ) {
-            listener.onChunk( chunkRef );
-        }
-        
-    }
-    
-    private void fireOnChunkEnd() {
-
-        if ( chunkRef != null && chunkRef.local >= 0 ) {
-
-            for( ChunkStreamListener listener : listeners ) {
-                listener.onChunkEnd( chunkRef );
-            }
-
-        }
-
-    }
-
     @Override
     public StructReader key() throws IOException {
         return chunkReader.key();
@@ -159,10 +138,6 @@ public class LocalPartitionReader implements ChunkReader, JobInput {
     @Override
     public String toString() {
         return String.format( "%s (%s):%s", path, partition, chunkReaders );
-    }
-
-    public void addListener( ChunkStreamListener listener ) {
-        listeners.add( listener );
     }
 
 }
