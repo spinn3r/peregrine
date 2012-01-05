@@ -41,6 +41,8 @@ public class LocalPartitionReader extends BaseJobInput implements ChunkReader, J
 
     private Partition partition;
     
+    private ChunkReference chunkRef;
+    
     public LocalPartitionReader( Config config,
                                  Partition partition,
                                  String path ) throws IOException {
@@ -88,7 +90,7 @@ public class LocalPartitionReader extends BaseJobInput implements ChunkReader, J
 
         if ( hasNext == false ) {
 
-            fireOnChunkEnd();
+            fireOnChunkEnd( chunkRef );
             
             if ( iterator.hasNext() ) {
 
@@ -99,7 +101,7 @@ public class LocalPartitionReader extends BaseJobInput implements ChunkReader, J
                 
                 chunkReader = iterator.next();
 
-                fireOnChunk();
+                fireOnChunk( chunkRef );
                 
                 hasNext = chunkReader.hasNext();
 
@@ -128,7 +130,7 @@ public class LocalPartitionReader extends BaseJobInput implements ChunkReader, J
 
         if ( chunkReader != null ) {
             chunkReader.close();
-            fireOnChunkEnd();
+            fireOnChunkEnd( chunkRef );
         }
 
     }

@@ -31,9 +31,7 @@ public abstract class BaseJobInput {
 
     private List<ChunkStreamListener> listeners = new ArrayList();
 
-    protected ChunkReference chunkRef = null;
-
-    protected void fireOnChunk() {
+    protected void fireOnChunk( ChunkReference chunkRef ) {
 
         for( ChunkStreamListener listener : listeners ) {
             listener.onChunk( chunkRef );
@@ -41,7 +39,7 @@ public abstract class BaseJobInput {
         
     }
     
-    protected void fireOnChunkEnd() {
+    protected void fireOnChunkEnd( ChunkReference chunkRef ) {
 
         if ( chunkRef != null && chunkRef.local >= 0 ) {
 

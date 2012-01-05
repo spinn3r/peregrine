@@ -68,6 +68,8 @@ class ExampleJobInput extends BaseJobInput implements JobInput {
 
     private boolean fired = false;
     
+    private ChunkReference chunkRef;
+    
 	public ExampleJobInput( Partition partition ) {
 
         // stick in example data.
@@ -91,7 +93,7 @@ class ExampleJobInput extends BaseJobInput implements JobInput {
 
         if ( fired == false ) {
             chunkRef.incr();
-            fireOnChunk();
+            fireOnChunk( chunkRef );
             fired = true;
         }
 
@@ -108,7 +110,7 @@ class ExampleJobInput extends BaseJobInput implements JobInput {
 
 	@Override
 	public void close() throws IOException {
-        fireOnChunkEnd();
+        fireOnChunkEnd( chunkRef );
 	}
 	
 }
