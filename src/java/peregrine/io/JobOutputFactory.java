@@ -20,6 +20,7 @@ import java.util.*;
 
 import peregrine.config.*;
 import peregrine.io.driver.*;
+import peregrine.io.driver.blackhole.*;
 import peregrine.io.partition.*;
 import peregrine.shuffle.sender.*;
 
@@ -56,10 +57,6 @@ public class JobOutputFactory {
                 ShuffleOutputReference sref = (ShuffleOutputReference) ref;
                 
                 result.add( new ShuffleJobOutput( config, sref.getName(), partition ) );
-
-            } else if ( ref instanceof BlackholeOutputReference ) {
-
-                result.add( new BlackholeJobOutput() );
 
             } else {
 

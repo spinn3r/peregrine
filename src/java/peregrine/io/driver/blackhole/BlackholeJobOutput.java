@@ -13,23 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
 */
-package peregrine.io;
+package peregrine.io.driver.blackhole;
+
+import java.io.*;
+
+import peregrine.*;
+import peregrine.io.*;
+import peregrine.io.driver.blackhole.*;
 
 /**
- * Send output to nothing (AKA a blackhole).  Data goes in but it doesn't come
- * out.  This is like /dev/null on Unix/Linux.
+ * @see BlackholeOutputReference
  */
-public final class BlackholeOutputReference implements OutputReference {
+public class BlackholeJobOutput implements JobOutput {
 
     @Override
-    public String toString() {
-        return getScheme() + ":";
+    public void emit( StructReader key , StructReader value ) {
+        //noop
     }
 
     @Override
-	public String getScheme() {
-    	return "blackhole";
+    public void flush() throws IOException {
+        //noop
+    }
+
+    @Override
+    public void close() throws IOException {
+        //noop
     }
     
 }
-    

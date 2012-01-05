@@ -22,10 +22,10 @@ import peregrine.util.primitive.*;
 import peregrine.os.*;
 
 /**
- * API for dealing with complex data structures as byte array.  All main byte
- * manipulation in peregrine is centered around StructReader and StructWriter.
- * A sibling class StructReaders provides API around easily accessing
- * primitives.
+ * API for dealing with complex data structures as high level types.  All main
+ * byte manipulation in peregrine is centered around StructReader and
+ * StructWriter.  A sibling class {@link StructReaders} provides API around easily
+ * accessing primitives.
  * 
  * @see StructWriter
  * @see StructReaders
