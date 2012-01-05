@@ -19,7 +19,8 @@ import java.util.*;
 import peregrine.io.driver.*;
 
 /**
- * Represents input to the peregrine IO system. 
+ * Represents input to the peregrine IO system.  Note that having <b>no</b>
+ * input is acceptable as this is a valid way to write nothing to a file.
  *
  */
 public final class Input {
@@ -64,9 +65,6 @@ public final class Input {
             }
 
         }
-        
-        if( references.size() == 0 )
-            throw new IllegalArgumentException( "No input found for: " + paths );
         
     }
     
