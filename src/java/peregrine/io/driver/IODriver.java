@@ -13,30 +13,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
 */
-package peregrine.shuffle.sender;
+package peregrine.io.driver;
 
 import java.io.*;
+import java.util.*;
 import java.util.concurrent.*;
 
-import peregrine.*;
 import peregrine.config.*;
 import peregrine.io.*;
-import peregrine.io.partition.*;
-import peregrine.util.*;
 import peregrine.io.chunk.*;
-import com.spinn3r.log5j.Logger;
+import peregrine.io.partition.*;
+import peregrine.shuffle.sender.*;
 
-public interface ShuffleJobOutputDelegate
-    extends JobOutput, ChunkStreamListener, Closeable, Flushable {
+/**
+ * Represents a way to add new input drivers to peregrine.
+ */
+public interface IODriver {
 
-    public void emit( int to_partition, StructReader key , StructReader value );
+    /**
+     * Get the URI scheme for this driver.  For example 'http' , 'file', 
+     * 'mysql', 'cassandra', etc.
+     */
+    public String getScheme();
+    
+    public InputReference getInputReference( String uri );
 
-    public long length();
+    public JobInput getJobInput( Config config , Partition partition ) throws IOException;
 
-    @Override
-    public void flush() throws IOException;
+    public OutputReference getOutputReference( String uri );
 
-    @Override
-    public void close() throws IOException;
+    public JobOutput getJobOutput( Config config, Partition partition ) throws IOException;
     
 }

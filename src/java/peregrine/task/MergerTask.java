@@ -36,7 +36,7 @@ public class MergerTask extends BaseMapperTask {
 
         listeners.add( new MergerLocalPartitionListener() );
         
-        List<ChunkReader> readers = getLocalPartitionReaders();
+        List<ChunkReader> readers = getJobInput();
 
         MergeRunner localMerger = new MergeRunner( readers );
 
@@ -62,7 +62,7 @@ public class MergerTask extends BaseMapperTask {
      * chunks will be used to we need to keep track of which ones we're running
      * over.
      */
-    class MergerLocalPartitionListener implements LocalPartitionReaderListener {
+    class MergerLocalPartitionListener implements ChunkStreamListener {
 
     	@Override
     	public void onChunk( ChunkReference ref ) {

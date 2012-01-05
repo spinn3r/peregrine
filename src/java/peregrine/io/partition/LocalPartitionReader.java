@@ -21,12 +21,13 @@ import java.util.*;
 
 import peregrine.*;
 import peregrine.config.*;
+import peregrine.io.*;
 import peregrine.io.chunk.*;
 
 /**
  * Read data from a partition from local storage.
  */
-public class LocalPartitionReader implements ChunkReader {
+public class LocalPartitionReader extends BaseJobInput implements ChunkReader, JobInput {
 
     private String path = null;
 
@@ -36,13 +37,11 @@ public class LocalPartitionReader implements ChunkReader {
 
     private DefaultChunkReader chunkReader = null;
 
-    private List<LocalPartitionReaderListener> listeners = new ArrayList();
-
-    private ChunkReference chunkRef = null;
-
     private boolean hasNext = false;
 
     private Partition partition;
+    
+    private ChunkReference chunkRef;
     
     public LocalPartitionReader( Config config,
                                  Partition partition,
@@ -55,27 +54,28 @@ public class LocalPartitionReader implements ChunkReader {
     public LocalPartitionReader( Config config,
                                  Partition partition,
                                  String path,
-                                 LocalPartitionReaderListener listener ) throws IOException {
+                                 ChunkStreamListener listener ) throws IOException {
 
         this( config, partition, path, new ArrayList() );
 
-        listeners.add( listener );
+        addListener( listener );
         
     }
     
     public LocalPartitionReader( Config config,
                                  Partition partition,
                                  String path,
-                                 List<LocalPartitionReaderListener> listeners ) throws IOException {
+                                 List<ChunkStreamListener> listeners ) throws IOException {
 
         this.partition = partition;
         this.chunkReaders = LocalPartition.getChunkReaders( config, partition, path );
         this.iterator = chunkReaders.iterator();
-        this.listeners = listeners;
         this.path = path;
 
         this.chunkRef = new ChunkReference( partition );
 
+        addListeners( listeners );
+        
     }
 
     public List<DefaultChunkReader> getDefaultChunkReaders() {
@@ -90,7 +90,7 @@ public class LocalPartitionReader implements ChunkReader {
 
         if ( hasNext == false ) {
 
-            fireOnChunkEnd();
+            fireOnChunkEnd( chunkRef );
             
             if ( iterator.hasNext() ) {
 
@@ -101,7 +101,7 @@ public class LocalPartitionReader implements ChunkReader {
                 
                 chunkReader = iterator.next();
 
-                fireOnChunk();
+                fireOnChunk( chunkRef );
                 
                 hasNext = chunkReader.hasNext();
 
@@ -113,26 +113,6 @@ public class LocalPartitionReader implements ChunkReader {
 
         return hasNext;
         
-    }
-
-    private void fireOnChunk() {
-
-        for( LocalPartitionReaderListener listener : listeners ) {
-            listener.onChunk( chunkRef );
-        }
-        
-    }
-    
-    private void fireOnChunkEnd() {
-
-        if ( chunkRef != null && chunkRef.local >= 0 ) {
-
-            for( LocalPartitionReaderListener listener : listeners ) {
-                listener.onChunkEnd( chunkRef );
-            }
-
-        }
-
     }
 
     @Override
@@ -150,7 +130,7 @@ public class LocalPartitionReader implements ChunkReader {
 
         if ( chunkReader != null ) {
             chunkReader.close();
-            fireOnChunkEnd();
+            fireOnChunkEnd( chunkRef );
         }
 
     }
@@ -158,10 +138,6 @@ public class LocalPartitionReader implements ChunkReader {
     @Override
     public String toString() {
         return String.format( "%s (%s):%s", path, partition, chunkReaders );
-    }
-
-    public void addListener( LocalPartitionReaderListener listener ) {
-        listeners.add( listener );
     }
 
 }

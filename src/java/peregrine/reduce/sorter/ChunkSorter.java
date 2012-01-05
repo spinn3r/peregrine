@@ -84,8 +84,6 @@ public class ChunkSorter extends BaseChunkSorter {
             
             while( lookup.hasNext() ) {
 
-                // TODO: move this to use transferTo ... 
-
                 lookup.next();
 
                 KeyEntry current = lookup.get();

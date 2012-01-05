@@ -15,27 +15,27 @@
 */
 package peregrine.io;
 
-public final class BroadcastOutputReference implements OutputReference {
+import java.io.*;
+import java.util.*;
+import java.util.concurrent.*;
 
-    private String name;
-    
-    public BroadcastOutputReference( String name ) {
-        this.name = name;
-    }
+import peregrine.config.*;
+import peregrine.io.chunk.*;
+import peregrine.io.partition.*;
+import peregrine.shuffle.sender.*;
 
-    public String getName() {
-        return name;
-    }
+/**
+ * Input for a job which provides a set of key/value pairs.
+ */
+public interface JobInput extends ChunkReader {
 
-    @Override
-    public String toString() {
-        return String.format( "%s:%s", getScheme() , getName() );
-    }
- 
-    @Override
-	public String getScheme() {
-    	return "broadcast";
-    }
+    /**
+     * Add a listener so that we can can see which chunks are being read as 
+     * they are open and closed.
+     */
+    public void addListener( ChunkStreamListener listener );
+
+    public void addListeners( List<ChunkStreamListener> listeners );
     
 }
-    
+

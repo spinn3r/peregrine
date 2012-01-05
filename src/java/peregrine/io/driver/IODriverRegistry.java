@@ -13,30 +13,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
 */
-package peregrine.shuffle.sender;
+package peregrine.io.driver;
 
 import java.io.*;
+import java.util.*;
 import java.util.concurrent.*;
 
-import peregrine.*;
 import peregrine.config.*;
-import peregrine.io.*;
+import peregrine.io.driver.*;
 import peregrine.io.partition.*;
-import peregrine.util.*;
-import peregrine.io.chunk.*;
-import com.spinn3r.log5j.Logger;
+import peregrine.shuffle.sender.*;
 
-public interface ShuffleJobOutputDelegate
-    extends JobOutput, ChunkStreamListener, Closeable, Flushable {
+/**
+ * Keeps track of URI schemes and registered drivers.
+ * 
+ */
+public class IODriverRegistry {
+	
+	//TODO: this should probably be moved to some sort of bootstrap for the 
+	//entire peregrine system so that we have no global state. 
 
-    public void emit( int to_partition, StructReader key , StructReader value );
-
-    public long length();
-
-    @Override
-    public void flush() throws IOException;
-
-    @Override
-    public void close() throws IOException;
+    public static Map<String,IODriver> registry = new ConcurrentHashMap();
     
+    public static void register( IODriver driver ) {
+        registry.put( driver.getScheme(), driver );
+    }
+
+    public static IODriver getInstance( String scheme ) {
+        return registry.get( scheme );
+    }
+
 }

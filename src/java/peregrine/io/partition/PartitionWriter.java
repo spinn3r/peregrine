@@ -24,10 +24,14 @@ import peregrine.*;
  */
 public interface PartitionWriter extends Closeable, Flushable {
 
+    /**
+     * Write a key/value pair to the partition.
+     */
     public void write( StructReader key, StructReader value ) throws IOException;
 
     public void shutdown() throws IOException;
 
+    @Override
     public void close() throws IOException;
 
     /**
@@ -35,6 +39,7 @@ public interface PartitionWriter extends Closeable, Flushable {
      */
     public long length();
 
+    @Override
     public String toString();
 
 }

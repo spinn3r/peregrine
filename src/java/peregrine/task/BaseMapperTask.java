@@ -24,6 +24,7 @@ import peregrine.config.Membership;
 import peregrine.config.Partition;
 import peregrine.io.*;
 import peregrine.io.chunk.*;
+import peregrine.io.driver.*;
 import peregrine.io.partition.*;
 import peregrine.io.util.*;
 import peregrine.map.*;
@@ -34,30 +35,48 @@ public abstract class BaseMapperTask extends BaseTask implements Callable {
     /**
      * This tasks partition listeners.
      */
-    protected List<LocalPartitionReaderListener> listeners = new ArrayList();
+    protected List<ChunkStreamListener> listeners = new ArrayList();
 
     /**
-     * Construct a set of partition readers from the input.
+     * Construct a set of ChunkReaders (one per input source) for the given
+     * input.
      */
-    protected List<ChunkReader> getLocalPartitionReaders()
-        throws IOException {
+    protected List<ChunkReader> getJobInput() throws IOException {
 
         for( ShuffleJobOutput current : shuffleJobOutput ) {
             listeners.add( current );
         }
-        
-        List<ChunkReader> readers = new ArrayList();
 
         listeners.add( new FlushLocalPartitionReaderListener() );
         
+        List<ChunkReader> readers = new ArrayList();
+        
         for( InputReference ref : getInput().getReferences() ) {
 
-            if ( ref instanceof BroadcastInputReference )
+            if ( ref instanceof BroadcastInputReference ) {
+            	// right now we handle broadcast input differently.
                 continue;
+            }
             
-            FileInputReference file = (FileInputReference) ref;
+            if ( ref instanceof FileInputReference ) {
+                FileInputReference file = (FileInputReference) ref;
+                readers.add( new LocalPartitionReader( config, partition, file.getPath(), listeners ) );
+                continue;
+            }
 
-            readers.add( new LocalPartitionReader( config, partition, file.getPath(), listeners ) );
+            IODriver driver = IODriverRegistry.getInstance( ref.getScheme() );
+            
+            // see if it is registered as a driver.
+            if ( driver != null ) {
+
+                JobInput ji = driver.getJobInput( config, partition );
+                ji.addListeners( listeners );
+                
+                readers.add( ji );
+                continue;
+            }
+
+            throw new IOException( "Reference not supported: " + ref );
             
         }
 
@@ -70,14 +89,14 @@ public abstract class BaseMapperTask extends BaseTask implements Callable {
      * flush per every 100MB or so and isn't the end of the world.
      * 
      */
-    class FlushLocalPartitionReaderListener implements LocalPartitionReaderListener{
+    class FlushLocalPartitionReaderListener implements ChunkStreamListener{
 
         public void onChunk( ChunkReference ref ) { }
         
         public void onChunkEnd( ChunkReference ref ) {
 
             try {
-                new Flusher( jobOutput ).flush();
+                new Flusher( getJobOutput() ).flush();
             } catch ( IOException e ) {
                 throw new RuntimeException( e );
             }

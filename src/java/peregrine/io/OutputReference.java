@@ -17,5 +17,7 @@ package peregrine.io;
 
 public interface OutputReference {
 
+	public String getScheme();	
+	
 }
     

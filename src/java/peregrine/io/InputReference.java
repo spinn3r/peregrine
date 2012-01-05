@@ -17,5 +17,7 @@ package peregrine.io;
 
 public interface InputReference {
 
+	public String getScheme();	
+	
 }
     
