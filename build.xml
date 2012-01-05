@@ -8,7 +8,7 @@
 
     <property name="project" value="peregrine"/>
     <property name="javadocdir" value="target/javadoc"/>
-    <property name="version" value="0.5.0"/>
+    <property name="version" value="0.5.1"/>
 
     <path id="project.classpath">
 
