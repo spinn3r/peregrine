@@ -72,7 +72,8 @@ public class ReducerTask extends BaseTask implements Callable {
         File shuffle_dir_file = new File( shuffle_dir );
 
         if ( ! shuffle_dir_file.exists() ) {
-            throw new IOException( "Shuffle output does not exist: " + shuffleInput.getName() );
+            throw new IOException( String.format( "Shuffle output for %s does not exist at %s",
+                                                  shuffleInput.getName(), shuffle_dir ) );
         }
 
         File[] shuffles = shuffle_dir_file.listFiles();

@@ -43,7 +43,9 @@ public class Pagerank {
             // 'path' and then wrote to node_indegree and graph_by_source at the
             // same time.
             
-            controller.map( NodeIndegreeJob.Map.class, path );
+            controller.map( NodeIndegreeJob.Map.class,
+                            new Input( path ),
+                            new Output( "shuffle:default" ) );
 
             controller.reduce( NodeIndegreeJob.Reduce.class,
                                new Input( "shuffle:default" ),
@@ -51,7 +53,9 @@ public class Pagerank {
 
             // sort the graph by source since we aren't gauranteed to have have
             // the keys in the right order.
-            controller.map( Mapper.class, path );
+            controller.map( Mapper.class,
+                            new Input( path ),
+                            new Output( "shuffle:default" ) );
             
             controller.reduce( Reducer.class,
                                new Input( "shuffle:default" ),

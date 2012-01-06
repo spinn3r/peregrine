@@ -118,8 +118,13 @@ public class TestNewReduceCode extends peregrine.BaseTestWithMultipleConfigs {
         Controller controller = new Controller( config );
 
         try {
-            controller.map( Map.class, path );
-            controller.reduce( Reduce.class, new Input(), new Output( output ) );
+            controller.map( Map.class,
+                            new Input( path ),
+                            new Output( "shuffle:default" ) );
+            
+            controller.reduce( Reduce.class,
+                               new Input( "shuffle:default" ),
+                               new Output( output ) );
         } finally {
             controller.shutdown();
         }

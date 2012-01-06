@@ -73,11 +73,11 @@ public class MapperRPCDelegate extends RPCDelegate<FSDaemon> {
         throws Exception {
 
         MapperTask task = new MapperTask();
-        
-        task.init( config, partition, delegate );
-        
+
         task.setInput( input );
         task.setOutput( output );
+
+        task.init( config, partition, delegate );
 
         log.info( "Running delegate %s with input %s and output %s", delegate.getName(), input, output );
 

@@ -78,12 +78,16 @@ public class TestLocalReducerPerformance extends peregrine.BaseTestWithMultipleC
 
         try {
 
-            controller.map( peregrine.Mapper.class, path );
+            controller.map( peregrine.Mapper.class,
+                            new Input( path ),
+                            new Output( "shuffle:default" ) );
 
             // drop caches here so that I can benchmark raw IO
             Linux.dropCaches();
             
-            controller.reduce( peregrine.Reducer.class, new Input(), new Output( "blackhole:" ) );
+            controller.reduce( peregrine.Reducer.class,
+                               new Input( "shuffle:default" ),
+                               new Output( "blackhole:" ) );
             
         } finally {
             controller.shutdown();
