@@ -39,6 +39,36 @@ public abstract class BaseMapperTask extends BaseTask implements Callable {
     protected List<ChunkStreamListener> listeners = new ArrayList();
 
     /**
+     * Run init just on Mapper and Merger tasks.
+     */
+    public void init( Config config, Partition partition, Class delegate ) {
+
+        super.init( config, partition, delegate );
+
+        // make all shuffle dirs for the shuffle output paths to make sure we
+        // have an empty set input for the shuffle data as opposed to missing
+        // data which means we tried to read from something that didn't exist
+        for( OutputReference ref : output.getReferences() ) {
+
+            if ( ref instanceof ShuffleOutputReference ) {
+
+                ShuffleOutputReference shuffleOutput = (ShuffleOutputReference)ref;
+
+                String shuffle_dir = config.getShuffleDir( shuffleOutput.getName() );
+
+                File dir = new File( shuffle_dir );
+
+                if ( ! dir.exists() ) {
+                    dir.mkdirs();
+                }
+                
+            }
+
+        }
+
+    }
+
+    /**
      * Construct a set of ChunkReaders (one per input source) for the given
      * input.
      */

@@ -45,11 +45,11 @@ public class MergerRPCDelegate extends MapperRPCDelegate {
 
         MergerTask task = new MergerTask();
 
-        task.init( config, partition, delegate );
-
         task.setInput( input );
         task.setOutput( output );
-        
+
+        task.init( config, partition, delegate );
+
         daemon.getExecutorService( getClass() ).submit( task );
 
     }

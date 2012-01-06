@@ -29,6 +29,9 @@ import peregrine.task.*;
 
 import com.spinn3r.log5j.*;
 
+/**
+ * Generic code shared across all tasks.
+ */
 public abstract class BaseTask {
 
     private static final Logger log = Logger.getLogger();
@@ -117,21 +120,10 @@ public abstract class BaseTask {
     public void setup() throws Exception {
 
         jobDelegate = (JobDelegate)delegate.newInstance();
-    	
-    	if ( jobDelegate instanceof Mapper ||
-             jobDelegate instanceof Reducer ) {
-    		
-    		if ( output == null || output.size() == 0 ) {
-    			
-    			if ( output == null )
-    				output = new Output();
-    			
-    			output.add( new ShuffleOutputReference() );
-    			
-    		}
-    		
-    
-    	}
+    	    		
+        if ( output == null || output.size() == 0 ) {
+            throw new Exception( "No output specified. " );
+        }
     	
         this.jobOutput = JobOutputFactory.getJobOutput( config, partition, output );
        
