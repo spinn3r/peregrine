@@ -13,7 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
 */
-package peregrine.io;
+package peregrine.io.driver.shuffle;
+
+import peregrine.io.*;
 
 public final class ShuffleInputReference implements InputReference {
 

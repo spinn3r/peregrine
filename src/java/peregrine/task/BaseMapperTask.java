@@ -25,6 +25,7 @@ import peregrine.config.Partition;
 import peregrine.io.*;
 import peregrine.io.chunk.*;
 import peregrine.io.driver.*;
+import peregrine.io.driver.shuffle.*;
 import peregrine.io.partition.*;
 import peregrine.io.util.*;
 import peregrine.map.*;
@@ -69,7 +70,7 @@ public abstract class BaseMapperTask extends BaseTask implements Callable {
             // see if it is registered as a driver.
             if ( driver != null ) {
 
-                JobInput ji = driver.getJobInput( config, partition );
+                JobInput ji = driver.getJobInput( null, config, partition );
                 ji.addListeners( listeners );
                 
                 readers.add( ji );

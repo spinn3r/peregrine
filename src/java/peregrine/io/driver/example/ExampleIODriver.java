@@ -37,7 +37,7 @@ public class ExampleIODriver implements IODriver {
 	}
 
 	@Override
-	public JobInput getJobInput( Config config, Partition partition ) throws IOException {		
+	public JobInput getJobInput( InputReference inputReference, Config config, Partition partition ) throws IOException {		
 	    return new ExampleJobInput( partition );
 	}
 
@@ -47,7 +47,7 @@ public class ExampleIODriver implements IODriver {
 	}
 
 	@Override
-	public JobOutput getJobOutput( Config config, Partition partition ) throws IOException {
+	public JobOutput getJobOutput( OutputReference outputReference, Config config, Partition partition ) throws IOException {
 		return new ExampleJobOutput();
 	}
 

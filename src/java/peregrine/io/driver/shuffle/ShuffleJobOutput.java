@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
 */
-package peregrine.shuffle.sender;
+package peregrine.io.driver.shuffle;
 
 import java.io.*;
 import java.util.concurrent.*;
@@ -47,9 +47,13 @@ public class ShuffleJobOutput
     public ShuffleJobOutput( Config config, Partition partition ) {
         this( config, "default", partition );
     }
-        
-    public ShuffleJobOutput( Config config, String name, Partition partition ) {
 
+    public ShuffleJobOutput( Config config, ShuffleOutputReference outputReference, Partition partition ) {
+    	this(config, outputReference.getName(), partition );
+    }
+    
+    public ShuffleJobOutput( Config config, String name, Partition partition ) {
+    	
         this.config = config;
         this.name = name;
         this.partition = partition;

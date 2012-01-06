@@ -21,6 +21,7 @@ import java.util.*;
 import peregrine.config.*;
 import peregrine.io.driver.*;
 import peregrine.io.driver.blackhole.*;
+import peregrine.io.driver.shuffle.*;
 import peregrine.io.partition.*;
 import peregrine.shuffle.sender.*;
 
@@ -52,19 +53,13 @@ public class JobOutputFactory {
                 
                 result.add( new BroadcastJobOutput( config, bcast.getName(), partition ) );
 
-            } else if ( ref instanceof ShuffleOutputReference ) {
-
-                ShuffleOutputReference sref = (ShuffleOutputReference) ref;
-                
-                result.add( new ShuffleJobOutput( config, sref.getName(), partition ) );
-
             } else {
 
                 IODriver driver = IODriverRegistry.getInstance( ref.getScheme() );
                 
                 // see if it is registered as a driver.
                 if ( driver != null ) {
-                    result.add( driver.getJobOutput( config, partition ) );
+                    result.add( driver.getJobOutput( ref, config, partition ) );
                     continue;
                 }
 

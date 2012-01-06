@@ -20,6 +20,7 @@ import java.util.concurrent.*;
 import peregrine.config.Config;
 import peregrine.config.Partition;
 import peregrine.io.*;
+import peregrine.io.driver.shuffle.*;
 import peregrine.util.*;
 import peregrine.task.*;
 import peregrine.pfsd.*;

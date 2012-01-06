@@ -20,6 +20,8 @@ import java.util.*;
 import peregrine.config.Config;
 import peregrine.config.Partition;
 import peregrine.io.*;
+import peregrine.io.driver.shuffle.*;
+
 import org.jboss.netty.buffer.*;
 
 /**

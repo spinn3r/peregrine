@@ -23,6 +23,7 @@ import java.util.concurrent.atomic.*;
 import peregrine.*;
 import peregrine.config.*;
 import peregrine.io.*;
+import peregrine.io.driver.shuffle.*;
 import peregrine.map.*;
 import peregrine.reduce.*;
 import peregrine.sysstat.*;

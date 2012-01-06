@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
 */
-package peregrine.shuffle.sender;
+package peregrine.io.driver.shuffle;
 
 import java.io.*;
 import java.util.concurrent.*;
@@ -22,6 +22,7 @@ import peregrine.*;
 import peregrine.config.*;
 import peregrine.io.*;
 import peregrine.io.partition.*;
+import peregrine.shuffle.sender.*;
 import peregrine.util.*;
 import peregrine.io.chunk.*;
 import com.spinn3r.log5j.Logger;

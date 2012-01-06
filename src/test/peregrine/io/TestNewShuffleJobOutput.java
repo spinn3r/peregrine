@@ -19,6 +19,7 @@ import peregrine.*;
 import peregrine.config.Partition;
 import peregrine.controller.*;
 import peregrine.io.chunk.*;
+import peregrine.io.driver.shuffle.*;
 import peregrine.shuffle.sender.*;
 
 public class TestNewShuffleJobOutput extends peregrine.BaseTestWithTwoDaemons {

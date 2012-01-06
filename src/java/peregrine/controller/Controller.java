@@ -24,6 +24,7 @@ import peregrine.config.*;
 import peregrine.controller.*;
 import peregrine.http.*;
 import peregrine.io.*;
+import peregrine.io.driver.shuffle.*;
 import peregrine.rpc.*;
 import peregrine.task.*;
 

@@ -13,33 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
 */
-package peregrine.io;
+package peregrine.io.driver.shuffle;
 
-public final class ShuffleOutputReference implements OutputReference {
+import java.io.*;
+import java.util.concurrent.*;
 
-    private String name;
+import peregrine.config.*;
+import peregrine.io.*;
+import peregrine.io.partition.*;
+import peregrine.util.*;
+import peregrine.io.chunk.*;
+import com.spinn3r.log5j.Logger;
 
-    public ShuffleOutputReference() {
-        this( "default" );
-    }
-
-    public ShuffleOutputReference( String name ) {
-        this.name = name;
-    }
-
-    public String getName() {
-        return this.name;
-    }
+public abstract class ShuffleJobOutputBase implements ShuffleJobOutputDelegate {
+    
+    protected long length = 0;
 
     @Override
-    public String toString() {
-        return String.format( "%s:%s", getScheme(), getName() );
+    public long length() { 
+        return this.length;
     }
-    
-    @Override
-	public String getScheme() {
-    	return "shuffle";
-    }    
-    
+
 }
-    
+

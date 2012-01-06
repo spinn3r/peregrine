@@ -17,6 +17,7 @@ package peregrine.shuffle.sender;
 
 import peregrine.*;
 import peregrine.config.*;
+import peregrine.io.driver.shuffle.*;
 
 public class BroadcastJobOutput extends ShuffleJobOutput {
 

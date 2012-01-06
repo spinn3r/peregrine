@@ -17,6 +17,7 @@ package peregrine.io;
 
 import java.util.*;
 import peregrine.io.driver.*;
+import peregrine.io.driver.shuffle.*;
 
 /**
  * Represents input to the peregrine IO system.  Note that having <b>no</b>
@@ -37,21 +38,17 @@ public final class Input {
 
                 String[] split = path.split( ":" );
 
-                String scheme      = split[0];
-
-                String arg       = null;
+                String scheme   = split[0];
+                String arg      = null;
 
                 if ( split.length >= 2 )
-                    arg       = split[1];
+                    arg = split[1];
 
                 if ( "broadcast".equals( scheme ) )
                     add( new BroadcastInputReference( arg ) );
 
                 if ( "file".equals( scheme ) )
                     add( new FileInputReference( arg ) );
-
-                if ( "shuffle".equals( scheme ) )
-                    add( new ShuffleInputReference( arg ) );
 
                 IODriver driver = IODriverRegistry.getInstance( scheme );
                 

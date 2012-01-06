@@ -16,14 +16,10 @@
 package peregrine.io.driver;
 
 import java.io.*;
-import java.util.*;
-import java.util.concurrent.*;
 
 import peregrine.config.*;
 import peregrine.io.*;
-import peregrine.io.chunk.*;
-import peregrine.io.partition.*;
-import peregrine.shuffle.sender.*;
+
 
 /**
  * Represents a way to add new input drivers to peregrine.
@@ -38,10 +34,10 @@ public interface IODriver {
     
     public InputReference getInputReference( String uri );
 
-    public JobInput getJobInput( Config config , Partition partition ) throws IOException;
+    public JobInput getJobInput( InputReference inputReference , Config config, Partition partition ) throws IOException;
 
     public OutputReference getOutputReference( String uri );
 
-    public JobOutput getJobOutput( Config config, Partition partition ) throws IOException;
+    public JobOutput getJobOutput( OutputReference outputReference, Config config, Partition partition ) throws IOException;
     
 }

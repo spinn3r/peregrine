@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
 */
-package peregrine.io.driver.blackhole;
+package peregrine.io.driver.shuffle;
 
 import java.io.*;
 import java.util.*;
+import java.net.*;
 
 import peregrine.*;
 import peregrine.config.*;
@@ -24,31 +25,35 @@ import peregrine.io.*;
 import peregrine.io.chunk.*;
 import peregrine.io.driver.*;
 
-public class BlackholeIODriver implements IODriver {
+public class ShuffleIODriver implements IODriver {
 
 	@Override
 	public String getScheme() {
-		return "blackhole";
+		return "shuffle";
 	}
 
 	@Override
-	public InputReference getInputReference(String uri) {
-		throw new RuntimeException( "Not supported for input." );
+	public InputReference getInputReference( String uri ) {
+		return new ShuffleInputReference( getSchemeSpecificPart( uri ) );
 	}
 
 	@Override
 	public JobInput getJobInput( InputReference inputReference, Config config, Partition partition ) throws IOException {		
-		throw new IOException( "Not supported for input." );
+	    throw new IOException( "not implemented" );
 	}
 
 	@Override
 	public OutputReference getOutputReference(String uri) {
-		return new BlackholeOutputReference();
+		return new ShuffleOutputReference( getSchemeSpecificPart( uri ) );
 	}
 
+    private String getSchemeSpecificPart( String uri ) {
+        return uri.replaceAll( getScheme() + ":", "" );
+    }
+    
 	@Override
 	public JobOutput getJobOutput( OutputReference outputReference, Config config, Partition partition ) throws IOException {
-		return new BlackholeJobOutput();
+        return new ShuffleJobOutput( config, (ShuffleOutputReference)outputReference, partition );
 	}
 
 	@Override

@@ -21,6 +21,7 @@ import java.util.*;
 import peregrine.config.*;
 import peregrine.io.*;
 import peregrine.io.chunk.*;
+import peregrine.io.driver.shuffle.*;
 import peregrine.io.partition.*;
 import peregrine.io.util.*;
 import peregrine.reduce.sorter.*;

@@ -21,6 +21,7 @@ import java.util.*;
 import peregrine.*;
 import peregrine.config.*;
 import peregrine.io.*;
+import peregrine.io.driver.shuffle.*;
 import peregrine.rpc.*;
 import peregrine.shuffle.sender.*;
 import peregrine.sysstat.*;

@@ -24,6 +24,7 @@ import peregrine.config.Partition;
 import peregrine.controller.*;
 import peregrine.io.*;
 import peregrine.io.chunk.*;
+import peregrine.io.driver.shuffle.*;
 import peregrine.shuffle.sender.*;
 import peregrine.reduce.sorter.*;
 

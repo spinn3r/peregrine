@@ -19,6 +19,7 @@ import java.util.*;
 
 import peregrine.io.driver.*;
 import peregrine.io.driver.blackhole.*;
+import peregrine.io.driver.shuffle.*;
 
 /**
  * Represents job output and constructs references to said output so that we can 
@@ -39,7 +40,7 @@ public final class Output {
 
                 String[] split = path.split( ":" );
 
-                String scheme      = split[0];
+                String scheme    = split[0];
                 String arg       = null;
                 
                 if ( split.length >= 2 )
@@ -52,10 +53,7 @@ public final class Output {
                     boolean append = split[2].equals( "true" );
                     add( new FileOutputReference( arg, append ) );
                 }
-                
-                if ( "shuffle".equals( scheme ) )
-                    add( new ShuffleOutputReference( arg ) );
-                                
+
                 IODriver driver = IODriverRegistry.getInstance( scheme );
                 
                 if ( driver != null )
