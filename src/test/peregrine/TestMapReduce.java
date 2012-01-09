@@ -213,11 +213,15 @@ public class TestMapReduce extends peregrine.BaseTestWithMultipleConfigs {
         Controller controller = new Controller( config );
 
         try {
-            controller.map( Map.class, path );
+            controller.map( Map.class,
+                            new Input( path ),
+                            new Output( "shuffle:default" ) );
 
             // make sure the shuffle output worked
             
-            controller.reduce( Reduce.class, new Input(), new Output( output ) );
+            controller.reduce( Reduce.class,
+                               new Input( "shuffle:default" ),
+                               new Output( output ) );
 
             System.gc();
 

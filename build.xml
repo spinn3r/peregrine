@@ -15,8 +15,11 @@
         <pathelement location="compile"/>
 
         <fileset dir="lib">
+
              <include name="*.jar"/>
              <include name="build/*.jar"/>
+             <include name="optional/**/*.jar"/>
+
         </fileset>
 
     </path>
@@ -66,10 +69,9 @@
         <delete dir="target"/>
 
         <delete>
-          <fileset dir="lib">
-            <include name="${project}*.jar"/>
-          </fileset>
-
+            <fileset dir="lib">
+                <include name="${project}*.jar"/>
+            </fileset>
         </delete>
 
     </target>

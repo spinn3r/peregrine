@@ -73,7 +73,11 @@ public class TestShuffleInputChunkReader extends peregrine.BaseTestWithMultipleD
         Controller controller = new Controller( config );
 
         try {
-            controller.map( Map.class, path );
+            
+            controller.map( Map.class,
+                            new Input( path ),
+                            new Output( "shuffle:default" ) );
+            
         } finally {
             controller.shutdown();
         }

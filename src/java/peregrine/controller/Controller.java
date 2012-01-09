@@ -189,10 +189,6 @@ public class Controller {
         if ( input == null )
             throw new Exception( "Input may not be null" );
         
-        if ( input.getReferences().size() == 0 ) {
-            input.add( new ShuffleInputReference() );
-        }
-
         if ( input.getReferences().size() < 1 ) {
             throw new IOException( "Reducer requires at least one shuffle input." );
         }

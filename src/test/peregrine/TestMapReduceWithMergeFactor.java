@@ -98,7 +98,9 @@ public class TestMapReduceWithMergeFactor extends peregrine.BaseTestWithMultiple
 
         try {
             
-            controller.map( Map.class, path );
+            controller.map( Map.class,
+                            new Input( path ),
+                            new Output( "shuffle:default" ) );
 
             int nr_shuffles = new File( "/tmp/peregrine-fs/localhost/11112/tmp/shuffle/default" ).list().length;
             
