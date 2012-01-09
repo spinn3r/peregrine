@@ -26,9 +26,13 @@ import org.junit.runner.notification.*;
 
 public abstract class BaseTest extends junit.framework.TestCase {
 
+    public static boolean REMOVE_BASEDIR = true;
+    
     public void setUp() {
 
-        remove( Config.DEFAULTS.getString( "basedir" ) );
+        if ( REMOVE_BASEDIR ) {
+            Files.remove( Config.DEFAULTS.getString( "basedir" ) );
+        }
 
         //org.apache.log4j.MDC.put( "server.hostname",    Initializer.HOSTNAME );
         
@@ -60,30 +64,6 @@ public abstract class BaseTest extends junit.framework.TestCase {
 
         return bos.toByteArray();
 
-    }
-
-    public static void remove( String path ) {
-        remove( new File( path ) );
-    }
-
-    public static void remove( File file ) {
-
-        if ( ! file.exists() )
-            return;
-
-        File[] files = file.listFiles();
-        
-        for ( File current : files ) {
-
-            if ( current.isDirectory() == false ) {
-                System.out.printf( "Deleting: %s\n", current.getPath() );
-                current.delete();
-            } else {
-                remove( current );
-            }
-            
-        }
-        
     }
 
     public static void copy( File source, File target ) throws IOException {
