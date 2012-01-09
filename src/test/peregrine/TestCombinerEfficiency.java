@@ -116,7 +116,7 @@ public class TestCombinerEfficiency extends peregrine.BaseTestWithMultipleConfig
         combine( "/tmp/peregrine-fs/localhost/11112/tmp/shuffle/default/0000000002.tmp" );
         combine( "/tmp/peregrine-fs/localhost/11112/tmp/shuffle/default/0000000003.tmp" );
 
-        combineAll( "/tmp/peregrine-fs/localhost/11112/tmp/shuffle/default/" );
+        //combineAll( "/tmp/peregrine-fs/localhost/11112/tmp/shuffle/default/" );
 
         //combine( "/tmp/peregrine-fs/localhost/11112/tmp/shuffle/default/0000000007.tmp" );
 
