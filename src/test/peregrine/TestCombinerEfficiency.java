@@ -32,6 +32,8 @@ import peregrine.util.*;
 public class TestCombinerEfficiency extends peregrine.BaseTestWithMultipleConfigs {
 
     public static boolean PREP = true;
+
+    public static long SHUFFLE_BUFFER_SIZE = (long)(2 * Math.pow( 2, 27 ));
     
     public static class Reduce extends Reducer {
 
@@ -57,6 +59,10 @@ public class TestCombinerEfficiency extends peregrine.BaseTestWithMultipleConfig
     private void doTest( int nr_nodes,
                          int max_edges_per_node ) throws Exception {
 
+        for ( Config config : configs ) {
+            config.setShuffleBufferSize( SHUFFLE_BUFFER_SIZE );
+        }
+        
         if ( PREP ) {
             
             String path = "/pr/test.graph";
@@ -215,13 +221,15 @@ public class TestCombinerEfficiency extends peregrine.BaseTestWithMultipleConfig
         Getopt getopt = new Getopt( args );
 
         PREP = getopt.getBoolean( "prep", true );
-
+        SHUFFLE_BUFFER_SIZE = getopt.getLong( "shuffleBufferSize", SHUFFLE_BUFFER_SIZE );
+        
         System.out.printf( "prep: %s\n", PREP );
+        System.out.printf( "shuffleBufferSize: %s\n", SHUFFLE_BUFFER_SIZE );
 
         if ( PREP ) {
             BaseTest.REMOVE_BASEDIR = false;
         }
-        
+
         //System.setProperty( "peregrine.test.config", "04:01:32" ); 
         //System.setProperty( "peregrine.test.config", "01:01:1" ); 
         //System.setProperty( "peregrine.test.config", "8:1:32" );
