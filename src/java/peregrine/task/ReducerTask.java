@@ -27,6 +27,7 @@ import peregrine.io.driver.shuffle.*;
 import peregrine.map.*;
 import peregrine.reduce.*;
 import peregrine.sysstat.*;
+
 import com.spinn3r.log5j.Logger;
 
 public class ReducerTask extends BaseTask implements Callable {
