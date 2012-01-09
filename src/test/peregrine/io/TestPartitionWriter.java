@@ -18,9 +18,11 @@ package peregrine.io;
 import java.io.*;
 import java.util.*;
 import peregrine.*;
+import peregrine.util.*;
 import peregrine.config.Partition;
 import peregrine.io.partition.*;
 import peregrine.io.chunk.*;
+import peregrine.io.util.*;
 
 public class TestPartitionWriter extends BaseTestWithTwoPartitions {
 
@@ -49,7 +51,7 @@ public class TestPartitionWriter extends BaseTestWithTwoPartitions {
 
         System.out.printf( "Running test2...\n" );
         
-        remove( config.getRoot() );
+        Files.remove( config.getRoot() );
 
         Partition part = new Partition( 0 );
         config.getHost();
@@ -109,7 +111,7 @@ public class TestPartitionWriter extends BaseTestWithTwoPartitions {
         
         System.out.printf( "Running test3...\n" );
         
-        remove( config.getRoot() );
+        Files.remove( config.getRoot() );
 
         Partition part = new Partition( 0 );
         config.getHost();
