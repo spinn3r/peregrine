@@ -20,7 +20,6 @@ package peregrine.io.driver.cassandra;
  *
  */
 
-
 import java.io.IOException;
 import java.net.InetAddress;
 import java.nio.ByteBuffer;
@@ -43,8 +42,6 @@ import org.apache.thrift.TException;
 import com.spinn3r.log5j.Logger;
 
 import peregrine.util.*;
-
-
 
 /**
  * Hadoop InputFormat allowing map/reduce against Cassandra rows within one ColumnFamily.
@@ -217,6 +214,13 @@ public class TestCassandra
 
     private List<String> getSubSplits(String keyspace, String cfName, TokenRange range, StructMap conf) throws IOException
     {
+
+        if ( range == null )
+            throw new NullPointerException( "range" );
+
+        if ( range.rpc_endpoints == null )
+            throw new NullPointerException( "range.rpc_endpoints" );
+
         int splitsize = ConfigHelper.getInputSplitSize(conf);
         for (int i = 0; i < range.rpc_endpoints.size(); i++)
         {
@@ -248,7 +252,6 @@ public class TestCassandra
         
     }
 
-
     private List<TokenRange> getRangeMap(StructMap conf) throws IOException
     {
         Cassandra.Client client = ConfigHelper.getClientFromAddressList(conf);
@@ -268,7 +271,5 @@ public class TestCassandra
         }
         return map;
     }
-
-
 
 }
