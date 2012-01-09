@@ -76,10 +76,12 @@ public class TestCombinerEfficiency extends peregrine.BaseTestWithMultipleConfig
                             new Output( "shuffle:default" ) );
 
             controller.flushAllShufflers();
-            
+
+            /*
             controller.reduce( Reduce.class,
                                new Input( "shuffle:default" ),
                                new Output( "/pr/tmp/node_indegree" ) );
+            */
 
         } finally {
             controller.shutdown();
@@ -87,20 +89,44 @@ public class TestCombinerEfficiency extends peregrine.BaseTestWithMultipleConfig
 
         // now attempt to open the main shuffle file... 
 
+        //combine( "/tmp/peregrine-fs/localhost/11112/0/pr/tmp/shuffled_out/chunk000000.dat" );
+
         /*
-        combine( "/tmp/peregrine-fs/localhost/11112/0/pr/tmp/shuffled_out/chunk000000.dat" );
+        combine( "/tmp/peregrine-fs/localhost/11112/tmp/shuffle/default/0000000000.tmp" );
+        combine( "/tmp/peregrine-fs/localhost/11112/tmp/shuffle/default/0000000001.tmp" );
+        combine( "/tmp/peregrine-fs/localhost/11112/tmp/shuffle/default/0000000002.tmp" );
         combine( "/tmp/peregrine-fs/localhost/11112/tmp/shuffle/default/0000000003.tmp" );
-        combine( "/tmp/peregrine-fs/localhost/11112/tmp/shuffle/default/0000000007.tmp" );
         */
 
-        combine2( "/tmp/peregrine-fs/localhost/11112/0/pr/tmp/node_indegree/" );
+        combine( "/tmp/peregrine-fs/localhost/11112/tmp/shuffle/default/0000000000.tmp" );
+        combine( "/tmp/peregrine-fs/localhost/11112/tmp/shuffle/default/0000000001.tmp" );
+        combine( "/tmp/peregrine-fs/localhost/11112/tmp/shuffle/default/0000000002.tmp" );
+        combine( "/tmp/peregrine-fs/localhost/11112/tmp/shuffle/default/0000000003.tmp" );
+
+        
+        combine( "/tmp/peregrine-fs/localhost/11112/tmp/shuffle/default/0000000000.tmp" , 
+                 "/tmp/peregrine-fs/localhost/11112/tmp/shuffle/default/0000000001.tmp" ,
+                 "/tmp/peregrine-fs/localhost/11112/tmp/shuffle/default/0000000002.tmp" ,
+                 "/tmp/peregrine-fs/localhost/11112/tmp/shuffle/default/0000000003.tmp" );
+
+        //combine( "/tmp/peregrine-fs/localhost/11112/tmp/shuffle/default/0000000007.tmp" );
+
+        //combine2( "/tmp/peregrine-fs/localhost/11112/0/pr/tmp/node_indegree/" );
+
+        System.out.printf( "TEST DONE\n" );
         
     }
 
-    private void combine( String path ) throws Exception {
+    private void combine( String... paths ) throws Exception {
 
-        if ( ! new File( path ).exists() )
-            return;
+        for( String path : paths ) {
+        
+            if ( ! new File( path ).exists() ) {
+                System.out.printf( "WARN: %s does not exist!\n", path );
+                return;
+            }
+
+        }
         
         Config config = configs.get( 0 );
         
@@ -110,24 +136,34 @@ public class TestCombinerEfficiency extends peregrine.BaseTestWithMultipleConfig
 
         Partition partition = new Partition( 0 );
 
-        File sorted_chunk = new File( "/tmp/sorted.chunk" );
-
         List<JobOutput> jobOutput = new ArrayList();
 
-        List<ShuffleInputChunkReader> work = new ArrayList();
-
-        work.add( new ShuffleInputChunkReader( config, partition, path ) );
-
-        ChunkSorter sorter = new ChunkSorter( config , partition, shuffleInput );
-
-        ChunkReader sorted = sorter.sort( work, sorted_chunk, jobOutput );
-
-        // now merge it ...
-
-        //ChunkMerger 
-
         List<ChunkReader> mergeInput = new ArrayList();
-        mergeInput.add( sorted );
+
+        int id = 0;
+
+        long input_size = 0;
+        
+        for( String path : paths ) {
+
+            File sorted_chunk = new File( "/tmp/sorted.chunk." + id++ );
+
+            List<ShuffleInputChunkReader> work = new ArrayList();
+
+            ShuffleInputChunkReader shuffleInputChunkReader =
+                new ShuffleInputChunkReader( config, partition, path );
+            
+            work.add( shuffleInputChunkReader );
+
+            ChunkSorter sorter = new ChunkSorter( config , partition, shuffleInput );
+
+            ChunkReader sorted = sorter.sort( work, sorted_chunk, jobOutput );
+
+            mergeInput.add( sorted );
+
+            input_size += shuffleInputChunkReader.getShuffleHeader().length;
+            
+        }
 
         File combined = new File( "/tmp/combined.chunk" );
         
@@ -138,9 +174,18 @@ public class TestCombinerEfficiency extends peregrine.BaseTestWithMultipleConfig
 
         writer.close();
 
-        double efficiency = (combined.length() / (double)sorted_chunk.length()) * 100;
+        double efficiency = ( combined.length() / (double)input_size ) * 100;
 
-        System.out.printf( "%s efficiency: %f\n", path, efficiency );
+        String desc = "";
+
+        for( String path : paths ) {
+            desc += new File( path ).getName() + " ";
+        }
+
+        desc = desc.trim();
+        
+        System.out.printf( "efficiency(%s): %f combine length is %,d and input length is %,d \n",
+                           desc, efficiency, combined.length(), input_size );
         
     }
     
@@ -187,11 +232,12 @@ public class TestCombinerEfficiency extends peregrine.BaseTestWithMultipleConfig
 
         double efficiency = (combined.length() / (double)input.length()) * 100;
 
-        System.out.printf( "%s efficiency: %f\n", path, efficiency );
+        System.out.printf( "%s efficiency: %f combine length is %,d and input length is %,d \n", path, efficiency, combined.length(), input.length() );
         
     }
 
     public static void main( String[] args ) throws Exception {
+
         //System.setProperty( "peregrine.test.config", "04:01:32" ); 
         //System.setProperty( "peregrine.test.config", "01:01:1" ); 
         //System.setProperty( "peregrine.test.config", "8:1:32" );
@@ -201,8 +247,8 @@ public class TestCombinerEfficiency extends peregrine.BaseTestWithMultipleConfig
         // FIXME: test with larger numbers of files....... FUCK.... so my tests
         // are TOTALLY wrong because the shuffle output os the RECEIVED output
         // not that which we're sending... :-( 
-
-        //System.setProperty( "peregrine.test.factor", "200" ); 
+        
+        System.setProperty( "peregrine.test.factor", "40" ); 
         System.setProperty( "peregrine.test.config", "1:1:1" ); 
 
         runTests();
