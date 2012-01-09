@@ -122,15 +122,19 @@ public class TestCombinerEfficiency extends peregrine.BaseTestWithMultipleConfig
 
     private void combineAll( String dir ) throws Exception {
 
-        String[] files = new File( dir ).list( new FilenameFilter() {
-                
-                public boolean accept( File dir, String name ) {
-                    return name.endsWith( ".tmp" );
-                }
-                    
-            } );
+        File[] files = new File( dir ).listFiles(); 
 
-        combine( files );
+        List<String> result = new ArrayList();
+        
+        for( File file : files ) {
+
+            if ( file.getName().endsWith( ".tmp" ) ) {
+                result.add( file.getPath() );
+            }
+
+        }
+
+        combine( Strings.toArray( result ) );
         
     }
     
