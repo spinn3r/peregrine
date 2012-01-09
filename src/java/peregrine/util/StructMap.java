@@ -83,11 +83,21 @@ public class StructMap {
 
     public int getInt( String key ) {
 
+        return getInt( key , 0 );
+        
+    }
+
+    public int getInt( String key, int _default ) {
+
         if ( delegate.containsKey( key ) )
             return Integer.parseInt( delegate.get( key ).toString() );
 
-        return 0;
+        return _default;
 
+    }
+
+    public void setInt( String key, int value ) {
+        delegate.put( key, Integer.toString( value ) );
     }
 
     public long getSize( String key ) {
@@ -124,12 +134,20 @@ public class StructMap {
     }
 
     public String get( String key ) {
+        return get( key, null );        
+    }
+
+    public String get( String key, String _default ) {
 
         if ( delegate.containsKey( key ) )
             return delegate.get( key ).toString();
 
-        return null;
-        
+        return _default;
+
+    }
+
+    public void set( String key, String value ) {
+        delegate.put( key, value );
     }
 
     public String getString( String key ) {
