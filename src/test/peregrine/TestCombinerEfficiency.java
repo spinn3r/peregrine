@@ -111,11 +111,15 @@ public class TestCombinerEfficiency extends peregrine.BaseTestWithMultipleConfig
         combine( "/tmp/peregrine-fs/localhost/11112/tmp/shuffle/default/0000000003.tmp" );
         */
 
+        /*
         combine( "/tmp/peregrine-fs/localhost/11112/tmp/shuffle/default/0000000000.tmp" );
         combine( "/tmp/peregrine-fs/localhost/11112/tmp/shuffle/default/0000000001.tmp" );
         combine( "/tmp/peregrine-fs/localhost/11112/tmp/shuffle/default/0000000002.tmp" );
         combine( "/tmp/peregrine-fs/localhost/11112/tmp/shuffle/default/0000000003.tmp" );
-
+        */
+        
+        combineSamples( "/tmp/peregrine-fs/localhost/11112/tmp/shuffle/default/" , 20 );
+        
         //combineAll( "/tmp/peregrine-fs/localhost/11112/tmp/shuffle/default/" );
 
         //combine( "/tmp/peregrine-fs/localhost/11112/tmp/shuffle/default/0000000007.tmp" );
@@ -126,7 +130,32 @@ public class TestCombinerEfficiency extends peregrine.BaseTestWithMultipleConfig
         
     }
 
+    private void combineSamples( String dir, int nr_samples ) throws Exception {
+
+        String[] files = getTempFiles( dir );
+
+        int offset = 0;
+        
+        for( int i = 0; i < nr_samples; ++i ) {
+
+            combine( files[offset] );
+            
+            offset += files.length / nr_samples;
+
+            if ( offset > files.length - 1 )
+                break;
+            
+        }
+        
+    }
+    
     private void combineAll( String dir ) throws Exception {
+
+        combine( getTempFiles( dir ) );
+        
+    }
+
+    public String[] getTempFiles( String dir ) {
 
         File[] files = new File( dir ).listFiles(); 
 
@@ -140,8 +169,8 @@ public class TestCombinerEfficiency extends peregrine.BaseTestWithMultipleConfig
 
         }
 
-        combine( Strings.toArray( result ) );
-        
+        return Strings.toArray( result );
+
     }
     
     private void combine( String... paths ) throws Exception {
@@ -241,7 +270,8 @@ public class TestCombinerEfficiency extends peregrine.BaseTestWithMultipleConfig
         // not that which we're sending... :-( 
         
         System.setProperty( "peregrine.test.factor", "200" ); 
-        System.setProperty( "peregrine.test.config", "1:1:1" ); 
+        //System.setProperty( "peregrine.test.config", "1:1:1" ); 
+        System.setProperty( "peregrine.test.config", "8:1:32" );
 
         runTests();
         
