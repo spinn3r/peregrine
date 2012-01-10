@@ -19,6 +19,7 @@ import peregrine.*;
 import peregrine.config.*;
 import peregrine.config.partitioner.*;
 import peregrine.util.netty.*;
+import peregrine.io.util.*;
 
 import org.jboss.netty.buffer.*;
 
@@ -27,6 +28,9 @@ public class TestMappedFileWrites extends BaseTest {
 	public void test1() throws Exception {
 
         Config config = new Config();
+
+        Files.mkdirs( config.getBasedir() );
+
         //config.init();
         config.initEnabledFeatures();
 
