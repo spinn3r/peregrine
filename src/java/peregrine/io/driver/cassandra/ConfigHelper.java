@@ -229,7 +229,7 @@ public class ConfigHelper
         return null != str ? keyRangeFromString(str) : null;
     }
 
-    private static String keyRangeToString(KeyRange keyRange)
+    public static String keyRangeToString(KeyRange keyRange)
     {
         assert keyRange != null;
         TSerializer serializer = new TSerializer(new TBinaryProtocol.Factory());
@@ -243,7 +243,7 @@ public class ConfigHelper
         }
     }
 
-    private static KeyRange keyRangeFromString(String st)
+    public static KeyRange keyRangeFromString(String st)
     {
         assert st != null;
         TDeserializer deserializer = new TDeserializer(new TBinaryProtocol.Factory());
