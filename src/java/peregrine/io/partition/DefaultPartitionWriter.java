@@ -24,6 +24,7 @@ import peregrine.http.*;
 import peregrine.io.chunk.*;
 import peregrine.os.*;
 import peregrine.pfsd.*;
+import peregrine.util.*;
 import peregrine.util.netty.*;
 import com.spinn3r.log5j.Logger;
 
@@ -123,6 +124,8 @@ public class DefaultPartitionWriter implements PartitionWriter, ChunkWriter {
     @Override
     public void write( StructReader key, StructReader value )
         throws IOException {
+
+        Hashcode.assertKeyLength( key );
 
         chunkWriter.write( key, value );
 

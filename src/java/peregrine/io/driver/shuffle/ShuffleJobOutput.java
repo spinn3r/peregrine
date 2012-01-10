@@ -66,8 +66,12 @@ public class ShuffleJobOutput
     
     @Override
     public void emit( StructReader key , StructReader value ) {
+
+        Hashcode.assertKeyLength( key );
+        
         jobOutputDelegate.emit( key, value );
         ++emits;
+
     }
 
     public void emit( int to_partition, StructReader key , StructReader value ) {
