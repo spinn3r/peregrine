@@ -270,8 +270,8 @@ public class TestCombinerEfficiency extends peregrine.BaseTestWithMultipleConfig
         // not that which we're sending... :-( 
         
         System.setProperty( "peregrine.test.factor", "200" ); 
-        //System.setProperty( "peregrine.test.config", "1:1:1" ); 
-        System.setProperty( "peregrine.test.config", "8:1:32" );
+        System.setProperty( "peregrine.test.config", "1:1:1" ); 
+        //System.setProperty( "peregrine.test.config", "8:1:32" );
 
         runTests();
         
