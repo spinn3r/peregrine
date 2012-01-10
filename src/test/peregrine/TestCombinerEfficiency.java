@@ -138,6 +138,8 @@ public class TestCombinerEfficiency extends peregrine.BaseTestWithMultipleConfig
         
         for( int i = 0; i < nr_samples; ++i ) {
 
+            System.out.printf( "FIXME offset %s\n", offset );
+            
             combine( files[offset] );
             
             offset += (int)Math.ceil( files.length / nr_samples);
