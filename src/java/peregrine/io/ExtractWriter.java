@@ -23,6 +23,8 @@ import java.util.concurrent.atomic.*;
 import peregrine.*;
 import peregrine.config.*;
 import peregrine.io.partition.*;
+import peregrine.util.*;
+
 import com.spinn3r.log5j.Logger;
 
 /**
@@ -30,7 +32,7 @@ import com.spinn3r.log5j.Logger;
  * data to the correct partition.  If your data is already partitioned, with the correct
  * algorithm, at least right now you can run these in parallel
  */
-public class ExtractWriter {
+public class ExtractWriter implements Closeable {
 
     private static final Logger log = Logger.getLogger();
 
@@ -75,8 +77,10 @@ public class ExtractWriter {
     private void write( Partition part, StructReader key, StructReader value )
         throws IOException {
 
-        partitionWriteHistograph.incr( part );
+        Hashcode.assertKeyLength( key );
         
+        partitionWriteHistograph.incr( part );
+
         output.get( part.getId() ).write( key, value );
         
     }
@@ -92,7 +96,8 @@ public class ExtractWriter {
         return result;
         
     }
-    
+
+    @Override
     public void close() throws IOException {
 
         //TODO: not sure why but this made it slower.
