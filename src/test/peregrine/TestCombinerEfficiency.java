@@ -52,6 +52,9 @@ public class TestCombinerEfficiency extends peregrine.BaseTestWithMultipleConfig
     @Override
     public void doTest() throws Exception {
 
+        System.out.printf( "prep: %s\n", PREP );
+        System.out.printf( "shuffleBufferSize: %s\n", SHUFFLE_BUFFER_SIZE );
+
         doTest( 5000 * getFactor() , 100 ); 
 
     }
@@ -253,9 +256,6 @@ public class TestCombinerEfficiency extends peregrine.BaseTestWithMultipleConfig
 
         PREP = getopt.getBoolean( "prep", true );
         SHUFFLE_BUFFER_SIZE = getopt.getLong( "shuffleBufferSize", SHUFFLE_BUFFER_SIZE );
-        
-        System.out.printf( "prep: %s\n", PREP );
-        System.out.printf( "shuffleBufferSize: %s\n", SHUFFLE_BUFFER_SIZE );
 
         if ( PREP ) {
             BaseTest.REMOVE_BASEDIR = false;
