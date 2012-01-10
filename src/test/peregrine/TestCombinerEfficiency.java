@@ -140,7 +140,7 @@ public class TestCombinerEfficiency extends peregrine.BaseTestWithMultipleConfig
 
             combine( files[offset] );
             
-            offset += files.length / nr_samples;
+            offset += (int)Math.ceil( files.length / nr_samples);
 
             if ( offset > files.length - 1 )
                 break;
