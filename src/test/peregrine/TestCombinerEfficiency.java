@@ -174,6 +174,8 @@ public class TestCombinerEfficiency extends peregrine.BaseTestWithMultipleConfig
 
         }
 
+        Collections.sort( result );
+        
         return Strings.toArray( result );
 
     }
@@ -257,7 +259,7 @@ public class TestCombinerEfficiency extends peregrine.BaseTestWithMultipleConfig
         PREP = getopt.getBoolean( "prep", true );
         SHUFFLE_BUFFER_SIZE = getopt.getLong( "shuffleBufferSize", SHUFFLE_BUFFER_SIZE );
 
-        if ( PREP ) {
+        if ( PREP == false ) {
             BaseTest.REMOVE_BASEDIR = false;
         }
 
@@ -271,7 +273,7 @@ public class TestCombinerEfficiency extends peregrine.BaseTestWithMultipleConfig
         // are TOTALLY wrong because the shuffle output os the RECEIVED output
         // not that which we're sending... :-( 
         
-        System.setProperty( "peregrine.test.factor", "40" ); 
+        System.setProperty( "peregrine.test.factor", "200" ); 
         System.setProperty( "peregrine.test.config", "1:1:1" ); 
         //System.setProperty( "peregrine.test.config", "8:1:32" );
 
