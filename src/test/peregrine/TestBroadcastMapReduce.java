@@ -147,7 +147,9 @@ public class TestBroadcastMapReduce extends peregrine.BaseTestWithMultipleConfig
                 if ( reader.hasNext() == false )
                     throw new Exception( "No values in: " + reader );
 
-                reader.key();
+                reader.next();
+                
+                StructReader _key   = reader.key();
                 StructReader _value = reader.value();
                 
                 int count = _value.readInt();
