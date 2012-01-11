@@ -83,24 +83,15 @@ public class ChunkSorter extends BaseChunkSorter {
 
             sortResult = new SortResult( writer );
             
-            while( lookup.hasNext() ) {
+            KeyLookupReader keyLookupReader = new KeyLookupReader( lookup );
+            
+            while( keyLookupReader.hasNext() ) {
 
-                lookup.next();
+            	keyLookupReader.next();
 
-                KeyEntry current = lookup.get();
+                StructReader key = keyLookupReader.key();
 
-                ChannelBuffer backing = current.backing;
-                
-                VarintReader varintReader = new VarintReader( backing );
-                
-                int start = current.offset - 1;
-                backing.readerIndex( start );
-
-                StructReader key =
-                    new StructReader( backing.readSlice( varintReader.read() ) );
-
-                StructReader value =
-                    new StructReader( backing.readSlice( varintReader.read() ) );
+                StructReader value = keyLookupReader.value();
 
                 sortResult.accept( new SortEntry( key, value ) );
                 

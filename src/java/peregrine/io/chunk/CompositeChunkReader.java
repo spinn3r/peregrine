@@ -67,8 +67,8 @@ public class CompositeChunkReader implements Closeable {
     private int size = 0;
     
 	public CompositeChunkReader( Config config, 
-                                             Partition partition,
-                                             List<ChunkReader> readers ) throws IOException {
+                                 Partition partition,
+                                 List<ChunkReader> readers ) throws IOException {
 
 		this.config = config;
 		this.partition = partition;

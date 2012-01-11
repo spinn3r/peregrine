@@ -35,7 +35,7 @@ public class CombineRunner {
     /**
      * Take the given reader and combine records.
      */
-    public void combine( SequenceReader reader, Combiner combiner ) throws IOException {
+    public void combine( ChunkReader reader, Combiner combiner ) throws IOException {
 
         byte[] last = null;
         List<StructReader> values = new ArrayList();
