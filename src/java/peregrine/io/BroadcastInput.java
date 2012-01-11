@@ -35,7 +35,9 @@ public final class BroadcastInput {
         if ( reader.hasNext() == false )
             throw new IOException( "No broadcast values found at: " + reader );
 
-        reader.key();
+        reader.next();
+        
+        StructReader key   = reader.key();
         StructReader value = reader.value();
 
         if ( reader.hasNext() )

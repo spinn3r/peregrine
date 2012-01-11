@@ -191,6 +191,8 @@ public class TestMapReduce extends peregrine.BaseTestWithMultipleConfigs {
             
             while( reader.hasNext() ) {
 
+                reader.next();
+                
                 reader.key();
                 reader.value();
 
