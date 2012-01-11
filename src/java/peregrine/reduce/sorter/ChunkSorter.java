@@ -41,12 +41,25 @@ import com.spinn3r.log5j.Logger;
 public class ChunkSorter extends BaseChunkSorter {
 
     private static final Logger log = Logger.getLogger();
+    
+    private Partition partition;
+    
+    private ShuffleInputReference shuffleInput;
 
+    //keeps track of the current input we're sorting.
+    private int id = 0;
+
+    private Config config;
+    
+    public ChunkSorter() {}
+    
     public ChunkSorter( Config config,
                         Partition partition,
                         ShuffleInputReference shuffleInput ) {
 
-        super( config, partition, shuffleInput );
+    	this.config = config;
+		this.partition = partition;
+        this.shuffleInput = shuffleInput;
         
     }
 
@@ -67,15 +80,13 @@ public class ChunkSorter extends BaseChunkSorter {
             // the same time... we need a background thread to trigger the
             // pre-read.
             
-            reader = new CompositeChunkReader( config, partition, input );
+            reader = new CompositeChunkReader( config, input );
             
-            lookup = new KeyLookup( reader );
+            KeyLookup lookup = new KeyLookup( reader );
 
             log.info( "Key lookup for %s has %,d entries." , partition, lookup.size() );
             
-            int depth = 0;
-
-            lookup = sort( lookup, depth );
+            lookup = sort( lookup );
             
             //write this into the final ChunkWriter now.
 

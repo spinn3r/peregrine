@@ -90,7 +90,7 @@ public class KeyLookup {
     	this( ChannelBuffers.directBuffer( size * KEY_SIZE ), size, buffers );
     	
     }
-
+    
     public KeyLookup( CompositeChunkReader reader )
         throws IOException {
 

@@ -20,6 +20,8 @@ import java.io.*;
 
 import peregrine.*;
 import peregrine.reduce.*;
+import peregrine.reduce.sorter.*;
+import peregrine.config.*;
 import peregrine.io.*;
 import peregrine.io.chunk.*;
 import peregrine.util.*;
@@ -32,6 +34,12 @@ import peregrine.util.primitive.*;
  */
 public class CombineRunner {
 
+	private Config config;
+	
+	public CombineRunner(Config config) {
+		this.config = config;
+	}
+	
     /**
      * Take the given reader and combine records.
      */
@@ -63,6 +71,18 @@ public class CombineRunner {
             }
 
         }
+        
+    }
+
+    private KeyLookupReader sort( ChunkReader reader ) throws IOException {
+
+    	ChunkSorter sorter = new ChunkSorter();
+    	
+    	KeyLookup lookup = new KeyLookup( new CompositeChunkReader( config, reader ) );
+    	KeyLookup sorted = sorter.sort( lookup );
+    	
+        return new KeyLookupReader( sorted );
+        
         
     }
     

@@ -36,7 +36,6 @@ import com.spinn3r.log5j.Logger;
 public class CompositeChunkReader implements Closeable {
 
 	private Config config;
-	private Partition partition;
 	
 	private List<ChunkReader> readers = new ArrayList();
     
@@ -66,12 +65,15 @@ public class CompositeChunkReader implements Closeable {
      */
     private int size = 0;
     
+    public CompositeChunkReader( Config config, final ChunkReader reader ) throws IOException {
+    	this( config, new ArrayList() {{ add( reader ); }} );
+    	
+    }
+    
 	public CompositeChunkReader( Config config, 
-                                 Partition partition,
                                  List<ChunkReader> readers ) throws IOException {
 
 		this.config = config;
-		this.partition = partition;
 		this.readers = readers;
 		
         for ( ChunkReader delegate : readers ) {
