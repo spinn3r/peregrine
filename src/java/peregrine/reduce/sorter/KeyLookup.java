@@ -18,6 +18,7 @@ package peregrine.reduce.sorter;
 import java.io.*;
 import peregrine.util.*;
 import peregrine.util.primitive.LongBytes;
+import peregrine.io.chunk.*;
 import peregrine.shuffle.*;
 
 import org.jboss.netty.buffer.*;
@@ -103,7 +104,7 @@ public class KeyLookup {
             // advance the lookup
             next();
 
-            ShuffleInputChunkReader delegate = reader.getShuffleInputChunkReader();
+            ChunkReader delegate = reader.getShuffleInputChunkReader();
            
             KeyEntry entry = new KeyEntry( (byte)reader.index(), delegate.keyOffset() );
             

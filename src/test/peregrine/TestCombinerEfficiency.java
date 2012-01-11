@@ -211,7 +211,7 @@ public class TestCombinerEfficiency extends peregrine.BaseTestWithMultipleConfig
 
             File sorted_chunk = new File( "/tmp/sorted.chunk." + id++ );
 
-            List<ShuffleInputChunkReader> work = new ArrayList();
+            List<ChunkReader> work = new ArrayList();
 
             ShuffleInputChunkReader shuffleInputChunkReader =
                 new ShuffleInputChunkReader( config, partition, path );

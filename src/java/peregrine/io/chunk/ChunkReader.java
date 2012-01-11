@@ -17,6 +17,8 @@ package peregrine.io.chunk;
 
 import java.io.*;
 
+import org.jboss.netty.buffer.*;
+
 import peregrine.*;
 import peregrine.io.*;
 
@@ -30,4 +32,12 @@ public interface ChunkReader extends SequenceReader {
 	 */
 	public int keyOffset() throws IOException;
 
+	/**
+	 * Return the number of unique key/value pairs.
+	 * 
+	 */
+	public int size() throws IOException;
+	
+	public ChannelBuffer getBuffer();
+	
 }

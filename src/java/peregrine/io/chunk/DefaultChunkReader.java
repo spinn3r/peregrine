@@ -81,6 +81,8 @@ public class DefaultChunkReader implements SequenceReader, ChunkReader, Closeabl
     
     private int keyOffset = -1;
     
+    private ChannelBuffer buffer = null;
+    
     public DefaultChunkReader( Config config, File file )
         throws IOException {
 
@@ -131,6 +133,7 @@ public class DefaultChunkReader implements SequenceReader, ChunkReader, Closeabl
     private void init( ChannelBuffer buff, StreamReader reader )
         throws IOException {
 
+    	this.buffer = buff;
         this.reader = reader;
         this.varintReader = new VarintReader( reader );
         this.length = buff.writerIndex();
@@ -189,11 +192,21 @@ public class DefaultChunkReader implements SequenceReader, ChunkReader, Closeabl
     	return keyOffset;
     }
     
+    @Override 
+    public int size() throws IOException {
+    	return size;
+    }
+    
     @Override
     public String toString() {
         return String.format( "file: %s, length (in bytes): %,d, size: %,d", file, length, size );
     }
 
+    @Override 
+    public ChannelBuffer getBuffer() {
+    	return buffer;
+    }
+    
     private void assertLength() throws IOException {
         if ( this.length < IntBytes.LENGTH )
             throw new IOException( String.format( "File %s is too short (%,d bytes)", file.getPath(), length ) );

@@ -50,7 +50,7 @@ public class ChunkSorter extends BaseChunkSorter {
         
     }
 
-    public SequenceReader sort( List<ShuffleInputChunkReader> input, File output, List<JobOutput> jobOutput )
+    public SequenceReader sort( List<ChunkReader> input, File output, List<JobOutput> jobOutput )
         throws IOException {
 
         CompositeShuffleInputChunkReader reader = null;

@@ -35,7 +35,7 @@ import com.spinn3r.log5j.Logger;
  * packets into key/value pairs and implements 
  * 
  */
-public class ShuffleInputChunkReader implements Closeable {
+public class ShuffleInputChunkReader implements ChunkReader {
 
     public static int QUEUE_CAPACITY = 100;
 
@@ -113,6 +113,7 @@ public class ShuffleInputChunkReader implements Closeable {
         return header;
     }
     
+    @Override
     public boolean hasNext() throws IOException {
 
         assertPrefetchReaderNotFailed();
@@ -125,7 +126,8 @@ public class ShuffleInputChunkReader implements Closeable {
         return result;
 
     }
-
+    
+    @Override
     public void next() throws IOException {
 
         assertPrefetchReaderNotFailed();
@@ -210,22 +212,25 @@ public class ShuffleInputChunkReader implements Closeable {
     /**
      * Get the key offset for external readers.
      */
+    @Override
     public int keyOffset() {
         return getShufflePacket().getOffset() + keyOffset;
     }
 
-    public ChannelBuffer key() throws IOException {
+    @Override
+    public StructReader key() throws IOException {
         return readBytes( keyOffset, key_length );
         
     }
 
-    public ChannelBuffer value() throws IOException {
+    @Override
+    public StructReader value() throws IOException {
         return readBytes( value_offset, value_length );
     }
 
-    public ChannelBuffer readBytes( int offset, int length ) throws IOException {
+    public StructReader readBytes( int offset, int length ) throws IOException {
 
-        return pack.data.slice( offset, length );
+        return new StructReader( pack.data.slice( offset, length ) );
 
     }
 

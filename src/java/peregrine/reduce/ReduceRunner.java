@@ -349,7 +349,7 @@ public class ReduceRunner {
         
         while( pendingIterator.hasNext() ) {
         	
-        	List<ShuffleInputChunkReader> work = new ArrayList();
+        	List<ChunkReader> work = new ArrayList();
         	long workSize = 0;
 
             //factor in the overhead of the key lookup before we sort.

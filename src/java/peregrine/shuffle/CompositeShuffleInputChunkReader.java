@@ -20,6 +20,7 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.*;
 
+import peregrine.io.chunk.*;
 import peregrine.io.util.*;
 import peregrine.util.*;
 import peregrine.config.*;
@@ -37,18 +38,18 @@ public class CompositeShuffleInputChunkReader implements Closeable {
 	private Config config;
 	private Partition partition;
 	
-	private List<ShuffleInputChunkReader> readers = new ArrayList();
+	private List<ChunkReader> readers = new ArrayList();
     
 	private List<ChannelBuffer> buffers = new ArrayList();
 	
-    private Iterator<ShuffleInputChunkReader> readerIterator;
+    private Iterator<ChunkReader> readerIterator;
 
     private Iterator<ChannelBuffer> bufferIterator;
     
     /**
      * the current reader.
      */
-    private ShuffleInputChunkReader reader;
+    private ChunkReader reader;
 
     /**
      * The current channel buffer we're working with.
@@ -67,13 +68,13 @@ public class CompositeShuffleInputChunkReader implements Closeable {
     
 	public CompositeShuffleInputChunkReader( Config config, 
                                              Partition partition,
-                                             List<ShuffleInputChunkReader> readers ) throws IOException {
+                                             List<ChunkReader> readers ) throws IOException {
 
 		this.config = config;
 		this.partition = partition;
 		this.readers = readers;
 		
-        for ( ShuffleInputChunkReader delegate : readers ) {
+        for ( ChunkReader delegate : readers ) {
 
         	size += delegate.size();
             
@@ -129,7 +130,7 @@ public class CompositeShuffleInputChunkReader implements Closeable {
     }
     
     /**
-     * Get the buffer of the current ShuffleInputChunkReader 
+     * Get the buffer of the current ChunkReader 
      */
     public ChannelBuffer getBuffer() {
         return buffer;
@@ -139,7 +140,7 @@ public class CompositeShuffleInputChunkReader implements Closeable {
         return buffers;
     }
    
-    public ShuffleInputChunkReader getShuffleInputChunkReader() {
+    public ChunkReader getShuffleInputChunkReader() {
         return reader;
     }
     
