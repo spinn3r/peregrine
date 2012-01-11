@@ -135,7 +135,7 @@ public class ShuffleInputChunkReader implements Closeable {
             if ( pack != null && pack.data.readerIndex() < pack.data.capacity() - 1 ) {
                 
                 this.key_length     = varintReader.read();
-                this.keyOffset      = getShufflePacket().getOffset() + pack.data.readerIndex();
+                this.keyOffset      = pack.data.readerIndex();
 
                 pack.data.readerIndex( pack.data.readerIndex() + key_length );
                 
@@ -206,9 +206,12 @@ public class ShuffleInputChunkReader implements Closeable {
 
         return new StreamReader( buffer );
     }
-    
+
+    /**
+     * Get the key offset for external readers.
+     */
     public int keyOffset() {
-        return keyOffset;
+        return getShufflePacket().getOffset() + keyOffset;
     }
 
     public ChannelBuffer key() throws IOException {

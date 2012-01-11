@@ -170,8 +170,10 @@ public class TestPartitionWriter extends BaseTestWithTwoPartitions {
         while( reader.hasNext() ) {
 
             try {
-            
-                reader.key();
+
+                reader.next();
+            	
+                StructReader key    = reader.key();
                 StructReader value = reader.value();
                 
                 long val = value.readLong();
