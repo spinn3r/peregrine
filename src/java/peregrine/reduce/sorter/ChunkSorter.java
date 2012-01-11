@@ -53,7 +53,7 @@ public class ChunkSorter extends BaseChunkSorter {
     public SequenceReader sort( List<ChunkReader> input, File output, List<JobOutput> jobOutput )
         throws IOException {
 
-        CompositeShuffleInputChunkReader reader = null;
+        CompositeChunkReader reader = null;
 
         ChunkWriter writer = null;
 
@@ -67,7 +67,7 @@ public class ChunkSorter extends BaseChunkSorter {
             // the same time... we need a background thread to trigger the
             // pre-read.
             
-            reader = new CompositeShuffleInputChunkReader( config, partition, input );
+            reader = new CompositeChunkReader( config, partition, input );
             
             lookup = new KeyLookup( reader );
 

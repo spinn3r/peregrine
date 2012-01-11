@@ -91,7 +91,7 @@ public class KeyLookup {
     	
     }
 
-    public KeyLookup( CompositeShuffleInputChunkReader reader )
+    public KeyLookup( CompositeChunkReader reader )
         throws IOException {
 
         this( reader.size(), reader.getBuffers().toArray( new ChannelBuffer[0] ) );
@@ -104,7 +104,7 @@ public class KeyLookup {
             // advance the lookup
             next();
 
-            ChunkReader delegate = reader.getShuffleInputChunkReader();
+            ChunkReader delegate = reader.getChunkReader();
            
             KeyEntry entry = new KeyEntry( (byte)reader.index(), delegate.keyOffset() );
             

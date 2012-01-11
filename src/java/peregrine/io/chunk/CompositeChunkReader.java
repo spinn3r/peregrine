@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
 */
-package peregrine.shuffle;
+package peregrine.io.chunk;
 
 import java.io.*;
 import java.util.*;
@@ -33,7 +33,7 @@ import com.spinn3r.log5j.Logger;
  * An interface to work with mulitple ShuffleInputChunkReaders when doing chunk
  * sorting.
  */
-public class CompositeShuffleInputChunkReader implements Closeable {
+public class CompositeChunkReader implements Closeable {
 
 	private Config config;
 	private Partition partition;
@@ -66,7 +66,7 @@ public class CompositeShuffleInputChunkReader implements Closeable {
      */
     private int size = 0;
     
-	public CompositeShuffleInputChunkReader( Config config, 
+	public CompositeChunkReader( Config config, 
                                              Partition partition,
                                              List<ChunkReader> readers ) throws IOException {
 
@@ -140,7 +140,7 @@ public class CompositeShuffleInputChunkReader implements Closeable {
         return buffers;
     }
    
-    public ChunkReader getShuffleInputChunkReader() {
+    public ChunkReader getChunkReader() {
         return reader;
     }
     
