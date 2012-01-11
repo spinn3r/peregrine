@@ -56,6 +56,9 @@
                memoryMaximumSize="512M"
                deprecation="no"
                debug="true">
+
+            <!-- <compilerarg value="-Xlint"/>-->
+          
             <include name="**/*.java"/>
             <exclude name="**/*SExpander.java"/>
         </javac>
