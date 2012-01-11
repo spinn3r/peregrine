@@ -22,7 +22,16 @@ import peregrine.task.*;
 import peregrine.combine.*;
 
 /**
- * Take a key and list of values, and reduce them and emit result.
+ * <p>
+ * Take a key and list of values, and reduce/combine them and emit result.
+ * 
+ * <p>
+ * Combiners are used to boost the performance of shuffling by reducing 
+ * values before they are sent over the wire.
+ * 
+ * <p>
+ * This is VERY similar to a Reducer but does not support multiple output 
+ * streams.
  */
 public class Combiner extends BaseCombiner {
 
