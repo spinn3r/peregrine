@@ -34,7 +34,7 @@ import org.jboss.netty.buffer.*;
  * Default ChunkReader implementation which uses mmap, and supports features
  * like CRC32, etc.
  */
-public class DefaultChunkReader implements SequenceReader, Closeable {
+public class DefaultChunkReader implements SequenceReader, ChunkReader, Closeable {
 
     // magic numbers for chunk reader files.
 
@@ -69,6 +69,8 @@ public class DefaultChunkReader implements SequenceReader, Closeable {
 
     private boolean closed = false;
 
+    private int keyOffset = -1;
+    
     public DefaultChunkReader( Config config, File file )
         throws IOException {
 
@@ -142,6 +144,7 @@ public class DefaultChunkReader implements SequenceReader, Closeable {
     @Override
     public StructReader key() throws IOException {
         ++idx;
+        keyOffset = reader.index();
         return readEntry();
     }
 
@@ -163,6 +166,11 @@ public class DefaultChunkReader implements SequenceReader, Closeable {
         
     }
 
+    @Override 
+    public int keyOffset() throws IOException {
+    	return keyOffset;
+    }
+    
     @Override
     public String toString() {
         return String.format( "file: %s, length (in bytes): %,d, size: %,d", file, length, size );

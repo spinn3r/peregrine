@@ -20,7 +20,7 @@ import java.io.*;
 import peregrine.*;
 
 /**
- * Interface for reading data from a chunk in key/value form.
+ * Interface for reading data from a stream in key/value form.
  */
 public interface SequenceReader extends Closeable {
 
@@ -46,7 +46,7 @@ public interface SequenceReader extends Closeable {
     public StructReader value() throws IOException;
 
     /**
-     * Close the ChunkReader.
+     * Close the stream..
      */
     @Override
     public void close() throws IOException;
