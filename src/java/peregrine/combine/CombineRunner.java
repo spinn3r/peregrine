@@ -45,6 +45,12 @@ public class CombineRunner {
      */
     public void combine( ChunkReader reader, Combiner combiner ) throws IOException {
 
+        merge( sort( reader ), combiner );
+    	
+    }
+
+    private void merge( KeyLookupReader reader, Combiner combiner ) throws IOException {
+
         byte[] last = null;
         List<StructReader> values = new ArrayList();
 
@@ -71,9 +77,9 @@ public class CombineRunner {
             }
 
         }
-        
-    }
 
+    }
+    
     private KeyLookupReader sort( ChunkReader reader ) throws IOException {
 
     	ChunkSorter sorter = new ChunkSorter();
@@ -82,7 +88,6 @@ public class CombineRunner {
     	KeyLookup sorted = sorter.sort( lookup );
     	
         return new KeyLookupReader( sorted );
-        
         
     }
     
