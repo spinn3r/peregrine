@@ -66,6 +66,8 @@ public class MergerPriorityQueue {
         
         if ( entry.reader.hasNext() ) {
 
+        	entry.reader.next();
+        	
             // add this back in with the next value.
             entry.setKey( entry.reader.key() );
             entry.setValue( entry.reader.value() );

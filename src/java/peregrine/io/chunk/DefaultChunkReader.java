@@ -69,6 +69,16 @@ public class DefaultChunkReader implements SequenceReader, ChunkReader, Closeabl
 
     private boolean closed = false;
 
+    /**
+     * The current key.
+     */
+    private StructReader key = null;
+    
+    /**
+     * The current value.
+     */
+    private StructReader value = null;
+    
     private int keyOffset = -1;
     
     public DefaultChunkReader( Config config, File file )
@@ -142,15 +152,23 @@ public class DefaultChunkReader implements SequenceReader, ChunkReader, Closeabl
     }
 
     @Override
-    public StructReader key() throws IOException {
+    public void next() throws IOException {
         ++idx;
         keyOffset = reader.index();
-        return readEntry();
+       
+        key   = readEntry();
+        value = readEntry();
+        
+    }
+    
+    @Override
+    public StructReader key() throws IOException {
+    	return key;
     }
 
     @Override
     public StructReader value() throws IOException {
-        return readEntry();
+        return value;
     }
 
     @Override

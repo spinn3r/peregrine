@@ -44,6 +44,8 @@ public class CombineRunner {
         
         if ( reader.hasNext() ) {
 
+        	reader.next();
+        	
             StructReader key = reader.key();
             StructReader value = reader.value();
 

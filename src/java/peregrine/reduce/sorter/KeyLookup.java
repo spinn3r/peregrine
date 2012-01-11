@@ -105,8 +105,7 @@ public class KeyLookup {
 
             ShuffleInputChunkReader delegate = reader.getShuffleInputChunkReader();
            
-            KeyEntry entry = new KeyEntry( (byte)reader.index(), 
-            		                       delegate.getShufflePacket().getOffset() + delegate.keyOffset() );
+            KeyEntry entry = new KeyEntry( (byte)reader.index(), delegate.keyOffset() );
             
             entry.backing = reader.getBuffer();
             

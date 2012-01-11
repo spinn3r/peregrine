@@ -138,6 +138,8 @@ public class TestFullShufflePath extends peregrine.BaseTestWithMultipleDaemons {
         int count = 0;
         while( reader.hasNext() ) {
             
+        	reader.next();
+        	
         	StructReader key   = reader.key();
         	StructReader value = reader.value();
 

@@ -32,6 +32,11 @@ public interface SequenceReader extends Closeable {
     public boolean hasNext() throws IOException;
 
     /**
+     * Advance the sequence reader forward one pair.
+     */
+    public void next() throws IOException;
+    
+    /**
      * Read the key from the current entry.
      *
      * Both key() and value() must be called before moving to the next item.

@@ -37,18 +37,24 @@ public class MergeQueueEntry {
 
     public MergeQueueEntry( SequenceReader reader, int id ) throws IOException {
 
-        this( reader.key(), reader.value(), id );
+    	reader.next();
+    	
+        init( reader.key(), reader.value(), id );
         
         this.reader = reader;
 
     }
 
     public MergeQueueEntry( StructReader key, StructReader value, int id ) {
+    	init( key, value, id );
+    }
+
+    private void init( StructReader key, StructReader value, int id ) {    	
         setKey( key );
         setValue( value );
         this.id = id;
     }
-
+    
     public void setKey( StructReader key ) {
     	this.keyAsByteArray = key.toByteArray();
     	this.key = key;

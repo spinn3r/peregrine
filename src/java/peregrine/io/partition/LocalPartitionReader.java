@@ -116,6 +116,11 @@ public class LocalPartitionReader extends BaseJobInput implements SequenceReader
     }
 
     @Override
+    public void next() throws IOException {
+       	chunkReader.next();    	
+    }
+    
+    @Override
     public StructReader key() throws IOException {
         return chunkReader.key();
     }

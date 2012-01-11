@@ -54,6 +54,9 @@ public class MapperTask extends BaseMapperTask {
         Mapper mapper = (Mapper)jobDelegate;
         
         while( reader.hasNext() ) {
+        	
+        	reader.next();
+        	
             mapper.map( reader.key(), reader.value() );
             ++count;
         }
