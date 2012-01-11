@@ -106,11 +106,11 @@ public class ChunkMerger {
         this.output = output;
     }
 
-    public void merge( List<ChunkReader> input ) throws IOException {
+    public void merge( List<SequenceReader> input ) throws IOException {
         merge( input, null );
     }
     
-    public void merge( List<ChunkReader> input, ChunkWriter writer ) throws IOException {
+    public void merge( List<SequenceReader> input, ChunkWriter writer ) throws IOException {
 
         try {
         

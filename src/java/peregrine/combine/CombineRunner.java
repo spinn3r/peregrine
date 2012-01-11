@@ -20,6 +20,7 @@ import java.io.*;
 
 import peregrine.*;
 import peregrine.reduce.*;
+import peregrine.io.*;
 import peregrine.io.chunk.*;
 import peregrine.util.*;
 import peregrine.util.primitive.*;
@@ -34,7 +35,7 @@ public class CombineRunner {
     /**
      * Take the given reader and combine records.
      */
-    public void combine( ChunkReader reader, Combiner combiner ) throws IOException {
+    public void combine( SequenceReader reader, Combiner combiner ) throws IOException {
 
         byte[] last = null;
         List<StructReader> values = new ArrayList();

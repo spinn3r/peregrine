@@ -201,7 +201,7 @@ public class TestCombinerEfficiency extends peregrine.BaseTestWithMultipleConfig
 
         List<JobOutput> jobOutput = new ArrayList();
 
-        List<ChunkReader> mergeInput = new ArrayList();
+        List<SequenceReader> mergeInput = new ArrayList();
 
         int id = 0;
 
@@ -220,7 +220,7 @@ public class TestCombinerEfficiency extends peregrine.BaseTestWithMultipleConfig
 
             ChunkSorter sorter = new ChunkSorter( config , partition, shuffleInput );
 
-            ChunkReader sorted = sorter.sort( work, sorted_chunk, jobOutput );
+            SequenceReader sorted = sorter.sort( work, sorted_chunk, jobOutput );
 
             mergeInput.add( sorted );
 

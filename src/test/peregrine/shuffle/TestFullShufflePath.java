@@ -129,7 +129,7 @@ public class TestFullShufflePath extends peregrine.BaseTestWithMultipleDaemons {
 
     }
 
-    public static void assertResults( ChunkReader reader, int max ) throws Exception {
+    public static void assertResults( SequenceReader reader, int max ) throws Exception {
 
     	StructReader last = null;
 

@@ -19,6 +19,7 @@ import java.io.*;
 import java.util.*;
 
 import peregrine.*;
+import peregrine.io.*;
 import peregrine.io.chunk.*;
 import peregrine.io.partition.*;
 import peregrine.io.util.*;
@@ -41,12 +42,12 @@ public class MapperTask extends BaseMapperTask {
             throw new Exception( "Map jobs must not have more than one input." );
         }
 
-        List<ChunkReader> readers = getJobInput();
+        List<SequenceReader> readers = getJobInput();
 
         if ( readers.size() == 0 )
             return;
         
-        ChunkReader reader = readers.get( 0 );
+        SequenceReader reader = readers.get( 0 );
         
         int count = 0;
         

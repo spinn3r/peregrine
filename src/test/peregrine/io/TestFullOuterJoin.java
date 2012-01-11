@@ -62,7 +62,7 @@ public class TestFullOuterJoin extends peregrine.BaseTestWithTwoPartitions {
 
         writer.close();
 
-        List<ChunkReader> readers = new ArrayList();
+        List<SequenceReader> readers = new ArrayList();
         
         readers.add( new LocalPartitionReader( config, part, "/tmp/left" ) );
         readers.add( new LocalPartitionReader( config, part, "/tmp/right" ) );

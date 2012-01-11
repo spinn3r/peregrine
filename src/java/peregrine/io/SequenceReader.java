@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
 */
-package peregrine.io.chunk;
+package peregrine.io;
 
 import java.io.*;
 
@@ -22,7 +22,7 @@ import peregrine.*;
 /**
  * Interface for reading data from a chunk in key/value form.
  */
-public interface ChunkReader extends Closeable {
+public interface SequenceReader extends Closeable {
 
     /**
      * Return true if there is a next item.  Initially the reader is positioned

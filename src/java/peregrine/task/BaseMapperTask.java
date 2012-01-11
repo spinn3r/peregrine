@@ -72,7 +72,7 @@ public abstract class BaseMapperTask extends BaseTask implements Callable {
      * Construct a set of ChunkReaders (one per input source) for the given
      * input.
      */
-    protected List<ChunkReader> getJobInput() throws IOException {
+    protected List<SequenceReader> getJobInput() throws IOException {
 
         for( ShuffleJobOutput current : shuffleJobOutput ) {
             listeners.add( current );
@@ -80,7 +80,7 @@ public abstract class BaseMapperTask extends BaseTask implements Callable {
 
         listeners.add( new FlushLocalPartitionReaderListener() );
         
-        List<ChunkReader> readers = new ArrayList();
+        List<SequenceReader> readers = new ArrayList();
         
         for( InputReference ref : getInput().getReferences() ) {
 

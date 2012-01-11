@@ -23,6 +23,7 @@ import java.nio.charset.*;
 
 import peregrine.*;
 import peregrine.config.*;
+import peregrine.io.*;
 import peregrine.os.*;
 import peregrine.util.*;
 import peregrine.util.netty.*;
@@ -33,7 +34,7 @@ import org.jboss.netty.buffer.*;
  * Default ChunkReader implementation which uses mmap, and supports features
  * like CRC32, etc.
  */
-public class DefaultChunkReader implements ChunkReader, Closeable {
+public class DefaultChunkReader implements SequenceReader, Closeable {
 
     // magic numbers for chunk reader files.
 

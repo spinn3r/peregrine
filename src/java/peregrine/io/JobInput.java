@@ -27,7 +27,7 @@ import peregrine.shuffle.sender.*;
 /**
  * Input for a job which provides a set of key/value pairs.
  */
-public interface JobInput extends ChunkReader {
+public interface JobInput extends SequenceReader {
 
     /**
      * Add a listener so that we can can see which chunks are being read as 

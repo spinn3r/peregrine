@@ -20,6 +20,7 @@ import java.util.*;
 
 import peregrine.*;
 import peregrine.reduce.*;
+import peregrine.io.*;
 import peregrine.io.chunk.*;
 import peregrine.io.partition.*;
 import peregrine.reduce.merger.*;
@@ -34,9 +35,9 @@ public class MergeRunner {
     private MergeQueueEntry last = null;
     private ChunkMergeComparator comparator = new ChunkMergeComparator();
 
-    private List<ChunkReader> readers;
+    private List<SequenceReader> readers;
 
-    public MergeRunner( List<ChunkReader> readers )
+    public MergeRunner( List<SequenceReader> readers )
         throws IOException {
 
         if ( readers.size() == 0 )
