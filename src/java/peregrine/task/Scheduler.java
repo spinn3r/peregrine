@@ -26,6 +26,11 @@ import peregrine.controller.*;
 
 import com.spinn3r.log5j.*;
 
+/**
+ * Handles work scheduling in the cluster.  RPC endpoints deliver messages to
+ * the scheduler, periodically it wakes up and looks for empty slots on machines
+ * which can do work and then schedules jobs when necessary.  
+ */
 public abstract class Scheduler {
 
     private static final Logger log = Logger.getLogger();
@@ -129,6 +134,9 @@ public abstract class Scheduler {
         
     }
 
+    /**
+     * The operation in progress.  Can be map reduce or merge.
+     */
     public String getOperation() {
         return operation;
     }
