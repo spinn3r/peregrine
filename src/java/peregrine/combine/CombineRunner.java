@@ -29,8 +29,7 @@ import peregrine.util.primitive.*;
 
 /**
  * Run a combine on the given ChunkReader and use the given combiner to
- * merge/compress/collapse the results before we send them over the wire.
- * 
+ * merge/compress/collapse the results before we send them over the wire. 
  */
 public class CombineRunner {
 
