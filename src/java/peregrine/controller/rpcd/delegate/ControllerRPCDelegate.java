@@ -26,103 +26,71 @@ import peregrine.rpc.*;
 import peregrine.rpcd.delegate.*;
 
 /**
+ * Delegate for intercepting RPC messages.
  */
 public class ControllerRPCDelegate extends RPCDelegate<ControllerDaemon> {
 
-	private static Map<String,RPCDelegate> handlers = new HashMap() {{
-	
-		put( "complete", new RPCDelegate<ControllerDaemon>() {
-		
-		    public void handleMessage( ControllerDaemon controllerDaemon, Channel channel, Message message )
-		            throws Exception {
-		    			    	
-	            Host host       = Host.parse( message.get( "host" ) );
-	            Partition part  = new Partition( message.getInt( "partition" ) );
-
-	            controllerDaemon.getScheduler().markComplete( host, part );
-
-	            return;
-		    	
-		    }
-		} );
-		
-		put( "failed", new RPCDelegate<ControllerDaemon>() {
-			
-		    public void handleMessage( ControllerDaemon controllerDaemon, Channel channel, Message message )
-		            throws Exception {
-		    	
-	            Host host          = Host.parse( message.get( "host" ) );
-	            Partition part     = new Partition( message.getInt( "partition" ) );
-	            String stacktrace  = message.get( "stacktrace" );
-
-	            controllerDaemon.getScheduler().markFailed( host, part, stacktrace );
-	            
-	            return;
-		    	
-		    }
-		} );		
-
-		put( "progress", new RPCDelegate<ControllerDaemon>() {
-			
-		    public void handleMessage( ControllerDaemon controllerDaemon, Channel channel, Message message )
-		            throws Exception {
-	            
-	            return;
-		    	
-		    }
-		} );	
-		
-		put( "heartbeat", new RPCDelegate<ControllerDaemon>() {
-			
-		    public void handleMessage( ControllerDaemon controllerDaemon, Channel channel, Message message )
-		            throws Exception {
-	            		    			    	
-	            Host host = Host.parse( message.get( "host" ) );
-
-                // FIXME verify that the config_checksum is correct...
-
-                if ( ! controllerDaemon.getConfig().getChecksum().equals( message.get( "config_checksum" ) ) )
-                    throw new Exception( "Config checksum from %s is invalid: " + host );
-                
-                // mark this host as online for the entire controller.
-	            controllerDaemon.getClusterState().getOnline().mark( host );
-		    	
-	            return;
-		    	
-		    }
-		} );
-		
-		put( "gossip", new RPCDelegate<ControllerDaemon>() {
-			
-		    public void handleMessage( ControllerDaemon controllerDaemon, Channel channel, Message message )
-		            throws Exception {
-		    	
-		    	// mark that a machine has failed to process some unit of work.
-
-	            Host reporter = Host.parse( message.get( "reporter" ) );
-	            Host failed   = Host.parse( message.get( "failed" ) );
-
-	            controllerDaemon.getClusterState().getGossip().mark( reporter, failed ); 
-                
-	            return;
-		    	
-		    }
-		} );
-		
-	}};
-	
-    public void handleMessage( ControllerDaemon controllerDaemon, Channel channel, Message message )
+    public void complete( ControllerDaemon controllerDaemon, Channel channel, Message message )
         throws Exception {
-    	
-        String action = message.get( "action" );
+		
+        Host host       = Host.parse( message.get( "host" ) );
+        Partition part  = new Partition( message.getInt( "partition" ) );
         
-        RPCDelegate handler = handlers.get( action );
+        controllerDaemon.getScheduler().markComplete( host, part );
         
-        if ( handler == null )
-        	throw new Exception( String.format( "No handler for action %s with message %s", action, message ) );
+        return;
+		
+    }
+	
+    public void failed( ControllerDaemon controllerDaemon, Channel channel, Message message )
+        throws Exception {
+        
+        Host host          = Host.parse( message.get( "host" ) );
+        Partition part     = new Partition( message.getInt( "partition" ) );
+        String stacktrace  = message.get( "stacktrace" );
+        
+        controllerDaemon.getScheduler().markFailed( host, part, stacktrace );
+	    
+        return;
+		
+    }
 
-        handler.handleMessage( controllerDaemon, channel, message );	
+    public void progress( ControllerDaemon controllerDaemon, Channel channel, Message message )
+        throws Exception {
         
+        return;
+		
+    }
+
+    public void heartbeat( ControllerDaemon controllerDaemon, Channel channel, Message message )
+        throws Exception {
+        
+        Host host = Host.parse( message.get( "host" ) );
+        
+        // FIXME verify that the config_checksum is correct...
+        
+        if ( ! controllerDaemon.getConfig().getChecksum().equals( message.get( "config_checksum" ) ) )
+            throw new Exception( "Config checksum from %s is invalid: " + host );
+        
+        // mark this host as online for the entire controller.
+        controllerDaemon.getClusterState().getOnline().mark( host );
+		
+        return;
+		
+    }
+		
+    public void gossip( ControllerDaemon controllerDaemon, Channel channel, Message message )
+        throws Exception {
+        
+        // mark that a machine has failed to process some unit of work.
+        
+        Host reporter = Host.parse( message.get( "reporter" ) );
+        Host failed   = Host.parse( message.get( "failed" ) );
+        
+        controllerDaemon.getClusterState().getGossip().mark( reporter, failed ); 
+        
+        return;
+		
     }
     
 }

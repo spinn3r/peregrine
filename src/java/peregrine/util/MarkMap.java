@@ -18,6 +18,10 @@ package peregrine.util;
 import java.util.*;
 import java.util.concurrent.*;
 
+/**
+ * Data structure which contains a key to mark map.  You can mark an item as in
+ * in the set with a given value.
+ */
 public class MarkMap<T,V> {
 
 	protected ConcurrentHashMap<T,V> map = new ConcurrentHashMap();
@@ -30,7 +34,7 @@ public class MarkMap<T,V> {
 
     protected void put( T key, V value ) {
 
-        boolean updated = map.get( key ) == null;
+        boolean updated = map.containsKey( key ) == false;
         
 		map.put( key, value );
 

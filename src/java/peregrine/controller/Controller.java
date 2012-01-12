@@ -192,7 +192,8 @@ public class Controller {
         if ( input.getReferences().size() < 1 ) {
             throw new IOException( "Reducer requires at least one shuffle input." );
         }
-      
+
+        // this will block for completion ... 
         withScheduler( job, new Scheduler( "reduce", job, config, clusterState ) {
 
                 public void invoke( Host host, Partition part ) throws Exception {
@@ -261,7 +262,7 @@ public class Controller {
         Message message = new Message();
         message.put( "action", "flush" );
 
-        callMethodOnCluster( message );
+        callMethodOnCluster( "shuffler", message );
         
     }
 
@@ -276,11 +277,11 @@ public class Controller {
         message.put( "action", "purge" );
         message.put( "name",   name );
 
-        callMethodOnCluster( message );
+        callMethodOnCluster( "shuffler", message );
         
     }
 
-    private void callMethodOnCluster( Message message ) throws Exception {
+    private void callMethodOnCluster( String service, Message message ) throws Exception {
 
         String desc = String.format( "Calling %s %,d hosts with message: %s" , message, config.getHosts().size(), message );
         
@@ -291,7 +292,7 @@ public class Controller {
         List<HttpClient> clients = new ArrayList();
         
         for ( Host host : config.getHosts() ) {
-            clients.add( new Client().invokeAsync( host, "shuffler", message ) );
+            clients.add( new Client().invokeAsync( host, service, message ) );
         }
 
         for( HttpClient client : clients ) {

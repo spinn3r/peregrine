@@ -32,7 +32,7 @@ import com.spinn3r.log5j.*;
 /**
  * Generic code shared across all tasks.
  */
-public abstract class BaseTask {
+public abstract class BaseTask implements Task {
 
     private static final Logger log = Logger.getLogger();
 
@@ -62,6 +62,8 @@ public abstract class BaseTask {
     protected Input input = null;
     
     protected JobDelegate jobDelegate = null;
+
+    private boolean killed = false;
     
     public void init( Config config, Partition partition, Class delegate ) {
     	this.config      = config;
@@ -244,6 +246,19 @@ public abstract class BaseTask {
         
         log.info( "Memory footprint: used=%,d , free=%,d , total=%,d", usedMemory, freeMemory, totalMemory );
 
+    }
+
+    /**
+     * Mark this task as killed.
+     */
+    @Override
+    public void setKilled( boolean killed ) {
+        this.killed = killed;
+    }
+
+    @Override
+    public boolean isKilled() {
+        return killed;
     }
     
     /**

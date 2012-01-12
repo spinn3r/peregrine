@@ -15,11 +15,14 @@
 */
 package peregrine.rpcd.delegate;
 
+import java.lang.reflect.*;
+
 import org.jboss.netty.channel.*;
 
 import peregrine.rpc.*;
 
 /**
+ * Handle messages we need to invoke.
  */
 public abstract class RPCDelegate<T> {
 
@@ -27,9 +30,23 @@ public abstract class RPCDelegate<T> {
      * @param parent The parent object invoking this request. Usually an
      * FSDaemon or a Controller.
      */
-    public abstract void handleMessage( T parent,
-                                        Channel channel,
-                                        Message message )
-        throws Exception;
+    public void handleMessage( T parent,
+                               Channel channel,
+                               Message message )
+        throws Exception {
+
+        String action = message.get( "action" );
+
+        Method method = getClass().getMethod( action, new Class[] { parent.getClass(),
+                                                                    Channel.class,
+                                                                    Message.class } );
+
+        if ( method == null ) {
+            throw new Exception( String.format( "No handler for action %s with message %s", action, message ) );
+        }
+        
+        method.invoke( this, parent, channel, message );
+        
+    }
 
 }

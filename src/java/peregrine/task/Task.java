@@ -13,27 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
 */
-package peregrine.pfsd.rpcd.delegate;
+package peregrine.task;
 
 import java.io.*;
+import java.util.*;
 
-import org.jboss.netty.channel.*;
-
-import peregrine.pfsd.*;
+import peregrine.*;
+import peregrine.config.*;
+import peregrine.io.*;
+import peregrine.io.driver.shuffle.*;
 import peregrine.rpc.*;
-import peregrine.rpcd.delegate.*;
+import peregrine.shuffle.sender.*;
+import peregrine.sysstat.*;
+import peregrine.task.*;
+
+import com.spinn3r.log5j.*;
 
 /**
+ * Task interface.
  */
-public class ShufflerRPCDelegate extends RPCDelegate<FSDaemon> {
-    
-    public void flush( FSDaemon daemon, Channel channel, Message message ) throws IOException {
-        // FIXME: this should be async should it not?
-        daemon.shuffleReceiverFactory.flush();
-    }
+public interface Task {
 
-    public void purge( FSDaemon daemon, Channel channel, Message message ) throws IOException {
-        daemon.shuffleReceiverFactory.purge( message.get( "name" ) );
-    }
+    /**
+     * Mark this task as killed.
+     */
+    public void setKilled( boolean killed );
+
+    public boolean isKilled();
 
 }

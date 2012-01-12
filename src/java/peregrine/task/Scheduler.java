@@ -46,7 +46,18 @@ public abstract class Scheduler {
      */
     protected MarkSet<Partition> completed = new MarkSet();
 
+    /**
+     * The list of work that has not yet been completed but is still pending.
+     */
     protected MarkSet<Partition> pending = new MarkSet();    
+
+    /**
+     * Keep track of which hosts are performing work on which partitions.  This
+     * is used so that we can enable speculative execution as we need to
+     * terminate work hosts which have active work but another host already
+     * completed it.
+     */
+    protected MapSet<Partition,Host> active = new MapSet();
     
     /**
      * Hosts which are available for additional work.  
@@ -88,7 +99,8 @@ public abstract class Scheduler {
         this.config = config;
         this.membership = config.getMembership();
         this.clusterState = clusterState;
-        
+
+        // create a concurrency from all the currently known hosts.
         concurrency = new IncrMap( config.getHosts() );
 
         offlinePartitions = new IncrMap( config.getMembership().getPartitions() );
@@ -177,6 +189,8 @@ public abstract class Scheduler {
             pending.mark( part );
 
             concurrency.incr( host );
+
+            active.put( part, host );
             
             continue;
 
@@ -199,8 +213,15 @@ public abstract class Scheduler {
 
         log.info( "Marking partition %s complete from host: %s", partition, host );
 
+        // mark this partition as complete.
         completed.mark( partition );
 
+        //now remove this host from the list of actively executing jobs.
+        active.remove( partition, host );
+
+        //TODO: if this partition has other hosts running this job, terminate
+        //the jobs.
+        
         // clear the pending status for this partition. Note that we need to do
         // this AFTER marking it complete because if we don't then it may be
         // possible to read both completed and pending at the same time and both
@@ -216,6 +237,9 @@ public abstract class Scheduler {
         
     }
 
+    /**
+     * Mark a job as failed.
+     */
     public void markFailed( Host host,
                             Partition partition,
                             String stacktrace ) {
@@ -236,7 +260,8 @@ public abstract class Scheduler {
     }
 
     /**
-     * Wait for all jobs to be complete.
+     * Wait for all jobs to be complete.  This also performs scheduling in this
+     * thread until we are done executing.
      */
     public void waitForCompletion() throws Exception {
 
