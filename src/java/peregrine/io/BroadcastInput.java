@@ -18,13 +18,21 @@ package peregrine.io;
 import java.io.*;
 
 import peregrine.*;
-import peregrine.config.Config;
-import peregrine.config.Partition;
+import peregrine.config.*;
 import peregrine.io.partition.*;
 
+import com.spinn3r.log5j.Logger;
+
+/**
+ * Reader for pulling in broadcast data and exposing the key/value pairs to the
+ * consumer.
+ */
 public final class BroadcastInput {
 
-	StructReader value ;
+    private static final Logger log = Logger.getLogger();
+
+	private StructReader key = null;
+	private StructReader value = null;
 
     public BroadcastInput( Config config,
                            Partition part,
@@ -32,18 +40,18 @@ public final class BroadcastInput {
         
         LocalPartitionReader reader = new LocalPartitionReader( config, part, path );
 
-        if ( reader.hasNext() == false )
-            throw new IOException( "No broadcast values found at: " + reader );
+        if ( reader.hasNext() == false ) {
+            log.warn( "No broadcast values found at: " + reader );
+            return;
+        }
 
         reader.next();
-        
-        StructReader key   = reader.key();
-        StructReader value = reader.value();
 
         if ( reader.hasNext() )
             throw new IOException( "Too many broadcast values for: " + path );
 
-        this.value = value;
+        this.key   = reader.key();
+        this.value = reader.value();
 
     }
     
@@ -51,6 +59,16 @@ public final class BroadcastInput {
         this.value = value;
     }
 
+    /**
+     * Get the reduced broadcast key.  May return null if none were found.
+     */
+    public StructReader getKey() {
+        return key;
+    }
+
+    /**
+     * Get the reduced broadcast value.  May return null if none were found.
+     */
     public StructReader getValue() {
         return value;
     }
