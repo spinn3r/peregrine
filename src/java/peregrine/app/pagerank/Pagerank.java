@@ -27,6 +27,11 @@ public class Pagerank {
     private static final Logger log = Logger.getLogger();
 
     private Config config;
+
+    /**
+     * The number of iterations we should perform.
+     */
+    private int iterations = 5;
     
     public Pagerank( Config config ) {
         this.config = config;
@@ -99,32 +104,53 @@ public class Pagerank {
 
             // ***** ITER stage... 
 
-            controller.map( Mapper.class,
-                            new Input(),
-                            new Output( "/pr/out/rank_vector" ) );
-            
-            controller.merge( IterJob.Map.class,
-                              new Input( "/pr/test.graph_by_source" ,
-                                         "/pr/out/rank_vector" ,
-                                         "/pr/out/dangling" ,
-                                         "/pr/out/nonlinked" ,
-                                         "broadcast:/pr/out/nr_nodes" ) ,
-                              new Output( "shuffle:default",
-                                          "broadcast:dangling_rank_sum" ) );
+            for( int iter = 0; iter < iterations; ++iter ) {
 
-            // write out the new ranking vector
-            controller.reduce( IterJob.Reduce.class,
-                               new Input( "shuffle:default",
-                                          "broadcast:/pr/out/nr_nodes",
-                                          "broadcast:/pr/out/nr_dangling" ),
-                               new Output( "/pr/out/rank_vector_new" ) );
+                if ( iter == 0 ) {
 
-            // now compute the dangling rank sum for the next iteration
+                    // init empty files which we can still join against.
+                    
+                    controller.map( Mapper.class,
+                                    new Input(),
+                                    new Output( "/pr/out/rank_vector" ) );
+                    
+                    controller.map( Mapper.class,
+                                    new Input(),
+                                    new Output( "/pr/out/teleportation_grant" ) );
 
-            controller.reduce( TeleportationGrantJob.Reduce.class, 
-                               new Input( "shuffle:dangling_rank_sum",
-                                          "broadcast:/pr/out/nr_nodes" ),
-                               new Output( "/pr/out/teleportation_grant" ) );
+                }
+
+                controller.merge( IterJob.Map.class,
+                                  new Input( "/pr/test.graph_by_source" ,
+                                             "/pr/out/rank_vector" ,
+                                             "/pr/out/dangling" ,
+                                             "/pr/out/nonlinked" ,
+                                             "broadcast:/pr/out/nr_nodes" ) ,
+                                  new Output( "shuffle:default",
+                                              "broadcast:dangling_rank_sum" ) );
+
+                // ***
+                // 
+                // write out the new ranking vector
+
+                if ( iter < iterations - 1 ) {
+                
+                    controller.reduce( IterJob.Reduce.class,
+                                       new Input( "shuffle:default",
+                                                  "broadcast:/pr/out/nr_nodes",
+                                                  "broadcast:/pr/out/nr_dangling" ),
+                                       new Output( "/pr/out/rank_vector" ) );
+
+                    // now compute the dangling rank sum for the next iteration
+
+                    controller.reduce( TeleportationGrantJob.Reduce.class, 
+                                       new Input( "shuffle:dangling_rank_sum",
+                                                  "broadcast:/pr/out/nr_nodes" ),
+                                       new Output( "/pr/out/teleportation_grant" ) );
+
+                }
+                    
+            }
 
             log.info( "Pagerank complete" );
             
