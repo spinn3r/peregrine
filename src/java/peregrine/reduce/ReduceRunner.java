@@ -374,7 +374,7 @@ public class ReduceRunner {
                 }
 
         		workSize += header.length;
-                workSize += header.count * KeyLookup.KEY_SIZE;
+                workSize += KeyLookup.computeCapacity( header.count );
                 
         		if ( workSize > config.getSortBufferSize() ) {
         			pendingIterator = pending.iterator();

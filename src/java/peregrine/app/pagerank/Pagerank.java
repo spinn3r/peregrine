@@ -42,6 +42,10 @@ public class Pagerank {
             // once and writing two two destinations.  this would read from
             // 'path' and then wrote to node_indegree and graph_by_source at the
             // same time.
+
+            // ***
+            //
+            // compute the node_indegree 
             
             controller.map( NodeIndegreeJob.Map.class,
                             new Input( path ),
@@ -51,8 +55,11 @@ public class Pagerank {
                                new Input( "shuffle:default" ),
                                new Output( "/pr/tmp/node_indegree" ) );
 
-            // sort the graph by source since we aren't gauranteed to have have
-            // the keys in the right order.
+            // ***
+            //
+            // sort the graph by source since we aren't certain to have have the
+            // keys in the right order.
+            
             controller.map( Mapper.class,
                             new Input( path ),
                             new Output( "shuffle:default" ) );

@@ -59,14 +59,19 @@ public class ChunkSorter extends BaseChunkSorter {
         
     }
 
-    public SequenceReader sort( List<ChunkReader> input, File output, List<JobOutput> jobOutput )
+    public SequenceReader sort( List<ChunkReader> input,
+                                File output,
+                                List<JobOutput> jobOutput )
         throws IOException {
 
         return sort( input, output, jobOutput, null );
         
     }
     
-    public SequenceReader sort( List<ChunkReader> input, File output, List<JobOutput> jobOutput, SortListener sortListener )
+    public SequenceReader sort( List<ChunkReader> input,
+                                File output,
+                                List<JobOutput> jobOutput,
+                                SortListener sortListener )
         throws IOException {
 
         CompositeChunkReader reader = null;

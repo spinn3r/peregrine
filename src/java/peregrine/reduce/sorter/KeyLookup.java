@@ -200,4 +200,12 @@ public class KeyLookup {
 
     }
 
+    /**
+     * Compute the required memory to store the given KeyLookup structure as a
+     * direct buffer.
+     */
+    public static long computeCapacity( int count ) {
+        return count * KeyLookup.KEY_SIZE;
+    }
+    
 }

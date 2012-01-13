@@ -90,7 +90,6 @@ public class TestCombineRunner extends peregrine.BaseTestWithMultipleConfigs {
         //System.setProperty( "peregrine.test.config", "2:1:3" ); 
         System.setProperty( "peregrine.test.config", "1:1:1" ); 
         runTests();
-        
     }
 
 }
