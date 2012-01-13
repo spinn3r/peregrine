@@ -121,13 +121,11 @@ public class IterJob {
         /**
          * 
          */
-        protected double teleport_grant = 0.0;
+        protected double teleport_grant = -1;
 
         protected int nr_nodes;
 
         protected int nr_dangling = 0;
-
-        protected int iter = 0;
         
         @Override
         public void init( List<JobOutput> output ) {
@@ -137,21 +135,24 @@ public class IterJob {
             nr_nodes = getBroadcastInput()
                            .get( 0 )
                            .getValue()
-                           .readInt()
-                ;
+                           .readInt();
 
             nr_dangling = getBroadcastInput()
                            .get( 1 )
                            .getValue()
-                           .readInt()
-                ;
+                           .readInt();
 
-            if ( iter == 0 ) {
+            teleport_grant = getBroadcastInput()
+                           .get( 2 )
+                           .getValue( StructReaders.wrap( teleport_grant ) )
+                           .readDouble();
+            
+            if ( teleport_grant == -1 ) {
 
                 // for iter 0 teleport_grant is computed easily.
 
                 double teleport_grant_sum = nr_dangling * ( 1 / nr_nodes );
-                teleport_grant = (1.0 - ( DAMPENING * (1.0 - teleport_grant_sum)) ) / nr_nodes;
+                teleport_grant = (1.0 - ( DAMPENING * ( 1.0 - teleport_grant_sum ) ) ) / nr_nodes;
                 
             } 
             

@@ -72,6 +72,15 @@ public final class BroadcastInput {
     public StructReader getValue() {
         return value;
     }
-    
+
+    public StructReader getValue( StructReader _default ) {
+
+        if ( value == null )
+            return _default;
+        
+        return value;
+
+    }
+
 }
 

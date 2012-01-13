@@ -129,17 +129,18 @@ public class Pagerank {
                                   new Output( "shuffle:default",
                                               "broadcast:dangling_rank_sum" ) );
 
+                controller.reduce( IterJob.Reduce.class,
+                                   new Input( "shuffle:default",
+                                              "broadcast:/pr/out/nr_nodes",
+                                              "broadcast:/pr/out/nr_dangling",
+                                              "broadcast:/pr/out/teleport_grant" ),
+                                   new Output( "/pr/out/rank_vector" ) );
+
                 // ***
                 // 
                 // write out the new ranking vector
 
                 if ( iter < iterations - 1 ) {
-                
-                    controller.reduce( IterJob.Reduce.class,
-                                       new Input( "shuffle:default",
-                                                  "broadcast:/pr/out/nr_nodes",
-                                                  "broadcast:/pr/out/nr_dangling" ),
-                                       new Output( "/pr/out/rank_vector" ) );
 
                     // now compute the dangling rank sum for the next iteration
 
