@@ -38,11 +38,17 @@ public class Pagerank {
 
         try {
 
+            // ***** INIT stage... 
+
             // TODO: We can elide this and the next step by reading the input
             // once and writing two two destinations.  this would read from
             // 'path' and then wrote to node_indegree and graph_by_source at the
             // same time.
-            
+
+            // ***
+            //
+            // compute the node_indegree 
+
             controller.map( NodeIndegreeJob.Map.class,
                             new Input( path ),
                             new Output( "shuffle:default" ) );
@@ -51,8 +57,14 @@ public class Pagerank {
                                new Input( "shuffle:default" ),
                                new Output( "/pr/tmp/node_indegree" ) );
 
-            // sort the graph by source since we aren't gauranteed to have have
-            // the keys in the right order.
+            // ***
+            //
+            // sort the graph by source since we aren't certain to have have the
+            // keys in the right order and store in graph_by_source for joining
+            // across every iteration.  This is invariant so we should store it
+            // to the filesystem.
+            // 
+
             controller.map( Mapper.class,
                             new Input( path ),
                             new Output( "shuffle:default" ) );
@@ -61,7 +73,11 @@ public class Pagerank {
                                new Input( "shuffle:default" ),
                                new Output( "/pr/test.graph_by_source" ) );
             
-            //now create node metadata...
+            // ***
+            //
+            // now create node metadata...  This will write the dangling vector,
+            // the nonlinked vector and node_metadata which are all invariant.
+
             controller.merge( NodeMetadataJob.Map.class,
                               new Input( "/pr/tmp/node_indegree",
                                          "/pr/test.graph_by_source" ),
@@ -80,6 +96,9 @@ public class Pagerank {
                                new Output( "/pr/out/nr_dangling" ) );
 
             // init the empty rank_vector table ... we need to merge against it.
+
+            // ***** ITER stage... 
+
             controller.map( Mapper.class,
                             new Input(),
                             new Output( "/pr/out/rank_vector" ) );
@@ -93,9 +112,11 @@ public class Pagerank {
                               new Output( "shuffle:default",
                                           "broadcast:dangling_rank_sum" ) );
 
+            // write out the new ranking vector
             controller.reduce( IterJob.Reduce.class,
                                new Input( "shuffle:default",
-                                          "broadcast:/pr/out/nr_nodes" ),
+                                          "broadcast:/pr/out/nr_nodes",
+                                          "broadcast:/pr/out/nr_dangling" ),
                                new Output( "/pr/out/rank_vector_new" ) );
 
             // now compute the dangling rank sum for the next iteration

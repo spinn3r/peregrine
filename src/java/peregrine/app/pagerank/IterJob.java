@@ -124,22 +124,24 @@ public class IterJob {
 
             super.init( output );
             
-            BroadcastInput nrNodesBroadcastInput = getBroadcastInput().get( 0 );
+            nr_nodes = getBroadcastInput()
+                           .get( 0 )
+                           .getValue()
+                           .readInt()
+                ;
 
-            nr_nodes = nrNodesBroadcastInput.getValue().readInt();
+            nr_dangling = getBroadcastInput()
+                           .get( 1 )
+                           .getValue()
+                           .readInt()
+                ;
 
             // for iter 0 teleport_grant would be:
 
             if ( iter == 0 ) {
 
-                // FIXME: add this back in later when I can read in nr_dangling, etc. 
-                
-                /*
-                  
                 double teleport_grant_sum = nr_dangling * ( 1 / nr_nodes );
                 teleport_grant = (1.0 - ( DAMPENING * (1.0 - teleport_grant_sum)) ) / nr_nodes;
-
-                */
                 
             } 
             
