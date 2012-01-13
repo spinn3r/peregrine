@@ -23,6 +23,7 @@ import peregrine.config.*;
 import peregrine.io.*;
 import peregrine.io.chunk.*;
 import peregrine.app.pagerank.*;
+import peregrine.io.driver.blackhole.*;
 
 public class TestCombineRunner extends peregrine.BaseTestWithMultipleConfigs {
 
@@ -67,15 +68,14 @@ public class TestCombineRunner extends peregrine.BaseTestWithMultipleConfigs {
                         sum += value.readInt();                        
                     }
 
-                    System.out.printf( "combine result: %s\n", sum );
-
-                    //FIXME this doens't work just yet.
-                    //emit( key, StructReaders.wrap( sum ) );
+                    emit( key, StructReaders.wrap( sum ) );
                     
                 }
 
             };
 
+        combiner.init( new BlackholeJobOutput() );
+        
         CombineRunner combineRunner = new CombineRunner();
 
         combineRunner.combine( config, partition, reader, combiner );
