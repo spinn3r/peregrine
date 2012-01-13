@@ -134,7 +134,13 @@ public class ChunkSorter extends BaseChunkSorter {
         }
 
         // if we got to this part we're done... 
-        return new DefaultChunkReader( config, output );
+
+        DefaultChunkReader result = null;
+        
+        if ( output != null )
+            result = new DefaultChunkReader( config, output );
+
+        return result;
 
     }
 

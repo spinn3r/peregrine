@@ -29,7 +29,7 @@ public class GroupIOException extends IOException {
     List<Throwable> suppressed = new ArrayList();
     
     public GroupIOException( Throwable cause ) {
-        super( cause );
+        suppressed.add( cause );
     }
     
     public void addSuppressed( Throwable t ) {
@@ -38,23 +38,23 @@ public class GroupIOException extends IOException {
 
     public void printStackTrace( PrintStream out ) {
 
-        // this will print ourselves AND the cause... 
-        super.printStackTrace( out );
-
         for ( Throwable current : suppressed ) {
             current.printStackTrace( out );
         }
-        
+
+        // this will print ourselves AND the cause... 
+        super.printStackTrace( out );
+
     }
 
     public void printStackTrace( PrintWriter out ) {
 
-        // this will print ourselves AND the cause... 
-        super.printStackTrace( out );
-
         for ( Throwable current : suppressed ) {
             current.printStackTrace( out );
         }
+
+        // this will print ourselves AND the cause... 
+        super.printStackTrace( out );
 
     }
     

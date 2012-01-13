@@ -157,7 +157,7 @@ public class DefaultChunkReader implements SequenceReader, ChunkReader, Closeabl
     @Override
     public void next() throws IOException {
         ++idx;
-        keyOffset = reader.index();
+        keyOffset = reader.index() + 1;
        
         key   = readEntry();
         value = readEntry();
