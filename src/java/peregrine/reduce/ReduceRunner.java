@@ -391,7 +391,7 @@ public class ReduceRunner {
             
             log.info( "Writing temporary sort file %s", path );
 
-            ChunkSorter sorter = new ChunkSorter( config , partition, shuffleInput );
+            ChunkSorter sorter = new ChunkSorter( config , partition );
 
             SequenceReader result = sorter.sort( work, out, jobOutput );
 

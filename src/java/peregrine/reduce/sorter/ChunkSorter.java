@@ -44,8 +44,6 @@ public class ChunkSorter extends BaseChunkSorter {
     
     private Partition partition;
     
-    private ShuffleInputReference shuffleInput;
-
     //keeps track of the current input we're sorting.
     private int id = 0;
 
@@ -54,16 +52,21 @@ public class ChunkSorter extends BaseChunkSorter {
     public ChunkSorter() {}
     
     public ChunkSorter( Config config,
-                        Partition partition,
-                        ShuffleInputReference shuffleInput ) {
+                        Partition partition ) {
 
     	this.config = config;
 		this.partition = partition;
-        this.shuffleInput = shuffleInput;
         
     }
 
     public SequenceReader sort( List<ChunkReader> input, File output, List<JobOutput> jobOutput )
+        throws IOException {
+
+        return sort( input, output, jobOutput, null );
+        
+    }
+    
+    public SequenceReader sort( List<ChunkReader> input, File output, List<JobOutput> jobOutput, SortListener sortListener )
         throws IOException {
 
         CompositeChunkReader reader = null;
@@ -90,9 +93,10 @@ public class ChunkSorter extends BaseChunkSorter {
             
             //write this into the final ChunkWriter now.
 
-            writer = new DefaultChunkWriter( config, output );
+            if ( output != null )
+                writer = new DefaultChunkWriter( config, output );
 
-            sortResult = new SortResult( writer );
+            sortResult = new SortResult( writer, sortListener );
             
             KeyLookupReader keyLookupReader = new KeyLookupReader( lookup );
             

@@ -33,61 +33,33 @@ import peregrine.util.primitive.*;
  */
 public class CombineRunner {
 
-	private Config config;
-	
-	public CombineRunner(Config config) {
-		this.config = config;
-	}
-	
     /**
      * Take the given reader and combine records.
      */
-    public void combine( ChunkReader reader, Combiner combiner ) throws IOException {
+    public void combine( Config config,
+                         Partition partition,
+                         ChunkReader reader,
+                         final Combiner combiner ) throws IOException {
 
-        merge( sort( reader ), combiner );
-    	
-    }
+        ChunkSorter sorter = new ChunkSorter( config, partition );
 
-    private void merge( KeyLookupReader reader, Combiner combiner ) throws IOException {
+        List<ChunkReader> input = new ArrayList();
+        input.add( reader );
 
-        byte[] last = null;
-        List<StructReader> values = new ArrayList();
-
-        FullKeyComparator comparator = new FullKeyComparator();
+        File output = null;
         
-        if ( reader.hasNext() ) {
+        List<JobOutput> jobOutput = new ArrayList();
 
-        	reader.next();
-        	
-            StructReader key = reader.key();
-            StructReader value = reader.value();
+        SortListener sortListener = new SortListener() {
 
-            if ( comparator.compare( key.toByteArray() , last ) == 0 ) {
+                public void onFinalValue( StructReader key, List<StructReader> values ) {
+                    combiner.combine( key, values );
+                }
 
-                values.add( value );
-                
-            } else {
-
-                combiner.combine( key , values );
-                
-                last = key.toByteArray();
-                values = new ArrayList();
-                
-            }
-
-        }
-
-    }
-    
-    private KeyLookupReader sort( ChunkReader reader ) throws IOException {
-
-    	ChunkSorter sorter = new ChunkSorter();
-    	
-    	KeyLookup lookup = new KeyLookup( new CompositeChunkReader( config, reader ) );
-    	KeyLookup sorted = sorter.sort( lookup );
-    	
-        return new KeyLookupReader( sorted );
+            };
         
+        sorter.sort( input , output, jobOutput, sortListener );
+
     }
     
 }
