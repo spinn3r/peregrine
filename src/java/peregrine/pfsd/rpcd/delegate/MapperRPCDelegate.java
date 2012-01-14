@@ -53,6 +53,8 @@ public class MapperRPCDelegate extends BaseTaskRPCDelegate {
         Class delegate         = Class.forName( message.get( "delegate" ) );
         Config config          = daemon.getConfig();
 
+        log.info( "Running %s with input %s and output %s", delegate.getName(), input, output );
+
         exec( daemon, delegate, config, partition, input, output );
         
         return;
@@ -82,10 +84,10 @@ public class MapperRPCDelegate extends BaseTaskRPCDelegate {
 
         task.init( config, partition, delegate );
 
-        log.info( "Running delegate %s with input %s and output %s", delegate.getName(), input, output );
-
         daemon.getExecutorService( getClass() ).submit( task );
 
+        trackTask( partition, task );
+        
     }
     
     protected Input readInput( Message message ) {

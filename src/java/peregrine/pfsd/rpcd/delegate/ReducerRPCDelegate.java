@@ -42,10 +42,7 @@ public class ReducerRPCDelegate extends MapperRPCDelegate {
                          Output output )
         throws Exception {
 
-        log.info( "Running %s with input %s and output %s", delegate.getName(), input, output );
-
         ShuffleInputReference shuffleInput = (ShuffleInputReference)input.getReferences().get( 0 );
-        
         log.info( "Using shuffle input : %s ", shuffleInput.getName() );
 
         ReducerTask task = new ReducerTask( config, partition, delegate, shuffleInput );
@@ -53,6 +50,8 @@ public class ReducerRPCDelegate extends MapperRPCDelegate {
         task.setOutput( output );
 
         daemon.getExecutorService( getClass() ).submit( task );
+
+        trackTask( partition, task );
 
     }
 

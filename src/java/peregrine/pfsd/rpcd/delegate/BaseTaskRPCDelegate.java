@@ -50,6 +50,8 @@ public class BaseTaskRPCDelegate extends RPCDelegate<FSDaemon> {
     public void reset( FSDaemon daemon, Channel channel, Message message )
         throws Exception {
 
+        tasks = new ConcurrentHashMap();
+        
     }
 
     /**
@@ -58,6 +60,15 @@ public class BaseTaskRPCDelegate extends RPCDelegate<FSDaemon> {
     public void kill( FSDaemon daemon, Channel channel, Message message )
         throws Exception {
 
+        Partition partition = new Partition( message.getInt( "partition" ) );
+
+        Task task = tasks.get( partition );
+
+        if ( task == null )
+            return;
+
+        task.setKilled( true );
+        
     }
 
     /**
