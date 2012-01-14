@@ -171,6 +171,7 @@ public abstract class Scheduler {
             if ( completed.contains( part ) )
                 continue;
 
+            //TODO: this will block speculative execution 
             if ( pending.contains( part ) )
                 continue;
 
@@ -211,16 +212,16 @@ public abstract class Scheduler {
      */
     public void markComplete( Host host, Partition partition ) {
 
-        log.info( "Marking partition %s complete from host: %s", partition, host );
+        log.info( "Marking partition %s complete from host %s", partition, host );
 
         // mark this partition as complete.
         completed.mark( partition );
 
-        //now remove this host from the list of actively executing jobs.
+        // now remove this host from the list of actively executing jobs.
         active.remove( partition, host );
 
-        //TODO: if this partition has other hosts running this job, terminate
-        //the jobs.
+        // TODO: if this partition has other hosts running this job, terminate
+        // the jobs.  This is needed for speculative execution.
         
         // clear the pending status for this partition. Note that we need to do
         // this AFTER marking it complete because if we don't then it may be
@@ -268,12 +269,13 @@ public abstract class Scheduler {
         log.info( "Waiting on completion %s" , job );
         
         while( true ) {
-        
+
+            // test if we're complete.
             if ( completed.size() == membership.size() ) {
                 break;
             }
 
-            // right now , if ANYTHING has failed, we can not continue....
+            // Right now , if ANYTHING has failed, we can not continue.
             if ( failure.size() > 0 ) {
 
                 // log all root causes.

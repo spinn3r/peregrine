@@ -48,6 +48,8 @@ public class MergerTask extends BaseMapperTask {
 
             if ( joined == null )
                 break;
+
+            assertAlive();
             
             merger.merge( joined.key, joined.values );
             
