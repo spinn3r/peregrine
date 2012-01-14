@@ -54,4 +54,8 @@ public class MapSet<T,V> {
         return map.get( key );
     }
 
+    public boolean contains( T key ) {
+        return map.containsKey( key );
+    }
+    
 }

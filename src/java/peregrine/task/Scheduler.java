@@ -31,13 +31,13 @@ import com.spinn3r.log5j.*;
  * the scheduler, periodically it wakes up and looks for empty slots on machines
  * which can do work and then schedules jobs when necessary.  
  */
-public abstract class Scheduler {
+public class Scheduler {
 
     private static final Logger log = Logger.getLogger();
 
-    protected final Config config;
+    protected Config config = null;
 
-    protected Membership membership;
+    protected Membership membership = null;
 
     /**
      * The list of partitions that are completed.  When a new MapperTask needs
@@ -57,10 +57,11 @@ public abstract class Scheduler {
      * terminate work hosts which have active work but another host already
      * completed it.
      */
-    protected MapSet<Partition,Host> active = new MapSet();
+    protected MapSet<Partition,Host> executing = new MapSet();
     
     /**
-     * Hosts which are available for additional work.  
+     * Hosts which are available for additional work.  These are stored in a 
+     * queue so we can just keep popping items until it is empty. 
      */
     protected SimpleBlockingQueue<Host> available = new SimpleBlockingQueue();
 
@@ -88,6 +89,8 @@ public abstract class Scheduler {
     private Job job;
 
     private String operation;
+
+    protected Scheduler() {}; /* for testing */
     
     public Scheduler( final String operation,
                       final Job job,
@@ -162,19 +165,36 @@ public abstract class Scheduler {
         
         for( Replica replica : replicas ) {
 
-            if ( replica.getPriority() > 0 ) {
-                return;
-            }
-            
             Partition part = replica.getPartition();
             
             if ( completed.contains( part ) )
                 continue;
 
-            //TODO: this will block speculative execution 
-            if ( pending.contains( part ) )
-                continue;
+            if ( config.getSpeculativeExecutionEnabled() ) {
 
+                // verify that this host isn't ALREADY executing this partition
+                // which would be wrong.
+                if ( executing.contains( part ) && executing.get( part ).contains( host ) ) {
+                    continue;
+                }
+                
+            } else {
+
+                if ( replica.getPriority() > 0 ) {
+                    continue;
+                }
+                
+                if ( pending.contains( part ) ) {
+                    // skip speculatively executing this partition now.
+                    continue;
+                }
+
+            }
+
+            // NOTE that this needs to be in the for loop for replica selection
+            // because we want to keep filling this host with jobs until we
+            // reach the desired concurrency.
+            
             if ( concurrency.get( host ) >= config.getConcurrency() ) {
                 return;
             }
@@ -191,7 +211,7 @@ public abstract class Scheduler {
 
             concurrency.incr( host );
 
-            active.put( part, host );
+            executing.put( part, host );
             
             continue;
 
@@ -202,10 +222,84 @@ public abstract class Scheduler {
     }
 
     /**
+     * For a given host, return the replicas that it should process, ordered by
+     * number of hosts currently running a job on that partition and then the
+     * priority.
+     */
+    protected List<Replica> getReplicasForExecutionByImportance( Host host ) 
+        throws Exception {
+
+        List<Replica> replicas = membership.getReplicas( host );
+
+        if ( replicas == null )
+            throw new Exception( "No replicas defined for host: " + host );
+
+        return getReplicasForExecutionByImportance( replicas );
+        
+    }
+
+    /**
+     * For a given host, return the replicas that it should process, ordered by
+     * number of hosts currently running a job on that partition and then the
+     * priority.
+     */
+    protected List<Replica> getReplicasForExecutionByImportance( List<Replica> replicas )
+        throws Exception {
+
+        final IncrMap<Partition> parallelism = new IncrMap();
+
+        final List<Replica> result = new ArrayList();
+        
+        // add all these partitions to the mix.
+        for( Replica replica : replicas ) {
+
+            Partition part = replica.getPartition();
+            
+            parallelism.init( part );
+
+            if ( executing.contains( part ) )
+                parallelism.set( part, executing.get( part ).size() );
+
+            result.add( replica );
+            
+        }
+
+        // now sort the result correctly.
+        Collections.sort( result, new Comparator<Replica>() {
+
+                public int compare( Replica r0, Replica r1 ) {
+
+                    Partition p0 = r0.getPartition();
+                    Partition p1 = r1.getPartition();
+
+                    int diff = parallelism.get( p0 ) - parallelism.get( p1 );
+
+                    if ( diff != 0 )
+                        return diff;
+                    
+                    // now order it by priority
+                    return r0.getPriority() - r1.getPriority();
+
+                }
+                
+            } );
+        
+        return result;
+        
+    }
+    
+    /**
      * Must be implemented by schedulers to hand out work correctly.
      */
-    public abstract void invoke( Host host, Partition part ) throws Exception;
+    public void invoke( Host host, Partition part ) throws Exception {
 
+        // we could make this an abstract class but this means that we can't
+        // test it as easily.
+
+        throw new RuntimeException( "not implemented" );
+        
+    }
+    
     /**
      * Mark a job as complete.  The RPC service calls this method when we are
      * List<Partition> partitions = config..getMembership()done with a job.
@@ -218,7 +312,7 @@ public abstract class Scheduler {
         completed.mark( partition );
 
         // now remove this host from the list of actively executing jobs.
-        active.remove( partition, host );
+        executing.remove( partition, host );
 
         // TODO: if this partition has other hosts running this job, terminate
         // the jobs.  This is needed for speculative execution.

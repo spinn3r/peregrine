@@ -110,6 +110,8 @@ public class BaseConfig {
 
     protected int maxOpenFileHandles = 0;
 
+    protected boolean speculativeExecutionEnabled = false;
+
     public void init( StructMap struct ) {
 
         this.struct = struct;
@@ -133,6 +135,7 @@ public class BaseConfig {
         setPurgeShuffleData( struct.getBoolean( "purgeShuffleData" ) );
         setSyncWriteSize( struct.getSize( "syncWriteSize" ) );
         setMaxOpenFileHandles( struct.getInt( "maxOpenFileHandles" ) );
+        setSpeculativeExecutionEnabled( struct.getBoolean( "speculativeExecutionEnabled" ) );
         
         if ( struct.containsKey( "host" ) )
             setHost( Host.parse( struct.getString( "host" ) ) );
@@ -303,6 +306,14 @@ public class BaseConfig {
 
     public void setMaxOpenFileHandles( int maxOpenFileHandles ) { 
         this.maxOpenFileHandles = maxOpenFileHandles;
+    }
+
+    public void setSpeculativeExecutionEnabled( boolean speculativeExecutionEnabled ) { 
+        this.speculativeExecutionEnabled = speculativeExecutionEnabled;
+    }
+
+    public boolean getSpeculativeExecutionEnabled() { 
+        return this.speculativeExecutionEnabled;
     }
 
     static {

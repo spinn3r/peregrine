@@ -19,10 +19,13 @@ import java.util.*;
 
 import peregrine.*;
 import peregrine.io.*;
-
-
+import peregrine.config.*;
 
 public abstract class BaseJobDelegate implements JobDelegate {
+    
+    private Config config = null;
+    
+    private Partition partition = null;
 
     protected JobOutput stdout = null;
 
@@ -53,6 +56,22 @@ public abstract class BaseJobDelegate implements JobDelegate {
     @Override
     public void setBroadcastInput( List<BroadcastInput> broadcastInput ) { 
         this.broadcastInput = broadcastInput;
+    }
+
+    public Partition getPartition() { 
+        return this.partition;
+    }
+
+    public void setPartition( Partition partition ) { 
+        this.partition = partition;
+    }
+
+    public Config getConfig() { 
+        return this.config;
+    }
+
+    public void setConfig( Config config ) { 
+        this.config = config;
     }
 
 }
