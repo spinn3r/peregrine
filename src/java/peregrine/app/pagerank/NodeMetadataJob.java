@@ -70,7 +70,9 @@ public class NodeMetadataJob {
                 ++nrDangling;
                 
                 // TODO would be NICE to support a sequence file where the
-                // values are optional for better storage.
+                // values are optional for better storage efficiency.  This
+                // would essentially be a 'set' of just keys.
+
                 danglingOutput.emit( key, StructReaders.TRUE );
                 
             }

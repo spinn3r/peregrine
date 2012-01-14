@@ -39,7 +39,9 @@ public class Main {
         
         ExtractWriter writer = new ExtractWriter( config, path );
 
-        GraphBuilder.buildRandomGraph( writer, nr_nodes , max_edges_per_node );
+        GraphBuilder builder = new GraphBuilder( writer );
+        
+        builder.buildRandomGraph( nr_nodes , max_edges_per_node );
         
         writer.close();
 

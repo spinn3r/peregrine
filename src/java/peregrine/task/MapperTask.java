@@ -54,11 +54,15 @@ public class MapperTask extends BaseMapperTask {
         Mapper mapper = (Mapper)jobDelegate;
         
         while( reader.hasNext() ) {
-        	
+
+            assertAlive();
+            
         	reader.next();
         	
             mapper.map( reader.key(), reader.value() );
+
             ++count;
+
         }
 
         log.info( "Mapped %,d entries on %s on host %s from %s", count, partition, config.getHost(), reader );
