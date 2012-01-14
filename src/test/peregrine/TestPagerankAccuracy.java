@@ -18,7 +18,7 @@ package peregrine;
 import peregrine.io.*;
 import peregrine.app.pagerank.*;
 
-public class TestPagerank extends peregrine.BaseTestWithMultipleConfigs {
+public class TestPagerankAccuracy extends peregrine.BaseTestWithMultipleConfigs {
 
     @Override
     public void doTest() throws Exception {
@@ -37,12 +37,26 @@ public class TestPagerank extends peregrine.BaseTestWithMultipleConfigs {
         ExtractWriter writer = new ExtractWriter( config, path );
 
         GraphBuilder builder = new GraphBuilder( writer );
-        
-        builder.buildRandomGraph( nr_nodes , max_edges_per_node );
+
+        builder.addRecord( 1, 2 );
+        builder.addRecord( 1, 3 );
+        builder.addRecord( 3, 1 );
+        builder.addRecord( 3, 2 );
+        builder.addRecord( 3, 5 );
+        builder.addRecord( 4, 5 );
+        builder.addRecord( 4, 6 );
+        builder.addRecord( 5, 4 );
+        builder.addRecord( 5, 6 );
+        builder.addRecord( 6, 4 );
 
         writer.close();
         
         new Pagerank( config ).exec( path );
+
+        // now read all results from ALL partitions so that we can verify that
+        // we have accurate values.
+
+        Map<String,Double> rank_vector;
 
     }
 

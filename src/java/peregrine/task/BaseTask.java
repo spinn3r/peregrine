@@ -260,6 +260,18 @@ public abstract class BaseTask implements Task {
     public boolean isKilled() {
         return killed;
     }
+
+    /**
+     * Assert that we are alive and have not been marked killed by the
+     * controller.
+     */
+    public void assertAlive() throws Exception {
+
+        if ( killed ) {
+            throw new Exception( "This task was killed for partition: %s" + partition );
+        }
+
+    }
     
     /**
      * Mark the partition for this task complete.  
