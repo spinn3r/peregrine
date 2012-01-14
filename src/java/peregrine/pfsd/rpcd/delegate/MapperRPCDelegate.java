@@ -35,10 +35,13 @@ import peregrine.task.*;
 
 /**
  */
-public class MapperRPCDelegate extends RPCDelegate<FSDaemon> {
+public class MapperRPCDelegate extends BaseTaskRPCDelegate {
 
     private static final Logger log = Logger.getLogger();
 
+    /**
+     * RPC call - execute a job on a given partition.
+     */
     public void exec( FSDaemon daemon, Channel channel, Message message )
         throws Exception {
 
@@ -56,6 +59,14 @@ public class MapperRPCDelegate extends RPCDelegate<FSDaemon> {
 
     }
 
+    /**
+     * RPC call - reset between partition runs.
+     */
+    public void reset( FSDaemon daemon, Channel channel, Message message )
+        throws Exception {
+
+    }
+    
     protected void exec( FSDaemon daemon,
                          Class delegate,
                          Config config,

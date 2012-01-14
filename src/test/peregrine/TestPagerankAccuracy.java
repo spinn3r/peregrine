@@ -53,8 +53,11 @@ public class TestPagerankAccuracy extends peregrine.BaseTestWithMultipleConfigs 
         
         new Pagerank( config ).exec( path );
 
-        // now read all results from ALL partitions... 
-        
+        // now read all results from ALL partitions so that we can verify that
+        // we have accurate values.
+
+        Map<String,Double> rank_vector;
+
     }
 
     public static void main( String[] args ) throws Exception {
