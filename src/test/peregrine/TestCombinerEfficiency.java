@@ -27,6 +27,7 @@ import peregrine.io.driver.shuffle.*;
 import peregrine.reduce.merger.*;
 import peregrine.reduce.sorter.*;
 import peregrine.shuffle.*;
+import peregrine.task.*;
 import peregrine.util.*;
 
 public class TestCombinerEfficiency extends peregrine.BaseTestWithMultipleConfigs {
@@ -234,7 +235,9 @@ public class TestCombinerEfficiency extends peregrine.BaseTestWithMultipleConfig
         
         DefaultChunkWriter writer = new DefaultChunkWriter( config, combined );
 
-        ChunkMerger merger = new ChunkMerger( null, partition, jobOutput );
+        ReducerTask task = new ReducerTask();
+        
+        ChunkMerger merger = new ChunkMerger( task, null, partition, jobOutput );
         merger.merge( mergeInput, writer );
 
         writer.close();

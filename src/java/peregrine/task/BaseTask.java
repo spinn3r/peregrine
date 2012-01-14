@@ -265,10 +265,11 @@ public abstract class BaseTask implements Task {
      * Assert that we are alive and have not been marked killed by the
      * controller.
      */
-    public void assertAlive() throws Exception {
+    @Override
+    public void assertAlive() throws IOException {
 
         if ( killed ) {
-            throw new Exception( "This task was killed for partition: %s" + partition );
+            throw new IOException( "This task was killed for partition: %s" + partition );
         }
 
     }

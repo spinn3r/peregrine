@@ -15,23 +15,21 @@
 */
 package peregrine.pfsd.rpcd.delegate;
 
-import peregrine.pfsd.*;
 import java.util.*;
 import java.util.concurrent.*;
 
 import org.jboss.netty.channel.*;
 
-import peregrine.config.Config;
-import peregrine.config.Partition;
+import peregrine.config.*;
 import peregrine.util.*;
+import peregrine.rpc.*;
+import peregrine.rpcd.delegate.*;
+import peregrine.io.*;
+import peregrine.task.*;
+import peregrine.pfsd.*;
 
 import com.spinn3r.log5j.*;
 
-import peregrine.rpc.*;
-import peregrine.rpcd.delegate.*;
-
-import peregrine.io.*;
-import peregrine.task.*;
 
 /**
  * Handles messages related to tasks.  Keeps track of them and resets them and
@@ -50,8 +48,10 @@ public class BaseTaskRPCDelegate extends RPCDelegate<FSDaemon> {
     public void reset( FSDaemon daemon, Channel channel, Message message )
         throws Exception {
 
-        tasks = new ConcurrentHashMap();
+        log.info( "Going to reset()" );
         
+        tasks = new ConcurrentHashMap();
+
     }
 
     /**
@@ -62,12 +62,16 @@ public class BaseTaskRPCDelegate extends RPCDelegate<FSDaemon> {
 
         Partition partition = new Partition( message.getInt( "partition" ) );
 
+        log.info( "Killing task on %s", partition );
+
         Task task = tasks.get( partition );
 
         if ( task == null )
             return;
 
         task.setKilled( true );
+
+        log.info( "Task on %s sent kill request.", partition );
         
     }
 

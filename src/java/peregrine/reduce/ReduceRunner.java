@@ -26,6 +26,7 @@ import peregrine.io.partition.*;
 import peregrine.io.util.*;
 import peregrine.reduce.sorter.*;
 import peregrine.reduce.merger.*;
+import peregrine.task.*;
 import peregrine.util.netty.*;
 import peregrine.os.*;
 import peregrine.shuffle.*;
@@ -45,18 +46,22 @@ public class ReduceRunner {
 
     private SortListener listener = null;
     private Config config;
+    private Task task = null;
     private Partition partition;
     private ShuffleInputReference shuffleInput;
 
     private List<JobOutput> jobOutput = null;
 
+    
     public ReduceRunner( Config config,
+                         Task task,
                          Partition partition,
                          SortListener listener,
                          ShuffleInputReference shuffleInput,
                          List<JobOutput> jobOutput ) {
 
         this.config = config;
+        this.task = task;
         this.partition = partition;
         this.listener = listener;
         this.shuffleInput = shuffleInput;
@@ -71,7 +76,7 @@ public class ReduceRunner {
         this.input.add( in );
     }
     
-    public void sort() throws IOException {
+    public void reduce() throws IOException {
 
         // The input list should first be sorted so that we sort by the order of
         // the shuffle files and not an arbitrary order
@@ -160,7 +165,7 @@ public class ReduceRunner {
 
             prefetchReader = createPrefetchReader( readers );
             
-            ChunkMerger merger = new ChunkMerger( listener, partition, jobOutput );
+            ChunkMerger merger = new ChunkMerger( task, listener, partition, jobOutput );
         
             merger.merge( readers );
 
@@ -210,7 +215,7 @@ public class ReduceRunner {
 
                 prefetchReader = createPrefetchReader( work );
 
-                ChunkMerger merger = new ChunkMerger( null, partition, jobOutput );
+                ChunkMerger merger = new ChunkMerger( task, null, partition, jobOutput );
 
                 final DefaultPartitionWriter writer = newInterChunkWriter( path );
 
@@ -357,6 +362,8 @@ public class ReduceRunner {
             //pass them INTO the chunk sorter.  I also factor in the
             //amount of data IN this partition and not the ENTIRE file size.
         	while( pendingIterator.hasNext() ) {
+        		
+        		task.assertAlive();
         		
         		File current = pendingIterator.next();
                 String path = current.getPath();                

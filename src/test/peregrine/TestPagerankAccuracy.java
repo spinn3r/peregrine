@@ -56,7 +56,7 @@ public class TestPagerankAccuracy extends peregrine.BaseTestWithMultipleConfigs 
         // now read all results from ALL partitions so that we can verify that
         // we have accurate values.
 
-        Map<String,Double> rank_vector;
+        //Map<String,Double> rank_vector;
 
     }
 

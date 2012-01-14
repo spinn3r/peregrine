@@ -24,6 +24,7 @@ import peregrine.io.*;
 import peregrine.io.chunk.*;
 import peregrine.io.util.*;
 import peregrine.reduce.*;
+import peregrine.task.*;
 
 import com.spinn3r.log5j.Logger;
 
@@ -96,14 +97,22 @@ public class ChunkMerger {
     private Partition partition;
 
     private List<JobOutput> output;
+
+    private Task task = null;
     
     public ChunkMerger() {
     }
 
-    public ChunkMerger( SortListener listener, Partition partition, List<JobOutput> output ) {
+    public ChunkMerger( Task task,
+                        SortListener listener,
+                        Partition partition,
+                        List<JobOutput> output ) {
+
+        this.task = task;
         this.listener = listener;
         this.partition = partition;
         this.output = output;
+        
     }
 
     public void merge( List<SequenceReader> input ) throws IOException {
@@ -139,6 +148,8 @@ public class ChunkMerger {
                 if ( entry == null )
                     break;
 
+                task.assertAlive();
+                
                 sortResult.accept( new SortEntry( entry.key, StructReaders.unwrap( entry.value ) ) );
 
                 ++entries;

@@ -40,5 +40,11 @@ public interface Task {
     public void setKilled( boolean killed );
 
     public boolean isKilled();
-
+    
+    /**
+     * Assert that we are alive and have not been marked killed by the
+     * controller.
+     */
+    public void assertAlive() throws IOException;
+    
 }
