@@ -15,6 +15,7 @@
 */
 package peregrine.task;
 
+import java.io.*;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.*;
@@ -23,13 +24,44 @@ import peregrine.*;
 import peregrine.util.*;
 import peregrine.config.*;
 import peregrine.controller.*;
+import peregrine.rpc.*;
 
 import com.spinn3r.log5j.*;
 
 /**
- * Handles work scheduling in the cluster.  RPC endpoints deliver messages to
- * the scheduler, periodically it wakes up and looks for empty slots on machines
- * which can do work and then schedules jobs when necessary.  
+ * <p>
+ * Handles work scheduling in the cluster.
+ * 
+ * <h2>Overview</h2>
+ * 
+ * <p>
+ * Handles work scheduling in the cluster.  RPC endpoints deliver messages
+ * to the scheduler, periodically it wakes up and looks for empty slots on
+ * machines which can do work and then schedules jobs when necessary.
+ *
+ * <h2>Speculative Execution</h2>
+ * 
+ * <p> Speculative execution works by first executing partitions that have a
+ * higher priority.  Once we have spare hosts which have completed all their
+ * primary work, we do speculative execution on them by running partition which
+ * may be in flight on other hosts.
+ *
+ * <p> The system works by first sorting all potential replicas on the host by
+ * looking at the number of currently executing jobs and sorting them ascending
+ * so that jobs which have LESS speculative executions get bumped up higher.
+ *
+ * <p> Once one of the hosts reports a partition as complete, we mark it
+ * complete internally and then add requests into a prey queue to send RPC
+ * messages to these hosts to kill the extra tasks.
+ *
+ * <p> When the tasks die they send off an RPC message saying that they were
+ * failed and marked killed at which make these hosts available for more work.
+ * 
+ * <h2> Speculative Sorting</h2>
+ *
+ * <p>When shuffle data is sent from map tasks, and there is a shuffle target,
+ * we can preemptively sort these files when machines are idle. They have to be
+ * sorted ANYWAY and we might as well do this while we have idle CPU time.
  */
 public class Scheduler {
 
@@ -70,8 +102,14 @@ public class Scheduler {
      */
     protected MarkSet<Host> spare = new MarkSet();
 
+    /**
+     * The concurrency of each host as it is executing.
+     */
     protected IncrMap<Host> concurrency;
 
+    /**
+     * Failure conditions in the scheduler so that we can fail easily.
+     */
     protected MarkSet<Fail> failure = new MarkSet();
 
     /**
@@ -81,6 +119,13 @@ public class Scheduler {
      * data (ouch).
      */
     protected IncrMap<Partition> offlinePartitions;
+
+    /**
+     * Hosts which should be sent kill requests because a job completed which is
+     * also being speculatively executed on other hosts so we need to send a
+     * kill command to the host.
+     */
+    protected SimpleBlockingQueue<Replica> prey = new SimpleBlockingQueue();
 
     protected ChangedMessage changedMessage = new ChangedMessage();
 
@@ -137,7 +182,7 @@ public class Scheduler {
                         offlinePartitions.incr( part );
 
                         if( offlinePartitions.get( part ) == config.getReplicas() ) {
-                            markFailed( host, part , "*NO TRACE*" );
+                            markFailed( host, part , false, "*NO TRACE*" );
                             break;
                         }
                                                   
@@ -158,10 +203,7 @@ public class Scheduler {
     
     protected void schedule( Host host ) throws Exception {
 
-        List<Replica> replicas = membership.getReplicas( host );
-
-        if ( replicas == null )
-            throw new Exception( "No replicas defined for host: " + host );
+        List<Replica> replicas = getReplicasForExecutionByImportance( host );
         
         for( Replica replica : replicas ) {
 
@@ -311,6 +353,44 @@ public class Scheduler {
         // mark this partition as complete.
         completed.mark( partition );
 
+        markInactive( host, partition );
+
+        // for each one of the hosts that are executing.. add them to the prey
+        // queue so they can be killed.
+
+        if ( executing.contains( partition ) ) {
+            for( Host current : executing.get( partition ) ) {
+                prey.put( new Replica( current, partition ) );
+            }
+        }
+
+    }
+
+    /**
+     * Mark a job as failed.
+     */
+    public void markFailed( Host host,
+                            Partition partition,
+                            boolean killed,
+                            String stacktrace ) {
+
+        log.error( "Host %s has failed on %s with trace: \n %s", host, partition, stacktrace );
+
+        markInactive( host, partition );
+        
+        // this isn't really a failure because another host finished this job.
+        if ( completed.contains( partition ) )
+            return;
+        
+        failure.mark( new Fail( host, partition, stacktrace ) );
+        
+    }
+
+    /**
+     * Mark a given 
+     */
+    protected void markInactive( Host host, Partition partition ) {
+
         // now remove this host from the list of actively executing jobs.
         executing.remove( partition, host );
 
@@ -329,20 +409,7 @@ public class Scheduler {
         available.putWhenMissing( host );
 
         concurrency.decr( host );
-        
-    }
 
-    /**
-     * Mark a job as failed.
-     */
-    public void markFailed( Host host,
-                            Partition partition,
-                            String stacktrace ) {
-
-        log.error( "Host %s has failed on %s with trace: \n %s", host, partition, stacktrace );
-
-        failure.mark( new Fail( host, partition, stacktrace ) );
-        
     }
     
     public void markOnline( Host host ) {
@@ -382,6 +449,16 @@ public class Scheduler {
                 
             }
 
+            // try to drain the prey queue killing each of the entries TODO. we
+            // should probably use parallel dispatch on these when there are
+            // multiple entries for performance reasons.
+            while( prey.size() > 0 ) {
+
+                Replica victim = prey.take();
+                sendKill( operation, victim.getHost(), victim.getPartition() );
+                
+            }
+
             // TODO: make this a constant.
             Host availableHost = available.poll( 500, TimeUnit.MILLISECONDS );
             
@@ -407,6 +484,46 @@ public class Scheduler {
             changedMessage.update( status );
 
         }
+            
+    }
+
+    /**
+     * Send a kill command to a given host to kill a job on a given partition.
+     */
+    protected void sendKill( String service,
+                             Host host,
+                             Partition partition ) {
+
+        while( true ) {
+
+            try {
+
+                if ( clusterState.getOffline().contains( host ) ) {
+                    
+                    log.info( "Not sending kill.  Host is offline." );
+                    return;
+                    
+                }
+                
+                Message message = new Message();
+                
+                message.put( "action" ,   "kill" );
+                message.put( "partition", partition.getId() );
+                
+                log.info( "Sending kill message to host %s: %s", host, message );
+                
+                new Client().invoke( config.getController(), service, message );
+                
+                break;
+
+            } catch ( IOException e ) {
+                
+                log.error( String.format( "Unable to kill %s on %s for %s", service, host, partition ), e );
+                Threads.coma( 1500L );
+                
+            }
+            
+        } 
             
     }
 

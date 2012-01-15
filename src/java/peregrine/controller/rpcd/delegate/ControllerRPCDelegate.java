@@ -48,8 +48,9 @@ public class ControllerRPCDelegate extends RPCDelegate<ControllerDaemon> {
         Host host          = Host.parse( message.get( "host" ) );
         Partition part     = new Partition( message.getInt( "partition" ) );
         String stacktrace  = message.get( "stacktrace" );
+        boolean killed     = message.getBoolean( "killed" );
         
-        controllerDaemon.getScheduler().markFailed( host, part, stacktrace );
+        controllerDaemon.getScheduler().markFailed( host, part, killed, stacktrace );
 	    
         return;
 		

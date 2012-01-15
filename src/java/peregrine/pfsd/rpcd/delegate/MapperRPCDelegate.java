@@ -61,14 +61,6 @@ public class MapperRPCDelegate extends BaseTaskRPCDelegate {
 
     }
 
-    /**
-     * RPC call - reset between partition runs.
-     */
-    public void reset( FSDaemon daemon, Channel channel, Message message )
-        throws Exception {
-
-    }
-    
     protected void exec( FSDaemon daemon,
                          Class delegate,
                          Config config,

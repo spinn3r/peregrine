@@ -286,6 +286,7 @@ public abstract class BaseTask implements Task {
         message.put( "action" ,   "complete" );
         message.put( "host",      config.getHost().toString() );
         message.put( "partition", partition.getId() );
+        message.put( "killed",    killed );
 
         log.info( "Sending complete message to controller: %s", message );
         

@@ -314,6 +314,7 @@
         <property name="title" value="Peregrine ${version} API"/>
     
         <javadoc bottom="Copyright &amp;copy; 2011 Kevin Burton. All Rights Reserved." 
+                 access="public"
                  windowtitle="Peregrine ${version} API" 
                  use="true" 
                  private="false" 

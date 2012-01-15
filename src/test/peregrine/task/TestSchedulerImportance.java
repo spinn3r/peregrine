@@ -80,11 +80,9 @@ public class TestSchedulerImportance extends BaseTest {
 
         dump( replicas );
         
-        /*
-        assertEquals( 0, replicas.get( 0 ).getPriority() );
-        assertEquals( 1, replicas.get( 1 ).getPriority() );
-        assertEquals( 2, replicas.get( 2 ).getPriority() );
-        */
+        assertEquals( part3, replicas.get( 0 ).getPartition() );
+        assertEquals( part4, replicas.get( 1 ).getPartition() );
+        assertEquals( part5, replicas.get( 2 ).getPartition() );
         
 	}
 

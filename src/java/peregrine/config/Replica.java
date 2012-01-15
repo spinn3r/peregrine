@@ -27,9 +27,13 @@ public class Replica implements Comparable<Replica> {
     protected Host host;
 
     public Replica( Host host, Partition partition, int priority ) {
+        this( host, partition );
+        this.priority = priority;
+    }
+
+    public Replica( Host host, Partition partition ) {
         this.host = host;
         this.partition = partition;
-        this.priority = priority;
     }
 
     public Host getHost() { 
