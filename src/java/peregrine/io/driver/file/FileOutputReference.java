@@ -13,7 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
 */
-package peregrine.io;
+package peregrine.io.driver.file;
+
+import peregrine.io.*;
 
 public final class FileOutputReference implements OutputReference {
     
@@ -21,13 +23,15 @@ public final class FileOutputReference implements OutputReference {
 
     private String path;
 
-    public FileOutputReference( String path ) {
-        this( path, false );
-    }
-    
-    public FileOutputReference( String path, boolean append ) {
-        this.path = path;
-        this.append = append;
+    public FileOutputReference( String uri ) {
+        
+        this.path = uri;
+        this.path = path.replaceAll( "file:" , "" );
+        this.path = path.replaceAll( "\\?append=true" , "" );
+        this.path = path.replaceAll( "\\?append=false" , "" );
+        
+        this.append = uri.endsWith( "?append=true" );
+        
     }
 
     public String getPath() {
@@ -40,7 +44,7 @@ public final class FileOutputReference implements OutputReference {
 
     @Override
     public String toString() {
-        return String.format( "%s:%s:%s", getScheme(), getPath(), append );
+        return String.format( "%s:%s?append=%s", getScheme(), getPath(), append );
     }
 
     @Override

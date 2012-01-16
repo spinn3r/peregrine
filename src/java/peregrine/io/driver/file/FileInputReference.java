@@ -13,14 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
 */
-package peregrine.io;
+package peregrine.io.driver.file;
+
+import peregrine.io.*;
 
 public final class FileInputReference implements InputReference {
 
     private String path;
     
     public FileInputReference( String path ) {
-        this.path = path;
+        this.path = path.replaceAll( "file:" , "" );
     }
 
     public String getPath() {
