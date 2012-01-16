@@ -33,8 +33,8 @@ public class ShuffleJobOutput
 
     private static final Logger log = Logger.getLogger();
 
-    protected Config config;
-    protected String name;
+    public Config config;
+    public String name;
     protected Partition partition;
 
     protected ShuffleJobOutputDelegate jobOutputDelegate;

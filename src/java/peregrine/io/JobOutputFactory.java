@@ -21,6 +21,7 @@ import java.util.*;
 import peregrine.config.*;
 import peregrine.io.driver.*;
 import peregrine.io.driver.blackhole.*;
+import peregrine.io.driver.file.*;
 import peregrine.io.driver.shuffle.*;
 import peregrine.io.partition.*;
 import peregrine.shuffle.sender.*;
@@ -39,15 +40,7 @@ public class JobOutputFactory {
 
         for( OutputReference ref : output.getReferences() ) {
 
-            if ( ref instanceof FileOutputReference ) {
-
-                FileOutputReference fileref = (FileOutputReference)ref;
-
-                PartitionWriter writer = new DefaultPartitionWriter( config, partition, fileref.getPath(), fileref.getAppend() );
-
-                result.add( new PartitionWriterJobOutput( writer ) );
-
-            } else if ( ref instanceof BroadcastOutputReference ) {
+            if ( ref instanceof BroadcastOutputReference ) {
 
                 BroadcastOutputReference bcast = (BroadcastOutputReference) ref;
                 

@@ -19,6 +19,7 @@ import java.util.*;
 
 import peregrine.io.driver.*;
 import peregrine.io.driver.blackhole.*;
+import peregrine.io.driver.file.*;
 import peregrine.io.driver.shuffle.*;
 
 /**
@@ -35,7 +36,7 @@ public final class Output {
     public Output( List<String> paths ) {
 
         for( String path : paths ) {
-
+            
             if ( path.contains( ":" ) ) {
 
                 String[] split = path.split( ":" );
@@ -48,16 +49,12 @@ public final class Output {
                 
                 if ( "broadcast".equals( scheme ) )
                     add( new BroadcastOutputReference( arg ) );
-                
-                if ( "file".equals( scheme ) ) {
-                    boolean append = split[2].equals( "true" );
-                    add( new FileOutputReference( arg, append ) );
-                }
 
                 IODriver driver = IODriverRegistry.getInstance( scheme );
                 
-                if ( driver != null )
+                if ( driver != null ) {
                     add( driver.getOutputReference( path ) );
+                }
                 
             } else {
                 add( new FileOutputReference( path ) );

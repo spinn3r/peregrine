@@ -25,6 +25,7 @@ import peregrine.config.Partition;
 import peregrine.io.*;
 import peregrine.io.chunk.*;
 import peregrine.io.driver.*;
+import peregrine.io.driver.file.*;
 import peregrine.io.driver.shuffle.*;
 import peregrine.io.partition.*;
 import peregrine.io.util.*;
@@ -88,19 +89,13 @@ public abstract class BaseMapperTask extends BaseTask implements Callable {
             	// right now we handle broadcast input differently.
                 continue;
             }
-            
-            if ( ref instanceof FileInputReference ) {
-                FileInputReference file = (FileInputReference) ref;
-                readers.add( new LocalPartitionReader( config, partition, file.getPath(), listeners ) );
-                continue;
-            }
 
             IODriver driver = IODriverRegistry.getInstance( ref.getScheme() );
             
             // see if it is registered as a driver.
             if ( driver != null ) {
 
-                JobInput ji = driver.getJobInput( null, config, partition );
+                JobInput ji = driver.getJobInput( ref, config, partition );
                 ji.addListeners( listeners );
                 
                 readers.add( ji );
