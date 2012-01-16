@@ -22,6 +22,7 @@ import peregrine.*;
 import peregrine.config.*;
 import peregrine.io.*;
 import peregrine.io.partition.*;
+import peregrine.shuffle.sender.*;
 import peregrine.util.*;
 import peregrine.io.chunk.*;
 
