@@ -96,6 +96,8 @@ public class TestCassandra
         // cannonical ranges and nodes holding replicas
         List<TokenRange> masterRangeNodes = getRangeMap(conf);
 
+        System.out.printf( "FIXME: %s\n", masterRangeNodes );
+        
         keyspace = ConfigHelper.getInputKeyspace(conf);
         cfName = ConfigHelper.getInputColumnFamily(conf);
 
@@ -122,9 +124,12 @@ public class TestCassandra
 
             for (TokenRange range : masterRangeNodes)
             {
+
+                System.out.printf( "FIXME: %s\n", range.rpc_endpoints );
+
                 if (jobRange == null)
                 {
-                    // for each range, pick a live owner and ask it to compute bite-sized splits
+                    // for each range, pick a live owner and ask it to bite -sized splits
                     splitfutures.add(executor.submit(new SplitCallable(range, conf)));
                 }
                 else
@@ -181,13 +186,19 @@ public class TestCassandra
 
         public SplitCallable(TokenRange tr, StructMap conf)
         {
+
             this.range = tr;
             this.conf = conf;
+
+            if ( range.rpc_endpoints == null )
+                throw new NullPointerException( "range.rpc_endpoints" );
+            
         }
 
         public List<ColumnFamilySplit> call() throws Exception
         {
             ArrayList<ColumnFamilySplit> splits = new ArrayList<ColumnFamilySplit>();
+
             List<String> tokens = getSubSplits(keyspace, cfName, range, conf);
             assert range.rpc_endpoints.size() == range.endpoints.size() : "rpc_endpoints size must match endpoints size";
             // turn the sub-ranges into InputSplits
