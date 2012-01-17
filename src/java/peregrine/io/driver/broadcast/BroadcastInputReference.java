@@ -13,14 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
 */
-package peregrine.io;
+package peregrine.io.driver.broadcast;
 
-public final class BroadcastOutputReference implements OutputReference {
+import peregrine.io.*;
+
+public final class BroadcastInputReference implements InputReference {
 
     private String name;
     
-    public BroadcastOutputReference( String name ) {
-        this.name = name;
+    public BroadcastInputReference() {}
+
+    public BroadcastInputReference( String uri ) {
+
+        this.name = uri;
+        this.name = this.name.replaceAll( getScheme() + ":" , "" );
+        
     }
 
     public String getName() {
@@ -29,11 +36,11 @@ public final class BroadcastOutputReference implements OutputReference {
 
     @Override
     public String toString() {
-        return String.format( "%s:%s", getScheme() , getName() );
+        return "broadcast:" + getName();
     }
- 
-    @Override
-	public String getScheme() {
+
+    @Override 
+    public String getScheme() {
     	return "broadcast";
     }
     

@@ -19,6 +19,7 @@ import java.util.*;
 
 import peregrine.*;
 import peregrine.io.*;
+import peregrine.io.driver.broadcast.*;
 import peregrine.shuffle.sender.*;
 import peregrine.task.*;
 

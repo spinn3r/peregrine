@@ -25,6 +25,7 @@ import peregrine.config.Partition;
 import peregrine.io.*;
 import peregrine.io.chunk.*;
 import peregrine.io.driver.*;
+import peregrine.io.driver.broadcast.*;
 import peregrine.io.driver.file.*;
 import peregrine.io.driver.shuffle.*;
 import peregrine.io.partition.*;
