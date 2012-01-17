@@ -31,7 +31,7 @@ public class Message extends StructMap {
             = new QueryStringDecoder( data ).getParameters();
 
         for( String key : decoded.keySet() ) {
-            delegate.put( key , decoded.get( key ).get(0) );
+            put( key , decoded.get( key ).get(0) );
         }
 
     }
@@ -51,17 +51,19 @@ public class Message extends StructMap {
         put( key, stacktrace );
         
     }
-    
-    public String toString() {
 
+    @Override
+    public String toString() {
+        
         QueryStringEncoder encoder = new QueryStringEncoder( "" );
 
         for( String key : keys ) {
 
             Object value = delegate.get( key );
 
-            if( value != null )
+            if( value != null ) {
                 encoder.addParam( key, value.toString() );
+            }
             
         }
 
