@@ -13,30 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
 */
-package peregrine.io.driver.shuffle;
+package peregrine;
 
-import java.io.*;
-import java.util.concurrent.*;
+import java.util.*;
 
-import peregrine.*;
-import peregrine.config.*;
 import peregrine.io.*;
-import peregrine.io.partition.*;
-import peregrine.util.*;
-import peregrine.io.chunk.*;
-import com.spinn3r.log5j.Logger;
+import peregrine.task.*;
+import peregrine.combine.*;
 
-public interface ShuffleJobOutputDelegate
-    extends JobOutput, ChunkStreamListener, Closeable, Flushable {
+/**
+ * <p>
+ * Take a key and list of values, and reduce/combine them and emit result.
+ * 
+ * <p>
+ * Combiners are used to boost the performance of shuffling by reducing 
+ * values before they are sent over the wire.
+ * 
+ * <p>
+ * This is VERY similar to a Reducer but does not support multiple output 
+ * streams.
+ */
+public class Combiner extends BaseCombiner {
 
-    public void emit( int to_partition, StructReader key , StructReader value );
+    public void combine( StructReader key, List<StructReader> values ) {
+        emit( key, StructReaders.wrap( values ) );
+    }
 
-    public long length();
-
-    @Override
-    public void flush() throws IOException;
-
-    @Override
-    public void close() throws IOException;
-    
 }

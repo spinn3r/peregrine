@@ -62,7 +62,7 @@ public class TestFullOuterJoin extends peregrine.BaseTestWithTwoPartitions {
 
         writer.close();
 
-        List<ChunkReader> readers = new ArrayList();
+        List<SequenceReader> readers = new ArrayList();
         
         readers.add( new LocalPartitionReader( config, part, "/tmp/left" ) );
         readers.add( new LocalPartitionReader( config, part, "/tmp/right" ) );
@@ -86,7 +86,7 @@ public class TestFullOuterJoin extends peregrine.BaseTestWithTwoPartitions {
     }
 
     public static void write( PartitionWriter writer,
-                              int v ) throws IOException {
+                              long v ) throws IOException {
 
     	StructReader key = StructReaders.wrap(v);
     	StructReader value = key;

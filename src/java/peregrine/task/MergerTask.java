@@ -36,7 +36,7 @@ public class MergerTask extends BaseMapperTask {
 
         listeners.add( new MergerLocalPartitionListener() );
         
-        List<ChunkReader> readers = getJobInput();
+        List<SequenceReader> readers = getJobInput();
 
         MergeRunner localMerger = new MergeRunner( readers );
 
@@ -48,6 +48,8 @@ public class MergerTask extends BaseMapperTask {
 
             if ( joined == null )
                 break;
+
+            assertAlive();
             
             merger.merge( joined.key, joined.values );
             

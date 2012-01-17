@@ -13,29 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
 */
-package peregrine.io;
+package peregrine.shuffle.sender;
 
-public final class FileInputReference implements InputReference {
+import java.io.*;
+import java.util.concurrent.*;
 
-    private String path;
-    
-    public FileInputReference( String path ) {
-        this.path = path;
-    }
+import peregrine.*;
+import peregrine.config.*;
+import peregrine.io.*;
+import peregrine.io.partition.*;
+import peregrine.util.*;
+import peregrine.io.chunk.*;
+import com.spinn3r.log5j.Logger;
 
-    public String getPath() {
-        return this.path;
-    }
+public interface ShuffleJobOutputDelegate
+    extends JobOutput, ChunkStreamListener, Closeable, Flushable {
+
+    public void emit( int to_partition, StructReader key , StructReader value );
+
+    public long length();
 
     @Override
-    public String toString() {
-        return "file:" + getPath();
-    }
+    public void flush() throws IOException;
 
-    @Override 
-    public String getScheme() {
-    	return "file";
-    }
+    @Override
+    public void close() throws IOException;
     
 }
-    

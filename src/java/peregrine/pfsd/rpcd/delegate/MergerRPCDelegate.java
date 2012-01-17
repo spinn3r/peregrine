@@ -41,8 +41,6 @@ public class MergerRPCDelegate extends MapperRPCDelegate {
                          Output output )
         throws Exception {
 
-        log.info( "Running %s with input %s and output %s", delegate.getName(), input, output );
-
         MergerTask task = new MergerTask();
 
         task.setInput( input );
@@ -51,6 +49,8 @@ public class MergerRPCDelegate extends MapperRPCDelegate {
         task.init( config, partition, delegate );
 
         daemon.getExecutorService( getClass() ).submit( task );
+
+        trackTask( partition, task );
 
     }
 

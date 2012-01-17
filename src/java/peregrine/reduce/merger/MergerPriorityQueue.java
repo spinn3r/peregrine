@@ -17,6 +17,8 @@ package peregrine.reduce.merger;
 
 import java.io.*;
 import java.util.*;
+
+import peregrine.io.*;
 import peregrine.io.chunk.*;
 import peregrine.reduce.*;
 
@@ -28,7 +30,7 @@ public class MergerPriorityQueue {
 
     protected ChunkMergeComparator comparator = new ChunkMergeComparator();
     
-    public MergerPriorityQueue( List<ChunkReader> readers ) throws IOException {
+    public MergerPriorityQueue( List<SequenceReader> readers ) throws IOException {
 
         if ( readers.size() == 0 )
             throw new IllegalArgumentException( "readers" );
@@ -37,7 +39,7 @@ public class MergerPriorityQueue {
         
         for( int id = 0; id < readers.size(); ++id  ) {
 
-            ChunkReader reader = readers.get( id );
+            SequenceReader reader = readers.get( id );
                         
             if ( reader.hasNext() == false )
                 continue;
@@ -64,6 +66,8 @@ public class MergerPriorityQueue {
         
         if ( entry.reader.hasNext() ) {
 
+        	entry.reader.next();
+        	
             // add this back in with the next value.
             entry.setKey( entry.reader.key() );
             entry.setValue( entry.reader.value() );

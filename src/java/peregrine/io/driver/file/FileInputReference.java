@@ -13,26 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
 */
-package peregrine.io.driver.shuffle;
+package peregrine.io.driver.file;
 
-import java.io.*;
-import java.util.concurrent.*;
-
-import peregrine.config.*;
 import peregrine.io.*;
-import peregrine.io.partition.*;
-import peregrine.util.*;
-import peregrine.io.chunk.*;
-import com.spinn3r.log5j.Logger;
 
-public abstract class ShuffleJobOutputBase implements ShuffleJobOutputDelegate {
+public final class FileInputReference implements InputReference {
+
+    private String path;
     
-    protected long length = 0;
-
-    @Override
-    public long length() { 
-        return this.length;
+    public FileInputReference( String path ) {
+        this.path = path.replaceAll( "file:" , "" );
     }
 
-}
+    public String getPath() {
+        return this.path;
+    }
 
+    @Override
+    public String toString() {
+        return "file:" + getPath();
+    }
+
+    @Override 
+    public String getScheme() {
+    	return "file";
+    }
+    
+}
+    

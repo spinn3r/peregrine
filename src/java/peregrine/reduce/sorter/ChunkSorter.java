@@ -41,19 +41,40 @@ import com.spinn3r.log5j.Logger;
 public class ChunkSorter extends BaseChunkSorter {
 
     private static final Logger log = Logger.getLogger();
+    
+    private Partition partition;
+    
+    //keeps track of the current input we're sorting.
+    private int id = 0;
 
+    private Config config;
+    
+    public ChunkSorter() {}
+    
     public ChunkSorter( Config config,
-                        Partition partition,
-                        ShuffleInputReference shuffleInput ) {
+                        Partition partition ) {
 
-        super( config, partition, shuffleInput );
+    	this.config = config;
+		this.partition = partition;
         
     }
 
-    public ChunkReader sort( List<ShuffleInputChunkReader> input, File output, List<JobOutput> jobOutput )
+    public SequenceReader sort( List<ChunkReader> input,
+                                File output,
+                                List<JobOutput> jobOutput )
         throws IOException {
 
-        CompositeShuffleInputChunkReader reader = null;
+        return sort( input, output, jobOutput, null );
+        
+    }
+    
+    public SequenceReader sort( List<ChunkReader> input,
+                                File output,
+                                List<JobOutput> jobOutput,
+                                SortListener sortListener )
+        throws IOException {
+
+        CompositeChunkReader reader = null;
 
         ChunkWriter writer = null;
 
@@ -67,40 +88,30 @@ public class ChunkSorter extends BaseChunkSorter {
             // the same time... we need a background thread to trigger the
             // pre-read.
             
-            reader = new CompositeShuffleInputChunkReader( config, partition, input );
+            reader = new CompositeChunkReader( config, input );
             
-            lookup = new KeyLookup( reader );
+            KeyLookup lookup = new KeyLookup( reader );
 
             log.info( "Key lookup for %s has %,d entries." , partition, lookup.size() );
             
-            int depth = 0;
-
-            lookup = sort( lookup, depth );
+            lookup = sort( lookup );
             
             //write this into the final ChunkWriter now.
 
-            writer = new DefaultChunkWriter( config, output );
+            if ( output != null )
+                writer = new DefaultChunkWriter( config, output );
 
-            sortResult = new SortResult( writer );
+            sortResult = new SortResult( writer, sortListener );
             
-            while( lookup.hasNext() ) {
+            KeyLookupReader keyLookupReader = new KeyLookupReader( lookup );
+            
+            while( keyLookupReader.hasNext() ) {
 
-                lookup.next();
+            	keyLookupReader.next();
 
-                KeyEntry current = lookup.get();
+                StructReader key = keyLookupReader.key();
 
-                ChannelBuffer backing = current.backing;
-                
-                VarintReader varintReader = new VarintReader( backing );
-                
-                int start = current.offset - 1;
-                backing.readerIndex( start );
-
-                StructReader key =
-                    new StructReader( backing.readSlice( varintReader.read() ) );
-
-                StructReader value =
-                    new StructReader( backing.readSlice( varintReader.read() ) );
+                StructReader value = keyLookupReader.value();
 
                 sortResult.accept( new SortEntry( key, value ) );
                 
@@ -128,7 +139,13 @@ public class ChunkSorter extends BaseChunkSorter {
         }
 
         // if we got to this part we're done... 
-        return new DefaultChunkReader( config, output );
+
+        DefaultChunkReader result = null;
+        
+        if ( output != null )
+            result = new DefaultChunkReader( config, output );
+
+        return result;
 
     }
 

@@ -108,7 +108,7 @@ public class Controller {
                     Message message 
                         = createSchedulerMessage( "exec", job, part );
 
-                    new Client().invoke( host, "mapper", message );
+                    new Client().invoke( host, "map", message );
                     
                 }
                 
@@ -157,7 +157,7 @@ public class Controller {
                 public void invoke( Host host, Partition part ) throws Exception {
 
                     Message message = createSchedulerMessage( "exec", job, part );
-                    new Client().invoke( host, "merger", message );
+                    new Client().invoke( host, "merge", message );
                     
                 }
                 
@@ -192,13 +192,14 @@ public class Controller {
         if ( input.getReferences().size() < 1 ) {
             throw new IOException( "Reducer requires at least one shuffle input." );
         }
-      
+
+        // this will block for completion ... 
         withScheduler( job, new Scheduler( "reduce", job, config, clusterState ) {
 
                 public void invoke( Host host, Partition part ) throws Exception {
 
                     Message message = createSchedulerMessage( "exec", job, part );
-                    new Client().invoke( host, "reducer", message );
+                    new Client().invoke( host, "reduce", message );
                     
                 }
                 
@@ -247,6 +248,9 @@ public class Controller {
         if ( "map".equals( operation ) || "merge".equals( operation ) )
             flushAllShufflers();
 
+        // now reset the worker nodes between jobs.
+        reset();
+        
         long after = System.currentTimeMillis();
 
         long duration = after - before;
@@ -261,7 +265,7 @@ public class Controller {
         Message message = new Message();
         message.put( "action", "flush" );
 
-        callMethodOnCluster( message );
+        callMethodOnCluster( "shuffler", message );
         
     }
 
@@ -276,11 +280,25 @@ public class Controller {
         message.put( "action", "purge" );
         message.put( "name",   name );
 
-        callMethodOnCluster( message );
+        callMethodOnCluster( "shuffler", message );
         
     }
 
-    private void callMethodOnCluster( Message message ) throws Exception {
+    /**
+     * Reset cluster job state between jobs.
+     */
+    private void reset() throws Exception {
+
+        Message message = new Message();
+        message.put( "action", "reset" );
+
+        callMethodOnCluster( "map",    message );
+        callMethodOnCluster( "merge",  message );
+        callMethodOnCluster( "reduce", message );
+        
+    }
+    
+    private void callMethodOnCluster( String service, Message message ) throws Exception {
 
         String desc = String.format( "Calling %s %,d hosts with message: %s" , message, config.getHosts().size(), message );
         
@@ -291,7 +309,7 @@ public class Controller {
         List<HttpClient> clients = new ArrayList();
         
         for ( Host host : config.getHosts() ) {
-            clients.add( new Client().invokeAsync( host, "shuffler", message ) );
+            clients.add( new Client().invokeAsync( host, service, message ) );
         }
 
         for( HttpClient client : clients ) {

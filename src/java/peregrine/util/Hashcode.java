@@ -15,11 +15,21 @@
 */
 package peregrine.util;
 
+import peregrine.*;
+
 import java.nio.charset.Charset;
 
 public class Hashcode {
 
+    /**
+     * Width of a hashcode (8 bytes).
+     */
     public static final int HASH_WIDTH = 8;
+
+    /**
+     * Required key width.
+     */
+    public static final int KEY_WIDTH = HASH_WIDTH;
 
     private static Charset UTF8 = Charset.forName( "UTF-8" );
 
@@ -56,4 +66,15 @@ public class Hashcode {
 
     }
 
+    public static void assertKeyLength( StructReader key ) {
+
+        if ( key.length() != KEY_WIDTH ) {
+
+            throw new IllegalArgumentException( String.format( "Key is incorrect length (must be %s bytes): %s",
+                                                               KEY_WIDTH, key.length() ) ); 
+
+        }
+
+    }
+    
 }

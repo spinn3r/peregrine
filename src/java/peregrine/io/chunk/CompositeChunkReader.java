@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
 */
-package peregrine.shuffle;
+package peregrine.io.chunk;
 
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.*;
 
+import peregrine.io.chunk.*;
 import peregrine.io.util.*;
 import peregrine.util.*;
 import peregrine.config.*;
@@ -32,23 +33,22 @@ import com.spinn3r.log5j.Logger;
  * An interface to work with mulitple ShuffleInputChunkReaders when doing chunk
  * sorting.
  */
-public class CompositeShuffleInputChunkReader implements Closeable {
+public class CompositeChunkReader implements Closeable {
 
 	private Config config;
-	private Partition partition;
 	
-	private List<ShuffleInputChunkReader> readers = new ArrayList();
+	private List<ChunkReader> readers = new ArrayList();
     
 	private List<ChannelBuffer> buffers = new ArrayList();
 	
-    private Iterator<ShuffleInputChunkReader> readerIterator;
+    private Iterator<ChunkReader> readerIterator;
 
     private Iterator<ChannelBuffer> bufferIterator;
     
     /**
      * the current reader.
      */
-    private ShuffleInputChunkReader reader;
+    private ChunkReader reader;
 
     /**
      * The current channel buffer we're working with.
@@ -65,15 +65,18 @@ public class CompositeShuffleInputChunkReader implements Closeable {
      */
     private int size = 0;
     
-	public CompositeShuffleInputChunkReader( Config config, 
-                                             Partition partition,
-                                             List<ShuffleInputChunkReader> readers ) throws IOException {
+    public CompositeChunkReader( Config config, final ChunkReader reader ) throws IOException {
+    	this( config, new ArrayList() {{ add( reader ); }} );
+    	
+    }
+    
+	public CompositeChunkReader( Config config, 
+                                 List<ChunkReader> readers ) throws IOException {
 
 		this.config = config;
-		this.partition = partition;
 		this.readers = readers;
 		
-        for ( ShuffleInputChunkReader delegate : readers ) {
+        for ( ChunkReader delegate : readers ) {
 
         	size += delegate.size();
             
@@ -129,7 +132,7 @@ public class CompositeShuffleInputChunkReader implements Closeable {
     }
     
     /**
-     * Get the buffer of the current ShuffleInputChunkReader 
+     * Get the buffer of the current ChunkReader 
      */
     public ChannelBuffer getBuffer() {
         return buffer;
@@ -139,7 +142,7 @@ public class CompositeShuffleInputChunkReader implements Closeable {
         return buffers;
     }
    
-    public ShuffleInputChunkReader getShuffleInputChunkReader() {
+    public ChunkReader getChunkReader() {
         return reader;
     }
     

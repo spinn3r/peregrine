@@ -23,6 +23,7 @@ import java.nio.charset.*;
 
 import peregrine.*;
 import peregrine.config.*;
+import peregrine.io.*;
 import peregrine.os.*;
 import peregrine.util.*;
 import peregrine.util.netty.*;
@@ -33,7 +34,7 @@ import org.jboss.netty.buffer.*;
  * Default ChunkReader implementation which uses mmap, and supports features
  * like CRC32, etc.
  */
-public class DefaultChunkReader implements ChunkReader, Closeable {
+public class DefaultChunkReader implements SequenceReader, ChunkReader, Closeable {
 
     // magic numbers for chunk reader files.
 
@@ -68,6 +69,20 @@ public class DefaultChunkReader implements ChunkReader, Closeable {
 
     private boolean closed = false;
 
+    /**
+     * The current key.
+     */
+    private StructReader key = null;
+    
+    /**
+     * The current value.
+     */
+    private StructReader value = null;
+    
+    private int keyOffset = -1;
+    
+    private ChannelBuffer buffer = null;
+    
     public DefaultChunkReader( Config config, File file )
         throws IOException {
 
@@ -118,6 +133,7 @@ public class DefaultChunkReader implements ChunkReader, Closeable {
     private void init( ChannelBuffer buff, StreamReader reader )
         throws IOException {
 
+    	this.buffer = buff;
         this.reader = reader;
         this.varintReader = new VarintReader( reader );
         this.length = buff.writerIndex();
@@ -139,14 +155,23 @@ public class DefaultChunkReader implements ChunkReader, Closeable {
     }
 
     @Override
-    public StructReader key() throws IOException {
+    public void next() throws IOException {
         ++idx;
-        return readEntry();
+        keyOffset = reader.index() + 1;
+       
+        key   = readEntry();
+        value = readEntry();
+        
+    }
+    
+    @Override
+    public StructReader key() throws IOException {
+    	return key;
     }
 
     @Override
     public StructReader value() throws IOException {
-        return readEntry();
+        return value;
     }
 
     @Override
@@ -162,11 +187,26 @@ public class DefaultChunkReader implements ChunkReader, Closeable {
         
     }
 
+    @Override 
+    public int keyOffset() throws IOException {
+    	return keyOffset;
+    }
+    
+    @Override 
+    public int size() throws IOException {
+    	return size;
+    }
+    
     @Override
     public String toString() {
         return String.format( "file: %s, length (in bytes): %,d, size: %,d", file, length, size );
     }
 
+    @Override 
+    public ChannelBuffer getBuffer() {
+    	return buffer;
+    }
+    
     private void assertLength() throws IOException {
         if ( this.length < IntBytes.LENGTH )
             throw new IOException( String.format( "File %s is too short (%,d bytes)", file.getPath(), length ) );

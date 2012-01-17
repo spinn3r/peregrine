@@ -70,6 +70,10 @@ class ExampleJobInput extends BaseJobInput implements JobInput {
     
     private ChunkReference chunkRef;
     
+    private StructReader key = null;
+    
+    private StructReader value = null;
+    
 	public ExampleJobInput( Partition partition ) {
 
         // stick in example data.
@@ -89,7 +93,7 @@ class ExampleJobInput extends BaseJobInput implements JobInput {
 	}
 
 	@Override
-	public StructReader key() throws IOException {
+	public void next() throws IOException {
 
         if ( fired == false ) {
             chunkRef.incr();
@@ -98,9 +102,13 @@ class ExampleJobInput extends BaseJobInput implements JobInput {
         }
 
 		current = iterator.next();
-
-		return current;
 		
+	}
+	
+	
+	@Override
+	public StructReader key() throws IOException {
+		return current;		
 	}
 
 	@Override

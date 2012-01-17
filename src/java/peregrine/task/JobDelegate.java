@@ -19,9 +19,10 @@ import java.util.*;
 
 import peregrine.*;
 import peregrine.io.*;
+import peregrine.config.*;
 
 /**
- * Represents a basic Map/Merge/Reduce code backend provided by a developer for 
+ * Represents a basic Map/Merge/Reduce code backend provided by a developer for
  * running their job.  emit, setup, teardown, etc.
  * 
  */
@@ -43,5 +44,18 @@ public interface JobDelegate {
      * Cleanup after this job.  Close all output, etc.
      */
     public void cleanup();
-	
+
+    /**
+     * Get the partition that a job is executing over.  This is mostly used for
+     * reference purposes for a job to perform potentially partition specific
+     * operations and for unit testing.
+     */
+    public Partition getPartition();
+
+    public void setPartition( Partition partition );
+
+    public Config getConfig();
+
+    public void setConfig( Config config );
+
 }

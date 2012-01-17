@@ -17,6 +17,7 @@ package peregrine.io;
 
 import java.util.*;
 import peregrine.io.driver.*;
+import peregrine.io.driver.file.*;
 import peregrine.io.driver.shuffle.*;
 
 /**
@@ -46,9 +47,6 @@ public final class Input {
 
                 if ( "broadcast".equals( scheme ) )
                     add( new BroadcastInputReference( arg ) );
-
-                if ( "file".equals( scheme ) )
-                    add( new FileInputReference( arg ) );
 
                 IODriver driver = IODriverRegistry.getInstance( scheme );
                 

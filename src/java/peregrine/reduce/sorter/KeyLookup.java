@@ -18,6 +18,7 @@ package peregrine.reduce.sorter;
 import java.io.*;
 import peregrine.util.*;
 import peregrine.util.primitive.LongBytes;
+import peregrine.io.chunk.*;
 import peregrine.shuffle.*;
 
 import org.jboss.netty.buffer.*;
@@ -89,8 +90,8 @@ public class KeyLookup {
     	this( ChannelBuffers.directBuffer( size * KEY_SIZE ), size, buffers );
     	
     }
-
-    public KeyLookup( CompositeShuffleInputChunkReader reader )
+    
+    public KeyLookup( CompositeChunkReader reader )
         throws IOException {
 
         this( reader.size(), reader.getBuffers().toArray( new ChannelBuffer[0] ) );
@@ -103,10 +104,9 @@ public class KeyLookup {
             // advance the lookup
             next();
 
-            ShuffleInputChunkReader delegate = reader.getShuffleInputChunkReader();
+            ChunkReader delegate = reader.getChunkReader();
            
-            KeyEntry entry = new KeyEntry( (byte)reader.index(), 
-            		                       delegate.getShufflePacket().getOffset() + delegate.keyOffset() );
+            KeyEntry entry = new KeyEntry( (byte)reader.index(), delegate.keyOffset() );
             
             entry.backing = reader.getBuffer();
             
@@ -200,4 +200,12 @@ public class KeyLookup {
 
     }
 
+    /**
+     * Compute the required memory to store the given KeyLookup structure as a
+     * direct buffer.
+     */
+    public static long computeCapacity( int count ) {
+        return count * KeyLookup.KEY_SIZE;
+    }
+    
 }

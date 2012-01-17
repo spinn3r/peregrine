@@ -30,25 +30,6 @@ import org.jboss.netty.buffer.*;
  */
 public class BaseChunkSorter {
 
-    //keeps track of the current input we're sorting.
-    protected int id = 0;
-
-    protected Config config;
-    protected Partition partition;
-    protected ShuffleInputReference shuffleInput;
-    
-    protected KeyLookup lookup = null;
-    
-    public BaseChunkSorter( Config config,
-                            Partition partition,
-                            ShuffleInputReference shuffleInput ) {
-
-        this.config = config;
-        this.partition = partition;
-        this.shuffleInput = shuffleInput;
-
-    }
-
     public KeyLookup sort( KeyLookup input ) 
         throws IOException {
 

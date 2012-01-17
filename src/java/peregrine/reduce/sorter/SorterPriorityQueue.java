@@ -87,12 +87,9 @@ public class SorterPriorityQueue {
 class SortMergeComparator implements Comparator<SortQueueEntry> {
 
     public int compare( SortQueueEntry e0, SortQueueEntry e1 ) {
-
-        KeyLookup lookup0 = e0.lookup;
-        KeyLookup lookup1 = e1.lookup;
                 
-        KeyEntry entry0 = lookup0.get();
-        KeyEntry entry1 = lookup1.get();
+        KeyEntry entry0 = e0.lookup.get();
+        KeyEntry entry1 = e1.lookup.get();
         
         int diff = 0;
 

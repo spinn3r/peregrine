@@ -27,6 +27,7 @@ import peregrine.io.driver.shuffle.*;
 import peregrine.reduce.merger.*;
 import peregrine.reduce.sorter.*;
 import peregrine.shuffle.*;
+import peregrine.task.*;
 import peregrine.util.*;
 
 public class TestCombinerEfficiency extends peregrine.BaseTestWithMultipleConfigs {
@@ -52,6 +53,9 @@ public class TestCombinerEfficiency extends peregrine.BaseTestWithMultipleConfig
     @Override
     public void doTest() throws Exception {
 
+        System.out.printf( "prep: %s\n", PREP );
+        System.out.printf( "shuffleBufferSize: %s\n", SHUFFLE_BUFFER_SIZE );
+
         doTest( 5000 * getFactor() , 100 ); 
 
     }
@@ -69,7 +73,9 @@ public class TestCombinerEfficiency extends peregrine.BaseTestWithMultipleConfig
 
             ExtractWriter writer = new ExtractWriter( config, path );
 
-            GraphBuilder.buildRandomGraph( writer, nr_nodes , max_edges_per_node );
+            GraphBuilder builder = new GraphBuilder( writer );
+            
+            builder.buildRandomGraph( nr_nodes , max_edges_per_node );
             
             writer.close();
 
@@ -111,12 +117,16 @@ public class TestCombinerEfficiency extends peregrine.BaseTestWithMultipleConfig
         combine( "/tmp/peregrine-fs/localhost/11112/tmp/shuffle/default/0000000003.tmp" );
         */
 
+        /*
         combine( "/tmp/peregrine-fs/localhost/11112/tmp/shuffle/default/0000000000.tmp" );
         combine( "/tmp/peregrine-fs/localhost/11112/tmp/shuffle/default/0000000001.tmp" );
         combine( "/tmp/peregrine-fs/localhost/11112/tmp/shuffle/default/0000000002.tmp" );
         combine( "/tmp/peregrine-fs/localhost/11112/tmp/shuffle/default/0000000003.tmp" );
-
-        combineAll( "/tmp/peregrine-fs/localhost/11112/tmp/shuffle/default/" );
+        */
+        
+        combineSamples( "/tmp/peregrine-fs/localhost/11112/tmp/shuffle/default/" , 20 );
+        
+        //combineAll( "/tmp/peregrine-fs/localhost/11112/tmp/shuffle/default/" );
 
         //combine( "/tmp/peregrine-fs/localhost/11112/tmp/shuffle/default/0000000007.tmp" );
 
@@ -126,7 +136,34 @@ public class TestCombinerEfficiency extends peregrine.BaseTestWithMultipleConfig
         
     }
 
+    private void combineSamples( String dir, int nr_samples ) throws Exception {
+
+        String[] files = getTempFiles( dir );
+
+        int offset = 0;
+        
+        for( int i = 0; i < nr_samples; ++i ) {
+
+            System.out.printf( "FIXME offset %s\n", offset );
+            
+            combine( files[offset] );
+            
+            offset += (int)Math.ceil( (double)files.length / (double)nr_samples);
+
+            if ( offset > files.length - 1 )
+                break;
+            
+        }
+        
+    }
+    
     private void combineAll( String dir ) throws Exception {
+
+        combine( getTempFiles( dir ) );
+        
+    }
+
+    public String[] getTempFiles( String dir ) {
 
         File[] files = new File( dir ).listFiles(); 
 
@@ -140,8 +177,10 @@ public class TestCombinerEfficiency extends peregrine.BaseTestWithMultipleConfig
 
         }
 
-        combine( Strings.toArray( result ) );
+        Collections.sort( result );
         
+        return Strings.toArray( result );
+
     }
     
     private void combine( String... paths ) throws Exception {
@@ -165,7 +204,7 @@ public class TestCombinerEfficiency extends peregrine.BaseTestWithMultipleConfig
 
         List<JobOutput> jobOutput = new ArrayList();
 
-        List<ChunkReader> mergeInput = new ArrayList();
+        List<SequenceReader> mergeInput = new ArrayList();
 
         int id = 0;
 
@@ -175,16 +214,16 @@ public class TestCombinerEfficiency extends peregrine.BaseTestWithMultipleConfig
 
             File sorted_chunk = new File( "/tmp/sorted.chunk." + id++ );
 
-            List<ShuffleInputChunkReader> work = new ArrayList();
+            List<ChunkReader> work = new ArrayList();
 
             ShuffleInputChunkReader shuffleInputChunkReader =
                 new ShuffleInputChunkReader( config, partition, path );
             
             work.add( shuffleInputChunkReader );
 
-            ChunkSorter sorter = new ChunkSorter( config , partition, shuffleInput );
+            ChunkSorter sorter = new ChunkSorter( config , partition );
 
-            ChunkReader sorted = sorter.sort( work, sorted_chunk, jobOutput );
+            SequenceReader sorted = sorter.sort( work, sorted_chunk, jobOutput );
 
             mergeInput.add( sorted );
 
@@ -196,7 +235,9 @@ public class TestCombinerEfficiency extends peregrine.BaseTestWithMultipleConfig
         
         DefaultChunkWriter writer = new DefaultChunkWriter( config, combined );
 
-        ChunkMerger merger = new ChunkMerger( null, partition, jobOutput );
+        ReducerTask task = new ReducerTask();
+        
+        ChunkMerger merger = new ChunkMerger( task, null, partition, jobOutput );
         merger.merge( mergeInput, writer );
 
         writer.close();
@@ -222,11 +263,8 @@ public class TestCombinerEfficiency extends peregrine.BaseTestWithMultipleConfig
 
         PREP = getopt.getBoolean( "prep", true );
         SHUFFLE_BUFFER_SIZE = getopt.getLong( "shuffleBufferSize", SHUFFLE_BUFFER_SIZE );
-        
-        System.out.printf( "prep: %s\n", PREP );
-        System.out.printf( "shuffleBufferSize: %s\n", SHUFFLE_BUFFER_SIZE );
 
-        if ( PREP ) {
+        if ( PREP == false ) {
             BaseTest.REMOVE_BASEDIR = false;
         }
 
@@ -242,6 +280,7 @@ public class TestCombinerEfficiency extends peregrine.BaseTestWithMultipleConfig
         
         System.setProperty( "peregrine.test.factor", "200" ); 
         System.setProperty( "peregrine.test.config", "1:1:1" ); 
+        //System.setProperty( "peregrine.test.config", "8:1:32" );
 
         runTests();
         

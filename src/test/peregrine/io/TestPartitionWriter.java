@@ -64,9 +64,9 @@ public class TestPartitionWriter extends BaseTestWithTwoPartitions {
 
         PartitionWriter writer = new DefaultPartitionWriter( config, new Partition( 0 ), path );
 
-        for ( int i = 0; i < 10000; ++i ) {
+        for ( long i = 0; i < 10000; ++i ) {
 
-        	StructReader key = StructReaders.varint(i);
+        	StructReader key = StructReaders.wrap(i);
 
         	StructReader value = key;
 
@@ -126,9 +126,9 @@ public class TestPartitionWriter extends BaseTestWithTwoPartitions {
 
         PartitionWriter writer = new DefaultPartitionWriter( config, new Partition( 0 ), path );
 
-        for ( int i = 0; i < max_per_round; ++i ) {
+        for ( long i = 0; i < max_per_round; ++i ) {
 
-        	StructReader key = StructReaders.varint(i);
+        	StructReader key = StructReaders.wrap(i);
 
         	StructReader value = key;
 
@@ -147,13 +147,11 @@ public class TestPartitionWriter extends BaseTestWithTwoPartitions {
 
         writer = new DefaultPartitionWriter( config, new Partition( 0 ), path, true );
 
-        for ( int i = 0; i < max_per_round; ++i ) {
+        for ( long i = 0; i < max_per_round; ++i ) {
 
-        	StructReader key = StructReaders.varint(i);
+        	StructReader key = StructReaders.wrap(i);
 
-        	StructReader value = key;
-
-            writer.write( key, value );
+            writer.write( key, key );
             
         }
 
@@ -172,14 +170,16 @@ public class TestPartitionWriter extends BaseTestWithTwoPartitions {
         while( reader.hasNext() ) {
 
             try {
-            
-                reader.key();
+
+                reader.next();
+            	
+                StructReader key    = reader.key();
                 StructReader value = reader.value();
                 
-                int intval = value.readVarint();
+                long val = value.readLong();
                 
                 if ( count < 10000 )
-                    assertEquals( intval, count );
+                    assertEquals( val, count );
 
             } catch ( Throwable t ) {
                 throw new IOException( "Failed after reading N items: " + count, t );

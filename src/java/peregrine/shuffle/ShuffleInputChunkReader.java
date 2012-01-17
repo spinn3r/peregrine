@@ -35,7 +35,7 @@ import com.spinn3r.log5j.Logger;
  * packets into key/value pairs and implements 
  * 
  */
-public class ShuffleInputChunkReader implements Closeable {
+public class ShuffleInputChunkReader implements ChunkReader {
 
     public static int QUEUE_CAPACITY = 100;
 
@@ -65,7 +65,7 @@ public class ShuffleInputChunkReader implements Closeable {
      */
     private Index packet_idx;
     
-    private int key_offset;
+    private int keyOffset;
     private int key_length;
 
     private int value_offset;
@@ -113,6 +113,7 @@ public class ShuffleInputChunkReader implements Closeable {
         return header;
     }
     
+    @Override
     public boolean hasNext() throws IOException {
 
         assertPrefetchReaderNotFailed();
@@ -125,7 +126,8 @@ public class ShuffleInputChunkReader implements Closeable {
         return result;
 
     }
-
+    
+    @Override
     public void next() throws IOException {
 
         assertPrefetchReaderNotFailed();
@@ -135,7 +137,7 @@ public class ShuffleInputChunkReader implements Closeable {
             if ( pack != null && pack.data.readerIndex() < pack.data.capacity() - 1 ) {
                 
                 this.key_length     = varintReader.read();
-                this.key_offset     = pack.data.readerIndex();
+                this.keyOffset      = pack.data.readerIndex();
 
                 pack.data.readerIndex( pack.data.readerIndex() + key_length );
                 
@@ -206,23 +208,29 @@ public class ShuffleInputChunkReader implements Closeable {
 
         return new StreamReader( buffer );
     }
-    
+
+    /**
+     * Get the key offset for external readers.
+     */
+    @Override
     public int keyOffset() {
-        return key_offset;
+        return getShufflePacket().getOffset() + keyOffset;
     }
 
-    public ChannelBuffer key() throws IOException {
-        return readBytes( key_offset, key_length );
+    @Override
+    public StructReader key() throws IOException {
+        return readBytes( keyOffset, key_length );
         
     }
 
-    public ChannelBuffer value() throws IOException {
+    @Override
+    public StructReader value() throws IOException {
         return readBytes( value_offset, value_length );
     }
 
-    public ChannelBuffer readBytes( int offset, int length ) throws IOException {
+    public StructReader readBytes( int offset, int length ) throws IOException {
 
-        return pack.data.slice( offset, length );
+        return new StructReader( pack.data.slice( offset, length ) );
 
     }
 

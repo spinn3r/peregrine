@@ -26,12 +26,26 @@ public class IncrMap<T> {
 
     Map<T,AtomicInteger> map = new ConcurrentHashMap();
 
-    public IncrMap( Set<T> list ) {
+    public IncrMap() {}
 
-        for( T key : list ) {
-            map.put( key, new AtomicInteger() );
+    public IncrMap( Set<T> in ) {
+
+        for( T key : in ) {
+            init( key );
         }
         
+    }
+
+    public IncrMap( List<T> in ) {
+
+        for( T key : in ) {
+            init( key );
+        }
+        
+    }
+
+    public void init( T key ) {
+        map.put( key, new AtomicInteger() );
     }
     
     public void incr( T key ) {
@@ -46,4 +60,8 @@ public class IncrMap<T> {
         return map.get( key ).get();
     }
 
+    public void set( T key, int value ) {
+        map.get( key ).set( value );
+    }
+    
 }

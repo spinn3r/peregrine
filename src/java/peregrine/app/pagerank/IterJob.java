@@ -59,11 +59,21 @@ public class IterJob {
                            List<StructReader> values ) {
 
         	StructReader outbound         = values.get( 0 );
+        	StructReader rank_vector      = values.get( 1 );
         	StructReader dangling         = values.get( 2 );
 
-            // for the first pass, the rank_vector will be null.
-            // TODO expand this in the future to support iter > 0 
-            double rank = 1 / nr_nodes;
+            double rank;
+            
+            if ( rank_vector != null ) {
+                rank = rank_vector.readDouble();
+            } else { 
+
+                // for the first pass, the rank_vector will be null but after
+                // that it will contain a value from the previous iteration
+                // which we're going to join against.
+
+                rank = 1 / nr_nodes;
+            }
 
             if ( dangling != null ) {
 
@@ -111,35 +121,38 @@ public class IterJob {
         /**
          * 
          */
-        protected double teleport_grant = 0.0;
+        protected double teleport_grant = -1;
 
         protected int nr_nodes;
 
         protected int nr_dangling = 0;
-
-        protected int iter = 0;
         
         @Override
         public void init( List<JobOutput> output ) {
 
             super.init( output );
             
-            BroadcastInput nrNodesBroadcastInput = getBroadcastInput().get( 0 );
+            nr_nodes = getBroadcastInput()
+                           .get( 0 )
+                           .getValue()
+                           .readInt();
 
-            nr_nodes = nrNodesBroadcastInput.getValue().readInt();
+            nr_dangling = getBroadcastInput()
+                           .get( 1 )
+                           .getValue()
+                           .readInt();
 
-            // for iter 0 teleport_grant would be:
+            teleport_grant = getBroadcastInput()
+                           .get( 2 )
+                           .getValue( StructReaders.wrap( teleport_grant ) )
+                           .readDouble();
+            
+            if ( teleport_grant == -1 ) {
 
-            if ( iter == 0 ) {
+                // for iter 0 teleport_grant is computed easily.
 
-                // FIXME: add this back in later when I can read in nr_dangling, etc. 
-                
-                /*
-                  
                 double teleport_grant_sum = nr_dangling * ( 1 / nr_nodes );
-                teleport_grant = (1.0 - ( DAMPENING * (1.0 - teleport_grant_sum)) ) / nr_nodes;
-
-                */
+                teleport_grant = (1.0 - ( DAMPENING * ( 1.0 - teleport_grant_sum ) ) ) / nr_nodes;
                 
             } 
             
@@ -152,21 +165,11 @@ public class IterJob {
             
             // sum up the values... 
             for ( StructReader value : values ) {
-
-                rank_sum += value.readDouble()
-                    ;
-                
+                rank_sum += value.readDouble();
             }
 
             double rank = (DAMPENING * rank_sum) + teleport_grant;
 
-            /*
-            byte[] value = new StructWriter()
-                .writeDouble( rank )
-                .toBytes()
-                ;
-            */
-                            
             emit( key, StructReaders.wrap( rank ) );
             
         }

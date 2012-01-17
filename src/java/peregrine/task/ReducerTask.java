@@ -38,6 +38,8 @@ public class ReducerTask extends BaseTask implements Callable {
 
     private AtomicInteger nrTuples = new AtomicInteger();
     
+    public ReducerTask() {}
+    
     public ReducerTask( Config config,
                         Partition partition,
                         Class delegate,
@@ -64,7 +66,7 @@ public class ReducerTask extends BaseTask implements Callable {
     	
     	SortListener listener = new ReducerTaskSortListener();
         
-        ReduceRunner localReducer = new ReduceRunner( config, partition, listener, shuffleInput, getJobOutput() );
+        ReduceRunner reduceRunner = new ReduceRunner( config, this, partition, listener, shuffleInput, getJobOutput() );
 
         String shuffle_dir = config.getShuffleDir( shuffleInput.getName() );
 
@@ -81,12 +83,12 @@ public class ReducerTask extends BaseTask implements Callable {
 
         //TODO: we should probably make sure these look like shuffle files.
         for( File shuffle : shuffles ) {
-        	localReducer.add( shuffle );
+        	reduceRunner.add( shuffle );
         }
         
         int nr_readers = shuffles.length;
 
-        localReducer.sort();
+        reduceRunner.reduce();
 
         log.info( "Sorted %,d entries in %,d chunk readers for partition %s",
                   nrTuples.get() , nr_readers, partition );

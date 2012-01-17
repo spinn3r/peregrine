@@ -22,6 +22,7 @@ import peregrine.*;
 import peregrine.config.*;
 import peregrine.io.*;
 import peregrine.io.partition.*;
+import peregrine.shuffle.sender.*;
 import peregrine.util.*;
 import peregrine.io.chunk.*;
 
@@ -32,8 +33,8 @@ public class ShuffleJobOutput
 
     private static final Logger log = Logger.getLogger();
 
-    protected Config config;
-    protected String name;
+    public Config config;
+    public String name;
     protected Partition partition;
 
     protected ShuffleJobOutputDelegate jobOutputDelegate;
@@ -66,8 +67,12 @@ public class ShuffleJobOutput
     
     @Override
     public void emit( StructReader key , StructReader value ) {
+
+        Hashcode.assertKeyLength( key );
+        
         jobOutputDelegate.emit( key, value );
         ++emits;
+
     }
 
     public void emit( int to_partition, StructReader key , StructReader value ) {

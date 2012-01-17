@@ -56,6 +56,9 @@
                memoryMaximumSize="512M"
                deprecation="no"
                debug="true">
+
+            <!-- <compilerarg value="-Xlint"/>-->
+          
             <include name="**/*.java"/>
             <exclude name="**/*SExpander.java"/>
         </javac>
@@ -280,15 +283,17 @@
 
                 <fileset dir="src/test">
 
-                  <include name="peregrine/TestPagerank.java"/>
-                  <include name="peregrine/TestNewReduceCode.java"/>
+                  <include name="peregrine/TestBroadcastMapReduce.java"/>
+                  <include name="peregrine/TestDataImbalance.java"/>
                   <include name="peregrine/TestMapReduce.java"/>
+                  <include name="peregrine/TestMapReduceWithMergeFactor.java"/>
+                  <include name="peregrine/TestNewReduceCode.java"/>
+                  <include name="peregrine/TestPagerank.java"/>
                   <include name="peregrine/io/partition/TestDefaultPartitionWriter.java"/>
                   <include name="peregrine/pfs/TestRemoteChunkWriterClient.java"/>
                   <include name="peregrine/pfsd/TestExtractWriterPerformance.java"/>
                   <include name="peregrine/pfsd/TestFanoutWritePerformance.java"/>
                   <include name="peregrine/shuffle/TestShufflePerformance.java"/>
-                  <include name="peregrine/TestBroadcastMapReduce.java"/>
 
                 </fileset>
 
@@ -309,6 +314,7 @@
         <property name="title" value="Peregrine ${version} API"/>
     
         <javadoc bottom="Copyright &amp;copy; 2011 Kevin Burton. All Rights Reserved." 
+                 access="public"
                  windowtitle="Peregrine ${version} API" 
                  use="true" 
                  private="false" 

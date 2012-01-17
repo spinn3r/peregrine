@@ -32,7 +32,7 @@ import com.spinn3r.log5j.*;
 /**
  * Generic code shared across all tasks.
  */
-public abstract class BaseTask {
+public abstract class BaseTask implements Task {
 
     private static final Logger log = Logger.getLogger();
 
@@ -62,6 +62,8 @@ public abstract class BaseTask {
     protected Input input = null;
     
     protected JobDelegate jobDelegate = null;
+
+    private boolean killed = false;
     
     public void init( Config config, Partition partition, Class delegate ) {
     	this.config      = config;
@@ -150,6 +152,8 @@ public abstract class BaseTask {
             
             setup();
             jobDelegate.setBroadcastInput( getBroadcastInput() );
+            jobDelegate.setPartition( partition );
+            jobDelegate.setConfig( config );
             jobDelegate.init( getJobOutput() );
 
             try {
@@ -245,6 +249,32 @@ public abstract class BaseTask {
         log.info( "Memory footprint: used=%,d , free=%,d , total=%,d", usedMemory, freeMemory, totalMemory );
 
     }
+
+    /**
+     * Mark this task as killed.
+     */
+    @Override
+    public void setKilled( boolean killed ) {
+        this.killed = killed;
+    }
+
+    @Override
+    public boolean isKilled() {
+        return killed;
+    }
+
+    /**
+     * Assert that we are alive and have not been marked killed by the
+     * controller.
+     */
+    @Override
+    public void assertAlive() throws IOException {
+
+        if ( killed ) {
+            throw new IOException( "This task was killed for partition: %s" + partition );
+        }
+
+    }
     
     /**
      * Mark the partition for this task complete.  
@@ -256,6 +286,7 @@ public abstract class BaseTask {
         message.put( "action" ,   "complete" );
         message.put( "host",      config.getHost().toString() );
         message.put( "partition", partition.getId() );
+        message.put( "killed",    killed );
 
         log.info( "Sending complete message to controller: %s", message );
         

@@ -24,9 +24,14 @@ import peregrine.util.primitive.*;
 
 public class GraphBuilder {
 
-    public static void buildRandomGraph( ExtractWriter writer,
-                                         int nr_nodes,
-                                         int max_edges_per_node ) throws Exception {
+    private ExtractWriter writer;
+    
+    public GraphBuilder( ExtractWriter writer ) {
+        this.writer = writer;
+    }
+
+    public void buildRandomGraph( int nr_nodes,
+                                  int max_edges_per_node ) throws Exception {
         
         System.out.printf( "Creating nodes/links: %s\n", nr_nodes );
 
@@ -58,7 +63,7 @@ public class GraphBuilder {
             edges += targets.size();
 
             if ( targets.size() > 0 )
-                addRecord( writer, source, targets );
+                addRecord( source, targets );
             
             // now output our progress... 
             int perc = (int)((i / (float)nr_nodes) * 100);
@@ -75,23 +80,21 @@ public class GraphBuilder {
 
     }
     
-    public static void addRecord( ExtractWriter writer,
-                                  long source,
-                                  long... targets ) throws Exception {
+    public void addRecord( long source,
+                           long... targets ) throws Exception {
 
         List<Long> list = new ArrayList();
 
-        for( long t : targets ) {
-            list.add( t ) ;
+        for( long target : targets ) {
+            list.add( target );
         }
-
-        addRecord( writer, source, list );
+        
+        addRecord( source, list );
         
     }
     
-    public static void addRecord( ExtractWriter writer,
-                                  long source,
-                                  List<Long> targets ) throws Exception {
+    public void addRecord( long source,
+                           List<Long> targets ) throws Exception {
 
         StructReader key = StructReaders.hashcode( source );
 

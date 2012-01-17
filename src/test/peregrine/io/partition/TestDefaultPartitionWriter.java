@@ -47,9 +47,9 @@ public class TestDefaultPartitionWriter extends peregrine.BaseTestWithMultipleCo
         
         PartitionWriter writer = new DefaultPartitionWriter( config, part, path );
         
-        for ( int i = 0; i < max; ++i ) {
+        for ( long i = 0; i < max; ++i ) {
 
-        	StructReader key = StructReaders.varint( i );
+        	StructReader key = StructReaders.wrap( i );
                 
         	StructReader value = key;
 
@@ -82,6 +82,8 @@ public class TestDefaultPartitionWriter extends peregrine.BaseTestWithMultipleCo
     }
 
     public static void main( String[] args ) throws Exception {
+        System.setProperty( "peregrine.test.factor", "10" ); // 1m
+        System.setProperty( "peregrine.test.config", "01:01:1" ); // takes 3 seconds
         runTests();
     }
 

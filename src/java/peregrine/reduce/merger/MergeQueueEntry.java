@@ -18,6 +18,7 @@ package peregrine.reduce.merger;
 import java.io.*;
 
 import peregrine.*;
+import peregrine.io.*;
 import peregrine.io.chunk.*;
 
 public class MergeQueueEntry {
@@ -30,24 +31,30 @@ public class MergeQueueEntry {
 
     public int id = -1;
     
-    protected ChunkReader reader = null;
+    protected SequenceReader reader = null;
 
     protected MergeQueueEntry() {}
 
-    public MergeQueueEntry( ChunkReader reader, int id ) throws IOException {
+    public MergeQueueEntry( SequenceReader reader, int id ) throws IOException {
 
-        this( reader.key(), reader.value(), id );
+    	reader.next();
+    	
+        init( reader.key(), reader.value(), id );
         
         this.reader = reader;
 
     }
 
     public MergeQueueEntry( StructReader key, StructReader value, int id ) {
+    	init( key, value, id );
+    }
+
+    private void init( StructReader key, StructReader value, int id ) {    	
         setKey( key );
         setValue( value );
         this.id = id;
     }
-
+    
     public void setKey( StructReader key ) {
     	this.keyAsByteArray = key.toByteArray();
     	this.key = key;

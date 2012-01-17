@@ -105,6 +105,9 @@ public abstract class BaseTest extends junit.framework.TestCase {
         
         if ( failures.size() > 0 )
             System.exit( 1 );
+
+        System.out.printf( "run count: %s\n", result.getRunCount() );
+        System.out.printf( "was successful: %s\n", result.wasSuccessful() );
         
     }
 

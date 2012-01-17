@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
 */
-package peregrine.io.driver.shuffle;
+package peregrine.shuffle.sender;
 
 import java.io.*;
 import java.util.concurrent.*;
@@ -25,6 +25,8 @@ import peregrine.io.partition.*;
 import peregrine.shuffle.sender.*;
 import peregrine.util.*;
 import peregrine.io.chunk.*;
+import peregrine.io.driver.shuffle.*;
+
 import com.spinn3r.log5j.Logger;
 
 public class ShuffleJobOutputDirect extends ShuffleJobOutputBase implements Closeable, Flushable {

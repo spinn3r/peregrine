@@ -26,6 +26,7 @@ import peregrine.io.partition.*;
 import peregrine.io.util.*;
 import peregrine.reduce.sorter.*;
 import peregrine.reduce.merger.*;
+import peregrine.task.*;
 import peregrine.util.netty.*;
 import peregrine.os.*;
 import peregrine.shuffle.*;
@@ -45,18 +46,22 @@ public class ReduceRunner {
 
     private SortListener listener = null;
     private Config config;
+    private Task task = null;
     private Partition partition;
     private ShuffleInputReference shuffleInput;
 
     private List<JobOutput> jobOutput = null;
 
+    
     public ReduceRunner( Config config,
+                         Task task,
                          Partition partition,
                          SortListener listener,
                          ShuffleInputReference shuffleInput,
                          List<JobOutput> jobOutput ) {
 
         this.config = config;
+        this.task = task;
         this.partition = partition;
         this.listener = listener;
         this.shuffleInput = shuffleInput;
@@ -71,7 +76,7 @@ public class ReduceRunner {
         this.input.add( in );
     }
     
-    public void sort() throws IOException {
+    public void reduce() throws IOException {
 
         // The input list should first be sorted so that we sort by the order of
         // the shuffle files and not an arbitrary order
@@ -83,7 +88,7 @@ public class ReduceRunner {
 
         // on the first pass we're going to sort and use shuffle input...
 
-        List<ChunkReader> readers = sort( input, sort_dir );
+        List<SequenceReader> readers = sort( input, sort_dir );
 
         while( true ) {
 
@@ -148,7 +153,7 @@ public class ReduceRunner {
     /**
      * Do the final merge including writing to listener when we are finished.
      */
-    public void finalMerge( List<ChunkReader> readers, int pass ) throws IOException {
+    public void finalMerge( List<SequenceReader> readers, int pass ) throws IOException {
 
         log.info( "Merging on final merge with %,d readers (strategy=finalMerge, pass=%,d)", readers.size(), pass );
         
@@ -160,7 +165,7 @@ public class ReduceRunner {
 
             prefetchReader = createPrefetchReader( readers );
             
-            ChunkMerger merger = new ChunkMerger( listener, partition, jobOutput );
+            ChunkMerger merger = new ChunkMerger( task, listener, partition, jobOutput );
         
             merger.merge( readers );
 
@@ -175,16 +180,16 @@ public class ReduceRunner {
     /**
      * Do an intermediate merge writing to a temp directory.
      */
-    public List<ChunkReader> interMerge( List<ChunkReader> readers, int pass )
+    public List<SequenceReader> interMerge( List<SequenceReader> readers, int pass )
         throws IOException {
 
         String target_path = getTargetPath( pass );
         
         // chunk readers pending merge.
-        List<ChunkReader> pending = new ArrayList();
+        List<SequenceReader> pending = new ArrayList();
         pending.addAll( readers );
 
-        List<ChunkReader> result = new ArrayList();
+        List<SequenceReader> result = new ArrayList();
 
         int id = 0;
         
@@ -192,7 +197,7 @@ public class ReduceRunner {
 
             String path = String.format( "%s/merged-%s.tmp" , target_path, id++ );
             
-            List<ChunkReader> work = new ArrayList();
+            List<SequenceReader> work = new ArrayList();
 
             // move readers from pending into work until work is full .
             while( work.size() < config.getShuffleSegmentMergeParallelism() && pending.size() > 0 ) {
@@ -210,7 +215,7 @@ public class ReduceRunner {
 
                 prefetchReader = createPrefetchReader( work );
 
-                ChunkMerger merger = new ChunkMerger( null, partition, jobOutput );
+                ChunkMerger merger = new ChunkMerger( task, null, partition, jobOutput );
 
                 final DefaultPartitionWriter writer = newInterChunkWriter( path );
 
@@ -252,11 +257,11 @@ public class ReduceRunner {
 
     }
 
-    protected PrefetchReader createPrefetchReader( List<ChunkReader> readers ) throws IOException {
+    protected PrefetchReader createPrefetchReader( List<SequenceReader> readers ) throws IOException {
         
         List<MappedFileReader> mappedFiles = new ArrayList();
 
-        for( ChunkReader reader : readers ) {
+        for( SequenceReader reader : readers ) {
 
             if ( reader instanceof DefaultChunkReader ) {
 
@@ -286,7 +291,7 @@ public class ReduceRunner {
 
     }
 
-    protected ChunkReader newInterChunkReader( String path ) throws IOException {
+    protected SequenceReader newInterChunkReader( String path ) throws IOException {
 
         return new LocalPartitionReader( config, partition, path );
         
@@ -329,11 +334,11 @@ public class ReduceRunner {
      * Sort a given set of input files adn wite the results to the output
      * directory.
      */
-    public List<ChunkReader> sort( List<File> input, String target_dir ) throws IOException {
+    public List<SequenceReader> sort( List<File> input, String target_dir ) throws IOException {
 
         SystemProfiler profiler = config.getSystemProfiler();
 
-        List<ChunkReader> sorted = new ArrayList();
+        List<SequenceReader> sorted = new ArrayList();
 
         int id = 0;
 
@@ -349,7 +354,7 @@ public class ReduceRunner {
         
         while( pendingIterator.hasNext() ) {
         	
-        	List<ShuffleInputChunkReader> work = new ArrayList();
+        	List<ChunkReader> work = new ArrayList();
         	long workSize = 0;
 
             //factor in the overhead of the key lookup before we sort.
@@ -357,6 +362,8 @@ public class ReduceRunner {
             //pass them INTO the chunk sorter.  I also factor in the
             //amount of data IN this partition and not the ENTIRE file size.
         	while( pendingIterator.hasNext() ) {
+        		
+        		task.assertAlive();
         		
         		File current = pendingIterator.next();
                 String path = current.getPath();                
@@ -374,7 +381,7 @@ public class ReduceRunner {
                 }
 
         		workSize += header.length;
-                workSize += header.count * KeyLookup.KEY_SIZE;
+                workSize += KeyLookup.computeCapacity( header.count );
                 
         		if ( workSize > config.getSortBufferSize() ) {
         			pendingIterator = pending.iterator();
@@ -391,9 +398,9 @@ public class ReduceRunner {
             
             log.info( "Writing temporary sort file %s", path );
 
-            ChunkSorter sorter = new ChunkSorter( config , partition, shuffleInput );
+            ChunkSorter sorter = new ChunkSorter( config , partition );
 
-            ChunkReader result = sorter.sort( work, out, jobOutput );
+            SequenceReader result = sorter.sort( work, out, jobOutput );
 
             if ( result != null )
                 sorted.add( result );

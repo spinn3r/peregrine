@@ -35,32 +35,29 @@ import peregrine.task.*;
 
 /**
  */
-public class MapperRPCDelegate extends RPCDelegate<FSDaemon> {
+public class MapperRPCDelegate extends BaseTaskRPCDelegate {
 
     private static final Logger log = Logger.getLogger();
 
-    public void handleMessage( FSDaemon daemon, Channel channel, Message message )
+    /**
+     * RPC call - execute a job on a given partition.
+     */
+    public void exec( FSDaemon daemon, Channel channel, Message message )
         throws Exception {
-    	
-        String action = message.get( "action" );
 
-        if ( "exec".equals( action ) ) {
+        log.info( "Going to map from action: %s", message );
 
-            log.info( "Going to map from action: %s", message );
+        Input input            = readInput( message );
+        Output output          = readOutput( message );
+        Partition partition    = new Partition( message.getInt( "partition" ) );
+        Class delegate         = Class.forName( message.get( "delegate" ) );
+        Config config          = daemon.getConfig();
 
-            Input input            = readInput( message );
-            Output output          = readOutput( message );
-            Partition partition    = new Partition( message.getInt( "partition" ) );
-            Class delegate         = Class.forName( message.get( "delegate" ) );
-            Config config          = daemon.getConfig();
+        log.info( "Running %s with input %s and output %s", delegate.getName(), input, output );
 
-            exec( daemon, delegate, config, partition, input, output );
-            
-            return;
-
-        }
-
-        throw new Exception( String.format( "No handler for action %s with message %s", action, message ) );
+        exec( daemon, delegate, config, partition, input, output );
+        
+        return;
 
     }
 
@@ -79,10 +76,10 @@ public class MapperRPCDelegate extends RPCDelegate<FSDaemon> {
 
         task.init( config, partition, delegate );
 
-        log.info( "Running delegate %s with input %s and output %s", delegate.getName(), input, output );
-
         daemon.getExecutorService( getClass() ).submit( task );
 
+        trackTask( partition, task );
+        
     }
     
     protected Input readInput( Message message ) {

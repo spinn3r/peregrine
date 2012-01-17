@@ -60,6 +60,13 @@ public class StreamReader {
         return buff.readByte();
     }
     
+    /**
+     * Return the current position in this stream.
+     */
+    public int index() {
+    	return buff.readerIndex();
+    }
+    
     public StreamReaderListener getListener() { 
         return this.listener;
     }

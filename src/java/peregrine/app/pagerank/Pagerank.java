@@ -27,6 +27,11 @@ public class Pagerank {
     private static final Logger log = Logger.getLogger();
 
     private Config config;
+
+    /**
+     * The number of iterations we should perform.
+     */
+    private int iterations = 5;
     
     public Pagerank( Config config ) {
         this.config = config;
@@ -38,11 +43,17 @@ public class Pagerank {
 
         try {
 
+            // ***** INIT stage... 
+
             // TODO: We can elide this and the next step by reading the input
             // once and writing two two destinations.  this would read from
             // 'path' and then wrote to node_indegree and graph_by_source at the
             // same time.
-            
+
+            // ***
+            //
+            // compute the node_indegree 
+
             controller.map( NodeIndegreeJob.Map.class,
                             new Input( path ),
                             new Output( "shuffle:default" ) );
@@ -51,8 +62,14 @@ public class Pagerank {
                                new Input( "shuffle:default" ),
                                new Output( "/pr/tmp/node_indegree" ) );
 
-            // sort the graph by source since we aren't gauranteed to have have
-            // the keys in the right order.
+            // ***
+            //
+            // sort the graph by source since we aren't certain to have have the
+            // keys in the right order and store in graph_by_source for joining
+            // across every iteration.  This is invariant so we should store it
+            // to the filesystem.
+            // 
+
             controller.map( Mapper.class,
                             new Input( path ),
                             new Output( "shuffle:default" ) );
@@ -61,7 +78,11 @@ public class Pagerank {
                                new Input( "shuffle:default" ),
                                new Output( "/pr/test.graph_by_source" ) );
             
-            //now create node metadata...
+            // ***
+            //
+            // now create node metadata...  This will write the dangling vector,
+            // the nonlinked vector and node_metadata which are all invariant.
+
             controller.merge( NodeMetadataJob.Map.class,
                               new Input( "/pr/tmp/node_indegree",
                                          "/pr/test.graph_by_source" ),
@@ -80,30 +101,57 @@ public class Pagerank {
                                new Output( "/pr/out/nr_dangling" ) );
 
             // init the empty rank_vector table ... we need to merge against it.
-            controller.map( Mapper.class,
-                            new Input(),
-                            new Output( "/pr/out/rank_vector" ) );
-            
-            controller.merge( IterJob.Map.class,
-                              new Input( "/pr/test.graph_by_source" ,
-                                         "/pr/out/rank_vector" ,
-                                         "/pr/out/dangling" ,
-                                         "/pr/out/nonlinked" ,
-                                         "broadcast:/pr/out/nr_nodes" ) ,
-                              new Output( "shuffle:default",
-                                          "broadcast:dangling_rank_sum" ) );
 
-            controller.reduce( IterJob.Reduce.class,
-                               new Input( "shuffle:default",
-                                          "broadcast:/pr/out/nr_nodes" ),
-                               new Output( "/pr/out/rank_vector_new" ) );
+            // ***** ITER stage... 
 
-            // now compute the dangling rank sum for the next iteration
+            for( int iter = 0; iter < iterations; ++iter ) {
 
-            controller.reduce( TeleportationGrantJob.Reduce.class, 
-                               new Input( "shuffle:dangling_rank_sum",
-                                          "broadcast:/pr/out/nr_nodes" ),
-                               new Output( "/pr/out/teleportation_grant" ) );
+                if ( iter == 0 ) {
+
+                    // init empty files which we can still join against.
+                    
+                    controller.map( Mapper.class,
+                                    new Input(),
+                                    new Output( "/pr/out/rank_vector" ) );
+                    
+                    controller.map( Mapper.class,
+                                    new Input(),
+                                    new Output( "/pr/out/teleportation_grant" ) );
+
+                }
+
+                controller.merge( IterJob.Map.class,
+                                  new Input( "/pr/test.graph_by_source" ,
+                                             "/pr/out/rank_vector" ,
+                                             "/pr/out/dangling" ,
+                                             "/pr/out/nonlinked" ,
+                                             "broadcast:/pr/out/nr_nodes" ) ,
+                                  new Output( "shuffle:default",
+                                              "broadcast:dangling_rank_sum" ) );
+
+                controller.reduce( IterJob.Reduce.class,
+                                   new Input( "shuffle:default",
+                                              "broadcast:/pr/out/nr_nodes",
+                                              "broadcast:/pr/out/nr_dangling",
+                                              "broadcast:/pr/out/teleport_grant" ),
+                                   new Output( "/pr/out/rank_vector" ) );
+
+                // ***
+                // 
+                // write out the new ranking vector
+
+                if ( iter < iterations - 1 ) {
+
+                    // now compute the dangling rank sum for the next iteration
+
+                    controller.reduce( TeleportationGrantJob.Reduce.class, 
+                                       new Input( "shuffle:dangling_rank_sum",
+                                                  "broadcast:/pr/out/nr_nodes" ),
+                                       new Output( "/pr/out/teleportation_grant" ) );
+
+                }
+                    
+            }
 
             log.info( "Pagerank complete" );
             

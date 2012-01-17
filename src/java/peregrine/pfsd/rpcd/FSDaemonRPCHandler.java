@@ -44,9 +44,9 @@ public class FSDaemonRPCHandler extends BaseRPCHandler<FSDaemon> {
 	private static Map<String,RPCDelegate<FSDaemon>> handlers = new HashMap() {{
     	
     	put( "/shuffler/RPC",    new ShufflerRPCDelegate() );
-        put( "/mapper/RPC",      new MapperRPCDelegate() );
-        put( "/reducer/RPC",     new ReducerRPCDelegate() );
-        put( "/merger/RPC",      new MergerRPCDelegate() );
+        put( "/map/RPC",         new MapperRPCDelegate() );
+        put( "/reduce/RPC",      new ReducerRPCDelegate() );
+        put( "/merge/RPC",       new MergerRPCDelegate() );
         
     }};
 
