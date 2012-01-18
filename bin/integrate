@@ -6,6 +6,13 @@ BRANCH=default
 
 SCRATCH=/tmp/integration/peregrine
 
+if [ ! -d $SCRATCH ]; then
+
+    #FIXME: read the repo URL from hg... 
+    hg clone https://burtonator:redapplekittycat@bitbucket.org/burtonator/peregrine $SCRATCH
+
+fi
+
 for changeset in `hg log -b default --limit $MAX |grep -i changeset |grep -Eo '[a-zA-z0-9:]+$' |grep -Eo '^[0-9]+'`; do 
     
     echo $changeset
