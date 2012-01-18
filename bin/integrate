@@ -29,6 +29,11 @@ for changeset in `hg log -b default --limit $MAX |grep -i changeset |grep -Eo '[
 
     cd $SCRATCH 
     
+    if [ -d $TEST_LOGS/$changeset/ ]; then
+        echo "Changeset $changeset has already been indexed." 
+        continue
+    fi
+
     hg update -r $changeset
 
     ant clean 
