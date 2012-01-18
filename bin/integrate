@@ -7,9 +7,9 @@ BRANCH=default
 SCRATCH=/tmp/integration/peregrine
 TEST_LOGS=/var/lib/integration/peregrine
 
-#TEST_COMMAND="ant test"
+#TEST_COMMAND="ant clean test"
 
-TEST_COMMAND="ant compile.test && ./bin/jexec peregrine.TestMapReduceWithMergeFactor"
+TEST_COMMAND="ant clean jar compile.test && ./bin/jexec peregrine.TestMapReduceWithMergeFactor"
 
 if [ ! -d $SCRATCH ]; then
 
