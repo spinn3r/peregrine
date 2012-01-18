@@ -9,7 +9,7 @@ TEST_LOGS=/var/lib/integration/peregrine
 
 #TEST_COMMAND="ant clean test"
 
-TEST_COMMAND="ant clean jar compile.test && ./bin/jexec peregrine.TestMapReduceWithMergeFactor"
+TEST_COMMAND="`ant clean jar compile.test && ./bin/jexec peregrine.TestMapReduceWithMergeFactor`"
 
 if [ ! -d $SCRATCH ]; then
 
