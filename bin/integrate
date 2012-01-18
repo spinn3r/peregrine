@@ -33,6 +33,6 @@ for changeset in `hg log -b default --limit $MAX |grep -i changeset |grep -Eo '[
     mkdir -p $SCRATCH/target/$changeset
 
     ant clean 
-    ant test | tee > $SCRATCH/target/$changeset/test.log
+    ant test | tee $SCRATCH/target/$changeset/test.log
 
 done
