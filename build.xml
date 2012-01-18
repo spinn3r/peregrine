@@ -159,12 +159,13 @@
         </junit>
 
         <junitreport todir="target/test-reports">
+
           <fileset dir="target/test-reports">
             <include name="TEST-*.xml"/>
           </fileset>
-
-          <report format="frames" todir="./target/test-reports/html"/>
-
+          
+          <report format="frames" todir="./target/junit-report"/>
+          
         </junitreport>
 
     </target> 

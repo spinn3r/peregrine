@@ -1,0 +1,13 @@
+#!/bin/sh
+
+MAX=20
+
+BRANCH=default
+
+SCRATCH=/tmp/integration/peregrine
+
+for changeset in `hg log -b default --limit $MAX |grep -i changeset |grep -Eo '[a-zA-z0-9:]+$' |grep -Eo '^[0-9]+'`; do 
+    
+    echo $changeset
+
+done
