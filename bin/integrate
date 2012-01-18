@@ -59,8 +59,15 @@ run() {
 
 index() {
 
-    for dir in $TEST_LOGS/; do
+    set -e
+
+    rm -f $TEST_LOGS/index.html
+
+    for dir in `ls -1 $TEST_LOGS`; do
         echo $dir
+        
+        echo "<a href='$dir/test.log'>$dir</a></br>" >> $TEST_LOGS/index.html
+
     done
 
 }
