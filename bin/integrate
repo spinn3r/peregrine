@@ -24,13 +24,16 @@ hg pull -u
 
 for changeset in `hg log -b default --limit $MAX |grep -i changeset |grep -Eo '[a-zA-z0-9:]+$' |grep -Eo '^[0-9]+'`; do 
     
-    echo $changeset
+    echo "Working with changeset $changeset"
 
     cd $SCRATCH 
     
     hg update -r $changeset
     
-    mkdir -p $SCRATCH/target/$changeset
+    mkdir -p $SCRATCH/target/$changeset/
+
+    ls -al $SCRATCH/target/$changeset/
+
 
     ant clean 
     ant test | tee $SCRATCH/target/$changeset/test.log
