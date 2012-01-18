@@ -118,6 +118,57 @@
 
     </target>
 
+    <target name="test2" 
+            depends="jar,compile.test" 
+            description="Run junit tests.">
+
+        <taskdef name="junit"
+                 classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask">
+            <classpath refid="project.classpath"/>
+        </taskdef>	
+
+        <mkdir dir="target/test-reports" />
+
+        <junit printsummary="withOutAndErr"
+               fork="true"
+               forkmode="perTest"
+               timeout="1000000"
+               maxmemory="512m"
+               filtertrace="false"
+               haltonfailure="true"
+               haltonerror="true"
+               showoutput="true" 
+               logfailedtests="true">
+
+            <formatter type="plain" usefile="false" />
+            <!-- <formatter type="brief" usefile="false" /> -->
+            <formatter type="xml" usefile="true" />
+
+            <classpath>
+                <path refid="project.classpath"/>
+            </classpath>
+
+            <batchtest todir="target/test-reports"> 
+
+                <fileset dir="src/test">
+                    <include name="**/TestRangeRouter*.java"/>
+                </fileset>
+
+            </batchtest>
+            
+        </junit>
+
+        <junitreport todir="target/test-reports">
+          <fileset dir="target/test-reports">
+            <include name="TEST-*.xml"/>
+          </fileset>
+
+          <report format="frames" todir="./target/test-reports/html"/>
+
+        </junitreport>
+
+    </target> 
+
     <target name="test" 
             depends="jar,compile.test" 
             description="Run junit tests.">
@@ -141,6 +192,7 @@
                logfailedtests="true">
 
             <formatter type="plain" usefile="true" />
+            <formatter type="xml" usefile="true" />
 
             <classpath>
                 <path refid="project.classpath"/>
@@ -157,6 +209,15 @@
         </junit>
 
         <antcall target="test-multi" />
+
+        <junitreport todir="target/test-reports">
+          <fileset dir="target/test-reports">
+            <include name="TEST-*.xml"/>
+          </fileset>
+
+          <report format="frames" todir="./target/test-reports/html"/>
+
+        </junitreport>
 
     </target> 
 
@@ -274,6 +335,7 @@
             <jvmarg value="-Dperegrine.test.factor=${peregrine.test.factor}"/>
 
             <formatter type="plain" usefile="true" />
+            <formatter type="xml" usefile="true" />
 
             <classpath>
                 <path refid="project.classpath"/>

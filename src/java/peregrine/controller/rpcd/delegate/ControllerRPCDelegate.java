@@ -30,6 +30,9 @@ import peregrine.rpcd.delegate.*;
  */
 public class ControllerRPCDelegate extends RPCDelegate<ControllerDaemon> {
 
+    /**
+     * @rpc 
+     */
     public void complete( ControllerDaemon controllerDaemon, Channel channel, Message message )
         throws Exception {
 		
@@ -42,6 +45,9 @@ public class ControllerRPCDelegate extends RPCDelegate<ControllerDaemon> {
 		
     }
 	
+    /**
+     * @rpc 
+     */
     public void failed( ControllerDaemon controllerDaemon, Channel channel, Message message )
         throws Exception {
         
@@ -56,6 +62,9 @@ public class ControllerRPCDelegate extends RPCDelegate<ControllerDaemon> {
 		
     }
 
+    /**
+     * @rpc 
+     */
     public void progress( ControllerDaemon controllerDaemon, Channel channel, Message message )
         throws Exception {
         
@@ -63,15 +72,18 @@ public class ControllerRPCDelegate extends RPCDelegate<ControllerDaemon> {
 		
     }
 
+    /**
+     * @rpc 
+     */
     public void heartbeat( ControllerDaemon controllerDaemon, Channel channel, Message message )
         throws Exception {
         
         Host host = Host.parse( message.get( "host" ) );
         
-        // FIXME verify that the config_checksum is correct...
-        
-        if ( ! controllerDaemon.getConfig().getChecksum().equals( message.get( "config_checksum" ) ) )
+        // verify that the config_checksum is correct...
+        if ( ! controllerDaemon.getConfig().getChecksum().equals( message.get( "config_checksum" ) ) ) {
             throw new Exception( "Config checksum from %s is invalid: " + host );
+        }
         
         // mark this host as online for the entire controller.
         controllerDaemon.getClusterState().getOnline().mark( host );
@@ -79,7 +91,10 @@ public class ControllerRPCDelegate extends RPCDelegate<ControllerDaemon> {
         return;
 		
     }
-		
+
+    /**
+     * @rpc 
+     */
     public void gossip( ControllerDaemon controllerDaemon, Channel channel, Message message )
         throws Exception {
         
