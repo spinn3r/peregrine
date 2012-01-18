@@ -42,8 +42,6 @@ for changeset in `hg log -b default --limit $MAX |grep -i changeset |grep -Eo '[
 
     hg update -r $changeset
 
-    ant clean 
-
     mkdir -p $changedir
 
     $TEST_COMMAND 2> /dev/stdout > $changedir/test.log
