@@ -59,7 +59,7 @@ run() {
 
 index() {
 
-    for dir in $TEST_LOGS; do
+    for dir in $TEST_LOGS/; do
         echo $dir
     done
 
