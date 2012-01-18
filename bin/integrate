@@ -17,6 +17,8 @@ fi
 
 mkdir -p $SCRATCH/target
 
+set -e
+
 cd $SCRATCH 
 hg pull -u
 
