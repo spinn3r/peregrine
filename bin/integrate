@@ -1,6 +1,6 @@
 #!/bin/sh
 
-MAX=40
+MAX=20
 
 BRANCH=default
 
@@ -34,13 +34,16 @@ for changeset in `hg log -b default --limit $MAX |grep -i changeset |grep -Eo '[
         continue
     fi
 
-    hg update -r $changeset
+    # hg update -r $changeset
 
-    ant clean 
+    # ant clean 
 
-    mkdir -p $TEST_LOGS/$changeset/
+    # mkdir -p $TEST_LOGS/$changeset/
 
-    ant test 2> /dev/stdout | tee $TEST_LOGS/$changeset/test.log
+    # ant test 2> /dev/stdout > $TEST_LOGS/$changeset/test.log
+    # result=$?
+
+    # echo $result > $TEST_LOGS/$changeset/exit.result
 
 done
 
