@@ -1,11 +1,11 @@
 #!/bin/sh
 
-MAX=20
+MAX=40
 
 BRANCH=default
 
 SCRATCH=/tmp/integration/peregrine
-TEST_LOGS=/var/lib/peregrine
+TEST_LOGS=/var/lib/integration/peregrine
 
 if [ ! -d $SCRATCH ]; then
 
@@ -35,6 +35,8 @@ for changeset in `hg log -b default --limit $MAX |grep -i changeset |grep -Eo '[
 
     mkdir -p $TEST_LOGS/$changeset/
 
-    ant test | tee $TEST_LOGS/$changeset/test.log
+    ant test 2> /dev/stdout | tee $TEST_LOGS/$changeset/test.log
 
 done
+
+# FIXME: now clean up older reports ... 

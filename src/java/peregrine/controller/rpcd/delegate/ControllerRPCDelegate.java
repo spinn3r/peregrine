@@ -38,7 +38,7 @@ public class ControllerRPCDelegate extends RPCDelegate<ControllerDaemon> {
 		
         Host host       = Host.parse( message.get( "host" ) );
         Partition part  = new Partition( message.getInt( "partition" ) );
-        
+
         controllerDaemon.getScheduler().markComplete( host, part );
         
         return;
