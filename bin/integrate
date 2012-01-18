@@ -5,6 +5,7 @@ MAX=20
 BRANCH=default
 
 SCRATCH=/tmp/integration/peregrine
+TEST_LOGS=/var/lib/peregrine
 
 if [ ! -d $SCRATCH ]; then
 
@@ -29,13 +30,11 @@ for changeset in `hg log -b default --limit $MAX |grep -i changeset |grep -Eo '[
     cd $SCRATCH 
     
     hg update -r $changeset
-    
-    mkdir -p $SCRATCH/target/$changeset/
-
-    ls -al $SCRATCH/target/$changeset/
-
 
     ant clean 
-    ant test | tee $SCRATCH/target/$changeset/test.log
+
+    mkdir -p $TEST_LOGS/$changeset/
+
+    ant test | tee $TEST_LOGS/$changeset/test.log
 
 done
