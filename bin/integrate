@@ -17,6 +17,9 @@ fi
 
 mkdir -p $SCRATCH/target
 
+cd $SCRATCH 
+hg pull -u
+
 for changeset in `hg log -b default --limit $MAX |grep -i changeset |grep -Eo '[a-zA-z0-9:]+$' |grep -Eo '^[0-9]+'`; do 
     
     echo $changeset
