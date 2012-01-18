@@ -7,9 +7,9 @@ BRANCH=default
 SCRATCH=/tmp/integration/peregrine
 TEST_LOGS=/var/lib/integration/peregrine
 
-#TEST_COMMAND="ant clean test"
+TEST_COMMAND="ant clean test"
 
-TEST_COMMAND="`ant clean jar compile.test && ./bin/jexec peregrine.TestMapReduceWithMergeFactor`"
+#TEST_COMMAND="`ant clean jar compile.test && ./bin/jexec peregrine.TestMapReduceWithMergeFactor`"
 
 if [ ! -d $SCRATCH ]; then
 
@@ -44,8 +44,10 @@ for changeset in `hg log -b default --limit $MAX |grep -i changeset |grep -Eo '[
 
     mkdir -p $changedir
 
+    set +e
     $TEST_COMMAND 2> /dev/stdout > $changedir/test.log
     result=$?
+    set -e
 
     echo $result > $changedir/exit.result
 
