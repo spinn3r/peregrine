@@ -40,8 +40,9 @@ public class MapperRPCDelegate extends BaseTaskRPCDelegate {
     private static final Logger log = Logger.getLogger();
 
     /**
-     * RPC call - execute a job on a given partition.
+     * Execute a job on a given partition.
      */
+    @RPC
     public void exec( FSDaemon daemon, Channel channel, Message message )
         throws Exception {
 

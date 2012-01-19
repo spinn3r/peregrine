@@ -24,14 +24,24 @@ import peregrine.rpc.*;
 import peregrine.rpcd.delegate.*;
 
 /**
+ * Handles all shuffle related RPC messages.
  */
 public class ShufflerRPCDelegate extends RPCDelegate<FSDaemon> {
-    
+
+    /**
+     * Flush pending shuffle data to disk.
+     */
+    @RPC
     public void flush( FSDaemon daemon, Channel channel, Message message ) throws IOException {
         // FIXME: this should be async should it not?
         daemon.shuffleReceiverFactory.flush();
     }
 
+    /**
+     * Purge/delete all the shuffle data on disk or the shuffle with the given
+     * name.
+     */
+    @RPC
     public void purge( FSDaemon daemon, Channel channel, Message message ) throws IOException {
         daemon.shuffleReceiverFactory.purge( message.get( "name" ) );
     }
