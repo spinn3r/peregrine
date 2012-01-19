@@ -43,8 +43,9 @@ public class BaseTaskRPCDelegate extends RPCDelegate<FSDaemon> {
     private ConcurrentHashMap<Partition,Task> tasks = new ConcurrentHashMap();
     
     /**
-     * RPC call - reset between partition runs.
+     * Reset state between partition runs.
      */
+    @RPC
     public void reset( FSDaemon daemon, Channel channel, Message message )
         throws Exception {
 
@@ -55,8 +56,9 @@ public class BaseTaskRPCDelegate extends RPCDelegate<FSDaemon> {
     }
 
     /**
-     * RPC call - kill a given task by partition.
+     * Kill a given task by partition.
      */
+    @RPC
     public void kill( FSDaemon daemon, Channel channel, Message message )
         throws Exception {
 

@@ -64,12 +64,18 @@ public abstract class BaseTask implements Task {
     protected JobDelegate jobDelegate = null;
 
     private boolean killed = false;
+
+    /**
+     * The time this job was started, in milliseconds.
+     */
+    protected long started = -1;
     
     public void init( Config config, Partition partition, Class delegate ) {
     	this.config      = config;
         this.host        = config.getHost();
         this.partition   = partition;
         this.delegate    = delegate;
+        this.started     = System.currentTimeMillis();
     }
 
     public List<BroadcastInput> getBroadcastInput() { 

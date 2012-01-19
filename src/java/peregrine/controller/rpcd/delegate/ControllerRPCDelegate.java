@@ -31,8 +31,10 @@ import peregrine.rpcd.delegate.*;
 public class ControllerRPCDelegate extends RPCDelegate<ControllerDaemon> {
 
     /**
-     * @rpc 
+     * Allows a worker node to report that a partition is complete and its
+     * mapper/reducers have executed correctly.
      */
+    @RPC
     public void complete( ControllerDaemon controllerDaemon, Channel channel, Message message )
         throws Exception {
 		
@@ -46,8 +48,11 @@ public class ControllerRPCDelegate extends RPCDelegate<ControllerDaemon> {
     }
 	
     /**
-     * @rpc 
+     * Allows a worker node to report that a given partition has failed.  This
+     * is usually done if the machine is functioning correctly.  If not we mark
+     * the machine failed via other means (such as gossip).
      */
+    @RPC
     public void failed( ControllerDaemon controllerDaemon, Channel channel, Message message )
         throws Exception {
         
@@ -63,8 +68,8 @@ public class ControllerRPCDelegate extends RPCDelegate<ControllerDaemon> {
     }
 
     /**
-     * @rpc 
      */
+    @RPC
     public void progress( ControllerDaemon controllerDaemon, Channel channel, Message message )
         throws Exception {
         
@@ -73,8 +78,11 @@ public class ControllerRPCDelegate extends RPCDelegate<ControllerDaemon> {
     }
 
     /**
-     * @rpc 
+     * Allows the controller to receive 'heartbeats' from machines in the
+     * cluster so that it can obtain status on the cluster for which machines
+     * are 'out there' in the ether.
      */
+    @RPC
     public void heartbeat( ControllerDaemon controllerDaemon, Channel channel, Message message )
         throws Exception {
         
@@ -93,8 +101,11 @@ public class ControllerRPCDelegate extends RPCDelegate<ControllerDaemon> {
     }
 
     /**
-     * @rpc 
+     * Allows a worker node to report back that it failed to communicate /
+     * collaborate with a given host.  The controller then receives these
+     * messages and can make informed decisions about which to mark offline.
      */
+    @RPC
     public void gossip( ControllerDaemon controllerDaemon, Channel channel, Message message )
         throws Exception {
         
@@ -110,3 +121,4 @@ public class ControllerRPCDelegate extends RPCDelegate<ControllerDaemon> {
     }
     
 }
+
