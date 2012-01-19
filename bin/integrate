@@ -53,6 +53,10 @@ run() {
 
         echo $result > $changedir/exit.result
 
+        # regenerate the index every time so that I can see progress as we move
+        # forward.
+        index
+
     done
 
 }
@@ -95,6 +99,4 @@ index() {
 
 }
 
-# FIXME: now clean up older reports ... 
-
-index
+run
