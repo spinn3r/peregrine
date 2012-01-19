@@ -159,16 +159,22 @@
 
         <antcall target="test-multi" />
 
+        <antcall target="test-report" />
+
+    </target> 
+
+    <target name="test-report">
+
         <junitreport todir="target/test-reports">
             <fileset dir="target/test-reports">
                 <include name="TEST-*.xml"/>
             </fileset>
 
-            <report format="frames" todir="./target/test-reports/html"/>
+            <report format="frames" todir="./target/test-reports"/>
 
         </junitreport>
 
-    </target> 
+    </target>
 
     <target name="test-multi"
             depends="jar,compile.test">
@@ -262,12 +268,14 @@
 
     <target name="test-multi-exec">
 
-      <taskdef name="junit"
-               classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask">
-          <classpath refid="project.classpath"/>
-      </taskdef>	
+        <taskdef name="junit"
+                 classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask"> 
+            <classpath refid="project.classpath"/>
+        </taskdef>	
 
-      <echo message="peregrine.test.config: ${peregrine.test.config}"/>
+        <echo message="peregrine.test.config: ${peregrine.test.config}"/>
+
+        <mkdir dir="target/test-reports" />
 
         <junit printsummary="withOutAndErr"
                fork="true"
@@ -294,10 +302,11 @@
 
                 <fileset dir="src/test">
 
+                  <include name="peregrine/TestMapReduceWithMergeFactor.java"/>
                   <include name="peregrine/TestBroadcastMapReduce.java"/>
                   <include name="peregrine/TestDataImbalance.java"/>
                   <include name="peregrine/TestMapReduce.java"/>
-                  <include name="peregrine/TestMapReduceWithMergeFactor.java"/>
+
                   <include name="peregrine/TestNewReduceCode.java"/>
                   <include name="peregrine/TestPagerank.java"/>
                   <include name="peregrine/io/partition/TestDefaultPartitionWriter.java"/>
