@@ -4,17 +4,14 @@
 #
 # TODO
 #
-# - timestamps when the page was last generated
-#
-# - link to the changeset and commit message
-#
-# - link to the new report HTML files if they exist.
 #
 # - CSS
 #
 # - title on pages 
+#
+# - link to the test-reports if they are generated.
 
-MAX=300
+MAX=30
 BRANCH=default
 
 SCRATCH=/tmp/integration/peregrine
