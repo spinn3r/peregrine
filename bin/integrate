@@ -81,14 +81,19 @@ index() {
     rm -f $TEST_LOGS/index.html
     rm -f $TEST_LOGS/left.html
 
-    echo "<frameset cols='20%,80%' title=''>" >> $TEST_LOGS/index.html
-    echo "<frame src='left.html' name='left' title='all tests'>" >> $TEST_LOGS/index.html
-    echo "<frame src='' name='right' title=''>" >> $TEST_LOGS/index.html
-    echo "</frameset>" >> $TEST_LOGS/index.html
+    index=$TEST_LOGS/index.html
+    left=$TEST_LOGS/left.html
 
-    echo "<table width='100%'>" >> $TEST_LOGS/left.html 
+    echo "Writing to $index"
+
+    echo "<frameset cols='20%,80%' title=''>" >> $index
+    echo "<frame src='left.html' name='left' title='all tests'>" >> $index
+    echo "<frame src='' name='right' title=''>" >> $index
+    echo "</frameset>" >> $index
+
+    echo "<table width='100%' cellspacing='0'>" >> $left 
   
-    for dir in `ls -t1 $TEST_LOGS`; do
+    for dir in `ls -1 $TEST_LOGS | sort -r`; do
 
         if [ ! -d $TEST_LOGS/$dir ]; then
             continue
@@ -106,10 +111,20 @@ index() {
             bgcolor="green"
         fi        
 
-        echo "<tr bgcolor='$bgcolor'><td><a href='$dir/test.log' target='right'>$dir</a></td></tr>" >> $TEST_LOGS/left.html
+        echo "<tr bgcolor='$bgcolor'><td><a href='$dir/test.log' target='right'>$dir</a></td><td align='right'><a href='https://bitbucket.org/burtonator/peregrine/changeset/$dir' target='right'>CS</a></td></tr>" >> $left
 
     done
 
+    date=$(date)
+
+    echo "</table>" >> $left 
+    echo "<br/><small>$date</small>" >> $left 
+
 }
+
+if [ "$1" == "index" ]; then
+    index
+    exit 0
+fi
 
 run
