@@ -49,6 +49,9 @@ public class TestExampleDriver extends peregrine.BaseTestWithTwoDaemons {
         
     public void test1() throws Exception {
 
+        if ( true )
+            throw new RuntimeException( "FIXME" );
+        
         //register the driver
         IODriverRegistry.register( new ExampleIODriver() );
 

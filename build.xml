@@ -135,8 +135,10 @@
                timeout="1000000"
                maxmemory="512m"
                filtertrace="false"
-               haltonfailure="true"
-               haltonerror="true"
+               haltonfailure="false"
+               haltonerror="false"
+               failureproperty="junit.failed"
+               errorproperty="junit.failed"
                showoutput="true" 
                logfailedtests="true">
 
@@ -157,9 +159,13 @@
             
         </junit>
 
+        <!--
         <antcall target="test-multi" />
+        -->
 
         <antcall target="test-report" />
+
+        <fail if="junit.failed"/>
 
     </target> 
 
@@ -283,8 +289,10 @@
                timeout="1000000"
                maxmemory="512m"
                filtertrace="false"
-               haltonfailure="true"
-               haltonerror="true"
+               haltonfailure="false"
+               haltonerror="false"
+               failureproperty="junit.failed"
+               errorproperty="junit.failed"
                showoutput="true" 
                logfailedtests="true">
 
@@ -356,7 +364,7 @@
             <group title="Shuffling" packages="peregrine.shuffle*"/>
             <group title="Util" packages="peregrine.util*"/>
             <group title="PFSd" packages="peregrine.pfsd*"/>
-            <group title="Sort and merge backend for shuffle/reduce phase." packages="peregrine.reduce*"/>
+            <group title="Sort and merge backend for shuffle/reduce phase." packages="peregrine.reduce*,peregrine.combine*"/>
             <group title="RPC framework" packages="peregrine.rpc*"/>
           
         </javadoc>
