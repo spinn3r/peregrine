@@ -35,10 +35,10 @@ public class MergerTask extends BaseMapperTask {
         log.info( "Running merge jobs on host: %s ...", host );
 
         listeners.add( new MergerLocalPartitionListener() );
-        
-        List<SequenceReader> readers = getJobInput();
 
-        MergeRunner localMerger = new MergeRunner( readers );
+        jobInput = getJobInput();
+
+        MergeRunner localMerger = new MergeRunner( jobInput );
 
         Merger merger = (Merger)jobDelegate;
         

@@ -70,7 +70,7 @@ public abstract class BaseTask implements Task {
      */
     protected long started = -1;
     
-    public void init( Config config, Partition partition, Class delegate ) {
+    public void init( Config config, Partition partition, Class delegate ) throws IOException {
     	this.config      = config;
         this.host        = config.getHost();
         this.partition   = partition;
@@ -136,6 +136,7 @@ public abstract class BaseTask implements Task {
         this.jobOutput = JobOutputFactory.getJobOutput( config, partition, output );
        
         for( JobOutput current : jobOutput ) {
+
             log.info( "Job output: %s" , current );
             
             if ( current instanceof ShuffleJobOutput ) {
@@ -301,7 +302,7 @@ public abstract class BaseTask implements Task {
     }
 
     /**
-     * Tell the controller tha twe failed (be a good citizen if we can).
+     * Tell the controller that we failed (be a good citizen if we can).
      */
     protected void sendFailedToController( Throwable cause ) throws IOException {
 
@@ -313,6 +314,25 @@ public abstract class BaseTask implements Task {
         message.put( "stacktrace",  cause );
 
         log.info( "Sending failed message to controller: %s", message );
+        
+        new Client().invoke( config.getController(), "controller", message );
+
+    }
+
+    /**
+     * Tell the controller about our progress so we can resume if we crash.
+     */
+    protected void sendProgressToController( String nonce, String pointer ) throws IOException {
+
+        Message message = new Message();
+        
+        message.put( "action" ,     "progress" );
+        message.put( "host",        config.getHost().toString() );
+        message.put( "partition",   partition.getId() );
+        message.put( "nonce" ,      nonce );
+        message.put( "pointer" ,    pointer );
+
+        log.info( "Sending progress message to controller with pointer %s: %s", pointer, message );
         
         new Client().invoke( config.getController(), "controller", message );
 

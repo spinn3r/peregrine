@@ -37,7 +37,11 @@ public interface ChunkReader extends SequenceReader {
 	 * 
 	 */
 	public int size() throws IOException;
-	
+
+    /**
+     * Get the backing channel buffer for performing random reads once this
+     * ChunkReader is mlocked.
+     */
 	public ChannelBuffer getBuffer();
 	
 }

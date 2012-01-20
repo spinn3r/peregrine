@@ -68,11 +68,17 @@ public class ControllerRPCDelegate extends RPCDelegate<ControllerDaemon> {
     }
 
     /**
+     * Mark a unit of work in a job as complete.  This could be a chunk in a map
+     * task, a chunk position list in a merge, or an individual sort in a
+     * preemptive reduce sort.
      */
     @RPC
     public void progress( ControllerDaemon controllerDaemon, Channel channel, Message message )
         throws Exception {
-        
+
+        Host host          = Host.parse( message.get( "host" ) );
+        Partition part     = new Partition( message.getInt( "partition" ) );
+
         return;
 		
     }
