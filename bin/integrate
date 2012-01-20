@@ -1,5 +1,19 @@
 #!/bin/sh
 
+###
+#
+# TODO
+#
+# - timestamps when the page was last generated
+#
+# - link to the changeset and commit message
+#
+# - link to the new report HTML files if they exist.
+#
+# - CSS
+#
+# - title on pages 
+
 MAX=40
 
 BRANCH=default
@@ -75,7 +89,7 @@ index() {
 
     echo "<table width='100%'>" >> $TEST_LOGS/left.html 
   
-    for dir in `ls -1 $TEST_LOGS`; do
+    for dir in `ls -t1 $TEST_LOGS`; do
 
         if [ ! -d $TEST_LOGS/$dir ]; then
             continue

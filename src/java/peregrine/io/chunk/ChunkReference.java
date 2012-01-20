@@ -22,27 +22,24 @@ import peregrine.config.Partition;
  */
 public class ChunkReference {
 
-    public long global = -1;
-
     public int local = -1;
 
     public Partition partition = null;
+
+    public String path = null;
     
     public ChunkReference() {}
 
-    public ChunkReference( long global,
-                           int local ) {
-        
-        this.global = global;
-        this.local = local;
-        
+    public ChunkReference( Partition partition ) {
+    	this( partition, null );
     }
-
+    
     /**
      * Used when generating chunk references for tasks.
      */
-    public ChunkReference( Partition partition ) {
+    public ChunkReference( Partition partition, String path ) {
         this.partition = partition;
+        this.path = path;
     }
 
     /**
@@ -50,17 +47,11 @@ public class ChunkReference {
      * chunk ID by one and then uses the partition as a prefix to update global.
      */
     public void incr() {
-
         ++local;
-        
-        long prefix = (long)partition.getId() * 1000000000;
-
-        this.global = prefix + local;
-
     }
 
     public String toString() {
-        return String.format( "%s local=%06d", partition, local );
+        return String.format( "%06d", local );
     }
     
 }

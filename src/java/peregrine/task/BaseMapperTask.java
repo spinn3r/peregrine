@@ -18,10 +18,8 @@ package peregrine.task;
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.*;
-import peregrine.config.Config;
-import peregrine.config.Host;
-import peregrine.config.Membership;
-import peregrine.config.Partition;
+
+import peregrine.config.*;
 import peregrine.io.*;
 import peregrine.io.chunk.*;
 import peregrine.io.driver.*;
@@ -31,6 +29,7 @@ import peregrine.io.partition.*;
 import peregrine.io.util.*;
 import peregrine.map.*;
 import peregrine.shuffle.sender.*;
+import peregrine.util.*;
 
 public abstract class BaseMapperTask extends BaseTask implements Callable {
 
@@ -39,10 +38,17 @@ public abstract class BaseMapperTask extends BaseTask implements Callable {
      */
     protected List<ChunkStreamListener> listeners = new ArrayList();
 
+    protected List<SequenceReader> jobInput = null;
+
+    /**
+     * The current nonce computed from the current input position.
+     */
+    protected String nonce = null;
+    
     /**
      * Run init just on Mapper and Merger tasks.
      */
-    public void init( Config config, Partition partition, Class delegate ) {
+    public void init( Config config, Partition partition, Class delegate ) throws IOException {
 
         super.init( config, partition, delegate );
 
@@ -79,7 +85,7 @@ public abstract class BaseMapperTask extends BaseTask implements Callable {
             listeners.add( current );
         }
 
-        listeners.add( new FlushLocalPartitionReaderListener() );
+        listeners.add( new MapperChunkStreamListener() );
         
         List<SequenceReader> readers = new ArrayList();
         
@@ -110,19 +116,59 @@ public abstract class BaseMapperTask extends BaseTask implements Callable {
         
     }
 
+    protected String getPointer() {
+
+        List<String> pointers = new ArrayList();
+
+        for( SequenceReader reader : jobInput ) {
+
+            if ( reader instanceof LocalPartitionReader )
+                pointers.add( reader.toString() );
+            
+        }
+
+        return Strings.join( pointers, "," );
+        
+    }
+
+    protected String getNonce() {
+
+        // host, job start time, and the pointer we are on
+        return Base16.encode( SHA1.encode( String.format( "%s:%s:%s", config.getHost(), started, getPointer() ) ) );
+        
+    }
+    
     /**
-     * Make sure to always flush the output between chunks. This is only 1 
-     * flush per every 100MB or so and isn't the end of the world.
+     * 
+     * 
+     * Make sure to always flush the output between chunks. This is only 1 flush
+     * per every 100MB or so and isn't the end of the world.
      * 
      */
-    class FlushLocalPartitionReaderListener implements ChunkStreamListener{
+    class MapperChunkStreamListener implements ChunkStreamListener{
 
-        public void onChunk( ChunkReference ref ) { }
+        public void onChunk( ChunkReference ref ) {
+
+            // get the first nonce... 
+            if ( nonce == null ) {
+                nonce = getNonce();
+            }
+
+        }
         
         public void onChunkEnd( ChunkReference ref ) {
 
             try {
+
+                // first try to flush job output.
                 new Flusher( getJobOutput() ).flush();
+
+                // now send progress to the controller.
+                sendProgressToController( nonce, getPointer() );
+
+                // update the nonce now ... 
+                nonce = getNonce();
+                
             } catch ( IOException e ) {
                 throw new RuntimeException( e );
             }
