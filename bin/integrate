@@ -14,8 +14,7 @@
 #
 # - title on pages 
 
-MAX=40
-
+MAX=100
 BRANCH=default
 
 SCRATCH=/tmp/integration/peregrine
