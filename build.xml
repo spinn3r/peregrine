@@ -390,9 +390,11 @@
             <arg value="-u"/>
         </exec>
 
+        <!--
         <exec executable="/var/lib/gems/1.8/bin/awestruct" dir="../peregrine-website">
             <arg value="-g"/>
         </exec>
+        -->
 
     </target>
 
