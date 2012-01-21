@@ -421,7 +421,7 @@
 
           apt-get install ruby rubygems
 
-          gem install fssm awestruct disqus rb-fsevent -- --with-cflags=-w
+          gem install fssm awestruct disqus rb-fsevent
 
       -->
 
