@@ -54,8 +54,16 @@ public class Test {
         
         List<InputSplit> splits = test.getSplits( jobContext );
 
+        TaskAttemptContext context = new TaskAttemptContext( conf, new TaskAttemptID() );
+        
         for( InputSplit split : splits ) {
+
             System.out.printf( "split: %s\n", split );
+
+            ColumnFamilyRecordReader reader = new ColumnFamilyRecordReader();
+
+            reader.initialize( split, context );
+            
         }
 
         //ColumnFamilyInputFormat inputFormat = new ColumnFamilyInputFormat();
