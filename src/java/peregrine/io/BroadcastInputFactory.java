@@ -20,6 +20,7 @@ import java.util.*;
 
 import peregrine.config.Config;
 import peregrine.config.Partition;
+import peregrine.io.driver.broadcast.*;
 
 /**
  * Write to a logical partition which is a stream of chunk files.... 
