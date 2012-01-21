@@ -23,9 +23,10 @@ import peregrine.config.*;
 import peregrine.http.*;
 import peregrine.io.chunk.*;
 import peregrine.os.*;
-import peregrine.pfsd.*;
 import peregrine.util.*;
 import peregrine.util.netty.*;
+import peregrine.worker.*;
+
 import com.spinn3r.log5j.Logger;
 
 /**

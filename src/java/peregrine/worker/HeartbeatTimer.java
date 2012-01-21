@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
 */
-package peregrine.controller;
+package peregrine.worker;
 
 import java.io.*;
 import java.net.*;
@@ -33,41 +33,28 @@ import peregrine.util.*;
 
 import com.spinn3r.log5j.Logger;
 import peregrine.util.netty.*;
-import peregrine.worker.*;
 
-/**
- * Timer for marking a host offline if we do not receive heartbeat messages in a
- * timely manner.
- */
-public class MarkOfflineTimer extends Timer {
+public class HeartbeatTimer extends Timer {
 
     private static final Logger log = Logger.getLogger();
 
-    public static long FAILED_INTERVAL  = HeartbeatTimer.ONLINE_SLEEP_INTERVAL * 4L;
-
-    /**
-     * How often do we want to wake up and check for machines that have failed.
-     */
-    public static long SCHEDULE_DELAY = 30000L;
+    public static long ONLINE_SLEEP_INTERVAL  = 30000L;
+    
+    public static long OFFLINE_SLEEP_INTERVAL = 1000L;      
 
     private boolean cancelled = false;
 
     private Config config = null;
-
-    private ClusterState clusterState;
     
     /**
      *
      */
-    public MarkOfflineTimer( Config config,
-                             ClusterState clusterState ) {
-        
-        super( MarkOfflineTimer.class.getName(), true );
+    public HeartbeatTimer( Config config ) {
+        super( HeartbeatTimer.class.getName(), true );
 
         this.config = config;
-        this.clusterState = clusterState;
-        
-        schedule( new MarkOfflineTimerTask( this ) , FAILED_INTERVAL );
+
+        schedule( new HeartbeatTimerTask( this ) , 0 );
         
     }
 
@@ -77,33 +64,27 @@ public class MarkOfflineTimer extends Timer {
         super.cancel();
     }
 
-    class MarkOfflineTimerTask extends TimerTask {
+    class HeartbeatTimerTask extends TimerTask {
 
-        MarkOfflineTimer timer;
+        HeartbeatTimer timer;
 
-        public MarkOfflineTimerTask( MarkOfflineTimer timer ) {
+        public HeartbeatTimerTask( HeartbeatTimer timer ) {
             this.timer = timer;
         }
 
         @Override
         public void run() {
 
-            long now = System.currentTimeMillis();
+            long delay;
             
-            for( Host host : config.getHosts() ) {
-
-            	Online online = clusterState.getOnline();
-            	
-                if ( online.contains( host ) == false || now - online.get( host ) > FAILED_INTERVAL ) {
-
-                	clusterState.getOffline().mark( host );
-                    
-                }
-                
+            if ( config.getMembership().sendHeartbeatToController() ) {
+                delay = ONLINE_SLEEP_INTERVAL;
+            } else {
+                delay = OFFLINE_SLEEP_INTERVAL;
             }
-
+            
             if ( ! cancelled ) 
-                timer.schedule( new MarkOfflineTimerTask( timer ), SCHEDULE_DELAY );
+                timer.schedule( new HeartbeatTimerTask( timer ), delay );
 
         }
 

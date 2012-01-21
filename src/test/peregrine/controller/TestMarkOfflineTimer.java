@@ -20,7 +20,7 @@ import java.net.*;
 import peregrine.*;
 import peregrine.config.*;
 import peregrine.http.*;
-import peregrine.pfsd.*;
+import peregrine.worker.*;
 
 public class TestMarkOfflineTimer extends peregrine.BaseTestWithTwoDaemons {
 

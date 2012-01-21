@@ -20,10 +20,10 @@ import java.net.*;
 import java.security.*;
 
 import peregrine.util.*;
+import peregrine.worker.*;
 import peregrine.config.Config;
 import peregrine.config.Host;
 import peregrine.http.*;
-import peregrine.pfsd.*;
 
 public class TestPipelineWrites extends peregrine.BaseTest {
 

@@ -26,7 +26,7 @@ import peregrine.io.*;
 import peregrine.io.partition.*;
 import peregrine.util.*;
 import peregrine.util.primitive.*;
-import peregrine.pfsd.*;
+import peregrine.worker.*;
 
 import org.apache.log4j.xml.DOMConfigurator;
 
