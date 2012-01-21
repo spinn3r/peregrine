@@ -9,16 +9,18 @@ import peregrine.os.*;
 import peregrine.util.*;
 import peregrine.app.pagerank.*;
 
-import org.apache.cassandra.thrift.*;
-
 import com.sun.jna.Pointer;
-
-import peregrine.io.driver.cassandra.*;
 
 import com.spinn3r.log5j.Logger;
 
+import org.apache.cassandra.thrift.*;
+import org.apache.cassandra.hadoop.*;
 import org.apache.cassandra.thrift.KeyRange;
 import org.apache.cassandra.utils.*;
+
+// needed so that we can configure the InputFormat for Cassandra
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.mapreduce.*;
 
 public class Test {
 
@@ -26,9 +28,9 @@ public class Test {
 
     public static void main( String[] args ) throws Exception {
 
-        TestCassandra test = new TestCassandra();
+        ColumnFamilyInputFormat test = new ColumnFamilyInputFormat();
 
-        StructMap conf = new StructMap();
+        Configuration conf = new Configuration();
 
         ConfigHelper.setInputColumnFamily( conf, "mykeyspace", "graph" );
         //ConfigHelper.setInputSlicePredicate( conf, new SlicePredicate() );
@@ -48,7 +50,9 @@ public class Test {
 
         //System.out.printf( "FIXME: %s\n", ConfigHelper.keyRangeToString( new KeyRange() ) );
 
-        test.getSplits( conf );
+        JobContext jobContext = new JobContext( conf, new JobID() );
+        
+        test.getSplits( jobContext );
         
         //ColumnFamilyInputFormat inputFormat = new ColumnFamilyInputFormat();
 
