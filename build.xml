@@ -8,7 +8,7 @@
 
     <property name="project" value="peregrine"/>
     <property name="javadocdir" value="target/javadoc"/>
-    <property name="version" value="0.5.1"/>
+    <property name="version" value="0.5.2"/>
 
     <path id="project.classpath">
 
@@ -408,9 +408,10 @@
             <fileset dir="../peregrine-website/_site/" />
         </copy>
 
-        <move file="target/javadoc"   todir="../peregrine_mapreduce.bitbucket.org" />
-        <move file="target/xref"      todir="../peregrine_mapreduce.bitbucket.org" />
-        <move file="target/coverage"  todir="../peregrine_mapreduce.bitbucket.org" />
+        <move file="target/javadoc"       todir="../peregrine_mapreduce.bitbucket.org" />
+        <move file="target/xref"          todir="../peregrine_mapreduce.bitbucket.org" />
+        <move file="target/coverage"      todir="../peregrine_mapreduce.bitbucket.org" />
+        <move file="target/test-reports"  todir="../peregrine_mapreduce.bitbucket.org" />
 
     </target>
 
