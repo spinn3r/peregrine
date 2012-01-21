@@ -159,9 +159,7 @@
             
         </junit>
 
-        <!--
         <antcall target="test-multi" />
-        -->
 
         <antcall target="test-report" />
 
