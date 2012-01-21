@@ -30,18 +30,29 @@ import peregrine.rpcd.delegate.*;
  */
 public class ControllerRPCDelegate extends RPCDelegate<ControllerDaemon> {
 
+    /**
+     * Allows a worker node to report that a partition is complete and its
+     * mapper/reducers have executed correctly.
+     */
+    @RPC
     public void complete( ControllerDaemon controllerDaemon, Channel channel, Message message )
         throws Exception {
 		
         Host host       = Host.parse( message.get( "host" ) );
         Partition part  = new Partition( message.getInt( "partition" ) );
-        
+
         controllerDaemon.getScheduler().markComplete( host, part );
         
         return;
 		
     }
 	
+    /**
+     * Allows a worker node to report that a given partition has failed.  This
+     * is usually done if the machine is functioning correctly.  If not we mark
+     * the machine failed via other means (such as gossip).
+     */
+    @RPC
     public void failed( ControllerDaemon controllerDaemon, Channel channel, Message message )
         throws Exception {
         
@@ -56,22 +67,37 @@ public class ControllerRPCDelegate extends RPCDelegate<ControllerDaemon> {
 		
     }
 
+    /**
+     * Mark a unit of work in a job as complete.  This could be a chunk in a map
+     * task, a chunk position list in a merge, or an individual sort in a
+     * preemptive reduce sort.
+     */
+    @RPC
     public void progress( ControllerDaemon controllerDaemon, Channel channel, Message message )
         throws Exception {
-        
+
+        Host host          = Host.parse( message.get( "host" ) );
+        Partition part     = new Partition( message.getInt( "partition" ) );
+
         return;
 		
     }
 
+    /**
+     * Allows the controller to receive 'heartbeats' from machines in the
+     * cluster so that it can obtain status on the cluster for which machines
+     * are 'out there' in the ether.
+     */
+    @RPC
     public void heartbeat( ControllerDaemon controllerDaemon, Channel channel, Message message )
         throws Exception {
         
         Host host = Host.parse( message.get( "host" ) );
         
-        // FIXME verify that the config_checksum is correct...
-        
-        if ( ! controllerDaemon.getConfig().getChecksum().equals( message.get( "config_checksum" ) ) )
+        // verify that the config_checksum is correct...
+        if ( ! controllerDaemon.getConfig().getChecksum().equals( message.get( "config_checksum" ) ) ) {
             throw new Exception( "Config checksum from %s is invalid: " + host );
+        }
         
         // mark this host as online for the entire controller.
         controllerDaemon.getClusterState().getOnline().mark( host );
@@ -79,7 +105,13 @@ public class ControllerRPCDelegate extends RPCDelegate<ControllerDaemon> {
         return;
 		
     }
-		
+
+    /**
+     * Allows a worker node to report back that it failed to communicate /
+     * collaborate with a given host.  The controller then receives these
+     * messages and can make informed decisions about which to mark offline.
+     */
+    @RPC
     public void gossip( ControllerDaemon controllerDaemon, Channel channel, Message message )
         throws Exception {
         
@@ -95,3 +127,4 @@ public class ControllerRPCDelegate extends RPCDelegate<ControllerDaemon> {
     }
     
 }
+

@@ -18,7 +18,7 @@ package peregrine;
 import java.io.*;
 import java.util.*;
 import peregrine.config.*;
-import peregrine.pfsd.*;
+import peregrine.worker.*;
 
 import com.spinn3r.log5j.Logger;
 

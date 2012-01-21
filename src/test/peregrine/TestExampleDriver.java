@@ -25,7 +25,7 @@ import peregrine.http.*;
 import peregrine.io.*;
 import peregrine.io.driver.*;
 import peregrine.io.driver.example.*;
-import peregrine.pfsd.*;
+import peregrine.worker.*;
 
 public class TestExampleDriver extends peregrine.BaseTestWithTwoDaemons {
 
@@ -48,7 +48,7 @@ public class TestExampleDriver extends peregrine.BaseTestWithTwoDaemons {
     }
         
     public void test1() throws Exception {
-
+        
         //register the driver
         IODriverRegistry.register( new ExampleIODriver() );
 

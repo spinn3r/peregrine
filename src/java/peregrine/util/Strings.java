@@ -33,5 +33,25 @@ public class Strings {
         return result;
 
     }
+
+    /**
+     * Join the given strings , adding a separator between them.
+     */
+    public static String join( List<String> list, String sep ) {
+
+        StringBuilder buff = new StringBuilder();
+        
+        for( int i = 0; i < list.size(); ++i ) {
+
+            if ( i > 0 )
+                buff.append( sep );
+
+            buff.append( list.get( i ) );
+                
+        }
+
+        return buff.toString();
+        
+    }
     
 }

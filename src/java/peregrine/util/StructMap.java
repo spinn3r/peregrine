@@ -165,6 +165,13 @@ public class StructMap {
     public boolean containsKey( String key ) {
         return delegate.containsKey( key );
     }
+
+    /**
+     * Return the number of entries.
+     */
+    public int size() {
+        return delegate.size();
+    }
     
     @Override
     public String toString() {

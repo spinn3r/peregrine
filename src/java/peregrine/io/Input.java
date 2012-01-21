@@ -17,6 +17,7 @@ package peregrine.io;
 
 import java.util.*;
 import peregrine.io.driver.*;
+import peregrine.io.driver.broadcast.*;
 import peregrine.io.driver.file.*;
 import peregrine.io.driver.shuffle.*;
 
@@ -37,16 +38,7 @@ public final class Input {
 
             if ( path.contains( ":" ) ) {
 
-                String[] split = path.split( ":" );
-
-                String scheme   = split[0];
-                String arg      = null;
-
-                if ( split.length >= 2 )
-                    arg = split[1];
-
-                if ( "broadcast".equals( scheme ) )
-                    add( new BroadcastInputReference( arg ) );
+                String scheme = path.split( ":" )[0];
 
                 IODriver driver = IODriverRegistry.getInstance( scheme );
                 

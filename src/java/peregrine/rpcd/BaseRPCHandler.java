@@ -36,9 +36,9 @@ public abstract class BaseRPCHandler<T> extends SimpleChannelUpstreamHandler {
 
     private static final Logger log = Logger.getLogger();
 
-    private Channel channel;
+    private Channel channel = null;
 
-    private Message message;
+    private Message message = null;
 
     private ExecutorService executorService;
 
@@ -95,7 +95,7 @@ public abstract class BaseRPCHandler<T> extends SimpleChannelUpstreamHandler {
 
             if ( delegate != null ) {
             	
-            	log.info( "Handling message %s for URI: %s with %s", message, uri, delegate );
+            	log.info( "Handling message %s with %,d params for URI: %s with %s", message, message.size(), uri, delegate );
             	
                 executorService.submit( new AsyncMessageHandler( channel, message ) {
 

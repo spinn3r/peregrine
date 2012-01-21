@@ -28,6 +28,9 @@ import peregrine.sysstat.*;
 
 import com.spinn3r.log5j.*;
 
+/**
+ * Handles executing map jobs.
+ */
 public class MapperTask extends BaseMapperTask {
 
     private static final Logger log = Logger.getLogger();
@@ -42,12 +45,12 @@ public class MapperTask extends BaseMapperTask {
             throw new Exception( "Map jobs must not have more than one input." );
         }
 
-        List<SequenceReader> readers = getJobInput();
+        jobInput = getJobInput();
 
-        if ( readers.size() == 0 )
+        if ( jobInput.size() == 0 )
             return;
         
-        SequenceReader reader = readers.get( 0 );
+        SequenceReader reader = jobInput.get( 0 );
         
         int count = 0;
         

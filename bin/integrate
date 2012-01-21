@@ -1,0 +1,127 @@
+#!/bin/sh
+
+###
+#
+# TODO
+#
+#
+# - CSS
+#
+# - title on pages 
+#
+# - link to the test-reports if they are generated.
+
+MAX=30
+BRANCH=default
+
+SCRATCH=/tmp/integration/peregrine
+TEST_LOGS=/var/lib/integration/peregrine
+
+TEST_COMMAND="ant clean test"
+
+#TEST_COMMAND="`ant clean jar compile.test && ./bin/jexec peregrine.TestMapReduceWithMergeFactor`"
+
+run() {
+
+    if [ ! -d $SCRATCH ]; then
+
+        echo "Pulling and installing new scratch repo... "
+
+        #FIXME: read the repo URL from hg... 
+        hg clone https://burtonator:redapplekittycat@bitbucket.org/burtonator/peregrine $SCRATCH
+
+    fi
+
+    mkdir -p $SCRATCH/target
+
+    set -e
+
+    cd $SCRATCH 
+    hg pull -u
+
+    for changeset in `hg log -b default --limit $MAX |grep -i changeset |grep -Eo '[a-zA-z0-9:]+$' |grep -Eo '^[0-9]+'`; do 
+
+        changedir=$TEST_LOGS/$changeset/
+
+        echo "Working with changeset $changeset in $changedir "
+
+        cd $SCRATCH 
+
+        if [ -d $changedir ]; then
+            echo "Changeset $changeset has already been indexed." 
+            continue
+        fi
+
+        hg update -r $changeset
+
+        mkdir -p $changedir
+
+        set +e
+        $TEST_COMMAND 2> /dev/stdout > $changedir/test.log
+        result=$?
+        set -e
+
+        echo $result > $changedir/exit.result
+
+        # regenerate the index every time so that I can see progress as we move
+        # forward.
+        index
+
+    done
+
+}
+
+index() {
+
+    set -e
+
+    rm -f $TEST_LOGS/index.html
+    rm -f $TEST_LOGS/left.html
+
+    index=$TEST_LOGS/index.html
+    left=$TEST_LOGS/left.html
+
+    echo "Writing to $index"
+
+    echo "<frameset cols='20%,80%' title=''>" >> $index
+    echo "<frame src='left.html' name='left' title='all tests'>" >> $index
+    echo "<frame src='' name='right' title=''>" >> $index
+    echo "</frameset>" >> $index
+
+    echo "<table width='100%' cellspacing='0'>" >> $left 
+  
+    for dir in `ls -1 $TEST_LOGS | sort -r`; do
+
+        if [ ! -d $TEST_LOGS/$dir ]; then
+            continue
+        fi
+
+        echo $dir 
+
+        if [ -e $TEST_LOGS/$dir/exit.result ]; then
+            status=$(cat $TEST_LOGS/$dir/exit.result)
+        fi
+
+        bgcolor=red
+
+        if [ "$status" == "0" ]; then
+            bgcolor="green"
+        fi        
+
+        echo "<tr bgcolor='$bgcolor'><td><a href='$dir/test.log' target='right'>$dir</a></td><td align='right'><a href='https://bitbucket.org/burtonator/peregrine/changeset/$dir' target='right'>CS</a></td></tr>" >> $left
+
+    done
+
+    date=$(date)
+
+    echo "</table>" >> $left 
+    echo "<br/><small>$date</small>" >> $left 
+
+}
+
+if [ "$1" == "index" ]; then
+    index
+    exit 0
+fi
+
+run

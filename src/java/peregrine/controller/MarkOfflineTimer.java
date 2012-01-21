@@ -30,10 +30,10 @@ import peregrine.rpc.*;
 import peregrine.shuffle.receiver.*;
 import peregrine.task.*;
 import peregrine.util.*;
-import peregrine.pfsd.*;
 
 import com.spinn3r.log5j.Logger;
 import peregrine.util.netty.*;
+import peregrine.worker.*;
 
 /**
  * Timer for marking a host offline if we do not receive heartbeat messages in a

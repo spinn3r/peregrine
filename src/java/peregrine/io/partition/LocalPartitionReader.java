@@ -23,6 +23,7 @@ import peregrine.*;
 import peregrine.config.*;
 import peregrine.io.*;
 import peregrine.io.chunk.*;
+import peregrine.rpc.*;
 
 /**
  * Read data from a partition from local storage.
@@ -72,7 +73,7 @@ public class LocalPartitionReader extends BaseJobInput implements SequenceReader
         this.iterator = chunkReaders.iterator();
         this.path = path;
 
-        this.chunkRef = new ChunkReference( partition );
+        this.chunkRef = new ChunkReference( partition, path );
 
         addListeners( listeners );
         
@@ -142,7 +143,21 @@ public class LocalPartitionReader extends BaseJobInput implements SequenceReader
 
     @Override
     public String toString() {
-        return String.format( "%s (%s):%s", path, partition, chunkReaders );
+
+        int offset = 0;
+
+        if ( chunkReader != null )
+            offset = chunkReader.index();
+
+        Message message = new Message();
+
+        message.put( "path",       path );
+        message.put( "partition",  partition.getId() );
+        message.put( "chunkRef",   chunkRef );
+        message.put( "offset",     offset );
+
+        return message.toString();
+
     }
 
 }

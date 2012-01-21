@@ -18,7 +18,7 @@ package peregrine;
 import java.net.*;
 
 import peregrine.http.*;
-import peregrine.pfsd.*;
+import peregrine.worker.*;
 
 public class TestPutRequests extends peregrine.BaseTestWithTwoDaemons {
 

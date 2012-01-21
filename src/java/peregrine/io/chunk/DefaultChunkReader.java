@@ -235,8 +235,8 @@ public class DefaultChunkReader implements SequenceReader, ChunkReader, Closeabl
         
     }
 
-    public static void main( String[] args ) throws Exception {
-
+    public int index() {
+        return reader.index();
     }
     
 }

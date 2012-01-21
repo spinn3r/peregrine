@@ -17,7 +17,7 @@ package peregrine;
 
 import peregrine.config.Config;
 import peregrine.config.Host;
-import peregrine.pfsd.*;
+import peregrine.worker.*;
 
 public class PFSTest extends peregrine.BaseTest {
 

@@ -42,9 +42,6 @@ public class PrefetchReader implements Closeable {
 
     private static final Logger log = Logger.getLogger();
 
-    private static final ExecutorService executorService
-        = Executors.newCachedThreadPool( new DefaultThreadFactory( PrefetchReader.class ) );
-
     public static long DEFAULT_PAGE_SIZE = (long)Math.pow( 2, 17 ); 
 
     /**
@@ -92,8 +89,9 @@ public class PrefetchReader implements Closeable {
 
         if ( files.size() == 0 )
             return;
-        
-        long capacity = config.getSortBufferSize() / files.size();
+
+        // define the per file capacity... 
+        long capacity = (long)Math.floor( config.getSortBufferSize() / (double)files.size() );
 
         log.info( "Running with buffer size: %,d and per file capacity: %,d", config.getSortBufferSize(), capacity );
 
@@ -257,10 +255,6 @@ public class PrefetchReader implements Closeable {
         for( FileMeta fileMeta : files ) {
 
             while( fileMeta.inCache.get() < fileMeta.capacity && fileMeta.pendingPages.size() > 0 ) {
-
-                // never allocate more memory than the sort buffer size.
-                if  ( allocatedMemory.get() + pageSize > config.getSortBufferSize() )
-                    break;
                 
                 PageEntry page = fileMeta.pendingPages.take();
 

@@ -18,7 +18,7 @@ package peregrine;
 import java.util.*;
 import peregrine.config.Config;
 import peregrine.config.Host;
-import peregrine.pfsd.*;
+import peregrine.worker.*;
 
 public abstract class BaseTestWithTwoDaemons extends peregrine.BaseTest {
 

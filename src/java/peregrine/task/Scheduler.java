@@ -512,7 +512,7 @@ public class Scheduler {
                 
                 log.info( "Sending kill message to host %s: %s", host, message );
                 
-                new Client().invoke( config.getController(), service, message );
+                new Client().invoke( host, service, message );
                 
                 break;
 

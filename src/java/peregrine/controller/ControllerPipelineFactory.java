@@ -16,14 +16,14 @@
 package peregrine.controller;
 
 import static org.jboss.netty.channel.Channels.*;
-import static peregrine.pfsd.FSPipelineFactory.*;
+import static peregrine.worker.FSPipelineFactory.*;
 
 import org.jboss.netty.channel.*;
 import org.jboss.netty.handler.codec.http.*;
 
 import peregrine.*;
 import peregrine.config.*;
-import peregrine.pfsd.*;
+import peregrine.worker.*;
 
 /**
  * Netty pipeline handler for our controller.

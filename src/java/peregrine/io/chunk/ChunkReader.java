@@ -34,10 +34,13 @@ public interface ChunkReader extends SequenceReader {
 
 	/**
 	 * Return the number of unique key/value pairs.
-	 * 
 	 */
 	public int size() throws IOException;
-	
+
+    /**
+     * Get the underlying ChannelBuffer behind this ChunkReader.  This is used
+     * so that the ChunkSorter can read data randomly after a sort.
+     */
 	public ChannelBuffer getBuffer();
 	
 }

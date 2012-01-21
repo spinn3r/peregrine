@@ -27,9 +27,9 @@ import org.jboss.netty.channel.socket.nio.*;
 import org.jboss.netty.handler.codec.http.*;
 
 import peregrine.config.Host;
-import peregrine.pfsd.*;
 import peregrine.util.*;
 import peregrine.util.netty.*;
+import peregrine.worker.*;
 
 import com.spinn3r.log5j.Logger;
 
