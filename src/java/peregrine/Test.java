@@ -52,8 +52,12 @@ public class Test {
 
         JobContext jobContext = new JobContext( conf, new JobID() );
         
-        test.getSplits( jobContext );
-        
+        List<InputSplit> splits = test.getSplits( jobContext );
+
+        for( InputSplit split : splits ) {
+            System.out.printf( "split: %s\n", split );
+        }
+
         //ColumnFamilyInputFormat inputFormat = new ColumnFamilyInputFormat();
 
         /*
