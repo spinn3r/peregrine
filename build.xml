@@ -390,7 +390,7 @@
             <arg value="-u"/>
         </exec>
 
-        <exec executable="awestruct" dir="../peregrine-website">
+        <exec executable="/var/lib/gems/1.8/bin/awestruct" dir="../peregrine-website">
             <arg value="-g"/>
         </exec>
 
@@ -414,6 +414,16 @@
     </target>
 
     <target name="site" depends="clean,coverage,javadoc,jxr,static,site.update">
+
+      <!--
+          
+          we need awestruct, hg, mvn
+
+          apt-get install ruby rubygems
+
+          gem install fssm awestruct disqus rb-fsevent -- --with-cflags=-w
+
+      -->
 
     </target>
 
