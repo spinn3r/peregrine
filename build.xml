@@ -361,7 +361,7 @@
             <group title="IO" packages="peregrine.io*"/>
             <group title="Shuffling" packages="peregrine.shuffle*"/>
             <group title="Util" packages="peregrine.util*"/>
-            <group title="PFSd" packages="peregrine.pfsd*"/>
+            <group title="Worker" packages="peregrine.worker*"/>
             <group title="Sort and merge backend for shuffle/reduce phase." packages="peregrine.reduce*,peregrine.combine*"/>
             <group title="RPC framework" packages="peregrine.rpc*"/>
           
