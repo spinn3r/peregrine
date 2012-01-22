@@ -24,7 +24,7 @@ import peregrine.io.*;
 import peregrine.io.chunk.*;
 import peregrine.io.driver.*;
 
-public class BroadcastIODriver implements IODriver {
+public class BroadcastIODriver  extends BaseIODriver implements IODriver {
 
 	@Override
 	public String getScheme() {

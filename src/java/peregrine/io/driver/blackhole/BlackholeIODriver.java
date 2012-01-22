@@ -23,8 +23,9 @@ import peregrine.config.*;
 import peregrine.io.*;
 import peregrine.io.chunk.*;
 import peregrine.io.driver.*;
+import peregrine.task.*;
 
-public class BlackholeIODriver implements IODriver {
+public class BlackholeIODriver extends BaseIODriver implements IODriver {
 
 	@Override
 	public String getScheme() {

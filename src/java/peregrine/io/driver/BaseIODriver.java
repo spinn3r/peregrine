@@ -25,28 +25,13 @@ import peregrine.task.*;
 /**
  * Represents a way to add new input drivers to peregrine.
  */
-public interface IODriver {
-
-    /**
-     * Get the URI scheme for this driver.  For example 'http' , 'file', 
-     * 'mysql', 'cassandra', etc.
-     */
-    public String getScheme();
-    
-    /**
-     * Parse the given URI and return an InputReference we can use.
-     */
-    public InputReference getInputReference( String uri );
-
+public abstract class BaseIODriver implements IODriver {
+	
     /**
      * Get a unit of work (input split, partition, etc) from the given string specification.
      */
-    public Work getWork( String work );
-    
-    public JobInput getJobInput( InputReference inputReference , Config config, Partition partition ) throws IOException;
-
-    public OutputReference getOutputReference( String uri );
-
-    public JobOutput getJobOutput( OutputReference outputReference, Config config, Partition partition ) throws IOException;
+    public Work getWork( String work ) {
+        return new PartitionWork( work );
+    }
     
 }

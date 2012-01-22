@@ -246,7 +246,7 @@ public class Scheduler {
             log.info( "Scheduling %s on %s with current concurrency: %,d of %,d",
                       part, host, concurrency.get( host ), config.getConcurrency() );
             
-            invoke( host, part );
+            invoke( host, work );
 
             // mark this host as pending so that work doesn't get executed again
             // until we want to do speculative execution
@@ -337,7 +337,7 @@ public class Scheduler {
     /**
      * Must be implemented by schedulers to hand out work correctly.
      */
-    public void invoke( Host host, Partition part ) throws Exception {
+    public void invoke( Host host, Work work ) throws Exception {
 
         // we could make this an abstract class but this means that we can't
         // test it as easily.

@@ -28,6 +28,10 @@ public class PartitionWork implements Work {
     
     protected Partition partition = null;
 
+    public PartitionWork( String data ) {
+        this.partition = new Partition( Integer.parseInt( data ) );
+    }
+    
     public PartitionWork( Partition partition ) {
         this.partition = partition;
     }

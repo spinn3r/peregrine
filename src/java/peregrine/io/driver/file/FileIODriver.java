@@ -25,7 +25,7 @@ import peregrine.io.chunk.*;
 import peregrine.io.driver.*;
 import peregrine.io.partition.*;
 
-public class FileIODriver implements IODriver {
+public class FileIODriver  extends BaseIODriver implements IODriver {
 
 	@Override
 	public String getScheme() {

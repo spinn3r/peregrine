@@ -25,7 +25,7 @@ import peregrine.io.*;
 import peregrine.io.chunk.*;
 import peregrine.io.driver.*;
 
-public class ShuffleIODriver implements IODriver {
+public class ShuffleIODriver extends BaseIODriver implements IODriver {
 
 	@Override
 	public String getScheme() {

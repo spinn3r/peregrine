@@ -27,7 +27,7 @@ import peregrine.io.driver.*;
 /**
  * Example of an IO driver... start here when writing a new driver.
  */
-public class ExampleIODriver implements IODriver {
+public class ExampleIODriver extends BaseIODriver implements IODriver {
 
 	@Override
 	public String getScheme() {
