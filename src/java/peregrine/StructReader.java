@@ -15,6 +15,8 @@
 */
 package peregrine;
 
+import java.nio.*;
+
 import org.jboss.netty.buffer.*;
 
 import peregrine.util.*;
@@ -38,7 +40,11 @@ public class StructReader {
     public StructReader( byte[] data ) {
         this( ChannelBuffers.wrappedBuffer( data ) );
     }
-    
+
+    public StructReader( ByteBuffer data ) {
+        this( ChannelBuffers.wrappedBuffer( data ) );
+    }
+
     public StructReader( int capacity ) {
         this( ChannelBuffers.buffer( capacity ) );
     }

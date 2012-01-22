@@ -68,11 +68,13 @@ public class StructReaders {
     }
 
     public static StructReader wrap( byte[] value ) {
-
         return new StructReader( value );
-
     }
 
+    public static StructReader wrap( ByteBuffer buff ) {
+        return new StructReader( buff );
+    }
+    
     /**
      * Wrap a list of StructReader so that we can have a new struct which has
      * each StructReader in this list prefixed with a varint so we can unpack it

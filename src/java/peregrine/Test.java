@@ -15,8 +15,9 @@ import com.spinn3r.log5j.Logger;
 
 import org.apache.cassandra.thrift.*;
 import org.apache.cassandra.hadoop.*;
-import org.apache.cassandra.thrift.KeyRange;
+import org.apache.cassandra.thrift.*;
 import org.apache.cassandra.utils.*;
+import org.apache.cassandra.db.*;
 
 // needed so that we can configure the InputFormat for Cassandra
 import org.apache.hadoop.conf.Configuration;
@@ -58,11 +59,26 @@ public class Test {
         
         for( InputSplit split : splits ) {
 
+            ColumnFamilySplit columnFamilySplit = (ColumnFamilySplit) split;
+            
             System.out.printf( "split: %s\n", split );
 
             ColumnFamilyRecordReader reader = new ColumnFamilyRecordReader();
 
             reader.initialize( split, context );
+
+            // now read out all the values... 
+
+            while( reader.nextKeyValue() ) {
+
+                System.out.printf( "." );
+                
+                ByteBuffer key = reader.getCurrentKey();
+                SortedMap<ByteBuffer, IColumn> value = reader.getCurrentValue();
+
+                //for( 
+                
+            }
             
         }
 
