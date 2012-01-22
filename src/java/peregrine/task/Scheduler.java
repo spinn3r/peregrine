@@ -76,12 +76,12 @@ public class Scheduler {
      * more work we verify that we aren't scheduling work form completed
      * partitions.
      */
-    protected MarkSet<Partition> completed = new MarkSet();
+    protected MarkSet<Work> completed = new MarkSet();
 
     /**
      * The list of work that has not yet been completed but is still pending.
      */
-    protected MarkSet<Partition> pending = new MarkSet();    
+    protected MarkSet<Work> pending = new MarkSet();    
 
     /**
      * Keep track of which hosts are performing work on which partitions.  This
@@ -89,7 +89,7 @@ public class Scheduler {
      * terminate work hosts which have active work but another host already
      * completed it.
      */
-    protected MapSet<Partition,Host> executing = new MapSet();
+    protected MapSet<Work,Host> executing = new MapSet();
     
     /**
      * Hosts which are available for additional work.  These are stored in a 
@@ -209,14 +209,16 @@ public class Scheduler {
 
             Partition part = replica.getPartition();
             
-            if ( completed.contains( part ) )
+            PartitionWork work = new PartitionWork( part );
+            
+            if ( completed.contains( work ) )
                 continue;
 
             if ( config.getSpeculativeExecutionEnabled() ) {
 
                 // verify that this host isn't ALREADY executing this partition
                 // which would be wrong.
-                if ( executing.contains( part ) && executing.get( part ).contains( host ) ) {
+                if ( executing.contains( work ) && executing.get( work ).contains( host ) ) {
                     continue;
                 }
                 
@@ -226,7 +228,7 @@ public class Scheduler {
                     continue;
                 }
                 
-                if ( pending.contains( part ) ) {
+                if ( pending.contains( work ) ) {
                     // skip speculatively executing this partition now.
                     continue;
                 }
@@ -249,11 +251,11 @@ public class Scheduler {
             // mark this host as pending so that work doesn't get executed again
             // until we want to do speculative execution
 
-            pending.mark( part );
+            pending.mark( work );
 
             concurrency.incr( host );
 
-            executing.put( part, host );
+            executing.put( work, host );
             
             continue;
 
@@ -299,8 +301,10 @@ public class Scheduler {
             
             parallelism.init( part );
 
-            if ( executing.contains( part ) )
-                parallelism.set( part, executing.get( part ).size() );
+            PartitionWork work = new PartitionWork( part );
+            
+            if ( executing.contains( work ) )
+                parallelism.set( part, executing.get( work ).size() );
 
             result.add( replica );
             
@@ -350,16 +354,19 @@ public class Scheduler {
 
         log.info( "Marking partition %s complete from host %s", partition, host );
 
+        //FIXME: this should be marking a unit of work complete.
+        PartitionWork work = new PartitionWork( partition );
+        
         // mark this partition as complete.
-        completed.mark( partition );
+        completed.mark( work );
 
         markInactive( host, partition );
 
         // for each one of the hosts that are executing.. add them to the prey
         // queue so they can be killed.
 
-        if ( executing.contains( partition ) ) {
-            for( Host current : executing.get( partition ) ) {
+        if ( executing.contains( work ) ) {
+            for( Host current : executing.get( work ) ) {
                 prey.put( new Replica( current, partition ) );
             }
         }
@@ -374,12 +381,15 @@ public class Scheduler {
                             boolean killed,
                             String stacktrace ) {
 
+    	// FIXME: should take a unit of work..    	
+    	Work work = new PartitionWork( partition );
+    	
         log.error( "Host %s has failed on %s with trace: \n %s", host, partition, stacktrace );
 
         markInactive( host, partition );
         
         // this isn't really a failure because another host finished this job.
-        if ( completed.contains( partition ) )
+        if ( completed.contains( work ) )
             return;
         
         failure.mark( new Fail( host, partition, stacktrace ) );
@@ -391,8 +401,11 @@ public class Scheduler {
      */
     protected void markInactive( Host host, Partition partition ) {
 
+    	// FIXME: should take a unit of work..    	
+    	Work work = new PartitionWork( partition );    	
+    	
         // now remove this host from the list of actively executing jobs.
-        executing.remove( partition, host );
+        executing.remove( work, host );
 
         // TODO: if this partition has other hosts running this job, terminate
         // the jobs.  This is needed for speculative execution.
@@ -402,7 +415,7 @@ public class Scheduler {
         // possible to read both completed and pending at the same time and both
         // would be clear.
 
-        pending.clear( partition );
+        pending.clear( work );
 
         // add this to the list of available hosts so that we can schedule 
         // additional work.
@@ -550,18 +563,18 @@ public class Scheduler {
 
     }
 
-    private String format( MarkSet<Partition> set ) {
+    private String format( MarkSet<Work> set ) {
 
         StringBuilder buff = new StringBuilder();
 
         buff.append( "[" );
         
-        for( Partition part : set.values() ) {
+        for( Work part : set.values() ) {
 
             if ( buff.length() > 1 )
                 buff.append( ", " );
 
-            buff.append( part.getId() );
+            buff.append( part.toString() );
             
         }
 

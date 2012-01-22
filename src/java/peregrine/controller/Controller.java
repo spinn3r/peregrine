@@ -243,7 +243,7 @@ public class Controller {
         // shufflers can be flushed after any stage even reduce as nothing will
         // happen
 
-        // FIXME: this should be a typesafe enum with map|merge|reduce
+        // TODO: this should be a typesafe enum with map|merge|reducem
         
         if ( "map".equals( operation ) || "merge".equals( operation ) )
             flushAllShufflers();
