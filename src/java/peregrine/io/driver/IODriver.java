@@ -16,6 +16,7 @@
 package peregrine.io.driver;
 
 import java.io.*;
+import java.util.*;
 
 import peregrine.config.*;
 import peregrine.io.*;
@@ -38,14 +39,21 @@ public interface IODriver {
     public InputReference getInputReference( String uri );
 
     /**
-     * Get a unit of work (input split, partition, etc) from the given string specification.
+     * Get work (input splits, partitions, etc) from the given InputReference. 
+     *
+     * This is used by the scheduler to determine what needs to be executed.
      */
-    public WorkReference getWork( String work );
+    public List<Work> getWork( Config config,
+                               InputReference inputReference );
     
-    public JobInput getJobInput( InputReference inputReference , Config config, WorkReference work ) throws IOException;
+    public JobInput getJobInput( Config config,
+                                 InputReference inputReference ,
+                                 WorkReference work ) throws IOException;
 
     public OutputReference getOutputReference( String uri );
 
-    public JobOutput getJobOutput( OutputReference outputReference, Config config, WorkReference Work ) throws IOException;
+    public JobOutput getJobOutput( Config config,
+                                   OutputReference outputReference,
+                                   WorkReference Work ) throws IOException;
     
 }

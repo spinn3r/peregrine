@@ -23,7 +23,7 @@ public final class BroadcastInputReference implements InputReference {
     
     public BroadcastInputReference() {}
 
-    public BroadcastInputReference( String uri, String work ) {
+    public BroadcastInputReference( String uri ) {
 
         this.name = uri;
         this.name = this.name.replaceAll( getScheme() + ":" , "" );

@@ -38,7 +38,7 @@ public class BlackholeIODriver extends BaseIODriver implements IODriver {
 	}
 
 	@Override
-	public JobInput getJobInput( InputReference inputReference, Config config, WorkReference work ) throws IOException {		
+	public JobInput getJobInput( Config config, InputReference inputReference, WorkReference work ) throws IOException {		
 		throw new IOException( "Not supported for input." );
 	}
 
@@ -48,7 +48,7 @@ public class BlackholeIODriver extends BaseIODriver implements IODriver {
 	}
 
 	@Override
-	public JobOutput getJobOutput( OutputReference outputReference, Config config, WorkReference work ) throws IOException {
+	public JobOutput getJobOutput( Config config, OutputReference outputReference, WorkReference work ) throws IOException {
 		return new BlackholeJobOutput();
 	}
 

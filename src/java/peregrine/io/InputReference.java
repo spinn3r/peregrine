@@ -20,8 +20,6 @@ import peregrine.task.*;
 public interface InputReference {
 
 	public String getScheme();	
-	
-	public WorkReference getWork();
-	
+		
 }
     

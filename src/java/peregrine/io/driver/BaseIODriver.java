@@ -16,11 +16,11 @@
 package peregrine.io.driver;
 
 import java.io.*;
+import java.util.*;
 
 import peregrine.config.*;
 import peregrine.io.*;
 import peregrine.task.*;
-
 
 /**
  * Represents a way to add new input drivers to peregrine.
@@ -30,8 +30,17 @@ public abstract class BaseIODriver implements IODriver {
     /**
      * Get a unit of work (input split, partition, etc) from the given string specification.
      */
-    public WorkReference getWork( String work ) {
-        return new PartitionWorkReference( work );
+	@Override
+    public List<Work> getWork( Config config, InputReference inputReference ) {
+
+        List<Work> result = new ArrayList();
+
+        for( Partition part : config.getMembership().getPartitions() ) {
+            result.add( new Work( new PartitionWorkReference( part ) ) );
+        }
+
+        return result;
+        
     }
     
 }

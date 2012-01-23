@@ -102,7 +102,7 @@ public abstract class BaseMapperTask extends BaseTask implements Callable {
             // see if it is registered as a driver.
             if ( driver != null ) {
 
-                JobInput ji = driver.getJobInput( ref, config, new PartitionWorkReference( partition ) );
+                JobInput ji = driver.getJobInput( config, ref, new PartitionWorkReference( partition ) );
                 ji.addListeners( listeners );
                 
                 readers.add( ji );
