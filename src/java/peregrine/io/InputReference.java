@@ -15,9 +15,13 @@
 */
 package peregrine.io;
 
+import peregrine.task.*;
+
 public interface InputReference {
 
 	public String getScheme();	
+	
+	public Work getWork();
 	
 }
     

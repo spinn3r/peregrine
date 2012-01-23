@@ -23,6 +23,7 @@ import peregrine.config.*;
 import peregrine.io.*;
 import peregrine.io.chunk.*;
 import peregrine.io.driver.*;
+import peregrine.task.*;
 
 /**
  * Example of an IO driver... start here when writing a new driver.
@@ -40,8 +41,8 @@ public class ExampleIODriver extends BaseIODriver implements IODriver {
 	}
 
 	@Override
-	public JobInput getJobInput( InputReference inputReference, Config config, Partition partition ) throws IOException {		
-	    return new ExampleJobInput( partition );
+	public JobInput getJobInput( InputReference inputReference, Config config, Work work ) throws IOException {		
+	    return new ExampleJobInput( work );
 	}
 
 	@Override
@@ -50,7 +51,7 @@ public class ExampleIODriver extends BaseIODriver implements IODriver {
 	}
 
 	@Override
-	public JobOutput getJobOutput( OutputReference outputReference, Config config, Partition partition ) throws IOException {
+	public JobOutput getJobOutput( OutputReference outputReference, Config config, Work work ) throws IOException {
 		return new ExampleJobOutput();
 	}
 
@@ -77,7 +78,7 @@ class ExampleJobInput extends BaseJobInput implements JobInput {
     
     private StructReader value = null;
     
-	public ExampleJobInput( Partition partition ) {
+	public ExampleJobInput( Work work ) {
 
         // stick in example data.
 		for( long i = 0; i < 100; ++i ) {
@@ -86,7 +87,7 @@ class ExampleJobInput extends BaseJobInput implements JobInput {
 
 	    iterator = list.iterator();
 
-        chunkRef = new ChunkReference( partition );
+        chunkRef = new ChunkReference( work );
 
 	}
 	

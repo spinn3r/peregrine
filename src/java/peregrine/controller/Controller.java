@@ -103,10 +103,11 @@ public class Controller {
     	
     	withScheduler( job, new Scheduler( "map", job, config, clusterState ) {
 
-                public void invoke( Host host, Partition part ) throws Exception {
+    			@Override
+                public void invoke( Host host, Work work ) throws Exception {
 
                     Message message 
-                        = createSchedulerMessage( "exec", job, part );
+                        = createSchedulerMessage( "exec", job, work );
 
                     new Client().invoke( host, "map", message );
                     
@@ -154,9 +155,10 @@ public class Controller {
     	
         withScheduler( job, new Scheduler( "merge", job, config, clusterState ) {
 
-                public void invoke( Host host, Partition part ) throws Exception {
+                @Override
+                public void invoke( Host host, Work work ) throws Exception {
 
-                    Message message = createSchedulerMessage( "exec", job, part );
+                    Message message = createSchedulerMessage( "exec", job, work );
                     new Client().invoke( host, "merge", message );
                     
                 }
@@ -196,9 +198,10 @@ public class Controller {
         // this will block for completion ... 
         withScheduler( job, new Scheduler( "reduce", job, config, clusterState ) {
 
-                public void invoke( Host host, Partition part ) throws Exception {
+                @Override
+                public void invoke( Host host, Work work ) throws Exception {
 
-                    Message message = createSchedulerMessage( "exec", job, part );
+                    Message message = createSchedulerMessage( "exec", job, work );
                     new Client().invoke( host, "reduce", message );
                     
                 }
@@ -330,7 +333,7 @@ public class Controller {
     
     private Message createSchedulerMessage( String action,
                                             Job job,
-                                            Partition partition ) {
+                                            Work work ) {
 
     	Class delegate = job.getDelegate();
     	Input input = job.getInput();
@@ -340,7 +343,7 @@ public class Controller {
 
         Message message = new Message();
         message.put( "action",     action );
-        message.put( "partition",  partition.getId() );
+        message.put( "work",       work );
         message.put( "delegate",   delegate.getName() );
         message.put( "job_id",     job.getId() );
         

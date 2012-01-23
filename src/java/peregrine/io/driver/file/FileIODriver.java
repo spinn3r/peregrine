@@ -24,6 +24,7 @@ import peregrine.io.*;
 import peregrine.io.chunk.*;
 import peregrine.io.driver.*;
 import peregrine.io.partition.*;
+import peregrine.task.*;
 
 public class FileIODriver  extends BaseIODriver implements IODriver {
 
@@ -38,9 +39,10 @@ public class FileIODriver  extends BaseIODriver implements IODriver {
 	}
 
 	@Override
-	public JobInput getJobInput( InputReference inputReference, Config config, Partition partition ) throws IOException {		
+	public JobInput getJobInput( InputReference inputReference, Config config, Work work ) throws IOException {
+		PartitionWork partitionWork = (PartitionWork)work;
         FileInputReference file = (FileInputReference) inputReference;
-        return new LocalPartitionReader( config, partition, file.getPath() );
+        return new LocalPartitionReader( config, partitionWork.getPartition(), file.getPath() );
     }
 
 	@Override
@@ -49,14 +51,11 @@ public class FileIODriver  extends BaseIODriver implements IODriver {
 	}
 
 	@Override
-	public JobOutput getJobOutput( OutputReference outputReference, Config config, Partition partition ) throws IOException {
-
+	public JobOutput getJobOutput( OutputReference outputReference, Config config, Work work ) throws IOException {
+		PartitionWork partitionWork = (PartitionWork)work;
         FileOutputReference fileref = (FileOutputReference)outputReference;
-
-        PartitionWriter writer = new DefaultPartitionWriter( config, partition, fileref.getPath(), fileref.getAppend() );
-
-        return new PartitionWriterJobOutput( writer );
-	
+        PartitionWriter writer = new DefaultPartitionWriter( config, partitionWork.getPartition(), fileref.getPath(), fileref.getAppend() );
+        return new PartitionWriterJobOutput( writer );	
 	}
 
 	@Override

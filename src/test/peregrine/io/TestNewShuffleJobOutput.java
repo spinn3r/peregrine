@@ -21,6 +21,7 @@ import peregrine.controller.*;
 import peregrine.io.chunk.*;
 import peregrine.io.driver.shuffle.*;
 import peregrine.shuffle.sender.*;
+import peregrine.task.*;
 
 public class TestNewShuffleJobOutput extends peregrine.BaseTestWithTwoDaemons {
 
@@ -30,7 +31,7 @@ public class TestNewShuffleJobOutput extends peregrine.BaseTestWithTwoDaemons {
         
         ShuffleJobOutput output = new ShuffleJobOutput( config, part );
 
-        ChunkReference chunkRef = new ChunkReference( part );
+        ChunkReference chunkRef = new ChunkReference( new PartitionWork( part ) );
         chunkRef.local = 0;
 
         output.onChunk( chunkRef );

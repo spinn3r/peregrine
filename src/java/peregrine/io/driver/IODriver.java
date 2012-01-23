@@ -21,7 +21,6 @@ import peregrine.config.*;
 import peregrine.io.*;
 import peregrine.task.*;
 
-
 /**
  * Represents a way to add new input drivers to peregrine.
  */
@@ -43,10 +42,10 @@ public interface IODriver {
      */
     public Work getWork( String work );
     
-    public JobInput getJobInput( InputReference inputReference , Config config, Partition partition ) throws IOException;
+    public JobInput getJobInput( InputReference inputReference , Config config, Work work ) throws IOException;
 
     public OutputReference getOutputReference( String uri );
 
-    public JobOutput getJobOutput( OutputReference outputReference, Config config, Partition partition ) throws IOException;
+    public JobOutput getJobOutput( OutputReference outputReference, Config config, Work Work ) throws IOException;
     
 }

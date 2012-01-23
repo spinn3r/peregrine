@@ -15,7 +15,8 @@
 */
 package peregrine.io.chunk;
 
-import peregrine.config.Partition;
+import peregrine.config.*;
+import peregrine.task.*;
 
 /**
  * Read data from a partition from local storage.
@@ -24,21 +25,25 @@ public class ChunkReference {
 
     public int local = -1;
 
-    public Partition partition = null;
+    public Work work = null;
 
     public String path = null;
     
     public ChunkReference() {}
 
     public ChunkReference( Partition partition ) {
-    	this( partition, null );
+        this( new PartitionWork( partition ) );
+    }
+    
+    public ChunkReference( Work work ) {
+    	this( work, null );
     }
     
     /**
      * Used when generating chunk references for tasks.
      */
-    public ChunkReference( Partition partition, String path ) {
-        this.partition = partition;
+    public ChunkReference( Work work, String path ) {
+        this.work = work;
         this.path = path;
     }
 

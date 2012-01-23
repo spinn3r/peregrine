@@ -26,6 +26,7 @@ import peregrine.io.driver.file.*;
 import peregrine.io.driver.shuffle.*;
 import peregrine.io.partition.*;
 import peregrine.shuffle.sender.*;
+import peregrine.task.*;
 
 /**
  * Factory for obtaining job output from a given Output definition.  
@@ -45,7 +46,7 @@ public class JobOutputFactory {
             
             // see if it is registered as a driver.
             if ( driver != null ) {
-                result.add( driver.getJobOutput( ref, config, partition ) );
+                result.add( driver.getJobOutput( ref, config, new PartitionWork( partition ) ) );
                 continue;
             }
 
