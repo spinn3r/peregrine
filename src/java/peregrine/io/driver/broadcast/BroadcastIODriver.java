@@ -38,7 +38,7 @@ public class BroadcastIODriver  extends BaseIODriver implements IODriver {
 	}
 
 	@Override
-	public JobInput getJobInput( InputReference inputReference, Config config, Work work  ) throws IOException {		
+	public JobInput getJobInput( InputReference inputReference, Config config, WorkReference work  ) throws IOException {		
 	    throw new IOException( "not implemented" );
 	}
 
@@ -48,8 +48,8 @@ public class BroadcastIODriver  extends BaseIODriver implements IODriver {
 	}
 
 	@Override
-	public JobOutput getJobOutput( OutputReference outputReference, Config config, Work work  ) throws IOException {
-		PartitionWork partitionWork = (PartitionWork)work;
+	public JobOutput getJobOutput( OutputReference outputReference, Config config, WorkReference work  ) throws IOException {
+		PartitionWorkReference partitionWork = (PartitionWorkReference)work;
         BroadcastOutputReference bcast = (BroadcastOutputReference) outputReference;
         return new BroadcastJobOutput( config, bcast.getName(), partitionWork.getPartition() );
 	}

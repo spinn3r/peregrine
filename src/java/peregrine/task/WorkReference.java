@@ -25,6 +25,6 @@ import peregrine.config.*;
  * Represents a unit of work to execute.  This can represent an InputSplit or a
  * reduce job over a given partition.
  */
-public interface Work {
+public interface WorkReference {
 
 }

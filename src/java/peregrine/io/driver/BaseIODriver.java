@@ -30,8 +30,8 @@ public abstract class BaseIODriver implements IODriver {
     /**
      * Get a unit of work (input split, partition, etc) from the given string specification.
      */
-    public Work getWork( String work ) {
-        return new PartitionWork( work );
+    public WorkReference getWork( String work ) {
+        return new PartitionWorkReference( work );
     }
     
 }

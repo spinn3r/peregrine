@@ -21,7 +21,7 @@ public interface InputReference {
 
 	public String getScheme();	
 	
-	public Work getWork();
+	public WorkReference getWork();
 	
 }
     

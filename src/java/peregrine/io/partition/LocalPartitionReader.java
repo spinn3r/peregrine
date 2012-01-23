@@ -74,7 +74,7 @@ public class LocalPartitionReader extends BaseJobInput implements SequenceReader
         this.iterator = chunkReaders.iterator();
         this.path = path;
 
-        this.chunkRef = new ChunkReference( new PartitionWork( partition ), path );
+        this.chunkRef = new ChunkReference( new PartitionWorkReference( partition ), path );
 
         addListeners( listeners );
         

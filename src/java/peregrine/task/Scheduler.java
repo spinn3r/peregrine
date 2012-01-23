@@ -76,12 +76,12 @@ public class Scheduler {
      * more work we verify that we aren't scheduling work form completed
      * partitions.
      */
-    protected MarkSet<Work> completed = new MarkSet();
+    protected MarkSet<WorkReference> completed = new MarkSet();
 
     /**
      * The list of work that has not yet been completed but is still pending.
      */
-    protected MarkSet<Work> pending = new MarkSet();    
+    protected MarkSet<WorkReference> pending = new MarkSet();    
 
     /**
      * Keep track of which hosts are performing work on which partitions.  This
@@ -89,7 +89,7 @@ public class Scheduler {
      * terminate work hosts which have active work but another host already
      * completed it.
      */
-    protected MapSet<Work,Host> executing = new MapSet();
+    protected MapSet<WorkReference,Host> executing = new MapSet();
     
     /**
      * Hosts which are available for additional work.  These are stored in a 
@@ -209,7 +209,7 @@ public class Scheduler {
 
             Partition part = replica.getPartition();
             
-            PartitionWork work = new PartitionWork( part );
+            PartitionWorkReference work = new PartitionWorkReference( part );
             
             if ( completed.contains( work ) )
                 continue;
@@ -301,7 +301,7 @@ public class Scheduler {
             
             parallelism.init( part );
 
-            PartitionWork work = new PartitionWork( part );
+            PartitionWorkReference work = new PartitionWorkReference( part );
             
             if ( executing.contains( work ) )
                 parallelism.set( part, executing.get( work ).size() );
@@ -337,7 +337,7 @@ public class Scheduler {
     /**
      * Must be implemented by schedulers to hand out work correctly.
      */
-    public void invoke( Host host, Work work ) throws Exception {
+    public void invoke( Host host, WorkReference work ) throws Exception {
 
         // we could make this an abstract class but this means that we can't
         // test it as easily.
@@ -355,7 +355,7 @@ public class Scheduler {
         log.info( "Marking partition %s complete from host %s", partition, host );
 
         //FIXME: this should be marking a unit of work complete.
-        PartitionWork work = new PartitionWork( partition );
+        PartitionWorkReference work = new PartitionWorkReference( partition );
         
         // mark this partition as complete.
         completed.mark( work );
@@ -382,7 +382,7 @@ public class Scheduler {
                             String stacktrace ) {
 
     	// FIXME: should take a unit of work..    	
-    	Work work = new PartitionWork( partition );
+    	WorkReference work = new PartitionWorkReference( partition );
     	
         log.error( "Host %s has failed on %s with trace: \n %s", host, partition, stacktrace );
 
@@ -402,7 +402,7 @@ public class Scheduler {
     protected void markInactive( Host host, Partition partition ) {
 
     	// FIXME: should take a unit of work..    	
-    	Work work = new PartitionWork( partition );    	
+    	WorkReference work = new PartitionWorkReference( partition );    	
     	
         // now remove this host from the list of actively executing jobs.
         executing.remove( work, host );
@@ -563,13 +563,13 @@ public class Scheduler {
 
     }
 
-    private String format( MarkSet<Work> set ) {
+    private String format( MarkSet<WorkReference> set ) {
 
         StringBuilder buff = new StringBuilder();
 
         buff.append( "[" );
         
-        for( Work part : set.values() ) {
+        for( WorkReference part : set.values() ) {
 
             if ( buff.length() > 1 )
                 buff.append( ", " );

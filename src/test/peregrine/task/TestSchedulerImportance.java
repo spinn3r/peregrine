@@ -72,9 +72,9 @@ public class TestSchedulerImportance extends BaseTest {
 
         scheduler.executing = new MapSet();
 
-        scheduler.executing.put( new PartitionWork( part0 ) , host0 );
-        scheduler.executing.put( new PartitionWork( part1 ), host0 );
-        scheduler.executing.put( new PartitionWork( part2 ), host0 );
+        scheduler.executing.put( new PartitionWorkReference( part0 ) , host0 );
+        scheduler.executing.put( new PartitionWorkReference( part1 ), host0 );
+        scheduler.executing.put( new PartitionWorkReference( part2 ), host0 );
         
         replicas = scheduler.getReplicasForExecutionByImportance( replicas );
 

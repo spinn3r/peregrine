@@ -41,7 +41,7 @@ public class ExampleIODriver extends BaseIODriver implements IODriver {
 	}
 
 	@Override
-	public JobInput getJobInput( InputReference inputReference, Config config, Work work ) throws IOException {		
+	public JobInput getJobInput( InputReference inputReference, Config config, WorkReference work ) throws IOException {		
 	    return new ExampleJobInput( work );
 	}
 
@@ -51,7 +51,7 @@ public class ExampleIODriver extends BaseIODriver implements IODriver {
 	}
 
 	@Override
-	public JobOutput getJobOutput( OutputReference outputReference, Config config, Work work ) throws IOException {
+	public JobOutput getJobOutput( OutputReference outputReference, Config config, WorkReference work ) throws IOException {
 		return new ExampleJobOutput();
 	}
 
@@ -78,7 +78,7 @@ class ExampleJobInput extends BaseJobInput implements JobInput {
     
     private StructReader value = null;
     
-	public ExampleJobInput( Work work ) {
+	public ExampleJobInput( WorkReference work ) {
 
         // stick in example data.
 		for( long i = 0; i < 100; ++i ) {

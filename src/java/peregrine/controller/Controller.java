@@ -104,7 +104,7 @@ public class Controller {
     	withScheduler( job, new Scheduler( "map", job, config, clusterState ) {
 
     			@Override
-                public void invoke( Host host, Work work ) throws Exception {
+                public void invoke( Host host, WorkReference work ) throws Exception {
 
                     Message message 
                         = createSchedulerMessage( "exec", job, work );
@@ -156,7 +156,7 @@ public class Controller {
         withScheduler( job, new Scheduler( "merge", job, config, clusterState ) {
 
                 @Override
-                public void invoke( Host host, Work work ) throws Exception {
+                public void invoke( Host host, WorkReference work ) throws Exception {
 
                     Message message = createSchedulerMessage( "exec", job, work );
                     new Client().invoke( host, "merge", message );
@@ -199,7 +199,7 @@ public class Controller {
         withScheduler( job, new Scheduler( "reduce", job, config, clusterState ) {
 
                 @Override
-                public void invoke( Host host, Work work ) throws Exception {
+                public void invoke( Host host, WorkReference work ) throws Exception {
 
                     Message message = createSchedulerMessage( "exec", job, work );
                     new Client().invoke( host, "reduce", message );
@@ -333,7 +333,7 @@ public class Controller {
     
     private Message createSchedulerMessage( String action,
                                             Job job,
-                                            Work work ) {
+                                            WorkReference work ) {
 
     	Class delegate = job.getDelegate();
     	Input input = job.getInput();

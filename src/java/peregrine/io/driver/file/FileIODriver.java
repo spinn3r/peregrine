@@ -39,8 +39,8 @@ public class FileIODriver  extends BaseIODriver implements IODriver {
 	}
 
 	@Override
-	public JobInput getJobInput( InputReference inputReference, Config config, Work work ) throws IOException {
-		PartitionWork partitionWork = (PartitionWork)work;
+	public JobInput getJobInput( InputReference inputReference, Config config, WorkReference work ) throws IOException {
+		PartitionWorkReference partitionWork = (PartitionWorkReference)work;
         FileInputReference file = (FileInputReference) inputReference;
         return new LocalPartitionReader( config, partitionWork.getPartition(), file.getPath() );
     }
@@ -51,8 +51,8 @@ public class FileIODriver  extends BaseIODriver implements IODriver {
 	}
 
 	@Override
-	public JobOutput getJobOutput( OutputReference outputReference, Config config, Work work ) throws IOException {
-		PartitionWork partitionWork = (PartitionWork)work;
+	public JobOutput getJobOutput( OutputReference outputReference, Config config, WorkReference work ) throws IOException {
+		PartitionWorkReference partitionWork = (PartitionWorkReference)work;
         FileOutputReference fileref = (FileOutputReference)outputReference;
         PartitionWriter writer = new DefaultPartitionWriter( config, partitionWork.getPartition(), fileref.getPath(), fileref.getAppend() );
         return new PartitionWriterJobOutput( writer );	

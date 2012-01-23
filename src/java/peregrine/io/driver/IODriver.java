@@ -40,12 +40,12 @@ public interface IODriver {
     /**
      * Get a unit of work (input split, partition, etc) from the given string specification.
      */
-    public Work getWork( String work );
+    public WorkReference getWork( String work );
     
-    public JobInput getJobInput( InputReference inputReference , Config config, Work work ) throws IOException;
+    public JobInput getJobInput( InputReference inputReference , Config config, WorkReference work ) throws IOException;
 
     public OutputReference getOutputReference( String uri );
 
-    public JobOutput getJobOutput( OutputReference outputReference, Config config, Work Work ) throws IOException;
+    public JobOutput getJobOutput( OutputReference outputReference, Config config, WorkReference Work ) throws IOException;
     
 }

@@ -24,15 +24,15 @@ import peregrine.config.*;
 /**
  * Represents a split on a partition.
  */
-public class PartitionWork implements Work {
+public class PartitionWorkReference implements WorkReference {
     
     protected Partition partition = null;
 
-    public PartitionWork( String data ) {
+    public PartitionWorkReference( String data ) {
         this.partition = new Partition( Integer.parseInt( data ) );
     }
     
-    public PartitionWork( Partition partition ) {
+    public PartitionWorkReference( Partition partition ) {
         this.partition = partition;
     }
 
@@ -52,8 +52,8 @@ public class PartitionWork implements Work {
     @Override
     public boolean equals( Object obj ) {
 
-        if ( obj instanceof PartitionWork ) {
-            return partition.getId() == ((PartitionWork)obj).partition.getId();
+        if ( obj instanceof PartitionWorkReference ) {
+            return partition.getId() == ((PartitionWorkReference)obj).partition.getId();
         }
 
         return false;
