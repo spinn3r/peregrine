@@ -336,22 +336,19 @@ public class Controller {
     	Class delegate = job.getDelegate();
     	Input input = job.getInput();
     	Output output = job.getOutput();
-    	
-        int idx;
-
+    
         Message message = new Message();
+        
         message.put( "action",     action );
         message.put( "delegate",   delegate.getName() );
         message.put( "job_id",     job.getId() );
-        
+    	message.put( "work" ,      work.getReferences() );
+
         if ( input != null )
         	message.put( "input" ,  input.getReferences() );
 
         if ( output != null )
         	message.put( "output" , output.getReferences() );
-        
-        if ( work != null )
-        	message.put( "work" ,   work.getReferences() );
 
         return message;
         
