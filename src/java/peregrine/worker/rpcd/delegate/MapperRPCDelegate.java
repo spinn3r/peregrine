@@ -84,34 +84,12 @@ public class MapperRPCDelegate extends BaseTaskRPCDelegate {
     }
     
     protected Input readInput( Message message ) {
+        return new Input( message.getList( "input" ) );
 
-        return new Input( readList( message, "input." ) );
-        
     }
 
     protected Output readOutput( Message message ) {
-
-        return new Output( readList( message, "output." ) );
-
-    }
-
-    protected List<String> readList( Message message, String prefix ) {
-
-        List<String> result = new ArrayList();
-    
-        for( int i = 0 ; i < Integer.MAX_VALUE; ++i ) {
-
-            String val = message.get( prefix + i );
-
-            if ( val == null )
-                break;
-
-            result.add( val );
-            
-        }
-
-        return result;
-        
+        return new Output( message.getList( "output" ) );
     }
     
 }

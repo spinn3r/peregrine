@@ -24,36 +24,32 @@ import peregrine.config.*;
 /**
  * Represents a split on a partition.
  */
-public class PartitionWorkReference implements WorkReference<PartitionWorkReference>, Comparable<PartitionWorkReference> {
+public class ReplicaWorkReference implements WorkReference<ReplicaWorkReference>, Comparable<ReplicaWorkReference> {
     
-    protected Partition partition = null;
-
-    public PartitionWorkReference( String data ) {
-        this.partition = new Partition( Integer.parseInt( data ) );
-    }
+    protected Replica replica = null;
     
-    public PartitionWorkReference( Partition partition ) {
-        this.partition = partition;
+    public ReplicaWorkReference( Replica replica ) {
+        this.replica = replica;
     }
 
-    public void setPartition( Partition partition ) { 
-        this.partition = partition;
+    public void setReplica( Replica replica ) { 
+        this.replica = replica;
     }
 
-    public Partition getPartition() { 
-        return this.partition;
+    public Replica getReplica() { 
+        return this.replica;
     }
 
     @Override
     public String toString() {
-        return String.format( "%s", partition.getId() );
+        return replica.toString();
     }
 
     @Override
     public boolean equals( Object obj ) {
 
-        if ( obj instanceof PartitionWorkReference ) {
-            return partition.getId() == ((PartitionWorkReference)obj).partition.getId();
+        if ( obj instanceof ReplicaWorkReference ) {
+            return replica.equals( ((ReplicaWorkReference)obj).replica );
         }
 
         return false;
@@ -62,12 +58,12 @@ public class PartitionWorkReference implements WorkReference<PartitionWorkRefere
 
     @Override
     public int hashCode() {
-        return partition.hashCode();
+        return replica.hashCode();
     }
-
+   
     @Override
-    public int compareTo( PartitionWorkReference p ) {
-        return partition.compareTo( p.partition );
+    public int compareTo( ReplicaWorkReference val ) {
+        return replica.compareTo( val.replica );
     }
-
+    
 }

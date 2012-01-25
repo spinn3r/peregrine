@@ -32,11 +32,9 @@ import com.spinn3r.log5j.*;
 
 /**
  * 
- * Main interface for running a mapred job.  The controller communicated with PFS 
- * nodes which will then in turn run jobs with your specified Mapper, Merger 
- * and/or Reducer.
- * 
- * @author burton@spinn3r.com
+ * Main interface for running a map reduce job in Peregrine.  The controller
+ * communicates with worker nodes which will then in turn will run jobs with
+ * your specified {@link Mapper}, {@link Merger} and/or {@link Reducer}.
  * 
  */
 public class Controller {
@@ -104,7 +102,7 @@ public class Controller {
     	withScheduler( job, new Scheduler( "map", job, config, clusterState ) {
 
     			@Override
-                public void invoke( Host host, WorkReference work ) throws Exception {
+                public void invoke( Host host, Work work ) throws Exception {
 
                     Message message 
                         = createSchedulerMessage( "exec", job, work );
@@ -156,7 +154,7 @@ public class Controller {
         withScheduler( job, new Scheduler( "merge", job, config, clusterState ) {
 
                 @Override
-                public void invoke( Host host, WorkReference work ) throws Exception {
+                public void invoke( Host host, Work work ) throws Exception {
 
                     Message message = createSchedulerMessage( "exec", job, work );
                     new Client().invoke( host, "merge", message );
@@ -199,7 +197,7 @@ public class Controller {
         withScheduler( job, new Scheduler( "reduce", job, config, clusterState ) {
 
                 @Override
-                public void invoke( Host host, WorkReference work ) throws Exception {
+                public void invoke( Host host, Work work ) throws Exception {
 
                     Message message = createSchedulerMessage( "exec", job, work );
                     new Client().invoke( host, "reduce", message );
@@ -333,7 +331,7 @@ public class Controller {
     
     private Message createSchedulerMessage( String action,
                                             Job job,
-                                            WorkReference work ) {
+                                            Work work ) {
 
     	Class delegate = job.getDelegate();
     	Input input = job.getInput();
@@ -343,27 +341,17 @@ public class Controller {
 
         Message message = new Message();
         message.put( "action",     action );
-        message.put( "work",       work );
         message.put( "delegate",   delegate.getName() );
         message.put( "job_id",     job.getId() );
         
-        if ( input != null ) {
+        if ( input != null )
+        	message.put( "input" ,  input.getReferences() );
+
+        if ( output != null )
+        	message.put( "output" , output.getReferences() );
         
-            idx = 0;
-            for( InputReference ref : input.getReferences() ) {
-                message.put( "input." + idx++, ref.toString() );
-            }
-
-        }
-
-        if ( output != null ) {
-            
-            idx = 0;
-            for( OutputReference ref : output.getReferences() ) {
-                message.put( "output." + idx++, ref.toString() );
-            }
-
-        }
+        if ( work != null )
+        	message.put( "work" ,   work.getReferences() );
 
         return message;
         

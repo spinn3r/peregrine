@@ -24,6 +24,7 @@ import peregrine.config.Partition;
 import peregrine.controller.*;
 import peregrine.rpc.*;
 import peregrine.rpcd.delegate.*;
+import peregrine.task.*;
 
 /**
  * Delegate for intercepting RPC messages.
@@ -38,10 +39,10 @@ public class ControllerRPCDelegate extends RPCDelegate<ControllerDaemon> {
     public void complete( ControllerDaemon controllerDaemon, Channel channel, Message message )
         throws Exception {
 		
-        Host host       = Host.parse( message.get( "host" ) );
-        Partition part  = new Partition( message.getInt( "partition" ) );
+        Host host  = Host.parse( message.get( "host" ) );
+        Work work  = new Work( message.getList( "work" ) );
 
-        controllerDaemon.getScheduler().markComplete( host, part );
+        controllerDaemon.getScheduler().markComplete( host, work );
         
         return;
 		
@@ -57,11 +58,11 @@ public class ControllerRPCDelegate extends RPCDelegate<ControllerDaemon> {
         throws Exception {
         
         Host host          = Host.parse( message.get( "host" ) );
-        Partition part     = new Partition( message.getInt( "partition" ) );
+        Work work          = new Work( message.getList( "work" ) );
         String stacktrace  = message.get( "stacktrace" );
         boolean killed     = message.getBoolean( "killed" );
         
-        controllerDaemon.getScheduler().markFailed( host, part, killed, stacktrace );
+        controllerDaemon.getScheduler().markFailed( host, work, killed, stacktrace );
 	    
         return;
 		
@@ -77,7 +78,7 @@ public class ControllerRPCDelegate extends RPCDelegate<ControllerDaemon> {
         throws Exception {
 
         Host host          = Host.parse( message.get( "host" ) );
-        Partition part     = new Partition( message.getInt( "partition" ) );
+        Work work          = new Work( message.getList( "work" ) );
 
         return;
 		

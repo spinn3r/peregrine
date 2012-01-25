@@ -17,6 +17,7 @@ package peregrine.io.driver;
 
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.*;
 
 import peregrine.config.*;
 import peregrine.io.*;
@@ -31,16 +32,32 @@ public abstract class BaseIODriver implements IODriver {
      * Get a unit of work (input split, partition, etc) from the given string specification.
      */
 	@Override
-    public List<Work> getWork( Config config, InputReference inputReference ) {
+    public Map<Host,List<Work>> getWork( Config config, InputReference inputReference ) {
 
-        List<Work> result = new ArrayList();
-
-        for( Partition part : config.getMembership().getPartitions() ) {
-            result.add( new Work( new PartitionWorkReference( part ) ) );
+		Map<Host,List<Work>> result = new ConcurrentHashMap();
+		
+        for( Host host : config.getHosts() ) {
+        
+        	List<Work> entry = new ArrayList();
+        	
+        	for( Replica replica : config.getMembership().getReplicas( host ) ) {
+            	Work work = new Work( new ReplicaWorkReference( replica ) );
+            	work.setHost( host );            	
+            	work.setPriority( replica.getPriority() );
+            	entry.add( work );	
+        	}
+        	
+        	result.put( host, entry );
+        	
         }
 
         return result;
         
     }
     
+	@Override
+	public WorkReference getWorkReference( String uri ) {
+	    return new PartitionWorkReference( uri );
+	}
+	
 }

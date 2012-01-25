@@ -72,6 +72,38 @@ public class StructMap {
         delegate.put( key, ""+value );
     }
 
+
+    public void put( String key, Object value ) {
+    	put( key, value.toString() );
+    }
+    
+    public void put( String key, Throwable throwable ) {
+    	
+        // include the full stack trace 
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        throwable.printStackTrace( new PrintStream( out ) );
+
+        String stacktrace = new String( out.toByteArray() );
+    	
+        put( key, stacktrace );
+        
+    }
+    
+    /**
+     * Put a list of values which can later be read as an ordered list of values.
+     */
+    public void put( String prefix, List list ) {
+
+        if ( list == null )
+        	return;
+            
+        int idx = 0;
+        for( Object val : list ) {
+        	put( prefix + "." + idx++, val );
+        }
+    	
+    }
+    
     public boolean getBoolean( String key ) {
 
         if ( delegate.containsKey( key ) )
@@ -131,6 +163,24 @@ public class StructMap {
 
         return 0L;
 
+    }
+    
+    public List getList( String prefix ) {
+    	
+        List result = new ArrayList();
+        
+        for( int i = 0 ; i < Integer.MAX_VALUE; ++i ) {
+
+            Object val = get( prefix + "." + i );
+
+            if ( val == null )
+                break;
+
+            result.add( val );
+            
+        }
+
+        return result;
     }
 
     public String get( String key ) {

@@ -34,22 +34,35 @@ public interface IODriver {
     public String getScheme();
     
     /**
-     * Parse the given URI and return an InputReference we can use.
+     * Parse the given URI and return an {@link InputReference} we can use.
      */
     public InputReference getInputReference( String uri );
 
     /**
-     * Get work (input splits, partitions, etc) from the given InputReference. 
+     * Get work (input splits, partitions, etc) from the given {@link InputReference}. 
      *
-     * This is used by the scheduler to determine what needs to be executed.
+     * This is used by the {@link Scheduler} to determine what needs to be executed.
      */
-    public List<Work> getWork( Config config,
-                               InputReference inputReference );
+    public Map<Host,List<Work>> getWork( Config config, InputReference inputReference );
+
+    /** 
+     * Get a {@link Work} class parsed out from the given URI.
+     */
+    public WorkReference getWorkReference( String uri );
     
+    /**
+     * Given a given unit of {@link Work}, and an {@link InputReference} ,
+     * return a {@link JobInput} for reading key / value pairs from a job.  The 
+     * given {@link WorkReference} is provided so that we can parse out any work 
+     * specific data for executing this taks.
+     */
     public JobInput getJobInput( Config config,
                                  InputReference inputReference ,
                                  WorkReference work ) throws IOException;
 
+    /**
+     * Get an {link @OutputReference} from the given URI.
+     */
     public OutputReference getOutputReference( String uri );
 
     public JobOutput getJobOutput( Config config,
