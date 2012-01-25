@@ -36,6 +36,7 @@ public class MergerRPCDelegate extends MapperRPCDelegate {
     protected void exec( FSDaemon daemon,
                          Class delegate,
                          Config config,
+                         Work work,
                          Partition partition,
                          Input input,
                          Output output )
@@ -46,11 +47,11 @@ public class MergerRPCDelegate extends MapperRPCDelegate {
         task.setInput( input );
         task.setOutput( output );
 
-        task.init( config, partition, delegate );
+        task.init( config, work, partition, delegate );
 
         daemon.getExecutorService( getClass() ).submit( task );
 
-        trackTask( partition, task );
+        trackTask( work, task );
 
     }
 

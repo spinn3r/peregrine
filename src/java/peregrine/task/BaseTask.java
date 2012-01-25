@@ -61,6 +61,11 @@ public abstract class BaseTask implements Task {
 
     protected Input input = null;
     
+    /**
+     * The given work for this task.
+     */
+    protected Work work = null;
+    
     protected JobDelegate jobDelegate = null;
 
     private boolean killed = false;
@@ -70,9 +75,10 @@ public abstract class BaseTask implements Task {
      */
     protected long started = -1;
     
-    public void init( Config config, Partition partition, Class delegate ) throws IOException {
+    public void init( Config config, Work work, Partition partition, Class delegate ) throws IOException {
     	this.config      = config;
         this.host        = config.getHost();
+        this.work        = work;
         this.partition   = partition;
         this.delegate    = delegate;
         this.started     = System.currentTimeMillis();
@@ -96,6 +102,14 @@ public abstract class BaseTask implements Task {
 
     public void setOutput( Output output ) { 
         this.output = output;
+    }
+    
+    public Work getWork() { 
+        return this.work;
+    }
+
+    public void setWork( Work work ) { 
+        this.work = work;
     }
     
     public List<JobOutput> getJobOutput() {
@@ -291,13 +305,9 @@ public abstract class BaseTask implements Task {
         Message message = new Message();
 
         message.put( "action" ,   "complete" );
-        message.put( "host",      config.getHost().toString() );
-        message.put( "partition", partition.getId() );
         message.put( "killed",    killed );
 
-        log.info( "Sending complete message to controller: %s", message );
-        
-        new Client().invoke( config.getController(), "controller", message );
+        sendMessageToController( message );
 
     }
 
@@ -309,13 +319,9 @@ public abstract class BaseTask implements Task {
         Message message = new Message();
         
         message.put( "action" ,     "failed" );
-        message.put( "host",        config.getHost().toString() );
-        message.put( "partition",   partition.getId() );
         message.put( "stacktrace",  cause );
-
-        log.info( "Sending failed message to controller: %s", message );
         
-        new Client().invoke( config.getController(), "controller", message );
+        sendMessageToController( message );
 
     }
 
@@ -327,15 +333,23 @@ public abstract class BaseTask implements Task {
         Message message = new Message();
         
         message.put( "action" ,     "progress" );
-        message.put( "host",        config.getHost().toString() );
-        message.put( "partition",   partition.getId() );
         message.put( "nonce" ,      nonce );
         message.put( "pointer" ,    pointer );
 
-        log.info( "Sending progress message to controller with pointer %s: %s", pointer, message );
-        
-        new Client().invoke( config.getController(), "controller", message );
+        sendMessageToController( message );
 
     }
 
+    protected void sendMessageToController( Message message ) throws IOException {
+    	
+        log.info( "Sending %s message to controller%s", message.get( "action" ), message );
+        
+        message.put( "host",        config.getHost().toString() );
+        message.put( "partition",   partition.getId() );
+        message.put( "work",        work );
+
+        new Client().invoke( config.getController(), "controller", message );
+    	
+    }
+    
 }

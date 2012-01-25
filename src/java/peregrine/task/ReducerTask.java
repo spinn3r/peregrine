@@ -41,12 +41,13 @@ public class ReducerTask extends BaseTask implements Callable {
     public ReducerTask() {}
     
     public ReducerTask( Config config,
+    		            Work work,
                         Partition partition,
                         Class delegate,
                         ShuffleInputReference shuffleInput )
         throws Exception {
 
-        super.init( config, partition, delegate );
+        super.init( config, work, partition, delegate );
 
         this.shuffleInput = shuffleInput;
         

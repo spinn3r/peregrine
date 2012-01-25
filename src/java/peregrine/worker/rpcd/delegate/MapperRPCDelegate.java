@@ -50,13 +50,14 @@ public class MapperRPCDelegate extends BaseTaskRPCDelegate {
 
         Input input            = readInput( message );
         Output output          = readOutput( message );
+        Work work              = readWork( message );
         Partition partition    = new Partition( message.getInt( "partition" ) );
         Class delegate         = Class.forName( message.get( "delegate" ) );
         Config config          = daemon.getConfig();
 
         log.info( "Running %s with input %s and output %s", delegate.getName(), input, output );
 
-        exec( daemon, delegate, config, partition, input, output );
+        exec( daemon, delegate, config, work, partition, input, output );
         
         return;
 
@@ -65,7 +66,8 @@ public class MapperRPCDelegate extends BaseTaskRPCDelegate {
     protected void exec( FSDaemon daemon,
                          Class delegate,
                          Config config,
-                         Partition partition,
+                         Work work,
+                         Partition partition, 
                          Input input,
                          Output output )
         throws Exception {
@@ -75,11 +77,11 @@ public class MapperRPCDelegate extends BaseTaskRPCDelegate {
         task.setInput( input );
         task.setOutput( output );
 
-        task.init( config, partition, delegate );
+        task.init( config, work, partition, delegate );
 
         daemon.getExecutorService( getClass() ).submit( task );
 
-        trackTask( partition, task );
+        trackTask( work, task );
         
     }
     
@@ -90,6 +92,10 @@ public class MapperRPCDelegate extends BaseTaskRPCDelegate {
 
     protected Output readOutput( Message message ) {
         return new Output( message.getList( "output" ) );
+    }
+    
+    protected Work readWork( Message message ) {
+        return new Work( message.getList( "work" ) );
     }
     
 }

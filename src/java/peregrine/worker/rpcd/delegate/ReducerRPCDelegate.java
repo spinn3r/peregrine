@@ -37,6 +37,7 @@ public class ReducerRPCDelegate extends MapperRPCDelegate {
     protected void exec( FSDaemon daemon,
                          Class delegate,
                          Config config,
+                         Work work,
                          Partition partition,
                          Input input,
                          Output output )
@@ -45,13 +46,13 @@ public class ReducerRPCDelegate extends MapperRPCDelegate {
         ShuffleInputReference shuffleInput = (ShuffleInputReference)input.getReferences().get( 0 );
         log.info( "Using shuffle input : %s ", shuffleInput.getName() );
 
-        ReducerTask task = new ReducerTask( config, partition, delegate, shuffleInput );
+        ReducerTask task = new ReducerTask( config, work, partition, delegate, shuffleInput );
         task.setInput( input );
         task.setOutput( output );
 
         daemon.getExecutorService( getClass() ).submit( task );
 
-        trackTask( partition, task );
+        trackTask( work, task );
 
     }
 
