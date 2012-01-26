@@ -93,16 +93,11 @@ public abstract class BaseMapperTask extends BaseTask implements Callable {
         listeners.add( new MapperChunkStreamListener() );
         
         List<SequenceReader> readers = new ArrayList();
-        
-        
-                
+
         for( int i = 0; i < getInput().getReferences().size(); ++i ) {
 
-        	InputReference inputReference = getInput().getReferences().get( i );
-
-        	System.out.printf( "FIXME : %s", getWork().getReferences() );
-        	
-        	WorkReference workReference   = getWork().getReferences().get( i );
+        	InputReference inputReference  = getInput().getReferences().get( i );
+        	WorkReference  workReference   = getWork().getReferences().get( i );
         	
             if ( inputReference instanceof BroadcastInputReference ) {
             	// right now we handle broadcast input differently.

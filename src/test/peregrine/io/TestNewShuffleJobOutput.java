@@ -31,7 +31,7 @@ public class TestNewShuffleJobOutput extends peregrine.BaseTestWithTwoDaemons {
         
         ShuffleJobOutput output = new ShuffleJobOutput( config, part );
 
-        ChunkReference chunkRef = new ChunkReference( new PartitionWorkReference( part ) );
+        ChunkReference chunkRef = new ChunkReference( part );
         chunkRef.local = 0;
 
         output.onChunk( chunkRef );

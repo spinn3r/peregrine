@@ -137,7 +137,7 @@ public class ShuffleSender implements Flushable, Closeable {
                 String path = String.format( "/%s/shuffle/%s/from-partition/%s/from-chunk/%s",
                                              part.getId(),
                                              name,
-                                             chunkRef.work,
+                                             chunkRef.partition.getId(),
                                              chunkRef.local );
 
                 HttpClient client = new HttpClient( hosts, path );

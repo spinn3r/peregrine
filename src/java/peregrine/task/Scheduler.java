@@ -202,6 +202,7 @@ public class Scheduler {
                     List<Work> workForHost = workIndex.get( host );
 
                     for( Work current : workForHost ) {
+                        
                         offlineWork.incr( current );
 
                         if( offlineWork.get( current ) == config.getReplicas() ) {

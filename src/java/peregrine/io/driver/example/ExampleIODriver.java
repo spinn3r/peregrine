@@ -87,7 +87,7 @@ class ExampleJobInput extends BaseJobInput implements JobInput {
 
 	    iterator = list.iterator();
 
-        chunkRef = new ChunkReference( work );
+        chunkRef = new ChunkReference( null );
 
 	}
 	

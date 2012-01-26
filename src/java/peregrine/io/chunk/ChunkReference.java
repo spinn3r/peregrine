@@ -25,25 +25,21 @@ public class ChunkReference {
 
     public int local = -1;
 
-    public WorkReference work = null;
+    public Partition partition = null;
 
     public String path = null;
     
     public ChunkReference() {}
 
     public ChunkReference( Partition partition ) {
-        this( new PartitionWorkReference( partition ) );
-    }
-    
-    public ChunkReference( WorkReference work ) {
-    	this( work, null );
+        this.partition = partition;
     }
     
     /**
      * Used when generating chunk references for tasks.
      */
-    public ChunkReference( WorkReference work, String path ) {
-        this.work = work;
+    public ChunkReference( Partition partition, String path ) {
+        this.partition = partition;
         this.path = path;
     }
 
