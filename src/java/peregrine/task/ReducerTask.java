@@ -47,6 +47,12 @@ public class ReducerTask extends BaseTask implements Callable {
                         ShuffleInputReference shuffleInput )
         throws Exception {
 
+        for ( WorkReference current : work.getReferences() ) {
+            if ( current instanceof PartitionWorkReference ) {
+                partition = ((PartitionWorkReference)current).getPartition();
+            }
+        }
+        
         super.init( config, work, partition, delegate );
 
         this.shuffleInput = shuffleInput;
@@ -116,6 +122,4 @@ public class ReducerTask extends BaseTask implements Callable {
     }
     
 }
-
-
 

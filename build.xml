@@ -124,7 +124,9 @@
 
         <taskdef name="junit"
                  classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask">
+
             <classpath refid="project.classpath"/>
+
         </taskdef>	
 
         <mkdir dir="target/test-reports" />
