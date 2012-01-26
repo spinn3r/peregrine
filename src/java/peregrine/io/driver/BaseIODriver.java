@@ -41,10 +41,12 @@ public abstract class BaseIODriver implements IODriver {
         	List<Work> entry = new ArrayList();
         	
         	for( Replica replica : config.getMembership().getReplicas( host ) ) {
-            	Work work = new Work( new ReplicaWorkReference( replica ) );
+
+            	Work work = new Work( new PartitionWorkReference( replica.getPartition() ) );
             	work.setHost( host );            	
             	work.setPriority( replica.getPriority() );
             	entry.add( work );	
+
         	}
         	
         	result.put( host, entry );

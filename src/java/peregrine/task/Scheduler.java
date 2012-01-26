@@ -160,7 +160,21 @@ public class Scheduler {
         // create a concurrency from all the currently known hosts.
         concurrency = new IncrMap( config.getHosts() );
 
-        offlineWork = new IncrMap( config.getMembership().getPartitions() );
+        workIndex = createWorkIndex();
+
+        offlineWork = new IncrMap();
+
+        // make sure EVERY work unit has an entry in the offlineWork index so
+        // that when we do a get() we can measure that it is zero (and not
+        // null).
+
+        for( Host host : workIndex.keySet() ) {
+            List<Work> workForHost = workIndex.get( host );
+
+            for( Work current : workForHost ) {
+                offlineWork.init( current );
+            }
+        }
         
         // import the current list of online hosts and pay attention to new
         // updates in the future.
@@ -184,27 +198,23 @@ public class Scheduler {
                     // for every partition when it is marked offline, go through
                     // and mark every partition offline.  if a partition has NO
                     // online replicas then we must abort the job.
-                    List<Partition> partitions = config.getMembership().getPartitions( host );
 
-                    for( Partition part : partitions ) {
+                    List<Work> workForHost = workIndex.get( host );
 
-                        Work work = new Work( new PartitionWorkReference( part ) );
+                    for( Work current : workForHost ) {
+                        offlineWork.incr( current );
 
-                        offlineWork.incr( work );
-                        
-                        if( offlineWork.get( work ) == config.getReplicas() ) {
-                            markFailed( host, work , false, "*NO TRACE*" );
+                        if( offlineWork.get( current ) == config.getReplicas() ) {
+                            markFailed( host, current , false, "*NO TRACE*" );
                             break;
                         }
-                                                  
+
                     }
-                    
+
                 }
 
             } );
-        
-        workIndex = createWorkIndex();
-        
+
     }
 
     protected Map<Host,List<Work>> createWorkIndex() {
@@ -222,7 +232,7 @@ public class Scheduler {
         	
         	IODriver driver = IODriverRegistry.getInstance( inputReference.getScheme() );
                
-        	Map<Host,List<Work>> driverWork = driver.getWork(config, inputReference);
+        	Map<Host,List<Work>> driverWork = driver.getWork( config, inputReference );
 
         	for( Host host : driverWork.keySet() ) {
         		

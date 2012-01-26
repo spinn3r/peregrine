@@ -22,6 +22,7 @@ import org.jboss.netty.channel.*;
 import peregrine.config.Host;
 import peregrine.config.Partition;
 import peregrine.controller.*;
+import peregrine.io.*;
 import peregrine.rpc.*;
 import peregrine.rpcd.delegate.*;
 import peregrine.task.*;
@@ -39,8 +40,9 @@ public class ControllerRPCDelegate extends RPCDelegate<ControllerDaemon> {
     public void complete( ControllerDaemon controllerDaemon, Channel channel, Message message )
         throws Exception {
 		
-        Host host  = Host.parse( message.get( "host" ) );
-        Work work  = new Work( message.getList( "work" ) );
+        Host host     = Host.parse( message.get( "host" ) );
+        Input input   = new Input( message.getList( "input" ) );
+        Work work     = new Work( input, message.getList( "work" ) );
 
         controllerDaemon.getScheduler().markComplete( host, work );
         
@@ -58,7 +60,8 @@ public class ControllerRPCDelegate extends RPCDelegate<ControllerDaemon> {
         throws Exception {
         
         Host host          = Host.parse( message.get( "host" ) );
-        Work work          = new Work( message.getList( "work" ) );
+        Input input        = new Input( message.getList( "input" ) );
+        Work work          = new Work( input, message.getList( "work" ) );
         String stacktrace  = message.get( "stacktrace" );
         boolean killed     = message.getBoolean( "killed" );
         
@@ -78,8 +81,9 @@ public class ControllerRPCDelegate extends RPCDelegate<ControllerDaemon> {
         throws Exception {
 
         Host host          = Host.parse( message.get( "host" ) );
-        Work work          = new Work( message.getList( "work" ) );
-
+        Input input        = new Input( message.getList( "input" ) );
+        Work work          = new Work( input, message.getList( "work" ) );
+        
         return;
 		
     }

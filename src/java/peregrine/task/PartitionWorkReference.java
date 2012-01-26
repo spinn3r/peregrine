@@ -29,7 +29,13 @@ public class PartitionWorkReference implements WorkReference<PartitionWorkRefere
     protected Partition partition = null;
 
     public PartitionWorkReference( String data ) {
+
+        //split it if it's a URI.
+        if( data.contains( ":" ) )
+            data = data.split(":")[1];
+        
         this.partition = new Partition( Integer.parseInt( data ) );
+
     }
     
     public PartitionWorkReference( Partition partition ) {
@@ -46,7 +52,7 @@ public class PartitionWorkReference implements WorkReference<PartitionWorkRefere
 
     @Override
     public String toString() {
-        return String.format( "%s", partition.getId() );
+        return partition.toString();
     }
 
     @Override

@@ -18,6 +18,7 @@ package peregrine.task;
 import java.util.*;
 
 import peregrine.config.*;
+import peregrine.io.*;
 import peregrine.io.driver.*;
 import peregrine.io.driver.broadcast.*;
 import peregrine.io.driver.file.*;
@@ -36,23 +37,21 @@ public final class Work implements Comparable<Work> {
 
     public Work() { }
 
-    public Work( List<String> paths ) {
+    public Work( Input input, List<String> paths ) {
 
-        for( String path : paths ) {
+        for( int i = 0; i < paths.size(); ++i ) {
 
-            if ( path.contains( ":" ) ) {
+            String path = paths.get(i);
 
-                String scheme = path.split( ":" )[0];
-
-                IODriver driver = IODriverRegistry.getInstance( scheme );
+            InputReference inputReference = input.getReferences().get( i );
+            
+            IODriver driver = IODriverRegistry.getInstance( inputReference.getScheme() );
                 
-                // see if it is registered as a driver.
-                if ( driver != null ) {
-                    add( driver.getWorkReference( path ) );
-                }
-
+            // see if it is registered as a driver.
+            if ( driver != null ) {
+                add( driver.getWorkReference( path ) );
             }
-
+            
         }
         
     }

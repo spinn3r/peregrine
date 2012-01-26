@@ -24,7 +24,7 @@ import java.util.concurrent.atomic.*;
  */
 public class IncrMap<T> {
 
-    Map<T,AtomicInteger> map = new ConcurrentHashMap();
+    ConcurrentHashMap<T,AtomicInteger> map = new ConcurrentHashMap();
 
     public IncrMap() {}
 
@@ -45,11 +45,17 @@ public class IncrMap<T> {
     }
 
     public void init( T key ) {
-        map.put( key, new AtomicInteger() );
+        map.putIfAbsent( key, new AtomicInteger() );
     }
     
     public void incr( T key ) {
+
+        if ( map.containsKey( key ) == false ) {
+            init( key );
+        }
+        
         map.get( key ).getAndIncrement();
+        
     }
 
     public void decr( T key ) {

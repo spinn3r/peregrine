@@ -94,26 +94,34 @@ public abstract class BaseMapperTask extends BaseTask implements Callable {
         
         List<SequenceReader> readers = new ArrayList();
         
-        for( InputReference ref : getInput().getReferences() ) {
+        
+                
+        for( int i = 0; i < getInput().getReferences().size(); ++i ) {
 
-            if ( ref instanceof BroadcastInputReference ) {
+        	InputReference inputReference = getInput().getReferences().get( i );
+
+        	System.out.printf( "FIXME : %s", getWork().getReferences() );
+        	
+        	WorkReference workReference   = getWork().getReferences().get( i );
+        	
+            if ( inputReference instanceof BroadcastInputReference ) {
             	// right now we handle broadcast input differently.
                 continue;
             }
 
-            IODriver driver = IODriverRegistry.getInstance( ref.getScheme() );
+            IODriver driver = IODriverRegistry.getInstance( inputReference.getScheme() );
             
             // see if it is registered as a driver.
             if ( driver != null ) {
 
-                JobInput ji = driver.getJobInput( config, ref, new PartitionWorkReference( partition ) );
+                JobInput ji = driver.getJobInput( config, inputReference, workReference );
                 ji.addListeners( listeners );
                 
                 readers.add( ji );
                 continue;
             }
 
-            throw new IOException( "Reference not supported: " + ref );
+            throw new IOException( "Reference not supported: " + inputReference );
             
         }
 

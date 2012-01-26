@@ -23,7 +23,7 @@ import peregrine.io.*;
 import peregrine.task.*;
 
 /**
- * Represents a way to add new input drivers to peregrine.
+ * Supports adding new input drivers to peregrine.
  */
 public interface IODriver {
 
@@ -61,10 +61,14 @@ public interface IODriver {
                                  WorkReference work ) throws IOException;
 
     /**
-     * Get an {link @OutputReference} from the given URI.
+     * Get an {@link OutputReference} from the given URI.
      */
     public OutputReference getOutputReference( String uri );
 
+    /**
+     * For a given {@link WorkReference}, produce a {@link JobOutput} for
+     * writing the output of the job.
+     */
     public JobOutput getJobOutput( Config config,
                                    OutputReference outputReference,
                                    WorkReference Work ) throws IOException;

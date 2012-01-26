@@ -50,12 +50,12 @@ public class MapperRPCDelegate extends BaseTaskRPCDelegate {
 
         Input input            = readInput( message );
         Output output          = readOutput( message );
-        Work work              = readWork( message );
+        Work work              = readWork( input, message );
         Partition partition    = new Partition( message.getInt( "partition" ) );
         Class delegate         = Class.forName( message.get( "delegate" ) );
         Config config          = daemon.getConfig();
 
-        log.info( "Running %s with input %s and output %s", delegate.getName(), input, output );
+        log.info( "Running %s with input %s and output %s and work %s", delegate.getName(), input, output, work );
 
         exec( daemon, delegate, config, work, partition, input, output );
         
@@ -94,8 +94,8 @@ public class MapperRPCDelegate extends BaseTaskRPCDelegate {
         return new Output( message.getList( "output" ) );
     }
     
-    protected Work readWork( Message message ) {
-        return new Work( message.getList( "work" ) );
+    protected Work readWork( Input input, Message message ) {
+        return new Work( input, message.getList( "work" ) );
     }
     
 }
