@@ -53,6 +53,9 @@ public final class Work implements Comparable<Work> {
             }
             
         }
+
+        if ( references.size() == 0 )
+            throw new RuntimeException( "Unable to parse work: " + Arrays.asList( paths ) );
         
     }
     

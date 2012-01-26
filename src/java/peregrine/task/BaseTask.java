@@ -346,8 +346,8 @@ public abstract class BaseTask implements Task {
         
         message.put( "host",        config.getHost().toString() );
         message.put( "partition",   partition.getId() );
-        message.put( "input",       input );
-        message.put( "work",        work );
+        message.put( "input",       input.getReferences() );
+        message.put( "work",        work.getReferences() );
 
         new Client().invoke( config.getController(), "controller", message );
     	

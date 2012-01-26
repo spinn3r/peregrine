@@ -412,7 +412,10 @@ public class Scheduler {
      */
     public void markComplete( Host host, Work work ) {
 
-        log.info( "Marking partition %s complete from host %s", work, host );
+        if ( work.getReferences().size() == 0 )
+            throw new RuntimeException( "Work is invalid" );
+        
+        log.info( "Marking work %s complete from host %s", work, host );
         
         // mark this partition as complete.
         completed.mark( work );
