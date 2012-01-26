@@ -42,18 +42,11 @@ public class ReducerTask extends BaseTask implements Callable {
     
     public ReducerTask( Config config,
     		            Work work,
-                        Partition partition,
                         Class delegate,
                         ShuffleInputReference shuffleInput )
         throws Exception {
 
-        for ( WorkReference current : work.getReferences() ) {
-            if ( current instanceof PartitionWorkReference ) {
-                partition = ((PartitionWorkReference)current).getPartition();
-            }
-        }
-        
-        super.init( config, work, partition, delegate );
+        super.init( config, work, delegate );
 
         this.shuffleInput = shuffleInput;
         

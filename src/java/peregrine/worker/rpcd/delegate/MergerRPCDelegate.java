@@ -17,8 +17,7 @@ package peregrine.worker.rpcd.delegate;
 
 import java.util.concurrent.*;
 
-import peregrine.config.Config;
-import peregrine.config.Partition;
+import peregrine.config.*;
 import peregrine.io.*;
 import peregrine.util.*;
 import peregrine.worker.*;
@@ -37,7 +36,6 @@ public class MergerRPCDelegate extends MapperRPCDelegate {
                          Class delegate,
                          Config config,
                          Work work,
-                         Partition partition,
                          Input input,
                          Output output )
         throws Exception {
@@ -47,7 +45,7 @@ public class MergerRPCDelegate extends MapperRPCDelegate {
         task.setInput( input );
         task.setOutput( output );
 
-        task.init( config, work, partition, delegate );
+        task.init( config, work, delegate );
 
         daemon.getExecutorService( getClass() ).submit( task );
 

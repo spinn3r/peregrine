@@ -38,7 +38,6 @@ public class ReducerRPCDelegate extends MapperRPCDelegate {
                          Class delegate,
                          Config config,
                          Work work,
-                         Partition partition,
                          Input input,
                          Output output )
         throws Exception {
@@ -46,7 +45,7 @@ public class ReducerRPCDelegate extends MapperRPCDelegate {
         ShuffleInputReference shuffleInput = (ShuffleInputReference)input.getReferences().get( 0 );
         log.info( "Using shuffle input : %s ", shuffleInput.getName() );
 
-        ReducerTask task = new ReducerTask( config, work, partition, delegate, shuffleInput );
+        ReducerTask task = new ReducerTask( config, work, delegate, shuffleInput );
         task.setInput( input );
         task.setOutput( output );
 

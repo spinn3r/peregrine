@@ -75,13 +75,25 @@ public abstract class BaseTask implements Task {
      */
     protected long started = -1;
     
-    public void init( Config config, Work work, Partition partition, Class delegate ) throws IOException {
+    public void init( Config config, Work work, Class delegate ) throws IOException {
     	this.config      = config;
         this.host        = config.getHost();
         this.work        = work;
-        this.partition   = partition;
         this.delegate    = delegate;
         this.started     = System.currentTimeMillis();
+
+        for ( WorkReference current : work.getReferences() ) {
+            
+            if ( current instanceof PartitionWorkReference ) {
+                partition = ((PartitionWorkReference)current).getPartition();
+            }
+            
+        }
+
+        if ( partition == null ) {
+            throw new IOException( "No partition defined for work: " + work );
+        }
+
     }
 
     public List<BroadcastInput> getBroadcastInput() { 

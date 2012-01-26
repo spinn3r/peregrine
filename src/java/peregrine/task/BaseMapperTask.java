@@ -53,9 +53,9 @@ public abstract class BaseMapperTask extends BaseTask implements Callable {
     /**
      * Run init just on Mapper and Merger tasks.
      */
-    public void init( Config config, Work work, Partition partition, Class delegate ) throws IOException {
+    public void init( Config config, Work work, Class delegate ) throws IOException {
 
-        super.init( config, work, partition, delegate );
+        super.init( config, work, delegate );
 
         // make all shuffle dirs for the shuffle output paths to make sure we
         // have an empty set input for the shuffle data as opposed to missing

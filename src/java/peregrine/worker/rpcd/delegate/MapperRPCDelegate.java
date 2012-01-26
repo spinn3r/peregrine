@@ -20,8 +20,7 @@ import java.util.concurrent.*;
 
 import org.jboss.netty.channel.*;
 
-import peregrine.config.Config;
-import peregrine.config.Partition;
+import peregrine.config.*;
 import peregrine.util.*;
 import peregrine.worker.*;
 
@@ -51,13 +50,12 @@ public class MapperRPCDelegate extends BaseTaskRPCDelegate {
         Input input            = readInput( message );
         Output output          = readOutput( message );
         Work work              = readWork( input, message );
-        Partition partition    = new Partition( message.getInt( "partition" ) );
         Class delegate         = Class.forName( message.get( "delegate" ) );
         Config config          = daemon.getConfig();
 
         log.info( "Running %s with input %s and output %s and work %s", delegate.getName(), input, output, work );
 
-        exec( daemon, delegate, config, work, partition, input, output );
+        exec( daemon, delegate, config, work, input, output );
         
         return;
 
@@ -67,7 +65,6 @@ public class MapperRPCDelegate extends BaseTaskRPCDelegate {
                          Class delegate,
                          Config config,
                          Work work,
-                         Partition partition, 
                          Input input,
                          Output output )
         throws Exception {
@@ -77,7 +74,7 @@ public class MapperRPCDelegate extends BaseTaskRPCDelegate {
         task.setInput( input );
         task.setOutput( output );
 
-        task.init( config, work, partition, delegate );
+        task.init( config, work, delegate );
 
         daemon.getExecutorService( getClass() ).submit( task );
 
