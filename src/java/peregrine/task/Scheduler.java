@@ -155,6 +155,7 @@ public class Scheduler {
         
         // import the current list of online hosts and pay attention to new
         // updates in the future.
+        
         clusterState.getOnline().addListenerWithSnapshot( new MarkListener<Host>() {
 
                 public void updated( Host host, MarkListener.Status status ) {
