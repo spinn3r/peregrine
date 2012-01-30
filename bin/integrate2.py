@@ -267,7 +267,7 @@ def index():
 
             if os.path.isdir( path ):
 
-                changedir=get_changedir(rev)
+                changedir=get_changedir(file)
 
                 exit_file="%s/exit.result" % (changedir)
 
