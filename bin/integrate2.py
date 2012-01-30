@@ -221,8 +221,10 @@ def run(limit=LIMIT):
 
     change_index=get_change_index()
 
-    print "Working with active branches: %s" % active_branches
-    print "Working with change index keys: %s" % change_index.keys() 
+    print change_index
+
+    #print "Working with active branches: %s" % active_branches
+    #print "Working with change index keys: %s" % change_index.keys() 
 
     for branch in active_branches:
 
