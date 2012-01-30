@@ -221,6 +221,8 @@ def run(limit=LIMIT):
 
     change_index=get_change_index()
 
+    print "Working with active branches: %s" % active_branches
+
     for branch in active_branches:
 
         for i in xrange(limit):
