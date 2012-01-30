@@ -114,7 +114,7 @@ def get_active_branches():
         result[branch]=1
 
     # default would need to be added.
-    result['default']=1
+    result[ r"default" ]=1
         
     return result.keys()
 
