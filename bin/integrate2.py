@@ -13,8 +13,8 @@ BRANCH="default"
 SCRATCH="/tmp/integration/peregrine/"
 TEST_LOGS="/var/lib/integration/peregrine"
 
-#TEST_COMMAND="ant clean test"
-TEST_COMMAND="false"
+TEST_COMMAND="ant clean test"
+#TEST_COMMAND="false"
 
 REPO="https://burtonator:redapplekittycat@bitbucket.org/burtonator/peregrine"
 
