@@ -123,7 +123,7 @@ def get_change_index():
 
     index={}
 
-    output=read_cmd( "hg log --template '{rev} {branch} {date}\n'" )
+    output=read_cmd( "hg log --template '{rev} {branches} {date}\n'" )
 
     for line in output.split( "\n" ):
 
@@ -135,6 +135,9 @@ def get_change_index():
             continue
 
         branch=split[1]
+
+        if branch == "":
+            branch = "default"
 
         changectx['rev']    = split[0]
         changectx['branch'] = branch
