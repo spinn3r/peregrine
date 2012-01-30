@@ -11,7 +11,7 @@
 #
 # - link to the test-reports if they are generated.
 
-MAX=30
+LIMIT=5
 BRANCH=default
 
 SCRATCH=/tmp/integration/peregrine
@@ -19,16 +19,25 @@ TEST_LOGS=/var/lib/integration/peregrine
 
 TEST_COMMAND="ant clean test"
 
+REPO=https://burtonator:redapplekittycat@bitbucket.org/burtonator/peregrine
+
 #TEST_COMMAND="`ant clean jar compile.test && ./bin/jexec peregrine.TestMapReduceWithMergeFactor`"
 
 run() {
+
+    branch=$1
+    limit=$2
+
+    if [ "$limit" == "" ]; then
+        limit=$LIMIT
+    fi
 
     if [ ! -d $SCRATCH ]; then
 
         echo "Pulling and installing new scratch repo... "
 
         #FIXME: read the repo URL from hg... 
-        hg clone https://burtonator:redapplekittycat@bitbucket.org/burtonator/peregrine $SCRATCH
+        hg clone $REPO $SCRATCH
 
     fi
 
@@ -39,7 +48,7 @@ run() {
     cd $SCRATCH 
     hg pull -u
 
-    for changeset in `hg log -b default --limit $MAX |grep -i changeset |grep -Eo '[a-zA-z0-9:]+$' |grep -Eo '^[0-9]+'`; do 
+    for changeset in `hg log -b $branch --limit $limit |grep -i changeset |grep -Eo '[a-zA-z0-9:]+$' |grep -Eo '^[0-9]+'`; do 
 
         changedir=$TEST_LOGS/$changeset/
 
@@ -124,4 +133,6 @@ if [ "$1" == "index" ]; then
     exit 0
 fi
 
-run
+run default 1
+
+# how run on ALL branches 
