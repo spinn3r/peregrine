@@ -1,8 +1,17 @@
 #!/usr/bin/python
 
+###
+#
+# TODO
+#
+# - print the branch that this changeset used in the sidebar.
+#
+# - CSS this bitch
+
 import os
 import re
 import traceback
+import datetime
 
 import sys
 from subprocess import *
@@ -55,6 +64,12 @@ class ReportSidebar:
 
     def close(self):
         self.file.write( "</table>" )
+
+        # FIXME: print the current date
+
+        now = datetime.datetime.now()
+
+        self.file.write( "<small>%s</small>" % (now.strftime("%Y-%m-%d %H:%M")) )
 
         self.file.close()
 
@@ -224,8 +239,6 @@ def run(limit=LIMIT):
 
     change_index=get_change_index()
 
-    print change_index
-
     #print "Working with active branches: %s" % active_branches
     #print "Working with change index keys: %s" % change_index.keys() 
 
@@ -254,13 +267,13 @@ def index():
 
             if os.path.isdir( path ):
 
-                rev=int(file)
-
                 changedir=get_changedir(rev)
 
                 exit_file="%s/exit.result" % (changedir)
 
                 if ( os.path.exists( exit_file ) ):
+
+                    rev=int(file)
 
                     exit_result=open( exit_file, "r" )
                     result=exit_result.read()
