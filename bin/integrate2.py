@@ -279,6 +279,7 @@ def index(change_index=None):
         files = os.listdir( TEST_LOGS )
 
         files = sorted(files)
+        files.reverse()
 
         for file in files:
 
