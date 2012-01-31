@@ -39,7 +39,7 @@ class ReportIndex:
         
         self.file=open( "%s/index.html" % TEST_LOGS , "w" );
 
-        self.file.write( "<frameset cols='20%,80%' title=''>" )
+        self.file.write( "<frameset cols='30%,70%' title=''>" )
         self.file.write( "<frame src='left.html' name='left' title='all tests'>" )
         self.file.write( "<frame src='' name='right' title=''>" )
         self.file.write( "</frameset>" )
@@ -57,7 +57,7 @@ class ReportSidebar:
 
         self.file.write( "<table width='100%' cellspacing='0'>" )
 
-    def link( self, bgcolor, rev ):
+    def link( self, bgcolor, branch, rev ):
         """Write a link to the given URL."""
 
         self.file.write( "<tr bgcolor='%s'>" % bgcolor )
@@ -139,6 +139,8 @@ def get_active_branches():
 
 def get_change_index():
     """Return a map from branch name to revision ID by reverse chronology"""
+
+    os.chdir( SCRATCH )
 
     index={}
 
@@ -255,13 +257,24 @@ def run(limit=LIMIT):
             test(branch,rev)
 
             # regen the index.
-            index()
+            index(change_index)
 
-def index():
+def get_branch(change_index, rev):
+
+    for branch in change_index.keys():
+        if change_index[branch][rev] != None:
+            return branch
+
+    return None
+
+def index(change_index=None):
     """Write the full index of the sidebar and index.html"""
 
     index   = ReportIndex()
     sidebar = ReportSidebar()
+
+    if change_index == None:
+        change_index = get_change_index()
 
     try:
 
@@ -277,7 +290,7 @@ def index():
 
                 if ( os.path.exists( exit_file ) ):
 
-                    rev=int(file)
+                    rev=file
 
                     exit_result=open( exit_file, "r" )
                     result=exit_result.read()
@@ -288,7 +301,9 @@ def index():
                     if result != "0": 
                         bgcolor="red"
 
-                    sidebar.link( bgcolor, rev )
+                    branch = get_branch( change_index, rev )
+
+                    sidebar.link( bgcolor, branch, rev )
 
     finally:
         
