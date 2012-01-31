@@ -276,7 +276,11 @@ def index(change_index=None):
 
     try:
 
-        for file in os.listdir( TEST_LOGS ):
+        files = os.listdir( TEST_LOGS )
+
+        files = sorted(files)
+
+        for file in files:
 
             path = "%s/%s" % (TEST_LOGS, file)
 
