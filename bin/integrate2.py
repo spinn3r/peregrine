@@ -7,6 +7,10 @@
 # - print the branch that this changeset used in the sidebar.
 #
 # - CSS this bitch
+#
+# - take an --index option so that we can just regen the index.
+#
+# - 
 
 import os
 import re
@@ -69,7 +73,7 @@ class ReportSidebar:
 
         now = datetime.datetime.now()
 
-        self.file.write( "<small>%s</small>" % (now.strftime("%Y-%m-%d %H:%M")) )
+        self.file.write( "<br/><center><small>%s</small></center>" % (now.strftime("%Y-%m-%d %H:%M")) )
 
         self.file.close()
 
@@ -290,6 +294,10 @@ def index():
         
         index.close()
         sidebar.close()
+
+if len(sys.argv) == 1 and sys.argv[0] == "--index":
+    index()
+    sys.exit(1)
 
 # test the first changeset from each branch
 run(1)
