@@ -295,7 +295,7 @@ def index():
         index.close()
         sidebar.close()
 
-if len(sys.argv) == 1 and sys.argv[0] == "--index":
+if len(sys.argv) == 2 and sys.argv[1] == "--index":
     index()
     sys.exit(1)
 
