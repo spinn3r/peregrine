@@ -261,11 +261,9 @@ def run(limit=LIMIT):
 
 def get_branch(change_index, rev):
 
-    for branch in change_index.keys():
-        if change_index[branch][rev] != None:
-            return branch
+    os.chdir( SCRATCH )
 
-    return None
+    return "unknown"
 
 def index(change_index=None):
     """Write the full index of the sidebar and index.html"""
