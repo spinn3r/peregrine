@@ -142,9 +142,13 @@ def get_change_index():
 
     os.chdir( SCRATCH )
 
-    index={}
-
     output=read_cmd( "hg log --template '{rev} {branches} {date}\n'" )
+
+    return parse_hg_log(output)
+
+def parse_hg_log(output):
+
+    index={}
 
     for line in output.split( "\n" ):
 
@@ -263,7 +267,9 @@ def get_branch(change_index, rev):
 
     os.chdir( SCRATCH )
 
-    return "unknown"
+    output=read_cmd( "hg log -r %s --template '{rev} {branches} {date}\n'" % rev )
+
+    return parse_hg_log(output).keys()[0]
 
 def index(change_index=None):
     """Write the full index of the sidebar and index.html"""
