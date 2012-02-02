@@ -67,7 +67,7 @@ class ReportSidebar:
         self.file.write( "<tr bgcolor='%s'>" % bgcolor )
         self.file.write( "<td><a href='%s/test.log' target='right'>%s</a></td>" % (rev,rev) )
         self.file.write( "<td>%s</td>" % log['branch'] )
-        self.file.write( "<td>%s</td>" % log['date'] )
+        self.file.write( "<td>%s</td>" % strftime(time) )
         self.file.write( "<td align='right'><a href='https://bitbucket.org/burtonator/peregrine/changeset/%s' target='right'>CS</a></td>" % rev )
         self.file.write( "</tr>" )
         self.file.flush()
@@ -77,9 +77,13 @@ class ReportSidebar:
 
         now = datetime.datetime.now()
 
-        self.file.write( "<br/><center><small>%s</small></center>" % (now.strftime("%Y-%m-%d %H:%M")) )
+        self.file.write( "<br/><center><small>%s</small></center>" % (strftime(now)) )
 
         self.file.close()
+
+def strftime( ts ):
+
+    return ts.strftime("%Y-%m-%d %H:%M")
 
 def read_cmd(cmd, input=None, cwd=None):
     """Run the given command and read its output"""
