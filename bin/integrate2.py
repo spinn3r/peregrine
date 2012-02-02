@@ -16,8 +16,9 @@ import os
 import re
 import traceback
 import datetime
-
 import sys
+import shutil
+
 from subprocess import *
 
 LIMIT=5
@@ -222,6 +223,9 @@ def test(branch,rev):
         print "SUCCESS"
     else:
         print "FAILED"
+
+    if os.path.exists( "target/test-reports" ):
+        shutils.copytree( "target/test-reports", changedir )
 
     exit_result=open( "%s/exit.result" % (changedir), "w" )
     exit_result.write( str( result ) )
