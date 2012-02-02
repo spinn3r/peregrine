@@ -18,6 +18,7 @@ import traceback
 import datetime
 import sys
 import shutil
+import time
 
 from subprocess import *
 
@@ -31,6 +32,8 @@ TEST_COMMAND="ant clean test"
 #TEST_COMMAND="false"
 
 REPO="https://burtonator:redapplekittycat@bitbucket.org/burtonator/peregrine"
+
+DAEMON_SLEEP_INTERVAL=120
 
 class ReportIndex:
 
@@ -336,9 +339,17 @@ if len(sys.argv) == 2 and sys.argv[1] == "--index":
     index()
     sys.exit(1)
 
-# test the first changeset from each branch
-run(1)
+daemon=len(sys.argv) == 2 and sys.argv[1] == "--daemon":
 
-# test the remaining changesets.
-run()
+while True:
+    # test the first changeset from each branch
+    run(1)
+    
+    # test the remaining changesets.
+    run()
+
+    if not daemon:
+        break
+
+    time.sleep( DAEMON_SLEEP_INTERVAL )
 
