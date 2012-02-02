@@ -70,8 +70,6 @@ class ReportSidebar:
     def close(self):
         self.file.write( "</table>" )
 
-        # FIXME: print the current date
-
         now = datetime.datetime.now()
 
         self.file.write( "<br/><center><small>%s</small></center>" % (now.strftime("%Y-%m-%d %H:%M")) )
