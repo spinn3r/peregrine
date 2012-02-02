@@ -57,8 +57,12 @@ class ReportSidebar:
 
         self.file.write( "<table width='100%' cellspacing='0'>" )
 
-    def link( self, bgcolor, branch, rev ):
+    def link( self, bgcolor, rev ):
         """Write a link to the given URL."""
+
+        log = get_log( change_index, rev )
+
+        branch = log['branch']
 
         self.file.write( "<tr bgcolor='%s'>" % bgcolor )
         self.file.write( "<td><a href='%s/test.log' target='right'>%s</a></td>" % (rev,rev) )
@@ -165,6 +169,7 @@ def parse_hg_log(output):
 
         changectx['rev']    = split[0]
         changectx['branch'] = branch
+        changectx['date']   = split[1]
             
         changes=index.get( branch )
 
@@ -262,13 +267,18 @@ def run(limit=LIMIT):
             # regen the index.
             index(change_index)
 
-def get_branch(change_index, rev):
-
+def get_log(change_index, rev):
+    """Run hg log and get the output""" 
+    
     os.chdir( SCRATCH )
 
     output=read_cmd( "hg log -r %s --template '{rev} {branches} {date}\n'" % rev )
 
-    return parse_hg_log(output).keys()[0]
+    parsed=parse_hg_log(output)
+
+    key = parsed.keys()[0];
+
+    return parsed[key]
 
 def index(change_index=None):
     """Write the full index of the sidebar and index.html"""
@@ -309,9 +319,7 @@ def index(change_index=None):
                     if result != "0": 
                         bgcolor="red"
 
-                    branch = get_branch( change_index, rev )
-
-                    sidebar.link( bgcolor, branch, rev )
+                    sidebar.link( bgcolor, rev )
 
     finally:
         
