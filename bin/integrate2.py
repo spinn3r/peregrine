@@ -278,7 +278,7 @@ def get_log(rev):
 
     key = parsed.keys()[0];
 
-    return parsed[key]
+    return parsed[key][0]
 
 def index():
     """Write the full index of the sidebar and index.html"""
