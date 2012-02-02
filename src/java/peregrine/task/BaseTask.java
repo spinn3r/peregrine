@@ -313,6 +313,11 @@ public abstract class BaseTask implements Task {
         }
 
     }
+
+    @Override
+    public void setJobId( String job_id ) {
+        this.job_id = job_id;
+    }
     
     /**
      * Mark the partition for this task complete.  
@@ -322,6 +327,7 @@ public abstract class BaseTask implements Task {
         Message message = new Message();
 
         message.put( "action" ,   "complete" );
+        message.put( "job_id" ,   job_id );
         message.put( "killed",    killed );
 
         sendMessageToController( message );
@@ -336,6 +342,7 @@ public abstract class BaseTask implements Task {
         Message message = new Message();
         
         message.put( "action" ,     "failed" );
+        message.put( "job_id" ,   job_id );
         message.put( "stacktrace",  cause );
         
         sendMessageToController( message );
@@ -350,6 +357,7 @@ public abstract class BaseTask implements Task {
         Message message = new Message();
         
         message.put( "action" ,     "progress" );
+        message.put( "job_id" ,     job_id );
         message.put( "nonce" ,      nonce );
         message.put( "pointer" ,    pointer );
 
@@ -362,6 +370,7 @@ public abstract class BaseTask implements Task {
         log.info( "Sending %s message to controller%s", message.get( "action" ), message );
         
         message.put( "host",        config.getHost().toString() );
+        message.put( "job_id" ,     job_id );
         message.put( "partition",   partition.getId() );
         message.put( "input",       input.getReferences() );
         message.put( "work",        work.getReferences() );

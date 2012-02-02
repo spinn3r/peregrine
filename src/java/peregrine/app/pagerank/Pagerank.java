@@ -109,14 +109,9 @@ public class Pagerank {
                 if ( iter == 0 ) {
 
                     // init empty files which we can still join against.
-                    
-                    controller.map( Mapper.class,
-                                    new Input(),
-                                    new Output( "/pr/out/rank_vector" ) );
-                    
-                    controller.map( Mapper.class,
-                                    new Input(),
-                                    new Output( "/pr/out/teleportation_grant" ) );
+
+                    new ExtractWriter( config, "/pr/out/rank_vector" ).close();
+                    new ExtractWriter( config, "/pr/out/teleportation_grant" ).close();
 
                 }
 

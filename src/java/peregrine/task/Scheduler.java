@@ -277,11 +277,13 @@ public class Scheduler {
     protected void schedule( Host host ) throws Exception {
 
         List<Work> workList = getWorkForExecutionByImportance( host );
+
+        if ( workList.size() == 0 )
+            log.warn( "NO work found for host: %s" , host );
         
         for( Work work : workList ) {
             
             if ( completed.contains( work ) ) {
-                System.out.printf( "FIXME 1 skipped\n" );
                 continue;
             }
 
@@ -290,20 +292,17 @@ public class Scheduler {
                 // verify that this host isn't ALREADY executing this partition
                 // which would be wrong.
                 if ( executing.contains( work ) && executing.get( work ).contains( host ) ) {
-                    System.out.printf( "FIXME 2 skipped\n" );
                     continue;
                 }
                 
             } else {
 
                 if ( work.getPriority() > 0 ) {
-                    System.out.printf( "FIXME 3 skipped\n" );
                     continue;
                 }
                 
                 if ( pending.contains( work ) ) {
                     // skip speculatively executing this partition now.
-                    System.out.printf( "FIXME 4 skipped\n" );
                     continue;
                 }
 
@@ -314,7 +313,6 @@ public class Scheduler {
             // reach the desired concurrency.
             
             if ( concurrency.get( host ) >= config.getConcurrency() ) {
-                System.out.printf( "FIXME 5 skipped\n" );
                 return;
             }
             

@@ -58,7 +58,8 @@ public class MapperRPCDelegate extends BaseTaskRPCDelegate {
 
         task.setInput( input );
         task.setOutput( output );
-
+        task.setJobId( message.getString( "job_id" ) );
+        
         task.init( daemon.getConfig(), work, delegate );
 
         daemon.getExecutorService( getClass() ).submit( task );

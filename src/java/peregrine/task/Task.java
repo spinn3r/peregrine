@@ -54,4 +54,6 @@ public interface Task extends Callable {
 
     public void init( Config config, Work work, Class delegate ) throws IOException;
 
+    public void setJobId( String job_id );
+
 }
