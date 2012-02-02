@@ -16,6 +16,8 @@
 package peregrine.util;
 
 import java.util.*;
+import java.util.concurrent.*;
+
 import java.io.*;
 
 /**
@@ -33,9 +35,9 @@ public class StructMap {
         
     }};
     
-    protected Map delegate = new HashMap();
+    protected Map delegate = new ConcurrentHashMap();
 
-    protected List<String> keys = new ArrayList();
+    protected Queue<String> keys = new LinkedBlockingQueue();
 
     public StructMap() {}
 
@@ -71,7 +73,6 @@ public class StructMap {
         keys.add( key );
         delegate.put( key, ""+value );
     }
-
 
     public void put( String key, Object value ) {
     	put( key, value.toString() );
