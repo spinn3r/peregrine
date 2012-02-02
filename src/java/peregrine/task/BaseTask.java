@@ -74,6 +74,11 @@ public abstract class BaseTask implements Task {
      * The time this job was started, in milliseconds.
      */
     protected long started = -1;
+
+    /**
+     * The job ID we are working with.
+     */
+    protected String job_id = null;
     
     public void init( Config config, Work work, Class delegate ) throws IOException {
     	this.config      = config;

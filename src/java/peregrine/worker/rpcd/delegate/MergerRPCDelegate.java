@@ -32,25 +32,8 @@ public class MergerRPCDelegate extends MapperRPCDelegate {
     private static final Logger log = Logger.getLogger();
 
     @Override
-    protected void exec( FSDaemon daemon,
-                         Class delegate,
-                         Config config,
-                         Work work,
-                         Input input,
-                         Output output )
-        throws Exception {
-
-        MergerTask task = new MergerTask();
-
-        task.setInput( input );
-        task.setOutput( output );
-
-        task.init( config, work, delegate );
-
-        daemon.getExecutorService( getClass() ).submit( task );
-
-        trackTask( work, task );
-
+    public Task newTask() {
+        return new MergerTask();
     }
-
+    
 }

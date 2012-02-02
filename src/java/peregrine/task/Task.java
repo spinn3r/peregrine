@@ -17,6 +17,7 @@ package peregrine.task;
 
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.*;
 
 import peregrine.*;
 import peregrine.config.*;
@@ -32,7 +33,7 @@ import com.spinn3r.log5j.*;
 /**
  * Task interface.
  */
-public interface Task {
+public interface Task extends Callable {
 
     /**
      * Mark this task as killed.
@@ -46,5 +47,11 @@ public interface Task {
      * controller.
      */
     public void assertAlive() throws IOException;
+
+    public void setInput( Input input );
     
+    public void setOutput( Output output );
+
+    public void init( Config config, Work work, Class delegate ) throws IOException;
+
 }

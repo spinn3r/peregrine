@@ -151,6 +151,8 @@ public class Scheduler {
                       final Config config,
                       final ClusterState clusterState ) {
 
+        log.info( "Creating new scheduler for %s on job: %s" , operation, job );
+        
         this.operation = operation;
         this.job = job;
         this.config = config;
@@ -278,25 +280,30 @@ public class Scheduler {
         
         for( Work work : workList ) {
             
-            if ( completed.contains( work ) )
+            if ( completed.contains( work ) ) {
+                System.out.printf( "FIXME 1 skipped\n" );
                 continue;
+            }
 
             if ( config.getSpeculativeExecutionEnabled() ) {
 
                 // verify that this host isn't ALREADY executing this partition
                 // which would be wrong.
                 if ( executing.contains( work ) && executing.get( work ).contains( host ) ) {
+                    System.out.printf( "FIXME 2 skipped\n" );
                     continue;
                 }
                 
             } else {
 
                 if ( work.getPriority() > 0 ) {
+                    System.out.printf( "FIXME 3 skipped\n" );
                     continue;
                 }
                 
                 if ( pending.contains( work ) ) {
                     // skip speculatively executing this partition now.
+                    System.out.printf( "FIXME 4 skipped\n" );
                     continue;
                 }
 
@@ -307,6 +314,7 @@ public class Scheduler {
             // reach the desired concurrency.
             
             if ( concurrency.get( host ) >= config.getConcurrency() ) {
+                System.out.printf( "FIXME 5 skipped\n" );
                 return;
             }
             
@@ -531,7 +539,7 @@ public class Scheduler {
             
             if ( availableHost != null ) {
                 
-                log.info( "Scheduling work on: %s", availableHost );
+                log.info( "Scheduling work for execution on: %s", availableHost );
 
                 try {
                     schedule( availableHost );
