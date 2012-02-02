@@ -60,7 +60,7 @@ class ReportSidebar:
     def link( self, bgcolor, rev ):
         """Write a link to the given URL."""
 
-        log = get_log( change_index, rev )
+        log = get_log( rev )
 
         branch = log['branch']
 
@@ -267,7 +267,7 @@ def run(limit=LIMIT):
             # regen the index.
             index(change_index)
 
-def get_log(change_index, rev):
+def get_log(rev):
     """Run hg log and get the output""" 
     
     os.chdir( SCRATCH )
@@ -280,14 +280,11 @@ def get_log(change_index, rev):
 
     return parsed[key]
 
-def index(change_index=None):
+def index():
     """Write the full index of the sidebar and index.html"""
 
     index   = ReportIndex()
     sidebar = ReportSidebar()
-
-    if change_index == None:
-        change_index = get_change_index()
 
     try:
 
