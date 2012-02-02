@@ -62,7 +62,7 @@ class ReportSidebar:
 
         log = get_log( rev )
 
-        time = datetime.datetime.fromtimestamp( int( log['date'] ) )
+        time = datetime.datetime.fromtimestamp( float( log['date'] ) )
 
         self.file.write( "<tr bgcolor='%s'>" % bgcolor )
         self.file.write( "<td><a href='%s/test.log' target='right'>%s</a></td>" % (rev,rev) )
