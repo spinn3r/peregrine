@@ -339,7 +339,7 @@ if len(sys.argv) == 2 and sys.argv[1] == "--index":
     index()
     sys.exit(1)
 
-daemon=len(sys.argv) == 2 and sys.argv[1] == "--daemon":
+daemon=len(sys.argv) == 2 and sys.argv[1] == "--daemon"
 
 while True:
     # test the first changeset from each branch
