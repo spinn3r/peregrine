@@ -62,11 +62,10 @@ class ReportSidebar:
 
         log = get_log( rev )
 
-        branch = log['branch']
-
         self.file.write( "<tr bgcolor='%s'>" % bgcolor )
         self.file.write( "<td><a href='%s/test.log' target='right'>%s</a></td>" % (rev,rev) )
-        self.file.write( "<td>%s</td>" % branch )
+        self.file.write( "<td>%s</td>" % log['branch'] )
+        self.file.write( "<td>%s</td>" % log['date'] )
         self.file.write( "<td align='right'><a href='https://bitbucket.org/burtonator/peregrine/changeset/%s' target='right'>CS</a></td>" % rev )
         self.file.write( "</tr>" )
         self.file.flush()
