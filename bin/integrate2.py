@@ -168,7 +168,7 @@ def parse_hg_log(output):
 
         changectx['rev']    = split[0]
         changectx['branch'] = branch
-        changectx['date']   = split[1]
+        changectx['date']   = split[2]
             
         changes=index.get( branch )
 
