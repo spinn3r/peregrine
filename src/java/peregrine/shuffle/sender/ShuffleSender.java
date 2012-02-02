@@ -134,6 +134,12 @@ public class ShuffleSender implements Flushable, Closeable {
 
                 List<Host> hosts = membership.getHosts( part );
 
+                if ( chunkRef == null )
+                    throw new NullPointerException( "chunkRef" );
+
+                if ( part == null )
+                    throw new NullPointerException( "part" );
+
                 String path = String.format( "/%s/shuffle/%s/from-partition/%s/from-chunk/%s",
                                              part.getId(),
                                              name,
