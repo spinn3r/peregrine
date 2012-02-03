@@ -62,7 +62,7 @@ class ReportSidebar:
 
         self.file.write( "<head>" )
         self.file.write( "<style>" )
-        self.file.write( "* { font-family: sans-serif; font-size: 12px; }" )
+        self.file.write( "* { font-family: sans-serif; font-size: 14px; }" )
         self.file.write( "</style>" )
         
         self.file.write( "</head>" )
@@ -348,7 +348,7 @@ def index():
 
                     # see if the test report exists.
 
-                    if ( os.path.exists( "%s/test-reports" ) ):
+                    if ( os.path.exists( "%s/test-reports" % changedir ) ):
                         report="%s/%s" % ( rev, "test-reports" )
 
                     sidebar.link( bgcolor, rev, report )
