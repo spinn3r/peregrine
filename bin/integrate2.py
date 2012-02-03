@@ -226,6 +226,7 @@ def test(branch,rev):
     else:
         print "FAILED"
 
+    # TODO consider just making this a move.
     if os.path.exists( "target/test-reports" ):
         shutil.copytree( "target/test-reports", "%s/%s" % (changedir, "target/test-reports") )
 
@@ -276,7 +277,7 @@ def run(limit=LIMIT):
             test(branch,rev)
 
             # regen the index.
-            index(change_index)
+            index()
 
 def get_log(rev):
     """Run hg log and get the output""" 
