@@ -62,7 +62,7 @@ class ReportSidebar:
 
         self.file.write( "<head>" )
         self.file.write( "<style>" )
-        self.file.write( "* { font-family: sans-serif; font-size: 14px; }" )
+        self.file.write( "* { font-family: sans-serif; font-size: 12px; }" )
         self.file.write( "</style>" )
         
         self.file.write( "</head>" )
