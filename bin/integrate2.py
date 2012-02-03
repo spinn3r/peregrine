@@ -62,14 +62,14 @@ class ReportSidebar:
 
         self.file.write( "<head>" )
         self.file.write( "<style>" )
-        self.file.write( "body { font:normal 68% verdana,arial,helvetica; color:#000000; }" )
+        self.file.write( "* { font-family: sans-serif; font-size: 12px; }" )
         self.file.write( "</style>" )
         
         self.file.write( "</head>" )
         self.file.write( "<body>" )
         self.file.write( "<table width='100%' cellspacing='0'>" )
 
-    def link( self, bgcolor, rev ):
+    def link( self, bgcolor, rev, report ):
         """Write a link to the given URL."""
 
         log = get_log( rev )
@@ -80,7 +80,14 @@ class ReportSidebar:
         self.file.write( "<td><a href='%s/test.log' target='right'>%s</a></td>" % (rev,rev) )
         self.file.write( "<td>%s</td>" % log['branch'] )
         self.file.write( "<td>%s</td>" % strftime(time) )
+
         self.file.write( "<td align='right'><a href='https://bitbucket.org/burtonator/peregrine/changeset/%s' target='right'>CS</a></td>" % rev )
+
+        if report != None:
+            self.file.write( "<td align='right'><a href='%s' target='right'>report</a></td>" % report )
+        else:
+            self.file.write( "<td align='right'></td>" )
+
         self.file.write( "</tr>" )
         self.file.flush()
 
@@ -337,7 +344,14 @@ def index():
                     if result != "0": 
                         bgcolor="red"
 
-                    sidebar.link( bgcolor, rev )
+                    report=None
+
+                    # see if the test report exists.
+
+                    if ( os.path.exists( "%s/test-reports" ) ):
+                        report="%s/%s" % ( rev, "test-reports" )
+
+                    sidebar.link( bgcolor, rev, report )
 
     finally:
         
