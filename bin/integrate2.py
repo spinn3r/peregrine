@@ -228,7 +228,7 @@ def test(branch,rev):
         print "FAILED"
 
     if os.path.exists( "target/test-reports" ):
-        shutils.copytree( "target/test-reports", changedir )
+        shutil.copytree( "target/test-reports", changedir )
 
     exit_result=open( "%s/exit.result" % (changedir), "w" )
     exit_result.write( str( result ) )
