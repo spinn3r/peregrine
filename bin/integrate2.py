@@ -4,13 +4,12 @@
 #
 # TODO
 #
-# - print the branch that this changeset used in the sidebar.
 #
 # - CSS this bitch
 #
-# - take an --index option so that we can just regen the index.
+# - put a timeout on the total runtime and kill it if it takes too long
 #
-# - 
+# 
 
 import os
 import re
