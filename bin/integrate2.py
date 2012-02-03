@@ -58,6 +58,15 @@ class ReportSidebar:
 
         self.file=open( "%s/left.html" % TEST_LOGS , "w" );
 
+        self.file.write( "<html>" )
+
+        self.file.write( "<head>" )
+        self.file.write( "<style>" )
+        self.file.write( "body { font:normal 68% verdana,arial,helvetica; color:#000000; }" )
+        self.file.write( "</style>" )
+        
+        self.file.write( "</head>" )
+        self.file.write( "<body>" )
         self.file.write( "<table width='100%' cellspacing='0'>" )
 
     def link( self, bgcolor, rev ):
