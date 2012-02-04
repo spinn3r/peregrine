@@ -67,9 +67,14 @@ public final class Work implements Comparable<Work> {
         add( ref );
     }
 
-    public Work( WorkReference ref, int priority ) {
+    public Work( Host host, WorkReference ref ) {
+        this( host, ref, 0 );
+    }
+
+    public Work( Host host, WorkReference ref, int priority ) {
         add( ref );
-        this.priority = priority;
+        setPriority( priority );
+        setHost( host );
     }
         
     public Work add( WorkReference ref ) {

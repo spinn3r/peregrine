@@ -91,9 +91,9 @@ public class CassandraIODriver extends BaseIODriver implements IODriver {
 
         Configuration conf = new Configuration();
 
-        ConfigHelper.setInputColumnFamily( conf, "mykeyspace", "graph" );
-        ConfigHelper.setInitialAddress( conf, "localhost" );
-        ConfigHelper.setRpcPort( conf, "9160" );
+        ConfigHelper.setInputColumnFamily( conf, ref.getKeyspace(), ref.getColumnFamily() );
+        ConfigHelper.setInitialAddress( conf, ref.getHost() );
+        ConfigHelper.setRpcPort( conf, ref.getPort() );
 
         ConfigHelper.setPartitioner(conf, "org.apache.cassandra.dht.RandomPartitioner" );
 
@@ -115,14 +115,43 @@ public class CassandraIODriver extends BaseIODriver implements IODriver {
         for ( Host host : config.getHosts() ) {
             result.put( host, new ArrayList() );            
         }
+
+        // all available work ...
+        List<WorkReference> work = new ArrayList();
         
         for( InputSplit split : splits ) {
 
             ColumnFamilySplit columnFamilySplit = (ColumnFamilySplit)split;
 
-        }
+            work.add( new CassandraWorkReference( columnFamilySplit.getStartToken(),
+                                                  columnFamilySplit.getEndToken(),
+                                                  columnFamilySplit.getLocations() ) );
             
-        throw new RuntimeException( "not implemented" );
+        }
+
+        // now randomly distribute this work to all hosts...
+
+        Iterator<Host> it = config.getHosts().iterator();
+
+        for( WorkReference w : work ) {
+
+            if ( it.hasNext() == false ) {
+
+                it = config.getHosts().iterator();
+
+                if ( it.hasNext() == false ) {
+                    throw new RuntimeException( "no hosts" );
+                }
+                
+            }
+
+            Host host = it.next();
+
+            result.get( host ).add( new Work( host, w ) );
+            
+        }
+        
+        return result;
 
     }
     
@@ -135,6 +164,6 @@ public class CassandraIODriver extends BaseIODriver implements IODriver {
 	public String toString() {
 		return getScheme();
 	}
-
+    
 }
 
