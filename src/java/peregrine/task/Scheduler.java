@@ -149,7 +149,8 @@ public class Scheduler {
     public Scheduler( final String operation,
                       final Job job,
                       final Config config,
-                      final ClusterState clusterState ) {
+                      final ClusterState clusterState )
+        throws IOException {
 
         log.info( "Creating new scheduler for %s on job: %s" , operation, job );
         
@@ -220,7 +221,7 @@ public class Scheduler {
 
     }
 
-    protected Map<Host,List<Work>> createWorkIndex() {
+    protected Map<Host,List<Work>> createWorkIndex() throws IOException {
     
     	Map<Host,List<Work>> result = new ConcurrentHashMap();
     	

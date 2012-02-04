@@ -27,6 +27,15 @@ import peregrine.io.driver.*;
 import peregrine.io.partition.*;
 import peregrine.task.*;
 
+import org.apache.cassandra.thrift.*;
+import org.apache.cassandra.hadoop.*;
+import org.apache.cassandra.thrift.*;
+import org.apache.cassandra.utils.*;
+import org.apache.cassandra.db.*;
+
+import org.apache.hadoop.conf.*;
+import org.apache.hadoop.mapreduce.*;
+
 /**
  * IO driver for working with Cassandra.
  * 
@@ -35,7 +44,7 @@ import peregrine.task.*;
  * cassandra://host:port/keyspace/columnfamily
  * 
  */
-public class CassandraIODriver  extends BaseIODriver implements IODriver {
+public class CassandraIODriver extends BaseIODriver implements IODriver {
 
     protected static Pattern PATTERN
         = Pattern.compile( "cassandra://([^:/]+)(:([0-9]+))?/([^/]+)/([^/]+)" );
@@ -52,7 +61,11 @@ public class CassandraIODriver  extends BaseIODriver implements IODriver {
 
 	@Override
 	public JobInput getJobInput( Config config, InputReference inputReference, WorkReference work ) throws IOException {
+
+        CassandraInputReference ref = (CassandraInputReference)inputReference;
+
         throw new IOException( "not implemented" );
+
     }
 
 	@Override
@@ -64,6 +77,59 @@ public class CassandraIODriver  extends BaseIODriver implements IODriver {
 	public JobOutput getJobOutput( Config config, OutputReference outputReference, WorkReference work ) throws IOException {
         throw new IOException( "not implemented" );
 	}
+
+    /**
+     * Get a unit of work (input split, partition, etc) from the given string specification.
+     */
+	@Override
+    public Map<Host,List<Work>> getWork( Config config, InputReference inputReference )
+        throws IOException {
+
+        CassandraInputReference ref = (CassandraInputReference)inputReference;
+
+        ColumnFamilyInputFormat inputFormat = new ColumnFamilyInputFormat();
+
+        Configuration conf = new Configuration();
+
+        ConfigHelper.setInputColumnFamily( conf, "mykeyspace", "graph" );
+        ConfigHelper.setInitialAddress( conf, "localhost" );
+        ConfigHelper.setRpcPort( conf, "9160" );
+
+        ConfigHelper.setPartitioner(conf, "org.apache.cassandra.dht.RandomPartitioner" );
+
+        SlicePredicate sp = new SlicePredicate();
+
+        SliceRange sr = new SliceRange(ByteBufferUtil.EMPTY_BYTE_BUFFER, ByteBufferUtil.EMPTY_BYTE_BUFFER, false, 100 );
+        sp.setSlice_range(sr);
+
+        ConfigHelper.setInputSlicePredicate(conf, sp);
+
+        JobContext jobContext = new JobContext( conf, new JobID() );
+        
+        List<InputSplit> splits = inputFormat.getSplits( jobContext );
+
+        TaskAttemptContext context = new TaskAttemptContext( conf, new TaskAttemptID() );
+
+        Map<Host,List<Work>> result = new HashMap();
+
+        for ( Host host : config.getHosts() ) {
+            result.put( host, new ArrayList() );            
+        }
+        
+        for( InputSplit split : splits ) {
+
+            ColumnFamilySplit columnFamilySplit = (ColumnFamilySplit)split;
+
+        }
+            
+        throw new RuntimeException( "not implemented" );
+
+    }
+    
+	@Override
+	public WorkReference getWorkReference( String uri ) {
+        throw new RuntimeException( "not implemented" );
+    }
 
 	@Override
 	public String toString() {

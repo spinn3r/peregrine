@@ -43,7 +43,8 @@ public interface IODriver {
      *
      * This is used by the {@link Scheduler} to determine what needs to be executed.
      */
-    public Map<Host,List<Work>> getWork( Config config, InputReference inputReference );
+    public Map<Host,List<Work>> getWork( Config config,
+                                         InputReference inputReference ) throws IOException;
 
     /** 
      * Get a {@link Work} class parsed out from the given URI.

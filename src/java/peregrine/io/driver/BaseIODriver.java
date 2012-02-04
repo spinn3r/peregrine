@@ -32,7 +32,8 @@ public abstract class BaseIODriver implements IODriver {
      * Get a unit of work (input split, partition, etc) from the given string specification.
      */
 	@Override
-    public Map<Host,List<Work>> getWork( Config config, InputReference inputReference ) {
+    public Map<Host,List<Work>> getWork( Config config,
+                                         InputReference inputReference ) throws IOException {
 
 		Map<Host,List<Work>> result = new ConcurrentHashMap();
 		
