@@ -29,6 +29,8 @@ public class Test {
 
     public static void main( String[] args ) throws Exception {
 
+        // cassandra://localhost:9160/mykeyspace/graph/
+        
         ColumnFamilyInputFormat test = new ColumnFamilyInputFormat();
 
         Configuration conf = new Configuration();
@@ -48,8 +50,6 @@ public class Test {
         sp.setSlice_range(sr);
 
         ConfigHelper.setInputSlicePredicate(conf, sp);
-
-        //System.out.printf( "FIXME: %s\n", ConfigHelper.keyRangeToString( new KeyRange() ) );
 
         JobContext jobContext = new JobContext( conf, new JobID() );
         
