@@ -89,20 +89,7 @@ public class CassandraIODriver extends BaseIODriver implements IODriver {
 
         ColumnFamilyInputFormat inputFormat = new ColumnFamilyInputFormat();
 
-        Configuration conf = new Configuration();
-
-        ConfigHelper.setInputColumnFamily( conf, ref.getKeyspace(), ref.getColumnFamily() );
-        ConfigHelper.setInitialAddress( conf, ref.getHost() );
-        ConfigHelper.setRpcPort( conf, ref.getPort() );
-
-        ConfigHelper.setPartitioner(conf, "org.apache.cassandra.dht.RandomPartitioner" );
-
-        SlicePredicate sp = new SlicePredicate();
-
-        SliceRange sr = new SliceRange(ByteBufferUtil.EMPTY_BYTE_BUFFER, ByteBufferUtil.EMPTY_BYTE_BUFFER, false, 100 );
-        sp.setSlice_range(sr);
-
-        ConfigHelper.setInputSlicePredicate(conf, sp);
+        Configuration conf = getConfiguration( ref );
 
         JobContext jobContext = new JobContext( conf, new JobID() );
         
@@ -154,10 +141,31 @@ public class CassandraIODriver extends BaseIODriver implements IODriver {
         return result;
 
     }
+
+    protected Configuration getConfiguration( CassandraInputReference ref ) {
+
+        Configuration conf = new Configuration();
+
+        ConfigHelper.setInputColumnFamily( conf, ref.getKeyspace(), ref.getColumnFamily() );
+        ConfigHelper.setInitialAddress( conf, ref.getHost() );
+        ConfigHelper.setRpcPort( conf, ref.getPort() );
+
+        ConfigHelper.setPartitioner(conf, "org.apache.cassandra.dht.RandomPartitioner" );
+
+        SlicePredicate sp = new SlicePredicate();
+
+        SliceRange sr = new SliceRange(ByteBufferUtil.EMPTY_BYTE_BUFFER, ByteBufferUtil.EMPTY_BYTE_BUFFER, false, 100 );
+        sp.setSlice_range(sr);
+
+        ConfigHelper.setInputSlicePredicate(conf, sp);
+
+        return conf;
+        
+    }
     
 	@Override
 	public WorkReference getWorkReference( String uri ) {
-        throw new RuntimeException( "not implemented" );
+        return new CassandraWorkReference( uri );
     }
 
 	@Override

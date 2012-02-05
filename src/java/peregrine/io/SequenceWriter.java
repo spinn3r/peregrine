@@ -13,31 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
 */
-package peregrine.io.chunk;
+package peregrine.io;
 
 import java.io.*;
 
 import peregrine.*;
-import peregrine.io.*;
 
 /**
- * Write key/values to chunks.
+ * Interface for writing data in key/value form.
  */
-public interface ChunkWriter extends Closeable, Flushable, SequenceWriter {
+public interface SequenceWriter extends Closeable {
 
     /**
-     * Write a key value pair.  This is the main method for IO to a chunk.
+     * Write a key value pair.  
      */
     public void write( StructReader key, StructReader value ) throws IOException;
 
     /**
-     * Return the length of bytes of this chunk.
+     * Close the writer.
      */
-    public long length() throws IOException;
-
-    /**
-     * Shutdown any pending IO without blocking.
-     */
-    public void shutdown() throws IOException;
-
+    @Override
+    public void close() throws IOException;
+    
 }
