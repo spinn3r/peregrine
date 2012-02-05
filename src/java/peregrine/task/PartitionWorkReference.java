@@ -37,7 +37,11 @@ public class PartitionWorkReference implements WorkReference<PartitionWorkRefere
         this.partition = new Partition( Integer.parseInt( data ) );
 
     }
-    
+
+    public PartitionWorkReference( Replica replica ) {
+        this( replica.getPartition() );
+    }
+
     public PartitionWorkReference( Partition partition ) {
         this.partition = partition;
     }

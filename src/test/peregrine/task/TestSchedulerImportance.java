@@ -57,9 +57,9 @@ public class TestSchedulerImportance extends BaseTest {
 		List<Work> result = new ArrayList();
 		
 		for( Replica replica : replicas ) {
-			
-			result.add( new Work( new ReplicaWorkReference( replica ) , replica.getPriority() ) );
-			
+			result.add( new Work( replica.getHost() ,
+                                  new PartitionWorkReference( replica.getPartition() ) ,
+                                  replica.getPriority() ) );
 		}
 		
 		return result;
@@ -91,17 +91,17 @@ public class TestSchedulerImportance extends BaseTest {
         
         scheduler.executing = new MapSet();
 
-        scheduler.executing.put( new Work( new ReplicaWorkReference( replicas.get( 0 ) ) ) , host0 );
-        scheduler.executing.put( new Work( new ReplicaWorkReference( replicas.get( 1 ) ) ) , host0 );
-        scheduler.executing.put( new Work( new ReplicaWorkReference( replicas.get( 2 ) ) ) , host0 );
+        scheduler.executing.put( new Work( host0, new PartitionWorkReference( replicas.get( 0 ) ) ) , host0 );
+        scheduler.executing.put( new Work( host0, new PartitionWorkReference( replicas.get( 1 ) ) ) , host0 );
+        scheduler.executing.put( new Work( host0, new PartitionWorkReference( replicas.get( 2 ) ) ) , host0 );
         
         work = scheduler.getWorkForExecutionByImportance( work );
 
         dump( work );
         
-        assertEquals( "[replica: partition:00000003, priority=1, host=localhost:11112]", work.get( 0 ).toString() );
-        assertEquals( "[replica: partition:00000004, priority=2, host=localhost:11112]", work.get( 1 ).toString() );
-        assertEquals( "[replica: partition:00000005, priority=2, host=localhost:11112]", work.get( 2 ).toString() );
+        assertEquals( "[partition:00000003]", work.get( 0 ).toString() );
+        assertEquals( "[partition:00000004]", work.get( 1 ).toString() );
+        assertEquals( "[partition:00000005]", work.get( 2 ).toString() );
         
 	}
 
