@@ -96,7 +96,17 @@ public class CassandraJobInput extends BaseJobInput implements JobInput {
 
             this.key = StructReaders.wrap( reader.getCurrentKey() );
 
-            //SortedMap<ByteBuffer, IColumn> value = reader.getCurrentValue();
+            StructSequenceWriter ssw = new StructSequenceWriter();
+
+            // reader.getCurrentValue returns a SortedMap
+            for ( IColumn col : reader.getCurrentValue().values() ) {
+
+                ssw.write( StructReaders.wrap( col.name() ),
+                           StructReaders.wrap( col.value() ) );
+                
+            }
+
+            this.value = ssw.toStructReader();
             
         } else {
             this.key = null;
