@@ -60,11 +60,13 @@ public class CassandraIODriver extends BaseIODriver implements IODriver {
 	}
 
 	@Override
-	public JobInput getJobInput( Config config, InputReference inputReference, WorkReference work ) throws IOException {
+	public JobInput getJobInput( Config config,
+                                 InputReference inputReference,
+                                 WorkReference workReference ) throws IOException {
 
-        CassandraInputReference ref = (CassandraInputReference)inputReference;
-
-        throw new IOException( "not implemented" );
+        return new CassandraJobInput( this,
+                                      (CassandraInputReference)inputReference,
+                                      (CassandraWorkReference)workReference );
 
     }
 
@@ -74,8 +76,12 @@ public class CassandraIODriver extends BaseIODriver implements IODriver {
 	}
 
 	@Override
-	public JobOutput getJobOutput( Config config, OutputReference outputReference, WorkReference work ) throws IOException {
+	public JobOutput getJobOutput( Config config,
+                                   OutputReference outputReference,
+                                   WorkReference work ) throws IOException {
+
         throw new IOException( "not implemented" );
+
 	}
 
     /**

@@ -27,7 +27,7 @@ import peregrine.io.driver.*;
 import peregrine.io.driver.cassandra.*;
 import peregrine.worker.*;
 
-public class TestCassandra extends peregrine.BaseTestWithTwoDaemons {
+public class TestCassandra extends peregrine.BaseTest {
 
     public void test1() throws Exception {
 
