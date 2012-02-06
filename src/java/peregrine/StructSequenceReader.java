@@ -29,11 +29,13 @@ import peregrine.util.primitive.*;
 public class StructSequenceReader implements SequenceReader {
 
     private int idx = 0;
+
     private int size = 0;
 
     private StructReader reader = null;
 
     private StructReader key = null;
+
     private StructReader value = null;
     
     public StructSequenceReader( StructReader reader ) {
@@ -52,6 +54,9 @@ public class StructSequenceReader implements SequenceReader {
 
         ++idx;
         
+        key   = read();
+        value = read();
+        
     }
     
     public StructReader key() throws IOException {
@@ -62,6 +67,10 @@ public class StructSequenceReader implements SequenceReader {
         return value;
     }
 
+    private StructReader read() {
+        return reader.readStruct( reader.readInt() );
+    }
+    
     @Override
     public void close() throws IOException {
     }

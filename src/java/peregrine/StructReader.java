@@ -103,7 +103,7 @@ public class StructReader {
      * Read a varint prefixed slice from this StructReader.
      */
     public StructReader readSlice() {
-        return readSlice( readVarint() );
+        return readStruct( readVarint() );
     }
     
     /**
@@ -111,6 +111,10 @@ public class StructReader {
      * StructReader.
      */
     public StructReader readSlice( int length ) {
+        return readSlice( length );
+    }
+
+    public StructReader readStruct( int length ) {
         return new StructReader( buff.readSlice( length ) );
     }
     
