@@ -35,7 +35,7 @@ import peregrine.os.*;
 public class StructReader {
 
     private VarintReader varintReader;
-    private ChannelBuffer buff;
+    protected ChannelBuffer buff;
     
     public StructReader( byte[] data ) {
         this( ChannelBuffers.wrappedBuffer( data ) );

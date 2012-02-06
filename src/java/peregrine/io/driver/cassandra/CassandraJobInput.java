@@ -65,7 +65,7 @@ public class CassandraJobInput extends BaseJobInput implements JobInput {
 
         chunkRef = new ChunkReference( new Partition( -1 ) );
 
-        next();
+        advance();
         
 	}
 	
@@ -83,10 +83,27 @@ public class CassandraJobInput extends BaseJobInput implements JobInput {
             fired = true;
         }
 
-		//current = iterator.next();
-		
+        advance();
+        
 	}
 
+    private void advance() throws IOException {
+
+        if ( key != null )
+            return;
+
+        if( reader.nextKeyValue() ) {
+
+            this.key = StructReaders.wrap( reader.getCurrentKey() );
+
+            //SortedMap<ByteBuffer, IColumn> value = reader.getCurrentValue();
+            
+        } else {
+            this.key = null;
+        }
+
+    }
+    
 	@Override
 	public StructReader key() throws IOException {
 		return key;		
