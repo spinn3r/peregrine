@@ -41,10 +41,9 @@ public class CassandraJobInput extends BaseJobInput implements JobInput {
     private boolean fired = false;
     
     private ChunkReference chunkRef;
-    
-    private StructReader key = null;
-    
-    private StructReader value = null;
+
+    private Pair next = null;
+    private Pair current = null;
 
     private ColumnFamilyRecordReader reader;
     
@@ -65,13 +64,13 @@ public class CassandraJobInput extends BaseJobInput implements JobInput {
 
         chunkRef = new ChunkReference( new Partition( -1 ) );
 
-        advance();
+        next = nextPair();
         
 	}
 	
 	@Override
 	public boolean hasNext() throws IOException {
-        return key != null;
+        return next != null;
 	}
 
 	@Override
@@ -83,18 +82,14 @@ public class CassandraJobInput extends BaseJobInput implements JobInput {
             fired = true;
         }
 
-        advance();
+        current = next;
+        next = nextPair();
         
 	}
 
-    private void advance() throws IOException {
-
-        if ( key != null )
-            return;
+    private Pair nextPair() throws IOException {
 
         if( reader.nextKeyValue() ) {
-
-            this.key = StructReaders.wrap( reader.getCurrentKey() );
 
             StructSequenceWriter ssw = new StructSequenceWriter();
 
@@ -106,27 +101,40 @@ public class CassandraJobInput extends BaseJobInput implements JobInput {
                 
             }
 
-            this.value = ssw.toStructReader();
+            return new Pair ( StructReaders.wrap( reader.getCurrentKey() ), 
+                              ssw.toStructReader() );
             
         } else {
-            this.key = null;
+            return null;
         }
 
     }
     
 	@Override
 	public StructReader key() throws IOException {
-		return key;		
+		return current.key;
 	}
 
 	@Override
 	public StructReader value() throws IOException {
-		return value;
+		return current.value;
 	}
 
 	@Override
 	public void close() throws IOException {
         fireOnChunkEnd( chunkRef );
 	}
-	
+
+    class Pair {
+
+        StructReader key;
+        StructReader value;
+
+        public Pair( StructReader key, StructReader value ) {
+            this.key = key;
+            this.value = value;
+        }
+        
+    }
+    
 }
