@@ -16,13 +16,14 @@
 package peregrine.io.driver;
 
 import java.io.*;
+import java.util.*;
 
 import peregrine.config.*;
 import peregrine.io.*;
-
+import peregrine.task.*;
 
 /**
- * Represents a way to add new input drivers to peregrine.
+ * Supports adding new input drivers to peregrine.
  */
 public interface IODriver {
 
@@ -32,12 +33,45 @@ public interface IODriver {
      */
     public String getScheme();
     
+    /**
+     * Parse the given URI and return an {@link InputReference} we can use.
+     */
     public InputReference getInputReference( String uri );
 
-    public JobInput getJobInput( InputReference inputReference , Config config, Partition partition ) throws IOException;
+    /**
+     * Get work (input splits, partitions, etc) from the given {@link InputReference}. 
+     *
+     * This is used by the {@link Scheduler} to determine what needs to be executed.
+     */
+    public Map<Host,List<Work>> getWork( Config config,
+                                         InputReference inputReference ) throws IOException;
 
+    /** 
+     * Get a {@link Work} class parsed out from the given URI.
+     */
+    public WorkReference getWorkReference( String uri );
+    
+    /**
+     * Given a given unit of {@link Work}, and an {@link InputReference} ,
+     * return a {@link JobInput} for reading key / value pairs from a job.  The 
+     * given {@link WorkReference} is provided so that we can parse out any work 
+     * specific data for executing this taks.
+     */
+    public JobInput getJobInput( Config config,
+                                 InputReference inputReference ,
+                                 WorkReference work ) throws IOException;
+
+    /**
+     * Get an {@link OutputReference} from the given URI.
+     */
     public OutputReference getOutputReference( String uri );
 
-    public JobOutput getJobOutput( OutputReference outputReference, Config config, Partition partition ) throws IOException;
+    /**
+     * For a given {@link WorkReference}, produce a {@link JobOutput} for
+     * writing the output of the job.
+     */
+    public JobOutput getJobOutput( Config config,
+                                   OutputReference outputReference,
+                                   WorkReference Work ) throws IOException;
     
 }

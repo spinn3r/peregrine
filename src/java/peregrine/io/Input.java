@@ -16,6 +16,8 @@
 package peregrine.io;
 
 import java.util.*;
+
+import peregrine.config.*;
 import peregrine.io.driver.*;
 import peregrine.io.driver.broadcast.*;
 import peregrine.io.driver.file.*;

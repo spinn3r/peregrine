@@ -122,8 +122,10 @@ public class TestMapReduceWithMergeFactor extends peregrine.BaseTestWithMultiple
         //System.setProperty( "peregrine.test.config", "1:1:1" ); // 3sec
 
         System.setProperty( "peregrine.test.factor", "10" ); // 1m
-        System.setProperty( "peregrine.test.config", "01:01:1" ); // takes 3 seconds
+        System.setProperty( "peregrine.test.config", "02:01:04" ); // takes 3 seconds
 
+        // concurrency=2, replicas=1, hosts=4
+        
         // 256 partitions... 
         //System.setProperty( "peregrine.test.config", "08:01:32" );  // 1m
 

@@ -40,7 +40,7 @@ public class BaseTaskRPCDelegate extends RPCDelegate<FSDaemon> {
 
     private static final Logger log = Logger.getLogger();
 
-    private ConcurrentHashMap<Partition,Task> tasks = new ConcurrentHashMap();
+    private ConcurrentHashMap<Work,Task> tasks = new ConcurrentHashMap();
     
     /**
      * Reset state between partition runs.
@@ -62,26 +62,27 @@ public class BaseTaskRPCDelegate extends RPCDelegate<FSDaemon> {
     public void kill( FSDaemon daemon, Channel channel, Message message )
         throws Exception {
 
-        Partition partition = new Partition( message.getInt( "partition" ) );
+        Input input   = new Input( message.getList( "input" ) );
+        Work work     = new Work( input, message.getList( "work" ) );
 
-        log.info( "Killing task on %s", partition );
+        log.info( "Killing task on %s", work );
 
-        Task task = tasks.get( partition );
+        Task task = tasks.get( work );
 
         if ( task == null )
             return;
 
         task.setKilled( true );
 
-        log.info( "Task on %s sent kill request.", partition );
+        log.info( "Task on %s sent kill request.", work );
         
     }
 
     /**
      * Track a given task so it can be killed, etc.
      */
-    protected void trackTask( Partition part, Task task ) {
-        tasks.put( part, task );
+    protected void trackTask( Work work, Task task ) {
+        tasks.put( work, task );
     }
     
 }

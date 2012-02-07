@@ -23,8 +23,9 @@ import peregrine.config.*;
 import peregrine.io.*;
 import peregrine.io.chunk.*;
 import peregrine.io.driver.*;
+import peregrine.task.*;
 
-public class BlackholeIODriver implements IODriver {
+public class BlackholeIODriver extends BaseIODriver implements IODriver {
 
 	@Override
 	public String getScheme() {
@@ -37,7 +38,7 @@ public class BlackholeIODriver implements IODriver {
 	}
 
 	@Override
-	public JobInput getJobInput( InputReference inputReference, Config config, Partition partition ) throws IOException {		
+	public JobInput getJobInput( Config config, InputReference inputReference, WorkReference work ) throws IOException {		
 		throw new IOException( "Not supported for input." );
 	}
 
@@ -47,7 +48,7 @@ public class BlackholeIODriver implements IODriver {
 	}
 
 	@Override
-	public JobOutput getJobOutput( OutputReference outputReference, Config config, Partition partition ) throws IOException {
+	public JobOutput getJobOutput( Config config, OutputReference outputReference, WorkReference work ) throws IOException {
 		return new BlackholeJobOutput();
 	}
 

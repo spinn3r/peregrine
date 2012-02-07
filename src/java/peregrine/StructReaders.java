@@ -68,9 +68,15 @@ public class StructReaders {
     }
 
     public static StructReader wrap( byte[] value ) {
-
         return new StructReader( value );
+    }
 
+    public static StructReader wrap( ByteBuffer buff ) {
+        return new StructReader( buff );
+    }
+
+    public static StructReader wrap( ChannelBuffer buff ) {
+        return new StructReader( buff );
     }
 
     /**
@@ -123,6 +129,15 @@ public class StructReaders {
     }
 
     public static StructReader hashcode( long value ) {
+
+        return new StructWriter()
+            .writeHashcode( value )
+            .toStructReader()
+            ;
+        
+    }
+
+    public static StructReader hashcode( byte[] value ) {
 
         return new StructWriter()
             .writeHashcode( value )

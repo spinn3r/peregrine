@@ -123,7 +123,7 @@ public abstract class BaseTestWithMultipleConfigs extends peregrine.BaseTest {
         
     }
 
-    public void shutdownAllDaemons() {
+    public void shutdown() {
 
         log.info( "Shutting down %,d daemons", daemons.size() );
         
@@ -164,7 +164,6 @@ public abstract class BaseTestWithMultipleConfigs extends peregrine.BaseTest {
             doTest();
 
         } finally {
-
 
             // create a copy of the logs for this task for debug 
             copy( new File( "logs/peregrine.log" ), new File( String.format( "logs/test-%s.log", getClass().getName() ) ) );

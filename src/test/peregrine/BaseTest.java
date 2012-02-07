@@ -30,6 +30,8 @@ public abstract class BaseTest extends junit.framework.TestCase {
     
     public void setUp() {
 
+        System.out.printf( "================================================================================\n" );
+        
         if ( REMOVE_BASEDIR ) {
             Files.remove( Config.DEFAULTS.getString( "basedir" ) );
         }
@@ -43,6 +45,7 @@ public abstract class BaseTest extends junit.framework.TestCase {
     }
 
     public void tearDown() {
+
     }
 
     public static byte[] toByteArray( InputStream is ) throws IOException {

@@ -15,6 +15,8 @@
 */
 package peregrine;
 
+import java.nio.*;
+
 import org.jboss.netty.buffer.*;
 
 import peregrine.util.*;
@@ -33,12 +35,17 @@ import peregrine.os.*;
 public class StructReader {
 
     private VarintReader varintReader;
-    private ChannelBuffer buff;
+
+    protected ChannelBuffer buff;
     
     public StructReader( byte[] data ) {
         this( ChannelBuffers.wrappedBuffer( data ) );
     }
-    
+
+    public StructReader( ByteBuffer data ) {
+        this( ChannelBuffers.wrappedBuffer( data ) );
+    }
+
     public StructReader( int capacity ) {
         this( ChannelBuffers.buffer( capacity ) );
     }
@@ -97,7 +104,7 @@ public class StructReader {
      * Read a varint prefixed slice from this StructReader.
      */
     public StructReader readSlice() {
-        return readSlice( readVarint() );
+        return readStruct( readVarint() );
     }
     
     /**
@@ -105,6 +112,13 @@ public class StructReader {
      * StructReader.
      */
     public StructReader readSlice( int length ) {
+        return readStruct( length );
+    }
+
+    /**
+     * Read a new struct from the current struct from the given lenght bytes.
+     */
+    public StructReader readStruct( int length ) {
         return new StructReader( buff.readSlice( length ) );
     }
     

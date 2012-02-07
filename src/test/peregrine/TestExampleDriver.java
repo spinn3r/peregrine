@@ -47,7 +47,7 @@ public class TestExampleDriver extends peregrine.BaseTestWithTwoDaemons {
 
     }
         
-    public void test1() throws Exception {
+    public void doTest() throws Exception {
         
         //register the driver
         IODriverRegistry.register( new ExampleIODriver() );

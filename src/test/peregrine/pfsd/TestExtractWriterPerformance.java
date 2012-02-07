@@ -125,7 +125,7 @@ public class TestExtractWriterPerformance extends BaseTestWithMultipleConfigs {
             
             test.setUp();
             test.test();
-            test.shutdownAllDaemons();
+            test.shutdown();
             test.tearDown();
 
         }

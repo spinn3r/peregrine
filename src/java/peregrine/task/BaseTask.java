@@ -61,6 +61,11 @@ public abstract class BaseTask implements Task {
 
     protected Input input = null;
     
+    /**
+     * The given work for this task.
+     */
+    protected Work work = null;
+    
     protected JobDelegate jobDelegate = null;
 
     private boolean killed = false;
@@ -69,13 +74,27 @@ public abstract class BaseTask implements Task {
      * The time this job was started, in milliseconds.
      */
     protected long started = -1;
+
+    /**
+     * The job ID we are working with.
+     */
+    protected String job_id = null;
     
-    public void init( Config config, Partition partition, Class delegate ) throws IOException {
+    public void init( Config config, Work work, Class delegate ) throws IOException {
     	this.config      = config;
         this.host        = config.getHost();
-        this.partition   = partition;
+        this.work        = work;
         this.delegate    = delegate;
         this.started     = System.currentTimeMillis();
+
+        for ( WorkReference current : work.getReferences() ) {
+            
+            if ( current instanceof PartitionWorkReference ) {
+                partition = ((PartitionWorkReference)current).getPartition();
+            }
+            
+        }
+
     }
 
     public List<BroadcastInput> getBroadcastInput() { 
@@ -96,6 +115,14 @@ public abstract class BaseTask implements Task {
 
     public void setOutput( Output output ) { 
         this.output = output;
+    }
+    
+    public Work getWork() { 
+        return this.work;
+    }
+
+    public void setWork( Work work ) { 
+        this.work = work;
     }
     
     public List<JobOutput> getJobOutput() {
@@ -153,6 +180,8 @@ public abstract class BaseTask implements Task {
 
         SystemProfiler profiler = config.getSystemProfiler();
 
+        // TODO: too many try catch blocks here ... this needs to be refactored.
+        
         try {
 
             log.info( "Running %s on %s", delegate, partition );
@@ -188,9 +217,16 @@ public abstract class BaseTask implements Task {
         } catch ( Throwable t ) { 
             handleFailure( log, t );
         } finally {
-            report();
 
-            log.info( "Ran with profiler rate: \n%s", profiler.rate() );
+            try {
+            
+                report();
+                
+                log.info( "Ran with profiler rate: \n%s", profiler.rate() );
+
+            } catch ( Throwable t ) {
+                log.error( "Unable to report: ", t );
+            }
             
         }
         
@@ -282,6 +318,11 @@ public abstract class BaseTask implements Task {
         }
 
     }
+
+    @Override
+    public void setJobId( String job_id ) {
+        this.job_id = job_id;
+    }
     
     /**
      * Mark the partition for this task complete.  
@@ -291,13 +332,10 @@ public abstract class BaseTask implements Task {
         Message message = new Message();
 
         message.put( "action" ,   "complete" );
-        message.put( "host",      config.getHost().toString() );
-        message.put( "partition", partition.getId() );
+        message.put( "job_id" ,   job_id );
         message.put( "killed",    killed );
 
-        log.info( "Sending complete message to controller: %s", message );
-        
-        new Client().invoke( config.getController(), "controller", message );
+        sendMessageToController( message );
 
     }
 
@@ -309,13 +347,10 @@ public abstract class BaseTask implements Task {
         Message message = new Message();
         
         message.put( "action" ,     "failed" );
-        message.put( "host",        config.getHost().toString() );
-        message.put( "partition",   partition.getId() );
+        message.put( "job_id" ,   job_id );
         message.put( "stacktrace",  cause );
-
-        log.info( "Sending failed message to controller: %s", message );
         
-        new Client().invoke( config.getController(), "controller", message );
+        sendMessageToController( message );
 
     }
 
@@ -327,15 +362,25 @@ public abstract class BaseTask implements Task {
         Message message = new Message();
         
         message.put( "action" ,     "progress" );
-        message.put( "host",        config.getHost().toString() );
-        message.put( "partition",   partition.getId() );
+        message.put( "job_id" ,     job_id );
         message.put( "nonce" ,      nonce );
         message.put( "pointer" ,    pointer );
 
-        log.info( "Sending progress message to controller with pointer %s: %s", pointer, message );
-        
-        new Client().invoke( config.getController(), "controller", message );
+        sendMessageToController( message );
 
     }
 
+    protected void sendMessageToController( Message message ) throws IOException {
+    	
+        log.info( "Sending %s message to controller%s", message.get( "action" ), message );
+        
+        message.put( "host",        config.getHost().toString() );
+        message.put( "job_id" ,     job_id );
+        message.put( "input",       input.getReferences() );
+        message.put( "work",        work.getReferences() );
+
+        new Client().invoke( config.getController(), "controller", message );
+    	
+    }
+    
 }

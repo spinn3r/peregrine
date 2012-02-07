@@ -23,8 +23,9 @@ import peregrine.config.*;
 import peregrine.io.*;
 import peregrine.io.chunk.*;
 import peregrine.io.driver.*;
+import peregrine.task.*;
 
-public class BroadcastIODriver implements IODriver {
+public class BroadcastIODriver  extends BaseIODriver implements IODriver {
 
 	@Override
 	public String getScheme() {
@@ -37,7 +38,7 @@ public class BroadcastIODriver implements IODriver {
 	}
 
 	@Override
-	public JobInput getJobInput( InputReference inputReference, Config config, Partition partition ) throws IOException {		
+	public JobInput getJobInput( Config config, InputReference inputReference, WorkReference work  ) throws IOException {		
 	    throw new IOException( "not implemented" );
 	}
 
@@ -47,9 +48,10 @@ public class BroadcastIODriver implements IODriver {
 	}
 
 	@Override
-	public JobOutput getJobOutput( OutputReference outputReference, Config config, Partition partition ) throws IOException {
+	public JobOutput getJobOutput( Config config, OutputReference outputReference, WorkReference work  ) throws IOException {
+		PartitionWorkReference partitionWork = (PartitionWorkReference)work;
         BroadcastOutputReference bcast = (BroadcastOutputReference) outputReference;
-        return new BroadcastJobOutput( config, bcast.getName(), partition );
+        return new BroadcastJobOutput( config, bcast.getName(), partitionWork.getPartition() );
 	}
 
 	@Override
