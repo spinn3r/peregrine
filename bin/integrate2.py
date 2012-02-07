@@ -9,7 +9,7 @@
 #
 # - put a timeout on the total runtime and kill it if it takes too long
 #
-# 
+# - 
 
 import os
 import re
@@ -244,8 +244,16 @@ def test(branch,rev):
 
     # TODO consider just making this a move.
     if os.path.exists( "target/test-reports" ):
-        shutil.copytree( "target/test-reports", "%s/%s" % (changedir, "target/test-reports") )
 
+        dest = "%s/%s" % (changedir, "target/test-reports")
+
+        print "Copying test-reports to %s" % dest
+        
+        shutil.copytree( "target/test-reports", dest )
+    else:
+        print "WARN: target/test-reports directory does not exist." 
+        
+        
     exit_result=open( "%s/exit.result" % (changedir), "w" )
     exit_result.write( str( result ) )
     exit_result.close()
