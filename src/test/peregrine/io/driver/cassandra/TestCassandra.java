@@ -26,10 +26,11 @@ import peregrine.io.*;
 import peregrine.io.driver.*;
 import peregrine.io.driver.cassandra.*;
 import peregrine.worker.*;
+import peregrine.task.*;
 
 public class TestCassandra extends peregrine.BaseTestWithTwoDaemons {
 
-    public void doTest() throws Exceptions {
+    public void doTest() throws Exception {
         _test1();
         _test2();
     }

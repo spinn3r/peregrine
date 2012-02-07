@@ -95,10 +95,6 @@ public abstract class BaseTask implements Task {
             
         }
 
-        if ( partition == null ) {
-            throw new IOException( "No partition defined for work: " + work );
-        }
-
     }
 
     public List<BroadcastInput> getBroadcastInput() { 
@@ -184,6 +180,8 @@ public abstract class BaseTask implements Task {
 
         SystemProfiler profiler = config.getSystemProfiler();
 
+        // TODO: too many try catch blocks here ... this needs to be refactored.
+        
         try {
 
             log.info( "Running %s on %s", delegate, partition );
@@ -219,9 +217,16 @@ public abstract class BaseTask implements Task {
         } catch ( Throwable t ) { 
             handleFailure( log, t );
         } finally {
-            report();
 
-            log.info( "Ran with profiler rate: \n%s", profiler.rate() );
+            try {
+            
+                report();
+                
+                log.info( "Ran with profiler rate: \n%s", profiler.rate() );
+
+            } catch ( Throwable t ) {
+                log.error( "Unable to report: ", t );
+            }
             
         }
         
@@ -371,7 +376,6 @@ public abstract class BaseTask implements Task {
         
         message.put( "host",        config.getHost().toString() );
         message.put( "job_id" ,     job_id );
-        message.put( "partition",   partition.getId() );
         message.put( "input",       input.getReferences() );
         message.put( "work",        work.getReferences() );
 

@@ -15,76 +15,58 @@
 */
 package peregrine.io.driver.cassandra;
 
+import java.io.*;
 import java.util.*;
-import java.net.*;
+import java.util.concurrent.atomic.*;
 
 import peregrine.*;
 import peregrine.config.*;
 import peregrine.controller.*;
-import peregrine.http.*;
 import peregrine.io.*;
-import peregrine.io.driver.*;
-import peregrine.io.driver.cassandra.*;
-import peregrine.worker.*;
-import peregrine.task.*;
+import peregrine.io.partition.*;
+import peregrine.util.primitive.*;
+import peregrine.util.*;
+
+import com.spinn3r.log5j.*;
 
 public class TestCassandraJobs extends peregrine.BaseTestWithMultipleConfigs {
 
+    private static final Logger log = Logger.getLogger();
+
     public void doTest() throws Exception {
-
-        IODriver driver = IODriverRegistry.getInstance( "cassandra" );
-
-        String uri = "cassandra://localhost:9160/mykeyspace/graph";
         
-        CassandraInputReference ref =
-            (CassandraInputReference)driver.getInputReference( uri );
+        String output = String.format( "/test/%s/test.out", getClass().getName() );
 
-        // get the work units from cassandra now.
+        Controller controller = new Controller( config );
 
-        Config config = configs.get( 0 );
-        
-        Map<Host,List<Work>> workMap = driver.getWork( config, ref );
+        try {
 
-        assertTrue( workMap.size() > 0 );
+            controller.map( Mapper.class,
+                            new Input( "cassandra://localhost:9160/mykeyspace/graph" ),
+                            new Output( "shuffle:default" ) );
 
-        int count = 0;
-        
-        for ( Host host : workMap.keySet() ) {
+            controller.reduce( Reducer.class,
+                               new Input( "shuffle:default" ),
+                               new Output( output ) );
 
-            List<Work> workList = workMap.get( host );
-
-            for( Work work : workList ) {
-
-                for( WorkReference workRef : work.getReferences() ) {
-
-                    JobInput input = driver.getJobInput( config, ref, workRef );
-
-                    while( input.hasNext() ) {
-
-                        input.next();
-
-                        input.key();
-                        input.value();
-
-                        ++count;
-                        
-                    }
-                    
-                }
-
-            }
-
+        } finally {
+            controller.shutdown();
         }
-
-        assertTrue( count > 0 );
-
-        System.out.printf( "found %,d entries.\n", count );
         
     }
 
     public static void main( String[] args ) throws Exception {
-        System.setProperty( "peregrine.test.config", "1:1:1" ); 
+
+        //System.setProperty( "peregrine.test.config", "1:1:1" ); // 3sec
+
+        System.setProperty( "peregrine.test.factor", "10" ); // 1m
+        System.setProperty( "peregrine.test.config", "01:01:02" ); // takes 3 seconds
+
+        // 256 partitions... 
+        //System.setProperty( "peregrine.test.config", "08:01:32" );  // 1m
+
         runTests();
+
     }
 
 }

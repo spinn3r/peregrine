@@ -111,9 +111,12 @@ public class StructReader {
      * StructReader.
      */
     public StructReader readSlice( int length ) {
-        return readSlice( length );
+        return readStruct( length );
     }
 
+    /**
+     * Read a new struct from the current struct from the given lenght bytes.
+     */
     public StructReader readStruct( int length ) {
         return new StructReader( buff.readSlice( length ) );
     }

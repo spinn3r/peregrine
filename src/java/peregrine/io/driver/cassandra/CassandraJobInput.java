@@ -101,7 +101,7 @@ public class CassandraJobInput extends BaseJobInput implements JobInput {
                 
             }
 
-            return new Pair ( StructReaders.wrap( reader.getCurrentKey() ), 
+            return new Pair ( StructReaders.hashcode( StructReaders.wrap( reader.getCurrentKey() ).toByteArray() ), 
                               ssw.toStructReader() );
             
         } else {

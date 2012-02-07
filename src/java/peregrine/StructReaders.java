@@ -137,6 +137,15 @@ public class StructReaders {
         
     }
 
+    public static StructReader hashcode( byte[] value ) {
+
+        return new StructWriter()
+            .writeHashcode( value )
+            .toStructReader()
+            ;
+        
+    }
+
     /**
      * Generate a StructReader that writes the given list of primitives to a set
      * of hashcodes.

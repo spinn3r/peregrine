@@ -39,7 +39,7 @@ public class ControllerRPCDelegate extends RPCDelegate<ControllerDaemon> {
     @RPC
     public void complete( ControllerDaemon controllerDaemon, Channel channel, Message message )
         throws Exception {
-		
+
         Host host     = Host.parse( message.get( "host" ) );
         Input input   = new Input( message.getList( "input" ) );
         Work work     = new Work( input, message.getList( "work" ) );
