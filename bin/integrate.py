@@ -24,7 +24,7 @@ from subprocess import *
 LIMIT=5
 BRANCH="default"
 
-SCRATCH="/tmp/integration/peregrine/"
+SCRATCH="/tmp/integration/peregrine"
 TEST_LOGS="/var/lib/integration/peregrine"
 
 TEST_COMMAND="export ANT_OPTS=-Xmx256M && ant clean test"
@@ -243,7 +243,7 @@ def test(branch,rev):
         print "FAILED"
 
     # TODO consider just making this a move.
-    if os.path.exists( "target/test-reports" ):
+    if os.path.exists( "%s/target/test-reports" % SCRATCH):
 
         dest = "%s/%s" % (changedir, "target/test-reports")
 
