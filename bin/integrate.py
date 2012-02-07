@@ -245,7 +245,7 @@ def test(branch,rev):
     # TODO consider just making this a move.
     if os.path.exists( "%s/target/test-reports" % SCRATCH):
 
-        dest = "%s/%s" % (changedir, "target/test-reports")
+        dest = "%s/%s" % (changedir, "test-reports")
 
         print "Copying test-reports to %s" % dest
         
