@@ -27,9 +27,14 @@ import peregrine.io.driver.*;
 import peregrine.io.driver.cassandra.*;
 import peregrine.worker.*;
 
-public class TestCassandra extends peregrine.BaseTest {
+public class TestCassandra extends peregrine.BaseTestWithTwoDaemons {
 
-    public void test1() throws Exception {
+    public void doTest() throws Exceptions {
+        _test1();
+        _test2();
+    }
+    
+    public void _test1() throws Exception {
 
         IODriver driver = IODriverRegistry.getInstance( "cassandra" );
 
@@ -42,6 +47,58 @@ public class TestCassandra extends peregrine.BaseTest {
         assertEquals( "9160", ref.getPort() );
         assertEquals( "mykeyspace", ref.getKeyspace() );
         assertEquals( "graph", ref.getColumnFamily() );
+        
+    }
+
+    public void _test2() throws Exception {
+
+        IODriver driver = IODriverRegistry.getInstance( "cassandra" );
+
+        String uri = "cassandra://localhost:9160/mykeyspace/graph";
+        
+        CassandraInputReference ref =
+            (CassandraInputReference)driver.getInputReference( uri );
+
+        // get the work units from cassandra now.
+
+        Config config = configs.get( 0 );
+        
+        Map<Host,List<Work>> workMap = driver.getWork( config, ref );
+
+        assertTrue( workMap.size() > 0 );
+
+        int count = 0;
+        
+        for ( Host host : workMap.keySet() ) {
+
+            List<Work> workList = workMap.get( host );
+
+            for( Work work : workList ) {
+
+                for( WorkReference workRef : work.getReferences() ) {
+
+                    JobInput input = driver.getJobInput( config, ref, workRef );
+
+                    while( input.hasNext() ) {
+
+                        input.next();
+
+                        input.key();
+                        input.value();
+
+                        ++count;
+                        
+                    }
+                    
+                }
+
+            }
+
+        }
+
+        assertTrue( count > 0 );
+
+        System.out.printf( "found %,d entries.\n", count );
         
     }
 
