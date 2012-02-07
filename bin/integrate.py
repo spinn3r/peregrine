@@ -42,10 +42,13 @@ class ReportIndex:
         
         self.file=open( "%s/index.html" % TEST_LOGS , "w" );
 
+        self.file.write( "<html>" )
+        self.file.write( "<head><title>Integration report</title></head>" )
         self.file.write( "<frameset cols='30%,70%' title=''>" )
         self.file.write( "<frame src='left.html' name='left' title='all tests'>" )
         self.file.write( "<frame src='' name='right' title=''>" )
         self.file.write( "</frameset>" )
+        self.file.write( "</html>" )
         
     def close(self):
         self.file.close()

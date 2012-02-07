@@ -143,7 +143,7 @@
                logfailedtests="true">
 
             <formatter type="plain" usefile="true" />
-            <formatter type="xml" usefile="true" />
+            <formatter type="xml"   usefile="true" />
 
             <classpath>
                 <path refid="project.classpath"/>
@@ -159,26 +159,17 @@
             
         </junit>
 
+        <condition property="test.failed">
+          <istrue value="${junit.failed}"/>
+        </condition>
+
         <antcall target="test-multi" />
 
         <antcall target="test-report" />
 
-        <fail if="junit.failed"/>
+        <fail if="test.failed"/>
 
     </target> 
-
-    <target name="test-report">
-
-        <junitreport todir="target/test-reports">
-            <fileset dir="target/test-reports">
-                <include name="TEST-*.xml"/>
-            </fileset>
-
-            <report format="frames" todir="./target/test-reports"/>
-
-        </junitreport>
-
-    </target>
 
     <target name="test-multi"
             depends="jar,compile.test">
@@ -298,7 +289,7 @@
             <jvmarg value="-Dperegrine.test.factor=${peregrine.test.factor}"/>
 
             <formatter type="plain" usefile="true" />
-            <formatter type="xml" usefile="true" />
+            <formatter type="xml"   usefile="true" />
 
             <classpath>
                 <path refid="project.classpath"/>
@@ -327,7 +318,24 @@
             
         </junit>
 
+        <condition property="test.failed">
+          <istrue value="${junit.failed}"/>
+        </condition>
+
     </target> 
+
+    <target name="test-report">
+
+        <junitreport todir="target/test-reports">
+            <fileset dir="target/test-reports">
+                <include name="TEST-*.xml"/>
+            </fileset>
+
+            <report format="frames" todir="./target/test-reports"/>
+
+        </junitreport>
+
+    </target>
 
     <target name="javadoc" description="Generate javadoc" depends="compile">
 
