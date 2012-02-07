@@ -72,7 +72,8 @@ public class TestNewShuffleJobOutput extends peregrine.BaseTestWithTwoDaemons {
 
     }
     
-    public void test1() throws Exception {
+    @Override
+    public void doTest() throws Exception {
         doTest( 20, 1 );
         doTest( 100, 3 );
     }

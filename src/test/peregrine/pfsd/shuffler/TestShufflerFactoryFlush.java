@@ -23,7 +23,7 @@ import org.jboss.netty.handler.codec.http.*;
 
 public class TestShufflerFactoryFlush extends peregrine.BaseTestWithTwoDaemons {
 
-    public void test1() throws Exception {
+    public void doTest() throws Exception {
 
         // now measure the flush time...
 

@@ -22,6 +22,13 @@ import peregrine.worker.*;
 
 public class TestPutRequests extends peregrine.BaseTestWithTwoDaemons {
 
+	@Override
+	public void doTest() throws Exception {
+		_test1();
+		_test1WithHexPipeline();
+		_test2();
+	}
+	
     public void doTest( int max ) throws Exception {
 
         for( int i = 0; i < max; ++i ) {
@@ -38,19 +45,19 @@ public class TestPutRequests extends peregrine.BaseTestWithTwoDaemons {
 
     }
     
-    public void test1() throws Exception {
+    public void _test1() throws Exception {
 
         doTest( 1000 );
     }
 
-    public void test1WithHexPipeline() throws Exception {
+    public void _test1WithHexPipeline() throws Exception {
 
         HexPipelineEncoder.ENABLED = true;
         
         doTest( 1000 );
     }
 
-    public void test2() throws Exception {
+    public void _test2() throws Exception {
 
         int max = 10;
         

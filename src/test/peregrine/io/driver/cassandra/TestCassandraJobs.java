@@ -81,7 +81,7 @@ public class TestCassandraJobs extends peregrine.BaseTestWithMultipleConfigs {
         System.out.printf( "found %,d entries.\n", count );
         
     }
-    
+
     public static void main( String[] args ) throws Exception {
         System.setProperty( "peregrine.test.config", "1:1:1" ); 
         runTests();
