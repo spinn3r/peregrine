@@ -329,6 +329,8 @@
                   <include name="peregrine/pfsd/TestFanoutWritePerformance.java"/>
                   <include name="peregrine/shuffle/TestShufflePerformance.java"/>
 
+                  <exclude name="peregrine/io/driver/cassandra/TestCassandra.java"/>
+
                 </fileset>
 
             </batchtest>
