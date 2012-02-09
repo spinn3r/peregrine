@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
 <project name="peregrine" default="jar" basedir=".">
+  
+    <!--
+    export ANT_OPTS=-Xmx256M 
+    -->
 
     <property environment="env"/>
 
@@ -9,6 +13,9 @@
     <property name="project" value="peregrine"/>
     <property name="javadocdir" value="target/javadoc"/>
     <property name="version" value="0.5.3"/>
+
+    <property name="haltonfailure" value="false"/>
+    <property name="haltonerror"   value="false"/>
 
     <path id="project.classpath">
 
@@ -122,46 +129,7 @@
             depends="jar,compile.test" 
             description="Run junit tests.">
 
-        <taskdef name="junit"
-                 classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask">
-            <classpath refid="project.classpath"/>
-        </taskdef>	
-
-        <mkdir dir="target/test-reports" />
-
-        <junit printsummary="withOutAndErr"
-               fork="true"
-               forkmode="perTest"
-               timeout="1000000"
-               maxmemory="512m"
-               filtertrace="false"
-               haltonfailure="false"
-               haltonerror="false"
-               failureproperty="junit.failed"
-               errorproperty="junit.failed"
-               showoutput="true" 
-               logfailedtests="true">
-
-            <formatter type="plain" usefile="true" />
-            <formatter type="xml"   usefile="true" />
-
-            <classpath>
-                <path refid="project.classpath"/>
-            </classpath>
-
-            <batchtest todir="target/test-reports"> 
-
-                <fileset dir="src/test">
-                    <include name="**/Test*.java"/>
-                </fileset>
-
-            </batchtest>
-            
-        </junit>
-
-        <condition property="test.failed">
-          <istrue value="${junit.failed}"/>
-        </condition>
+        <antcall target="test-basic" />
 
         <antcall target="test-multi" />
 
@@ -261,7 +229,62 @@
 
     </target>
 
+    <target name="test-basic">
+
+        <tstamp>
+            <format property="ts" pattern="yyyyMMdd-HHmmss" locale="GMT"/>
+        </tstamp>
+
+        <taskdef name="junit"
+                 classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask">
+            <classpath refid="project.classpath"/>
+        </taskdef>	
+
+        <mkdir dir="target/test-reports/${ts}" />
+
+        <junit printsummary="withOutAndErr"
+               fork="true"
+               forkmode="perTest"
+               timeout="1000000"
+               maxmemory="512m"
+               filtertrace="false"
+               haltonfailure="${haltonfailure}"
+               haltonerror="${haltonerror}"
+               failureproperty="junit.failed"
+               errorproperty="junit.failed"
+               showoutput="true" 
+               logfailedtests="true">
+
+            <formatter type="plain" usefile="true" />
+            <formatter type="xml"   usefile="true" />
+
+            <classpath>
+                <path refid="project.classpath"/>
+            </classpath>
+
+            <batchtest todir="target/test-reports/${ts}"> 
+
+                <fileset dir="src/test">
+                    <include name="**/Test*.java"/>
+                </fileset>
+
+            </batchtest>
+            
+        </junit>
+
+        <echo message="junit.failed: ${junit.failed}"/>
+
+        <condition property="test.failed">
+            <istrue value="${junit.failed}"/>
+        </condition>
+
+    </target>
+
     <target name="test-multi-exec">
+
+        <tstamp>
+            <format property="ts" pattern="yyyyMMdd-HHmmss" locale="GMT"/>
+        </tstamp>
 
         <taskdef name="junit"
                  classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask"> 
@@ -270,7 +293,7 @@
 
         <echo message="peregrine.test.config: ${peregrine.test.config}"/>
 
-        <mkdir dir="target/test-reports" />
+        <mkdir dir="target/test-reports/${ts}" />
 
         <junit printsummary="withOutAndErr"
                fork="true"
@@ -278,8 +301,8 @@
                timeout="1000000"
                maxmemory="512m"
                filtertrace="false"
-               haltonfailure="false"
-               haltonerror="false"
+               haltonfailure="${haltonfailure}"
+               haltonerror="${haltonerror}"
                failureproperty="junit.failed"
                errorproperty="junit.failed"
                showoutput="true" 
@@ -295,7 +318,7 @@
                 <path refid="project.classpath"/>
             </classpath>
 
-            <batchtest todir="target/test-reports"> 
+            <batchtest todir="target/test-reports/${ts}"> 
 
                 <fileset dir="src/test">
 
@@ -312,14 +335,18 @@
                   <include name="peregrine/pfsd/TestFanoutWritePerformance.java"/>
                   <include name="peregrine/shuffle/TestShufflePerformance.java"/>
 
+                  <exclude name="peregrine/io/driver/cassandra/TestCassandra.java"/>
+
                 </fileset>
 
             </batchtest>
             
         </junit>
 
+        <echo message="junit.failed: ${junit.failed}"/>
+
         <condition property="test.failed">
-          <istrue value="${junit.failed}"/>
+            <istrue value="${junit.failed}"/>
         </condition>
 
     </target> 
@@ -327,8 +354,9 @@
     <target name="test-report">
 
         <junitreport todir="target/test-reports">
+
             <fileset dir="target/test-reports">
-                <include name="TEST-*.xml"/>
+                <include name="**/TEST-*.xml"/>
             </fileset>
 
             <report format="frames" todir="./target/test-reports"/>
