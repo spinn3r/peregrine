@@ -10,9 +10,12 @@
 
     <property file="build.properties"/>
 
-    <property name="project" value="peregrine"/>
-    <property name="javadocdir" value="target/javadoc"/>
-    <property name="version" value="0.5.3"/>
+    <property name="project"       value="peregrine"/>
+    <property name="javadocdir"    value="target/javadoc"/>
+    <property name="version"       value="0.5.3"/>
+
+    <property name="haltonfailure" value="false"/>
+    <property name="haltonerror"   value="false"/>
 
     <property name="haltonfailure" value="false"/>
     <property name="haltonerror"   value="false"/>
@@ -242,6 +245,8 @@
 
         <mkdir dir="target/test-reports/${ts}" />
 
+        <property name="junit.failed" value="false"/>
+
         <junit printsummary="withOutAndErr"
                fork="true"
                forkmode="perTest"
@@ -294,6 +299,8 @@
         <echo message="peregrine.test.config: ${peregrine.test.config}"/>
 
         <mkdir dir="target/test-reports/${ts}" />
+
+        <property name="junit.failed" value="false"/>
 
         <junit printsummary="withOutAndErr"
                fork="true"
