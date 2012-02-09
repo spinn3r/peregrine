@@ -1,0 +1,20 @@
+#!/bin/sh
+
+branch=$(hg branch)
+
+if [ "$branch" != "default" ]; then
+    exit 125
+fi
+
+ant clean jar compile.test
+result=$?
+
+#skip if the build failed.
+if [ "$result" != "0" ]; then
+    exit 125
+fi
+
+ant test
+result=$?
+
+exit $result
