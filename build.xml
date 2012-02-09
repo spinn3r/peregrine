@@ -129,52 +129,7 @@
             depends="jar,compile.test" 
             description="Run junit tests.">
 
-        <tstamp>
-            <format property="ts" pattern="yyyyMMdd-HHmmss" locale="GMT"/>
-        </tstamp>
-
-        <taskdef name="junit"
-                 classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask">
-            <classpath refid="project.classpath"/>
-        </taskdef>	
-
-        <mkdir dir="target/test-reports/${ts}" />
-
-        <junit printsummary="withOutAndErr"
-               fork="true"
-               forkmode="perTest"
-               timeout="1000000"
-               maxmemory="512m"
-               filtertrace="false"
-               haltonfailure="${haltonfailure}"
-               haltonerror="${haltonerror}"
-               failureproperty="junit.failed"
-               errorproperty="junit.failed"
-               showoutput="true" 
-               logfailedtests="true">
-
-            <formatter type="plain" usefile="true" />
-            <formatter type="xml"   usefile="true" />
-
-            <classpath>
-                <path refid="project.classpath"/>
-            </classpath>
-
-            <batchtest todir="target/test-reports/${ts}"> 
-
-                <fileset dir="src/test">
-                    <include name="**/Test*.java"/>
-                </fileset>
-
-            </batchtest>
-            
-        </junit>
-
-        <echo message="junit.failed: ${junit.failed}"/>
-
-        <condition property="test.failed">
-            <istrue value="${junit.failed}"/>
-        </condition>
+        <antcall target="test-basic" />
 
         <antcall target="test-multi" />
 
@@ -271,6 +226,57 @@
                target="test-multi-exec">
 
       </foreach>
+
+    </target>
+
+    <target name="test-basic">
+
+        <tstamp>
+            <format property="ts" pattern="yyyyMMdd-HHmmss" locale="GMT"/>
+        </tstamp>
+
+        <taskdef name="junit"
+                 classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask">
+            <classpath refid="project.classpath"/>
+        </taskdef>	
+
+        <mkdir dir="target/test-reports/${ts}" />
+
+        <junit printsummary="withOutAndErr"
+               fork="true"
+               forkmode="perTest"
+               timeout="1000000"
+               maxmemory="512m"
+               filtertrace="false"
+               haltonfailure="${haltonfailure}"
+               haltonerror="${haltonerror}"
+               failureproperty="junit.failed"
+               errorproperty="junit.failed"
+               showoutput="true" 
+               logfailedtests="true">
+
+            <formatter type="plain" usefile="true" />
+            <formatter type="xml"   usefile="true" />
+
+            <classpath>
+                <path refid="project.classpath"/>
+            </classpath>
+
+            <batchtest todir="target/test-reports/${ts}"> 
+
+                <fileset dir="src/test">
+                    <include name="**/Test*.java"/>
+                </fileset>
+
+            </batchtest>
+            
+        </junit>
+
+        <echo message="junit.failed: ${junit.failed}"/>
+
+        <condition property="test.failed">
+            <istrue value="${junit.failed}"/>
+        </condition>
 
     </target>
 
