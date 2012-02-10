@@ -21,13 +21,13 @@ import time
 
 from subprocess import *
 
-LIMIT=5
+LIMIT=60
 BRANCH="default"
 
 SCRATCH="/tmp/integration/peregrine"
 TEST_LOGS="/var/lib/integration/peregrine"
 
-TEST_COMMAND="export ANT_OPTS=-Xmx256M && ant clean test"
+TEST_COMMAND="hg cat -r default build.xml > build.xml && export ANT_OPTS=-Xmx256M && ant clean test"
 #TEST_COMMAND="false"
 
 REPO="https://burtonator:redapplekittycat@bitbucket.org/burtonator/peregrine"
@@ -72,10 +72,8 @@ class ReportSidebar:
         self.file.write( "<body>" )
         self.file.write( "<table width='100%' cellspacing='0'>" )
 
-    def link( self, bgcolor, rev, report ):
+    def link( self, bgcolor, rev, report, log ):
         """Write a link to the given URL."""
-
-        log = get_log( rev )
 
         time = datetime.datetime.fromtimestamp( float( log['date'] ) )
 
@@ -170,13 +168,24 @@ def get_active_branches():
 def get_change_index():
     """Return a map from branch name to revision ID by reverse chronology"""
 
+    return parse_hg_log(get_hg_log())
+
+def get_change_index_flat():
+    """Get the full HG log output."""
+
+    return parse_hg_log_flat(get_hg_log())
+
+def get_hg_log():
+    """Get the output of 'hg log'""" 
+
     os.chdir( SCRATCH )
 
     output=read_cmd( "hg log --template '{rev} {branches} {date}\n'" )
 
-    return parse_hg_log(output)
+    return output
 
 def parse_hg_log(output):
+    """Parse the HG log by branch."""
 
     index={}
 
@@ -205,6 +214,33 @@ def parse_hg_log(output):
             index[branch]=changes
 
         changes.append( changectx )
+
+    return index
+
+def parse_hg_log_flat(output):
+    """Parse the HG log by changeset ID"""
+    
+    index=[]
+
+    for line in output.split( "\n" ):
+
+        changectx={}
+
+        split=line.split( " " )
+
+        if len( split ) != 3:
+            continue
+
+        branch=split[1]
+
+        if branch == "":
+            branch = "default"
+
+        changectx['rev']    = split[0]
+        changectx['branch'] = branch
+        changectx['date']   = split[2]
+
+        index.append( changectx )
 
     return index
 
@@ -255,8 +291,7 @@ def test(branch,rev):
         shutil.copytree( "target/test-reports", dest )
     else:
         print "WARN: target/test-reports directory does not exist." 
-        
-        
+
     exit_result=open( "%s/exit.result" % (changedir), "w" )
     exit_result.write( str( result ) )
     exit_result.close()
@@ -327,24 +362,22 @@ def index():
 
     try:
 
-        files = os.listdir( TEST_LOGS )
+        changelog = get_change_index_flat()
 
-        files = sorted(files)
-        files.reverse()
+        for change in changelog:
+            
+            rev = change['rev']
 
-        for file in files:
-
-            path = "%s/%s" % (TEST_LOGS, file)
+            path = "%s/%s" % (TEST_LOGS, rev)
+            report = None
 
             if os.path.isdir( path ):
 
-                changedir=get_changedir(file)
+                changedir=get_changedir(rev)
 
                 exit_file="%s/exit.result" % (changedir)
 
                 if ( os.path.exists( exit_file ) ):
-
-                    rev=file
 
                     exit_result=open( exit_file, "r" )
                     result=exit_result.read()
@@ -355,14 +388,15 @@ def index():
                     if result != "0": 
                         bgcolor="red"
 
-                    report=None
-
                     # see if the test report exists.
 
                     if ( os.path.exists( "%s/test-reports" % changedir ) ):
                         report="%s/%s" % ( rev, "test-reports" )
 
-                    sidebar.link( bgcolor, rev, report )
+                    sidebar.link( bgcolor, rev, report, change )
+
+            else:
+                sidebar.link( "gray", rev, report, change )
 
     finally:
         
@@ -387,3 +421,4 @@ while True:
 
     time.sleep( DAEMON_SLEEP_INTERVAL )
 
+1
