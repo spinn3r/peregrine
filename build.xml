@@ -242,9 +242,6 @@
 
         <mkdir dir="target/test-reports/${ts}" />
 
-        <property name="junit.failed" value="false"/>
-        <property name="junit.errored" value="false"/>
-
         <junit printsummary="withOutAndErr"
                fork="true"
                forkmode="perTest"
@@ -301,9 +298,6 @@
         <echo message="peregrine.test.config: ${peregrine.test.config}"/>
 
         <mkdir dir="target/test-reports/${ts}" />
-
-        <property name="junit.failed" value="false"/>
-        <property name="junit.errored" value="false"/>
 
         <junit printsummary="withOutAndErr"
                fork="true"
