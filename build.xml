@@ -135,6 +135,8 @@
 
         <antcall target="test-report" />
 
+        <echo message="test.failed (fail): ${test.failed}"/>
+
         <fail if="test.failed"/>
 
     </target> 
