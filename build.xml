@@ -126,14 +126,8 @@
     </target>
 
     <target name="test" 
-            depends="jar,compile.test" 
+            depends="jar, compile.test, test-basic, test-multi, test-report" 
             description="Run junit tests.">
-
-        <antcall target="test-basic" />
-
-        <antcall target="test-multi" />
-
-        <antcall target="test-report" />
 
         <echo message="test.failed (fail): ${test.failed}"/>
 
