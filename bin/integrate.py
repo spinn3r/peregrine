@@ -332,10 +332,17 @@ def run(limit=LIMIT):
     #print "Working with active branches: %s" % active_branches
     #print "Working with change index keys: %s" % change_index.keys() 
 
-    for branch in active_branches:
+    for i in xrange(limit):
 
-        for i in xrange(limit):
-            changectx=change_index[branch][i]
+        for branch in active_branches:
+
+            changes=change_index[branch]
+
+            if len( changes ) <= i:
+                continue
+            
+            changectx=changes[i]
+
             rev=changectx['rev']
 
             test(branch,rev)
