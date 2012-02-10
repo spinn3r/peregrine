@@ -129,7 +129,7 @@
             depends="jar, compile.test, test-basic, test-multi, test-report" 
             description="Run junit tests.">
 
-        <echo message="test.failed (fail): ${test.failed}"/>
+        <echo message="test.failed (fail(2)): ${test.failed}"/>
 
         <fail if="test.failed"/>
 
