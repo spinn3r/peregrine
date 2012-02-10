@@ -243,6 +243,7 @@
         <mkdir dir="target/test-reports/${ts}" />
 
         <property name="junit.failed" value="false"/>
+        <property name="junit.errored" value="false"/>
 
         <junit printsummary="withOutAndErr"
                fork="true"
@@ -253,7 +254,7 @@
                haltonfailure="${haltonfailure}"
                haltonerror="${haltonerror}"
                failureproperty="junit.failed"
-               errorproperty="junit.failed"
+               errorproperty="junit.errored"
                showoutput="true" 
                logfailedtests="true">
 
@@ -275,9 +276,13 @@
         </junit>
 
         <echo message="junit.failed: ${junit.failed}"/>
+        <echo message="junit.errored: ${junit.errored}"/>
 
         <condition property="test.failed">
-            <istrue value="${junit.failed}"/>
+            <or>
+                <istrue value="${junit.failed}"/>
+                <istrue value="${junit.errored}"/>
+            </or>
         </condition>
 
     </target>
@@ -298,6 +303,7 @@
         <mkdir dir="target/test-reports/${ts}" />
 
         <property name="junit.failed" value="false"/>
+        <property name="junit.errored" value="false"/>
 
         <junit printsummary="withOutAndErr"
                fork="true"
@@ -308,7 +314,7 @@
                haltonfailure="${haltonfailure}"
                haltonerror="${haltonerror}"
                failureproperty="junit.failed"
-               errorproperty="junit.failed"
+               errorproperty="junit.errored"
                showoutput="true" 
                logfailedtests="true">
 
@@ -348,9 +354,13 @@
         </junit>
 
         <echo message="junit.failed: ${junit.failed}"/>
+        <echo message="junit.errored: ${junit.errored}"/>
 
         <condition property="test.failed">
-            <istrue value="${junit.failed}"/>
+            <or>
+                <istrue value="${junit.failed}"/>
+                <istrue value="${junit.errored}"/>
+            </or>
         </condition>
 
     </target> 

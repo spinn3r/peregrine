@@ -21,6 +21,8 @@ import time
 
 from subprocess import *
 
+VERSION="1.0.1"
+
 LIMIT=60
 BRANCH="default"
 
@@ -402,6 +404,8 @@ def index():
         
         index.close()
         sidebar.close()
+
+print "integrate version %s" % VERSION
 
 if len(sys.argv) == 2 and sys.argv[1] == "--index":
     index()
