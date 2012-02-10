@@ -2,11 +2,11 @@
 
 branch=$(hg branch)
 
-if [ "$branch" != "default" ]; then
+if [ "$branch" != "burton-cassandra-support" ]; then
     exit 125
 fi
 
-ant clean jar compile.test
+cp build.xml.working build.xml && ant clean jar compile.test
 result=$?
 
 #skip if the build failed.
