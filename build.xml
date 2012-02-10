@@ -129,7 +129,9 @@
             depends="jar, compile.test, test-basic, test-multi, test-report" 
             description="Run junit tests.">
 
-        <echo message="test.failed (fail(2)): ${test.failed}"/>
+        <available property="test.failed" file="target/test-reports/failed.true" />
+
+        <echo message="test.failed (fail(3)): ${test.failed}"/>
 
         <fail if="test.failed"/>
 
@@ -280,6 +282,8 @@
 
         <echo message="test.failed: ${test.failed}"/>
 
+        <touch file="target/test-reports/failed.${test.failed}" />
+
     </target>
 
     <target name="test-multi-exec">
@@ -356,6 +360,8 @@
         </condition>
 
         <echo message="test.failed: ${test.failed}"/>
+
+        <touch file="target/test-reports/failed.${test.failed}" />
 
     </target> 
 
