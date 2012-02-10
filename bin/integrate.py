@@ -262,7 +262,7 @@ def test(branch,rev):
 
     os.chdir( SCRATCH )
 
-    run_cmd( "hg update -r %s" % rev )
+    run_cmd( "hg update -C -r %s" % rev )
 
     # to: $changedir/test.log
 
