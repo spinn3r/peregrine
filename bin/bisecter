@@ -10,13 +10,13 @@ cp build.xml build.xml.bak && cp build.xml.working build.xml && ant clean jar co
 result=$?
 
 #skip if the build failed.
-if [ "$result" == "0" ]; then
+if [ "$result" != "0" ]; then
 
-    ant test
-    result=$?
+    result=125
 
 else
-    result=125
+    ant test
+    result=$?
 fi
 
 cp build.xml.bak build.xml
