@@ -110,6 +110,8 @@ def strftime( ts ):
 def read_cmd(cmd, input=None, cwd=None):
     """Run the given command and read its output"""
 
+    # http://stackoverflow.com/questions/1556348/python-run-a-process-with-timeout-and-capture-stdout-stderr-and-exit-status
+
     pipe = Popen(cmd, shell=True, stdout=PIPE, stderr=PIPE, stdin=PIPE, cwd=cwd)
 
     out=''
@@ -323,7 +325,13 @@ def run(limit=LIMIT):
     # change to the sratch dir and hg pull -u
     os.chdir( SCRATCH )
 
-    run_cmd( "hg pull -u" )
+    # FIXME: if bitbucket is down this will fail and the script will abort when
+    # in reality it's ok if this fails.
+
+    try:
+        run_cmd( "hg pull -u" )
+    except:
+        print "FAILED to hg pull"
 
     active_branches=get_active_branches()
 
