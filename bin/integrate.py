@@ -11,15 +11,14 @@
 #
 # - 
 
+import datetime
 import os
 import re
-import traceback
-import datetime
-import sys
 import shutil
+import subprocess
+import sys
 import time
-
-from subprocess import *
+import traceback
 
 VERSION="1.0.1"
 
@@ -35,6 +34,17 @@ TEST_COMMAND="hg cat -r default build.xml > build.xml && export ANT_OPTS=-Xmx256
 REPO="https://burtonator:redapplekittycat@bitbucket.org/burtonator/peregrine"
 
 DAEMON_SLEEP_INTERVAL=120
+
+IGNORE_BRANCHES={}
+
+IGNORE_BRANCHES['burton-bench']=1
+
+IGNORE_CHANGESETS={}
+IGNORE_CHANGESETS['1852']=1
+
+##
+# Timeout for build commands.
+TIMEOUT=30*60
 
 class ReportIndex:
 
@@ -110,9 +120,12 @@ def strftime( ts ):
 def read_cmd(cmd, input=None, cwd=None):
     """Run the given command and read its output"""
 
-    # http://stackoverflow.com/questions/1556348/python-run-a-process-with-timeout-and-capture-stdout-stderr-and-exit-status
-
-    pipe = Popen(cmd, shell=True, stdout=PIPE, stderr=PIPE, stdin=PIPE, cwd=cwd)
+    pipe = subprocess.Popen( cmd,
+                             shell=True,
+                             stdout=subprocess.PIPE,
+                             stderr=subprocess.PIPE,
+                             stdin=subprocess.PIPE,
+                             cwd=cwd)
 
     out=''
     err=''
@@ -136,7 +149,7 @@ def run_cmd(cmd, input=None, stdout=None, stderr=None, cwd=None, fail=True):
 
     print " # %s" % cmd
 
-    pipe = Popen(cmd, shell=True, cwd=cwd, stdout=stdout, stderr=stderr)
+    pipe = subprocess.Popen(cmd, shell=True, cwd=cwd, stdout=stdout, stderr=stderr)
 
     (_out,_err) = pipe.communicate( input )
     result = pipe.poll()
@@ -144,6 +157,42 @@ def run_cmd(cmd, input=None, stdout=None, stderr=None, cwd=None, fail=True):
     if result == 0:
         return 0
     elif result >= 0 and fail:
+        raise Exception( "%s exited with %s" % (cmd, result) )
+
+    return result
+
+class Timeout(Exception):
+    pass
+
+def run_cmd2(command, input=None, stdout=None, stderr=None, cwd=None, fail=True, timeout=TIMEOUT):
+
+    print " # %s" % command
+
+    proc = subprocess.Popen( command,
+                             bufsize=0,
+                             stdout=stdout,
+                             stderr=stderr,
+                             cwd=cwd ,
+                             shell=True )
+    
+    poll_seconds = .250
+    deadline = time.time()+timeout
+    while time.time() < deadline and proc.poll() == None:
+        time.sleep(poll_seconds)
+
+    if proc.poll() == None:
+        proc.terminate()
+
+        if fail:
+            raise Timeout()
+        else:
+            return -1
+
+    stdout, stderr = proc.communicate()
+
+    result = proc.poll()
+
+    if result > 0 and fail:
         raise Exception( "%s exited with %s" % (cmd, result) )
 
     return result
@@ -262,6 +311,10 @@ def test(branch,rev):
         print "Skipping rev %s (already tested)." % rev
         return
 
+    if ( isIgnored( rev ) ):
+        print "Skipping rev %s (ignored)." % rev
+        return
+
     print "Testing %s on branch %s" % ( rev, branch )
 
     os.chdir( SCRATCH )
@@ -275,15 +328,17 @@ def test(branch,rev):
     if not os.path.exists( changedir ):
         os.makedirs( changedir )
 
-    stdout=open( "%s/test.log" % (changedir), "w" )
-    stderr=open( "%s/test.err" % (changedir), "w" )
+    _stdout=open( "%s/test.log" % (changedir), "w" )
+    _stderr=open( "%s/test.err" % (changedir), "w" )
 
-    result = run_cmd( TEST_COMMAND, stdout=stdout, stderr=stderr, fail=False )
+    result = run_cmd2( TEST_COMMAND, stdout=_stdout, stderr=_stderr, fail=False )
 
     if ( result == 0 ):
         print "SUCCESS"
-    else:
+    elif ( result > 0 ):
         print "FAILED"
+    else:
+        print "TIMEOUT"
 
     # TODO consider just making this a move.
     if os.path.exists( "%s/target/test-reports" % SCRATCH):
@@ -314,6 +369,56 @@ def isTested(rev):
         
     return False
 
+def isIgnored(rev):
+
+    return IGNORE_CHANGESETS.get( rev ) != None
+
+def prioritize(list,depth=0):
+    """
+
+    For a given list, reprioritize it so that we index basically by a binary
+    search so that we don't keep indexing the most recent changesets but spread
+    out tests across ALL the revisions.
+
+    for example with an input of:
+    
+    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+
+    the output would look like:
+    
+    [0, 10, 5, 15, 3, 13, 8, 18, 2, 12, 7, 17, 4, 14, 9, 19, 1, 11, 6, 16]
+
+    """
+    if len(list) <= 1:
+        return list
+
+    mid = len(list) / 2
+
+    head=list[0:mid]
+    tail=list[mid:len(list)]
+
+    result=[]
+
+    if depth == 0:
+        result.append( head.pop(0) )
+
+    result.append( tail.pop(0) )
+
+    head = prioritize( head, depth+1 )
+    tail = prioritize( tail, depth+1 )
+
+    end=max(len(head), len(tail))
+
+    for i in xrange(end):
+
+        if i < len(head):
+            result.append( head[i] )
+
+        if i < len(tail):
+            result.append( tail[i] )
+
+    return result
+
 def run(limit=LIMIT):
 
     if not os.path.exists( SCRATCH ):
@@ -337,12 +442,16 @@ def run(limit=LIMIT):
 
     change_index=get_change_index()
 
-    #print "Working with active branches: %s" % active_branches
-    #print "Working with change index keys: %s" % change_index.keys() 
+    # reprioritize the revisions we should be testing.
+    for branch in active_branches:
+        change_index[branch] = prioritize(change_index[branch][0:LIMIT]);
 
     for i in xrange(limit):
 
         for branch in active_branches:
+
+            if IGNORE_BRANCHES.get( branch ) != None:
+                continue
 
             changes=change_index[branch]
 
@@ -440,4 +549,3 @@ while True:
 
     time.sleep( DAEMON_SLEEP_INTERVAL )
 
-1
