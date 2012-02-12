@@ -1,15 +1,19 @@
 #!/usr/bin/python
 
 ###
+# 
+
+###
 #
 # TODO
 #
 #
-# - CSS this bitch
+# - make the right page have some basic stats.
 #
-# - put a timeout on the total runtime and kill it if it takes too long
-#
-# - 
+# - parse command line arguments
+#    - timeout
+#    - ignore-branches
+#    - ignore-changesets
 
 import datetime
 import os
@@ -22,7 +26,8 @@ import traceback
 
 VERSION="1.0.1"
 
-LIMIT=60
+LIMIT=200
+
 BRANCH="default"
 
 SCRATCH="/tmp/integration/peregrine"
@@ -38,6 +43,7 @@ DAEMON_SLEEP_INTERVAL=120
 IGNORE_BRANCHES={}
 
 IGNORE_BRANCHES['burton-bench']=1
+IGNORE_BRANCHES['burton-cassandra-support']=1
 
 IGNORE_CHANGESETS={}
 IGNORE_CHANGESETS['1852']=1
