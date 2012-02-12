@@ -2,7 +2,7 @@
 
 branch=$(hg branch)
 
-if [ "$branch" != "burton-cassandra-support" ]; then
+if [ "$branch" != "default" ]; then
     exit 125
 fi
 
@@ -19,6 +19,6 @@ else
     result=$?
 fi
 
-cp build.xml.bak build.xml
+hg revert build.xml
 
 exit $result
