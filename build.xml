@@ -14,8 +14,8 @@
     <property name="javadocdir"    value="target/javadoc"/>
     <property name="version"       value="0.5.3"/>
 
-    <property name="haltonfailure" value="true"/>
-    <property name="haltonerror"   value="true"/>
+    <property name="haltonfailure" value="false"/>
+    <property name="haltonerror"   value="false"/>
 
     <path id="project.classpath">
 
