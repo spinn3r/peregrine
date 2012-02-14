@@ -328,7 +328,7 @@
 
                 <fileset dir="src/test">
 
-                  <include name="peregrine/TestMapReduceWithMergeFactor.java"/>
+                  <!-- <include name="peregrine/TestMapReduceWithMergeFactor.java"/> -->
                   <include name="peregrine/TestBroadcastMapReduce.java"/>
                   <include name="peregrine/TestDataImbalance.java"/>
                   <include name="peregrine/TestMapReduce.java"/>
