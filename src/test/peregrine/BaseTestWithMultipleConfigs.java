@@ -119,7 +119,7 @@ public abstract class BaseTestWithMultipleConfigs extends peregrine.BaseTest {
         
         super.tearDown();
 
-        //showRunningThreads();
+        //logRunningThreads();
         
     }
 
@@ -165,7 +165,7 @@ public abstract class BaseTestWithMultipleConfigs extends peregrine.BaseTest {
 
         } catch ( Throwable t ) {
 
-            showRunningThreads();
+            logRunningThreads();
 
             if ( t instanceof Exception )
                 throw (Exception)t;
@@ -191,7 +191,7 @@ public abstract class BaseTestWithMultipleConfigs extends peregrine.BaseTest {
      */
     public abstract void doTest() throws Exception;
 
-    public void showRunningThreads() {
+    public void logRunningThreads() {
 
         ThreadGroup root = Thread.currentThread().getThreadGroup();
 
@@ -218,9 +218,19 @@ public abstract class BaseTestWithMultipleConfigs extends peregrine.BaseTest {
 
         log.info( "%,d threads remain", threadlist.size() );
 
+        StringBuilder buff = new StringBuilder();
+        
         for( Thread thread : threadlist ) {
-            System.out.printf( "  %s\n", thread.getName() );
+            
+            buff.append( String.format( "%s\n", thread.getName() ) );
+
+            for ( StackTraceElement frame : thread.getStackTrace() ) {
+                buff.append( String.format( "\t%s\n", frame.toString() ) );
+            }
+            
         }
+
+        log.info( "%s", buff.toString() );
         
     }
     
