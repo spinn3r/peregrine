@@ -17,9 +17,6 @@
     <property name="haltonfailure" value="false"/>
     <property name="haltonerror"   value="false"/>
 
-    <property name="haltonfailure" value="false"/>
-    <property name="haltonerror"   value="false"/>
-
     <path id="project.classpath">
 
         <pathelement location="compile"/>
