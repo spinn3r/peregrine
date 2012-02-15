@@ -47,19 +47,12 @@ public class TestMapReduceWithMergeFactor extends peregrine.BaseTestWithMultiple
         }
         
     }
-
-    @Override
-    public void setUp() {
-
-        super.setUp();
+    
+    public void doTest() throws Exception {
 
         for( Config config : configs ) {
             config.setShuffleSegmentMergeParallelism( 10 );
         }
-
-    }
-    
-    public void doTest() throws Exception {
 
         // change the shuffle buffer so we have lots of smaller files.
         for( Config config : configs ) {
@@ -67,7 +60,7 @@ public class TestMapReduceWithMergeFactor extends peregrine.BaseTestWithMultiple
             config.setSortBufferSize( 100000 );
         }
         
-        doTest( 100000 );
+        doTest( 100000 * getFactor() );
         
     }
 
@@ -121,13 +114,15 @@ public class TestMapReduceWithMergeFactor extends peregrine.BaseTestWithMultiple
 
         //System.setProperty( "peregrine.test.config", "1:1:1" ); // 3sec
 
-        System.setProperty( "peregrine.test.factor", "10" ); // 1m
         System.setProperty( "peregrine.test.config", "02:01:04" ); // takes 3 seconds
+        System.setProperty( "peregrine.test.factor", "1" ); // 1m
+        //System.setProperty( "peregrine.test.config", "01:01:1" ); // takes 3 seconds
 
         // concurrency=2, replicas=1, hosts=4
         
         // 256 partitions... 
         //System.setProperty( "peregrine.test.config", "08:01:32" );  // 1m
+        System.setProperty( "peregrine.test.config", "02:01:04" );  // 1m
 
         runTests();
 

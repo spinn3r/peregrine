@@ -129,108 +129,16 @@
     </target>
 
     <target name="test" 
-            depends="jar,compile.test" 
+            depends="jar, compile.test, test-basic, test-multi, test-report" 
             description="Run junit tests.">
 
-        <antcall target="test-basic" />
+        <available property="test.failed" file="target/test-reports/failed.true" />
 
-        <antcall target="test-multi" />
-
-        <antcall target="test-report" />
+        <echo message="test.failed (fail(3)): ${test.failed}"/>
 
         <fail if="test.failed"/>
 
     </target> 
-
-    <target name="test-multi"
-            depends="jar,compile.test">
-
-      <foreach list="1" 
-               param="peregrine.test.factor" 
-               target="test-multi-with-configs">
-
-      </foreach>
-
-    </target>
-
-    <target name="test-multi-with-configs">
-      
-      <!-- 
-        Define muliple config test in the form of:
-
-        concurrency:replicas:hosts 
-
-        one per line.
-
-        TODO we are not testing three replica configs right now as we
-        have some known bugs here and it isn't important at the moment.
-
-                               01:03:04
-                               01:03:08
-                               01:03:16
-                               01:03:24
-                               01:03:32
-                               02:03:08
-                               02:03:16
-                               02:03:24
-                               02:03:32
-                               04:03:16
-                               04:03:24
-                               04:03:32
-                               08:03:32
-
-                               01:02:04
-                               01:02:08
-                               01:02:16
-                               01:02:24
-                               01:02:32
-                               02:02:08
-                               02:02:16
-                               02:02:24
-                               02:02:32
-                               04:02:16
-                               04:02:24
-                               04:02:32
-                               08:02:24
-                               08:02:32
-
-                               01:01:08
-                               01:01:16
-                               01:01:24
-                               01:01:32
-
-                               02:01:08
-                               02:01:16
-                               02:01:24
-                               02:01:32
-
-                               02:01:08
-                               02:01:16
-                               02:01:24
-                               02:01:32
-                               04:01:01
-                               04:01:08
-                               04:01:16
-                               04:01:24
-                               04:01:32
-                               08:01:32
-
-      -->
-      <property name="configs">01:01:01
-                               01:01:02
-                               01:01:04
-                               02:01:01
-                               02:01:04
-      </property>
-
-      <foreach list="${configs}" 
-               param="peregrine.test.config" 
-               delimiter=" "
-               target="test-multi-exec">
-
-      </foreach>
-
-    </target>
 
     <target name="test-basic">
 
@@ -245,8 +153,6 @@
 
         <mkdir dir="target/test-reports/${ts}" />
 
-        <property name="junit.failed" value="false"/>
-
         <junit printsummary="withOutAndErr"
                fork="true"
                forkmode="perTest"
@@ -256,7 +162,7 @@
                haltonfailure="${haltonfailure}"
                haltonerror="${haltonerror}"
                failureproperty="junit.failed"
-               errorproperty="junit.failed"
+               errorproperty="junit.errored"
                showoutput="true" 
                logfailedtests="true">
 
@@ -278,10 +184,40 @@
         </junit>
 
         <echo message="junit.failed: ${junit.failed}"/>
+        <echo message="junit.errored: ${junit.errored}"/>
 
         <condition property="test.failed">
-            <istrue value="${junit.failed}"/>
+            <or>
+                <istrue value="${junit.failed}"/>
+                <istrue value="${junit.errored}"/>
+            </or>
         </condition>
+
+        <echo message="test.failed: ${test.failed}"/>
+
+        <touch file="target/test-reports/failed.${test.failed}" />
+
+    </target>
+
+    <target name="test-multi"
+            depends="jar,compile.test">
+
+      <foreach list="1" 
+               param="peregrine.test.factor" 
+               target="test-multi-with-configs">
+
+      </foreach>
+
+    </target>
+
+    <target name="test-multi-with-configs">
+
+      <foreach list="${multi.configs}" 
+               param="peregrine.test.config" 
+               delimiter=" "
+               target="test-multi-exec">
+
+      </foreach>
 
     </target>
 
@@ -300,8 +236,6 @@
 
         <mkdir dir="target/test-reports/${ts}" />
 
-        <property name="junit.failed" value="false"/>
-
         <junit printsummary="withOutAndErr"
                fork="true"
                forkmode="perTest"
@@ -311,7 +245,7 @@
                haltonfailure="${haltonfailure}"
                haltonerror="${haltonerror}"
                failureproperty="junit.failed"
-               errorproperty="junit.failed"
+               errorproperty="junit.errored"
                showoutput="true" 
                logfailedtests="true">
 
@@ -351,10 +285,18 @@
         </junit>
 
         <echo message="junit.failed: ${junit.failed}"/>
+        <echo message="junit.errored: ${junit.errored}"/>
 
         <condition property="test.failed">
-            <istrue value="${junit.failed}"/>
+            <or>
+                <istrue value="${junit.failed}"/>
+                <istrue value="${junit.errored}"/>
+            </or>
         </condition>
+
+        <echo message="test.failed: ${test.failed}"/>
+
+        <touch file="target/test-reports/failed.${test.failed}" />
 
     </target> 
 
@@ -518,3 +460,4 @@
     </target>
 
 </project>
+
