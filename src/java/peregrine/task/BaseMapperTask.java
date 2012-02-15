@@ -32,6 +32,10 @@ import peregrine.map.*;
 import peregrine.shuffle.sender.*;
 import peregrine.util.*;
 
+/**
+ * Base task for all task that read input from external systems or the 
+ * filesystem (or pipes).  In practice this boils down to map and merge tasks.
+ */
 public abstract class BaseMapperTask extends BaseTask implements Callable {
 
     /**
@@ -49,9 +53,9 @@ public abstract class BaseMapperTask extends BaseTask implements Callable {
     /**
      * Run init just on Mapper and Merger tasks.
      */
-    public void init( Config config, Partition partition, Class delegate ) throws IOException {
+    public void init( Config config, Work work, Class delegate ) throws IOException {
 
-        super.init( config, partition, delegate );
+        super.init( config, work, delegate );
 
         // make all shuffle dirs for the shuffle output paths to make sure we
         // have an empty set input for the shuffle data as opposed to missing
@@ -89,27 +93,30 @@ public abstract class BaseMapperTask extends BaseTask implements Callable {
         listeners.add( new MapperChunkStreamListener() );
         
         List<SequenceReader> readers = new ArrayList();
-        
-        for( InputReference ref : getInput().getReferences() ) {
 
-            if ( ref instanceof BroadcastInputReference ) {
+        for( int i = 0; i < getInput().getReferences().size(); ++i ) {
+
+        	InputReference inputReference  = getInput().getReferences().get( i );
+        	WorkReference  workReference   = getWork().getReferences().get( i );
+        	
+            if ( inputReference instanceof BroadcastInputReference ) {
             	// right now we handle broadcast input differently.
                 continue;
             }
 
-            IODriver driver = IODriverRegistry.getInstance( ref.getScheme() );
+            IODriver driver = IODriverRegistry.getInstance( inputReference.getScheme() );
             
             // see if it is registered as a driver.
             if ( driver != null ) {
 
-                JobInput ji = driver.getJobInput( ref, config, partition );
+                JobInput ji = driver.getJobInput( config, inputReference, workReference );
                 ji.addListeners( listeners );
                 
                 readers.add( ji );
                 continue;
             }
 
-            throw new IOException( "Reference not supported: " + ref );
+            throw new IOException( "Reference not supported: " + inputReference );
             
         }
 

@@ -39,19 +39,17 @@ public class ReducerTask extends BaseTask implements Callable {
     private AtomicInteger nrTuples = new AtomicInteger();
     
     public ReducerTask() {}
-    
-    public ReducerTask( Config config,
-                        Partition partition,
-                        Class delegate,
-                        ShuffleInputReference shuffleInput )
-        throws Exception {
 
-        super.init( config, partition, delegate );
+    @Override
+    public void setInput( Input input ) {
 
-        this.shuffleInput = shuffleInput;
-        
+        super.setInput( input );
+
+        this.shuffleInput = (ShuffleInputReference)input.getReferences().get( 0 );
+        log.info( "Using shuffle input : %s ", shuffleInput.getName() );
+
     }
-
+    
     @Override
     public Object call() throws Exception {
 
@@ -115,6 +113,4 @@ public class ReducerTask extends BaseTask implements Callable {
     }
     
 }
-
-
 

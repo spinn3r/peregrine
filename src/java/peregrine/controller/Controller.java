@@ -32,11 +32,9 @@ import com.spinn3r.log5j.*;
 
 /**
  * 
- * Main interface for running a mapred job.  The controller communicated with PFS 
- * nodes which will then in turn run jobs with your specified Mapper, Merger 
- * and/or Reducer.
- * 
- * @author burton@spinn3r.com
+ * Main interface for running a map reduce job in Peregrine.  The controller
+ * communicates with worker nodes which will then in turn will run jobs with
+ * your specified {@link Mapper}, {@link Merger} and/or {@link Reducer}.
  * 
  */
 public class Controller {
@@ -103,10 +101,11 @@ public class Controller {
     	
     	withScheduler( job, new Scheduler( "map", job, config, clusterState ) {
 
-                public void invoke( Host host, Partition part ) throws Exception {
+    			@Override
+                public void invoke( Host host, Work work ) throws Exception {
 
                     Message message 
-                        = createSchedulerMessage( "exec", job, part );
+                        = createSchedulerMessage( "exec", job, work );
 
                     new Client().invoke( host, "map", message );
                     
@@ -154,9 +153,10 @@ public class Controller {
     	
         withScheduler( job, new Scheduler( "merge", job, config, clusterState ) {
 
-                public void invoke( Host host, Partition part ) throws Exception {
+                @Override
+                public void invoke( Host host, Work work ) throws Exception {
 
-                    Message message = createSchedulerMessage( "exec", job, part );
+                    Message message = createSchedulerMessage( "exec", job, work );
                     new Client().invoke( host, "merge", message );
                     
                 }
@@ -196,9 +196,10 @@ public class Controller {
         // this will block for completion ... 
         withScheduler( job, new Scheduler( "reduce", job, config, clusterState ) {
 
-                public void invoke( Host host, Partition part ) throws Exception {
+                @Override
+                public void invoke( Host host, Work work ) throws Exception {
 
-                    Message message = createSchedulerMessage( "exec", job, part );
+                    Message message = createSchedulerMessage( "exec", job, work );
                     new Client().invoke( host, "reduce", message );
                     
                 }
@@ -243,7 +244,7 @@ public class Controller {
         // shufflers can be flushed after any stage even reduce as nothing will
         // happen
 
-        // FIXME: this should be a typesafe enum with map|merge|reduce
+        // TODO: this should be a typesafe enum with map|merge|reducem
         
         if ( "map".equals( operation ) || "merge".equals( operation ) )
             flushAllShufflers();
@@ -330,37 +331,24 @@ public class Controller {
     
     private Message createSchedulerMessage( String action,
                                             Job job,
-                                            Partition partition ) {
+                                            Work work ) {
 
     	Class delegate = job.getDelegate();
     	Input input = job.getInput();
     	Output output = job.getOutput();
-    	
-        int idx;
-
+    
         Message message = new Message();
+        
         message.put( "action",     action );
-        message.put( "partition",  partition.getId() );
         message.put( "delegate",   delegate.getName() );
         message.put( "job_id",     job.getId() );
-        
-        if ( input != null ) {
-        
-            idx = 0;
-            for( InputReference ref : input.getReferences() ) {
-                message.put( "input." + idx++, ref.toString() );
-            }
+    	message.put( "work" ,      work.getReferences() );
 
-        }
+        if ( input != null )
+        	message.put( "input" ,  input.getReferences() );
 
-        if ( output != null ) {
-            
-            idx = 0;
-            for( OutputReference ref : output.getReferences() ) {
-                message.put( "output." + idx++, ref.toString() );
-            }
-
-        }
+        if ( output != null )
+        	message.put( "output" , output.getReferences() );
 
         return message;
         

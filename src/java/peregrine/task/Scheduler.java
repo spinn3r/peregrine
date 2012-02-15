@@ -25,6 +25,8 @@ import peregrine.util.*;
 import peregrine.config.*;
 import peregrine.controller.*;
 import peregrine.rpc.*;
+import peregrine.io.*;
+import peregrine.io.driver.*;
 
 import com.spinn3r.log5j.*;
 
@@ -76,12 +78,12 @@ public class Scheduler {
      * more work we verify that we aren't scheduling work form completed
      * partitions.
      */
-    protected MarkSet<Partition> completed = new MarkSet();
+    protected MarkSet<Work> completed = new MarkSet();
 
     /**
      * The list of work that has not yet been completed but is still pending.
      */
-    protected MarkSet<Partition> pending = new MarkSet();    
+    protected MarkSet<Work> pending = new MarkSet();    
 
     /**
      * Keep track of which hosts are performing work on which partitions.  This
@@ -89,7 +91,7 @@ public class Scheduler {
      * terminate work hosts which have active work but another host already
      * completed it.
      */
-    protected MapSet<Partition,Host> executing = new MapSet();
+    protected MapSet<Work,Host> executing = new MapSet();
     
     /**
      * Hosts which are available for additional work.  These are stored in a 
@@ -118,15 +120,22 @@ public class Scheduler {
      * is equal to the replica count the system has to fail as we have lost
      * data (ouch).
      */
-    protected IncrMap<Partition> offlinePartitions;
+    protected IncrMap<Work> offlineWork;
 
     /**
      * Hosts which should be sent kill requests because a job completed which is
      * also being speculatively executed on other hosts so we need to send a
      * kill command to the host.
      */
-    protected SimpleBlockingQueue<Replica> prey = new SimpleBlockingQueue();
+    protected SimpleBlockingQueue<Work> prey = new SimpleBlockingQueue();
 
+    /**
+     * Keep track of the work to perform by host.  On scheduler startup we first
+     * call getWork() on all the input and then build the work index from this
+     * data structure.
+     */
+    protected Map<Host,List<Work>> workIndex = new ConcurrentHashMap();
+    
     protected ChangedMessage changedMessage = new ChangedMessage();
 
     private ClusterState clusterState;
@@ -140,8 +149,11 @@ public class Scheduler {
     public Scheduler( final String operation,
                       final Job job,
                       final Config config,
-                      final ClusterState clusterState ) {
+                      final ClusterState clusterState )
+        throws IOException {
 
+        log.info( "Creating new scheduler for %s on job: %s" , operation, job );
+        
         this.operation = operation;
         this.job = job;
         this.config = config;
@@ -151,7 +163,21 @@ public class Scheduler {
         // create a concurrency from all the currently known hosts.
         concurrency = new IncrMap( config.getHosts() );
 
-        offlinePartitions = new IncrMap( config.getMembership().getPartitions() );
+        workIndex = createWorkIndex();
+
+        offlineWork = new IncrMap();
+
+        // make sure EVERY work unit has an entry in the offlineWork index so
+        // that when we do a get() we can measure that it is zero (and not
+        // null).
+
+        for( Host host : workIndex.keySet() ) {
+            List<Work> workForHost = workIndex.get( host );
+
+            for( Work current : workForHost ) {
+                offlineWork.init( current );
+            }
+        }
         
         // import the current list of online hosts and pay attention to new
         // updates in the future.
@@ -176,25 +202,73 @@ public class Scheduler {
                     // for every partition when it is marked offline, go through
                     // and mark every partition offline.  if a partition has NO
                     // online replicas then we must abort the job.
-                    List<Partition> partitions = config.getMembership().getPartitions( host );
 
-                    for( Partition part : partitions ) {
+                    List<Work> workForHost = workIndex.get( host );
 
-                        offlinePartitions.incr( part );
+                    for( Work current : workForHost ) {
+                        
+                        offlineWork.incr( current );
 
-                        if( offlinePartitions.get( part ) == config.getReplicas() ) {
-                            markFailed( host, part , false, "*NO TRACE*" );
+                        if( offlineWork.get( current ) == config.getReplicas() ) {
+                            markFailed( host, current , false, "*NO TRACE*" );
                             break;
                         }
-                                                  
+
                     }
-                    
+
                 }
 
             } );
-        
+
     }
 
+    protected Map<Host,List<Work>> createWorkIndex() throws IOException {
+    
+    	Map<Host,List<Work>> result = new ConcurrentHashMap();
+    	
+    	// create empty lists for every host... 
+    	for( Host host : config.getHosts() ) {
+    		result.put( host, new ArrayList() );
+    	}
+
+        // build the index of work now based on the IO driver ...
+        
+        for( InputReference inputReference : job.getInput().getReferences() ) {
+        	
+        	IODriver driver = IODriverRegistry.getInstance( inputReference.getScheme() );
+               
+        	Map<Host,List<Work>> driverWork = driver.getWork( config, inputReference );
+
+        	for( Host host : driverWork.keySet() ) {
+        		
+        		List<Work> resultWorkEntry = result.get( host );
+                List<Work> driverWorkEntry = driverWork.get( host );
+        		
+                for( int i = 0; i < driverWorkEntry.size(); ++i ) {
+                	
+                	Work work = null;
+                	
+                	if ( resultWorkEntry.size() - 1 >= i ) 
+                        work = resultWorkEntry.get( i );
+                	
+                	if ( work == null ) {
+                		work = driverWorkEntry.get( i );
+                		resultWorkEntry.add( work );
+                	} else {
+                        // merge the two lists.. 
+                		work.merge( driverWorkEntry.get( i ) );
+                	}
+                	
+                }
+                            
+        	}
+        	
+        }	
+        
+        return result;
+    	
+    }
+    
     /**
      * The operation in progress.  Can be map reduce or merge.
      */
@@ -204,30 +278,32 @@ public class Scheduler {
     
     protected void schedule( Host host ) throws Exception {
 
-        List<Replica> replicas = getReplicasForExecutionByImportance( host );
-        
-        for( Replica replica : replicas ) {
+        List<Work> workList = getWorkForExecutionByImportance( host );
 
-            Partition part = replica.getPartition();
+        if ( workList.size() == 0 )
+            log.warn( "NO work found for host: %s" , host );
+        
+        for( Work work : workList ) {
             
-            if ( completed.contains( part ) )
+            if ( completed.contains( work ) ) {
                 continue;
+            }
 
             if ( config.getSpeculativeExecutionEnabled() ) {
 
                 // verify that this host isn't ALREADY executing this partition
                 // which would be wrong.
-                if ( executing.contains( part ) && executing.get( part ).contains( host ) ) {
+                if ( executing.contains( work ) && executing.get( work ).contains( host ) ) {
                     continue;
                 }
                 
             } else {
 
-                if ( replica.getPriority() > 0 ) {
+                if ( work.getPriority() > 0 ) {
                     continue;
                 }
                 
-                if ( pending.contains( part ) ) {
+                if ( pending.contains( work ) ) {
                     // skip speculatively executing this partition now.
                     continue;
                 }
@@ -243,18 +319,18 @@ public class Scheduler {
             }
             
             log.info( "Scheduling %s on %s with current concurrency: %,d of %,d",
-                      part, host, concurrency.get( host ), config.getConcurrency() );
+                      work, host, concurrency.get( host ), config.getConcurrency() );
             
-            invoke( host, part );
+            invoke( host, work );
 
             // mark this host as pending so that work doesn't get executed again
             // until we want to do speculative execution
 
-            pending.mark( part );
+            pending.mark( work );
 
             concurrency.incr( host );
 
-            executing.put( part, host );
+            executing.put( work, host );
             
             continue;
 
@@ -269,15 +345,15 @@ public class Scheduler {
      * number of hosts currently running a job on that partition and then the
      * priority.
      */
-    protected List<Replica> getReplicasForExecutionByImportance( Host host ) 
+    protected List<Work> getWorkForExecutionByImportance( Host host ) 
         throws Exception {
 
-        List<Replica> replicas = membership.getReplicas( host );
+        List<Work> work = workIndex.get( host );
 
-        if ( replicas == null )
-            throw new Exception( "No replicas defined for host: " + host );
+        if ( work == null )
+            throw new Exception( "No work defined for host: " + host );
 
-        return getReplicasForExecutionByImportance( replicas );
+        return getWorkForExecutionByImportance( work );
         
     }
 
@@ -286,42 +362,37 @@ public class Scheduler {
      * number of hosts currently running a job on that partition and then the
      * priority.
      */
-    protected List<Replica> getReplicasForExecutionByImportance( List<Replica> replicas )
+    protected List<Work> getWorkForExecutionByImportance( List<Work> workForHost )
         throws Exception {
 
-        final IncrMap<Partition> parallelism = new IncrMap();
+        final IncrMap<Work> parallelism = new IncrMap();
 
-        final List<Replica> result = new ArrayList();
-        
+        final List<Work> result = new ArrayList();
+                
         // add all these partitions to the mix.
-        for( Replica replica : replicas ) {
-
-            Partition part = replica.getPartition();
+        for( Work work : workForHost ) {
             
-            parallelism.init( part );
-
-            if ( executing.contains( part ) )
-                parallelism.set( part, executing.get( part ).size() );
-
-            result.add( replica );
+            parallelism.init( work );
+            
+            if ( executing.contains( work ) )
+                parallelism.set( work, executing.get( work ).size() );
+            
+            result.add( work );
             
         }
 
         // now sort the result correctly.
-        Collections.sort( result, new Comparator<Replica>() {
+        Collections.sort( result, new Comparator<Work>() {
 
-                public int compare( Replica r0, Replica r1 ) {
-
-                    Partition p0 = r0.getPartition();
-                    Partition p1 = r1.getPartition();
-
-                    int diff = parallelism.get( p0 ) - parallelism.get( p1 );
+                public int compare( Work w0, Work w1 ) {
+                
+                    int diff = parallelism.get( w0 ) - parallelism.get( w1 );
 
                     if ( diff != 0 )
                         return diff;
-                    
+
                     // now order it by priority
-                    return r0.getPriority() - r1.getPriority();
+                    return w0.compareTo( w1 );
 
                 }
                 
@@ -334,7 +405,7 @@ public class Scheduler {
     /**
      * Must be implemented by schedulers to hand out work correctly.
      */
-    public void invoke( Host host, Partition part ) throws Exception {
+    public void invoke( Host host, Work work ) throws Exception {
 
         // we could make this an abstract class but this means that we can't
         // test it as easily.
@@ -347,21 +418,24 @@ public class Scheduler {
      * Mark a job as complete.  The RPC service calls this method when we are
      * List<Partition> partitions = config..getMembership()done with a job.
      */
-    public void markComplete( Host host, Partition partition ) {
+    public void markComplete( Host host, Work work ) {
 
-        log.info( "Marking partition %s complete from host %s", partition, host );
-
+        if ( work.getReferences().size() == 0 )
+            throw new RuntimeException( "Work is invalid" );
+        
+        log.info( "Marking work %s complete from host %s", work, host );
+        
         // mark this partition as complete.
-        completed.mark( partition );
+        completed.mark( work );
 
-        markInactive( host, partition );
+        markInactive( host, work );
 
         // for each one of the hosts that are executing.. add them to the prey
         // queue so they can be killed.
 
-        if ( executing.contains( partition ) ) {
-            for( Host current : executing.get( partition ) ) {
-                prey.put( new Replica( current, partition ) );
+        if ( executing.contains( work ) ) {
+            for( Host current : executing.get( work ) ) {
+                prey.put( work );
             }
         }
 
@@ -371,29 +445,29 @@ public class Scheduler {
      * Mark a job as failed.
      */
     public void markFailed( Host host,
-                            Partition partition,
+                            Work work,
                             boolean killed,
                             String stacktrace ) {
+    	
+        log.error( "Host %s has failed on %s with trace: \n %s", host, work, stacktrace );
 
-        log.error( "Host %s has failed on %s with trace: \n %s", host, partition, stacktrace );
-
-        markInactive( host, partition );
+        markInactive( host, work );
         
         // this isn't really a failure because another host finished this job.
-        if ( completed.contains( partition ) )
+        if ( completed.contains( work ) )
             return;
         
-        failure.mark( new Fail( host, partition, stacktrace ) );
+        failure.mark( new Fail( host, work, stacktrace ) );
         
     }
 
     /**
      * Mark a given 
      */
-    protected void markInactive( Host host, Partition partition ) {
-
+    protected void markInactive( Host host, Work work ) {
+    	
         // now remove this host from the list of actively executing jobs.
-        executing.remove( partition, host );
+        executing.remove( work, host );
 
         // TODO: if this partition has other hosts running this job, terminate
         // the jobs.  This is needed for speculative execution.
@@ -403,7 +477,7 @@ public class Scheduler {
         // possible to read both completed and pending at the same time and both
         // would be clear.
 
-        pending.clear( partition );
+        pending.clear( work );
 
         // add this to the list of available hosts so that we can schedule 
         // additional work.
@@ -455,8 +529,8 @@ public class Scheduler {
             // multiple entries for performance reasons.
             while( prey.size() > 0 ) {
 
-                Replica victim = prey.take();
-                sendKill( operation, victim.getHost(), victim.getPartition() );
+                Work victim = prey.take();
+                sendKill( operation, victim.getHost(), victim );
                 
             }
 
@@ -465,7 +539,7 @@ public class Scheduler {
             
             if ( availableHost != null ) {
                 
-                log.info( "Scheduling work on: %s", availableHost );
+                log.info( "Scheduling work for execution on: %s", availableHost );
 
                 try {
                     schedule( availableHost );
@@ -493,7 +567,7 @@ public class Scheduler {
      */
     protected void sendKill( String service,
                              Host host,
-                             Partition partition ) {
+                             Work work ) {
 
         while( true ) {
 
@@ -508,8 +582,8 @@ public class Scheduler {
                 
                 Message message = new Message();
                 
-                message.put( "action" ,   "kill" );
-                message.put( "partition", partition.getId() );
+                message.put( "action" , "kill" );
+                message.put( "work", work.getReferences() );
                 
                 log.info( "Sending kill message to host %s: %s", host, message );
                 
@@ -519,7 +593,7 @@ public class Scheduler {
 
             } catch ( IOException e ) {
                 
-                log.error( String.format( "Unable to kill %s on %s for %s", service, host, partition ), e );
+                log.error( String.format( "Unable to kill %s on %s for %s", service, host, work ), e );
                 Threads.coma( 1500L );
                 
             }
@@ -551,18 +625,18 @@ public class Scheduler {
 
     }
 
-    private String format( MarkSet<Partition> set ) {
+    private String format( MarkSet<Work> set ) {
 
         StringBuilder buff = new StringBuilder();
 
         buff.append( "[" );
         
-        for( Partition part : set.values() ) {
+        for( Work val : set.values() ) {
 
             if ( buff.length() > 1 )
                 buff.append( ", " );
 
-            buff.append( part.getId() );
+            buff.append( val.toString() );
             
         }
 
@@ -577,29 +651,29 @@ public class Scheduler {
 class Fail {
 
     protected Host host;
-    protected Partition partition;
+    protected Work work;
 
     protected String stacktrace;
     
     public Fail( Host host,
-                 Partition partition,
+                 Work work,
                  String stacktrace ) {
         
         this.host = host;
-        this.partition = partition;
+        this.work = work;
         this.stacktrace = stacktrace;
         
     }
     
     public int hashCode() {
-        return host.hashCode() + partition.hashCode();
+        return host.hashCode() + work.hashCode();
     }
     
     public boolean equals( Object o ) {
 
     	if ( o != null && o instanceof Fail ) {
             Fail f = (Fail)o;            
-            return host.equals( f.host ) && partition.equals( f.partition );            
+            return host.equals( f.host ) && work.equals( f.work );            
     	}
     	
     	return false;
@@ -607,7 +681,7 @@ class Fail {
     }
 
     public String toString() {
-        return String.format( "%s:%s", host, partition );
+        return String.format( "%s:%s", host, work );
     }
     
 }

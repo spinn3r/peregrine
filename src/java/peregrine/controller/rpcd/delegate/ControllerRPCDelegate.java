@@ -22,8 +22,10 @@ import org.jboss.netty.channel.*;
 import peregrine.config.Host;
 import peregrine.config.Partition;
 import peregrine.controller.*;
+import peregrine.io.*;
 import peregrine.rpc.*;
 import peregrine.rpcd.delegate.*;
+import peregrine.task.*;
 
 /**
  * Delegate for intercepting RPC messages.
@@ -37,11 +39,12 @@ public class ControllerRPCDelegate extends RPCDelegate<ControllerDaemon> {
     @RPC
     public void complete( ControllerDaemon controllerDaemon, Channel channel, Message message )
         throws Exception {
-		
-        Host host       = Host.parse( message.get( "host" ) );
-        Partition part  = new Partition( message.getInt( "partition" ) );
 
-        controllerDaemon.getScheduler().markComplete( host, part );
+        Host host     = Host.parse( message.get( "host" ) );
+        Input input   = new Input( message.getList( "input" ) );
+        Work work     = new Work( input, message.getList( "work" ) );
+
+        controllerDaemon.getScheduler().markComplete( host, work );
         
         return;
 		
@@ -57,11 +60,12 @@ public class ControllerRPCDelegate extends RPCDelegate<ControllerDaemon> {
         throws Exception {
         
         Host host          = Host.parse( message.get( "host" ) );
-        Partition part     = new Partition( message.getInt( "partition" ) );
+        Input input        = new Input( message.getList( "input" ) );
+        Work work          = new Work( input, message.getList( "work" ) );
         String stacktrace  = message.get( "stacktrace" );
         boolean killed     = message.getBoolean( "killed" );
         
-        controllerDaemon.getScheduler().markFailed( host, part, killed, stacktrace );
+        controllerDaemon.getScheduler().markFailed( host, work, killed, stacktrace );
 	    
         return;
 		
@@ -77,8 +81,9 @@ public class ControllerRPCDelegate extends RPCDelegate<ControllerDaemon> {
         throws Exception {
 
         Host host          = Host.parse( message.get( "host" ) );
-        Partition part     = new Partition( message.getInt( "partition" ) );
-
+        Input input        = new Input( message.getList( "input" ) );
+        Work work          = new Work( input, message.getList( "work" ) );
+        
         return;
 		
     }

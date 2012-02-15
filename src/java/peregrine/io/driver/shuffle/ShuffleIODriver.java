@@ -24,8 +24,9 @@ import peregrine.config.*;
 import peregrine.io.*;
 import peregrine.io.chunk.*;
 import peregrine.io.driver.*;
+import peregrine.task.*;
 
-public class ShuffleIODriver implements IODriver {
+public class ShuffleIODriver extends BaseIODriver implements IODriver {
 
 	@Override
 	public String getScheme() {
@@ -38,7 +39,7 @@ public class ShuffleIODriver implements IODriver {
 	}
 
 	@Override
-	public JobInput getJobInput( InputReference inputReference, Config config, Partition partition ) throws IOException {		
+	public JobInput getJobInput( Config config, InputReference inputReference, WorkReference work ) throws IOException {		
 	    throw new IOException( "not implemented" );
 	}
 
@@ -52,8 +53,9 @@ public class ShuffleIODriver implements IODriver {
     }
     
 	@Override
-	public JobOutput getJobOutput( OutputReference outputReference, Config config, Partition partition ) throws IOException {
-        return new ShuffleJobOutput( config, (ShuffleOutputReference)outputReference, partition );
+	public JobOutput getJobOutput( Config config, OutputReference outputReference, WorkReference work  ) throws IOException {
+		PartitionWorkReference partitionWork = (PartitionWorkReference)work;
+        return new ShuffleJobOutput( config, (ShuffleOutputReference)outputReference, partitionWork.getPartition() );
 	}
 
 	@Override

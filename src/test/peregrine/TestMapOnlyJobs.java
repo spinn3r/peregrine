@@ -35,7 +35,7 @@ public class TestMapOnlyJobs extends peregrine.BaseTestWithTwoDaemons {
 
     }
 
-    public void test1() throws Exception {
+    public void doTest() throws Exception {
 
         String path = "/test/map.only/test1";
         
@@ -60,8 +60,8 @@ public class TestMapOnlyJobs extends peregrine.BaseTestWithTwoDaemons {
             controller.map( Map.class, new Input( path ), new Output( output ) );
 
             Partition part = new Partition( 1 );
-
-            LocalPartitionReader reader = new LocalPartitionReader( config1, part, output );
+            
+            LocalPartitionReader reader = new LocalPartitionReader( configs.get( 1 ), part, output );
 
             if ( reader.hasNext() == false )
                 throw new IOException( "nothing written" );

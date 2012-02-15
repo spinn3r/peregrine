@@ -18,11 +18,12 @@ package peregrine.io.chunk;
 import java.io.*;
 
 import peregrine.*;
+import peregrine.io.*;
 
 /**
  * Write key/values to chunks.
  */
-public interface ChunkWriter extends Closeable, Flushable {
+public interface ChunkWriter extends Closeable, Flushable, SequenceWriter {
 
     /**
      * Write a key value pair.  This is the main method for IO to a chunk.

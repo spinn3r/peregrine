@@ -32,7 +32,7 @@ import peregrine.shuffle.receiver.*;
 public class FSPutShuffleHandler extends FSPutBaseHandler {
 
     private static Pattern PATH_REGEX =
-        Pattern.compile( "/([0-9]+)/shuffle/([a-zA-Z0-9_-]+)/from-partition/([0-9]+)/from-chunk/([0-9]+)" );
+        Pattern.compile( "/([0-9]+)/shuffle/([a-zA-Z0-9_-]+)/from-partition/([-0-9]+)/from-chunk/([0-9]+)" );
 
     private int to_partition;
     private String name;
