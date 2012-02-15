@@ -30,6 +30,8 @@ public class TestCombineRunner extends peregrine.BaseTestWithMultipleConfigs {
     @Override
     public void doTest() throws Exception {
 
+        int max = 1000 * getFactor();
+        
         CombineRunner runner = new CombineRunner();
 
         Config config = configs.get( 0 );
@@ -40,7 +42,7 @@ public class TestCombineRunner extends peregrine.BaseTestWithMultipleConfigs {
 
         DefaultChunkWriter writer = new DefaultChunkWriter( config, file );
 
-        for( int i = 0; i < 100; ++i ) {
+        for( int i = 0; i < max; ++i ) {
 
             StructReader key   = StructReaders.hashcode( i );
             StructReader value = StructReaders.wrap( i );
