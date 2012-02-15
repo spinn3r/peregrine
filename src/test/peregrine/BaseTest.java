@@ -20,6 +20,7 @@ import java.util.*;
 
 import peregrine.io.util.*;
 import peregrine.config.*;
+import peregrine.os.*;
 
 import org.junit.runner.*;
 import org.junit.runner.notification.*;
@@ -40,6 +41,11 @@ public abstract class BaseTest extends junit.framework.TestCase {
 
         org.apache.log4j.xml.DOMConfigurator.configure( "conf/log4j.xml" );
 
+        // tell the OS to sync before we begin this test.  With LOTS of tests it
+        // is possible dirty the VFS page cache so we need to make sure to sync
+        // before hand.
+        unistd.sync();
+        
     }
 
     public void tearDown() {
