@@ -30,7 +30,7 @@ public class TestDefaultPartitionWriter extends peregrine.BaseTestWithMultipleCo
     public void doTest() throws Exception {
 
         for( int test : TESTS ) {
-            doTest( test );
+            doTest( test * getFactor() );
         }
         
     }

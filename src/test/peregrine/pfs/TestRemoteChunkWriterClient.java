@@ -31,7 +31,7 @@ public class TestRemoteChunkWriterClient extends peregrine.BaseTestWithMultipleC
     public void doTest() throws Exception {
 
         for( int test : TEST ) {
-            doTest( test );
+            doTest( test * getFactor() );
         }
         
     }
