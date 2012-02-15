@@ -17,8 +17,7 @@ package peregrine.worker.rpcd.delegate;
 
 import java.util.concurrent.*;
 
-import peregrine.config.Config;
-import peregrine.config.Partition;
+import peregrine.config.*;
 import peregrine.io.*;
 import peregrine.util.*;
 import peregrine.worker.*;
@@ -33,25 +32,8 @@ public class MergerRPCDelegate extends MapperRPCDelegate {
     private static final Logger log = Logger.getLogger();
 
     @Override
-    protected void exec( FSDaemon daemon,
-                         Class delegate,
-                         Config config,
-                         Partition partition,
-                         Input input,
-                         Output output )
-        throws Exception {
-
-        MergerTask task = new MergerTask();
-
-        task.setInput( input );
-        task.setOutput( output );
-
-        task.init( config, partition, delegate );
-
-        daemon.getExecutorService( getClass() ).submit( task );
-
-        trackTask( partition, task );
-
+    public Task newTask() {
+        return new MergerTask();
     }
-
+    
 }

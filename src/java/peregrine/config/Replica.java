@@ -64,7 +64,7 @@ public class Replica implements Comparable<Replica> {
     
     @Override
     public String toString() {
-        return String.format( "replica:%s, priority=%s", partition, priority  );
+        return String.format( "replica: %s, priority=%s, host=%s", partition, priority, host );
     }
 
 }

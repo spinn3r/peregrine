@@ -20,8 +20,7 @@ import java.util.concurrent.*;
 
 import org.jboss.netty.channel.*;
 
-import peregrine.config.Config;
-import peregrine.config.Partition;
+import peregrine.config.*;
 import peregrine.util.*;
 import peregrine.worker.*;
 
@@ -50,68 +49,42 @@ public class MapperRPCDelegate extends BaseTaskRPCDelegate {
 
         Input input            = readInput( message );
         Output output          = readOutput( message );
-        Partition partition    = new Partition( message.getInt( "partition" ) );
+        Work work              = readWork( input, message );
         Class delegate         = Class.forName( message.get( "delegate" ) );
-        Config config          = daemon.getConfig();
 
-        log.info( "Running %s with input %s and output %s", delegate.getName(), input, output );
+        log.info( "Running %s with input %s and output %s and work %s", delegate.getName(), input, output, work );
 
-        exec( daemon, delegate, config, partition, input, output );
+        Task task = newTask();
+
+        task.setInput( input );
+        task.setOutput( output );
+        task.setJobId( message.getString( "job_id" ) );
         
+        task.init( daemon.getConfig(), work, delegate );
+
+        daemon.getExecutorService( getClass() ).submit( task );
+
+        trackTask( work, task );
+
         return;
 
     }
 
-    protected void exec( FSDaemon daemon,
-                         Class delegate,
-                         Config config,
-                         Partition partition,
-                         Input input,
-                         Output output )
-        throws Exception {
-
-        MapperTask task = new MapperTask();
-
-        task.setInput( input );
-        task.setOutput( output );
-
-        task.init( config, partition, delegate );
-
-        daemon.getExecutorService( getClass() ).submit( task );
-
-        trackTask( partition, task );
-        
+    protected Task newTask() {
+        return new MapperTask();
     }
     
     protected Input readInput( Message message ) {
+        return new Input( message.getList( "input" ) );
 
-        return new Input( readList( message, "input." ) );
-        
     }
 
     protected Output readOutput( Message message ) {
-
-        return new Output( readList( message, "output." ) );
-
+        return new Output( message.getList( "output" ) );
     }
-
-    protected List<String> readList( Message message, String prefix ) {
-
-        List<String> result = new ArrayList();
     
-        for( int i = 0 ; i < Integer.MAX_VALUE; ++i ) {
-
-            String val = message.get( prefix + i );
-
-            if ( val == null )
-                break;
-
-            result.add( val );
-            
-        }
-
-        return result;
-        
+    protected Work readWork( Input input, Message message ) {
+        return new Work( input, message.getList( "work" ) );
     }
     
 }

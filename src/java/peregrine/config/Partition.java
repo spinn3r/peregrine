@@ -18,7 +18,7 @@ package peregrine.config;
 /**
  * Represents a partition by identifier.
  */
-public class Partition {
+public class Partition implements Comparable<Partition> {
 
     protected int id = 0;
     
@@ -49,5 +49,10 @@ public class Partition {
     public String toString() {
         return String.format( "partition:%08d", id  );
     }
-    
+
+    @Override
+    public int compareTo( Partition p ) {
+        return id - p.id;
+    }
+
 }

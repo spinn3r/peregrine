@@ -35,7 +35,7 @@ public class ShuffleReceiver {
 
     private ExecutorService executors = null;
 
-    public ShuffleOutputWriter writer = null;
+    private volatile ShuffleOutputWriter writer = null;
 
     private int idx = 0;
 
@@ -74,8 +74,9 @@ public class ShuffleReceiver {
 
                 if ( needsRollover() ) {
 
-                    if ( writer != null )
+                    if ( writer != null ) {
                         log.info( "Rolling over %s " , writer );
+                    }
 
                     ShuffleOutputWriter last = writer;
 

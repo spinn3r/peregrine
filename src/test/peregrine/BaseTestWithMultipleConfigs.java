@@ -17,8 +17,10 @@ package peregrine;
 
 import java.io.*;
 import java.util.*;
+
 import peregrine.config.*;
 import peregrine.worker.*;
+import peregrine.util.*;
 
 import com.spinn3r.log5j.Logger;
 
@@ -47,17 +49,17 @@ public abstract class BaseTestWithMultipleConfigs extends peregrine.BaseTest {
         String conf = System.getProperty( "peregrine.test.config" );
 
         if ( conf == null ) {
-            log.warn( "NOT RUNNING: peregrine.test.config not defined" );
+            log.warn( "NOT RUNNING %s: peregrine.test.config not defined", getClass().getName() );
             return;
         }
 
         conf = conf.trim();
-        
-        String[] split = conf.split( ":" );
 
-        concurrency = Integer.parseInt( split[0] );
-        replicas = Integer.parseInt( split[1] );
-        hosts = Integer.parseInt( split[2] );
+        Split split = new Split( conf, ":" );
+        
+        concurrency = split.readInt();
+        replicas    = split.readInt();
+        hosts       = split.readInt();
 
         daemons = new ArrayList();
         configs = new ArrayList();
@@ -123,7 +125,7 @@ public abstract class BaseTestWithMultipleConfigs extends peregrine.BaseTest {
         
     }
 
-    public void shutdownAllDaemons() {
+    public void shutdown() {
 
         log.info( "Shutting down %,d daemons", daemons.size() );
         

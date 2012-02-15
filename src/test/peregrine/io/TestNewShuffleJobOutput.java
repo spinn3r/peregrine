@@ -21,6 +21,7 @@ import peregrine.controller.*;
 import peregrine.io.chunk.*;
 import peregrine.io.driver.shuffle.*;
 import peregrine.shuffle.sender.*;
+import peregrine.task.*;
 
 public class TestNewShuffleJobOutput extends peregrine.BaseTestWithTwoDaemons {
 
@@ -71,7 +72,8 @@ public class TestNewShuffleJobOutput extends peregrine.BaseTestWithTwoDaemons {
 
     }
     
-    public void test1() throws Exception {
+    @Override
+    public void doTest() throws Exception {
         doTest( 20, 1 );
         doTest( 100, 3 );
     }

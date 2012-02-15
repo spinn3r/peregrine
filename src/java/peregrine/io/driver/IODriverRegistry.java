@@ -28,6 +28,7 @@ import peregrine.io.driver.blackhole.*;
 import peregrine.io.driver.shuffle.*;
 import peregrine.io.driver.file.*;
 import peregrine.io.driver.broadcast.*;
+import peregrine.io.driver.cassandra.*;
 
 /**
  * Keeps track of URI schemes and registered drivers.
@@ -55,6 +56,7 @@ public class IODriverRegistry {
         register( new ShuffleIODriver() );
         register( new FileIODriver() );
         register( new BroadcastIODriver() );
+        register( new CassandraIODriver() );
         
     }
     

@@ -42,17 +42,32 @@ public class TestSchedulerImportance extends BaseTest {
         replicas.add( new Replica( host, new Partition( 0 ), 2 ) );
         replicas.add( new Replica( host, new Partition( 0 ), 0 ) );
         
-        replicas = scheduler.getReplicasForExecutionByImportance( replicas );
+        List<Work> work = getWork( replicas );
+        
+        work = scheduler.getWorkForExecutionByImportance( work );
 
-        assertEquals( 0, replicas.get( 0 ).getPriority() );
-        assertEquals( 1, replicas.get( 1 ).getPriority() );
-        assertEquals( 2, replicas.get( 2 ).getPriority() );
+        assertEquals( 0, work.get( 0 ).getPriority() );
+        assertEquals( 1, work.get( 1 ).getPriority() );
+        assertEquals( 2, work.get( 2 ).getPriority() );
 
 	}
 
+	private List<Work> getWork( List<Replica> replicas ) {
+		
+		List<Work> result = new ArrayList();
+		
+		for( Replica replica : replicas ) {
+			result.add( new Work( replica.getHost() ,
+                                  new PartitionWorkReference( replica.getPartition() ) ,
+                                  replica.getPriority() ) );
+		}
+		
+		return result;
+		
+	}
+	
 	public void test2() throws Exception {
 
-        List<Replica> replicas = new ArrayList();
 
         Partition part0 = new Partition( 0 );
         Partition part1 = new Partition( 1 );
@@ -61,6 +76,8 @@ public class TestSchedulerImportance extends BaseTest {
         Partition part4 = new Partition( 4 );
         Partition part5 = new Partition( 5 );
         
+        List<Replica> replicas = new ArrayList();
+
         // two primary replicas, two secondary replicas, but one of the
         // secondary replicas is already executing.
         replicas.add( new Replica( host, part0, 0 ) );
@@ -70,28 +87,30 @@ public class TestSchedulerImportance extends BaseTest {
         replicas.add( new Replica( host, part4, 2 ) );
         replicas.add( new Replica( host, part5, 2 ) );
 
+        List<Work> work = getWork( replicas );       
+        
         scheduler.executing = new MapSet();
 
-        scheduler.executing.put( part0, host0 );
-        scheduler.executing.put( part1, host0 );
-        scheduler.executing.put( part2, host0 );
+        scheduler.executing.put( new Work( host0, new PartitionWorkReference( replicas.get( 0 ) ) ) , host0 );
+        scheduler.executing.put( new Work( host0, new PartitionWorkReference( replicas.get( 1 ) ) ) , host0 );
+        scheduler.executing.put( new Work( host0, new PartitionWorkReference( replicas.get( 2 ) ) ) , host0 );
         
-        replicas = scheduler.getReplicasForExecutionByImportance( replicas );
+        work = scheduler.getWorkForExecutionByImportance( work );
 
-        dump( replicas );
+        dump( work );
         
-        assertEquals( part3, replicas.get( 0 ).getPartition() );
-        assertEquals( part4, replicas.get( 1 ).getPartition() );
-        assertEquals( part5, replicas.get( 2 ).getPartition() );
+        assertEquals( "[partition:00000003]", work.get( 0 ).toString() );
+        assertEquals( "[partition:00000004]", work.get( 1 ).toString() );
+        assertEquals( "[partition:00000005]", work.get( 2 ).toString() );
         
 	}
 
-    public void dump( List<Replica> replicas ) {
+    public void dump( List<Work> list ) {
 
-        System.out.printf( "Replicas: \n" );
+        System.out.printf( "work: \n" );
         
-        for( Replica replica : replicas ) {
-            System.out.printf( "  %s\n", replica );
+        for( Work work : list ) {
+            System.out.printf( "  %s\n", work );
         }
         
     }
