@@ -199,7 +199,7 @@
     <target name="test-multi"
             depends="jar,compile.test">
 
-      <foreach list="1" 
+      <foreach list="${multi.factors}" 
                param="peregrine.test.factor" 
                target="test-multi-with-configs">
 
