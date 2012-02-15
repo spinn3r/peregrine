@@ -176,7 +176,10 @@
             <batchtest todir="target/test-reports/${ts}"> 
 
                 <fileset dir="src/test">
+
                     <include name="**/Test*.java"/>
+                    <exclude name="peregrine/io/driver/cassandra/TestCassandra.java"/>
+
                 </fileset>
 
             </batchtest>
