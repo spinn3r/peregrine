@@ -75,13 +75,8 @@ public class CassandraJobOutput implements JobOutput {
 
                 Column c = new Column();
 
-                /*
                 c.setName( k.toByteBuffer() );
                 c.setValue( v.toByteBuffer() );
-                */
-
-                c.setName( "asdf".getBytes() );
-                c.setValue( "asdf".getBytes() );
 
                 c.setTimestamp(System.currentTimeMillis());
 

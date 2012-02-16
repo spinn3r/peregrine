@@ -137,8 +137,8 @@ public class TestCassandra extends peregrine.BaseTestWithTwoDaemons {
                         StructReader key = StructReaders.wrap( "1" );
 
                         StructSequenceWriter structSequenceWriter = new StructSequenceWriter();
-                        structSequenceWriter.write( StructReaders.wrap( "1" ),
-                                                    StructReaders.wrap( "1" ) );
+                        structSequenceWriter.write( StructReaders.wrap( "ID" ),
+                                                    StructReaders.hashcode( "1" ) );
 
                         StructReader value = structSequenceWriter.toStructReader();
 
