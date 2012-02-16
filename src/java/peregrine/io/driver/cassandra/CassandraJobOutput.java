@@ -68,6 +68,8 @@ public class CassandraJobOutput implements JobOutput {
             
             while ( structSequenceReader.hasNext() ) {
 
+                structSequenceReader.next();
+                
                 StructReader k = structSequenceReader.key();
                 StructReader v = structSequenceReader.value();
                 
