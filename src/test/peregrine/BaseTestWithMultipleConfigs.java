@@ -224,15 +224,15 @@ public abstract class BaseTestWithMultipleConfigs extends peregrine.BaseTest {
         
         for( Thread thread : threadlist ) {
             
-            buff.append( String.format( "%s\n", thread.getName() ) );
+            buff.append( String.format( "\t%s\n", thread.getName() ) );
 
             for ( StackTraceElement frame : thread.getStackTrace() ) {
-                buff.append( String.format( "\t%s\n", frame.toString() ) );
+                buff.append( String.format( "\t\t%s\n", frame.toString() ) );
             }
             
         }
 
-        log.info( "%s", buff.toString() );
+        log.info( "\n%s", buff.toString() );
         
     }
     

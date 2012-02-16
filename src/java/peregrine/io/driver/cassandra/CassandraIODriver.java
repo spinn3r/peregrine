@@ -96,7 +96,7 @@ public class CassandraIODriver extends BaseIODriver implements IODriver {
 
         ColumnFamilyInputFormat inputFormat = new ColumnFamilyInputFormat();
 
-        Configuration conf = getConfiguration( ref );
+        Configuration conf = getInputConfiguration( ref );
 
         JobContext jobContext = new JobContext( conf, new JobID() );
         
@@ -149,11 +149,10 @@ public class CassandraIODriver extends BaseIODriver implements IODriver {
 
     }
 
-    protected Configuration getConfiguration( CassandraBaseReference ref ) {
+    private Configuration getConfiguration( CassandraBaseReference ref ) {
 
         Configuration conf = new Configuration();
 
-        ConfigHelper.setInputColumnFamily( conf, ref.getKeyspace(), ref.getColumnFamily() );
         ConfigHelper.setInitialAddress( conf, ref.getHost() );
         ConfigHelper.setRpcPort( conf, ref.getPort() );
 
@@ -168,6 +167,18 @@ public class CassandraIODriver extends BaseIODriver implements IODriver {
 
         return conf;
         
+    }
+
+    protected Configuration getInputConfiguration( CassandraBaseReference ref ) {
+        Configuration conf = getConfiguration( ref );
+        ConfigHelper.setInputColumnFamily( conf, ref.getKeyspace(), ref.getColumnFamily() );
+        return conf;
+    }
+
+    protected Configuration getOutputConfiguration( CassandraBaseReference ref ) {
+        Configuration conf = getConfiguration( ref );
+        ConfigHelper.setOutputColumnFamily( conf, ref.getKeyspace(), ref.getColumnFamily() );
+        return conf;
     }
     
 	@Override

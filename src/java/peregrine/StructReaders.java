@@ -67,6 +67,15 @@ public class StructReaders {
         
     }
 
+    public static StructReader wrap( String value ) {
+
+        return new StructWriter()
+            .writeString( value )
+            .toStructReader()
+            ;
+        
+    }
+
     public static StructReader wrap( byte[] value ) {
         return new StructReader( value );
     }

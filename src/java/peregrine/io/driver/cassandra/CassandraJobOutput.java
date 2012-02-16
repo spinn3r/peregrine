@@ -43,7 +43,7 @@ public class CassandraJobOutput implements JobOutput {
     public CassandraJobOutput( CassandraIODriver driver,
                                CassandraOutputReference ref ) throws IOException {
 
-        Configuration conf = driver.getConfiguration( ref );
+        Configuration conf = driver.getOutputConfiguration( ref );
 
         TaskAttemptContext context = new TaskAttemptContext( conf, new TaskAttemptID() );
 
@@ -65,17 +65,24 @@ public class CassandraJobOutput implements JobOutput {
             StructSequenceReader structSequenceReader = new StructSequenceReader( value );
 
             List<Mutation> mutants = new ArrayList();
-            
+
             while ( structSequenceReader.hasNext() ) {
 
                 structSequenceReader.next();
                 
                 StructReader k = structSequenceReader.key();
                 StructReader v = structSequenceReader.value();
-                
+
                 Column c = new Column();
+
+                /*
                 c.setName( k.toByteBuffer() );
                 c.setValue( v.toByteBuffer() );
+                */
+
+                c.setName( "asdf".getBytes() );
+                c.setValue( "asdf".getBytes() );
+
                 c.setTimestamp(System.currentTimeMillis());
 
                 Mutation m = new Mutation();
@@ -86,7 +93,6 @@ public class CassandraJobOutput implements JobOutput {
                 
             }
             
-
             writer.write( key.toByteBuffer() , mutants );
             
         } catch ( Exception e ) {
@@ -102,7 +108,7 @@ public class CassandraJobOutput implements JobOutput {
 
     @Override
     public void close() throws IOException {
-
+        
         try { 
             writer.close( context );
         } catch ( InterruptedException e ) {

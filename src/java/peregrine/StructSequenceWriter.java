@@ -62,7 +62,7 @@ public class StructSequenceWriter implements SequenceWriter {
             structs.add( StructReaders.wrap( key.length() ) );
             structs.add( key );
             structs.add( StructReaders.wrap( value.length() ) );
-            structs.add( key );
+            structs.add( value );
             
         }
 

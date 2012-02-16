@@ -55,7 +55,7 @@ public class CassandraJobInput extends BaseJobInput implements JobInput {
                                                                      work.endToken,
                                                                      work.dataNodes );
 
-        Configuration conf = driver.getConfiguration( ref );
+        Configuration conf = driver.getInputConfiguration( ref );
 
         TaskAttemptContext context = new TaskAttemptContext( conf, new TaskAttemptID() );
 
