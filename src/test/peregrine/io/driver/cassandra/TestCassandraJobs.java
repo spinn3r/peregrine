@@ -35,8 +35,9 @@ public class TestCassandraJobs extends peregrine.BaseTestWithMultipleConfigs {
 
     public void doTest() throws Exception {
         
-        String output = String.format( "/test/%s/test.out", getClass().getName() );
-
+        //String output = String.format( "/test/%s/test.out", getClass().getName() );
+        String output = "cassandra://localhost:9160/mykeyspace/rank";
+        
         Controller controller = new Controller( config );
 
         try {
@@ -45,10 +46,12 @@ public class TestCassandraJobs extends peregrine.BaseTestWithMultipleConfigs {
                             new Input( "cassandra://localhost:9160/mykeyspace/graph" ),
                             new Output( "shuffle:default" ) );
 
+            /*
             controller.reduce( Reducer.class,
                                new Input( "shuffle:default" ),
                                new Output( output ) );
-
+            */
+                               
         } finally {
             controller.shutdown();
         }

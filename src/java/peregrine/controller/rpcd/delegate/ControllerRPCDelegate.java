@@ -44,7 +44,10 @@ public class ControllerRPCDelegate extends RPCDelegate<ControllerDaemon> {
         Input input   = new Input( message.getList( "input" ) );
         Work work     = new Work( input, message.getList( "work" ) );
 
-        controllerDaemon.getScheduler().markComplete( host, work );
+        Scheduler scheduler = controllerDaemon.getScheduler();
+
+        if ( scheduler != null )
+            scheduler.markComplete( host, work );
         
         return;
 		
@@ -65,7 +68,10 @@ public class ControllerRPCDelegate extends RPCDelegate<ControllerDaemon> {
         String stacktrace  = message.get( "stacktrace" );
         boolean killed     = message.getBoolean( "killed" );
         
-        controllerDaemon.getScheduler().markFailed( host, work, killed, stacktrace );
+        Scheduler scheduler = controllerDaemon.getScheduler();
+
+        if ( scheduler != null )
+            scheduler.markFailed( host, work, killed, stacktrace );
 	    
         return;
 		
