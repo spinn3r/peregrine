@@ -569,15 +569,16 @@ public class Scheduler {
                              Host host,
                              Work work ) {
 
+        if ( host == null )
+            throw new NullPointerException( "host" );
+        
         while( true ) {
 
             try {
 
                 if ( clusterState.getOffline().contains( host ) ) {
-                    
                     log.info( "Not sending kill.  Host is offline." );
                     return;
-                    
                 }
                 
                 Message message = new Message();
