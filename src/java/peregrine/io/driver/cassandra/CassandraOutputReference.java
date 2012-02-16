@@ -27,9 +27,9 @@ import peregrine.io.driver.*;
 import peregrine.io.partition.*;
 import peregrine.task.*;
 
-public class CassandraInputReference extends CassandraBaseReference implements InputReference {
+public class CassandraOutputReference extends CassandraBaseReference implements OutputReference {
 
-    public CassandraInputReference( String uri ) {
+    public CassandraOutputReference( String uri ) {
         super(uri);
     }
 

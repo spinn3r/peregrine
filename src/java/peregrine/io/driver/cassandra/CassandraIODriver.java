@@ -72,7 +72,7 @@ public class CassandraIODriver extends BaseIODriver implements IODriver {
 
 	@Override
 	public OutputReference getOutputReference(String uri) {
-        throw new RuntimeException( "not implemented" );
+        return new CassandraOutputReference( uri );
 	}
 
 	@Override
