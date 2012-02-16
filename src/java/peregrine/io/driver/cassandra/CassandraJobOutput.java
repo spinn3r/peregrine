@@ -26,7 +26,7 @@ import org.apache.cassandra.thrift.*;
 import org.apache.cassandra.hadoop.*;
 import org.apache.cassandra.thrift.*;
 import org.apache.cassandra.utils.*;
-import org.apache.cassandra.db.*;
+//import org.apache.cassandra.db.*;
 
 import org.apache.hadoop.conf.*;
 import org.apache.hadoop.mapreduce.*;
@@ -60,7 +60,38 @@ public class CassandraJobOutput implements JobOutput {
 
     @Override
     public void emit( StructReader key , StructReader value ) {
-        //noop
+
+        try {
+            
+            StructSequenceReader structSequenceReader = new StructSequenceReader( value );
+
+            List<Mutation> mutants = new ArrayList();
+            
+            while ( structSequenceReader.hasNext() ) {
+
+                StructReader k = structSequenceReader.key();
+                StructReader v = structSequenceReader.value();
+                
+                Column c = new Column();
+                c.setName( k.toByteBuffer() );
+                c.setValue( v.toByteBuffer() );
+                c.setTimestamp(System.currentTimeMillis());
+
+                Mutation m = new Mutation();
+                m.setColumn_or_supercolumn(new ColumnOrSuperColumn());
+                m.column_or_supercolumn.setColumn(c);
+
+                mutants.add( m );
+                
+            }
+            
+
+            writer.write( key.toByteBuffer() , mutants );
+            
+        } catch ( Exception e ) {
+            throw new RuntimeException( e );
+        }
+            
     }
 
     @Override

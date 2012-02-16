@@ -175,11 +175,24 @@ public class StructReader {
 
         return result;
     }
-    
+
+    /**
+     * Get the ChannelBuffer that backs this StructReader.
+     */
     public ChannelBuffer getChannelBuffer() {
     	return buff;	
     }
+
+    /**
+     * Get this StructReader as a ByteBuffer
+     */
+    public ByteBuffer toByteBuffer() {
+        return getChannelBuffer().toByteBuffer();
+    }
     
+    /**
+     * Return the length of the number of bytes written.
+     */
     public int length() {
     	return buff.writerIndex();
     }
