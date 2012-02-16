@@ -30,9 +30,66 @@ public class Files {
     }
 
     /**
-     * Recursive removal of all files on the given path.
+     * Recursive removal of the given file and any children.
      */
     public static void remove( File file ) {
+
+        if ( ! file.exists() )
+            return;
+
+        if ( file.isDirectory() ) {
+        
+            File[] files = file.listFiles();
+            
+            for ( File current : files ) {
+
+                if ( current.isDirectory() ) {
+                    remove( current );
+                } else { 
+                    remove0( current );
+                }
+
+            }
+
+        }
+            
+        remove0( file );
+
+    }
+
+    private static void remove0( File file ) {
+
+        if ( ! file.delete() )
+            throw new RuntimeException( "Unable to delete: " + file.getPath() );
+
+    }
+
+    public static void purge( String path ) {
+        purge( new File( path ) );
+    }
+
+    /**
+     * Purge all files in the given directory but keep the given directory
+     * itself.
+     */
+    public static void purge( File file ) {
+
+        if ( file.isDirectory() ) {
+        
+            File[] files = file.listFiles();
+            
+            for ( File current : files ) {
+                remove( current );                
+            }
+
+        }
+
+    }
+    
+    /**
+     * Recursive 
+     */
+    public static void removeChildren( File file ) {
 
         if ( ! file.exists() )
             return;
@@ -53,13 +110,6 @@ public class Files {
 
     }
 
-    private static void remove0( File file ) {
-
-        if ( ! file.delete() )
-            throw new RuntimeException( "Unable to delete: " + file.getPath() );
-
-    }
-    
     public static void mkdirs( String path ) throws IOException {
 
         File file = new File( path );
