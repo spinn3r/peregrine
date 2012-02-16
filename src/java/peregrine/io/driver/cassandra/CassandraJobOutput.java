@@ -16,6 +16,8 @@
 package peregrine.io.driver.cassandra;
 
 import java.io.*;
+import java.util.*;
+import java.nio.*;
 
 import peregrine.*;
 import peregrine.io.*;
@@ -34,7 +36,7 @@ import org.apache.hadoop.mapreduce.*;
  */
 public class CassandraJobOutput implements JobOutput {
 
-    private RecordWriter writer;
+    private RecordWriter<ByteBuffer,List<Mutation>> writer;
 
     private TaskAttemptContext context;
 
