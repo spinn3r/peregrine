@@ -80,7 +80,8 @@ public class CassandraIODriver extends BaseIODriver implements IODriver {
                                    OutputReference outputReference,
                                    WorkReference work ) throws IOException {
 
-        throw new IOException( "not implemented" );
+        return new CassandraJobOutput( this,
+                                       (CassandraOutputReference)outputReference );
 
 	}
 
@@ -148,7 +149,7 @@ public class CassandraIODriver extends BaseIODriver implements IODriver {
 
     }
 
-    protected Configuration getConfiguration( CassandraInputReference ref ) {
+    protected Configuration getConfiguration( CassandraBaseReference ref ) {
 
         Configuration conf = new Configuration();
 

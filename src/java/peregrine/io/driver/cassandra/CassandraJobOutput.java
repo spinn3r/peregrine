@@ -41,8 +41,7 @@ public class CassandraJobOutput implements JobOutput {
     private TaskAttemptContext context;
 
     public CassandraJobOutput( CassandraIODriver driver,
-                               CassandraInputReference ref,
-                               CassandraWorkReference work ) throws IOException {
+                               CassandraOutputReference ref ) throws IOException {
 
         Configuration conf = driver.getConfiguration( ref );
 
