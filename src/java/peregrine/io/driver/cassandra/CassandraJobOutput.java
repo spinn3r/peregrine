@@ -61,6 +61,10 @@ public class CassandraJobOutput implements JobOutput {
     public void emit( StructReader key , StructReader value ) {
 
         try {
+
+            // NOTE: we have to copy these bytes into temporary variables
+            // because the Cassandra driver reads the buffer in another thread
+            // and when we close the mmap it leads to a segfault.
             
             StructSequenceReader structSequenceReader = new StructSequenceReader( value );
 
@@ -75,8 +79,8 @@ public class CassandraJobOutput implements JobOutput {
 
                 Column c = new Column();
 
-                c.setName( k.toByteBuffer() );
-                c.setValue( v.toByteBuffer() );
+                c.setName( k.toByteArray() );
+                c.setValue( v.toByteArray() );
 
                 c.setTimestamp(System.currentTimeMillis());
 
@@ -88,7 +92,7 @@ public class CassandraJobOutput implements JobOutput {
                 
             }
             
-            writer.write( key.toByteBuffer() , mutants );
+            writer.write( ByteBuffer.wrap( key.toByteArray() ) , mutants );
             
         } catch ( Exception e ) {
             throw new RuntimeException( e );
