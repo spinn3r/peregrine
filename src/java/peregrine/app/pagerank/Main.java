@@ -45,7 +45,7 @@ public class Main {
         
         writer.close();
 
-        new Pagerank( config ).exec( path );
+        new Pagerank( config, path ).exec();
         
     }
 

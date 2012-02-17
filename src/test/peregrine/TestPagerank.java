@@ -42,7 +42,7 @@ public class TestPagerank extends peregrine.BaseTestWithMultipleConfigs {
 
         writer.close();
         
-        new Pagerank( config ).exec( path );
+        new Pagerank( config, path ).exec();
 
     }
 

@@ -54,7 +54,7 @@ public class TestPagerankAccuracy extends peregrine.BaseTestWithMultipleConfigs 
 
         writer.close();
         
-        new Pagerank( config ).exec( path );
+        new Pagerank( config, path ).exec();
 
         // now read all results from ALL partitions so that we can verify that
         // we have accurate values.

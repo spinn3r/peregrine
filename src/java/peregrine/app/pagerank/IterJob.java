@@ -87,7 +87,7 @@ public class IterJob {
                 int outdegree = outbound.length() / Hashcode.HASH_WIDTH;
 
                 double grant = rank / outdegree;
-                
+
                 while ( outbound.isReadable() ) {
 
                     StructReader target = outbound.readSlice( Hashcode.HASH_WIDTH );
