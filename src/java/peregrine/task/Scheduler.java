@@ -436,9 +436,19 @@ public class Scheduler {
         // queue so they can be killed.
 
         if ( executing.contains( work ) ) {
+            
             for( Host current : executing.get( work ) ) {
-                prey.put( work );
+
+                if ( current.equals( host ) )
+                    continue;
+                
+                Work victim = work.copy();
+                victim.setHost( current );
+                
+                prey.put( victim );
+
             }
+            
         }
 
     }

@@ -29,11 +29,13 @@ import peregrine.io.driver.shuffle.*;
  */
 public final class Work implements Comparable<Work> {
     
-    private Host host = null;
+    protected Host host = null;
     
-    private int priority = 0;
+    protected int priority = 0;
 
     protected List<WorkReference> references = new ArrayList();
+
+    protected Work() {}
 
     public Work( Host host, Input input, List<String> paths ) {
 
@@ -125,6 +127,21 @@ public final class Work implements Comparable<Work> {
         this.host = host;
     }
 
+    public Work copy() {
+
+        Work result = new Work();
+
+        for( WorkReference ref : references ) {
+            result.references.add( ref );
+        }
+
+        result.host = host;
+        result.priority = priority;
+
+        return result;
+        
+    }
+    
     @Override
     public String toString() {
         return references.toString();
