@@ -49,7 +49,7 @@ public class MapperRPCDelegate extends BaseTaskRPCDelegate {
 
         Input input            = readInput( message );
         Output output          = readOutput( message );
-        Work work              = readWork( input, message );
+        Work work              = readWork( daemon, input, message );
         Class delegate         = Class.forName( message.get( "delegate" ) );
 
         log.info( "Running %s with input %s and output %s and work %s", delegate.getName(), input, output, work );
@@ -83,8 +83,8 @@ public class MapperRPCDelegate extends BaseTaskRPCDelegate {
         return new Output( message.getList( "output" ) );
     }
     
-    protected Work readWork( Input input, Message message ) {
-        return new Work( input, message.getList( "work" ) );
+    protected Work readWork( FSDaemon daemon, Input input, Message message ) {
+        return new Work( daemon.getConfig().getHost(), input, message.getList( "work" ) );
     }
     
 }

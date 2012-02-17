@@ -35,9 +35,7 @@ public final class Work implements Comparable<Work> {
 
     protected List<WorkReference> references = new ArrayList();
 
-    public Work() { }
-
-    public Work( Input input, List<String> paths ) {
+    public Work( Host host, Input input, List<String> paths ) {
 
         for( int i = 0; i < paths.size(); ++i ) {
 

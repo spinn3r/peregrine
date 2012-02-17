@@ -63,7 +63,7 @@ public class BaseTaskRPCDelegate extends RPCDelegate<FSDaemon> {
         throws Exception {
 
         Input input   = new Input( message.getList( "input" ) );
-        Work work     = new Work( input, message.getList( "work" ) );
+        Work work     = new Work( daemon.getConfig().getHost(), input, message.getList( "work" ) );
 
         log.info( "Killing task on %s", work );
 
