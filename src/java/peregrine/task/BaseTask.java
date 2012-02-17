@@ -138,7 +138,7 @@ public abstract class BaseTask implements Task {
     }
 
     public void handleFailure( Logger log, Throwable cause ) {
-        log.error( String.format( "Unable to run delegate %s on %s", delegate, partition ), cause );
+        log.error( String.format( "Unable to run delegate %s on %s (%s)", delegate, partition, config.getHost() ), cause );
         setCause( cause );
         setStatus( TaskStatus.FAILED );
     }
@@ -266,7 +266,7 @@ public abstract class BaseTask implements Task {
             setStatus( TaskStatus.COMPLETE );
         }
 
-        log.info( "Task %s on %s is %s", delegate, partition, status );
+        log.info( "Task %s on %s (%s) is %s", delegate, partition, config.getHost(), status );
 
         if ( status == TaskStatus.COMPLETE ) {
             sendCompleteToController();
@@ -344,10 +344,12 @@ public abstract class BaseTask implements Task {
      */
     protected void sendFailedToController( Throwable cause ) throws IOException {
 
+        cause.printStackTrace();
+        
         Message message = new Message();
         
         message.put( "action" ,     "failed" );
-        message.put( "job_id" ,   job_id );
+        message.put( "job_id" ,     job_id );
         message.put( "stacktrace",  cause );
         
         sendMessageToController( message );

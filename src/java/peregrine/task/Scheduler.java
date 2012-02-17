@@ -81,12 +81,12 @@ public class Scheduler {
     protected MarkSet<Work> completed = new MarkSet();
 
     /**
-     * The list of work that has not yet been completed but is still pending.
+     * The list of work that has been scheduled but not yet been completed.
      */
     protected MarkSet<Work> pending = new MarkSet();    
 
     /**
-     * Keep track of which hosts are performing work on which partitions.  This
+     * Keep track of which hosts are performing jobs on which work units.  This
      * is used so that we can enable speculative execution as we need to
      * terminate work hosts which have active work but another host already
      * completed it.
@@ -135,7 +135,7 @@ public class Scheduler {
      * data structure.
      */
     protected Map<Host,List<Work>> workIndex = new ConcurrentHashMap();
-    
+
     protected ChangedMessage changedMessage = new ChangedMessage();
 
     private ClusterState clusterState;
@@ -172,11 +172,13 @@ public class Scheduler {
         // null).
 
         for( Host host : workIndex.keySet() ) {
+
             List<Work> workForHost = workIndex.get( host );
 
             for( Work current : workForHost ) {
                 offlineWork.init( current );
             }
+            
         }
         
         // import the current list of online hosts and pay attention to new
@@ -507,7 +509,7 @@ public class Scheduler {
         while( true ) {
 
             // test if we're complete.
-            if ( completed.size() == membership.size() ) {
+            if ( completed.size() == offlineWork.size() ) {
                 break;
             }
 
@@ -616,7 +618,7 @@ public class Scheduler {
                                     "  online:     %s\n",
                                     format( pending ), format( completed ), available, spare, clusterState.getOnline() ) );
 
-        long perc = (long)(100 * (completed.size() / (double)membership.getPartitions().size()));
+        long perc = (long)(100 * (completed.size() / (double)offlineWork.size()));
         
         buff.append( String.format( "  Perc complete: %,d %% \n", perc ) );
 

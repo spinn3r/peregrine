@@ -85,7 +85,7 @@ public class ShuffleOutputWriter implements Closeable {
                         ChannelBuffer data ) throws IOException {
 
         if ( closed )
-            throw new IOException( "closed" );
+            throw new IOException( "writer is closed" );
 
         ShufflePacket pack = new ShufflePacket( from_partition, from_chunk, to_partition, -1, count, data );
         

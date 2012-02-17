@@ -46,11 +46,9 @@ public class TestCassandraJobs extends peregrine.BaseTestWithMultipleConfigs {
                             new Input( "cassandra://localhost:9160/mykeyspace/graph" ),
                             new Output( "shuffle:default" ) );
 
-            /*
             controller.reduce( Reducer.class,
                                new Input( "shuffle:default" ),
                                new Output( output ) );
-            */
                                
         } finally {
             controller.shutdown();
@@ -63,7 +61,7 @@ public class TestCassandraJobs extends peregrine.BaseTestWithMultipleConfigs {
         //System.setProperty( "peregrine.test.config", "1:1:1" ); // 3sec
 
         System.setProperty( "peregrine.test.factor", "10" ); // 1m
-        System.setProperty( "peregrine.test.config", "01:01:02" ); // takes 3 seconds
+        System.setProperty( "peregrine.test.config", "01:01:01" ); // takes 3 seconds
 
         // 256 partitions... 
         //System.setProperty( "peregrine.test.config", "08:01:32" );  // 1m

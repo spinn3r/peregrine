@@ -69,5 +69,9 @@ public class IncrMap<T> {
     public void set( T key, int value ) {
         map.get( key ).set( value );
     }
+
+    public int size() {
+        return map.size();
+    }
     
 }
