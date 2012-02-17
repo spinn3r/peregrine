@@ -18,6 +18,9 @@ package peregrine;
 import peregrine.io.*;
 import peregrine.app.pagerank.*;
 
+/**
+ * Tests the mathematical accuracy of our pagerank implementation.
+ */
 public class TestPagerankAccuracy extends peregrine.BaseTestWithMultipleConfigs {
 
     @Override

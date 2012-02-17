@@ -343,8 +343,6 @@ public abstract class BaseTask implements Task {
      * Tell the controller that we failed (be a good citizen if we can).
      */
     protected void sendFailedToController( Throwable cause ) throws IOException {
-
-        cause.printStackTrace();
         
         Message message = new Message();
         
