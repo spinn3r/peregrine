@@ -54,7 +54,17 @@ public class TestPagerankAccuracy extends peregrine.BaseTestWithMultipleConfigs 
 
         writer.close();
         
-        new Pagerank( config, path ).exec();
+        Pagerank pr = null;
+
+        try {
+            
+            pr = new Pagerank( config, path );
+
+            pr.init();
+
+        } finally {
+            pr.shutdown();
+        }
 
         // now read all results from ALL partitions so that we can verify that
         // we have accurate values.
@@ -64,11 +74,12 @@ public class TestPagerankAccuracy extends peregrine.BaseTestWithMultipleConfigs 
     }
 
     public static void main( String[] args ) throws Exception {
-        //System.setProperty( "peregrine.test.config", "04:01:32" ); 
-        //System.setProperty( "peregrine.test.config", "01:01:1" ); 
+        //System.setProperty( "peregrine.test.config", "04:1:32" ); 
+        //System.setProperty( "peregrine.test.config", "01:1:1" ); 
         //System.setProperty( "peregrine.test.config", "8:1:32" );
         //System.setProperty( "peregrine.test.config", "2:1:3" ); 
         //System.setProperty( "peregrine.test.config", "2:1:3" ); 
+
         System.setProperty( "peregrine.test.config", "1:1:1" ); 
         runTests();
         

@@ -81,7 +81,7 @@ public class Pagerank {
                         new Input( path ),
                         new Output( "shuffle:default" ) );
         
-        controller.reduce( Reducer.class,
+        controller.reduce( GraphBySourceJob.Reduce.class,
                            new Input( "shuffle:default" ),
                            new Output( "/pr/graph_by_source" ) );
         
