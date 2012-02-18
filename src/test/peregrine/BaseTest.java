@@ -92,7 +92,7 @@ public abstract class BaseTest extends junit.framework.TestCase {
         }
 
     }
-    
+
     /**
      * Method to allow ALL junit classes to be called from the command line
      * which allows for us having less main() methods cluttering up the test

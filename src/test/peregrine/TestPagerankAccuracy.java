@@ -15,8 +15,11 @@
 */
 package peregrine;
 
+import java.util.*;
+
 import peregrine.io.*;
 import peregrine.app.pagerank.*;
+import peregrine.util.*;
 
 /**
  * Tests the mathematical accuracy of our pagerank implementation.
@@ -61,11 +64,20 @@ public class TestPagerankAccuracy extends peregrine.BaseTestWithMultipleConfigs 
             pr = new Pagerank( config, path );
 
             pr.init();
+            pr.iter();
 
         } finally {
             pr.shutdown();
         }
 
+        List<StructPair> data = read( "/pr/out/rank_vector" );
+
+        for( StructPair pair : data ) {
+
+            System.out.printf( "%s=%s\n", Base16.encode( pair.key.toByteArray() ), pair.value.readFloat() );
+
+        }
+        
         // now read all results from ALL partitions so that we can verify that
         // we have accurate values.
 

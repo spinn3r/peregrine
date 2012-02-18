@@ -96,11 +96,8 @@ public class GraphBuilder {
     public void addRecord( long source,
                            List<Long> targets ) throws Exception {
 
-        StructReader key = StructReaders.hashcode( source );
-
-        StructReader value = StructReaders.hashcode( targets );
-        
-        writer.write( key, value );
+        writer.write( StructReaders.hashcode( source ),
+                      StructReaders.hashcode( targets ) );
 
     }
     

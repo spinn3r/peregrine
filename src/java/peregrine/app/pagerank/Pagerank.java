@@ -38,6 +38,10 @@ public class Pagerank {
     private int iterations = 5;
 
     private Controller controller = null;
+
+    /**
+     */
+    private int step = 0;
     
     public Pagerank( Config config, String path ) {
         this.config = config;
@@ -112,7 +116,7 @@ public class Pagerank {
     /**
      * Run one pagerank step.
      */
-    public void iter( int step ) throws Exception {
+    public void iter() throws Exception {
 
         if ( step == 0 ) {
 
@@ -153,6 +157,8 @@ public class Pagerank {
 
         }
 
+        ++step;
+        
     }
 
     /**
@@ -169,7 +175,7 @@ public class Pagerank {
             // ***** ITER stage... 
 
             for( int step = 0; step < iterations; ++step ) {
-                iter( step );
+                iter();
             }
 
             log.info( "Pagerank complete" );

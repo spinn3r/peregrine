@@ -21,6 +21,8 @@ import java.util.*;
 import peregrine.config.*;
 import peregrine.worker.*;
 import peregrine.util.*;
+import peregrine.io.chunk.*;
+import peregrine.io.partition.*;
 
 import com.spinn3r.log5j.Logger;
 
@@ -233,6 +235,46 @@ public abstract class BaseTestWithMultipleConfigs extends peregrine.BaseTest {
         }
 
         log.info( "\n%s", buff.toString() );
+        
+    }
+
+    /**
+     * Read all key/value pairs on the given path on all partitions.  
+     */
+    public List<StructPair> read( String path ) throws IOException {
+
+        List<StructPair> result = new ArrayList();
+        
+        Membership membership = config.getMembership();
+        
+        for( Partition part : membership.getPartitions() ) {
+
+            Host host = membership.getHosts( part ).get( 0 );
+
+            LocalPartitionReader reader = new LocalPartitionReader( configsByHost.get( host ), part, path );
+
+            while( reader.hasNext() ) {
+
+                reader.next();
+
+                StructPair pair = new StructPair();
+                pair.key = reader.key();
+                pair.value = reader.value();
+                
+                result.add( pair );
+
+            }
+
+        }
+
+        return result;
+        
+    }
+
+    class StructPair {
+
+        StructReader key;
+        StructReader value;
         
     }
     
