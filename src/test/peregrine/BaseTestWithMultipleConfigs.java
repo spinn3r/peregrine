@@ -271,6 +271,83 @@ public abstract class BaseTestWithMultipleConfigs extends peregrine.BaseTest {
         
     }
 
+    /**
+     * 
+     * Read a file on the given path and dump it to stdout.
+     * 
+     * b = byte
+     * s = string
+     * v = varint
+     * i = int
+     * l = long
+     * f = float
+     * d = double
+     * B = boolean
+     * c = char
+     * S = short
+     * h = hashcode
+     * 
+     */
+    public void dump( String path, String key_format, String value_format ) throws IOException {
+
+        List<StructPair> data = read( path );
+
+        for( StructPair pair : data ) {
+            dump( pair.key,   key_format );
+            dump( pair.value, value_format );
+            
+            System.out.printf( "\n" );
+            
+        }
+
+    }
+
+    private void dump( StructReader value , String format ) {
+
+        for ( char c : format.toCharArray() ) {
+
+            switch( c ) {
+                
+            case 'b':
+                System.out.printf( "%s ", value.readByte() );
+                break;
+            case 's':
+                System.out.printf( "%s ", value.readString() );
+                break;
+            case 'v':
+                System.out.printf( "%s ", value.readVarint() );
+                break;
+            case 'i':
+                System.out.printf( "%s ", value.readInt() );
+                break;
+            case 'l':
+                System.out.printf( "%s ", value.readLong() );
+                break;
+            case 'f':
+                System.out.printf( "%s ", value.readFloat() );
+                break;
+            case 'd':
+                System.out.printf( "%s ", value.readDouble() );
+                break;
+            case 'B':
+                System.out.printf( "%s ", value.readBoolean() );
+                break;
+            case 'c':
+                System.out.printf( "%s ", value.readChar() );
+                break;
+            case 'S':
+                System.out.printf( "%s ", value.readShort() );
+                break;
+            case 'h':
+                System.out.printf( "%s ", Base16.encode( value.readHashcode() ) );
+                break;
+
+            };
+            
+        }
+        
+    }
+    
     class StructPair {
 
         StructReader key;

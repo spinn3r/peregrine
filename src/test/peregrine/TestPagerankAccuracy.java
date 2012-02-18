@@ -70,14 +70,8 @@ public class TestPagerankAccuracy extends peregrine.BaseTestWithMultipleConfigs 
             pr.shutdown();
         }
 
-        List<StructPair> data = read( "/pr/out/rank_vector" );
+        dump( "/pr/out/rank_vector", "h", "f" );
 
-        for( StructPair pair : data ) {
-
-            System.out.printf( "%s=%s\n", Base16.encode( pair.key.toByteArray() ), pair.value.readFloat() );
-
-        }
-        
         // now read all results from ALL partitions so that we can verify that
         // we have accurate values.
 
