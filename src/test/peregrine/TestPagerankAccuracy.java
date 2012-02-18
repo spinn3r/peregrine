@@ -70,7 +70,9 @@ public class TestPagerankAccuracy extends peregrine.BaseTestWithMultipleConfigs 
             pr.shutdown();
         }
 
-        dump( "/pr/out/rank_vector", "h", "f" );
+        
+        dump( "/pr/out/node_metadata", "h", "ii" );
+        dump( "/pr/out/rank_vector",   "h", "f" );
 
         // now read all results from ALL partitions so that we can verify that
         // we have accurate values.

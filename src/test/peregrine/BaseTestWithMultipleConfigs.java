@@ -290,10 +290,15 @@ public abstract class BaseTestWithMultipleConfigs extends peregrine.BaseTest {
      */
     public void dump( String path, String key_format, String value_format ) throws IOException {
 
+        System.out.printf( "=====\n" );
+        System.out.printf( "%s\n", path );
+        System.out.printf( "=====\n" );
+        
         List<StructPair> data = read( path );
 
         for( StructPair pair : data ) {
             dump( pair.key,   key_format );
+            System.out.printf( "= " );
             dump( pair.value, value_format );
             
             System.out.printf( "\n" );
