@@ -21,9 +21,13 @@ import peregrine.util.*;
 import peregrine.util.primitive.*;
 import peregrine.io.*;
 
+import com.spinn3r.log5j.Logger;
+
 public class IterJob {
 
-    public static final double DAMPENING = 0.85;
+    private static final Logger log = Logger.getLogger();
+
+    public static final double DAMPENING = 0.9;
     
     // join graph_by_source, rank_vector, dangling
     
@@ -63,7 +67,8 @@ public class IterJob {
         	StructReader dangling         = values.get( 2 );
 
             double rank;
-            
+            String source = key.readHashcodeAsBase16();
+
             if ( rank_vector != null ) {
                 rank = rank_vector.readDouble();
             } else { 
@@ -72,7 +77,8 @@ public class IterJob {
                 // that it will contain a value from the previous iteration
                 // which we're going to join against.
 
-                rank = 1 / nr_nodes;
+                rank = 1 / (double)nr_nodes;
+                
             }
 
             if ( dangling != null ) {
@@ -86,15 +92,17 @@ public class IterJob {
             
                 int outdegree = outbound.length() / Hashcode.HASH_WIDTH;
 
-                double grant = rank / outdegree;
+                double grant = rank / (double)outdegree;
 
                 while ( outbound.isReadable() ) {
 
                     StructReader target = outbound.readSlice( Hashcode.HASH_WIDTH );
-                    
+                        
                     StructReader value = new StructWriter()
                     	.writeDouble( grant )
                     	.toStructReader();
+
+                    System.out.printf( "FIXME: giving grant %f to %s from %s\n", grant, source, Base16.encode( target.toByteArray() ) );
                     
                     emit( target, value );
 
@@ -151,10 +159,12 @@ public class IterJob {
 
                 // for iter 0 teleport_grant is computed easily.
 
-                double teleport_grant_sum = nr_dangling * ( 1 / nr_nodes );
-                teleport_grant = (1.0 - ( DAMPENING * ( 1.0 - teleport_grant_sum ) ) ) / nr_nodes;
-                
+                double teleport_grant_sum = nr_dangling * ( 1 / (double)nr_nodes );
+                teleport_grant = (1.0 - ( DAMPENING * ( 1.0 - teleport_grant_sum ) ) ) / (double)nr_nodes;
+
             } 
+
+            log.info( "Using teleport_grant: %f", teleport_grant );
             
         }
         

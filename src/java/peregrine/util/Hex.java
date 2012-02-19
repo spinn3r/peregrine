@@ -20,6 +20,10 @@ import org.jboss.netty.buffer.*;
 import peregrine.*;
 import peregrine.util.primitive.IntBytes;
 
+/**
+ * More advanced Hex encoder vs the normal 'straight' Base16 encoder.  Breaks
+ * hex data across lines, adds spacing between words, etc.
+ */
 public class Hex {
 
     public static String encode( byte[] input ) {

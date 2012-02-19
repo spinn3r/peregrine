@@ -163,6 +163,10 @@ public class StructReader {
         return read(new byte[Hashcode.HASH_WIDTH]);
     }
 
+    public String readHashcodeAsBase16() {
+        return Base16.encode( readHashcode() );
+    }
+    
     /**
      * Read all the data in this StructReader as a byte array.  Useful if you
      * have some alternative form of data representation you with to work with

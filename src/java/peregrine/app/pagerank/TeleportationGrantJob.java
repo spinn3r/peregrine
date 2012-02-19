@@ -47,12 +47,10 @@ public class TeleportationGrantJob {
             
             // sum up the values... 
             for ( StructReader value : values ) {
-
                 sum += value.readDouble();
-                
             }
 
-            double result = (1.0 - (IterJob.DAMPENING * (1.0 - sum))) / nr_nodes;
+            double result = (1.0 - (IterJob.DAMPENING * (1.0 - sum))) / (double)nr_nodes;
 
             emit( key, StructReaders.wrap( result ) );
             

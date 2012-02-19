@@ -16,29 +16,33 @@
 package peregrine.util;
 
 /**
- * Base16 - encodes 'Canonical' Base16
+ * Base16 - encodes 'Canonical' Base16.  
  */
 public class Base16 {
 
-    static final String[] hex = new String[] {
-            "0", "1", "2", "3", "4", "5", "6",
-            "7", "8", "9", "a", "b", "c", "d",
-            "e", "f",
-    };
+    private static org.apache.commons.codec.binary.Hex hex =
+        new org.apache.commons.codec.binary.Hex();
+    
+    /**
+     * @param bytes
+     * @return String
+     */
+    public static String encode( final byte[] bytes ) {
+        return new String( hex.encode( bytes ) );
+    }
 
     /**
      * @param bytes
      * @return String
      */
-    public static String encode(final byte[] bytes) {
+    public static byte[] decode( byte[] bytes ) {
 
-        StringBuffer base16 = new StringBuffer( bytes.length );
-
-        for( int i = 0; i < bytes.length; i++) {
-            base16.append(hex[(bytes[i] >>4) & 15]);
-            base16.append(hex[(bytes[i]) & 15]);
+        try {
+            return hex.decode( bytes );
+        } catch ( Exception e ) {
+            throw new RuntimeException( e );
         }
-        return base16.toString();
+
     }
 
 }

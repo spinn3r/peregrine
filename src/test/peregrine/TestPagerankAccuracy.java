@@ -44,6 +44,7 @@ public class TestPagerankAccuracy extends peregrine.BaseTestWithMultipleConfigs 
 
         GraphBuilder builder = new GraphBuilder( writer );
 
+        /*
         builder.addRecord( 1, 2 );
         builder.addRecord( 1, 3 );
         builder.addRecord( 3, 1 );
@@ -53,6 +54,13 @@ public class TestPagerankAccuracy extends peregrine.BaseTestWithMultipleConfigs 
         builder.addRecord( 4, 6 );
         builder.addRecord( 5, 4 );
         builder.addRecord( 5, 6 );
+        builder.addRecord( 6, 4 );
+        */
+        
+        builder.addRecord( 1, 2, 3 );
+        builder.addRecord( 3, 1, 2, 5 );
+        builder.addRecord( 4, 5, 6 );
+        builder.addRecord( 5, 4, 6 );
         builder.addRecord( 6, 4 );
 
         writer.close();
@@ -64,15 +72,16 @@ public class TestPagerankAccuracy extends peregrine.BaseTestWithMultipleConfigs 
             pr = new Pagerank( config, path );
 
             pr.init();
+
+            dump();
+            
             pr.iter();
 
+            dump();
+            
         } finally {
             pr.shutdown();
         }
-
-        
-        dump( "/pr/out/node_metadata", "h", "ii" );
-        dump( "/pr/out/rank_vector",   "h", "f" );
 
         // now read all results from ALL partitions so that we can verify that
         // we have accurate values.
@@ -81,6 +90,11 @@ public class TestPagerankAccuracy extends peregrine.BaseTestWithMultipleConfigs 
 
     }
 
+    private void dump() throws Exception {
+        dump( "/pr/out/node_metadata", "h", "ii" );
+        dump( "/pr/out/rank_vector",   "h", "f" );
+    }
+    
     public static void main( String[] args ) throws Exception {
         //System.setProperty( "peregrine.test.config", "04:1:32" ); 
         //System.setProperty( "peregrine.test.config", "01:1:1" ); 
