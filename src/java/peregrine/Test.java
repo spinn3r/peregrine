@@ -29,59 +29,6 @@ public class Test {
 
     public static void main( String[] args ) throws Exception {
 
-        // cassandra://localhost:9160/mykeyspace/graph/
-        
-        ColumnFamilyInputFormat test = new ColumnFamilyInputFormat();
-
-        Configuration conf = new Configuration();
-
-        ConfigHelper.setInputColumnFamily( conf, "mykeyspace", "graph" );
-        //ConfigHelper.setInputSlicePredicate( conf, new SlicePredicate() );
-        ConfigHelper.setInitialAddress( conf, "localhost" );
-        ConfigHelper.setRpcPort( conf, "9160" );
-
-        ConfigHelper.setPartitioner(conf, "org.apache.cassandra.dht.RandomPartitioner" );
-
-        //ConfigHelper.setInputRange( conf, "0", "18446744073709551616" );
-
-        SlicePredicate sp = new SlicePredicate();
-
-        SliceRange sr = new SliceRange(ByteBufferUtil.EMPTY_BYTE_BUFFER, ByteBufferUtil.EMPTY_BYTE_BUFFER, false, 100 );
-        sp.setSlice_range(sr);
-
-        ConfigHelper.setInputSlicePredicate(conf, sp);
-
-        JobContext jobContext = new JobContext( conf, new JobID() );
-        
-        List<InputSplit> splits = test.getSplits( jobContext );
-
-        TaskAttemptContext context = new TaskAttemptContext( conf, new TaskAttemptID() );
-        
-        for( InputSplit split : splits ) {
-
-            ColumnFamilySplit columnFamilySplit = (ColumnFamilySplit) split;
-            
-            System.out.printf( "split: %s\n", split );
-
-            ColumnFamilyRecordReader reader = new ColumnFamilyRecordReader();
-
-            reader.initialize( split, context );
-
-            // now read out all the values... 
-
-            while( reader.nextKeyValue() ) {
-
-                System.out.printf( "." );
-                
-                ByteBuffer key = reader.getCurrentKey();
-                SortedMap<ByteBuffer, IColumn> value = reader.getCurrentValue();
-
-                //for( 
-                
-            }
-            
-        }
-
         //ColumnFamilyInputFormat inputFormat = new ColumnFamilyInputFormat();
 
         /*

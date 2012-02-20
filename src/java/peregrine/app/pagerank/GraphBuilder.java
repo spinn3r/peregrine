@@ -79,20 +79,31 @@ public class GraphBuilder {
         System.out.printf( " done (Wrote %,d edges over %,d nodes)\n", edges, nr_nodes );
 
     }
+
+    private long hash( String data ) {
+        return LongBytes.toLong( Base64.decode( data ) );
+    }
     
     public void addRecord( long source,
                            long... targets ) throws Exception {
+        
+        addRecord( source, Longs.toList( targets ) );
+        
+    }
+
+    public void addRecord( String source,
+                           String... targets ) throws Exception {
 
         List<Long> list = new ArrayList();
 
-        for( long target : targets ) {
-            list.add( target );
+        for( String target : targets ) {
+            list.add( hash( target ) );
         }
-        
-        addRecord( source, list );
+
+        addRecord( hash( source ) , list );
         
     }
-    
+
     public void addRecord( long source,
                            List<Long> targets ) throws Exception {
 

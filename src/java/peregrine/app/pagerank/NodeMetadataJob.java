@@ -94,7 +94,7 @@ public class NodeMetadataJob {
         public void cleanup() {
 
             if ( nrNodes == 0 )
-                throw new RuntimeException();
+                throw new RuntimeException( "Graph has no nodes." );
 
             // *** broadcast nr dangling.
 
