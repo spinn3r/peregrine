@@ -178,7 +178,13 @@ public class IterJob {
                 rank_sum += value.readDouble();
             }
 
+            String node = Base64.encode( key.toByteArray() );
+            
+            System.out.printf( "FIXME rank_sum for %s: %s\n", node, rank_sum );
+
             double rank = (DAMPENING * rank_sum) + teleport_grant;
+
+            System.out.printf( "FIXME rank for %s: %s\n", node, rank );
 
             emit( key, StructReaders.wrap( rank ) );
             

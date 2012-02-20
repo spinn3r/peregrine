@@ -126,7 +126,7 @@ public class TestPagerankAccuracy extends peregrine.BaseTestWithMultipleConfigs 
 
     private void dump() throws Exception {
         dump( "/pr/out/node_metadata", "h", "ii" );
-        dump( "/pr/out/rank_vector",   "h", "f" );
+        dump( "/pr/out/rank_vector",   "h", "d" );
     }
     
     public static void main( String[] args ) throws Exception {
