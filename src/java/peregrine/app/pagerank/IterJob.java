@@ -67,7 +67,7 @@ public class IterJob {
         	StructReader dangling         = values.get( 2 );
 
             double rank;
-            String source = key.readHashcodeAsBase16();
+            String source = key.readHashcodeAsBase64();
 
             if ( rank_vector != null ) {
                 rank = rank_vector.readDouble();
@@ -102,7 +102,7 @@ public class IterJob {
                     	.writeDouble( grant )
                     	.toStructReader();
 
-                    System.out.printf( "FIXME: giving grant %f to %s from %s\n", grant, source, Base16.encode( target.toByteArray() ) );
+                    System.out.printf( "FIXME: giving grant %f to %s from %s\n", grant, source, Base64.encode( target.toByteArray() ) );
                     
                     emit( target, value );
 

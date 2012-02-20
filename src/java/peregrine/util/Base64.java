@@ -18,27 +18,27 @@ package peregrine.util;
 /**
  * Base16 - encodes 'Canonical' Base16.  
  */
-public class Base16 {
+public class Base64 {
 
-    private static org.apache.commons.codec.binary.Hex codec =
-        new org.apache.commons.codec.binary.Hex();
+    private static org.apache.commons.codec.binary.Base64 codec =
+        new org.apache.commons.codec.binary.Base64( true );
     
     /**
      * @param bytes
      * @return String
      */
     public static String encode( final byte[] bytes ) {
-        return new String( codec.encode( bytes ) );
+        return new String( codec.encodeBase64( bytes, false, true ) );
     }
 
     /**
      * @param bytes
      * @return String
      */
-    public static byte[] decode( byte[] bytes ) {
+    public static byte[] decode( String data ) {
 
         try {
-            return codec.decode( bytes );
+            return codec.decodeBase64( data );
         } catch ( Exception e ) {
             throw new RuntimeException( e );
         }

@@ -163,8 +163,8 @@ public class StructReader {
         return read(new byte[Hashcode.HASH_WIDTH]);
     }
 
-    public String readHashcodeAsBase16() {
-        return Base16.encode( readHashcode() );
+    public String readHashcodeAsBase64() {
+        return Base64.encode( readHashcode() );
     }
     
     /**

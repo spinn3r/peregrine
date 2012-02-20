@@ -344,7 +344,7 @@ public abstract class BaseTestWithMultipleConfigs extends peregrine.BaseTest {
                 System.out.printf( "%s ", value.readShort() );
                 break;
             case 'h':
-                System.out.printf( "%s ", Base16.encode( value.readHashcode() ) );
+                System.out.printf( "%s ", Base64.encode( value.readHashcode() ) );
                 break;
 
             };
