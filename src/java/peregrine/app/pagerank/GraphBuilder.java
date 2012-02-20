@@ -100,7 +100,17 @@ public class GraphBuilder {
             list.add( hash( target ) );
         }
 
-        addRecord( hash( source ) , list );
+        StructReader key = StructReaders.wrap( Base64.decode( source ) );
+
+        StructWriter structWriter = new StructWriter( targets.length * Hashcode.HASH_WIDTH );
+        
+        for( String target : targets ) {
+            structWriter.writeBytesFixed( Base64.decode( target ) );
+        }
+
+        StructReader value = structWriter.toStructReader();
+
+        writer.write( key, value );
         
     }
 

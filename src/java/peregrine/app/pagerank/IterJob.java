@@ -68,7 +68,7 @@ public class IterJob {
 
             double rank;
             String source = key.readHashcodeAsBase64();
-
+            
             if ( rank_vector != null ) {
                 rank = rank_vector.readDouble();
             } else { 
@@ -102,7 +102,7 @@ public class IterJob {
                     	.writeDouble( grant )
                     	.toStructReader();
 
-                    System.out.printf( "FIXME: giving grant %f to %s from %s\n", grant, source, Base64.encode( target.toByteArray() ) );
+                    System.out.printf( "FIXME flowing: %s -> %s: %s\n", source, Base64.encode( target.toByteArray() ), grant );
                     
                     emit( target, value );
 
@@ -164,7 +164,7 @@ public class IterJob {
 
             } 
 
-            log.info( "Using teleport_grant: %f", teleport_grant );
+            System.out.printf( "FIXME: Using teleport_grant: %f\n", teleport_grant );
             
         }
         

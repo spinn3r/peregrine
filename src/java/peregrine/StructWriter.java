@@ -151,13 +151,13 @@ public class StructWriter {
 
     public StructWriter writeHashcode( byte[] value ) {
         // our hash codes right now are fixed width.
-        buff.writeBytes( Hashcode.getHashcode( value ) );
+        writeBytesFixed( Hashcode.getHashcode( value ) );
         return this;
     }
         
     public StructWriter writeHashcode( String value ) {
         // our hash codes right now are fixed width.
-        buff.writeBytes( Hashcode.getHashcode( value ) );
+        writeBytesFixed( Hashcode.getHashcode( value ) );
         return this;
     }
 
