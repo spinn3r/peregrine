@@ -65,10 +65,10 @@ public class IterJob {
         	StructReader outbound         = values.get( 0 );
         	StructReader rank_vector      = values.get( 1 );
         	StructReader dangling         = values.get( 2 );
+            String source                 = key.readHashcodeAsBase64();
 
             double rank;
-            String source = key.readHashcodeAsBase64();
-            
+
             if ( rank_vector != null ) {
                 rank = rank_vector.readDouble();
             } else { 
@@ -102,7 +102,7 @@ public class IterJob {
                     	.writeDouble( grant )
                     	.toStructReader();
 
-                    System.out.printf( "FIXME flowing: %s -> %s: %s\n", source, Base64.encode( target.toByteArray() ), grant );
+                    //System.out.printf( "TRACE flowing: %s -> %s: %s\n", source, Base64.encode( target.toByteArray() ), grant );
                     
                     emit( target, value );
 
@@ -164,7 +164,7 @@ public class IterJob {
 
             } 
 
-            System.out.printf( "FIXME: Using teleport_grant: %f\n", teleport_grant );
+            //System.out.printf( "TRACE: Using teleport_grant: %f\n", teleport_grant );
             
         }
         
@@ -179,12 +179,11 @@ public class IterJob {
             }
 
             String node = Base64.encode( key.toByteArray() );
-            
-            System.out.printf( "FIXME rank_sum for %s: %s\n", node, rank_sum );
 
             double rank = (DAMPENING * rank_sum) + teleport_grant;
 
-            System.out.printf( "FIXME rank for %s: %s\n", node, rank );
+            //System.out.printf( "TRACE rank_sum for %s: %s\n", node, rank_sum );
+            //System.out.printf( "TRACE rank for %s: %s\n", node, rank );
 
             emit( key, StructReaders.wrap( rank ) );
             
