@@ -24,20 +24,21 @@ import peregrine.util.*;
 /**
  * Tests the mathematical accuracy of our pagerank implementation.
  * 
- * Since all IDs need to be hashcodes we Base64 encode them first and then
- * decode them in the GraphBuilder.  I ended up stripping the last char and
- * replaced it with '_' and 0-9 for readability
+ * Since all IDs need to be hashcodes we Base15 encode them first and then
+ * decode them in the GraphBuilder.  I ended up picking hashcodes that when
+ * encoded end in 0-9:
  * 
- * 0 = 080ghJXVZ_0
- * 1 = xMpCOKC5I_1
- * 2 = yB5yjZ1ML_2
- * 3 = 7MvIfktc4_3
- * 4 = qH_2eaLz5_4
- * 5 = 5No7f7vOI_5
- * 6 = FnkJHFqID_6
- * 7 = jxTkX87qF_7
- * 8 = yfD4lfuYq_8
- * 9 = RcSMzi4tf_9
+ * 6512bd43d9caa6e0
+ * c9f0f895fb98ab91
+ * c4ca4238a0b92382
+ * c81e728d9d4c2f63
+ * 98f13708210194c4
+ * e4da3b7fbbce2345
+ * 67c6a1e7ce56d3d6
+ * 70efdf2ec9b08607
+ * 02e74f10e0327ad8
+ * d3d9446802a44259
+ * 
  */
 public class TestPagerankAccuracy extends peregrine.BaseTestWithMultipleConfigs {
 
@@ -80,11 +81,11 @@ public class TestPagerankAccuracy extends peregrine.BaseTestWithMultipleConfigs 
         builder.addRecord( 6, 4 );
         */
 
-        builder.addRecord( "xMpCOKC5I_1", "yB5yjZ1ML_2", "7MvIfktc4_3" );
-        builder.addRecord( "7MvIfktc4_3", "xMpCOKC5I_1", "yB5yjZ1ML_2", "5No7f7vOI_5" );
-        builder.addRecord( "qH_2eaLz5_4", "5No7f7vOI_5", "FnkJHFqID_6" );
-        builder.addRecord( "5No7f7vOI_5", "qH_2eaLz5_4", "FnkJHFqID_6" );
-        builder.addRecord( "FnkJHFqID_6", "qH_2eaLz5_4" );
+        builder.addRecord( "c9f0f895fb98ab91", "c4ca4238a0b92382", "c81e728d9d4c2f63" );
+        builder.addRecord( "c81e728d9d4c2f63", "c9f0f895fb98ab91", "c4ca4238a0b92382", "e4da3b7fbbce2345" );
+        builder.addRecord( "98f13708210194c4", "e4da3b7fbbce2345", "67c6a1e7ce56d3d6" );
+        builder.addRecord( "e4da3b7fbbce2345", "98f13708210194c4", "67c6a1e7ce56d3d6" );
+        builder.addRecord( "67c6a1e7ce56d3d6", "98f13708210194c4" );
         
         writer.close();
         
@@ -109,19 +110,22 @@ public class TestPagerankAccuracy extends peregrine.BaseTestWithMultipleConfigs 
         // now read all results from ALL partitions so that we can verify that
         // we have accurate values.
 
-        //Map<String,Double> rank_vector;
+        Map<String,Double> rank_vector = new HashMap();
+        
+        List<StructPair> data = read( "/pr/out/rank_vector" );
 
-    }
+        for( StructPair pair : data ) {
+            rank_vector.put( Base16.encode( pair.key.toByteArray() ),
+                             pair.value.readDouble() );
+        }
 
-    public static String hash( int id ) {
-        return hash( "" + id );
-    }
-
-    /**
-     * base64_filesafe( truncate( md5( utf8( data ) ) ) )
-     */
-    public static String hash( String id ) {
-        return Base64.encode( Hashcode.getHashcode( id ) );
+        assertEquals( rank_vector.get( "98f13708210194c4" ), 0.26666666666666666 );
+        assertEquals( rank_vector.get( "c4ca4238a0b92382" ), 0.16666666666666666 );
+        assertEquals( rank_vector.get( "c81e728d9d4c2f63" ), 0.11666666666666667 );
+        assertEquals( rank_vector.get( "c9f0f895fb98ab91" ), 0.09166666666666666 );
+        assertEquals( rank_vector.get( "e4da3b7fbbce2345" ), 0.16666666666666666 );
+        assertEquals( rank_vector.get( "67c6a1e7ce56d3d6" ), 0.19166666666666665 );
+        
     }
 
     private void dump() throws Exception {
@@ -137,10 +141,6 @@ public class TestPagerankAccuracy extends peregrine.BaseTestWithMultipleConfigs 
         //System.setProperty( "peregrine.test.config", "2:1:3" ); 
         //System.setProperty( "peregrine.test.config", "2:1:3" ); 
 
-        for ( int i = 0; i < 10; ++i ) {
-            System.out.printf( "%s=%s\n", i , hash( i ) );
-        }
-        
         System.setProperty( "peregrine.test.config", "1:1:1" ); 
         runTests();
         

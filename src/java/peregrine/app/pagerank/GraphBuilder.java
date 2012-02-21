@@ -81,7 +81,7 @@ public class GraphBuilder {
     }
 
     private long hash( String data ) {
-        return LongBytes.toLong( Base64.decode( data ) );
+        return LongBytes.toLong( Base16.decode( data ) );
     }
     
     public void addRecord( long source,
@@ -100,12 +100,12 @@ public class GraphBuilder {
             list.add( hash( target ) );
         }
 
-        StructReader key = StructReaders.wrap( Base64.decode( source ) );
+        StructReader key = StructReaders.wrap( Base16.decode( source ) );
 
         StructWriter structWriter = new StructWriter( targets.length * Hashcode.HASH_WIDTH );
         
         for( String target : targets ) {
-            structWriter.writeBytesFixed( Base64.decode( target ) );
+            structWriter.writeBytesFixed( Base16.decode( target ) );
         }
 
         StructReader value = structWriter.toStructReader();

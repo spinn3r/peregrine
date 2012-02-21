@@ -45,5 +45,13 @@ public class Base16 {
 
     }
 
+    /**
+     * @param bytes
+     * @return String
+     */
+    public static byte[] decode( String data ) {
+        return decode( data.getBytes() );
+    }
+
 }
 

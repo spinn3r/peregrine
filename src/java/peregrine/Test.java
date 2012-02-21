@@ -27,7 +27,20 @@ public class Test {
 
     private static final Logger log = Logger.getLogger();
 
+    public static String hash( long id ) {
+        return Base16.encode( Hashcode.getHashcode( ""+id ) );
+    }
+
     public static void main( String[] args ) throws Exception {
+
+        /*
+        System.out.printf( "%s\n", Base64.encode( Base64.decode( "5No7f7vOI_5" ) ) );
+        System.out.printf( "%s\n", Base64.encode( Base64.decode( "5No7f7vOI_4" ) ) );
+        */
+
+        for ( int i = 0; i < 200; ++i ) {
+            System.out.printf( "%s=%s\n", i , hash( i ) );
+        }
 
         //ColumnFamilyInputFormat inputFormat = new ColumnFamilyInputFormat();
 
