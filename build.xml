@@ -270,6 +270,7 @@
 
                   <include name="peregrine/TestNewReduceCode.java"/>
                   <include name="peregrine/TestPagerank.java"/>
+                  <include name="peregrine/TestPagerankAccuracy.java"/>
                   <include name="peregrine/io/partition/TestDefaultPartitionWriter.java"/>
                   <include name="peregrine/pfs/TestRemoteChunkWriterClient.java"/>
                   <include name="peregrine/pfsd/TestExtractWriterPerformance.java"/>

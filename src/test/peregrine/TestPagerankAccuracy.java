@@ -60,27 +60,6 @@ public class TestPagerankAccuracy extends peregrine.BaseTestWithMultipleConfigs 
 
         GraphBuilder builder = new GraphBuilder( writer );
 
-        /*
-        addEdge( lr, "1", "2" );
-        addEdge( lr, "1", "3" );
-        addEdge( lr, "3", "1" );
-        addEdge( lr, "3", "2" );
-        addEdge( lr, "3", "5" );
-        addEdge( lr, "4", "5" );
-        addEdge( lr, "4", "6" );
-        addEdge( lr, "5", "4" );
-        addEdge( lr, "5", "6" );
-        addEdge( lr, "6", "4" );
-        */
-
-        /*
-        builder.addRecord( 1, 2, 3 );
-        builder.addRecord( 3, 1, 2, 5 );
-        builder.addRecord( 4, 5, 6 );
-        builder.addRecord( 5, 4, 6 );
-        builder.addRecord( 6, 4 );
-        */
-
         builder.addRecord( "c9f0f895fb98ab91", "c4ca4238a0b92382", "c81e728d9d4c2f63" );
         builder.addRecord( "c81e728d9d4c2f63", "c9f0f895fb98ab91", "c4ca4238a0b92382", "e4da3b7fbbce2345" );
         builder.addRecord( "98f13708210194c4", "e4da3b7fbbce2345", "67c6a1e7ce56d3d6" );
