@@ -17,10 +17,10 @@ start() {
         echo $hostname
 
         #FIXME: waitfor the daemon to starup.
-        #ssh root@$hostname "cd $DIR && export HOSTNAME && nohup ./bin/jexec peregrine.pfsd.Main -h=$host > $LOGDIR/peregrine-$host.log 2> $LOGDIR/peregrine-$host.err &" 
+        #ssh root@$hostname "cd $DIR && export HOSTNAME && nohup ./bin/jexec peregrine.worker.Main -h=$host > $LOGDIR/peregrine-$host.log 2> $LOGDIR/peregrine-$host.err &" 
 
         set -x
-        ssh root@$hostname "cd $DIR && nohup ./bin/pfsd -h=$host > $LOGDIR/peregrine-$host.log 2> $LOGDIR/peregrine-$host.err &" 
+        ssh root@$hostname "cd $DIR && nohup ./bin/workerd -h=$host > $LOGDIR/peregrine-$host.log 2> $LOGDIR/peregrine-$host.err &" 
         set +x
 
     done
@@ -32,7 +32,7 @@ stop() {
     for host in `cat conf/peregrine.hosts | grep -Eo '^[^:]+' | sort | uniq`; do
 
         set -x
-        ssh root@$host "pgrep -f peregrine.pfsd.Main | xargs kill"
+        ssh root@$host "pgrep -f peregrine.worker.Main | xargs kill"
         set +x
 
     done
