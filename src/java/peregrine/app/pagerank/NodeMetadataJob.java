@@ -93,14 +93,12 @@ public class NodeMetadataJob {
         @Override
         public void cleanup() {
 
-            if ( nrNodes == 0 )
-                throw new RuntimeException( "Graph has no nodes." );
-
-            // *** broadcast nr dangling.
-
             StructReader key = StructReaders.hashcode( "id" );
-            
-            nrNodesBroadcastOutput.emit( key, StructReaders.wrap( nrNodes ) );
+
+            if ( nrNodes > 0 ) {
+                // *** broadcast nr_nodes.
+                nrNodesBroadcastOutput.emit( key, StructReaders.wrap( nrNodes ) );
+            }
 
             // *** broadcast nr dangling.
             nrDanglingBroadcastOutput.emit( key, StructReaders.wrap( nrDangling ) );
