@@ -1,10 +1,24 @@
+/*
+ * Copyright 2011 Kevin A. Burton
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+*/
 package peregrine.util.netty;
 
 import org.jboss.netty.buffer.*;
 
+import peregrine.*;
 import peregrine.os.*;
-import peregrine.values.*;
-
 import java.io.*;
 import java.util.*;
 
@@ -25,16 +39,9 @@ public class StreamReader {
     private ChannelBuffer buff = null;
 
     private StreamReaderListener listener = null;
-
-    private MappedFile mappedFile = null;
     
     public StreamReader( ChannelBuffer buff ) {
         this.buff = buff;
-    }
-
-    public StreamReader( ChannelBuffer buff, MappedFile mappedFile ) {
-        this.buff = buff;
-        this.mappedFile = mappedFile;
     }
 
     /**
@@ -42,7 +49,7 @@ public class StreamReader {
      */
     public StructReader read( int length ) {
         fireOnRead( length );
-        return new StructReader( buff.readSlice( length ), mappedFile );
+        return new StructReader( buff.readSlice( length ) );
     }
 
     /**
@@ -51,6 +58,13 @@ public class StreamReader {
     public byte read() {
         fireOnRead(1);
         return buff.readByte();
+    }
+    
+    /**
+     * Return the current position in this stream.
+     */
+    public int index() {
+    	return buff.readerIndex();
     }
     
     public StreamReaderListener getListener() { 

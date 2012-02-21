@@ -1,17 +1,35 @@
+/*
+ * Copyright 2011 Kevin A. Burton
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+*/
 package peregrine.io.partition;
 
 import java.io.*;
 
 import java.util.*;
 
+import peregrine.*;
 import peregrine.config.*;
+import peregrine.io.*;
 import peregrine.io.chunk.*;
-import peregrine.values.*;
+import peregrine.rpc.*;
+import peregrine.task.*;
 
 /**
  * Read data from a partition from local storage.
  */
-public class LocalPartitionReader implements ChunkReader {
+public class LocalPartitionReader extends BaseJobInput implements SequenceReader, JobInput {
 
     private String path = null;
 
@@ -21,13 +39,11 @@ public class LocalPartitionReader implements ChunkReader {
 
     private DefaultChunkReader chunkReader = null;
 
-    private List<LocalPartitionReaderListener> listeners = new ArrayList();
-
-    private ChunkReference chunkRef = null;
-
     private boolean hasNext = false;
 
     private Partition partition;
+    
+    private ChunkReference chunkRef;
     
     public LocalPartitionReader( Config config,
                                  Partition partition,
@@ -40,27 +56,28 @@ public class LocalPartitionReader implements ChunkReader {
     public LocalPartitionReader( Config config,
                                  Partition partition,
                                  String path,
-                                 LocalPartitionReaderListener listener ) throws IOException {
+                                 ChunkStreamListener listener ) throws IOException {
 
         this( config, partition, path, new ArrayList() );
 
-        listeners.add( listener );
+        addListener( listener );
         
     }
     
     public LocalPartitionReader( Config config,
                                  Partition partition,
                                  String path,
-                                 List<LocalPartitionReaderListener> listeners ) throws IOException {
+                                 List<ChunkStreamListener> listeners ) throws IOException {
 
         this.partition = partition;
         this.chunkReaders = LocalPartition.getChunkReaders( config, partition, path );
         this.iterator = chunkReaders.iterator();
-        this.listeners = listeners;
         this.path = path;
 
-        this.chunkRef = new ChunkReference( partition );
+        this.chunkRef = new ChunkReference( partition, path );
 
+        addListeners( listeners );
+        
     }
 
     public List<DefaultChunkReader> getDefaultChunkReaders() {
@@ -75,7 +92,7 @@ public class LocalPartitionReader implements ChunkReader {
 
         if ( hasNext == false ) {
 
-            fireOnChunkEnd();
+            fireOnChunkEnd( chunkRef );
             
             if ( iterator.hasNext() ) {
 
@@ -86,7 +103,7 @@ public class LocalPartitionReader implements ChunkReader {
                 
                 chunkReader = iterator.next();
 
-                fireOnChunk();
+                fireOnChunk( chunkRef );
                 
                 hasNext = chunkReader.hasNext();
 
@@ -100,26 +117,11 @@ public class LocalPartitionReader implements ChunkReader {
         
     }
 
-    private void fireOnChunk() {
-
-        for( LocalPartitionReaderListener listener : listeners ) {
-            listener.onChunk( chunkRef );
-        }
-        
+    @Override
+    public void next() throws IOException {
+       	chunkReader.next();    	
     }
     
-    private void fireOnChunkEnd() {
-
-        if ( chunkRef != null && chunkRef.local >= 0 ) {
-
-            for( LocalPartitionReaderListener listener : listeners ) {
-                listener.onChunkEnd( chunkRef );
-            }
-
-        }
-
-    }
-
     @Override
     public StructReader key() throws IOException {
         return chunkReader.key();
@@ -135,18 +137,28 @@ public class LocalPartitionReader implements ChunkReader {
 
         if ( chunkReader != null ) {
             chunkReader.close();
-            fireOnChunkEnd();
+            fireOnChunkEnd( chunkRef );
         }
 
     }
 
     @Override
     public String toString() {
-        return String.format( "%s (%s):%s", path, partition, chunkReaders );
-    }
 
-    public void addListener( LocalPartitionReaderListener listener ) {
-        listeners.add( listener );
+        int offset = 0;
+
+        if ( chunkReader != null )
+            offset = chunkReader.index();
+
+        Message message = new Message();
+
+        message.put( "path",       path );
+        message.put( "partition",  partition.getId() );
+        message.put( "chunkRef",   chunkRef );
+        message.put( "offset",     offset );
+
+        return message.toString();
+
     }
 
 }

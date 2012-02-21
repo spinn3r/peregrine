@@ -1,12 +1,28 @@
+/*
+ * Copyright 2011 Kevin A. Burton
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+*/
 package peregrine.io;
 
 import java.io.*;
 import java.util.*;
 import peregrine.*;
-import peregrine.values.*;
+import peregrine.util.*;
 import peregrine.config.Partition;
 import peregrine.io.partition.*;
 import peregrine.io.chunk.*;
+import peregrine.io.util.*;
 
 public class TestPartitionWriter extends BaseTestWithTwoPartitions {
 
@@ -35,7 +51,7 @@ public class TestPartitionWriter extends BaseTestWithTwoPartitions {
 
         System.out.printf( "Running test2...\n" );
         
-        remove( config.getRoot() );
+        Files.remove( config.getRoot() );
 
         Partition part = new Partition( 0 );
         config.getHost();
@@ -48,9 +64,9 @@ public class TestPartitionWriter extends BaseTestWithTwoPartitions {
 
         PartitionWriter writer = new DefaultPartitionWriter( config, new Partition( 0 ), path );
 
-        for ( int i = 0; i < 10000; ++i ) {
+        for ( long i = 0; i < 10000; ++i ) {
 
-        	StructReader key = StructReaders.varint(i);
+        	StructReader key = StructReaders.wrap(i);
 
         	StructReader value = key;
 
@@ -95,7 +111,7 @@ public class TestPartitionWriter extends BaseTestWithTwoPartitions {
         
         System.out.printf( "Running test3...\n" );
         
-        remove( config.getRoot() );
+        Files.remove( config.getRoot() );
 
         Partition part = new Partition( 0 );
         config.getHost();
@@ -110,9 +126,9 @@ public class TestPartitionWriter extends BaseTestWithTwoPartitions {
 
         PartitionWriter writer = new DefaultPartitionWriter( config, new Partition( 0 ), path );
 
-        for ( int i = 0; i < max_per_round; ++i ) {
+        for ( long i = 0; i < max_per_round; ++i ) {
 
-        	StructReader key = StructReaders.varint(i);
+        	StructReader key = StructReaders.wrap(i);
 
         	StructReader value = key;
 
@@ -131,13 +147,11 @@ public class TestPartitionWriter extends BaseTestWithTwoPartitions {
 
         writer = new DefaultPartitionWriter( config, new Partition( 0 ), path, true );
 
-        for ( int i = 0; i < max_per_round; ++i ) {
+        for ( long i = 0; i < max_per_round; ++i ) {
 
-        	StructReader key = StructReaders.varint(i);
+        	StructReader key = StructReaders.wrap(i);
 
-        	StructReader value = key;
-
-            writer.write( key, value );
+            writer.write( key, key );
             
         }
 
@@ -156,14 +170,16 @@ public class TestPartitionWriter extends BaseTestWithTwoPartitions {
         while( reader.hasNext() ) {
 
             try {
-            
-                reader.key();
+
+                reader.next();
+            	
+                StructReader key    = reader.key();
                 StructReader value = reader.value();
                 
-                int intval = value.readVarint();
+                long val = value.readLong();
                 
                 if ( count < 10000 )
-                    assertEquals( intval, count );
+                    assertEquals( val, count );
 
             } catch ( Throwable t ) {
                 throw new IOException( "Failed after reading N items: " + count, t );

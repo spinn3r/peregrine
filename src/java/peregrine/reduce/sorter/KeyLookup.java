@@ -1,9 +1,24 @@
-
+/*
+ * Copyright 2011 Kevin A. Burton
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+*/
 package peregrine.reduce.sorter;
 
 import java.io.*;
 import peregrine.util.*;
 import peregrine.util.primitive.LongBytes;
+import peregrine.io.chunk.*;
 import peregrine.shuffle.*;
 
 import org.jboss.netty.buffer.*;
@@ -31,7 +46,7 @@ public class KeyLookup {
      * 
      */
     private ChannelBuffer lookup;
-    
+   
     /**
      * The current index we're working on in the lookup and buffer structures.
      */
@@ -75,8 +90,8 @@ public class KeyLookup {
     	this( ChannelBuffers.directBuffer( size * KEY_SIZE ), size, buffers );
     	
     }
-
-    public KeyLookup( CompositeShuffleInputChunkReader reader )
+    
+    public KeyLookup( CompositeChunkReader reader )
         throws IOException {
 
         this( reader.size(), reader.getBuffers().toArray( new ChannelBuffer[0] ) );
@@ -89,10 +104,9 @@ public class KeyLookup {
             // advance the lookup
             next();
 
-            ShuffleInputChunkReader delegate = reader.getShuffleInputChunkReader();
+            ChunkReader delegate = reader.getChunkReader();
            
-            KeyEntry entry = new KeyEntry( (byte)reader.index(), 
-            		                       delegate.getShufflePacket().getOffset() + delegate.keyOffset() );
+            KeyEntry entry = new KeyEntry( (byte)reader.index(), delegate.keyOffset() );
             
             entry.backing = reader.getBuffer();
             
@@ -163,7 +177,7 @@ public class KeyLookup {
         
     }
 
-    public KeyLookup clone() {
+    public KeyLookup copy() {
         return slice( 0, size - 1 );
     }
 
@@ -171,19 +185,27 @@ public class KeyLookup {
 
         System.out.printf( "%s:\n", name );
 
-        //clone it so we don't change the index... this doesn't need to be fast.
-        KeyLookup clone = clone();
+        //copy it so we don't change the index... this doesn't need to be fast.
+        KeyLookup copy = copy();
 
-        System.out.printf( "\tindex:   %,d\n", clone.index );
-        System.out.printf( "\tstart:   %,d\n", clone.start );
-        System.out.printf( "\tend:     %,d\n", clone.end );
-        System.out.printf( "\tsize:    %,d\n", clone.size );
+        System.out.printf( "\tindex:   %,d\n", copy.index );
+        System.out.printf( "\tstart:   %,d\n", copy.start );
+        System.out.printf( "\tend:     %,d\n", copy.end );
+        System.out.printf( "\tsize:    %,d\n", copy.size );
 
-        while( clone.hasNext() ) {
-            clone.next();
-            System.out.printf( "\t\t%s\n", Hex.encode( clone.key() ) );
+        while( copy.hasNext() ) {
+            copy.next();
+            System.out.printf( "\t\t%s\n", Hex.encode( copy.key() ) );
         }
 
     }
 
+    /**
+     * Compute the required memory to store the given KeyLookup structure as a
+     * direct buffer.
+     */
+    public static long computeCapacity( int count ) {
+        return count * KeyLookup.KEY_SIZE;
+    }
+    
 }

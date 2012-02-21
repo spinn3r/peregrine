@@ -1,3 +1,18 @@
+/*
+ * Copyright 2011 Kevin A. Burton
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+*/
 package peregrine.shuffle;
 
 import java.io.*;
@@ -5,14 +20,15 @@ import java.nio.*;
 import java.util.*;
 import java.nio.channels.*;
 
+import peregrine.*;
 import peregrine.os.*;
 import peregrine.util.*;
-import peregrine.values.*;
 import peregrine.config.*;
 import org.jboss.netty.buffer.*;
 
 /**
- * 
+ * Read packets from a shuffle file for a given set of partitions (usually the
+ * primary).
  */
 public class ShuffleInputReader implements Closeable {
 
@@ -30,11 +46,6 @@ public class ShuffleInputReader implements Closeable {
 
     protected Map<Partition,ShuffleHeader> headersByPartition = new HashMap();
     
-    /**
-     * The currently parsed header information for the given partition.
-     */
-    protected ShuffleHeader header = null;
-
     protected ChannelBuffer buffer = null;
 
     /**
@@ -53,7 +64,11 @@ public class ShuffleInputReader implements Closeable {
      */
     protected Partition current = null;
     
-    protected MappedFile mappedFile = null;;
+    protected MappedFileReader mappedFile = null;;
+     
+    public ShuffleInputReader( Config config, String path, final Partition partition ) throws IOException {
+        this( config, path, new ArrayList() {{ add( partition ); }} );
+    }
         
     public ShuffleInputReader( Config config, String path, List<Partition> partitions ) throws IOException {
         
@@ -72,7 +87,8 @@ public class ShuffleInputReader implements Closeable {
 
         // mmap the WHOLE file. We won't actually use these pages if we don't
         // read them so this make it less difficult to figure out what to map.
-        this.mappedFile = new MappedFile( config, file, FileChannel.MapMode.READ_ONLY );
+
+        this.mappedFile = new MappedFileReader( config, file );
         this.mappedFile.setAutoLock( ENABLE_MEMLOCK );
         
         this.buffer = mappedFile.map();
@@ -144,10 +160,6 @@ public class ShuffleInputReader implements Closeable {
     
     public ChannelBuffer getBuffer() {
         return buffer;
-    }
-    
-    public ShuffleHeader getHeader() {
-        return header;
     }
 
     public ShuffleHeader getHeader( Partition partition ) {

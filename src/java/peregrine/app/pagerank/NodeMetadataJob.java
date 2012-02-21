@@ -1,8 +1,22 @@
+/*
+ * Copyright 2011 Kevin A. Burton
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+*/
 package peregrine.app.pagerank;
 
 import java.util.*;
 import peregrine.*;
-import peregrine.values.*;
 import peregrine.util.*;
 import peregrine.util.primitive.IntBytes;
 import peregrine.io.*;
@@ -45,11 +59,10 @@ public class NodeMetadataJob {
 
             if ( values.get(1) != null ) {
 
-                HashSetValue set = new HashSetValue();
-                set.fromChannelBuffer( values.get(1).getChannelBuffer() );
+                StructReader graph_by_source = values.get(1);
 
-                outdegree = set.size();
-
+                outdegree = graph_by_source.length() / Hashcode.HASH_WIDTH;
+                
             }
 
             if ( outdegree == 0 ) {
@@ -57,7 +70,9 @@ public class NodeMetadataJob {
                 ++nrDangling;
                 
                 // TODO would be NICE to support a sequence file where the
-                // values are optional for better storage.
+                // values are optional for better storage efficiency.  This
+                // would essentially be a 'set' of just keys.
+
                 danglingOutput.emit( key, StructReaders.TRUE );
                 
             }
@@ -78,14 +93,12 @@ public class NodeMetadataJob {
         @Override
         public void cleanup() {
 
-            if ( nrNodes == 0 )
-                throw new RuntimeException();
-
-            // *** broadcast nr dangling.
-
             StructReader key = StructReaders.hashcode( "id" );
-            
-            nrNodesBroadcastOutput.emit( key, StructReaders.wrap( nrNodes ) );
+
+            if ( nrNodes > 0 ) {
+                // *** broadcast nr_nodes.
+                nrNodesBroadcastOutput.emit( key, StructReaders.wrap( nrNodes ) );
+            }
 
             // *** broadcast nr dangling.
             nrDanglingBroadcastOutput.emit( key, StructReaders.wrap( nrDangling ) );

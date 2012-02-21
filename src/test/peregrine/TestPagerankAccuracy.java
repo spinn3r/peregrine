@@ -1,0 +1,128 @@
+/*
+ * Copyright 2011 Kevin A. Burton
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+*/
+package peregrine;
+
+import java.util.*;
+
+import peregrine.io.*;
+import peregrine.app.pagerank.*;
+import peregrine.util.*;
+
+/**
+ * Tests the mathematical accuracy of our pagerank implementation.
+ * 
+ * Since all IDs need to be hashcodes we Base15 encode them first and then
+ * decode them in the GraphBuilder.  I ended up picking hashcodes that when
+ * encoded end in 0-9:
+ * 
+ * 6512bd43d9caa6e0
+ * c9f0f895fb98ab91
+ * c4ca4238a0b92382
+ * c81e728d9d4c2f63
+ * 98f13708210194c4
+ * e4da3b7fbbce2345
+ * 67c6a1e7ce56d3d6
+ * 70efdf2ec9b08607
+ * 02e74f10e0327ad8
+ * d3d9446802a44259
+ * 
+ */
+public class TestPagerankAccuracy extends peregrine.BaseTestWithMultipleConfigs {
+
+    @Override
+    public void doTest() throws Exception {
+
+        doTest( 5000 * getFactor() , 100 ); 
+
+    }
+
+    private void doTest( int nr_nodes,
+                         int max_edges_per_node ) throws Exception {
+
+        // only 0 and 1 should be dangling.
+
+        String path = "/pr/test.graph";
+
+        ExtractWriter writer = new ExtractWriter( config, path );
+
+        GraphBuilder builder = new GraphBuilder( writer );
+
+        builder.addRecord( "c9f0f895fb98ab91", "c4ca4238a0b92382", "c81e728d9d4c2f63" );
+        builder.addRecord( "c81e728d9d4c2f63", "c9f0f895fb98ab91", "c4ca4238a0b92382", "e4da3b7fbbce2345" );
+        builder.addRecord( "98f13708210194c4", "e4da3b7fbbce2345", "67c6a1e7ce56d3d6" );
+        builder.addRecord( "e4da3b7fbbce2345", "98f13708210194c4", "67c6a1e7ce56d3d6" );
+        builder.addRecord( "67c6a1e7ce56d3d6", "98f13708210194c4" );
+        
+        writer.close();
+        
+        Pagerank pr = null;
+
+        try {
+            
+            pr = new Pagerank( config, path );
+
+            pr.init();
+
+            dump();
+            
+            pr.iter();
+
+            dump();
+            
+        } finally {
+            pr.shutdown();
+        }
+
+        // now read all results from ALL partitions so that we can verify that
+        // we have accurate values.
+
+        Map<String,Double> rank_vector = new HashMap();
+        
+        List<StructPair> data = read( "/pr/out/rank_vector" );
+
+        for( StructPair pair : data ) {
+            rank_vector.put( Base16.encode( pair.key.toByteArray() ),
+                             pair.value.readDouble() );
+        }
+
+        assertEquals( rank_vector.get( "98f13708210194c4" ), 0.26666666666666666 );
+        assertEquals( rank_vector.get( "c4ca4238a0b92382" ), 0.16666666666666666 );
+        assertEquals( rank_vector.get( "c81e728d9d4c2f63" ), 0.11666666666666667 );
+        assertEquals( rank_vector.get( "c9f0f895fb98ab91" ), 0.09166666666666666 );
+        assertEquals( rank_vector.get( "e4da3b7fbbce2345" ), 0.16666666666666666 );
+        assertEquals( rank_vector.get( "67c6a1e7ce56d3d6" ), 0.19166666666666665 );
+        
+    }
+
+    private void dump() throws Exception {
+        dump( "/pr/out/node_metadata", "h", "ii" );
+        dump( "/pr/out/rank_vector",   "h", "d" );
+    }
+    
+    public static void main( String[] args ) throws Exception {
+
+        //System.setProperty( "peregrine.test.config", "04:1:32" ); 
+        //System.setProperty( "peregrine.test.config", "01:1:1" ); 
+        //System.setProperty( "peregrine.test.config", "8:1:32" );
+        //System.setProperty( "peregrine.test.config", "2:1:3" ); 
+        //System.setProperty( "peregrine.test.config", "2:1:3" ); 
+
+        System.setProperty( "peregrine.test.config", "1:1:1" ); 
+        runTests();
+        
+    }
+
+}

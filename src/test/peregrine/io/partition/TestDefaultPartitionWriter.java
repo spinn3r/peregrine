@@ -1,9 +1,23 @@
+/*
+ * Copyright 2011 Kevin A. Burton
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+*/
 package peregrine.io.partition;
 
 import java.io.*;
 import java.util.*;
 import peregrine.*;
-import peregrine.values.*;
 import peregrine.config.Partition;
 import peregrine.io.partition.*;
 import peregrine.io.chunk.*;
@@ -16,7 +30,7 @@ public class TestDefaultPartitionWriter extends peregrine.BaseTestWithMultipleCo
     public void doTest() throws Exception {
 
         for( int test : TESTS ) {
-            doTest( test );
+            doTest( test * getFactor() );
         }
         
     }
@@ -33,9 +47,9 @@ public class TestDefaultPartitionWriter extends peregrine.BaseTestWithMultipleCo
         
         PartitionWriter writer = new DefaultPartitionWriter( config, part, path );
         
-        for ( int i = 0; i < max; ++i ) {
+        for ( long i = 0; i < max; ++i ) {
 
-        	StructReader key = StructReaders.varint( i );
+        	StructReader key = StructReaders.wrap( i );
                 
         	StructReader value = key;
 
@@ -68,6 +82,8 @@ public class TestDefaultPartitionWriter extends peregrine.BaseTestWithMultipleCo
     }
 
     public static void main( String[] args ) throws Exception {
+        System.setProperty( "peregrine.test.factor", "10" ); // 1m
+        System.setProperty( "peregrine.test.config", "01:01:1" ); // takes 3 seconds
         runTests();
     }
 

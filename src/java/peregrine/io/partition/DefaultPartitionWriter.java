@@ -1,20 +1,37 @@
+/*
+ * Copyright 2011 Kevin A. Burton
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+*/
 package peregrine.io.partition;
 
 import java.io.*;
 import java.util.*;
 
+import peregrine.*;
 import peregrine.config.*;
 import peregrine.http.*;
 import peregrine.io.chunk.*;
 import peregrine.os.*;
-import peregrine.pfsd.*;
+import peregrine.util.*;
 import peregrine.util.netty.*;
-import peregrine.values.*;
+import peregrine.worker.*;
 
 import com.spinn3r.log5j.Logger;
 
 /**
- * 
+ * Write a partition as a given stream of key/value pairs and rollover chunks as
+ * they are filled.
  */
 public class DefaultPartitionWriter implements PartitionWriter, ChunkWriter {
 
@@ -60,7 +77,7 @@ public class DefaultPartitionWriter implements PartitionWriter, ChunkWriter {
                                    boolean append,
                                    List<Host> hosts ) throws IOException {
 
-        this( config, partition, path, append, hosts, MappedFile.DEFAULT_AUTO_SYNC );
+        this( config, partition, path, append, hosts, MappedFileWriter.DEFAULT_AUTO_SYNC );
         
     }
 
@@ -108,6 +125,8 @@ public class DefaultPartitionWriter implements PartitionWriter, ChunkWriter {
     @Override
     public void write( StructReader key, StructReader value )
         throws IOException {
+
+        Hashcode.assertKeyLength( key );
 
         chunkWriter.write( key, value );
 

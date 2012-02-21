@@ -1,11 +1,29 @@
+/*
+ * Copyright 2011 Kevin A. Burton
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+*/
 package peregrine.io;
 
 import java.io.*;
 import java.util.*;
+
+import peregrine.*;
 import peregrine.config.Partition;
+import peregrine.io.chunk.*;
 import peregrine.io.partition.*;
+import peregrine.merge.*;
 import peregrine.util.*;
-import peregrine.values.*;
 
 /**
  * 
@@ -44,18 +62,18 @@ public class TestFullOuterJoin extends peregrine.BaseTestWithTwoPartitions {
 
         writer.close();
 
-        List<LocalPartitionReader> readers = new ArrayList();
+        List<SequenceReader> readers = new ArrayList();
         
         readers.add( new LocalPartitionReader( config, part, "/tmp/left" ) );
         readers.add( new LocalPartitionReader( config, part, "/tmp/right" ) );
         
-        LocalMerger merger = new LocalMerger( readers );
+        MergeRunner merger = new MergeRunner( readers );
 
         //FIXME: make sure the results come back ordered correctly... 
         
         while( true ) {
 
-            JoinedTuple joined = merger.next();
+            MergedValue joined = merger.next();
 
             if ( joined == null )
                 break;
@@ -68,7 +86,7 @@ public class TestFullOuterJoin extends peregrine.BaseTestWithTwoPartitions {
     }
 
     public static void write( PartitionWriter writer,
-                              int v ) throws IOException {
+                              long v ) throws IOException {
 
     	StructReader key = StructReaders.wrap(v);
     	StructReader value = key;

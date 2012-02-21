@@ -1,3 +1,18 @@
+/*
+ * Copyright 2011 Kevin A. Burton
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+*/
 package peregrine.util.netty;
 
 import java.io.*;
@@ -43,7 +58,7 @@ public class BufferedChannelBufferWritable implements ChannelBufferWritable {
             throw new IOException( "closed" );
         
         if ( ! hasCapacity( buff ) ) { 
-            flush();
+            flush( false );
         }
 
         buffers.add( buff );
@@ -57,11 +72,15 @@ public class BufferedChannelBufferWritable implements ChannelBufferWritable {
      */
     public void preFlush() throws IOException { }
 
+    @Override
+    public void flush() throws IOException {
+        flush( true );
+    }
+    
     /**
      * Write out all buffers to the delegate.
      */
-    @Override
-    public void flush() throws IOException {
+    public void flush( boolean flushDelegate ) throws IOException {
 
         if ( writeLength == 0 )
             return;
@@ -83,13 +102,15 @@ public class BufferedChannelBufferWritable implements ChannelBufferWritable {
         writeLength = 0;
 
         // flush the underlying delegate too
-        delegate.flush();
+        if ( flushDelegate ) 
+            delegate.flush();
         
     }
 
     @Override
     public void shutdown() throws IOException {
         flush();
+        delegate.shutdown();
     }
 
     @Override

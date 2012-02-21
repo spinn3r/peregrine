@@ -1,3 +1,18 @@
+/*
+ * Copyright 2011 Kevin A. Burton
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+*/
 package peregrine.os;
 
 import java.io.*;
@@ -7,9 +22,6 @@ import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 
 public class mman {
-
-    private static InterfaceDelegate delegate
-        = (InterfaceDelegate)Native.loadLibrary( "c", InterfaceDelegate.class); 
 
     public static final int PROT_READ   = 0x1;      /* Page can be read.  */
     public static final int PROT_WRITE  = 0x2;      /* Page can be written.  */
@@ -34,7 +46,7 @@ public class mman {
         // we don't really have a need to change the recommended pointer.
         Pointer addr = new Pointer( 0 );
         
-        Pointer result = delegate.mmap( addr, len, prot, flags, fildes, off );
+        Pointer result = Delegate.mmap( addr, len, prot, flags, fildes, off );
 
         if ( Pointer.nativeValue( result ) == -1 ) {
             throw new IOException( errno.strerror() );
@@ -47,7 +59,7 @@ public class mman {
     public static int munmap( Pointer addr, long len )
         throws IOException {
 
-        int result = delegate.munmap( addr, len );
+        int result = Delegate.munmap( addr, len );
 
         if ( result != 0 ) {
             throw new IOException( errno.strerror() );
@@ -60,27 +72,36 @@ public class mman {
     public static void mlock( Pointer addr, long len )
         throws IOException {
 
-        if ( delegate.mlock( addr, len ) != 0 ) {
+        if ( Delegate.mlock( addr, len ) != 0 ) {
             throw new IOException( errno.strerror() );
         }
 
     }
 
+    /**
+     * Unlock the given region, throw an IOException if we fail.
+     */
     public static void munlock( Pointer addr, long len )
         throws IOException {
 
-        if ( delegate.munlock( addr, len ) != 0 ) {
+        if ( Delegate.munlock( addr, len ) != 0 ) {
             throw new IOException( errno.strerror() );
         }
 
     }
 
-    interface InterfaceDelegate extends Library {
-        Pointer mmap( Pointer addr, long len, int prot, int flags, int fildes, long off );
-        int munmap( Pointer addr, long len );
+    static class Delegate {
+    
+        public static native Pointer mmap( Pointer addr, long len, int prot, int flags, int fildes, long off );
+        public static native int munmap( Pointer addr, long len );
+        
+        public static native int mlock( Pointer addr, long len );
+        public static native int munlock( Pointer addr, long len );
+        
+        static {
+            Native.register( "c" );
+        }
 
-        int mlock( Pointer addr, long len );
-        int munlock( Pointer addr, long len );
     }
 
     public static void main( String[] args ) throws Exception {

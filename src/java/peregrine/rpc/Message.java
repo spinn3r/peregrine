@@ -1,9 +1,25 @@
+/*
+ * Copyright 2011 Kevin A. Burton
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+*/
 package peregrine.rpc;
 
 import java.io.*;
 import java.util.*;
 import org.jboss.netty.handler.codec.http.*;
 
+import peregrine.io.*;
 import peregrine.util.*;
 
 public class Message extends StructMap {
@@ -16,37 +32,23 @@ public class Message extends StructMap {
             = new QueryStringDecoder( data ).getParameters();
 
         for( String key : decoded.keySet() ) {
-            delegate.put( key , decoded.get( key ).get(0) );
+            put( key , decoded.get( key ).get(0) );
         }
 
     }
 
-    public void put( String key, Object value ) {
-    	put( key, value.toString() );
-    }
-    
-    public void put( String key, Throwable throwable ) {
-    	
-        // include the full stack trace 
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        throwable.printStackTrace( new PrintStream( out ) );
-
-        String stacktrace = new String( out.toByteArray() );
-    	
-        put( key, stacktrace );
-        
-    }
-    
+    @Override
     public String toString() {
-
+        
         QueryStringEncoder encoder = new QueryStringEncoder( "" );
 
         for( String key : keys ) {
 
             Object value = delegate.get( key );
 
-            if( value != null )
+            if( value != null ) {
                 encoder.addParam( key, value.toString() );
+            }
             
         }
 

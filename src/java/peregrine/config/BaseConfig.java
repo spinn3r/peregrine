@@ -1,3 +1,18 @@
+/*
+ * Copyright 2011 Kevin A. Burton
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+*/
 package peregrine.config;
 
 import java.io.*;
@@ -95,6 +110,8 @@ public class BaseConfig {
 
     protected int maxOpenFileHandles = 0;
 
+    protected boolean speculativeExecutionEnabled = false;
+
     public void init( StructMap struct ) {
 
         this.struct = struct;
@@ -118,6 +135,7 @@ public class BaseConfig {
         setPurgeShuffleData( struct.getBoolean( "purgeShuffleData" ) );
         setSyncWriteSize( struct.getSize( "syncWriteSize" ) );
         setMaxOpenFileHandles( struct.getInt( "maxOpenFileHandles" ) );
+        setSpeculativeExecutionEnabled( struct.getBoolean( "speculativeExecutionEnabled" ) );
         
         if ( struct.containsKey( "host" ) )
             setHost( Host.parse( struct.getString( "host" ) ) );
@@ -288,6 +306,14 @@ public class BaseConfig {
 
     public void setMaxOpenFileHandles( int maxOpenFileHandles ) { 
         this.maxOpenFileHandles = maxOpenFileHandles;
+    }
+
+    public void setSpeculativeExecutionEnabled( boolean speculativeExecutionEnabled ) { 
+        this.speculativeExecutionEnabled = speculativeExecutionEnabled;
+    }
+
+    public boolean getSpeculativeExecutionEnabled() { 
+        return this.speculativeExecutionEnabled;
     }
 
     static {

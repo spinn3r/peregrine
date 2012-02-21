@@ -1,16 +1,37 @@
+/*
+ * Copyright 2011 Kevin A. Burton
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+*/
 package peregrine.app.pagerank;
 
 import java.util.*;
+
+import peregrine.*;
 import peregrine.io.*;
-import peregrine.values.*;
 import peregrine.util.*;
 import peregrine.util.primitive.*;
 
 public class GraphBuilder {
 
-    public static void buildRandomGraph( ExtractWriter writer,
-                                         int nr_nodes,
-                                         int max_edges_per_node ) throws Exception {
+    private ExtractWriter writer;
+    
+    public GraphBuilder( ExtractWriter writer ) {
+        this.writer = writer;
+    }
+
+    public void buildRandomGraph( int nr_nodes,
+                                  int max_edges_per_node ) throws Exception {
         
         System.out.printf( "Creating nodes/links: %s\n", nr_nodes );
 
@@ -28,13 +49,13 @@ public class GraphBuilder {
 
             int source = i;
 
-            int first = (int)(gap * r.nextFloat());
+            long first = (int)(gap * r.nextFloat());
 
-            int target = first;
+            long target = first;
 
-            List<Integer> targets = new ArrayList( max_edges_per_node );
+            List<Long> targets = new ArrayList( max_edges_per_node );
             
-            for( int j = 0; j < max_edges_per_node && j < i ; ++j ) {
+            for( long j = 0; j < max_edges_per_node && j < i ; ++j ) {
                 targets.add( target );
                 target = target + gap;
             }
@@ -42,7 +63,7 @@ public class GraphBuilder {
             edges += targets.size();
 
             if ( targets.size() > 0 )
-                addRecord( writer, source, targets );
+                addRecord( source, targets );
             
             // now output our progress... 
             int perc = (int)((i / (float)nr_nodes) * 100);
@@ -58,45 +79,47 @@ public class GraphBuilder {
         System.out.printf( " done (Wrote %,d edges over %,d nodes)\n", edges, nr_nodes );
 
     }
-    
-    public static void addRecord( ExtractWriter writer,
-                                  int source,
-                                  int... targets ) throws Exception {
 
-        List<Integer> list = new ArrayList();
-
-        for( int t : targets ) {
-            list.add( t ) ;
-        }
-
-        addRecord( writer, source, list );
-        
-    }
-
-    public static StructReader hash( long value ) {
-
-    	return new StructWriter( 8 )
-    	    .writeHashcode( LongBytes.toByteArray( value ) )
-    	    .toStructReader();
-        
+    private long hash( String data ) {
+        return LongBytes.toLong( Base16.decode( data ) );
     }
     
-    public static void addRecord( ExtractWriter writer,
-                                  int source,
-                                  List<Integer> targets ) throws Exception {
-
-        //byte[] hash = Hashcode.getHashcode( ""+source );
-
-        StructReader key = hash( source );
+    public void addRecord( long source,
+                           long... targets ) throws Exception {
         
-        HashSetValue value = new HashSetValue();
-        for ( int target : targets ) {
-            StructReader target_key = hash( target );
-            value.add( target_key );
-        }
+        addRecord( source, Longs.toList( targets ) );
         
-        writer.write( key, new StructReader( value.toChannelBuffer() ) );
-
     }
 
+    public void addRecord( String source,
+                           String... targets ) throws Exception {
+
+        List<Long> list = new ArrayList();
+
+        for( String target : targets ) {
+            list.add( hash( target ) );
+        }
+
+        StructReader key = StructReaders.wrap( Base16.decode( source ) );
+
+        StructWriter structWriter = new StructWriter( targets.length * Hashcode.HASH_WIDTH );
+        
+        for( String target : targets ) {
+            structWriter.writeBytesFixed( Base16.decode( target ) );
+        }
+
+        StructReader value = structWriter.toStructReader();
+
+        writer.write( key, value );
+        
+    }
+
+    public void addRecord( long source,
+                           List<Long> targets ) throws Exception {
+
+        writer.write( StructReaders.hashcode( source ),
+                      StructReaders.hashcode( targets ) );
+
+    }
+    
 }

@@ -1,4 +1,18 @@
-
+/*
+ * Copyright 2011 Kevin A. Burton
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+*/
 package peregrine.controller;
 
 import java.io.*;
@@ -10,6 +24,7 @@ import peregrine.config.*;
 import peregrine.controller.*;
 import peregrine.http.*;
 import peregrine.io.*;
+import peregrine.io.driver.shuffle.*;
 import peregrine.rpc.*;
 import peregrine.task.*;
 
@@ -17,11 +32,9 @@ import com.spinn3r.log5j.*;
 
 /**
  * 
- * Main interface for running a mapred job.  The controller communicated with PFS 
- * nodes which will then in turn run jobs with your specified Mapper, Merger 
- * and/or Reducer.
- * 
- * @author burton@spinn3r.com
+ * Main interface for running a map reduce job in Peregrine.  The controller
+ * communicates with worker nodes which will then in turn will run jobs with
+ * your specified {@link Mapper}, {@link Merger} and/or {@link Reducer}.
  * 
  */
 public class Controller {
@@ -88,12 +101,13 @@ public class Controller {
     	
     	withScheduler( job, new Scheduler( "map", job, config, clusterState ) {
 
-                public void invoke( Host host, Partition part ) throws Exception {
+    			@Override
+                public void invoke( Host host, Work work ) throws Exception {
 
                     Message message 
-                        = createSchedulerMessage( "exec", job, part );
+                        = createSchedulerMessage( "exec", job, work );
 
-                    new Client().invoke( host, "mapper", message );
+                    new Client().invoke( host, "map", message );
                     
                 }
                 
@@ -139,10 +153,11 @@ public class Controller {
     	
         withScheduler( job, new Scheduler( "merge", job, config, clusterState ) {
 
-                public void invoke( Host host, Partition part ) throws Exception {
+                @Override
+                public void invoke( Host host, Work work ) throws Exception {
 
-                    Message message = createSchedulerMessage( "exec", job, part );
-                    new Client().invoke( host, "merger", message );
+                    Message message = createSchedulerMessage( "exec", job, work );
+                    new Client().invoke( host, "merge", message );
                     
                 }
                 
@@ -174,20 +189,18 @@ public class Controller {
         if ( input == null )
             throw new Exception( "Input may not be null" );
         
-        if ( input.getReferences().size() == 0 ) {
-            input.add( new ShuffleInputReference() );
-        }
-
         if ( input.getReferences().size() < 1 ) {
             throw new IOException( "Reducer requires at least one shuffle input." );
         }
-      
+
+        // this will block for completion ... 
         withScheduler( job, new Scheduler( "reduce", job, config, clusterState ) {
 
-                public void invoke( Host host, Partition part ) throws Exception {
+                @Override
+                public void invoke( Host host, Work work ) throws Exception {
 
-                    Message message = createSchedulerMessage( "exec", job, part );
-                    new Client().invoke( host, "reducer", message );
+                    Message message = createSchedulerMessage( "exec", job, work );
+                    new Client().invoke( host, "reduce", message );
                     
                 }
                 
@@ -231,11 +244,14 @@ public class Controller {
         // shufflers can be flushed after any stage even reduce as nothing will
         // happen
 
-        // FIXME: this should be a typesafe enum with map|merge|reduce
+        // TODO: this should be a typesafe enum with map|merge|reducem
         
         if ( "map".equals( operation ) || "merge".equals( operation ) )
             flushAllShufflers();
 
+        // now reset the worker nodes between jobs.
+        reset();
+        
         long after = System.currentTimeMillis();
 
         long duration = after - before;
@@ -250,7 +266,7 @@ public class Controller {
         Message message = new Message();
         message.put( "action", "flush" );
 
-        callMethodOnCluster( message );
+        callMethodOnCluster( "shuffler", message );
         
     }
 
@@ -265,11 +281,25 @@ public class Controller {
         message.put( "action", "purge" );
         message.put( "name",   name );
 
-        callMethodOnCluster( message );
+        callMethodOnCluster( "shuffler", message );
         
     }
 
-    private void callMethodOnCluster( Message message ) throws Exception {
+    /**
+     * Reset cluster job state between jobs.
+     */
+    private void reset() throws Exception {
+
+        Message message = new Message();
+        message.put( "action", "reset" );
+
+        callMethodOnCluster( "map",    message );
+        callMethodOnCluster( "merge",  message );
+        callMethodOnCluster( "reduce", message );
+        
+    }
+    
+    private void callMethodOnCluster( String service, Message message ) throws Exception {
 
         String desc = String.format( "Calling %s %,d hosts with message: %s" , message, config.getHosts().size(), message );
         
@@ -280,7 +310,7 @@ public class Controller {
         List<HttpClient> clients = new ArrayList();
         
         for ( Host host : config.getHosts() ) {
-            clients.add( new Client().invokeAsync( host, "shuffler", message ) );
+            clients.add( new Client().invokeAsync( host, service, message ) );
         }
 
         for( HttpClient client : clients ) {
@@ -301,37 +331,24 @@ public class Controller {
     
     private Message createSchedulerMessage( String action,
                                             Job job,
-                                            Partition partition ) {
+                                            Work work ) {
 
     	Class delegate = job.getDelegate();
     	Input input = job.getInput();
     	Output output = job.getOutput();
-    	
-        int idx;
-
+    
         Message message = new Message();
+        
         message.put( "action",     action );
-        message.put( "partition",  partition.getId() );
         message.put( "delegate",   delegate.getName() );
         message.put( "job_id",     job.getId() );
-        
-        if ( input != null ) {
-        
-            idx = 0;
-            for( InputReference ref : input.getReferences() ) {
-                message.put( "input." + idx++, ref.toString() );
-            }
+    	message.put( "work" ,      work.getReferences() );
 
-        }
+        if ( input != null )
+        	message.put( "input" ,  input.getReferences() );
 
-        if ( output != null ) {
-            
-            idx = 0;
-            for( OutputReference ref : output.getReferences() ) {
-                message.put( "output." + idx++, ref.toString() );
-            }
-
-        }
+        if ( output != null )
+        	message.put( "output" , output.getReferences() );
 
         return message;
         

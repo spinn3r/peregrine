@@ -1,3 +1,18 @@
+/*
+ * Copyright 2011 Kevin A. Burton
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+*/
 package peregrine;
 
 import java.io.*;
@@ -9,8 +24,6 @@ import peregrine.io.*;
 import peregrine.io.partition.*;
 import peregrine.util.primitive.*;
 import peregrine.util.*;
-import peregrine.values.*;
-
 import com.spinn3r.log5j.*;
 
 public class TestMapReduce extends peregrine.BaseTestWithMultipleConfigs {
@@ -178,6 +191,8 @@ public class TestMapReduce extends peregrine.BaseTestWithMultipleConfigs {
             
             while( reader.hasNext() ) {
 
+                reader.next();
+                
                 reader.key();
                 reader.value();
 
@@ -200,11 +215,16 @@ public class TestMapReduce extends peregrine.BaseTestWithMultipleConfigs {
         Controller controller = new Controller( config );
 
         try {
-            controller.map( Map.class, path );
+
+            controller.map( Map.class,
+                            new Input( path ),
+                            new Output( "shuffle:default" ) );
 
             // make sure the shuffle output worked
             
-            controller.reduce( Reduce.class, new Input(), new Output( output ) );
+            controller.reduce( Reduce.class,
+                               new Input( "shuffle:default" ),
+                               new Output( output ) );
 
             System.gc();
 
@@ -226,7 +246,7 @@ public class TestMapReduce extends peregrine.BaseTestWithMultipleConfigs {
         //System.setProperty( "peregrine.test.config", "1:1:1" ); // 3sec
 
         System.setProperty( "peregrine.test.factor", "10" ); // 1m
-        System.setProperty( "peregrine.test.config", "01:01:1" ); // takes 3 seconds
+        System.setProperty( "peregrine.test.config", "01:01:02" ); // takes 3 seconds
 
         // 256 partitions... 
         //System.setProperty( "peregrine.test.config", "08:01:32" );  // 1m

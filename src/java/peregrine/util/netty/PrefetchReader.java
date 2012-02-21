@@ -1,3 +1,18 @@
+/*
+ * Copyright 2011 Kevin A. Burton
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+*/
 package peregrine.util.netty;
 
 import java.io.*;
@@ -27,9 +42,6 @@ public class PrefetchReader implements Closeable {
 
     private static final Logger log = Logger.getLogger();
 
-    private static final ExecutorService executorService
-        = Executors.newCachedThreadPool( new DefaultThreadFactory( PrefetchReader.class ) );
-
     public static long DEFAULT_PAGE_SIZE = (long)Math.pow( 2, 17 ); 
 
     /**
@@ -37,7 +49,7 @@ public class PrefetchReader implements Closeable {
      */
     public static long DEFAULT_CAPACITY = DEFAULT_PAGE_SIZE * 4;
 
-    public static boolean DEFAULT_ENABLE_LOG = true;
+    public static boolean DEFAULT_ENABLE_LOG = false;
     
     protected long pageSize = DEFAULT_PAGE_SIZE;
 
@@ -66,7 +78,7 @@ public class PrefetchReader implements Closeable {
 
     private PrefetchReaderListener listener = null;
     
-    public PrefetchReader( Config config, List<MappedFile> files ) throws IOException {
+    public PrefetchReader( Config config, List<MappedFileReader> files ) throws IOException {
         
         this.config = config;
         
@@ -77,12 +89,13 @@ public class PrefetchReader implements Closeable {
 
         if ( files.size() == 0 )
             return;
-        
-        long capacity = config.getSortBufferSize() / files.size();
+
+        // define the per file capacity... 
+        long capacity = (long)Math.floor( config.getSortBufferSize() / (double)files.size() );
 
         log.info( "Running with buffer size: %,d and per file capacity: %,d", config.getSortBufferSize(), capacity );
 
-        for( MappedFile mappedFile : files ) {
+        for( MappedFileReader mappedFile : files ) {
 
             StreamReader reader = mappedFile.getStreamReader();
             
@@ -188,7 +201,7 @@ public class PrefetchReader implements Closeable {
      */
     private void cache( PageEntry pageEntry ) throws IOException {
 
-        log( "Caching %s" , pageEntry );
+        //log( "Caching %s" , pageEntry );
 
         pageEntry.pa = mman.mmap( pageEntry.length,
                                   mman.PROT_READ, mman.MAP_SHARED | mman.MAP_LOCKED,
@@ -212,7 +225,7 @@ public class PrefetchReader implements Closeable {
         if ( pageEntry.length == 0 )
             return;
 
-        log( "Evicting %s" , pageEntry );
+        //log( "Evicting %s" , pageEntry );
 
         mman.munmap( pageEntry.pa, pageEntry.length );
 
@@ -242,10 +255,6 @@ public class PrefetchReader implements Closeable {
         for( FileMeta fileMeta : files ) {
 
             while( fileMeta.inCache.get() < fileMeta.capacity && fileMeta.pendingPages.size() > 0 ) {
-
-                // never allocate more memory than the sort buffer size.
-                if  ( allocatedMemory.get() + pageSize > config.getSortBufferSize() )
-                    break;
                 
                 PageEntry page = fileMeta.pendingPages.take();
 
@@ -319,6 +328,10 @@ public class PrefetchReader implements Closeable {
         
     }
 
+    /**
+     * Allows us to block on reads if the prefetch reader hasn't yet cached
+     * these.
+     */
     class PrefetchStreamReaderListener implements StreamReaderListener {
 
         private FileMeta fileMeta;

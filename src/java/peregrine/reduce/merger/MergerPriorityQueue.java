@@ -1,8 +1,24 @@
-
+/*
+ * Copyright 2011 Kevin A. Burton
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+*/
 package peregrine.reduce.merger;
 
 import java.io.*;
 import java.util.*;
+
+import peregrine.io.*;
 import peregrine.io.chunk.*;
 import peregrine.reduce.*;
 
@@ -14,17 +30,22 @@ public class MergerPriorityQueue {
 
     protected ChunkMergeComparator comparator = new ChunkMergeComparator();
     
-    public MergerPriorityQueue( List<ChunkReader> readers ) throws IOException {
+    public MergerPriorityQueue( List<SequenceReader> readers ) throws IOException {
 
+        if ( readers.size() == 0 )
+            throw new IllegalArgumentException( "readers" );
+    	
         this.queue = new PriorityQueue( readers.size(), comparator );
         
-        for( ChunkReader reader : readers ) {
+        for( int id = 0; id < readers.size(); ++id  ) {
 
+            SequenceReader reader = readers.get( id );
+                        
             if ( reader.hasNext() == false )
                 continue;
             
-            MergeQueueEntry entry = new MergeQueueEntry( reader );
-
+            MergeQueueEntry entry = new MergeQueueEntry( reader, id );
+            
             queue.add( entry );
             
         }
@@ -45,31 +66,18 @@ public class MergerPriorityQueue {
         
         if ( entry.reader.hasNext() ) {
 
+        	entry.reader.next();
+        	
             // add this back in with the next value.
             entry.setKey( entry.reader.key() );
             entry.setValue( entry.reader.value() );
             
-            add( entry );
+            queue.add( entry );
             
         }
 
         return result;
         
-    }
-    
-    private void add( MergeQueueEntry entry ) {
-        queue.add( entry );
-    }
-
-}
-
-class ChunkMergeComparator implements Comparator<MergeQueueEntry> {
-
-    //private DepthBasedKeyComparator delegate = new DepthBasedKeyComparator();
-    private FullKeyComparator delegate = new FullKeyComparator();
-    
-    public int compare( MergeQueueEntry k0, MergeQueueEntry k1 ) {
-        return delegate.compare( k0.keyAsByteArray, k1.keyAsByteArray );
     }
 
 }

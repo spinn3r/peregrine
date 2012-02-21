@@ -1,13 +1,26 @@
+/*
+ * Copyright 2011 Kevin A. Burton
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+*/
 package peregrine;
 
 import peregrine.io.*;
 import java.util.concurrent.atomic.*;
 
 /**
- * Represents a job which much be run by Peregrine.  All necessary metadata is 
- * included here and specified for an entire job.
- * 
- * @author burton
+ * Represents a job (map, merge, or, reduce) which much be run by Peregrine.
+ * All necessary metadata is included here and specified for an entire job.
  *
  */
 public class Job {
@@ -17,11 +30,11 @@ public class Job {
     protected long timestamp = System.currentTimeMillis();
 	protected String id = String.format( "%010d.%010d", timestamp, nonce.getAndIncrement() );
 	protected String name = id;
-	protected String description;
-	protected Class delegate;
-	protected Class combiner;
-	protected Input input;
-	protected Output output;
+	protected String description = null;
+	protected Class delegate = null; 
+	protected Class combiner = null;
+	protected Input input = null;
+	protected Output output = null;
 
     /**
      * Get the unique job ID (nonce). 

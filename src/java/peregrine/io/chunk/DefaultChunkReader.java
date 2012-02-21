@@ -1,3 +1,18 @@
+/*
+ * Copyright 2011 Kevin A. Burton
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+*/
 package peregrine.io.chunk;
 
 import java.io.*;
@@ -8,19 +23,18 @@ import java.nio.charset.*;
 
 import peregrine.*;
 import peregrine.config.*;
+import peregrine.io.*;
 import peregrine.os.*;
 import peregrine.util.*;
 import peregrine.util.netty.*;
 import peregrine.util.primitive.*;
-import peregrine.values.*;
-
 import org.jboss.netty.buffer.*;
 
 /**
  * Default ChunkReader implementation which uses mmap, and supports features
  * like CRC32, etc.
  */
-public class DefaultChunkReader implements ChunkReader, Closeable {
+public class DefaultChunkReader implements SequenceReader, ChunkReader, Closeable {
 
     // magic numbers for chunk reader files.
 
@@ -51,14 +65,28 @@ public class DefaultChunkReader implements ChunkReader, Closeable {
      */
     private int idx = 0;
 
-    private MappedFile mappedFile;
+    private MappedFileReader mappedFile;
 
     private boolean closed = false;
+
+    /**
+     * The current key.
+     */
+    private StructReader key = null;
+    
+    /**
+     * The current value.
+     */
+    private StructReader value = null;
+    
+    private int keyOffset = -1;
+    
+    private ChannelBuffer buffer = null;
     
     public DefaultChunkReader( Config config, File file )
         throws IOException {
 
-        mappedFile = new MappedFile( config, file , "r" );
+        mappedFile = new MappedFileReader( config, file );
         
         ChannelBuffer buff = mappedFile.map();
       
@@ -87,11 +115,11 @@ public class DefaultChunkReader implements ChunkReader, Closeable {
         init( buff );
         
     }
-
+    
     /**
      * Get the backing file.
      */
-    public MappedFile getMappedFile() {
+    public MappedFileReader getMappedFile() {
         return mappedFile;
     }
 
@@ -105,6 +133,7 @@ public class DefaultChunkReader implements ChunkReader, Closeable {
     private void init( ChannelBuffer buff, StreamReader reader )
         throws IOException {
 
+    	this.buffer = buff;
         this.reader = reader;
         this.varintReader = new VarintReader( reader );
         this.length = buff.writerIndex();
@@ -126,14 +155,23 @@ public class DefaultChunkReader implements ChunkReader, Closeable {
     }
 
     @Override
-    public StructReader key() throws IOException {
+    public void next() throws IOException {
         ++idx;
-        return readEntry();
+        keyOffset = reader.index() + 1;
+       
+        key   = readEntry();
+        value = readEntry();
+        
+    }
+    
+    @Override
+    public StructReader key() throws IOException {
+    	return key;
     }
 
     @Override
     public StructReader value() throws IOException {
-        return readEntry();
+        return value;
     }
 
     @Override
@@ -149,11 +187,26 @@ public class DefaultChunkReader implements ChunkReader, Closeable {
         
     }
 
+    @Override 
+    public int keyOffset() throws IOException {
+    	return keyOffset;
+    }
+    
+    @Override 
+    public int size() throws IOException {
+    	return size;
+    }
+    
     @Override
     public String toString() {
         return String.format( "file: %s, length (in bytes): %,d, size: %,d", file, length, size );
     }
 
+    @Override 
+    public ChannelBuffer getBuffer() {
+    	return buffer;
+    }
+    
     private void assertLength() throws IOException {
         if ( this.length < IntBytes.LENGTH )
             throw new IOException( String.format( "File %s is too short (%,d bytes)", file.getPath(), length ) );
@@ -182,4 +235,8 @@ public class DefaultChunkReader implements ChunkReader, Closeable {
         
     }
 
+    public int index() {
+        return reader.index();
+    }
+    
 }

@@ -1,95 +1,70 @@
-
+/*
+ * Copyright 2011 Kevin A. Burton
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+*/
 package peregrine.task;
 
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.*;
+
 import peregrine.*;
 import peregrine.config.*;
 import peregrine.io.*;
+import peregrine.io.driver.shuffle.*;
 import peregrine.map.*;
 import peregrine.reduce.*;
 import peregrine.sysstat.*;
-import peregrine.values.*;
 
 import com.spinn3r.log5j.Logger;
 
-public class ReducerTask extends BaseOutputTask implements Callable {
+public class ReducerTask extends BaseTask implements Callable {
 
     private static final Logger log = Logger.getLogger();
     
-    private Input input = null;
-
-    private Reducer reducer;
-
     private ShuffleInputReference shuffleInput;
 
-    public ReducerTask( Config config,
-                        Partition partition,
-                        Class delegate,
-                        ShuffleInputReference shuffleInput )
-        throws Exception {
+    private AtomicInteger nrTuples = new AtomicInteger();
+    
+    public ReducerTask() {}
 
-        super.init( partition );
+    @Override
+    public void setInput( Input input ) {
 
-        this.config = config;
-        this.delegate = delegate;
-        this.shuffleInput = shuffleInput;
-        
+        super.setInput( input );
+
+        this.shuffleInput = (ShuffleInputReference)input.getReferences().get( 0 );
+        log.info( "Using shuffle input : %s ", shuffleInput.getName() );
+
     }
-
+    
+    @Override
     public Object call() throws Exception {
 
         if ( output.getReferences().size() == 0 )
             throw new IOException( "Reducer tasks require output." );
 
-        this.reducer = (Reducer)delegate.newInstance();
-
-        SystemProfiler profiler = config.getSystemProfiler();
-
-        try {
-
-            log.info( "Running %s on %s", delegate, partition );
-            
-            setup();
-            reducer.setBroadcastInput( BroadcastInputFactory.getBroadcastInput( config, getInput(), partition ) );
-            reducer.init( getJobOutput() );
-
-            try {
-                doCall();
-            } catch ( Throwable t ) {
-                handleFailure( log, t );
-            }
-
-            try {
-                reducer.cleanup();
-            } catch ( Throwable t ) {
-                handleFailure( log, t );
-            }
-
-            try {
-                teardown();
-            } catch ( Throwable t ) {
-                handleFailure( log, t );
-            }
-
-        } catch ( Throwable t ) { 
-            handleFailure( log, t );
-        } finally {
-            report();
-            log.info( "Ran with profiler rate: \n%s", profiler.rate() );
-        }
-
-        return null;
-
+        return super.call();
+        
     }
 
-    private void doCall() throws Exception {
-
-        ReducerTaskSortListener listener =
-            new ReducerTaskSortListener( reducer );
+    protected void doCall() throws Exception {
+    	
+    	SortListener listener = new ReducerTaskSortListener();
         
-        LocalReducer reducer = new LocalReducer( config, partition, listener, shuffleInput, getJobOutput() );
+        ReduceRunner reduceRunner = new ReduceRunner( config, this, partition, listener, shuffleInput, getJobOutput() );
 
         String shuffle_dir = config.getShuffleDir( shuffleInput.getName() );
 
@@ -98,57 +73,44 @@ public class ReducerTask extends BaseOutputTask implements Callable {
         File shuffle_dir_file = new File( shuffle_dir );
 
         if ( ! shuffle_dir_file.exists() ) {
-            throw new IOException( "Shuffle output does not exist: " + shuffleInput.getName() );
+            throw new IOException( String.format( "Shuffle output for %s does not exist at %s",
+                                                  shuffleInput.getName(), shuffle_dir ) );
         }
 
         File[] shuffles = shuffle_dir_file.listFiles();
 
         //TODO: we should probably make sure these look like shuffle files.
         for( File shuffle : shuffles ) {
-            reducer.add( shuffle );
+        	reduceRunner.add( shuffle );
         }
         
         int nr_readers = shuffles.length;
 
-        reducer.sort();
+        reduceRunner.reduce();
 
         log.info( "Sorted %,d entries in %,d chunk readers for partition %s",
-                  listener.nr_tuples , nr_readers, partition );
+                  nrTuples.get() , nr_readers, partition );
 
     }
 
-    public void setInput( Input input ) { 
-        this.input = input;
-    }
+    class ReducerTaskSortListener implements SortListener {
+        
+    	Reducer reducer = (Reducer)jobDelegate;
+    	
+        public void onFinalValue( StructReader key, List<StructReader> values ) {
 
-    public Input getInput() { 
-        return this.input;
-    }
+            try {
 
-}
+                reducer.reduce( key, values );
+                nrTuples.getAndIncrement();
 
-class ReducerTaskSortListener implements SortListener {
-
-    private Reducer reducer = null;
-
-    public int nr_tuples = 0;
-    
-    public ReducerTaskSortListener( Reducer reducer ) {
-        this.reducer = reducer;
-    }
-    
-    public void onFinalValue( StructReader key, List<StructReader> values ) {
-
-        try {
-
-            reducer.reduce( key, values );
-            ++nr_tuples;
-
-        } catch ( Exception e ) {
-            throw new RuntimeException( "Reduce failed: " , e );
+            } catch ( Exception e ) {
+                throw new RuntimeException( "Reduce failed: " , e );
+            }
+                
         }
-            
-    }
 
+    }
+    
 }
 

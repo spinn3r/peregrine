@@ -1,3 +1,18 @@
+/*
+ * Copyright 2011 Kevin A. Burton
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+*/
 package peregrine.shuffle;
 
 import java.io.*;
@@ -6,14 +21,13 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.*;
 
+import peregrine.*;
 import peregrine.config.*;
 import peregrine.io.util.*;
 import peregrine.os.*;
 import peregrine.util.*;
 import peregrine.util.netty.*;
 import peregrine.util.primitive.*;
-import peregrine.values.*;
-
 import org.jboss.netty.buffer.*;
 
 import com.spinn3r.log5j.Logger;
@@ -71,7 +85,7 @@ public class ShuffleOutputWriter implements Closeable {
                         ChannelBuffer data ) throws IOException {
 
         if ( closed )
-            throw new IOException( "closed" );
+            throw new IOException( "writer is closed" );
 
         ShufflePacket pack = new ShufflePacket( from_partition, from_chunk, to_partition, -1, count, data );
         
@@ -156,9 +170,7 @@ public class ShuffleOutputWriter implements Closeable {
             // make sure the parent directory exists first.
             new File( file.getParent() ).mkdirs();
 
-            MappedFile mapped = new MappedFile( config, file, "w" );
-            
-            this.output = mapped.getChannelBufferWritable();
+            this.output = new MappedFileWriter( config, file );
             
             output.write( ChannelBuffers.wrappedBuffer( MAGIC ) );
             
@@ -235,6 +247,8 @@ public class ShuffleOutputWriter implements Closeable {
                     
                     output.write( pack.data );
 
+                    // release the bytes after we are done with them.
+                    
                     new ByteBufferCloser( pack.data ).close();
                     
                 }

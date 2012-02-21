@@ -1,22 +1,32 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
 <project name="peregrine" default="jar" basedir=".">
+  
+    <!--
+    export ANT_OPTS=-Xmx256M 
+    -->
 
     <property environment="env"/>
 
     <property file="build.properties"/>
 
-    <property name="project" value="peregrine"/>
-    <property name="javadocdir" value="compile/javadoc"/>
-    <property name="version" value="0.4.0"/>
+    <property name="project"       value="peregrine"/>
+    <property name="javadocdir"    value="target/javadoc"/>
+    <property name="version"       value="0.5.3"/>
+
+    <property name="haltonfailure" value="false"/>
+    <property name="haltonerror"   value="false"/>
 
     <path id="project.classpath">
 
         <pathelement location="compile"/>
 
         <fileset dir="lib">
+
              <include name="*.jar"/>
              <include name="build/*.jar"/>
+             <include name="optional/**/*.jar"/>
+
         </fileset>
 
     </path>
@@ -53,6 +63,9 @@
                memoryMaximumSize="512M"
                deprecation="no"
                debug="true">
+
+            <!-- <compilerarg value="-Xlint"/>-->
+          
             <include name="**/*.java"/>
             <exclude name="**/*SExpander.java"/>
         </javac>
@@ -64,7 +77,12 @@
         <delete dir=".clover"/>
         <delete dir="compile"/>
         <delete dir="target"/>
-        <delete file="lib/${project}-${version}.jar"/>
+
+        <delete>
+            <fileset dir="lib">
+                <include name="${project}*.jar"/>
+            </fileset>
+        </delete>
 
     </target>
 
@@ -108,51 +126,83 @@
     </target>
 
     <target name="test" 
-            depends="jar,compile.test" 
+            depends="jar, compile.test, test-basic, test-multi, test-report" 
             description="Run junit tests.">
+
+        <available property="test.failed" file="target/test-reports/failed.true" />
+
+        <echo message="test.failed (fail(3)): ${test.failed}"/>
+
+        <fail if="test.failed"/>
+
+    </target> 
+
+    <target name="test-basic">
+
+        <tstamp>
+            <format property="ts" pattern="yyyyMMdd-HHmmss" locale="GMT"/>
+        </tstamp>
 
         <taskdef name="junit"
                  classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask">
             <classpath refid="project.classpath"/>
         </taskdef>	
 
-        <mkdir dir="target/test-reports" />
+        <mkdir dir="target/test-reports/${ts}" />
 
         <junit printsummary="withOutAndErr"
                fork="true"
                forkmode="perTest"
                timeout="1000000"
-               maxmemory="512m"
+               maxmemory="1024m"
                filtertrace="false"
-               haltonfailure="true"
-               haltonerror="true"
+               haltonfailure="${haltonfailure}"
+               haltonerror="${haltonerror}"
+               failureproperty="junit.failed"
+               errorproperty="junit.errored"
                showoutput="true" 
                logfailedtests="true">
 
             <formatter type="plain" usefile="true" />
+            <formatter type="xml"   usefile="true" />
 
             <classpath>
                 <path refid="project.classpath"/>
             </classpath>
 
-            <batchtest todir="target/test-reports"> 
+            <batchtest todir="target/test-reports/${ts}"> 
 
                 <fileset dir="src/test">
+
                     <include name="**/Test*.java"/>
+                    <exclude name="peregrine/io/driver/cassandra/TestCassandra.java"/>
+
                 </fileset>
 
             </batchtest>
             
         </junit>
 
-        <antcall target="test-multi" />
+        <echo message="junit.failed: ${junit.failed}"/>
+        <echo message="junit.errored: ${junit.errored}"/>
 
-    </target> 
+        <condition property="test.failed">
+            <or>
+                <istrue value="${junit.failed}"/>
+                <istrue value="${junit.errored}"/>
+            </or>
+        </condition>
+
+        <echo message="test.failed: ${test.failed}"/>
+
+        <touch file="target/test-reports/failed.${test.failed}" />
+
+    </target>
 
     <target name="test-multi"
             depends="jar,compile.test">
 
-      <foreach list="1" 
+      <foreach list="${multi.factors}" 
                param="peregrine.test.factor" 
                target="test-multi-with-configs">
 
@@ -161,76 +211,8 @@
     </target>
 
     <target name="test-multi-with-configs">
-      
-      <!-- 
-        Define muliple config test in the form of:
 
-        concurrency:replicas:hosts 
-
-        one per line.
-
-        TODO we are not testing three replica configs right now as we
-        have some known bugs here and it isn't important at the moment.
-
-                               01:03:04
-                               01:03:08
-                               01:03:16
-                               01:03:24
-                               01:03:32
-                               02:03:08
-                               02:03:16
-                               02:03:24
-                               02:03:32
-                               04:03:16
-                               04:03:24
-                               04:03:32
-                               08:03:32
-
-                               01:02:04
-                               01:02:08
-                               01:02:16
-                               01:02:24
-                               01:02:32
-                               02:02:08
-                               02:02:16
-                               02:02:24
-                               02:02:32
-                               04:02:16
-                               04:02:24
-                               04:02:32
-                               08:02:24
-                               08:02:32
-
-                               01:01:08
-                               01:01:16
-                               01:01:24
-                               01:01:32
-
-                               02:01:08
-                               02:01:16
-                               02:01:24
-                               02:01:32
-
-                               02:01:08
-                               02:01:16
-                               02:01:24
-                               02:01:32
-                               04:01:01
-                               04:01:08
-                               04:01:16
-                               04:01:24
-                               04:01:32
-                               08:01:32
-
-      -->
-      <property name="configs">01:01:01
-                               01:01:02
-                               01:01:04
-                               02:01:01
-                               02:01:04
-      </property>
-
-      <foreach list="${configs}" 
+      <foreach list="${multi.configs}" 
                param="peregrine.test.config" 
                delimiter=" "
                target="test-multi-exec">
@@ -241,21 +223,29 @@
 
     <target name="test-multi-exec">
 
-      <taskdef name="junit"
-               classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask">
-          <classpath refid="project.classpath"/>
-      </taskdef>	
+        <tstamp>
+            <format property="ts" pattern="yyyyMMdd-HHmmss" locale="GMT"/>
+        </tstamp>
 
-      <echo message="peregrine.test.config: ${peregrine.test.config}"/>
+        <taskdef name="junit"
+                 classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask"> 
+            <classpath refid="project.classpath"/>
+        </taskdef>	
+
+        <echo message="peregrine.test.config: ${peregrine.test.config}"/>
+
+        <mkdir dir="target/test-reports/${ts}" />
 
         <junit printsummary="withOutAndErr"
                fork="true"
                forkmode="perTest"
                timeout="1000000"
-               maxmemory="512m"
+               maxmemory="1024m"
                filtertrace="false"
-               haltonfailure="true"
-               haltonerror="true"
+               haltonfailure="${haltonfailure}"
+               haltonerror="${haltonerror}"
+               failureproperty="junit.failed"
+               errorproperty="junit.errored"
                showoutput="true" 
                logfailedtests="true">
 
@@ -263,24 +253,31 @@
             <jvmarg value="-Dperegrine.test.factor=${peregrine.test.factor}"/>
 
             <formatter type="plain" usefile="true" />
+            <formatter type="xml"   usefile="true" />
 
             <classpath>
                 <path refid="project.classpath"/>
             </classpath>
 
-            <batchtest todir="target/test-reports"> 
+            <batchtest todir="target/test-reports/${ts}"> 
 
                 <fileset dir="src/test">
 
-                  <include name="peregrine/TestPagerank.java"/>
-                  <include name="peregrine/TestNewReduceCode.java"/>
+                  <include name="peregrine/TestMapReduceWithMergeFactor.java"/>
+                  <include name="peregrine/TestBroadcastMapReduce.java"/>
+                  <include name="peregrine/TestDataImbalance.java"/>
                   <include name="peregrine/TestMapReduce.java"/>
+
+                  <include name="peregrine/TestNewReduceCode.java"/>
+                  <include name="peregrine/TestPagerank.java"/>
+                  <include name="peregrine/TestPagerankAccuracy.java"/>
                   <include name="peregrine/io/partition/TestDefaultPartitionWriter.java"/>
                   <include name="peregrine/pfs/TestRemoteChunkWriterClient.java"/>
                   <include name="peregrine/pfsd/TestExtractWriterPerformance.java"/>
                   <include name="peregrine/pfsd/TestFanoutWritePerformance.java"/>
                   <include name="peregrine/shuffle/TestShufflePerformance.java"/>
-                  <include name="peregrine/TestBroadcastMapReduce.java"/>
+
+                  <exclude name="peregrine/io/driver/cassandra/TestCassandra.java"/>
 
                 </fileset>
 
@@ -288,7 +285,35 @@
             
         </junit>
 
+        <echo message="junit.failed: ${junit.failed}"/>
+        <echo message="junit.errored: ${junit.errored}"/>
+
+        <condition property="test.failed">
+            <or>
+                <istrue value="${junit.failed}"/>
+                <istrue value="${junit.errored}"/>
+            </or>
+        </condition>
+
+        <echo message="test.failed: ${test.failed}"/>
+
+        <touch file="target/test-reports/failed.${test.failed}" />
+
     </target> 
+
+    <target name="test-report">
+
+        <junitreport todir="target/test-reports">
+
+            <fileset dir="target/test-reports">
+                <include name="**/TEST-*.xml"/>
+            </fileset>
+
+            <report format="frames" todir="./target/test-reports"/>
+
+        </junitreport>
+
+    </target>
 
     <target name="javadoc" description="Generate javadoc" depends="compile">
 
@@ -301,6 +326,7 @@
         <property name="title" value="Peregrine ${version} API"/>
     
         <javadoc bottom="Copyright &amp;copy; 2011 Kevin Burton. All Rights Reserved." 
+                 access="public"
                  windowtitle="Peregrine ${version} API" 
                  use="true" 
                  private="false" 
@@ -321,8 +347,8 @@
             <group title="IO" packages="peregrine.io*"/>
             <group title="Shuffling" packages="peregrine.shuffle*"/>
             <group title="Util" packages="peregrine.util*"/>
-            <group title="PFSd" packages="peregrine.pfsd*"/>
-            <group title="Sort and merge backend for shuffle/reduce phase." packages="peregrine.reduce*"/>
+            <group title="Worker" packages="peregrine.worker*"/>
+            <group title="Sort and merge backend for shuffle/reduce phase." packages="peregrine.reduce*,peregrine.combine*"/>
             <group title="RPC framework" packages="peregrine.rpc*"/>
           
         </javadoc>
@@ -345,9 +371,16 @@
 
     <target name="static">
 
-        <exec executable="awestruct" dir="../peregrine-website">
+        <exec executable="hg" dir="../peregrine-website">
+            <arg value="pull"/>
+            <arg value="-u"/>
+        </exec>
+
+        <!--
+        <exec executable="/var/lib/gems/1.8/bin/awestruct" dir="../peregrine-website">
             <arg value="-g"/>
         </exec>
+        -->
 
     </target>
 
@@ -361,13 +394,24 @@
             <fileset dir="../peregrine-website/_site/" />
         </copy>
 
-        <move file="compile/javadoc"  todir="../peregrine_mapreduce.bitbucket.org" />
-        <move file="target/xref"      todir="../peregrine_mapreduce.bitbucket.org" />
-        <move file="target/coverage"  todir="../peregrine_mapreduce.bitbucket.org" />
+        <move file="target/javadoc"       todir="../peregrine_mapreduce.bitbucket.org" />
+        <move file="target/xref"          todir="../peregrine_mapreduce.bitbucket.org" />
+        <move file="target/coverage"      todir="../peregrine_mapreduce.bitbucket.org" />
+        <move file="target/test-reports"  todir="../peregrine_mapreduce.bitbucket.org" />
 
     </target>
 
     <target name="site" depends="clean,coverage,javadoc,jxr,static,site.update">
+
+      <!--
+          
+          we need awestruct, hg, mvn
+
+          apt-get install ruby rubygems
+
+          gem install fssm awestruct disqus rb-fsevent
+
+      -->
 
     </target>
 
@@ -377,12 +421,16 @@
         <copy todir="target/peregrine-${version}">
 
             <fileset dir=".">
-                 <include name="README"/>
+                 <include name="README.txt"/>
+                 <include name="LICENSE.txt"/>
                  <include name="build.xml"/>
                  <include name="bin/**"/>
                  <include name="conf/**"/>
                  <include name="lib/**"/>
                  <include name="src/**"/>
+
+                 <exclude name="lib/build/clover*.jar"/>
+
             </fileset>
 
             <fileset dir="compile">
@@ -413,3 +461,7 @@
     </target>
 
 </project>
+
+
+
+
