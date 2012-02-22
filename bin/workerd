@@ -13,7 +13,7 @@ if [ "$result" = "0" ]; then
     exit 0
 fi
 
-./bin/jexec peregrine.worker.Main $@ &
+./bin/jexec peregrine.worker.Main $@ < /dev/null > /dev/null 2> /dev/null &
 pid=$!
 
 ./bin/jexec peregrine.worker.WaitForDaemon --pid=$pid $@ 2> /dev/null 
