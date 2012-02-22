@@ -9,7 +9,7 @@
 ./bin/jexec peregrine.worker.WaitForDaemon 2> /dev/null $@ 
 result=$?
 
-if [ "$result" == "0" ]; then
+if [ "$result" = "0" ]; then
     exit 0
 fi
 

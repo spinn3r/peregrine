@@ -25,6 +25,7 @@ start() {
         #ssh root@$hostname "cd $DIR && nohup ./bin/workerd --host=$host " 
 
         ssh root@$hostname "cd $DIR && ./bin/workerd --host=$host" 
+        #ssh root@$hostname "echo 1" 
 
         set +x
 
