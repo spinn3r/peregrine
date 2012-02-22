@@ -22,9 +22,9 @@ start() {
         set -x
 
         #ssh -v root@$hostname "cd $DIR && nohup ./bin/workerd --host=$host > $LOGDIR/peregrine-$host.log 2> $LOGDIR/peregrine-$host.err & " 
-        #ssh root@$hostname "cd $DIR && nohup ./bin/workerd --host=$host & " 
+        #ssh root@$hostname "cd $DIR && nohup ./bin/workerd --host=$host " 
 
-        ssh root@$hostname "cd $DIR && ./bin/workerd --host=$host > $LOGDIR/peregrine-$host.log 2> /dev/stdout" 
+        ssh root@$hostname "cd $DIR && ./bin/workerd --host=$host" 
 
         set +x
 
