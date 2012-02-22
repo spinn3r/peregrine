@@ -3,8 +3,20 @@
 # This option specifies the maximum total size of java.nio (New I/O package)
 # direct buffer allocations.
 
-ulimit -n 32768
-ulimit -l unlimited
+#ulimit -n 32768
+#ulimit -l unlimited
+
+./bin/jexec peregrine.worker.WaitForDaemon 2> /dev/null $@ 
+result=$?
+
+if [ "$result" == "0" ]; then
+    exit 0
+fi
 
 ./bin/jexec peregrine.worker.Main $@ &
+pid=$!
 
+./bin/jexec peregrine.worker.WaitForDaemon --pid=$pid $@ 2> /dev/null 
+result=$?
+
+exit $result

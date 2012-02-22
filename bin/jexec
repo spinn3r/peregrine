@@ -14,7 +14,7 @@ CLASSNAME=$1
 # allows us to use bash completion to pick a .java file and then run it directly.
 CLASSNAME=$(echo $CLASSNAME | sed 's/src\/test\///g' | sed 's/src\/java\///g' | sed  's/.java//g' | sed 's/\//./g' )
 
-echo $CLASSNAME
+#echo $CLASSNAME
 
 if [ "$JAVA_HOME" = "" ]; then
 
@@ -68,7 +68,7 @@ if [ "$2" != "" ]; then
 
     shift
 
-    set -x
+    #set -x
     $JAVA -Djava.awt.headless=true \
       -XX:MaxDirectMemorySize=$MAX_DIRECT_MEMORY \
       -Xms$MAX_MEMORY \
@@ -77,7 +77,7 @@ if [ "$2" != "" ]; then
       $CLASSNAME "$@"
 
 else
-    set -x
+    #set -x
     $JAVA -Djava.awt.headless=true \
         -XX:MaxDirectMemorySize=$MAX_DIRECT_MEMORY \
         -Xms$MAX_MEMORY \
@@ -89,6 +89,6 @@ fi
 
 result=$?
 
-set +bx
+#set +bx
 
 exit $result
