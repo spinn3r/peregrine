@@ -20,7 +20,12 @@ start() {
         #ssh root@$hostname "cd $DIR && export HOSTNAME && nohup ./bin/jexec peregrine.worker.Main -h=$host > $LOGDIR/peregrine-$host.log 2> $LOGDIR/peregrine-$host.err &" 
 
         set -x
-        ssh root@$hostname "cd $DIR && nohup ./bin/workerd -h=$host > $LOGDIR/peregrine-$host.log 2> $LOGDIR/peregrine-$host.err &" 
+
+        #ssh -v root@$hostname "cd $DIR && nohup ./bin/workerd --host=$host > $LOGDIR/peregrine-$host.log 2> $LOGDIR/peregrine-$host.err & " 
+        #ssh root@$hostname "cd $DIR && nohup ./bin/workerd --host=$host & " 
+
+        ssh root@$hostname "cd $DIR && ./bin/workerd --host=$host > $LOGDIR/peregrine-$host.log 2> /dev/stdout" 
+
         set +x
 
     done
