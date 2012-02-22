@@ -22,15 +22,11 @@ import peregrine.io.util.*;
 import peregrine.util.*;
 import peregrine.os.*;
 
-import com.spinn3r.log5j.Logger;
-
 /**
  * Handles parsing the peregrine.conf file and the peregrine.hosts file as well
  * as handling command line arguments.
  */
 public class ConfigParser {
-
-    protected static final Logger log = Logger.getLogger();
 
     /**
      * Parse without any command line arguments.

@@ -37,11 +37,40 @@ import org.apache.hadoop.conf.*;
 import org.apache.hadoop.mapreduce.*;
 
 /**
- * IO driver for working with Cassandra.
+ * IO driver for working with Cassandra.  Supports both input and output for map
+ * jobs.
+ *
+ * <p>
+ * All jobs are specified with a URL scheme:
  * 
+ * <p>
  * URI scheme is:
  * 
+ * <p>
  * cassandra://host:port/keyspace/columnfamily
+ *
+ * <p>
+ * Where:
+ *
+ * <p>
+ *  - host:port is a seed host to connect to.
+ *
+ * <p>
+ *  - keyspace is obviously the keyspace to use 
+ * 
+ * <p>
+ *  - columnfamily is obviously the keyspace to use
+ * 
+ * <p>
+ * For example:
+ *
+ * <p>
+ * cassandra://localhost:9160/rank/graph
+ *
+ * <p>
+ * The map key is the Cassandra row key.  The value is a {@link SequenceReader},
+ * implemented by {@link StructSequenceReader}, which has the key/value pairs
+ * for the row.
  * 
  */
 public class CassandraIODriver extends BaseIODriver implements IODriver {

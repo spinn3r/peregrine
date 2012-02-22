@@ -15,28 +15,25 @@
 */
 package peregrine.os;
 
-import java.io.*;
-
-import com.sun.jna.Library;
-import com.sun.jna.Native;
-import com.sun.jna.Pointer;
-
-public class unistd {
-
-    private static InterfaceDelegate delegate
-        = (InterfaceDelegate)Native.loadLibrary( "c", InterfaceDelegate.class); 
-
-    public static void sync() {
-        delegate.sync();
-    }
-
-    public static int getpid() {
-        return delegate.getpid();
-    }
+public class PlatformException extends Exception {
     
-    interface InterfaceDelegate extends Library {
-        void sync();
-        int getpid();
+    private int _errno = -1;
+
+    public PlatformException() {
+        this( errno.errno(), errno.strerror() );
+    }
+
+    public PlatformException( int _errno, String message ) {
+        super( message );
+        setErrno( _errno );
+    }
+
+    public void setErrno( int _errno ) { 
+        this._errno = _errno;
+    }
+
+    public int getErrno() { 
+        return this._errno;
     }
 
 }

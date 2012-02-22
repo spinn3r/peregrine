@@ -16,7 +16,6 @@
 package peregrine.worker;
 
 import peregrine.config.*;
-import org.apache.log4j.xml.DOMConfigurator;
 
 import com.spinn3r.log5j.Logger;
 
@@ -28,12 +27,15 @@ public class Main {
         
     public static void main(String[] args ) throws Exception {
 
-        DOMConfigurator.configure( "conf/log4j.xml" );
         config = ConfigParser.parse( args );
-
+        Initializer.doInitLogger( config );
+        Initializer.doWritePidfile( config );
+        
         log.info( "Starting on %s with controller: %s" , config.getHost(), config.getController() );
         
         new FSDaemon( config );
+
+        System.out.printf( "Daemon up and running on %s\n", config.getHost() );
         
         Thread.sleep( Long.MAX_VALUE );
         

@@ -21,22 +21,27 @@ import com.sun.jna.Library;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 
-public class unistd {
+public class signal {
 
-    private static InterfaceDelegate delegate
-        = (InterfaceDelegate)Native.loadLibrary( "c", InterfaceDelegate.class); 
+    public static int kill( int pid, int sig ) throws PlatformException {
 
-    public static void sync() {
-        delegate.sync();
+        int result = Delegate.kill( pid, sig );
+
+        if ( result == -1 )
+            throw new PlatformException();
+
+        return result;
+
     }
 
-    public static int getpid() {
-        return delegate.getpid();
-    }
-    
-    interface InterfaceDelegate extends Library {
-        void sync();
-        int getpid();
+    static class Delegate {
+
+        public static native int kill( int pid, int sig );
+        
+        static {
+            Native.register( "c" );
+        }
+
     }
 
 }
