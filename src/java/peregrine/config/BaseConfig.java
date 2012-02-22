@@ -24,8 +24,6 @@ import peregrine.util.primitive.*;
 import peregrine.util.*;
 import peregrine.os.*;
 
-import com.spinn3r.log5j.Logger;
-
 /**
  * Holds all the main properties for a Config including getters and setters.
  * 

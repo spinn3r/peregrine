@@ -13,30 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
 */
-package peregrine.os;
+package peregrine.worker;
 
-import java.io.*;
+import java.util.*;
 
-import com.sun.jna.Library;
-import com.sun.jna.Native;
-import com.sun.jna.Pointer;
+import peregrine.config.*;
 
-public class unistd {
+import org.apache.log4j.xml.DOMConfigurator;
 
-    private static InterfaceDelegate delegate
-        = (InterfaceDelegate)Native.loadLibrary( "c", InterfaceDelegate.class); 
+/**
+ * Initializer for bringing up the system. 
+ */
+public final class Initializer {
 
-    public static void sync() {
-        delegate.sync();
-    }
+    public static void doInitLogger( Config config ) {
 
-    public static int getpid() {
-        return delegate.getpid();
+        System.setProperty( "peregrine.host", "" + config.getHost() );
+
+        DOMConfigurator.configure( "conf/log4j.xml" );
+
     }
     
-    interface InterfaceDelegate extends Library {
-        void sync();
-        int getpid();
-    }
-
 }

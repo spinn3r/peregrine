@@ -6,4 +6,4 @@
 ulimit -n 32768
 ulimit -l unlimited
 
-./bin/jexec peregrine.worker.Main $@
+./bin/jexec peregrine.worker.Main $@ &
