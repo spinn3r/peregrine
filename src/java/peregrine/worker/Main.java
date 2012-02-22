@@ -29,7 +29,8 @@ public class Main {
 
         config = ConfigParser.parse( args );
         Initializer.doInitLogger( config );
-
+        Initializer.doWritePidfile( config );
+        
         log.info( "Starting on %s with controller: %s" , config.getHost(), config.getController() );
         
         new FSDaemon( config );

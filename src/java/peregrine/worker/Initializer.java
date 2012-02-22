@@ -15,9 +15,11 @@
 */
 package peregrine.worker;
 
+import java.io.*;
 import java.util.*;
 
 import peregrine.config.*;
+import peregrine.os.*;
 
 import org.apache.log4j.xml.DOMConfigurator;
 
@@ -31,6 +33,15 @@ public final class Initializer {
         System.setProperty( "peregrine.host", "" + config.getHost() );
 
         DOMConfigurator.configure( "conf/log4j.xml" );
+
+    }
+
+    public static void doWritePidfile( Config config ) throws IOException {
+
+        File file = new File( config.getRoot(), "worker.pid" );
+        FileOutputStream fos = new FileOutputStream( file );
+        fos.write( String.format( "%s", unistd.getpid() ).getBytes() );
+        fos.close();
 
     }
     

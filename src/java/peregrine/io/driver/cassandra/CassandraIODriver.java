@@ -49,7 +49,6 @@ import org.apache.hadoop.mapreduce.*;
  * <p>
  * cassandra://host:port/keyspace/columnfamily
  *
- *
  * <p>
  * Where:
  *
