@@ -1,53 +1,33 @@
 #!/bin/bash
 
-#ssh -L 8849:example.com:8849 root@example.com
-export PROFILER_ENABLED=false
-
-LIB_ROOT=lib
-
-NEW_CLASSPATH=$(find $LIB_ROOT -name "*.jar" -exec echo -n "{}": ";")
-
-ulimit -n 1000000 2> /dev/null
+### 
+# 
+# Java execution script which wraps the JVM so we can easily turn on profiling,
+# change memory settings, and apply default values for memory, etc.
 
 CLASSNAME=$1
 
+run() {
+
+    echo $@
+    $@
+    result=$?
+    return $result
+
+}
+
+## set default variables.
+: ${MAX_MEMORY:="512M"}
+: ${MAX_DIRECT_MEMORY:="512M"}
+: ${JAVA:="java"}
+: ${PROFILER_ENABLED:="false"}
+: ${PROFILER_PATH:="/usr/local/jprofiler"}
+: ${PROFILER_OPTS:="-agentlib:jprofilerti=port=8849 -Xint -Xbootclasspath/a:$PROFILER_PATH/bin/agent.jar"}
+
+# TODO: would be nice to not have to use sed here.
+
 # allows us to use bash completion to pick a .java file and then run it directly.
 CLASSNAME=$(echo $CLASSNAME | sed 's/src\/test\///g' | sed 's/src\/java\///g' | sed  's/.java//g' | sed 's/\//./g' )
-
-#echo $CLASSNAME
-
-if [ "$JAVA_HOME" = "" ]; then
-
-    if [ -d "/usr/local/java/jdk-LATEST" ]; then
-        export JAVA_HOME=/usr/local/java/jdk-LATEST
-    elif [ -d "/usr/local/jdk" ]; then
-        export JAVA_HOME=/opt/jdk
-    elif [ -d "/opt/jdk" ]; then
-        export JAVA_HOME=/opt/jdk
-    fi
-
-fi
-
-NEW_CLASSPATH="$JAVA_HOME/lib/tools.jar:./compile:./compile/classes:$NEW_CLASSPATH:"
-
-if [ -o "$BE_QUIET" ]; then
-  set -bx
-fi
-
-export CLASSPATH=$NEW_CLASSPATH
-
-if [ "$MAX_MEMORY" = "" ]; then
-    export MAX_MEMORY=512M
-fi
-
-if [ "$MAX_DIRECT_MEMORY" = "" ]; then
-    export MAX_DIRECT_MEMORY=512M
-fi
-
-export PROFILER_PATH="/usr/local/jprofiler"
-export PROFILER_OPTS="-agentlib:jprofilerti=port=8849 \
-                      -Xint \
-                      -Xbootclasspath/a:$PROFILER_PATH/bin/agent.jar"
 
 if [ "$PROFILER_ENABLED" = "true" ]; then
 
@@ -59,36 +39,16 @@ if [ "$PROFILER_ENABLED" = "true" ]; then
 
 fi
 
-if [ "$JAVA" = "" ]; then
-    #use the default Java VM.
-    JAVA=java
-fi
+set -o noglob
 
-if [ "$2" != "" ]; then
-
-    shift
-
-    #set -x
-    $JAVA -Djava.awt.headless=true \
-      -XX:MaxDirectMemorySize=$MAX_DIRECT_MEMORY \
-      -Xms$MAX_MEMORY \
-      -Xmx$MAX_MEMORY \
-      $JAVA_OPTS \
-      $CLASSNAME "$@"
-
-else
-    #set -x
-    $JAVA -Djava.awt.headless=true \
-        -XX:MaxDirectMemorySize=$MAX_DIRECT_MEMORY \
-        -Xms$MAX_MEMORY \
-        -Xmx$MAX_MEMORY \
-        $JAVA_OPTS \
-        $CLASSNAME 
-
-fi
+run $JAVA \
+  -cp lib/*:lib/optional/cassandra/* \
+  -XX:MaxDirectMemorySize=$MAX_DIRECT_MEMORY \
+  -Xms$MAX_MEMORY \
+  -Xmx$MAX_MEMORY \
+  $JAVA_OPTS \
+  $CLASSNAME "$@"
 
 result=$?
-
-#set +bx
 
 exit $result

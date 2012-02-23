@@ -36,6 +36,9 @@ public class Main {
 
     private static final Logger log = Logger.getLogger();
 
+    public static int DEFAULT_WIDTH   = 1024;
+    public static int DEFAULT_MAX     = 10000;
+    
     static String IN = "/test/benchmark.in";
     static String OUT = null;
 
@@ -88,8 +91,8 @@ public class Main {
         }
 
         // 10MB by default.
-        int width            = getopt.getInt( "width", 1024 );
-        int max              = getopt.getInt( "max", 10000 ); 
+        int width            = getopt.getInt( "width", DEFAULT_WIDTH );
+        int max              = getopt.getInt( "max", DEFAULT_MAX ); 
 
         Benchmark.Map.EMIT   = getopt.getBoolean( "emit", true );
         String stage         = getopt.getString( "stage", "all" );

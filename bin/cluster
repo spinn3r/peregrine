@@ -12,6 +12,8 @@ run() {
 
     echo $@
     $@
+    result=$?
+    return $result
 
 }
 
