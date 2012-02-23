@@ -223,7 +223,7 @@ public class DefaultPartitionWriter implements PartitionWriter, ChunkWriter {
         if ( client != null ) {
 
             if ( pipeline != null && pipeline.trim().length() > 0 ) {
-                log.info( "Going to pipeline requests to: %s", pipeline );
+                log.info( "Going to pipeline requests to: '%s'", pipeline );
                 client.setHeader( FSHandler.X_PIPELINE_HEADER, pipeline );
             }
 
