@@ -125,11 +125,15 @@ public class Main {
         try {
 
             if ( "all".equals( stage ) || "map".equals( stage ) ) {
-                controller.map( Benchmark.Map.class, IN );
+                controller.map( Benchmark.Map.class,
+                                new Input( IN ),
+                                new Output( "shuffle:default" ) );
             }
             
             if ( "all".equals( stage ) || "reduce".equals( stage ) ) {
-                controller.reduce( Benchmark.Reduce.class, new Input(), new Output( OUT ) );
+                controller.reduce( Benchmark.Reduce.class,
+                                   new Input( "shuffle:default" ),
+                                   new Output( OUT ) );
             }
 
         } finally {
