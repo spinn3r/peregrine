@@ -41,8 +41,9 @@ fi
 
 set -o noglob
 
+export CLASSPATH=lib/*:lib/optional/cassandra/*
+
 run $JAVA \
-  -cp lib/*:lib/optional/cassandra/* \
   -XX:MaxDirectMemorySize=$MAX_DIRECT_MEMORY \
   -Xms$MAX_MEMORY \
   -Xmx$MAX_MEMORY \
