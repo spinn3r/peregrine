@@ -5,6 +5,7 @@ DIR=/root/peregrine
 LOGDIR=/var/log
 MAX_MEMORY=256M
 OPEN_FILES=16384
+FLUSH_LOGS=true
 
 ###
 # run the given command but print what we're about to run... 
@@ -17,11 +18,27 @@ run() {
 
 }
 
+get_unique_hosts() {
+    cat conf/peregrine.hosts | grep -Eo '^[^:]+' | sort | uniq
+}
+
+flush_logs() {
+
+    for host in `get_unique_hosts`; do
+        run ssh root@$host "find $DIR/logs/ -name '*.log' -exec rm '{}' ';' " 
+    done
+
+}
+
 start() {
+
+    if [ "$FLUSH_LOGS" = "true" ]; then
+        flush_logs
+    fi
 
     for host in `cat conf/peregrine.hosts`; do
         hostname=$(echo $host|grep -Eo '^[^:]+')
-        run ssh root@$hostname "cd $DIR && rm -rf logs && mkdir -p logs && ./bin/workerd --host=$host" 
+        run ssh root@$hostname "cd $DIR && ./bin/workerd --host=$host" 
     done
 
 }
@@ -36,7 +53,7 @@ stop() {
 
 prep() {
 
-    for host in `cat conf/peregrine.hosts | grep -Eo '^[^:]+' | sort | uniq`; do
+    for host in `get_unique_hosts`; do
         run ssh root@$host "cd $DIR && hg pull -u && ant clean jar" 
     done
 

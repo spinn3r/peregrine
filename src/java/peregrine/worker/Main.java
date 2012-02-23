@@ -32,7 +32,9 @@ public class Main {
         Initializer.doWritePidfile( config );
         
         log.info( "Starting on %s with controller: %s" , config.getHost(), config.getController() );
-        
+
+        log.info( "Running with config: \n%s", toDesc() );
+
         new FSDaemon( config );
 
         System.out.printf( "Daemon up and running on %s\n", config.getHost() );

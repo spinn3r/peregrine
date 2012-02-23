@@ -81,9 +81,10 @@ public class Scheduler {
     protected MarkSet<Work> completed = new MarkSet();
 
     /**
-     * The list of work that has been scheduled but not yet been completed.
+     * The list of work that has been scheduled for execution but not yet been
+     * completed.
      */
-    protected MarkSet<Work> pending = new MarkSet();    
+    protected MarkSet<Work> scheduled = new MarkSet();    
 
     /**
      * Keep track of which hosts are performing jobs on which work units.  This
@@ -305,7 +306,7 @@ public class Scheduler {
                     continue;
                 }
                 
-                if ( pending.contains( work ) ) {
+                if ( scheduled.contains( work ) ) {
                     // skip speculatively executing this partition now.
                     continue;
                 }
@@ -325,10 +326,10 @@ public class Scheduler {
             
             invoke( host, work );
 
-            // mark this host as pending so that work doesn't get executed again
+            // mark this host as scheduled so that work doesn't get executed again
             // until we want to do speculative execution
 
-            pending.mark( work );
+            scheduled.mark( work );
 
             concurrency.incr( host );
 
@@ -484,12 +485,12 @@ public class Scheduler {
         // TODO: if this partition has other hosts running this job, terminate
         // the jobs.  This is needed for speculative execution.
         
-        // clear the pending status for this partition. Note that we need to do
+        // clear the scheduled status for this partition. Note that we need to do
         // this AFTER marking it complete because if we don't then it may be
-        // possible to read both completed and pending at the same time and both
+        // possible to read both completed and scheduled at the same time and both
         // would be clear.
 
-        pending.clear( work );
+        scheduled.clear( work );
 
         // add this to the list of available hosts so that we can schedule 
         // additional work.
@@ -621,12 +622,12 @@ public class Scheduler {
 
         buff.append( String.format( "-- progress for %s %s: --\n", operation, job ) );
         
-        buff.append( String.format( "  pending:    %s\n" + 
+        buff.append( String.format( "  scheduled:  %s\n" + 
                                     "  completed:  %s\n" +
                                     "  available:  %s\n" +
                                     "  spare:      %s\n" +
                                     "  online:     %s\n",
-                                    format( pending ), format( completed ), available, spare, clusterState.getOnline() ) );
+                                    format( scheduled ), format( completed ), available, spare, clusterState.getOnline() ) );
 
         long perc = (long)(100 * (completed.size() / (double)offlineWork.size()));
         
