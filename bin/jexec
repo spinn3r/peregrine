@@ -9,7 +9,7 @@ CLASSNAME=$1
 
 run() {
 
-    echo $@
+    #echo $@
     $@
     result=$?
     return $result
@@ -20,6 +20,7 @@ run() {
 : ${MAX_MEMORY:="512M"}
 : ${MAX_DIRECT_MEMORY:="512M"}
 : ${JAVA:="java"}
+: ${SILENT:="false"}
 : ${PROFILER_ENABLED:="false"}
 : ${PROFILER_PATH:="/usr/local/jprofiler"}
 : ${PROFILER_OPTS:="-agentlib:jprofilerti=port=8849 -Xint -Xbootclasspath/a:$PROFILER_PATH/bin/agent.jar"}

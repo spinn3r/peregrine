@@ -21,7 +21,7 @@ start() {
 
     for host in `cat conf/peregrine.hosts`; do
         hostname=$(echo $host|grep -Eo '^[^:]+')
-        run ssh root@$hostname "cd $DIR && ./bin/workerd --host=$host" 
+        run ssh root@$hostname "cd $DIR && rm -rf logs && mkdir -p logs && ./bin/workerd --host=$host" 
     done
 
 }
