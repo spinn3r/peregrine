@@ -6,6 +6,15 @@ LOGDIR=/var/log
 MAX_MEMORY=256M
 OPEN_FILES=16384
 
+###
+# run the given command but print what we're about to run... 
+run() {
+
+    echo $@
+    $@
+
+}
+
 start() {
 
     for host in `cat conf/peregrine.hosts`; do
@@ -14,20 +23,7 @@ start() {
 
         hostname=$(echo $host|grep -Eo '^[^:]+')
 
-        echo $hostname
-
-        #FIXME: waitfor the daemon to starup.
-        #ssh root@$hostname "cd $DIR && export HOSTNAME && nohup ./bin/jexec peregrine.worker.Main -h=$host > $LOGDIR/peregrine-$host.log 2> $LOGDIR/peregrine-$host.err &" 
-
-        set -x
-
-        #ssh -v root@$hostname "cd $DIR && nohup ./bin/workerd --host=$host > $LOGDIR/peregrine-$host.log 2> $LOGDIR/peregrine-$host.err & " 
-        #ssh root@$hostname "cd $DIR && nohup ./bin/workerd --host=$host " 
-
-        ssh root@$hostname "cd $DIR && ./bin/workerd --host=$host" 
-        #ssh root@$hostname "echo 1" 
-
-        set +x
+        run ssh root@$hostname "cd $DIR && ./bin/workerd --host=$host" 
 
     done
 
@@ -36,11 +32,7 @@ start() {
 stop() {
 
     for host in `cat conf/peregrine.hosts | grep -Eo '^[^:]+' | sort | uniq`; do
-
-        set -x
-        ssh root@$host "pgrep -f peregrine.worker.Main | xargs kill"
-        set +x
-
+        run ssh root@$host "pgrep -f peregrine.worker.Main | xargs kill"
     done
 
 }
@@ -49,9 +41,7 @@ prep() {
 
     for host in `cat conf/peregrine.hosts | grep -Eo '^[^:]+' | sort | uniq`; do
 
-        set -x
-        ssh root@$host "cd $DIR && hg pull -u && ant clean jar" 
-        set +x
+        run ssh root@$host "cd $DIR && hg pull -u && ant clean jar" 
 
     done
 
@@ -71,6 +61,11 @@ case $command in
 
     stop)
         stop
+        ;;
+
+    *)
+        echo "ERROR: unknown command: $command" 
+        exit 1
         ;;
 
 esac
