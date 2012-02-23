@@ -116,6 +116,10 @@ public class MappedFileWriter extends BaseMappedFile implements Closeable, Chann
     @Override
     public void write( ChannelBuffer buff ) throws IOException {
 
+        if ( closer.isClosed() ) {
+            throw new IOException( "closed" );
+        }
+        
         long newLength = length + buff.writerIndex();
 
         // see if we're about to write past the previous fallocate extent
