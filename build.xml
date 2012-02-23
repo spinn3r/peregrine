@@ -53,6 +53,11 @@
 
         <mkdir dir="compile"/>
 
+        <depend srcdir="src/java"
+                destdir="compile"
+                cache="target/depcache"
+                closure="no"/>
+
         <javac classpathref="project.classpath"
                nowarn="on"
                source="1.6"
@@ -108,6 +113,11 @@
     </target>
 
     <target name="compile.test">
+
+        <depend srcdir="src/test"
+                destdir="compile"
+                cache="target/depcache"
+                closure="no"/>
 
         <javac classpathref="project.classpath"
                nowarn="on"
@@ -461,7 +471,4 @@
     </target>
 
 </project>
-
-
-
 

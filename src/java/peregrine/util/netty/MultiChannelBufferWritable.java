@@ -131,7 +131,7 @@ public class MultiChannelBufferWritable implements ChannelBufferWritable {
 
     protected void assertDelegates() throws IOException {
 
-        if ( delegates.size() == 0 )
+        if ( delegates.size() == 0 ) 
             throw new IOException( "No delegates available." );
 
     }
@@ -161,6 +161,7 @@ abstract class MultiOutputStreamIterator {
 
         	Map.Entry<Host,ChannelBufferWritable> entry = it.next();
 
+            Host host = entry.getKey();
             ChannelBufferWritable current = entry.getValue();
 
             try {
@@ -169,6 +170,8 @@ abstract class MultiOutputStreamIterator {
 
             } catch ( Throwable t ) {
 
+                log.error( String.format( "Failed to write to delegate: %s (%s)", host, current ) , t );
+                
                 it.remove();
                 writer.handleFailure( current, entry.getKey(), t );
 
