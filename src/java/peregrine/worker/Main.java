@@ -33,7 +33,7 @@ public class Main {
         
         log.info( "Starting on %s with controller: %s" , config.getHost(), config.getController() );
 
-        log.info( "Running with config: \n%s", toDesc() );
+        log.info( "Running with config: \n%s", config.toDesc() );
 
         new FSDaemon( config );
 
