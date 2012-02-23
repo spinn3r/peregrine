@@ -9,7 +9,7 @@ CLASSNAME=$1
 
 run() {
 
-    #echo $@
+    echo $@ > /dev/stderr
     $@
     result=$?
     return $result

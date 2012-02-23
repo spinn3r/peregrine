@@ -73,8 +73,6 @@ public class WaitForDaemon {
                 
             try {
 
-                System.out.printf( "." );
-                
                 sock.connect( addr, 1000 );
                 //success ... we are up so just exit.
 
@@ -88,6 +86,8 @@ public class WaitForDaemon {
             if ( pid == -1 ) {
                 System.exit( 1 );
             }
+
+            System.out.printf( "." );
 
             Thread.sleep( 1000L );
 
