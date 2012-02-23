@@ -18,13 +18,8 @@ run() {
 start() {
 
     for host in `cat conf/peregrine.hosts`; do
-
-        echo $host
-
         hostname=$(echo $host|grep -Eo '^[^:]+')
-
         run ssh root@$hostname "cd $DIR && ./bin/workerd --host=$host" 
-
     done
 
 }
@@ -40,9 +35,7 @@ stop() {
 prep() {
 
     for host in `cat conf/peregrine.hosts | grep -Eo '^[^:]+' | sort | uniq`; do
-
         run ssh root@$host "cd $DIR && hg pull -u && ant clean jar" 
-
     done
 
 }
