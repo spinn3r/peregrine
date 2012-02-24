@@ -19,6 +19,7 @@ import java.io.*;
 import java.util.*;
 
 import peregrine.io.util.*;
+import peregrine.io.partition.*;
 import peregrine.config.*;
 import peregrine.os.*;
 

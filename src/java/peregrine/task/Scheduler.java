@@ -204,7 +204,8 @@ public class Scheduler {
 
                     // for every partition when it is marked offline, go through
                     // and mark every partition offline.  if a partition has NO
-                    // online replicas then we must abort the job.
+                    // online replicas then we must abort the job because there
+                    // are no hosts with this data.
 
                     List<Work> workForHost = workIndex.get( host );
 
