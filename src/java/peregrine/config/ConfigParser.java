@@ -29,21 +29,13 @@ import peregrine.os.*;
 public class ConfigParser {
 
     /**
-     * Parse without any command line arguments.
-     */
-    public static Config parse() throws IOException {
-        return parse( new String[0] );
-    }
-
-    /**
      * Load the given configuration.
      */
-    public static Config parse( String[] args ) throws IOException {
+    public static Config parse( String... args ) throws IOException {
 
         String conf  = "conf/peregrine.conf";
-        String hosts = "conf/peregrine.hosts";
 
-        Config config = parse( conf, hosts );
+        Config config = parse( conf );
 
         Getopt getopt = new Getopt( args );
 
@@ -66,29 +58,29 @@ public class ConfigParser {
         // param specified this is essentially idempotent.
         config.init( config.struct );
         
+        // now read the hosts file...
+        config.setHosts( readHosts( new File( config.getHostsFile() ) ) );
+
         config.init();
 
         return config;
 
     }
 
-    protected static Config parse( String conf, String hosts ) throws IOException {
-        return parse( new File( conf ), new File( hosts ) );
+    protected static Config parse( String conf ) throws IOException {
+        return parse( new File( conf ) );
     }
 
     /**
      * Parse a config file from disk.
      */
-    protected static Config parse( File conf_file, File hosts_file ) throws IOException {
+    protected static Config parse( File conf_file ) throws IOException {
 
         Config config = parse( new FileInputStream( conf_file ) );
-        
+
         String hostname = determineHostname();
 
         config.setHost( new Host( hostname, config.getPort() ) );
-
-        // now read the hosts file...
-        config.setHosts( readHosts( hosts_file ) );
 
         return config;
         

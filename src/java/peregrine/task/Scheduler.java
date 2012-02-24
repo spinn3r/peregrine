@@ -214,7 +214,7 @@ public class Scheduler {
                         offlineWork.incr( current );
 
                         if( offlineWork.get( current ) == config.getReplicas() ) {
-                            markFailed( host, current , false, "*NO TRACE*" );
+                            markFailed( host, current , false, "*HOST MARKED OFFLINE*" );
                             break;
                         }
 

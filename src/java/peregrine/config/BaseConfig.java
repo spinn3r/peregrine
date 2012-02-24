@@ -110,6 +110,8 @@ public class BaseConfig {
 
     protected boolean speculativeExecutionEnabled = false;
 
+    protected String hostsFile = null;
+
     public void init( StructMap struct ) {
 
         this.struct = struct;
@@ -134,7 +136,8 @@ public class BaseConfig {
         setSyncWriteSize( struct.getSize( "syncWriteSize" ) );
         setMaxOpenFileHandles( struct.getInt( "maxOpenFileHandles" ) );
         setSpeculativeExecutionEnabled( struct.getBoolean( "speculativeExecutionEnabled" ) );
-        
+        setHostsFile( struct.getString( "hostsFile" ) );
+
         if ( struct.containsKey( "host" ) )
             setHost( Host.parse( struct.getString( "host" ) ) );
 
@@ -312,6 +315,14 @@ public class BaseConfig {
 
     public boolean getSpeculativeExecutionEnabled() { 
         return this.speculativeExecutionEnabled;
+    }
+
+    public void setHostsFile( String hostsFile ) { 
+        this.hostsFile = hostsFile;
+    }
+
+    public String getHostsFile() { 
+        return this.hostsFile;
     }
 
     static {
