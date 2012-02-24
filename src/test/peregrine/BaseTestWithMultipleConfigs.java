@@ -359,5 +359,5 @@ public abstract class BaseTestWithMultipleConfigs extends peregrine.BaseTest {
         StructReader value;
         
     }
-    
+
 }

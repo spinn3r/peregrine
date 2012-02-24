@@ -19,7 +19,7 @@
 
     <path id="project.classpath">
 
-        <pathelement location="compile"/>
+        <pathelement location="target/compile"/>
 
         <fileset dir="lib">
 
@@ -51,14 +51,19 @@
 
     <target name="compile">
 
-        <mkdir dir="compile"/>
+        <mkdir dir="target/compile"/>
+
+        <depend srcdir="src/java"
+                destdir="target/compile"
+                cache="target/depcache"
+                closure="no"/>
 
         <javac classpathref="project.classpath"
                nowarn="on"
                source="1.6"
                target="1.6"
                srcdir="src/java"
-               destdir="compile"
+               destdir="target/compile"
                fork="true"
                memoryMaximumSize="512M"
                deprecation="no"
@@ -90,11 +95,11 @@
 
         <mkdir dir="target"/>
 
-        <copy file="conf/peregrine.conf" tofile="compile/default.conf" />
+        <copy file="conf/peregrine.conf" tofile="target/compile/default.conf" />
 
         <jar compress="yes" jarfile="lib/${project}-${version}.jar">
 
-            <fileset dir="compile">
+            <fileset dir="target/compile">
 
                 <include name="com/**"/>
                 <include name="org/**"/>
@@ -109,12 +114,17 @@
 
     <target name="compile.test">
 
+        <depend srcdir="src/test"
+                destdir="target/compile"
+                cache="target/depcache"
+                closure="no"/>
+
         <javac classpathref="project.classpath"
                nowarn="on"
                source="1.6"
                target="1.6"
                srcdir="src/test"
-               destdir="compile"
+               destdir="target/compile"
                fork="true"
                memoryMaximumSize="512M"
                deprecation="no"
@@ -433,7 +443,7 @@
 
             </fileset>
 
-            <fileset dir="compile">
+            <fileset dir="target/compile">
                  <include name="javadoc/**"/>
             </fileset>
 
@@ -461,7 +471,4 @@
     </target>
 
 </project>
-
-
-
 

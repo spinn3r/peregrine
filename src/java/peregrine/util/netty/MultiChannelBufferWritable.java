@@ -56,7 +56,7 @@ public class MultiChannelBufferWritable implements ChannelBufferWritable {
     @Override
     public void write( final ChannelBuffer value ) throws IOException {
 
-        new MultiOutputStreamIterator( this ) {
+        new MultiOutputStreamIterator() {
             
             public void handle( ChannelBufferWritable out ) throws IOException {
                 out.write( value );
@@ -69,7 +69,7 @@ public class MultiChannelBufferWritable implements ChannelBufferWritable {
     @Override
     public void close() throws IOException {
 
-        new MultiOutputStreamIterator( this ) {
+        new MultiOutputStreamIterator() {
             
             public void handle( ChannelBufferWritable writer ) throws IOException {
                 writer.close();
@@ -82,7 +82,7 @@ public class MultiChannelBufferWritable implements ChannelBufferWritable {
     @Override
     public void sync() throws IOException {
 
-        new MultiOutputStreamIterator( this ) {
+        new MultiOutputStreamIterator() {
             
             public void handle( ChannelBufferWritable writer ) throws IOException {
                 writer.sync();
@@ -99,7 +99,7 @@ public class MultiChannelBufferWritable implements ChannelBufferWritable {
 
     public void shutdown() throws IOException {
 
-        new MultiOutputStreamIterator( this ) {
+        new MultiOutputStreamIterator() {
 
                 public void handle( ChannelBufferWritable writer ) throws IOException {
 
@@ -131,53 +131,51 @@ public class MultiChannelBufferWritable implements ChannelBufferWritable {
 
     protected void assertDelegates() throws IOException {
 
-        if ( delegates.size() == 0 )
+        if ( delegates.size() == 0 ) 
             throw new IOException( "No delegates available." );
 
     }
 
-}
+    /**
+     * Handles calling a method per OutputStream.
+     */
+    abstract class MultiOutputStreamIterator {
 
-/**
- * Handles calling a method per OutputStream.
- */
-abstract class MultiOutputStreamIterator {
-
-    private MultiChannelBufferWritable writer;
-    
-    public MultiOutputStreamIterator( MultiChannelBufferWritable writer ) {
-        this.writer = writer;
-    }
-    
-    public void iterate() throws IOException {
-    
-        writer.assertDelegates();
-
-        Set<Map.Entry<Host,ChannelBufferWritable>> set = writer.delegates.entrySet();
+        public void iterate() throws IOException {
         
-        Iterator<Map.Entry<Host,ChannelBufferWritable>> it = set.iterator();
+            assertDelegates();
 
-        while( it.hasNext() ) {
+            Set<Map.Entry<Host,ChannelBufferWritable>> set = delegates.entrySet();
+            
+            Iterator<Map.Entry<Host,ChannelBufferWritable>> it = set.iterator();
 
-        	Map.Entry<Host,ChannelBufferWritable> entry = it.next();
+            while( it.hasNext() ) {
 
-            ChannelBufferWritable current = entry.getValue();
+            	Map.Entry<Host,ChannelBufferWritable> entry = it.next();
 
-            try {
+                Host host = entry.getKey();
+                ChannelBufferWritable current = entry.getValue();
 
-                handle( current );
+                try {
 
-            } catch ( Throwable t ) {
+                    handle( current );
 
-                it.remove();
-                writer.handleFailure( current, entry.getKey(), t );
+                } catch ( Throwable t ) {
+
+                    log.error( String.format( "Failed to write to delegate: %s (%s)", host, current ) , t );
+                    
+                    it.remove();
+                    handleFailure( current, entry.getKey(), t );
+
+                }
 
             }
 
         }
 
+        public abstract void handle( ChannelBufferWritable out ) throws IOException;
+        
     }
 
-    public abstract void handle( ChannelBufferWritable out ) throws IOException;
-    
 }
+
