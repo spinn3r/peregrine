@@ -626,8 +626,9 @@ public class Scheduler {
                                     "  completed:  %s\n" +
                                     "  available:  %s\n" +
                                     "  spare:      %s\n" +
-                                    "  online:     %s\n",
-                                    format( scheduled ), format( completed ), available, spare, clusterState.getOnline() ) );
+                                    "  online:     %s\n" +
+                                    "  failure:    %s\n", 
+                                    format( scheduled ), format( completed ), available, spare, clusterState.getOnline(), failure ) );
 
         long perc = (long)(100 * (completed.size() / (double)offlineWork.size()));
         
