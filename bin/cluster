@@ -18,8 +18,13 @@ run() {
 
 }
 
+get_controller() {
+    cat conf/peregrine.conf | grep "controller=" |grep -Eo "[^=]+$" | grep -Eo "^[^:]+"
+}
+
 get_unique_hosts() {
     cat conf/peregrine.hosts | grep -Eo '^[^:]+' | sort | uniq
+    get_controller
 }
 
 flush_logs() {
@@ -77,6 +82,17 @@ prep() {
     for host in `get_unique_hosts`; do
         run ssh root@$host "cd $DIR && hg pull -u && ant clean jar" 
     done
+
+}
+
+### 
+# 
+# Run a given job on the controller.
+run() {
+
+    controller=$(get_controller)
+
+    ssh root@$controller "cd $DIR && ./bin/jexec $@"
 
 }
 

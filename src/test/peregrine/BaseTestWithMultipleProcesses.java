@@ -62,6 +62,25 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
         
         log.info( "Working with concurrency=%s, replicas=%s, hosts=%s" , concurrency, replicas, hosts );
 
+        //Write out a new peregrine.hosts file.
+
+        try {
+            
+            FileOutputStream fos = new FileOutputStream( "/tmp/peregrine.hosts" );
+
+            for( int i = 0; i < hosts; ++i ) {
+
+                int port = 11112 + i;
+                fos.write( String.format( "localhost:%s\n", port ).getBytes() );
+                
+            }
+
+            fos.close();
+
+        } catch ( IOException e ) {
+            throw new RuntimeException( e );
+        }
+            
         for( int i = 0; i < hosts; ++i ) {
 
             // startup new daemons no different port and in different
@@ -71,6 +90,7 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
             String basedir = "/tmp/peregrine-fs-" + i;
 
             List<String> args = Arrays.asList( "bin/workerd",
+                                               "--hostsFile=/tmp/peregrine.hosts",
                                                "--host=localhost:" + port ,
                                                "--basedir=" + basedir );
 
@@ -95,6 +115,13 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
             
         }
 
+    }
+
+    public Config getConfig() throws IOException {
+
+        Config config = ConfigParser.parse( "--hostsFile=/tmp/peregrine.hosts" );
+        return config;
+        
     }
 
     public void tearDown() {
