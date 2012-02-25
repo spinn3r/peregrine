@@ -101,16 +101,8 @@ public class CassandraJobInput extends BaseJobInput implements JobInput {
                 
             }
 
-            StructReader value;
-            StructReader key;
-
-            value = ssw.toStructReader();
-            key = StructReaders.wrap( reader.getCurrentKey() );
-
-            // now hashcode it so we are fixed width.  In the future we should
-            // consider NO doing this for performance reasons but this kept it
-            // easy to implement
-            key = StructReaders.hashcode( key.toByteArray() );
+            StructReader value = ssw.toStructReader();
+            StructReader key = StructReaders.wrap( reader.getCurrentKey() );
             
             return new Pair ( key, value );
             

@@ -17,14 +17,15 @@ package peregrine;
 
 import peregrine.io.*;
 import peregrine.config.*;
+import peregrine.controller.*;
 
 public class TestWorkerFailureDuringJob extends peregrine.BaseTestWithMultipleProcesses {
 
     @Override
     public void doTest() throws Exception {
 
-        Config config = ConfigParser.parse();
-
+        Config config = getConfig();
+        
         String path = String.format( "/test/%s/test1.in", getClass().getName() );
         
         ExtractWriter writer = new ExtractWriter( config, path );
@@ -48,13 +49,29 @@ public class TestWorkerFailureDuringJob extends peregrine.BaseTestWithMultiplePr
         }
 
         writer.close();
-        
+
+        Controller controller = new Controller( config );
+
+        try {
+
+            controller.map( Mapper.class,
+                            new Input( path ),
+                            new Output( "shuffle:default" ) );
+
+            controller.reduce( Reducer.class,
+                               new Input( "shuffle:default" ),
+                               new Output( "/test/test.out" ) );
+
+        } finally {
+            controller.shutdown();
+        }
+
     }
 
     public static void main( String[] args ) throws Exception {
         //System.setProperty( "peregrine.test.config", "04:01:32" ); 
         //System.setProperty( "peregrine.test.config", "01:01:1" ); 
-        System.setProperty( "peregrine.test.config", "8:1:8" );
+        System.setProperty( "peregrine.test.config", "02:01:04" );
         //System.setProperty( "peregrine.test.config", "2:1:3" ); 
         //System.setProperty( "peregrine.test.config", "2:1:3" ); 
         //System.setProperty( "peregrine.test.config", "1:1:1" ); 

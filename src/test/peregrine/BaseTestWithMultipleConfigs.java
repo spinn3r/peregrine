@@ -179,15 +179,8 @@ public abstract class BaseTestWithMultipleConfigs extends peregrine.BaseTest {
 
             throw new RuntimeException( t );
             
-        } finally {
-
-            // create a copy of the logs for this task for debug 
-            copy( new File( "logs/peregrine.log" ), new File( String.format( "logs/test-%s.log", getClass().getName() ) ) );
-            
-            new FileOutputStream( "logs/peregrine.log" ).getChannel().truncate( 0 );
-
         }
-
+        
     }
 
     /**
