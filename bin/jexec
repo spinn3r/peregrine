@@ -6,6 +6,7 @@
 # change memory settings, and apply default values for memory, etc.
 
 CLASSNAME=$1
+shift
 
 run() {
 

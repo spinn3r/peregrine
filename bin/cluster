@@ -92,6 +92,7 @@ run() {
 
     controller=$(get_controller)
 
+    echo "Running with args: $@" 
     ssh root@$controller "cd $DIR && ./bin/jexec $@"
 
 }
