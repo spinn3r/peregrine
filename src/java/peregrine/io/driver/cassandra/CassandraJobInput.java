@@ -67,7 +67,7 @@ public class CassandraJobInput extends BaseJobInput implements JobInput {
         next = nextPair();
         
 	}
-	
+
 	@Override
 	public boolean hasNext() throws IOException {
         return next != null;

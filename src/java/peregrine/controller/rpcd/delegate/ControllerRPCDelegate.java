@@ -78,9 +78,10 @@ public class ControllerRPCDelegate extends RPCDelegate<ControllerDaemon> {
     }
 
     /**
-     * Mark a unit of work in a job as complete.  This could be a chunk in a map
-     * task, a chunk position list in a merge, or an individual sort in a
-     * preemptive reduce sort.
+     * Allows a worker to tell a controller that a given chunk within a unit of
+     * work has been executed.  This could be a chunk in a map task, a chunk
+     * position list in a merge, or an individual sort in a preemptive reduce
+     * sort or even the final reduce sort.
      */
     @RPC
     public void progress( ControllerDaemon controllerDaemon, Channel channel, Message message )

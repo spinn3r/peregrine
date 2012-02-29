@@ -2,6 +2,7 @@ package peregrine;
 
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.*;
 import java.nio.*;
 import java.nio.channels.*;
 
@@ -27,149 +28,190 @@ public class Test {
 
     private static final Logger log = Logger.getLogger();
 
-    public static String hash( long id ) {
-        return Base16.encode( Hashcode.getHashcode( ""+id ) );
-    }
-
+    protected static int MAX = 1000000;
+    
+    protected SimpleQueue<Integer> queue = null;
+    
     public static void main( String[] args ) throws Exception {
 
-        /*
-        System.out.printf( "%s\n", Base64.encode( Base64.decode( "5No7f7vOI_5" ) ) );
-        System.out.printf( "%s\n", Base64.encode( Base64.decode( "5No7f7vOI_4" ) ) );
-        */
+        Test t = new Test();
 
-        for ( int i = 0; i < 200; ++i ) {
-            System.out.printf( "%s=%s\n", i , hash( i ) );
-        }
+        t.test0();
+        t.test0();
+        t.test0();
 
-        //ColumnFamilyInputFormat inputFormat = new ColumnFamilyInputFormat();
+        t.test1();
+        t.test1();
+        t.test1();
 
-        /*
+    }
+
+    public void test0() {
+
+        System.out.printf( "test0\n" );
+        queue = new FastQueue();
+        test();
         
-        Runtime r = Runtime.getRuntime();
+    }
+
+    public void test1() {
+
+        System.out.printf( "test1\n" );
+        queue = new SlowQueue();
+        test();
+        
+    }
+
+    public void test() {
 
         System.gc();
-        long before = r.totalMemory() - r.freeMemory();
 
-        int max = 10000;
+        long before = System.currentTimeMillis();
+
+        WriterThread wt = new WriterThread();
+        wt.start();
+        wt.waitFor();
+
+        ReaderThread rt = new ReaderThread();
+        rt.start();
+        rt.waitFor();
+
+        long after = System.currentTimeMillis();
+
+        System.out.printf( "duration: %,d ms\n", (after-before) );
         
-        List list = new ArrayList( max );
+    }
 
-        for( int i = 0; i < max; ++i ) {
-            list.add( new Object() );
+    class WriterThread extends WaitableThread {
+
+        public void run() {
+            
+            for( int i = 0; i < MAX; ++i ) {
+                queue.write( i );
+            }
+
+            complete();
+            
+        }
+        
+    }
+
+    class ReaderThread extends WaitableThread {
+
+        public void run() {
+
+            for( int i = 0; i < MAX; ++i ) {
+                queue.read();
+            }
+
+            complete();
+
         }
 
-        System.gc();
-        long after = r.totalMemory() - r.freeMemory();
+    }
 
-        long used = after - before;
+    class WaitableThread extends Thread {
+
+        BlockingQueue<Boolean> result = new ArrayBlockingQueue( 1 );
+
+        public void waitFor() {
+
+            try {
+                result.take();
+            } catch ( Exception e ) {
+                throw new RuntimeException( e );
+            }
+
+        }
+
+        public void complete() {
+
+            try {
+                result.put( true );
+            } catch ( Exception e ) {
+                throw new RuntimeException( e );
+            }
+
+        }
         
-        System.out.printf( "used: %,d bytes\n", used );
+    }
 
-        System.out.printf( "size: %,d\n", list.size() );
+    class FastQueue<T> implements SimpleQueue<T> {
 
-        */
-        
-        // EfficientTreeMap<byte[],byte[]> map = new EfficientTreeMap();
+        int CAPACITY = 100000;
 
-        // Runtime r = Runtime.getRuntime();
+        BlockingQueue<T> writeQueue = new ArrayBlockingQueue( CAPACITY );
 
-        // System.gc();
-        // long before = r.totalMemory() - r.freeMemory();
+        BlockingQueue<T> readQueue  = new ArrayBlockingQueue( CAPACITY );
 
-        // for( int i = 0; i < 10000; ++i ) {
+        public void write( T val ) {
 
-        //     byte[] key = Hashcode.getHashcode( "" + i );
-        //     map.put( key , key );
+            try {
+                writeQueue.put( val );
+            } catch ( Exception e ) {
+                throw new RuntimeException( e );
+            }
             
-        // }
+        }
 
-        // System.gc();
-        // long after = r.totalMemory() - r.freeMemory();
+        public T read() {
 
-        // long used = after - before;
+            try {
+
+                T result = null;
+                
+                if ( readQueue.size() == 0 ) {
+                    writeQueue.drainTo( readQueue );
+                }
+
+                if ( readQueue.size() > 0 ) {
+                    return readQueue.take();
+                } 
+
+                return writeQueue.take();
+
+            } catch ( Exception e ) {
+                throw new RuntimeException( e );
+            }
+
+        }
+
+    }
+
+    class SlowQueue<T> implements SimpleQueue<T> {
+
+        int CAPACITY = 100000;
         
-        // System.out.printf( "used: %,d bytes\n", used );
+        BlockingQueue<T> writeQueue = new ArrayBlockingQueue( CAPACITY );
 
-        // System.out.printf( "size: %,d\n", map.size() );
+        public void write( T val ) {
 
-        // 80 bytes per entry... 
-        
-        // // mmap a file
-
-        // File file = new File( args[0] );
-        
-        // FileInputStream in = new FileInputStream( file );
-        // FileChannel channel = in.getChannel();
-        // int fd = Native.getFd( in.getFD() );
-
-        // long offset = 0;
-        // long length = file.length();
-        
-        // MappedByteBuffer map = channel.map( FileChannel.MapMode.READ_ONLY,
-        //                                     offset,
-        //                                     length );
-
-        // // 56 per ms... 
-        
-        // int max = 100000;
-
-        // Pointer ptr = mman.mmap( length, mman.PROT_READ, mman.MAP_SHARED | mman.MAP_LOCKED, fd, offset );
-
-        // long before = System.currentTimeMillis();
-        
-        // for ( int i = 0; i < max; ++i ) {
-
-        //     mman.mlock( ptr, length );
-        //     mman.munlock( ptr, length );
+            try {
+                writeQueue.put( val );
+            } catch ( Exception e ) {
+                throw new RuntimeException( e );
+            }
             
-        // }
+        }
 
-        // long after = System.currentTimeMillis();
+        public T read() {
 
-        // System.out.printf( "duration: %,d ms\n", (after-before) );
-        
-        // // mlock the region
+            try {
+                return writeQueue.take();
+            } catch ( Exception e ) {
+                throw new RuntimeException( e );
+            }
+
+        }
+
+    }
+
+    interface SimpleQueue<T> {
+
+        public void write( T val );
+        public T read();
         
     }
     
-}
-
-class EfficientTreeMap<K,V> extends TreeMap implements Map {
-
-    public EfficientTreeMap() {
-        super( new ByteArrayComparator() ) ;
-    }
-
-}
-
-class ByteArrayComparator implements Comparator {
-
-    public int compare( Object o1, Object o2 ) {
-
-        byte[] v1 = (byte[]) o1;
-        byte[] v2 = (byte[]) o2;
-
-        int len1 = v1.length;
-        int len2 = v2.length;
-        int n = Math.min(len1, len2);
-
-        int i = 0;
-        int j = 0;
-
-        int k = i;
-        final int lim = n + i;
-        while (k < lim) {
-            byte c1 = v1[k];
-            byte c2 = v2[k];
-            if (c1 != c2) {
-                return c1 - c2;
-            }
-            k++;
-        }
-        
-        return len1 - len2;
-    }
-
 }
 
