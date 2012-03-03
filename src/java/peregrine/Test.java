@@ -73,7 +73,7 @@ public class Test {
             resource.Rlimit limit = new resource.Rlimit( 512000000L );
             
             resource.setrlimit( resource.RLIMIT_RSS,     limit );
-            resource.setrlimit( resource.RLIMIT_AS,      limit );
+            //resource.setrlimit( resource.RLIMIT_AS,      limit );
             resource.setrlimit( resource.RLIMIT_MEMLOCK, limit );
 
             int max = 10;
