@@ -58,6 +58,16 @@ public class Test {
             reader.map();
             reader.load();
 
+        } else if ( args[0].equals( "--mmap-nolock" ) ) {
+
+            System.out.printf( "testing mmap without lock\n" );
+
+            MappedFileReader reader = new MappedFileReader( null, "test.dat" );
+            reader.setAutoLock( false );
+
+            reader.map();
+            reader.load();
+
         } else {
 
             System.out.printf( "no test\n" );
