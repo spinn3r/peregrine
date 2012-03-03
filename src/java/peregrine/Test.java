@@ -35,12 +35,27 @@ public class Test {
     
     public static void main( String[] args ) throws Exception {
 
+        /*
         int capacity = 500000000;
 
         ByteBuffer buff = ByteBuffer.allocateDirect( capacity );
 
-        Thread.sleep( Long.MAX_VALUE );
+        */
+
+        // ok... direct buffers / anonymous mmap DOES show up in resident memory
+
+        // ok what about mmap??
+
+        // dd if=/dev/zero of=test.dat count=1000000
         
+        MappedFileReader reader = new MappedFileReader( null, "test.dat" );
+        reader.setAutoLock( true );
+
+        reader.map();
+        reader.load();
+
+        Thread.sleep( Long.MAX_VALUE );
+
         /*
         Test t = new Test();
 

@@ -103,7 +103,8 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
                 
             }
 
-            reader = new StreamReader( map );
+            if ( reader == null )
+                reader = new StreamReader( map );
             
             return map;
 
@@ -124,6 +125,15 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
         return reader;
     }
 
+    public void load() throws IOException {
+
+        if ( mappedByteBuffer == null )
+            map();
+
+        mappedByteBuffer.load();
+        
+    }
+    
     public boolean getAutoLock() { 
         return this.autoLock;
     }
