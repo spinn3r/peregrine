@@ -35,12 +35,29 @@ public class Test {
     
     public static void main( String[] args ) throws Exception {
 
-        /*
-        int capacity = 500000000;
+        if ( args[0].equals( "--anonymous" ) ) {
 
-        ByteBuffer buff = ByteBuffer.allocateDirect( capacity );
+            System.out.printf( "testing anon map\n" );
 
-        */
+            int capacity = 500000000;
+
+            ByteBuffer buff = ByteBuffer.allocateDirect( capacity );
+
+        } else if ( args[0].equals( "--mmap" ) ) {
+
+            System.out.printf( "testing mmap\n" );
+
+            MappedFileReader reader = new MappedFileReader( null, "test.dat" );
+            reader.setAutoLock( true );
+
+            reader.map();
+            reader.load();
+
+        } else {
+
+            System.out.printf( "no test\n" );
+            
+        }
 
         // ok... direct buffers / anonymous mmap DOES show up in resident memory
 
@@ -49,11 +66,6 @@ public class Test {
         // dd if=/dev/zero of=test.dat count=1000000
 
         /*
-        MappedFileReader reader = new MappedFileReader( null, "test.dat" );
-        reader.setAutoLock( true );
-
-        reader.map();
-        reader.load();
         */
         
         Thread.sleep( Long.MAX_VALUE );
