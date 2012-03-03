@@ -70,6 +70,10 @@ public class Test {
 
         } else if ( args[0].equals( "--mmap-multi" ) ) {
 
+            resource.Rlimit limit = new resource.Rlimit( 512000000L );
+            
+            resource.setrlimit( resource.RLIMIT_MEMLOCK, limit );
+
             int max = 10;
 
             if ( args.length >= 2 ) {
