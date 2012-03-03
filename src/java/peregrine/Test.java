@@ -69,11 +69,9 @@ public class Test {
             reader.load();
 
         } else if ( args[0].equals( "--mmap-multi" ) ) {
-
-            resource.Rlimit limit = new resource.Rlimit( 512000000L );
             
-            resource.setrlimit( resource.RLIMIT_RSS,     limit );
-            //resource.setrlimit( resource.RLIMIT_AS,      limit );
+            resource.Rlimit limit = new resource.Rlimit( 51200000L );
+            
             resource.setrlimit( resource.RLIMIT_MEMLOCK, limit );
 
             int max = 10;

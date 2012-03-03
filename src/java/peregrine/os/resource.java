@@ -88,14 +88,6 @@ public class resource {
     public static final int RLIMIT_MEMLOCK = 8; 
 
     /**
-     * Specifies the limit (in pages) of the process's resident set (the number
-     * of virtual pages resident in RAM). This limit only has effect in Linux
-     * 2.4.x, x < 30, and there only affects calls to madvise(2) specifying
-     * MADV_WILLNEED.
-     */
-    public static final int RLIMIT_RSS = 5; 
-
-    /**
      * The maximum size of the process's virtual memory (address space) in
      * bytes. This limit affects calls to brk(2), mmap(2) and mremap(2), which
      * fail with the error ENOMEM upon exceeding this limit. Also automatic
