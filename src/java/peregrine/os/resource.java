@@ -106,8 +106,15 @@ public class resource {
             rlim_cur = value;
             rlim_max = value;
         }
-        
+
+        /**
+         * Soft limit.
+         */
         public long rlim_cur = -1;  /* Soft limit */
+
+        /**
+         * Hard limit (ceiling for rlim_cur).
+         */
         public long rlim_max = -1;  /* Hard limit (ceiling for rlim_cur) */
 
         @Override

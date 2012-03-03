@@ -77,6 +77,8 @@ public class Test {
             resource.setrlimit( resource.RLIMIT_MEMLOCK,
                                 new resource.Rlimit( limit ));
 
+            System.out.printf( "RLIMIT_MEMLOCK: %s\n", resource.getrlimit( resource.RLIMIT_MEMLOCK ) );
+            
             int max = 10;
 
             if ( args.length >= 2 ) {
