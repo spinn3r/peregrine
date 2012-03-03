@@ -37,13 +37,19 @@ public class PartitionLayoutEngine {
     
     protected Map<Partition,List<Replica>> replicasByPartition = new HashMap();
 
-    int nr_hosts;
-    int nr_partitions_per_host;
-    int nr_replicas;
+    protected int nr_hosts;
+    protected int nr_partitions_per_host;
+    protected int nr_replicas;
 
-    List<Host> hosts;
+    /**
+     * The total number of hosts that can fail before we are below our minimum
+     * replica count.
+     */
+    protected int spare_hosts;
+    
+    protected List<Host> hosts;
 
-    Config config;
+    protected Config config;
     
     public PartitionLayoutEngine( Config config ) {
 
@@ -92,19 +98,20 @@ public class PartitionLayoutEngine {
             log.warn( "For maximum parallel recovery, your nr_hosts should be > nr_replicas * nr_partitions_per_host" );
         }
 
-        int extra_hosts = nr_hosts - nr_partitions_per_host;
+        spare_hosts = nr_hosts - nr_partitions_per_host;
 
+        //ideal_hosts = nr_hosts - ((nr_partitions_per_host * 2) + 1);
+        
         // On startup... We need to print the number of machines we can handle
         // failing without falling below the minimum number of replicas...
 
-        String extra_hosts_message =
-            String.format( "%,d hosts can fail before you risk partition lost due to nr_replicas." , extra_hosts );
-
-        if ( extra_hosts <= 0 && nr_hosts != 1 ) {
-            throw new PartitionLayoutException( extra_hosts_message );
+        if ( spare_hosts <= 0 && nr_hosts != 1 ) {
+            throw new PartitionLayoutException( getSpareHostsMsg() );
         } else {
-            log.info( "%s", extra_hosts_message );
+            log.info( "%s", getSpareHostsMsg() );
         }
+
+        //if ( ideal_hosts 
         
         int nr_primary_per_host = nr_partitions_per_host / nr_replicas;
 
@@ -180,6 +187,13 @@ public class PartitionLayoutEngine {
         
     }
 
+    protected String getSpareHostsMsg() {
+
+        return String.format( "%,d hosts can fail before you risk partition lost due to nr_replicas." ,
+                              spare_hosts );
+
+    }
+
     /**
      * Assert that we're running with the correct partition layout.  If not then
      * we need to throw an exception as we can't run with an incorrect config.
@@ -238,7 +252,7 @@ public class PartitionLayoutEngine {
 
     public Membership toMembership() {
 
-        return new Membership( config, hostsByPartition, partitionsByHost, replicasByHost );
+        return new Membership( config, this, hostsByPartition, partitionsByHost, replicasByHost );
 
     }
 

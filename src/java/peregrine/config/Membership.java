@@ -38,16 +38,20 @@ public class Membership {
     protected Map<Host,List<Replica>> replicasByHost = new HashMap();
     
     protected Config config;
-        
+
+    protected PartitionLayoutEngine engine;
+    
     /**
      * Create new membership from an explicit mapping.
      */
     public Membership( Config config,
+                       PartitionLayoutEngine engine,
                        Map<Partition,List<Host>> hostsByPartition,
                        Map<Host,List<Partition>> partitionsByHost,
                        Map<Host,List<Replica>> replicasByHost ) {
 
         this.config = config;
+        this.engine = engine;
         this.hostsByPartition = hostsByPartition;
         this.partitionsByHost = partitionsByHost;
         this.replicasByHost = replicasByHost;
@@ -153,6 +157,8 @@ public class Membership {
             
         }
 
+        buff.append( String.format( "%s\n", engine.getSpareHostsMsg() ) );
+        
         String result = buff.toString();
         return result.substring( 0, result.length() - 1);
 

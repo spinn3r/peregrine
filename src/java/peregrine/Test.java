@@ -9,6 +9,7 @@ import java.nio.channels.*;
 import peregrine.os.*;
 import peregrine.util.*;
 import peregrine.app.pagerank.*;
+import peregrine.config.*;
 
 import com.sun.jna.Pointer;
 
@@ -34,6 +35,13 @@ public class Test {
     
     public static void main( String[] args ) throws Exception {
 
+        int capacity = 500000000;
+
+        ByteBuffer buff = ByteBuffer.allocateDirect( capacity );
+
+        Thread.sleep( Long.MAX_VALUE );
+        
+        /*
         Test t = new Test();
 
         t.test0();
@@ -43,6 +51,21 @@ public class Test {
         t.test1();
         t.test1();
         t.test1();
+
+        int hosts = 9;
+        
+        Config config = new Config( "localhost", 11112 );
+        
+        //config.setController( controller );
+        config.setConcurrency( 2 );
+        config.setReplicas( 2 );
+
+        for( int i = 0; i < hosts; ++i ) {
+            config.getHosts().add( new Host( "localhost", Host.DEFAULT_PORT + i ) );
+        }
+        
+        config.init();
+        */
 
     }
 
