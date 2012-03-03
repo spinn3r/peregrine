@@ -96,7 +96,7 @@ public class Test {
                 // dd if=/dev/zero of=test.dat count=1000000
 
                 MappedFileReader reader = new MappedFileReader( null, "test.dat" );
-                reader.setAutoLock( false );
+                reader.setAutoLock( true );
                 
                 reader.map();
                 reader.load();
