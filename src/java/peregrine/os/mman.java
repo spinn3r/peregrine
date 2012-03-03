@@ -48,6 +48,8 @@ public class mman {
         
         Pointer result = Delegate.mmap( addr, len, prot, flags, fildes, off );
 
+        System.out.printf( "FIXME: result: %s\n", result );
+        
         if ( Pointer.nativeValue( result ) == -1 ) {
             throw new IOException( errno.strerror() );
         }
