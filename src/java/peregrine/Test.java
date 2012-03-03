@@ -85,7 +85,9 @@ public class Test {
             for( int i = 0; i < max; ++i ) {
 
                 System.out.printf( "." );
-                
+
+                // dd if=/dev/zero of=test.dat count=1000000
+
                 MappedFileReader reader = new MappedFileReader( null, "test.dat" );
                 reader.setAutoLock( false );
                 
@@ -100,15 +102,7 @@ public class Test {
             
         }
 
-        // ok... direct buffers / anonymous mmap DOES show up in resident memory
-
-        // ok what about mmap??
-
-        // dd if=/dev/zero of=test.dat count=1000000
-
-        /*
-        */
-
+        System.out.printf( "\n" );
         System.out.printf( "sleeping...\n" );
         
         Thread.sleep( Long.MAX_VALUE );
