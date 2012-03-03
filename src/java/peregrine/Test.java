@@ -72,8 +72,8 @@ public class Test {
 
             resource.Rlimit limit = new resource.Rlimit( 512000000L );
             
-            resource.setrlimit( resource.RLIMIT_RSS, limit );
-            resource.setrlimit( resource.RLIMIT_AS, limit );
+            resource.setrlimit( resource.RLIMIT_RSS,     limit );
+            resource.setrlimit( resource.RLIMIT_AS,      limit );
             resource.setrlimit( resource.RLIMIT_MEMLOCK, limit );
 
             int max = 10;
@@ -85,7 +85,9 @@ public class Test {
             System.out.printf( "testing mmap multiple times: %,d\n", max );
 
             for( int i = 0; i < max; ++i ) {
-            
+
+                System.out.printf( "." );
+                
                 MappedFileReader reader = new MappedFileReader( null, "test.dat" );
                 reader.setAutoLock( false );
                 
