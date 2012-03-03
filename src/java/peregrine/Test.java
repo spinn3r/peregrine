@@ -43,6 +43,11 @@ public class Test {
 
             ByteBuffer buff = ByteBuffer.allocateDirect( capacity );
 
+            //touch every page.
+            for( int i = 0; i < capacity; ++i ) {
+                buff.put( (byte) 0 );
+            }
+            
         } else if ( args[0].equals( "--mmap" ) ) {
 
             System.out.printf( "testing mmap\n" );
