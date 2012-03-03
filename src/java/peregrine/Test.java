@@ -47,13 +47,15 @@ public class Test {
         // ok what about mmap??
 
         // dd if=/dev/zero of=test.dat count=1000000
-        
+
+        /*
         MappedFileReader reader = new MappedFileReader( null, "test.dat" );
         reader.setAutoLock( true );
 
         reader.map();
         reader.load();
-
+        */
+        
         Thread.sleep( Long.MAX_VALUE );
 
         /*
