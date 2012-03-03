@@ -70,6 +70,8 @@ public class Test {
 
         } else if ( args[0].equals( "--mmap-multi" ) ) {
 
+            System.out.printf( "RLIMIT_MEMLOCK: %s\n", resource.getrlimit( resource.RLIMIT_MEMLOCK ) );
+
             long limit = 51200000L;
 
             System.out.printf( "limit: %,d\n", limit );
