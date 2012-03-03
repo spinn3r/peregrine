@@ -102,6 +102,8 @@ public class Test {
 
         /*
         */
+
+        System.out.printf( "sleeping...\n" );
         
         Thread.sleep( Long.MAX_VALUE );
 
