@@ -69,10 +69,13 @@ public class Test {
             reader.load();
 
         } else if ( args[0].equals( "--mmap-multi" ) ) {
+
+            long limit = 51200000L;
+
+            System.out.printf( "limit: %,d\n", limit );
             
-            resource.Rlimit limit = new resource.Rlimit( 51200000L );
-            
-            resource.setrlimit( resource.RLIMIT_MEMLOCK, limit );
+            resource.setrlimit( resource.RLIMIT_MEMLOCK,
+                                new resource.Rlimit( limit ));
 
             int max = 10;
 
