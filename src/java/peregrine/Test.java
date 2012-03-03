@@ -68,6 +68,26 @@ public class Test {
             reader.map();
             reader.load();
 
+        } else if ( args[0].equals( "--mmap-multi" ) ) {
+
+            int max = 10;
+
+            if ( args.length >= 2 ) {
+                max = Integer.parseInt( args[1] );
+            }
+            
+            System.out.printf( "testing mmap multiple times: %,d\n", max );
+
+            for( int i = 0; i < max; ++i ) {
+            
+                MappedFileReader reader = new MappedFileReader( null, "test.dat" );
+                reader.setAutoLock( false );
+                
+                reader.map();
+                reader.load();
+
+            }
+                
         } else {
 
             System.out.printf( "no test\n" );
