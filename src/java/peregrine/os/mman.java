@@ -43,15 +43,10 @@ public class mman {
     public static Pointer mmap( long len, int prot, int flags, int fildes, long off )
         throws IOException {
 
-        System.out.printf( "FIXME here\n" );
-        
-
         // we don't really have a need to change the recommended pointer.
         Pointer addr = new Pointer( 0 );
         
         Pointer result = Delegate.mmap( addr, len, prot, flags, fildes, off );
-
-        System.out.printf( "FIXME: result: %s\n", result );
         
         if ( Pointer.nativeValue( result ) == -1 ) {
             throw new IOException( errno.strerror() );
