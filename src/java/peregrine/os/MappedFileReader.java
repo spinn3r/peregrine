@@ -19,6 +19,7 @@ import java.io.*;
 import java.nio.*;
 import java.nio.channels.*;
 import java.util.*;
+import java.lang.reflect.*;
 
 import org.jboss.netty.buffer.*;
 
@@ -48,7 +49,9 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
 
     protected StreamReader reader = null;
 
-    protected MappedByteBuffer mappedByteBuffer = null;
+    protected ByteBuffer byteBuffer = null;
+
+    protected MemLock memLock = null;
 
     public MappedFileReader( Config config, String path ) throws IOException {
         this( config, new File( path ) );
@@ -92,14 +95,24 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
             if ( map == null ) {
 
                 if ( autoLock ) {
-                    closer.add( new MemLock( file, in.getFD(), offset, length ) );
+                    memLock = new MemLock( file, in.getFD(), offset, length );
+                    closer.add( memLock );
                 }
 
-                mappedByteBuffer = channel.map( FileChannel.MapMode.READ_ONLY, offset, length );
+                /*
+                byteBuffer = channel.map( FileChannel.MapMode.READ_ONLY, offset, length );
+                closer.add( new MappedByteBufferCloser( byteBuffer ) );
+                */
                 
-                closer.add( new MappedByteBufferCloser( mappedByteBuffer ) );
+                //new ChannelMapStrategy().map();
 
-                this.map = ChannelBuffers.wrappedBuffer( mappedByteBuffer );
+                if ( memLock != null ) {
+                    new NativeMapStrategy().map();
+                } else {
+                    new ChannelMapStrategy().map();
+                }
+                
+                this.map = ChannelBuffers.wrappedBuffer( byteBuffer );
                 
             }
 
@@ -125,15 +138,6 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
         return reader;
     }
 
-    public void load() throws IOException {
-
-        if ( mappedByteBuffer == null )
-            map();
-
-        mappedByteBuffer.load();
-        
-    }
-    
     public boolean getAutoLock() { 
         return this.autoLock;
     }
@@ -176,5 +180,80 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
         }
 
     }
-    
+
+    interface MapStrategy {
+
+        public void map() throws IOException;
+        
+    }
+
+    class ChannelMapStrategy implements MapStrategy {
+
+        public void map() throws IOException {
+            
+            byteBuffer = channel.map( FileChannel.MapMode.READ_ONLY, offset, length );
+            
+            closer.add( new MappedByteBufferCloser( byteBuffer ) );
+
+        }
+
+    }
+
+    /**
+     * A native mmap strategy that uses mmap directly via the MemLock .
+     */
+    class NativeMapStrategy implements MapStrategy {
+
+        public void map() throws IOException {
+
+            try {
+
+                byteBuffer = (ByteBuffer)byteBufferConstructor.newInstance( (int)length,
+                                                                            memLock.getAddress(),
+                                                                            new Closer() );
+                
+                closer.add( new MappedByteBufferCloser( byteBuffer ) );
+
+            } catch ( Exception e ) {
+                throw new IOException( e );
+            }
+                
+        }
+
+        class Closer implements Runnable {
+            
+            public void run() {
+                
+                try {
+                    memLock.close();
+                } catch ( IOException e ) {
+                    throw new RuntimeException( e );
+                }
+                
+            }
+            
+        };
+
+    }
+
+    private static Constructor byteBufferConstructor = null;
+
+    static {
+
+        try {
+        
+            Class clazz = Class.forName( "java.nio.DirectByteBufferR" );
+            
+            byteBufferConstructor = clazz.getDeclaredConstructor( int.class,
+                                                                  long.class,
+                                                                  Runnable.class );
+
+            byteBufferConstructor.setAccessible( true );
+
+        } catch ( Exception e ) {
+            throw new RuntimeException( e );
+        }
+
+    }
+
 }

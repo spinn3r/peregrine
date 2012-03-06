@@ -5,6 +5,7 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.nio.*;
 import java.nio.channels.*;
+import java.lang.reflect.*;
 
 import peregrine.os.*;
 import peregrine.util.*;
@@ -32,8 +33,71 @@ public class Test {
     protected static int MAX = 1000000;
     
     protected SimpleQueue<Integer> queue = null;
-    
+
     public static void main( String[] args ) throws Exception {
+
+        File file = new File( "test.dat" );
+        FileInputStream fis = new FileInputStream( file );
+
+        long offset = 0;
+        long length = file.length();
+        
+        final MemLock memLock = new MemLock( file, fis.getFD(), 0, length );
+        
+        Class clazz = Class.forName( "java.nio.DirectByteBufferR" );
+
+        for( Constructor c : clazz.getDeclaredConstructors() ) {
+            System.out.printf( "c: %s\n", c );
+        }
+
+        Constructor con = clazz.getDeclaredConstructor( int.class,
+                                                        long.class,
+                                                        Runnable.class );
+
+        con.setAccessible( true );
+
+        Runnable closer = new Runnable() {
+
+                public void run() {
+
+                    try {
+                        memLock.close();
+                    } catch ( IOException e ) {
+                        throw new RuntimeException( e );
+                    }
+                    
+                }
+                
+            };
+        
+        ByteBuffer buff = (ByteBuffer)con.newInstance( (int)length, memLock.getAddress(), closer );
+        
+        System.out.printf( "con: %s\n", con );
+
+        byte[] data = new byte[ buff.capacity() ];
+        buff.get( data );
+
+        System.out.printf( "%s\n" , new String( data ) );
+        
+        
+    }
+
+    public static void main3( String[] args ) throws Exception {
+
+        FileInputStream fis = new FileInputStream( "test.dat" );
+
+        sun.nio.ch.FileChannelImpl channel = (sun.nio.ch.FileChannelImpl)fis.getChannel();
+
+        System.out.printf( "FIXME: %s\n", channel.getClass().getName() );
+
+        for( Method m : channel.getClass().getDeclaredMethods() ) {
+            System.out.printf( "method: %s\n", m );
+            
+        }
+        
+    }
+        
+    public static void main2( String[] args ) throws Exception {
 
         if ( args[0].equals( "--anonymous" ) ) {
 
@@ -56,7 +120,7 @@ public class Test {
             reader.setAutoLock( true );
 
             reader.map();
-            reader.load();
+            //reader.load();
 
         } else if ( args[0].equals( "--mmap-nolock" ) ) {
 
@@ -66,7 +130,7 @@ public class Test {
             reader.setAutoLock( false );
 
             reader.map();
-            reader.load();
+            //reader.load();
 
         } else if ( args[0].equals( "--mmap-multi" ) ) {
 
@@ -99,8 +163,8 @@ public class Test {
                 reader.setAutoLock( true );
                 
                 reader.map();
-                reader.load();
-
+                //reader.load();
+                
             }
                 
         } else {

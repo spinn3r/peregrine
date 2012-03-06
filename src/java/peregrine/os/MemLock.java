@@ -50,16 +50,24 @@ public class MemLock implements Closeable {
         this.length = length;
         
         int fd = Native.getFd( descriptor );
+
+        int prot   = mman.PROT_READ;
+        int flags  = mman.MAP_SHARED | mman.MAP_LOCKED;
         
-        pa = mman.mmap( length, mman.PROT_READ, mman.MAP_SHARED | mman.MAP_LOCKED, fd, offset );
+        pa = mman.mmap( length, prot, flags, fd, offset );
 
         // even though technically we have specified MAP_LOCKED this isn't
-        // supported on OpenSolaris or older Linux kernels (or OS X).
+        // supported on OpenSolaris or older Linux kernels (or OS X) so call
+        // mlock as well.
         
         mman.mlock( pa, length );
         
     }
 
+    public long getAddress() {
+        return Pointer.nativeValue( pa );
+    }
+    
     /**
      * Release this lock so that the memory can be returned to the OS if it
      * wants to us it.

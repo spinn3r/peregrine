@@ -84,8 +84,10 @@ public class mman {
     public static void munlock( Pointer addr, long len )
         throws IOException {
 
-        if ( Delegate.munlock( addr, len ) != 0 ) {
-            throw new IOException( errno.strerror() );
+        int result = Delegate.munlock( addr, len ); 
+        
+        if ( result != 0 ) {
+            throw new IOException( "Result was: " + result + ": " + errno.strerror() );
         }
 
     }
