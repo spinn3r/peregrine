@@ -29,6 +29,8 @@ public class MemLock implements Closeable {
     private long length;
     private File file;
     private FileDescriptor descriptor;
+
+    private boolean closed = false;
     
     /**
      * Call mmap a file descriptor, then lock the pages with MAP_LOCKED.  This 
@@ -75,11 +77,15 @@ public class MemLock implements Closeable {
     @Override
     public void close() throws IOException {
 
+        if ( closed ) return;
+        
         mman.munlock( pa, length );
         mman.munmap( pa, length );
 
         log.info( "munlocking %s to pa %s with length %,d", file, pa, length );
 
+        closed = true;
+        
     }
 
 }
