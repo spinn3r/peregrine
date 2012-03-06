@@ -99,13 +99,6 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
                     closer.add( memLock );
                 }
 
-                /*
-                byteBuffer = channel.map( FileChannel.MapMode.READ_ONLY, offset, length );
-                closer.add( new MappedByteBufferCloser( byteBuffer ) );
-                */
-                
-                //new ChannelMapStrategy().map();
-
                 if ( memLock != null ) {
                     new NativeMapStrategy().map();
                 } else {
