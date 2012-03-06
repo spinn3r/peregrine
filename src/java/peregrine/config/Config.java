@@ -98,7 +98,7 @@ public class Config extends BaseConfig {
         }
 
         limitMaxOpenFileHandles();
-        limitMemoryUsage();
+        //limitMemoryUsage();
 
         // constrain the memory use by the 
         
