@@ -32,8 +32,6 @@ import org.jboss.netty.buffer.*;
  */
 public class ShuffleInputReader implements Closeable {
 
-    public static boolean ENABLE_MEMLOCK = true;
-    
     /**
      * The current packet index we're on.
      */
@@ -71,6 +69,9 @@ public class ShuffleInputReader implements Closeable {
     }
         
     public ShuffleInputReader( Config config, String path, List<Partition> partitions ) throws IOException {
+
+        if ( config == null )
+            throw new NullPointerException( "config" );
         
         // pull out the header information 
 
@@ -89,7 +90,7 @@ public class ShuffleInputReader implements Closeable {
         // read them so this make it less difficult to figure out what to map.
 
         this.mappedFile = new MappedFileReader( config, file );
-        this.mappedFile.setAutoLock( ENABLE_MEMLOCK );
+        this.mappedFile.setAutoLock( config.getShuffleMapLockEnabled() );
         
         this.buffer = mappedFile.map();
         

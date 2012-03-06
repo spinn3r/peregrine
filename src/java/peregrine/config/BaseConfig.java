@@ -112,6 +112,8 @@ public class BaseConfig {
 
     protected String hostsFile = null;
 
+    protected boolean shuffleMapLockEnabled = false;
+
     public void init( StructMap struct ) {
 
         this.struct = struct;
@@ -137,6 +139,7 @@ public class BaseConfig {
         setMaxOpenFileHandles( struct.getInt( "maxOpenFileHandles" ) );
         setSpeculativeExecutionEnabled( struct.getBoolean( "speculativeExecutionEnabled" ) );
         setHostsFile( struct.getString( "hostsFile" ) );
+        setShuffleMapLockEnabled( struct.getBoolean( "shuffleMapLockEnabled" ) );
 
         if ( struct.containsKey( "host" ) )
             setHost( Host.parse( struct.getString( "host" ) ) );
@@ -323,6 +326,14 @@ public class BaseConfig {
 
     public String getHostsFile() { 
         return this.hostsFile;
+    }
+
+    public boolean getShuffleMapLockEnabled() { 
+        return this.shuffleMapLockEnabled;
+    }
+
+    public void setShuffleMapLockEnabled( boolean shuffleMapLockEnabled ) { 
+        this.shuffleMapLockEnabled = shuffleMapLockEnabled;
     }
 
     static {

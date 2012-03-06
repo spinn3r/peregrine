@@ -336,7 +336,7 @@ public class ShuffleInputChunkReader implements ChunkReader {
             // now open the shuffle file and read in the shuffle packets adding
             // them to the right queues.
 
-            this.reader = new ShuffleInputReader( null, path, partitions );
+            this.reader = new ShuffleInputReader( config, path, partitions );
 
         }
 
