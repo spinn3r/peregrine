@@ -97,6 +97,19 @@ public class Config extends BaseConfig {
             throw new RuntimeException( "Unable to create partitioner: ", t );
         }
 
+        limitMaxOpenFileHandles();
+        limitMemoryUsage();
+
+        // constrain the memory use by the 
+        
+        initEnabledFeatures();
+        
+        log.info( "%s", toDesc() );
+
+    }
+
+    private void limitMaxOpenFileHandles() {
+
         // attempt to adjust the open file handles with setrlimit ... 
         if ( getMaxOpenFileHandles() > 0 ) {
 
@@ -113,13 +126,33 @@ public class Config extends BaseConfig {
             }
             
         }
-        
-        initEnabledFeatures();
-        
-        log.info( "%s", toDesc() );
 
     }
 
+    /**
+     * Call setrlimit on the amount of memory we are expected to use.
+     */
+    private void limitMemoryUsage() {
+
+        long max = Runtime.getRuntime().maxMemory() +
+                   getShuffleBufferSize() +
+                   getSortBufferSize()
+            ;
+
+        try {
+
+            resource.Rlimit limit = new resource.Rlimit( max );
+
+            resource.setrlimit( resource.RLIMIT_AS, limit );
+
+            log.info( "Limited memory usage to: %,d bytes", max );
+
+        } catch ( Exception e ) {
+            log.warn( "Unable to setrlimit: %s ", e.getMessage() );
+        }
+
+    }
+    
     public void initEnabledFeatures() {
 
         // Test posix_fallocate and posix_fadvise on a test file in the
