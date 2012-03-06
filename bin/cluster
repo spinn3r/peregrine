@@ -6,6 +6,7 @@ LOGDIR=/var/log
 MAX_MEMORY=256M
 OPEN_FILES=16384
 FLUSH_LOGS=true
+FLUSH_FS=true
 
 ###
 # run the given command but print what we're about to run... 
@@ -61,6 +62,10 @@ start() {
 
         if [ "$port" == "11118" ] || [ "$port" = "11119" ]; then
             basedir="/d3/peregrine-fs"
+        fi
+
+        if [ "$FLUSH_FS" = "true" ]; then
+            runcmd ssh root@$hostname "rm -rf $basedir" 
         fi
 
         runcmd ssh root@$hostname "cd $DIR && ./bin/workerd --host=$host --basedir=$basedir" 
