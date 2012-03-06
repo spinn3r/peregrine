@@ -633,7 +633,7 @@ public class Scheduler {
 
         long perc = (long)(100 * (completed.size() / (double)offlineWork.size()));
         
-        buff.append( String.format( "  Perc complete: %,d %% \n", perc ) );
+        buff.append( String.format( "  Perc complete (%s): %,d %% \n", operation, perc ) );
 
         buff.setLength( buff.length() - 1 ); // trim the trailing \n
         

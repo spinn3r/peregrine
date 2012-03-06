@@ -43,43 +43,13 @@ public class Test {
         long length = file.length();
         
         final MemLock memLock = new MemLock( file, fis.getFD(), 0, length );
-        
-        Class clazz = Class.forName( "java.nio.DirectByteBufferR" );
 
-        for( Constructor c : clazz.getDeclaredConstructors() ) {
-            System.out.printf( "c: %s\n", c );
-        }
+        memLock.unlockRegion( length );
+        memLock.unlockRegion( length );
+        memLock.unlockRegion( length );
+        memLock.unlockRegion( length );
 
-        Constructor con = clazz.getDeclaredConstructor( int.class,
-                                                        long.class,
-                                                        Runnable.class );
-
-        con.setAccessible( true );
-
-        Runnable closer = new Runnable() {
-
-                public void run() {
-
-                    try {
-                        memLock.close();
-                    } catch ( IOException e ) {
-                        throw new RuntimeException( e );
-                    }
-                    
-                }
-                
-            };
-        
-        ByteBuffer buff = (ByteBuffer)con.newInstance( (int)length, memLock.getAddress(), closer );
-        
-        System.out.printf( "con: %s\n", con );
-
-        byte[] data = new byte[ buff.capacity() ];
-        buff.get( data );
-
-        System.out.printf( "%s\n" , new String( data ) );
-        
-        
+        System.out.printf( "yay\n" );
     }
 
     public static void main3( String[] args ) throws Exception {

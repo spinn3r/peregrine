@@ -63,13 +63,17 @@ public class ShuffleInputReader implements Closeable {
     protected Partition current = null;
     
     protected MappedFileReader mappedFile = null;;
-     
+
+    protected Config config = null;
+    
     public ShuffleInputReader( Config config, String path, final Partition partition ) throws IOException {
         this( config, path, new ArrayList() {{ add( partition ); }} );
     }
         
     public ShuffleInputReader( Config config, String path, List<Partition> partitions ) throws IOException {
 
+        this.config = config;
+        
         if ( config == null )
             throw new NullPointerException( "config" );
         
@@ -200,6 +204,11 @@ public class ShuffleInputReader implements Closeable {
         
         ShufflePacket pack = new ShufflePacket( from_partition, from_chunk, to_partition, offset, count, data );
 
+        // unlock the pages that we have already read.
+        if ( config.getShuffleMapLockEnabled() ) {
+            mappedFile.unlockRegion( (long)buffer.readerIndex() );
+        }
+        
         return pack;
         
     }

@@ -21,6 +21,9 @@ import com.sun.jna.Pointer;
 
 import com.spinn3r.log5j.*;
 
+/**
+ * Facade on top of mlock/mmap that opens up a file, mmaps it, then mlocks it.
+ */
 public class MemLock implements Closeable {
 
     private static final Logger log = Logger.getLogger();
@@ -68,6 +71,17 @@ public class MemLock implements Closeable {
 
     public long getAddress() {
         return Pointer.nativeValue( pa );
+    }
+
+    /**
+     * Unlock a region of the file from zero to 'length' bytes without unlocking
+     * the rest of the file.  This can be used to unlock pages we've already
+     * read so the memory can be reclaimed by OS.
+     */
+    public void unlockRegion( long len ) throws IOException {
+        
+        mman.munlock( pa, len );
+        
     }
     
     /**

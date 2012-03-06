@@ -131,6 +131,16 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
         return reader;
     }
 
+    /**
+     * @see MemLock#unlockRegion
+     */
+    public void unlockRegion( long len ) throws IOException {
+        if ( memLock == null ) return;
+
+        memLock.unlockRegion( len );
+        
+    }
+    
     public boolean getAutoLock() { 
         return this.autoLock;
     }
