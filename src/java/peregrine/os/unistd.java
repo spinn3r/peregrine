@@ -33,10 +33,22 @@ public class unistd {
     public static int getpid() {
         return delegate.getpid();
     }
-    
+
+    public static int setuid( int uid ) throws Exception {
+
+        int result = delegate.setuid( uid );
+
+        if ( result == -1 )
+            throw new PlatformException();
+        
+        return result;
+
+    }
+
     interface InterfaceDelegate extends Library {
         void sync();
         int getpid();
+        int setuid( int uid );
     }
 
 }

@@ -143,7 +143,7 @@ public class Config extends BaseConfig {
 
             resource.Rlimit limit = new resource.Rlimit( max );
 
-            resource.setrlimit( resource.RLIMIT_AS, limit );
+            resource.setrlimit( resource.RLIMIT_MEMLOCK, limit );
 
             log.info( "Limited memory usage to: %,d bytes", max );
 
