@@ -98,9 +98,6 @@ public class Config extends BaseConfig {
         }
 
         limitMaxOpenFileHandles();
-        //limitMemoryUsage();
-
-        // constrain the memory use by the 
         
         initEnabledFeatures();
         
@@ -117,7 +114,7 @@ public class Config extends BaseConfig {
 
                 resource.Rlimit limit = new resource.Rlimit( getMaxOpenFileHandles() );
 
-                resource.setrlimit( resource.RLIMIT_NOFILE, limit );
+                resource.setrlimit( new resource.Constants().RLIMIT_NOFILE, limit );
 
                 log.info( "Max open file handle = %,d set via setrlimit", getMaxOpenFileHandles() );
                 
@@ -125,30 +122,6 @@ public class Config extends BaseConfig {
                 log.warn( "Unable to set max open file handles via setrlimit: %s ", e.getMessage() );
             }
             
-        }
-
-    }
-
-    /**
-     * Call setrlimit on the amount of memory we are expected to use.
-     */
-    private void limitMemoryUsage() {
-
-        long max = Runtime.getRuntime().maxMemory() +
-                   getShuffleBufferSize() +
-                   getSortBufferSize()
-            ;
-
-        try {
-
-            resource.Rlimit limit = new resource.Rlimit( max );
-
-            resource.setrlimit( resource.RLIMIT_MEMLOCK, limit );
-
-            log.info( "Limited memory usage to: %,d bytes", max );
-
-        } catch ( Exception e ) {
-            log.warn( "Unable to setrlimit: %s ", e.getMessage() );
         }
 
     }

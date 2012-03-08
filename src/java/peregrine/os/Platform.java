@@ -23,13 +23,16 @@ import com.spinn3r.log5j.Logger;
  */
 public class Platform {
 
+    public static String getOS() {
+        return System.getProperty("os.name").toLowerCase();
+    }
+    
     public static boolean isLinux() {
+        return getOS().contains("linux");
+    }
 
-        String os = System.getProperty("os.name").toLowerCase();
-
-        // only attempt to run this on Platform.
-        return os.contains("linux");
-
+    public static boolean isDarwin() {
+        return getOS().contains("darwin");
     }
 
 }

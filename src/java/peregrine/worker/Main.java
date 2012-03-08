@@ -29,12 +29,8 @@ public class Main {
 
         config = ConfigParser.parse( args );
         
-        Initializer init = new Initializer( config );
-        
-        init.logger();
-        init.pidfile();
-        init.setuid();
-        
+        new Initializer( config ).init();
+
         log.info( "Starting on %s with controller: %s" , config.getHost(), config.getController() );
 
         log.info( "Running with config: \n%s", config.toDesc() );

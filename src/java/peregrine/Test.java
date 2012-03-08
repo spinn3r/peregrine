@@ -117,16 +117,17 @@ public class Test {
 
         } else if ( args[0].equals( "--mmap-multi" ) ) {
 
-            System.out.printf( "RLIMIT_MEMLOCK: %s\n", resource.getrlimit( resource.RLIMIT_MEMLOCK ) );
+            System.out.printf( "RLIMIT_MEMLOCK: %s\n",
+                               resource.getrlimit( new resource.Constants().RLIMIT_MEMLOCK ) );
 
             long limit = 51200000L;
 
             System.out.printf( "limit: %,d\n", limit );
             
-            resource.setrlimit( resource.RLIMIT_MEMLOCK,
+            resource.setrlimit( new resource.Constants().RLIMIT_MEMLOCK,
                                 new resource.Rlimit( limit ));
 
-            System.out.printf( "RLIMIT_MEMLOCK: %s\n", resource.getrlimit( resource.RLIMIT_MEMLOCK ) );
+            System.out.printf( "RLIMIT_MEMLOCK: %s\n", resource.getrlimit( new resource.Constants().RLIMIT_MEMLOCK ) );
             
             int max = 10;
 

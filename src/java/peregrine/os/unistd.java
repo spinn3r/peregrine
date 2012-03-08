@@ -26,10 +26,34 @@ public class unistd {
     private static InterfaceDelegate delegate
         = (InterfaceDelegate)Native.loadLibrary( "c", InterfaceDelegate.class); 
 
+    /**
+     * The sync utility can be called to ensure that all disk writes have been
+     * completed before the processor is halted in a way not suitably done by
+     * shutdown(8).  Generally, it is preferable to use shutdown(8) to shut down
+     * the system, as they may perform additional actions such as
+     * resynchronizing the hardware clock and flushing internal caches before
+     * performing a final sync.
+     * 
+     * The sync utility utilizes the sync(2) function call.
+     */
     public static void sync() {
         delegate.sync();
     }
 
+    /**
+     * 
+     * Getpid() returns the process ID of the calling process.  The ID is
+     * guaranteed to be unique and is useful for constructing temporary file
+     * names.
+     * 
+     * Getppid() returns the process ID of the parent of the calling process.
+     * 
+     * ERRORS
+     * 
+     * The getpid() and getppid() functions are always successful, and no return
+     * value is reserved to indicate an error.
+     * 
+     */
     public static int getpid() {
         return delegate.getpid();
     }
@@ -95,12 +119,24 @@ public class unistd {
     public static int getuid() {	
     	return delegate.getuid();
     }
+
+    /**
+     * The getpagesize() function returns the number of bytes in a page.  Page
+     * granularity is the granularity of many of the memory management calls.
+     * 
+     * The page size is a system page size and may not be the same as the
+     * underlying hardware page size.
+     */
+    public static int getpagesize() {
+        return delegate.getpagesize();
+    }
     
     interface InterfaceDelegate extends Library {
         void sync();
         int getpid();
         int setuid( int uid );
         int getuid();
+        int getpagesize();
     }
 
 }

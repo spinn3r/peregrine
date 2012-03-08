@@ -75,5 +75,39 @@ public final class Initializer {
         unistd.setuid( passwd.uid );
         
     }
+
+    /**
+     * Call setrlimit on the amount of memory we are expected to use.
+     */
+    public void limitMemoryUsage() {
+
+        // one page for every file that we could potentially open.
+        long max = config.getShuffleSegmentMergeParallelism() * unistd.getpagesize();
+        
+        try {
+
+            resource.Rlimit limit = new resource.Rlimit( max );
+
+            resource.setrlimit( new resource.Constants().RLIMIT_MEMLOCK, limit );
+
+            log.info( "Limited memory usage to: %,d bytes", max );
+
+        } catch ( Exception e ) {
+            log.warn( "Unable to setrlimit: %s ", e.getMessage() );
+        }
+
+    }
+
+    /**
+     * Perform all init steps required for the worker daemon.
+     */
+    public void init() throws Exception {
+
+        logger();
+        pidfile();
+        setuid();
+        limitMemoryUsage();
+
+    }
     
 }
