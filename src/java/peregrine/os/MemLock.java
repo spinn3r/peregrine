@@ -54,7 +54,7 @@ public class MemLock implements Closeable {
     	this.descriptor = descriptor;
         this.length = length;
         
-        int fd = Native.getFd( descriptor );
+        int fd = Platform.getFd( descriptor );
 
         int prot   = mman.PROT_READ;
         int flags  = mman.MAP_SHARED | mman.MAP_LOCKED;

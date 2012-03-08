@@ -139,7 +139,7 @@ public class resource {
     
     public static Rlimit getrlimit( int resource ) throws Exception {
 
-        assertLinux();
+        assertPlatform();
 
         Rlimit result = new Rlimit();
 
@@ -153,7 +153,7 @@ public class resource {
 
     public static void setrlimit( int resource, Rlimit limit ) throws Exception {
 
-        assertLinux();
+        assertPlatform();
         
         if ( delegate.setrlimit( resource, limit ) != 0 ) {
             throw new Exception( errno.strerror() );
@@ -173,10 +173,13 @@ public class resource {
         
     }
 
-    private static void assertLinux() {
+    private static void assertPlatform() {
         
-        if ( Platform.isLinux() == false )
-            throw new RuntimeException( "Platform is not linux" );
+        if ( Platform.isLinux() || Platform.isDarwin() ) {
+            return;
+        }
+            
+        throw new RuntimeException( "Platform is not supported: " + Platform.getOS() );
         
     }
     

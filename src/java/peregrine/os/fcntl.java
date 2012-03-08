@@ -129,6 +129,28 @@ public class fcntl {
 
     }
 
+    public static int posix_fadvise( String path, long offset, long len, int advice ) 
+        throws IOException {
+        
+        return posix_fadvise( new File( path ), offset, len, advice );
+        
+    }
+
+    public static int posix_fadvise( File file, long offset, long len, int advice ) 
+        throws IOException {
+
+        FileInputStream fis = new FileInputStream( file );
+
+        int fd = Platform.getFd( fis.getFD() );
+
+        try {
+            return posix_fadvise( fd, offset, len, advice );
+        } finally {
+            fis.close();
+        }
+            
+    }
+
     /**
      * <b>posix documentation</b>
      * 

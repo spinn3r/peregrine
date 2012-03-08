@@ -16,12 +16,15 @@
 package peregrine.os;
 
 import java.io.*;
+import java.lang.reflect.*;
 
 import com.spinn3r.log5j.Logger;
 
 /**
  */
 public class Platform {
+
+    private static final Logger log = Logger.getLogger();
 
     public static String getOS() {
         return System.getProperty("os.name").toLowerCase();
@@ -32,7 +35,44 @@ public class Platform {
     }
 
     public static boolean isDarwin() {
-        return getOS().contains("darwin");
+        return getOS().contains("mac os x");
+    }
+
+    /**
+     * Used to get access to protected/private field of the specified class
+     * @param klass - name of the class
+     * @param fieldName - name of the field
+     * @return Field or null on error
+     */
+    private static Field getProtectedField(Class klass, String fieldName) {
+
+        Field field;
+
+        try {
+            field = klass.getDeclaredField(fieldName);
+            field.setAccessible(true);
+        } catch (Exception e) {
+            throw new AssertionError(e);
+        }
+
+        return field;
+    }
+
+     public static int getFd( FileDescriptor descriptor ) {
+         
+        Field field = getProtectedField(descriptor.getClass(), "fd");
+
+        if ( field == null )
+            return -1;
+
+        try { 
+            return field.getInt(descriptor);
+        } catch (Exception e) {
+            log.warn("unable to read fd field from FileDescriptor");
+        }
+
+        return -1;
+        
     }
 
 }

@@ -74,7 +74,7 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
 
         this.in = new FileInputStream( file );
         this.channel = in.getChannel();
-        this.fd = Native.getFd( in.getFD() );
+        this.fd = Platform.getFd( in.getFD() );
 
         this.length = file.length();
 

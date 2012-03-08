@@ -35,7 +35,31 @@ public class Test {
     
     protected SimpleQueue<Integer> queue = null;
 
+    public static void testlock1() throws Exception {
+
+        Config config = new Config();
+
+        new Initializer( config ).init();
+
+        System.out.printf( "testlock1 of a large file NOT in page cache on the first mlock.\n" );
+
+        File file = new File( "test.dat" );
+        fcntl.posix_fadvise( file, 0L, file.length(), fcntl.POSIX_FADV_DONTNEED );
+        
+        MappedFileReader reader = new MappedFileReader( config, file );
+        reader.setAutoLock( true );
+
+        reader.map();
+
+    }
+    
     public static void main( String[] args ) throws Exception {
+
+        testlock1();
+        
+    }
+    
+    public static void main5( String[] args ) throws Exception {
 
         Config config = new Config();
 

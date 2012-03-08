@@ -83,14 +83,14 @@ public final class Initializer {
 
         // one page for every file that we could potentially open.
         long max = config.getShuffleSegmentMergeParallelism() * (unistd.getpagesize() * 2);
-        
+
         try {
 
             resource.Rlimit limit = new resource.Rlimit( max );
 
             resource.setrlimit( new resource().RLIMIT_MEMLOCK, limit );
 
-            log.info( "Limited memory usage to: %,d bytes", max );
+            log.info( "Limited locked memory usage to: %,d bytes", max );
 
         } catch ( Exception e ) {
             log.warn( "Unable to setrlimit: %s ", e.getMessage() );

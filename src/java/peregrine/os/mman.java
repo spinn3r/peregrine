@@ -112,7 +112,7 @@ public class mman {
 
         File file = new File( path );
         FileInputStream in = new FileInputStream( file );
-        int fd = peregrine.os.Native.getFd( in.getFD() );
+        int fd = Platform.getFd( in.getFD() );
 
         // mmap a large file... 
         Pointer addr = mmap( file.length(), PROT_READ, mman.MAP_SHARED | mman.MAP_LOCKED, fd, 0 );

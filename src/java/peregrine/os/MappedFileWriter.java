@@ -83,7 +83,7 @@ public class MappedFileWriter extends BaseMappedFile implements Closeable, Chann
         }
 
         this.out = new FileOutputStream( file );
-        this.fd = Native.getFd( out.getFD() );
+        this.fd = Platform.getFd( out.getFD() );
         this.channel = out.getChannel();
 
         this.length = file.length();

@@ -262,7 +262,7 @@ public class Config extends BaseConfig {
 
                     fos = new FileOutputStream( file );
 
-                    int fd = Native.getFd( fos.getFD() );
+                    int fd = Platform.getFd( fos.getFD() );
 
                     fcntl.posix_fallocate( fd, 0, 1000 );
 
@@ -304,7 +304,7 @@ public class Config extends BaseConfig {
                     fos = new FileOutputStream( file );
                     fos.write( data.getBytes() );
 
-                    int fd = Native.getFd( fos.getFD() );
+                    int fd = Platform.getFd( fos.getFD() );
 
                     fcntl.posix_fadvise( fd, 0, data.length(), fcntl.POSIX_FADV_DONTNEED );
 
