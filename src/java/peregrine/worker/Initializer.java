@@ -41,7 +41,7 @@ public final class Initializer {
     public void logger() {
 
         System.setProperty( "peregrine.host", "" + config.getHost() );
-
+        
         DOMConfigurator.configure( "conf/log4j.xml" );
 
     }
@@ -82,13 +82,13 @@ public final class Initializer {
     public void limitMemoryUsage() {
 
         // one page for every file that we could potentially open.
-        long max = config.getShuffleSegmentMergeParallelism() * unistd.getpagesize();
+        long max = config.getShuffleSegmentMergeParallelism() * (unistd.getpagesize() * 2);
         
         try {
 
             resource.Rlimit limit = new resource.Rlimit( max );
 
-            resource.setrlimit( new resource.Constants().RLIMIT_MEMLOCK, limit );
+            resource.setrlimit( new resource().RLIMIT_MEMLOCK, limit );
 
             log.info( "Limited memory usage to: %,d bytes", max );
 
