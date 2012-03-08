@@ -73,6 +73,8 @@ public final class Initializer {
         // call setuid with the uid of the user from the passwd
 
         unistd.setuid( passwd.uid );
+
+        log.info( "setuid as user %s", config.getUser() );
         
     }
 
@@ -93,7 +95,7 @@ public final class Initializer {
             resource.setrlimit( resource.RLIMIT.MEMLOCK, limit );
 
         } catch ( Exception e ) {
-            log.warn( "Unable to setrlimit for memory usage: %s ", e.getMessage() );
+            log.warn( "%s", e.getMessage() );
         }
 
     }
