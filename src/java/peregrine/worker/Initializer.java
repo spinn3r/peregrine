@@ -86,7 +86,7 @@ public final class Initializer {
 
         try {
 
-            log.info( "Limitint locked memory usage to: %,d bytes", max );
+            log.info( "Limiting locked memory usage to: %,d bytes", max );
 
             resource.Rlimit limit = new resource.Rlimit( max );
 
