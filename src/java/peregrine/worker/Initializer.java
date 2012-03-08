@@ -88,9 +88,9 @@ public final class Initializer {
 
             log.info( "Limiting locked memory usage to: %,d bytes", max );
 
-            resource.Rlimit limit = new resource.Rlimit( max );
+            resource.rlimit limit = new resource.rlimit( max );
 
-            resource.setrlimit( new resource().RLIMIT_MEMLOCK, limit );
+            resource.setrlimit( resource.RLIMIT.MEMLOCK, limit );
 
         } catch ( Exception e ) {
             log.warn( "Unable to setrlimit for memory usage: %s ", e.getMessage() );

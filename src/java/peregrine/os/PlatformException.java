@@ -23,6 +23,10 @@ public class PlatformException extends Exception {
         this( errno.errno(), errno.strerror() );
     }
 
+    public PlatformException( String message_prefix ){
+        this( errno.errno(), message_prefix + ": " + errno.strerror() );
+    }
+    
     public PlatformException( int _errno, String message ) {
         super( message );
         setErrno( _errno );

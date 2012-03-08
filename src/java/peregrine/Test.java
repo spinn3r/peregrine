@@ -39,7 +39,7 @@ public class Test {
 
         Config config = new Config();
 
-        //new Initializer( config ).init();
+        new Initializer( config ).init();
 
         System.out.printf( "testlock1 of a large file NOT in page cache on the first mlock.\n" );
 
@@ -142,16 +142,16 @@ public class Test {
         } else if ( args[0].equals( "--mmap-multi" ) ) {
 
             System.out.printf( "RLIMIT_MEMLOCK: %s\n",
-                               resource.getrlimit( new resource().RLIMIT_MEMLOCK ) );
+                               resource.getrlimit( resource.RLIMIT.MEMLOCK ) );
 
             long limit = 51200000L;
 
             System.out.printf( "limit: %,d\n", limit );
             
-            resource.setrlimit( new resource().RLIMIT_MEMLOCK,
-                                new resource.Rlimit( limit ));
+            resource.setrlimit( resource.RLIMIT.MEMLOCK,
+                                new resource.rlimit( limit ) );
 
-            System.out.printf( "RLIMIT_MEMLOCK: %s\n", resource.getrlimit( new resource().RLIMIT_MEMLOCK ) );
+            System.out.printf( "RLIMIT_MEMLOCK: %s\n", resource.getrlimit( resource.RLIMIT.MEMLOCK ) );
             
             int max = 10;
 

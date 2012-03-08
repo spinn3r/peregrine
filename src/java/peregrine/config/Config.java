@@ -112,9 +112,9 @@ public class Config extends BaseConfig {
 
             try {
 
-                resource.Rlimit limit = new resource.Rlimit( getMaxOpenFileHandles() );
+                resource.rlimit limit = new resource.rlimit( getMaxOpenFileHandles() );
 
-                resource.setrlimit( new resource().RLIMIT_NOFILE, limit );
+                resource.setrlimit( resource.RLIMIT.NOFILE, limit );
 
                 log.info( "Max open file handle = %,d set via setrlimit", getMaxOpenFileHandles() );
                 
