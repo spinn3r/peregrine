@@ -107,8 +107,8 @@ public final class Initializer {
 
         logger();
         pidfile();
-        limitMemoryUsage();
-        setuid();
+        //limitMemoryUsage();
+        //setuid();
  
     }
     
