@@ -28,8 +28,12 @@ public class Main {
     public static void main(String[] args ) throws Exception {
 
         config = ConfigParser.parse( args );
-        Initializer.doInitLogger( config );
-        Initializer.doWritePidfile( config );
+        
+        Initializer init = new Initializer( config );
+        
+        init.logger();
+        init.pidfile();
+        init.setuid();
         
         log.info( "Starting on %s with controller: %s" , config.getHost(), config.getController() );
 

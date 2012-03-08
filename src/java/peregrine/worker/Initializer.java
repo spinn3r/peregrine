@@ -21,6 +21,8 @@ import java.util.*;
 import peregrine.config.*;
 import peregrine.os.*;
 
+import com.spinn3r.log5j.Logger;
+
 import org.apache.log4j.xml.DOMConfigurator;
 
 /**
@@ -28,7 +30,15 @@ import org.apache.log4j.xml.DOMConfigurator;
  */
 public final class Initializer {
 
-    public static void doInitLogger( Config config ) {
+    private static final Logger log = Logger.getLogger();
+
+	private Config config;
+	
+	public Initializer( Config config ) {
+		this.config = config;
+	}
+	
+    public void logger() {
 
         System.setProperty( "peregrine.host", "" + config.getHost() );
 
@@ -36,7 +46,7 @@ public final class Initializer {
 
     }
 
-    public static void doWritePidfile( Config config ) throws IOException {
+    public void pidfile() throws IOException {
 
         File file = new File( config.getRoot(), "worker.pid" );
         FileOutputStream fos = new FileOutputStream( file );
@@ -45,4 +55,25 @@ public final class Initializer {
 
     }
 
+    public void setuid() throws Exception {
+
+        if ( unistd.getuid() != 0 ) {
+            log.warn( "Unable to setuid.  Not root." );
+            return;
+        }
+        
+        // read the user name from the config and get the uid from the name of
+        // the user.
+
+        pwd.Passwd passwd = pwd.getpwnam( config.getUser() );
+
+        if ( passwd == null )
+            throw new Exception( "User unknown: " + config.getUser() );
+
+        // call setuid with the uid of the user from the passwd
+
+        unistd.setuid( passwd.uid );
+        
+    }
+    
 }

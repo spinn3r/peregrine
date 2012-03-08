@@ -114,6 +114,8 @@ public class BaseConfig {
 
     protected boolean shuffleMapLockEnabled = false;
 
+    protected String user = null;
+
     public void init( StructMap struct ) {
 
         this.struct = struct;
@@ -140,6 +142,7 @@ public class BaseConfig {
         setSpeculativeExecutionEnabled( struct.getBoolean( "speculativeExecutionEnabled" ) );
         setHostsFile( struct.getString( "hostsFile" ) );
         setShuffleMapLockEnabled( struct.getBoolean( "shuffleMapLockEnabled" ) );
+        setUser( struct.getString( "user" ) );
 
         if ( struct.containsKey( "host" ) )
             setHost( Host.parse( struct.getString( "host" ) ) );
@@ -334,6 +337,14 @@ public class BaseConfig {
 
     public void setShuffleMapLockEnabled( boolean shuffleMapLockEnabled ) { 
         this.shuffleMapLockEnabled = shuffleMapLockEnabled;
+    }
+
+    public String getUser() { 
+        return this.user;
+    }
+
+    public void setUser( String user ) { 
+        this.user = user;
     }
 
     static {

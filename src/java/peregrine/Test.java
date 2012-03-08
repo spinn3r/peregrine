@@ -11,6 +11,7 @@ import peregrine.os.*;
 import peregrine.util.*;
 import peregrine.app.pagerank.*;
 import peregrine.config.*;
+import peregrine.worker.*;
 
 import com.sun.jna.Pointer;
 
@@ -35,6 +36,18 @@ public class Test {
     protected SimpleQueue<Integer> queue = null;
 
     public static void main( String[] args ) throws Exception {
+
+        Config config = new Config();
+
+        config.setUser( "nobody" );
+
+        Initializer init = new Initializer( config );
+
+        init.setuid();
+
+    }
+
+    public static void main4( String[] args ) throws Exception {
 
         File file = new File( "test.dat" );
         FileInputStream fis = new FileInputStream( file );
