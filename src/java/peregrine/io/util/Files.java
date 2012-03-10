@@ -129,6 +129,10 @@ public class Files {
         
     }
 
+    /**
+     * Make a given directory readable and writable and optionally recurse all
+     * children.
+     */
     public static void setReadableAndWritable( String path,
                                                boolean ownerOnly,
                                                boolean recursive ) throws IOException {
