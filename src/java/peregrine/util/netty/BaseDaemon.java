@@ -57,15 +57,10 @@ public abstract class BaseDaemon {
         try {
             
             Files.mkdirs( root );
-            
-            Files.setReadableAndWritable( root, false );
 
         } catch ( IOException e ) {
-            
-            log.error( "Unable to create directoris on startup: " , e );
-
+            log.error( "Unable to create directories on startup: " , e );
             throw new RuntimeException( e );
-            
         }
             
         ThreadFactory tf = new DefaultThreadFactory( getClass() );

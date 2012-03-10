@@ -65,8 +65,8 @@ public class Config extends BaseConfig {
             Files.mkdirs( root ); /* make sure the root dir exists */
             Files.mkdirs( basedir );
 
-            Files.setReadableAndWritable( root, false );
-            Files.setReadableAndWritable( basedir, false );
+            Files.setReadableAndWritable( basedir, false, true );
+            Files.setReadableAndWritable( root, false, true );
             
         } catch ( IOException e ) {
             throw new RuntimeException( e );

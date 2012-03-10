@@ -129,7 +129,9 @@ public class Files {
         
     }
 
-    public static void setReadableAndWritable( String path, boolean ownerOnly ) throws IOException {
+    public static void setReadableAndWritable( String path,
+                                               boolean ownerOnly,
+                                               boolean recursive ) throws IOException {
 
         File file = new File( path );
 
@@ -139,6 +141,16 @@ public class Files {
 
         if ( file.setWritable( true, ownerOnly ) == false ) {
             throw new IOException( "Unable to make writable: " + path );
+        }
+
+        if ( recursive ) {
+
+            File[] files = file.listFiles();
+
+            for( File current : files ) {
+                setReadableAndWritable( current.getPath() , ownerOnly, recursive );
+            }
+            
         }
 
     }
