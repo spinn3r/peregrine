@@ -59,6 +59,26 @@ public class StreamReader {
         fireOnRead(1);
         return buff.readByte();
     }
+
+    public int readInt() {
+        fireOnRead(4);
+        return buff.readInt();
+    }
+
+    /**
+     * Read a slice from this stream reader, as a COPY, not this copies data
+     * into the heap.
+     */
+    public ChannelBuffer readSlice( int length ) {
+
+        fireOnRead( length );
+
+        byte[] result = new byte[ length ];
+        buff.readBytes( result);
+
+        return ChannelBuffers.wrappedBuffer( result );
+
+    }
     
     /**
      * Return the current position in this stream.

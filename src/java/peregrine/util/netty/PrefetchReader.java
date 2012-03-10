@@ -42,7 +42,7 @@ public class PrefetchReader implements Closeable {
 
     private static final Logger log = Logger.getLogger();
 
-    public static long DEFAULT_PAGE_SIZE = (long)Math.pow( 2, 17 ); 
+    public static long DEFAULT_PAGE_SIZE = (long)Math.pow( 2, 17 ); /* 2^17 = 128k */
 
     /**
      * The minimum number of bytes we should attempt to pre-read at a time.
