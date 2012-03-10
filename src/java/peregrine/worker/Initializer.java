@@ -20,6 +20,7 @@ import java.util.*;
 
 import peregrine.config.*;
 import peregrine.os.*;
+import peregrine.util.netty.*;
 
 import com.spinn3r.log5j.Logger;
 
@@ -84,7 +85,7 @@ public final class Initializer {
     public void limitMemoryUsage() {
 
         // one page for every file that we could potentially open.
-        long max = config.getShuffleSegmentMergeParallelism() * (unistd.getpagesize() * 2);
+        long max = config.getShuffleSegmentMergeParallelism() * PrefetchReader.DEFAULT_PAGE_SIZE;
 
         try {
 
@@ -107,7 +108,7 @@ public final class Initializer {
 
         logger();
         pidfile();
-        //limitMemoryUsage();
+        limitMemoryUsage();
         setuid();
  
     }
