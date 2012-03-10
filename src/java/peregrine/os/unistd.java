@@ -137,6 +137,7 @@ public class unistd {
         int setuid( int uid );
         int getuid();
         int getpagesize();
+        int chown( String path, int uid, int gid );
     }
 
 }

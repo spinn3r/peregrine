@@ -128,6 +128,18 @@ public class Files {
         }
         
     }
+
+    public static void setReadableAndWritable( String path ) throws IOException {
+
+        File file = new File( path );
+
+        if ( file.setReadable( true ) == false )
+            throw new IOException( "Unable to make readable: " + path );
+
+        if ( file.setWritable( true ) == false )
+            throw new IOException( "Unable to make readable: " + path );
+
+    }
     
     /**
      * Read the file data as UTF8 string.

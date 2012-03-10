@@ -61,8 +61,13 @@ public class Config extends BaseConfig {
         setRoot( host );
 
         try {
+
             Files.mkdirs( root ); /* make sure the root dir exists */
             Files.mkdirs( basedir );
+
+            Files.setReadableAndWritable( root );
+            Files.setReadableAndWritable( basedir );
+            
         } catch ( IOException e ) {
             throw new RuntimeException( e );
         }
