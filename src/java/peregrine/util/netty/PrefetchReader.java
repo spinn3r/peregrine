@@ -205,8 +205,11 @@ public class PrefetchReader implements Closeable {
 
 
         if ( config.getShuffleMapLockEnabled() ) {
-            // now mlock it because MAP_LOCKED isn't supported on all platforms 
+
+            // now mlock it because MAP_LOCKED isn't supported on all platforms
+
             mman.mlock( pageEntry.pa, pageEntry.length );
+            
         }
         
         fcntl.posix_fadvise( pageEntry.file.fd,
