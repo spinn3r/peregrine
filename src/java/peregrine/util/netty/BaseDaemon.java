@@ -52,8 +52,9 @@ public abstract class BaseDaemon {
         if ( root == null )
             throw new RuntimeException( "Root directory in config not defined." );
         
-        new File( root ).mkdirs();
-        
+        Files.mkdirs( root );
+        Files.setReadableAndWritable( root, false );
+            
         ThreadFactory tf = new DefaultThreadFactory( getClass() );
         
         int concurrency = config.getConcurrency();
