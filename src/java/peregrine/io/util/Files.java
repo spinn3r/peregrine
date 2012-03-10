@@ -151,8 +151,12 @@ public class Files {
 
             File[] files = file.listFiles();
 
-            for( File current : files ) {
-                setReadableAndWritable( current.getPath() , ownerOnly, recursive );
+            if ( files != null ) {
+            
+                for( File current : files ) {
+                    setReadableAndWritable( current.getPath() , ownerOnly, recursive );
+                }
+
             }
             
         }
