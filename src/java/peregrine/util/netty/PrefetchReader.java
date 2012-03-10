@@ -237,11 +237,17 @@ public class PrefetchReader implements Closeable {
 
         mman.munmap( pageEntry.pa, pageEntry.length );
 
+        /*
+
+        TODO: this is returning a bad file descriptor in tests..  Need to figure
+        out why ... 
+
         fcntl.posix_fadvise( pageEntry.file.fd,
                              pageEntry.offset,
                              pageEntry.length,
                              fcntl.POSIX_FADV_DONTNEED );
-
+        */
+                             
         pageEntry.fileMeta.evictedHistory.put( pageEntry );
 
         allocatedMemory.addAndGet( -1 * pageEntry.length );
