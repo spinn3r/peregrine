@@ -119,11 +119,11 @@ public class resource {
         
     }
     
-    public static class rlimit extends Structure {
+    public static class RlimitStruct extends Structure {
 
-        public rlimit() {};
+        public RlimitStruct() {};
         
-        public rlimit( long value ) {
+        public RlimitStruct( long value ) {
             rlim_cur = value;
             rlim_max = value;
         }
@@ -145,11 +145,11 @@ public class resource {
         
     }
     
-    public static rlimit getrlimit( RLIMIT resource ) throws Exception {
+    public static RlimitStruct getrlimit( RLIMIT resource ) throws Exception {
 
         assertPlatform();
 
-        rlimit result = new rlimit();
+        RlimitStruct result = new RlimitStruct();
 
         if ( delegate.getrlimit( resource.value(), result ) != 0 ) {
             throw new Exception( errno.strerror() );
@@ -159,7 +159,7 @@ public class resource {
         
     }
 
-    public static void setrlimit( RLIMIT resource, rlimit limit ) throws Exception {
+    public static void setrlimit( RLIMIT resource, RlimitStruct limit ) throws Exception {
 
         assertPlatform();
         
@@ -169,7 +169,7 @@ public class resource {
 
         // now make sure we actually wrote the correct resources.
 
-        rlimit after = getrlimit( resource );
+        RlimitStruct after = getrlimit( resource );
 
         if ( after.rlim_cur != limit.rlim_cur ||
              after.rlim_max != limit.rlim_max ) {
@@ -193,8 +193,8 @@ public class resource {
     
     interface InterfaceDelegate extends Library {
 
-        int getrlimit(int resource, rlimit rlimit );
-        int setrlimit(int resource, rlimit rlimit );
+        int getrlimit(int resource, RlimitStruct rlimit );
+        int setrlimit(int resource, RlimitStruct rlimit );
         
     }
 

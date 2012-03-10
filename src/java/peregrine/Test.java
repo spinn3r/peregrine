@@ -149,7 +149,7 @@ public class Test {
             System.out.printf( "limit: %,d\n", limit );
             
             resource.setrlimit( resource.RLIMIT.MEMLOCK,
-                                new resource.rlimit( limit ) );
+                                new resource.RlimitStruct( limit ) );
 
             System.out.printf( "RLIMIT_MEMLOCK: %s\n", resource.getrlimit( resource.RLIMIT.MEMLOCK ) );
             
