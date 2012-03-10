@@ -24,8 +24,10 @@ import org.jboss.netty.bootstrap.*;
 import org.jboss.netty.channel.*;
 import org.jboss.netty.channel.socket.nio.*;
 import org.jboss.netty.logging.*;
+
 import peregrine.*;
 import peregrine.config.*;
+import peregrine.io.util.*;
 import peregrine.shuffle.receiver.*;
 import peregrine.task.*;
 import peregrine.util.*;
@@ -51,9 +53,16 @@ public abstract class BaseDaemon {
 
         if ( root == null )
             throw new RuntimeException( "Root directory in config not defined." );
-        
-        Files.mkdirs( root );
-        Files.setReadableAndWritable( root, false );
+
+        try {
+            
+            Files.mkdirs( root );
+            
+            Files.setReadableAndWritable( root, false );
+
+        } catch ( IOException e ) {
+            throw new RuntimeException( e );
+        }
             
         ThreadFactory tf = new DefaultThreadFactory( getClass() );
         
