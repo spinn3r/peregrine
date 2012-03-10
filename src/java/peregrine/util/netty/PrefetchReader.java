@@ -44,11 +44,6 @@ public class PrefetchReader implements Closeable {
 
     public static long DEFAULT_PAGE_SIZE = (long)Math.pow( 2, 17 ); /* 2^17 = 128k */
 
-    /**
-     * The minimum number of bytes we should attempt to pre-read at a time.
-     */
-    public static long DEFAULT_CAPACITY = DEFAULT_PAGE_SIZE * 4;
-
     public static boolean DEFAULT_ENABLE_LOG = false;
     
     protected long pageSize = DEFAULT_PAGE_SIZE;
@@ -204,10 +199,16 @@ public class PrefetchReader implements Closeable {
         //log( "Caching %s" , pageEntry );
 
         pageEntry.pa = mman.mmap( pageEntry.length,
-                                  mman.PROT_READ, mman.MAP_SHARED | mman.MAP_LOCKED,
+                                  mman.PROT_READ, mman.MAP_SHARED,
                                   pageEntry.file.fd,
                                   pageEntry.offset );
 
+
+        if ( config.getShuffleMapLockEnabled() ) {
+            // now mlock it because MAP_LOCKED isn't supported on all platforms 
+            mman.mlock( pageEntry.pa, pageEntry.length );
+        }
+        
         fcntl.posix_fadvise( pageEntry.file.fd,
                              pageEntry.offset,
                              pageEntry.length,
@@ -227,7 +228,16 @@ public class PrefetchReader implements Closeable {
 
         //log( "Evicting %s" , pageEntry );
 
+        if ( config.getShuffleMapLockEnabled() ) {
+            mman.munlock( pageEntry.pa, pageEntry.length );
+        }
+
         mman.munmap( pageEntry.pa, pageEntry.length );
+
+        fcntl.posix_fadvise( pageEntry.file.fd,
+                             pageEntry.offset,
+                             pageEntry.length,
+                             fcntl.POSIX_FADV_DONTNEED );
 
         pageEntry.fileMeta.evictedHistory.put( pageEntry );
 

@@ -94,7 +94,6 @@ public class ShuffleInputReader implements Closeable {
         // read them so this make it less difficult to figure out what to map.
 
         this.mappedFile = new MappedFileReader( config, file );
-        this.mappedFile.setAutoLock( config.getShuffleMapLockEnabled() );
         
         this.buffer = mappedFile.map();
         
@@ -204,11 +203,6 @@ public class ShuffleInputReader implements Closeable {
         
         ShufflePacket pack = new ShufflePacket( from_partition, from_chunk, to_partition, offset, count, data );
 
-        // unlock the pages that we have already read.
-        if ( config.getShuffleMapLockEnabled() ) {
-            mappedFile.unlockRegion( (long)buffer.readerIndex() );
-        }
-        
         return pack;
         
     }
