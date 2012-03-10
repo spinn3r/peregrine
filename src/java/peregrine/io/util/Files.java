@@ -129,15 +129,17 @@ public class Files {
         
     }
 
-    public static void setReadableAndWritable( String path ) throws IOException {
+    public static void setReadableAndWritable( String path, boolean ownerOnly ) throws IOException {
 
         File file = new File( path );
 
-        if ( file.setReadable( true ) == false )
+        if ( file.setReadable( true, ownerOnly ) == false ) {
             throw new IOException( "Unable to make readable: " + path );
+        }
 
-        if ( file.setWritable( true ) == false )
-            throw new IOException( "Unable to make readable: " + path );
+        if ( file.setWritable( true, ownerOnly ) == false ) {
+            throw new IOException( "Unable to make writable: " + path );
+        }
 
     }
     
