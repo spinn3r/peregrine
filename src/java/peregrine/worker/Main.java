@@ -28,8 +28,6 @@ public class Main {
     public static void main(String[] args ) throws Exception {
 
         config = ConfigParser.parse( args );
-        
-        new Initializer( config ).init();
 
         log.info( "Starting on %s with controller: %s" , config.getHost(), config.getController() );
 

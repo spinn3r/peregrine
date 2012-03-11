@@ -58,14 +58,17 @@ public final class Initializer {
 
     public void setuid() throws Exception {
 
-        if ( unistd.getuid() != 0 ) {
-            log.warn( "Unable to setuid.  Not root." );
-            return;
+        int uid = unistd.getuid();
+        
+        if ( uid != 0 ) {
+
+            pwd.Passwd passwd = pwd.getpwuid( uid );
+            throw new Exception( "Unable to setuid.  Not root: " + passwd.name );
+            
         }
         
         // read the user name from the config and get the uid from the name of
         // the user.
-
         pwd.Passwd passwd = pwd.getpwnam( config.getUser() );
 
         if ( passwd == null )

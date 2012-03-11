@@ -51,7 +51,7 @@ public class FSDaemon extends BaseDaemon {
 
     public FSDaemon( Config config ) {
 
-        this.setConfig( config );
+        setConfig( config );
 
         init();
 

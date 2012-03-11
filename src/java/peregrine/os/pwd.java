@@ -50,10 +50,15 @@ public class pwd {
     public static Passwd getpwnam( String name ) {
          return Delegate.getpwnam( name );
     }
-    
+
+    public static Passwd getpwuid( int uid ) {
+         return Delegate.getpwuid( uid );
+    }
+
     static class Delegate {
     
         public static native Passwd getpwnam( String name );
+        public static native Passwd getpwuid( int uid );
         
         static {
             Native.register( "c" );

@@ -32,6 +32,7 @@ import peregrine.shuffle.receiver.*;
 import peregrine.task.*;
 import peregrine.util.*;
 import peregrine.util.netty.*;
+import peregrine.worker.*;
 
 import com.spinn3r.log5j.Logger;
 
@@ -55,10 +56,12 @@ public abstract class BaseDaemon {
             throw new RuntimeException( "Root directory in config not defined." );
 
         try {
-            
+
+            new Initializer( config ).init();
+
             Files.mkdirs( root );
 
-        } catch ( IOException e ) {
+        } catch ( Exception e ) {
             log.error( "Unable to create directories on startup: " , e );
             throw new RuntimeException( e );
         }
