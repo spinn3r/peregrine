@@ -130,6 +130,17 @@ public class unistd {
     public static int getpagesize() {
         return delegate.getpagesize();
     }
+
+    public static int chown( String path, int uid, int gid ) throws IOException {
+
+        int result = delegate.chown( path, uid, gid );
+
+        if ( result == -1 )
+            throw new IOException( new PlatformException() );
+
+        return result;
+        
+    }
     
     interface InterfaceDelegate extends Library {
         void sync();

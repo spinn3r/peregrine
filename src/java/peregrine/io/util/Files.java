@@ -16,6 +16,9 @@
 package peregrine.io.util;
 
 import java.io.*;
+import java.lang.reflect.*;
+
+import peregrine.os.*;
 
 /**
  * Handles a facade on top of various bulk filesystem manipulation primitives.
@@ -87,7 +90,7 @@ public class Files {
     }
     
     /**
-     * Recursive 
+     * Remove all files in the given directory but keep the parent directory.
      */
     public static void removeChildren( File file ) {
 
@@ -130,12 +133,56 @@ public class Files {
     }
 
     /**
+     * Init a given data directory.  Create the path via mkdirs, set ownership,
+     * and also make the files writable.
+     */
+    public static void initDataDir( String path , String owner ) throws IOException {
+        
+    }
+
+    /**
+     * chown the given path to the given owner (and use their group).
+     */
+    public static void chown( File file ,
+                              String owner,
+                              boolean recursive ) throws IOException {
+
+        pwd.Passwd passwd = pwd.getpwnam( owner );
+
+        if ( passwd == null )
+            throw new IOException( "Owner is invalid user: " + owner );
+        
+        chown( file, passwd, recursive );
+
+    }
+
+    public static void chown( final File file ,
+                              final pwd.Passwd owner,
+                              final boolean recursive ) throws IOException {
+
+        unistd.chown( file.getPath(), owner.uid, owner.gid );
+
+        if ( recursive ) {
+
+            new Recursively<IOException>( file ) {
+
+                public void handle( File current ) throws IOException {
+                    chown( current, owner, recursive );
+                }
+                
+            };
+            
+        }
+
+    }
+    
+    /**
      * Make a given directory readable and writable and optionally recurse all
      * children.
      */
-    public static void setReadableAndWritable( String path,
-                                               boolean ownerOnly,
-                                               boolean recursive ) throws IOException {
+    public static void setReadableAndWritable( final String path,
+                                               final boolean ownerOnly,
+                                               final boolean recursive ) throws IOException {
 
         File file = new File( path );
 
@@ -149,16 +196,14 @@ public class Files {
 
         if ( recursive ) {
 
-            File[] files = file.listFiles();
+            new Recursively<IOException>( file ) {
 
-            if ( files != null ) {
-            
-                for( File current : files ) {
+                public void handle( File current ) throws IOException {
                     setReadableAndWritable( current.getPath() , ownerOnly, recursive );
                 }
+                
+            };
 
-            }
-            
         }
 
     }
@@ -184,5 +229,35 @@ public class Files {
         }
 
     }
-    
+
 }
+
+abstract class Recursively <T extends Throwable> {
+
+    public Recursively( File file ) throws T {
+
+        File[] files = file.listFiles();
+
+        if ( files != null ) {
+        
+            for( File current : files ) {
+
+                handle( current );
+
+                if ( current.isDirectory() ) {
+                    handle( file );
+                }
+
+            }
+
+        }
+
+    }
+
+    /**
+     * Handle a file while we're recursing.
+     */
+    public abstract void handle( File file ) throws T;
+
+}
+
