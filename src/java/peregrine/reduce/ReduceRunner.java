@@ -344,8 +344,8 @@ public class ReduceRunner {
         int id = 0;
 
         // make the parent dir for holding sort files.
-        new File( target_dir ).mkdirs();
-
+        Files.mkdirs( target_dir );
+        
         log.info( "Going to sort() %,d files for %s", input.size(), partition );
 
         List<File> pending = new ArrayList();

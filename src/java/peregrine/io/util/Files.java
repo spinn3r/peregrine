@@ -112,22 +112,23 @@ public class Files {
         remove0( file );
 
     }
-
     public static void mkdirs( String path ) throws IOException {
-
-        File file = new File( path );
+        mkdirs( new File( path ) );
+    }
+    
+    public static void mkdirs( File file ) throws IOException {
         
         if ( file.exists() ) {
 
             if ( file.isDirectory() )
                 return; /* we're done */
             else
-                throw new IOException( "Path exist and is a regular file: " + path );
+                throw new IOException( "Path exist and is a regular file (not dir): " + file.getPath() );
 
         }
         
-        if ( new File( path ).mkdirs() == false ) {
-            throw new IOException( "Unable to make directory: " + path );
+        if ( file.mkdirs() == false ) {
+            throw new IOException( "Unable to make directory: " + file.getPath() );
         }
         
     }
@@ -137,6 +138,13 @@ public class Files {
      * and also make the files writable.
      */
     public static void initDataDir( String path , String owner ) throws IOException {
+
+        mkdirs( path );
+
+        if ( unistd.getuid() == 0 )
+            chown( new File( path ), owner, true );
+
+        setReadableAndWritable( path, false, true );
         
     }
 
@@ -245,7 +253,7 @@ abstract class Recursively <T extends Throwable> {
                 handle( current );
 
                 if ( current.isDirectory() ) {
-                    handle( file );
+                    handle( current );
                 }
 
             }

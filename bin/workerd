@@ -1,19 +1,62 @@
 #!/bin/sh
 
-# This option specifies the maximum total size of java.nio (New I/O package)
-# direct buffer allocations.
+start() {
 
-./bin/jexec peregrine.worker.WaitForDaemon 2> /dev/null $@ 
-result=$?
+    # first check if we are already running ...
+    ./bin/jexec peregrine.worker.WaitForDaemon 2> /dev/null $@ 
+    result=$?
 
-if [ "$result" = "0" ]; then
-    exit 0
-fi
+    # yup... we're up and running, so stop and return.
+    if [ "$result" = "0" ]; then
+        exit 0
+    fi
 
-./bin/jexec peregrine.worker.Main $@ < /dev/null > /dev/null 2> /dev/null &
-pid=$!
+    # no, we weren't running, so go ahead and startup.
+    ./bin/jexec peregrine.worker.Main $@ < /dev/null > /dev/null 2> /dev/null &
+    pid=$!
 
-./bin/jexec peregrine.worker.WaitForDaemon --pid=$pid $@ 2> /dev/null 
-result=$?
+    # now that we started the daemon, wait for it to startup... if it starts, great,
+    # if not fail.
+    ./bin/jexec peregrine.worker.WaitForDaemon --pid=$pid $@ 2> /dev/null 
+    result=$?
 
-exit $result
+    exit $result
+
+}
+
+stop() {
+    
+    # make sure we're actually running.
+     ./bin/jexec peregrine.worker.WaitForDaemon 2> /dev/null $@ 
+    result=$?
+
+    # yup... we're up and running, so stop and return.
+    if [ "$result" = "0" ]; then
+        echo running
+    fi
+   
+}
+
+command=$1
+
+case $command in
+
+    start)
+        start
+        ;;
+
+    stop)
+        stop
+        ;;
+
+    restart)
+        stop
+        start
+        ;;
+
+    *)
+        echo "ERROR: unknown command: $command" 
+        exit 1
+        ;;
+
+esac

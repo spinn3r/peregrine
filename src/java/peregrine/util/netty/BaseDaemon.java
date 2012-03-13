@@ -55,17 +55,6 @@ public abstract class BaseDaemon {
         if ( root == null )
             throw new RuntimeException( "Root directory in config not defined." );
 
-        try {
-
-            new Initializer( config ).init();
-
-            Files.mkdirs( root );
-
-        } catch ( Exception e ) {
-            log.error( "Unable to create directories on startup: " , e );
-            throw new RuntimeException( e );
-        }
-            
         ThreadFactory tf = new DefaultThreadFactory( getClass() );
         
         int concurrency = config.getConcurrency();

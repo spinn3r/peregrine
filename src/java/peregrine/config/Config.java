@@ -60,18 +60,6 @@ public class Config extends BaseConfig {
         // update the root directory from the host/port and configured basedir
         setRoot( host );
 
-        try {
-
-            Files.mkdirs( root ); /* make sure the root dir exists */
-            Files.mkdirs( basedir );
-
-            Files.setReadableAndWritable( basedir, false, true );
-            Files.setReadableAndWritable( root, false, true );
-            
-        } catch ( IOException e ) {
-            throw new RuntimeException( e );
-        }
-
         log.info( "Using root: %s with basedir: %s", root, basedir );
 
         PartitionLayoutEngine engine = new PartitionLayoutEngine( this );

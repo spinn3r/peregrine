@@ -168,8 +168,8 @@ public class ShuffleOutputWriter implements Closeable {
             File file = new File( path );
             
             // make sure the parent directory exists first.
-            new File( file.getParent() ).mkdirs();
-
+            Files.mkdirs( file.getParent() );
+            
             this.output = new MappedFileWriter( config, file );
             
             output.write( ChannelBuffers.wrappedBuffer( MAGIC ) );

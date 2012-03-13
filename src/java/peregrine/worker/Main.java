@@ -19,6 +19,9 @@ import peregrine.config.*;
 
 import com.spinn3r.log5j.Logger;
 
+/**
+ * Command line main() class for the worker daemon.
+ */
 public class Main {
 	
     private static final Logger log = Logger.getLogger();
@@ -28,6 +31,8 @@ public class Main {
     public static void main(String[] args ) throws Exception {
 
         config = ConfigParser.parse( args );
+
+        new Initializer( config ).init();
 
         log.info( "Starting on %s with controller: %s" , config.getHost(), config.getController() );
 

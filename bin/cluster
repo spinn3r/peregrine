@@ -68,7 +68,7 @@ start() {
             runcmd ssh root@$hostname "rm -rf $basedir" 
         fi
 
-        runcmd ssh root@$hostname "cd $DIR && ./bin/workerd --host=$host --basedir=$basedir" 
+        runcmd ssh root@$hostname "cd $DIR && ./bin/workerd --host=$host --basedir=$basedir start" 
 
     done
 

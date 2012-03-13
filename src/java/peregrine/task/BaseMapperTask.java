@@ -71,7 +71,7 @@ public abstract class BaseMapperTask extends BaseTask implements Callable {
                 File dir = new File( shuffle_dir );
 
                 if ( ! dir.exists() ) {
-                    dir.mkdirs();
+                    Files.mkdirs( dir );
                 }
                 
             }

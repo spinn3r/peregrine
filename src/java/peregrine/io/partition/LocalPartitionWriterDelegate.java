@@ -22,6 +22,7 @@ import java.util.*;
 import peregrine.config.*;
 import peregrine.http.*;
 import peregrine.io.chunk.*;
+import peregrine.io.util.*;
 import peregrine.os.*;
 import peregrine.util.netty.*;
 
@@ -79,10 +80,17 @@ public class LocalPartitionWriterDelegate extends BasePartitionWriterDelegate {
 
         log.info( "Creating new local chunk writer: %s" , file );
 
-        new File( file.getParent() ).mkdirs();
+        Files.mkdirs( file.getParent() );
 
-        if ( ! file.exists() )
-            file.createNewFile();
+        if ( ! file.exists() ) {
+
+            try {
+                file.createNewFile();
+            } catch ( Exception e ) {
+                throw new IOException( "Unable to create file: " + file.getPath(), e );
+            }
+            
+        }
 
         MappedFileWriter mappedFile = new MappedFileWriter( config, file );
         mappedFile.setAutoSync( autoSync );

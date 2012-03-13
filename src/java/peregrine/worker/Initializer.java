@@ -21,6 +21,7 @@ import java.util.*;
 import peregrine.config.*;
 import peregrine.os.*;
 import peregrine.util.netty.*;
+import peregrine.io.util.*;
 
 import com.spinn3r.log5j.Logger;
 
@@ -38,7 +39,11 @@ public final class Initializer {
 	public Initializer( Config config ) {
 		this.config = config;
 	}
-	
+
+    public void datadir() throws IOException {
+        Files.initDataDir( config.getRoot(), config.getUser() );
+    }
+    
     public void logger() {
 
         System.setProperty( "peregrine.host", "" + config.getHost() );
@@ -59,20 +64,22 @@ public final class Initializer {
     public void setuid() throws Exception {
 
         int uid = unistd.getuid();
-        
-        if ( uid != 0 ) {
 
-            pwd.Passwd passwd = pwd.getpwuid( uid );
-            throw new Exception( "Unable to setuid.  Not root: " + passwd.name );
-            
-        }
-        
         // read the user name from the config and get the uid from the name of
         // the user.
         pwd.Passwd passwd = pwd.getpwnam( config.getUser() );
 
         if ( passwd == null )
             throw new Exception( "User unknown: " + config.getUser() );
+
+        if ( passwd.uid == uid ) {
+            log.info( "Already running as uid %s for user %s.", uid, config.getUser() );
+            return;
+        }
+        
+        if ( uid != 0 ) {
+            throw new Exception( "Unable to setuid.  Not root: " + passwd.name );
+        }
 
         // call setuid with the uid of the user from the passwd
 
@@ -110,9 +117,10 @@ public final class Initializer {
     public void init() throws Exception {
 
         logger();
-        pidfile();
+        datadir();
         limitMemoryUsage();
         setuid();
+        pidfile();
  
     }
     
