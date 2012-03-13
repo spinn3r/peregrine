@@ -41,8 +41,8 @@ public final class Initializer {
 	}
 
     public void datadir() throws IOException {
-        Files.initDataDir( config.getBasedir(), config.getUser() );
         Files.initDataDir( config.getRoot(),    config.getUser() );
+        Files.initDataDir( config.getBasedir(), config.getUser() );
     }
     
     public void logger() {
@@ -117,6 +117,13 @@ public final class Initializer {
      */
     public void init() throws Exception {
 
+        int uid = unistd.getuid();
+
+        if ( uid != 0 ) {
+            pwd.Passwd passwd = pwd.getpwuid( uid );
+            throw new Exception( "Daemon must be started as root.  Currently running as " + passwd.name );
+        }
+        
         logger();
         datadir();
         limitMemoryUsage();

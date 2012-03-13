@@ -141,8 +141,7 @@ public class Files {
 
         mkdirs( path );
 
-        if ( unistd.getuid() == 0 )
-            chown( new File( path ), owner, true );
+        chown( new File( path ), owner, true );
 
         setReadableAndWritable( path, false, true );
         
@@ -167,7 +166,7 @@ public class Files {
     public static void chown( final File file ,
                               final pwd.Passwd owner,
                               final boolean recursive ) throws IOException {
-
+        
         unistd.chown( file.getPath(), owner.uid, owner.gid );
 
         if ( recursive ) {
