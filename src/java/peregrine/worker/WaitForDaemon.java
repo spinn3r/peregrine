@@ -43,7 +43,23 @@ public class WaitForDaemon {
 
     public static final long TIMEOUT = 30000;
 
-    public static void main(String[] args ) throws Exception {
+    /**
+     * Return true if the given pid is running.
+     */
+    public static boolean running( int pid ) {
+
+        try {
+
+            signal.kill( pid, 0 );
+            return true;
+
+        } catch ( PlatformException e ) {
+            return false;
+        }
+
+    }
+    
+    public static void main( String[] args ) throws Exception {
 
         Config config = ConfigParser.parse( args );
         Getopt getopt = new Getopt( args );
@@ -61,10 +77,8 @@ public class WaitForDaemon {
             Socket sock = new Socket();
 
             if ( pid > -1 ) {
-                
-                try {
-                    signal.kill( pid, 0 );
-                } catch ( PlatformException e ) {
+
+                if ( running( pid ) == false ) {
                     System.out.printf( "ERROR: process with pid %s is dead.\n", pid );
                     System.exit( 1 );
                 }

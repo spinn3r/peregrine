@@ -15,7 +15,11 @@
 */
 package peregrine.worker;
 
+import java.io.*;
+import java.util.*;
+
 import peregrine.config.*;
+import peregrine.os.*;
 
 import com.spinn3r.log5j.Logger;
 
@@ -25,26 +29,86 @@ import com.spinn3r.log5j.Logger;
 public class Main {
 	
     private static final Logger log = Logger.getLogger();
-        
+
     private static Config config = null;
         
-    public static void main(String[] args ) throws Exception {
+    public static void main( String[] args ) throws Exception {
 
         config = ConfigParser.parse( args );
 
-        new Initializer( config ).init();
-
-        log.info( "Starting on %s with controller: %s" , config.getHost(), config.getController() );
-
-        log.info( "Running with config: \n%s", config.toDesc() );
-
-        new FSDaemon( config );
-
-        System.out.printf( "Daemon up and running on %s\n", config.getHost() );
+        String command = args[ args.length - 1 ];
         
-        Thread.sleep( Long.MAX_VALUE );
+        if ( "start".equals( command ) ) {
+
+            log.info( "Starting on %s with controller: %s" , config.getHost(), config.getController() );
+
+            new Initializer( config ).init();
+
+            log.info( "Running with config: \n%s", config.toDesc() );
+
+            new FSDaemon( config );
+
+            System.out.printf( "Daemon up and running on %s\n", config.getHost() );
+            
+            Thread.sleep( Long.MAX_VALUE );
+
+        } 
+
+        if ( "stop".equals( command ) ) {
+
+            new Initializer( config ).assertRoot();
+
+            log.info( "Stopping on %s" , config.getHost() );
+
+            // read the pid file...
+            int pid = readPidfile( config );
+
+            if ( pid == -1 ) {
+                System.err.printf( "Daemon not running.\n" );
+                System.exit( 0 );
+            }
+
+            // send the kill
+            signal.kill( pid, signal.SIGTERM );
+            
+            // see if the daemon is still running
+            long now = System.currentTimeMillis();
+
+            while( WaitForDaemon.running( pid ) ) {
+
+                Thread.sleep( 1000L );
+                System.err.printf( "." );
+                
+            }
+
+            // after we are done waiting, kill -9 it.
+            if( WaitForDaemon.running( pid ) ) {
+                // force it to terminate
+                System.err.printf( "X" );
+                signal.kill( pid, signal.SIGKILL );
+            }
+
+            System.err.printf( "\n" );
+            
+        }
+
+    }
+
+    public static int readPidfile( Config config ) throws IOException {
+
+        File file = new File( config.getRoot(), "worker.pid" );
+
+        if ( file.exists() == false )
+            return -1;
+
+        FileInputStream fis = new FileInputStream( file );
+        byte[] data = new byte[ (int)file.length() ]; 
+        fis.read( data );
+        fis.close();
+
+        return Integer.parseInt( new String( data ) );
         
     }
-   
+    
 }
     

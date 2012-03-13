@@ -112,10 +112,7 @@ public final class Initializer {
 
     }
 
-    /**
-     * Perform all init steps required for the worker daemon.
-     */
-    public void init() throws Exception {
+    public void assertRoot() throws Exception {
 
         int uid = unistd.getuid();
 
@@ -123,7 +120,15 @@ public final class Initializer {
             pwd.Passwd passwd = pwd.getpwuid( uid );
             throw new Exception( "Daemon must be started as root.  Currently running as " + passwd.name );
         }
-        
+
+    }
+    
+    /**
+     * Perform all init steps required for the worker daemon.
+     */
+    public void init() throws Exception {
+
+        assertRoot();
         logger();
         datadir();
         limitMemoryUsage();
