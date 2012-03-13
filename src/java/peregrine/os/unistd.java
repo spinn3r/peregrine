@@ -20,6 +20,7 @@ import java.io.*;
 import com.sun.jna.Library;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
+import com.sun.jna.Structure;
 
 public class unistd {
 
@@ -100,7 +101,6 @@ public class unistd {
 
     }
 
-
     /**
      * The getuid() function returns the real user ID of the calling process.
      * The geteuid() function returns the effective user ID of the calling
@@ -131,6 +131,11 @@ public class unistd {
         return delegate.getpagesize();
     }
 
+    /**
+     * chown() changes the ownership of the file specified by path, which is
+     * dereferenced if it is a symbolic link.
+     * 
+     */
     public static int chown( String path, int uid, int gid ) throws IOException {
 
         int result = delegate.chown( path, uid, gid );
@@ -141,14 +146,53 @@ public class unistd {
         return result;
         
     }
-    
+
+    public static class StatStruct extends Structure {
+
+        public long     st_dev;     /* ID of device containing file */
+        public long     st_ino;     /* inode number */
+        public long     st_nlink;   /* number of hard links */
+        public int      st_mode;    /* protection */
+        public int      st_uid;     /* user ID of owner */
+        public int      st_gid;     /* group ID of owner */
+        public long     st_rdev;    /* device ID (if special file) */
+        public long     st_size;    /* total size, in bytes */
+        public long     st_blksize; /* blocksize for filesystem I/O */
+        public long     st_blocks;  /* number of blocks allocated */
+        public long     st_atime;     // Time of last access (time_t)  
+        public long     st_atimensec; // Time of last access (nanoseconds)  
+        public long     st_mtime;     // Last data modification time (time_t)  
+        public long     st_mtimensec; // Last data modification time (nanoseconds)  
+        public long     st_ctime;     // Time of last status change (time_t)  
+        public long     st_ctimensec; // Time of last status change (nanoseconds)  
+        public long     __unused4;  
+        public long     __unused5;  
+        public long     __unused6;  
+    }
+
+    public static StatStruct stat( String path ) throws IOException {
+
+        StatStruct stat = new StatStruct();
+
+        int result = delegate.stat( path, stat );
+
+        if ( result == -1 )
+            throw new IOException( new PlatformException() );
+
+        return stat;
+
+    }
+
     interface InterfaceDelegate extends Library {
+
         void sync();
         int getpid();
         int setuid( int uid );
         int getuid();
         int getpagesize();
         int chown( String path, int uid, int gid );
+        int stat( String path, StatStruct stat );
+
     }
 
 }

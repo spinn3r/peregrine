@@ -42,7 +42,7 @@ public final class Initializer {
 
     public void datadir() throws IOException {
         Files.initDataDir( config.getBasedir(), config.getUser() );
-        Files.initDataDir( config.getRoot(),   config.getUser() );
+        Files.initDataDir( config.getRoot(),    config.getUser() );
     }
     
     public void logger() {
