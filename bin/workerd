@@ -3,7 +3,7 @@
 start() {
 
     # first check if we are already running ...
-    ./bin/jexec peregrine.worker.WaitForDaemon 2> /dev/null $@ 
+    ./bin/jexec peregrine.worker.WaitForDaemon 2> /dev/null $args 
     result=$?
 
     # yup... we're up and running, so stop and return.
@@ -12,12 +12,12 @@ start() {
     fi
 
     # no, we weren't running, so go ahead and startup.
-    ./bin/jexec peregrine.worker.Main $@ < /dev/null > /dev/null 2> /dev/null &
+    ./bin/jexec peregrine.worker.Main $args < /dev/null > /dev/null 2> /dev/null &
     pid=$!
 
     # now that we started the daemon, wait for it to startup... if it starts, great,
     # if not fail.
-    ./bin/jexec peregrine.worker.WaitForDaemon --pid=$pid $@ 2> /dev/null 
+    ./bin/jexec peregrine.worker.WaitForDaemon --pid=$pid $args 2> /dev/null 
     result=$?
 
     exit $result
@@ -27,7 +27,7 @@ start() {
 stop() {
     
     # make sure we're actually running.
-     ./bin/jexec peregrine.worker.WaitForDaemon 2> /dev/null $@ 
+     ./bin/jexec peregrine.worker.WaitForDaemon 2> /dev/null $args 
     result=$?
 
     # yup... we're up and running, so stop and return.
@@ -37,6 +37,8 @@ stop() {
    
 }
 
+args=$@
+shift $(expr $# - 1)
 command=$1
 
 case $command in

@@ -29,7 +29,7 @@ import peregrine.util.netty.*;
 import com.spinn3r.log5j.*;
 
 /**
- * Write to a logical partition which is a stream of chunk files.... 
+ * Write to a logical partition which is a stream of chunk files.
  */
 public class LocalPartitionWriterDelegate extends BasePartitionWriterDelegate {
 	private static final Logger log = Logger.getLogger();
