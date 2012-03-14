@@ -30,74 +30,82 @@ public class Main {
 	
     private static final Logger log = Logger.getLogger();
 
+    private static void stop( String[] args ) {
+
+        try {
+
+            Config config = ConfigParser.parse( args );
+
+            new Initializer( config ).assertRoot();
+
+            log.info( "Stopping on %s" , config.getHost() );
+
+            // read the pid file...
+            int pid = readPidfile( config );
+
+            if ( pid == -1 || WaitForDaemon.running( pid ) == false ) {
+                System.out.printf( "Daemon not running.\n" );
+                System.exit( 0 );
+            }
+
+            // send the kill
+            signal.kill( pid, signal.SIGTERM );
+            
+            // see if the daemon is still running
+            long now = System.currentTimeMillis();
+
+            while( WaitForDaemon.running( pid ) ) {
+
+                Thread.sleep( 1000L );
+                System.out.printf( "." );
+                
+            }
+
+            // after we are done waiting, kill -9 it.
+            if( WaitForDaemon.running( pid ) ) {
+                // force it to terminate
+                System.out.printf( "X" );
+                signal.kill( pid, signal.SIGKILL );
+            }
+
+            System.out.printf( "\n" );
+
+            System.exit( 0 );
+
+        } catch ( Exception e ) {
+            e.printStackTrace( System.out );
+        }
+
+    }
+
+    private static void start( String[] args ) throws Exception {
+
+        Config config = ConfigParser.parse( args );
+
+        log.info( "Starting on %s with controller: %s" , config.getHost(), config.getController() );
+
+        new Initializer( config ).init();
+
+        log.info( "Running with config: \n%s", config.toDesc() );
+
+        new FSDaemon( config );
+
+        System.out.printf( "Daemon up and running on %s\n", config.getHost() );
+        
+        Thread.sleep( Long.MAX_VALUE );
+
+    }
+
     public static void main( String[] args ) throws Exception {
 
         String command = args[ args.length - 1 ];
         
         if ( "start".equals( command ) ) {
-
-            Config config = ConfigParser.parse( args );
-
-            log.info( "Starting on %s with controller: %s" , config.getHost(), config.getController() );
-
-            new Initializer( config ).init();
-
-            log.info( "Running with config: \n%s", config.toDesc() );
-
-            new FSDaemon( config );
-
-            System.out.printf( "Daemon up and running on %s\n", config.getHost() );
-            
-            Thread.sleep( Long.MAX_VALUE );
-
+            start( args );
         } 
 
         if ( "stop".equals( command ) ) {
-
-            try {
-
-                Config config = ConfigParser.parse( args );
-
-                new Initializer( config ).assertRoot();
-
-                log.info( "Stopping on %s" , config.getHost() );
-
-                // read the pid file...
-                int pid = readPidfile( config );
-
-                if ( pid == -1 || WaitForDaemon.running( pid ) == false ) {
-                    System.out.printf( "Daemon not running.\n" );
-                    System.exit( 0 );
-                }
-
-                // send the kill
-                signal.kill( pid, signal.SIGTERM );
-                
-                // see if the daemon is still running
-                long now = System.currentTimeMillis();
-
-                while( WaitForDaemon.running( pid ) ) {
-
-                    Thread.sleep( 1000L );
-                    System.out.printf( "." );
-                    
-                }
-
-                // after we are done waiting, kill -9 it.
-                if( WaitForDaemon.running( pid ) ) {
-                    // force it to terminate
-                    System.out.printf( "X" );
-                    signal.kill( pid, signal.SIGKILL );
-                }
-
-                System.out.printf( "\n" );
-
-                System.exit( 0 );
-
-            } catch ( Exception e ) {
-                e.printStackTrace( System.out );
-            }
-
+            stop( args );
         }
 
     }
