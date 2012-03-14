@@ -25,6 +25,8 @@ import peregrine.util.*;
 import peregrine.util.primitive.*;
 
 /**
+ * A reader for working with struct sequences.  Supports the standard hasNext()
+ * and next() interface from SequenceReader.
  */
 public class StructSequenceReader implements SequenceReader {
 

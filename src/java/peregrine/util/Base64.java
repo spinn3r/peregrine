@@ -24,16 +24,12 @@ public class Base64 {
         new org.apache.commons.codec.binary.Base64( true );
     
     /**
-     * @param bytes
-     * @return String
      */
     public static String encode( final byte[] bytes ) {
         return new String( codec.encodeBase64( bytes, false, true ) );
     }
 
     /**
-     * @param bytes
-     * @return String
      */
     public static byte[] decode( String data ) {
 
