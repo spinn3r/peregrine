@@ -44,7 +44,6 @@ public class Main {
             int pid = readPidfile( config );
 
             if ( pid == -1 || WaitForDaemon.running( pid ) == false ) {
-                System.out.printf( "Daemon not running.\n" );
                 System.exit( 0 );
             }
 
@@ -97,6 +96,11 @@ public class Main {
     }
 
     public static void main( String[] args ) throws Exception {
+
+        if ( args.length == 0 ) {
+            System.out.printf( "SYNTAX start|stop\n" );
+            System.exit( 1 );
+        }
 
         String command = args[ args.length - 1 ];
         

@@ -117,19 +117,27 @@ public class Files {
     }
     
     public static void mkdirs( File file ) throws IOException {
-        
-        if ( file.exists() ) {
 
+        File parent = file.getParentFile();
+
+        if ( parent != null ) {
+            mkdirs( parent );
+        }
+
+        if ( file.exists() ) {
+        
             if ( file.isDirectory() )
                 return; /* we're done */
-            else
-                throw new IOException( "Path exist and is a regular file (not dir): " + file.getPath() );
 
+            throw new IOException( "File exists (not a directory): " + file.getPath() );
+            
         }
+
+        // NOTE: do not use File.mkdirs because it does not tell us WHY we
+        // weren't able to make the directory.  JDK 1.7 has a workaround for
+        // this but might as well just use JNA for now.
         
-        if ( file.mkdirs() == false ) {
-            throw new IOException( "Unable to make directory: " + file.getPath() );
-        }
+        unistd.mkdir( file.getPath(), unistd.ACCESSPERMS );
         
     }
 

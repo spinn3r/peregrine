@@ -131,6 +131,26 @@ public class unistd {
         return delegate.getpagesize();
     }
 
+    public static final int S_IXOTH = 1 ;
+    public static final int S_IWOTH = 2 ;
+    public static final int S_IROTH = 4 ;
+
+    public static final int S_IRWXO = S_IROTH | S_IWOTH | S_IXOTH;
+
+    public static final int S_IXGRP = 8  ;
+    public static final int S_IWGRP = 16 ;
+    public static final int S_IRGRP = 32 ;
+
+    public static final int S_IRWXG = S_IRGRP | S_IWGRP | S_IXGRP;
+
+    public static final int S_IXUSR = 64  ;
+    public static final int S_IWUSR = 128 ;
+    public static final int S_IRUSR = 256 ;
+
+    public static final int S_IRWXU = S_IRUSR | S_IWUSR | S_IXUSR;
+
+    public static final int ACCESSPERMS = S_IRWXU|S_IRWXG|S_IRWXO;
+
     /**
      * chown() changes the ownership of the file specified by path, which is
      * dereferenced if it is a symbolic link.
@@ -147,6 +167,17 @@ public class unistd {
         
     }
 
+    public static int mkdir( String path, int mode ) throws IOException {
+
+        int result = delegate.mkdir( path, mode );
+
+        if ( result == -1 )
+            throw new IOException( new PlatformException() );
+
+        return result;
+
+    }
+    
     public static class StatStruct extends Structure {
 
         public long     st_dev;     /* ID of device containing file */
@@ -192,7 +223,8 @@ public class unistd {
         int getpagesize();
         int chown( String path, int uid, int gid );
         int stat( String path, StatStruct stat );
-
+        int mkdir( String path, int mode );
+        
     }
 
 }
