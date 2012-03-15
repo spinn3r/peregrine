@@ -356,6 +356,8 @@ public abstract class BaseTask implements Task {
 
     /**
      * Tell the controller about our progress so we can resume if we crash.
+     * This also allows the scheduler to detect faster that a given worker is
+     * still making progress and we can build UIs from the data.
      */
     protected void sendProgressToController( String nonce, String pointer ) throws IOException {
 

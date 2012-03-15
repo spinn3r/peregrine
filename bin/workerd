@@ -11,6 +11,14 @@ start() {
         exit 0
     fi
 
+    export MAX_DIRECT_MEMORY=$(./bin/jexec peregrine.worker.GetMaxDirectMemory 2> /dev/null)
+    result=$?
+
+    if [ "$result" != "0" ]; then
+        echo "Unable to determine max memory" 
+        exit $result
+    fi
+
     # no, we weren't running, so go ahead and startup.
     ./bin/jexec peregrine.worker.Main $args < /dev/null > /dev/null 2> /dev/null &
     pid=$!
