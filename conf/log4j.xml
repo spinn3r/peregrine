@@ -49,7 +49,7 @@
 
     <appender name="file" class="org.apache.log4j.RollingFileAppender">
 	
-	        <param name="File" value="logs/peregrine-${peregrine.host}.log" />
+	        <param name="File" value="logs/peregrine-${peregrine.log.suffix}.log" />
 	        <param name="MaxFileSize" value="100MB" />
 	        <param name="MaxBackupIndex" value="1" />
 	

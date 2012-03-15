@@ -45,10 +45,9 @@ public final class Initializer {
         Files.initDataDir( config.getBasedir(), config.getUser() );
     }
     
-    public void logger() {
+    public void logger( String suffix ) {
 
-        System.setProperty( "peregrine.host", "" + config.getHost() );
-        
+        System.setProperty( "peregrine.log.suffix", suffix );
         DOMConfigurator.configure( "conf/log4j.xml" );
 
     }
@@ -126,15 +125,25 @@ public final class Initializer {
     /**
      * Perform all init steps required for the worker daemon.
      */
-    public void init() throws Exception {
+    public void worker() throws Exception {
 
         assertRoot();
-        logger();
+        logger( String.format( "worker-%s",  config.getHost() ) );
         datadir();
         limitMemoryUsage();
         setuid();
         pidfile();
  
     }
-    
+
+    /**
+     * Perform all init steps required for the worker daemon.
+     */
+    public void controller() throws Exception {
+
+        logger( String.format( "controller-%s",  config.getHost() ) );
+
+ 
+    }
+        
 }

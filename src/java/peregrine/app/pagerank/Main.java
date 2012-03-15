@@ -18,8 +18,7 @@ package peregrine.app.pagerank;
 import peregrine.io.*;
 import peregrine.config.*;
 import peregrine.util.*;
-
-import org.apache.log4j.xml.DOMConfigurator;
+import peregrine.worker.*;
 
 public class Main {
 
@@ -32,8 +31,8 @@ public class Main {
         
         System.out.printf( "Running with nr_nodes: %,d , max_edges_per_node: %,d\n", nr_nodes, max_edges_per_node );
         
-        DOMConfigurator.configure( "conf/log4j.xml" );
         Config config = ConfigParser.parse( args );
+        new Initializer( config ).controller();
 
         String path = "/pr/test.graph";
         
