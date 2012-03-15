@@ -98,13 +98,8 @@ public class DefaultPartitionWriter implements PartitionWriter, ChunkWriter {
 
             log.info( "Creating partition writer delegate for host: " + host );
             
-            PartitionWriterDelegate delegate;
-
-            if ( host.equals( config.getHost() ) ) {
-                delegate = new LocalPartitionWriterDelegate( config,  autoSync );
-            } else { 
-                delegate = new RemotePartitionWriterDelegate( config, autoSync );
-            }
+            PartitionWriterDelegate delegate
+                = new RemotePartitionWriterDelegate( config, autoSync );
 
             delegate.init( config, partition, host, path );
 
