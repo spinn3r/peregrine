@@ -11,7 +11,7 @@ start() {
         exit 0
     fi
 
-    export MAX_DIRECT_MEMORY=$(./bin/jexec peregrine.worker.GetMaxDirectMemory 2> /dev/null)
+    export MAX_DIRECT_MEMORY=$(./bin/jexec peregrine.worker.GetMaxDirectMemory $args 2> /dev/null)
     result=$?
 
     if [ "$result" != "0" ]; then

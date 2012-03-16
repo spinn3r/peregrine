@@ -142,7 +142,7 @@ public abstract class BaseMapperTask extends BaseTask implements Callable {
     protected String getNonce() {
 
         // host, job start time, and the pointer we are on
-        return Base16.encode( SHA1.encode( String.format( "%s:%s:%s", config.getHost(), started, getPointer() ) ) );
+        return Base64.encode( SHA1.encode( String.format( "%s:%s:%s", config.getHost(), started, getPointer() ) ) );
         
     }
     
