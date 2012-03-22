@@ -115,14 +115,8 @@ public class Files {
     public static void mkdirs( String path ) throws IOException {
         mkdirs( new File( path ) );
     }
-    
+
     public static void mkdirs( File file ) throws IOException {
-
-        File parent = file.getParentFile();
-
-        if ( parent != null ) {
-            mkdirs( parent );
-        }
 
         if ( file.exists() ) {
         
@@ -133,12 +127,10 @@ public class Files {
             
         }
 
-        // NOTE: do not use File.mkdirs because it does not tell us WHY we
-        // weren't able to make the directory.  JDK 1.7 has a workaround for
-        // this but might as well just use JNA for now.
-        
-        unistd.mkdir( file.getPath(), unistd.ACCESSPERMS );
-        
+        if ( file.mkdirs() == false ) {
+            throw new IOException( "Unable to make directory: " + file.getPath() );
+        }
+            
     }
 
     /**
