@@ -157,7 +157,19 @@ public class Files {
         // JDK 1.7 has a workaround for this but might as well just use JNA for
         // now.
         
-        unistd.mkdir( file.getPath(), unistd.ACCESSPERMS );
+        try {
+
+            unistd.mkdir( file.getPath(), unistd.ACCESSPERMS );
+
+        } catch ( IOException e ) {
+
+            String msg = String.format( "Unable to make directory '%s': %s",
+                                        file.getPath(),
+                                        e.getMessage() );
+            
+            throw new IOException( msg, e );
+            
+        }
         
     }
 
