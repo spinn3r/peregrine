@@ -116,8 +116,33 @@ public class Files {
         mkdirs( new File( path ) );
     }
 
+    // public static void mkdirs( File file ) throws IOException {
+
+    //     if ( file.exists() ) {
+        
+    //         if ( file.isDirectory() )
+    //             return; /* we're done */
+
+    //         throw new IOException( "File exists (not a directory): " + file.getPath() );
+            
+    //     }
+
+    //     if ( file.mkdirs() == false ) {
+    //         throw new IOException( "Unable to make directory: " + file.getPath() );
+    //     }
+            
+    // }
+
     public static void mkdirs( File file ) throws IOException {
 
+        file = file.getCanonicalFile();
+        
+        File parent = file.getParentFile();
+        
+        if ( parent != null ) {
+            mkdirs( parent );
+        }
+        
         if ( file.exists() ) {
         
             if ( file.isDirectory() )
@@ -127,10 +152,13 @@ public class Files {
             
         }
 
-        if ( file.mkdirs() == false ) {
-            throw new IOException( "Unable to make directory: " + file.getPath() );
-        }
-            
+        // NOTE: do not use java.io.File.mkdirs because it does not tell us WHY
+        // we weren't able to make the directory (permissions, disk space, etc).
+        // JDK 1.7 has a workaround for this but might as well just use JNA for
+        // now.
+        
+        unistd.mkdir( file.getPath(), unistd.ACCESSPERMS );
+        
     }
 
     /**
