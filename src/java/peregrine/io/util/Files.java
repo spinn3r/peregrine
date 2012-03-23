@@ -145,7 +145,7 @@ public class Files {
         
         if ( file.exists() ) {
         
-            if ( file.isDirectory() )
+            if ( file.isDirectory() ) 
                 return; /* we're done */
 
             throw new IOException( "File exists (not a directory): " + file.getPath() );
@@ -163,6 +163,32 @@ public class Files {
 
         } catch ( IOException e ) {
 
+            // there is a race condition where another thread could have created
+            // the directory but that is fine with us... 
+            while( true ) {
+
+                Throwable cause = e.getCause();
+
+                if ( cause == null )
+                    break;
+
+                if ( cause instanceof PlatformException ) {
+
+                    PlatformException pe = (PlatformException)cause;
+
+                    if ( pe.getErrno() == errno.EEXIST ) {
+
+                        File test = new File( file.getPath() );
+
+                        if ( test.isDirectory() )
+                            return;
+                        
+                    }
+                    
+                }
+                
+            }
+            
             String msg = String.format( "Unable to make directory '%s': %s",
                                         file.getPath(),
                                         e.getMessage() );
