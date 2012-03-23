@@ -165,30 +165,14 @@ public class Files {
 
             // there is a race condition where another thread could have created
             // the directory but that is fine with us... 
-            while( true ) {
 
-                Throwable cause = e.getCause();
+            File test = new File( file.getPath() );
 
-                if ( cause == null )
-                    break;
-
-                if ( cause instanceof PlatformException ) {
-
-                    PlatformException pe = (PlatformException)cause;
-
-                    if ( pe.getErrno() == errno.EEXIST ) {
-
-                        File test = new File( file.getPath() );
-
-                        if ( test.isDirectory() )
-                            return;
-                        
-                    }
-                    
-                }
-                
-            }
+            // TODO: technically we also have to look at the permissions.
             
+            if ( test.isDirectory() )
+                return;
+
             String msg = String.format( "Unable to make directory '%s': %s",
                                         file.getPath(),
                                         e.getMessage() );
