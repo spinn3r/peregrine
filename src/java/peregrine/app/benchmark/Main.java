@@ -28,8 +28,6 @@ import peregrine.util.*;
 import peregrine.util.primitive.*;
 import peregrine.worker.*;
 
-import org.apache.log4j.xml.DOMConfigurator;
-
 import com.spinn3r.log5j.*;
 
 public class Main {
@@ -117,9 +115,9 @@ public class Main {
 
         // start our job... 
         
-        DOMConfigurator.configure( "conf/log4j.xml" );
         Config config = ConfigParser.parse( args );
-
+        new Initializer( config ).controller();
+        
         if ( "all".equals( stage ) || "extract".equals( stage ) )
             extract( config, max, width );
 

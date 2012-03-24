@@ -223,6 +223,21 @@ public class StructMap {
     public int size() {
         return delegate.size();
     }
+
+    /**
+     * Return this struct as a dictionary.
+     */
+    public Map<String,String> toDict() {
+
+        Map<String,String> result = new HashMap();
+
+        for( Object key : delegate.keySet() ) {
+            result.put( key.toString(), delegate.get( key ).toString() );
+        }
+
+        return result;
+        
+    }
     
     @Override
     public String toString() {

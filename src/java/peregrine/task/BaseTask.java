@@ -333,7 +333,7 @@ public abstract class BaseTask implements Task {
 
         message.put( "action" ,   "complete" );
         message.put( "job_id" ,   job_id );
-        message.put( "killed",    killed );
+        message.put( "killed" ,   killed );
 
         sendMessageToController( message );
 
@@ -346,9 +346,9 @@ public abstract class BaseTask implements Task {
         
         Message message = new Message();
         
-        message.put( "action" ,     "failed" );
-        message.put( "job_id" ,     job_id );
-        message.put( "stacktrace",  cause );
+        message.put( "action"      , "failed" );
+        message.put( "job_id"      , job_id );
+        message.put( "stacktrace"  , cause );
         
         sendMessageToController( message );
 
@@ -356,15 +356,21 @@ public abstract class BaseTask implements Task {
 
     /**
      * Tell the controller about our progress so we can resume if we crash.
+     * This also allows the scheduler to detect faster that a given worker is
+     * still making progress and we can build UIs from the data.
+     *
+     * @param nonce A unique identifier for the chunk we are processing, used
+     * once.  This way if we fail to process a chunk, the second time we process
+     * it we will just use the second nonce and discard the first nonce data.
      */
     protected void sendProgressToController( String nonce, String pointer ) throws IOException {
 
         Message message = new Message();
         
-        message.put( "action" ,     "progress" );
-        message.put( "job_id" ,     job_id );
-        message.put( "nonce" ,      nonce );
-        message.put( "pointer" ,    pointer );
+        message.put( "action"  , "progress" );
+        message.put( "job_id"  , job_id );
+        message.put( "nonce"   , nonce );
+        message.put( "pointer" , pointer );
 
         sendMessageToController( message );
 
@@ -374,10 +380,10 @@ public abstract class BaseTask implements Task {
     	
         log.info( "Sending %s message to controller%s", message.get( "action" ), message );
         
-        message.put( "host",        config.getHost().toString() );
-        message.put( "job_id" ,     job_id );
-        message.put( "input",       input.getReferences() );
-        message.put( "work",        work.getReferences() );
+        message.put( "host"      , config.getHost().toString() );
+        message.put( "job_id"    , job_id );
+        message.put( "input"     , input.getReferences() );
+        message.put( "work"      , work.getReferences() );
 
         new Client().invoke( config.getController(), "controller", message );
     	

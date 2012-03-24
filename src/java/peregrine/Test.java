@@ -39,7 +39,7 @@ public class Test {
 
         Config config = new Config();
 
-        new Initializer( config ).init();
+        new Initializer( config ).worker();
 
         System.out.printf( "testlock1 of a large file NOT in page cache on the first mlock.\n" );
 

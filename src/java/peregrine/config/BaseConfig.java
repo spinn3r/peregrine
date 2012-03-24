@@ -164,6 +164,7 @@ public class BaseConfig {
     }
     
     public void setHost( Host host ) {
+        struct.put( "host", host.toString() );
         this.host = host;
     }
 
@@ -347,6 +348,10 @@ public class BaseConfig {
         this.user = user;
     }
 
+    public Map<String,String> toDict() {
+        return struct.toDict();
+    }
+    
     static {
 
         try {
