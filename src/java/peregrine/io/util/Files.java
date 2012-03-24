@@ -116,23 +116,6 @@ public class Files {
         mkdirs( new File( path ) );
     }
 
-    // public static void mkdirs( File file ) throws IOException {
-
-    //     if ( file.exists() ) {
-        
-    //         if ( file.isDirectory() )
-    //             return; /* we're done */
-
-    //         throw new IOException( "File exists (not a directory): " + file.getPath() );
-            
-    //     }
-
-    //     if ( file.mkdirs() == false ) {
-    //         throw new IOException( "Unable to make directory: " + file.getPath() );
-    //     }
-            
-    // }
-
     public static void mkdirs( File file ) throws IOException {
 
         file = file.getCanonicalFile();
