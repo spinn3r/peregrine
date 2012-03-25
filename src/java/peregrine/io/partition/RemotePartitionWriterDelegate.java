@@ -78,8 +78,6 @@ public class RemotePartitionWriterDelegate extends BasePartitionWriterDelegate {
      */
     private Map request( String method ) throws IOException {
 
-        //FIXME: infinite read connect, DNS timeouts, etc.
-
         //FIXME: we should ALWAYS use netty as using TWO HTTP libraries is NOT a
         //good idea and will just lead to problems.  I just need to extend netty
         //so that I can perform synchronous HTTP requests.  
@@ -90,6 +88,8 @@ public class RemotePartitionWriterDelegate extends BasePartitionWriterDelegate {
 
         HttpURLConnection httpCon = (HttpURLConnection) url.openConnection();
         httpCon.setRequestMethod( method );
+        httpCon.setConnectTimeout( HttpClient.WRITE_TIMEOUT );
+        httpCon.setReadTimeout( HttpClient.WRITE_TIMEOUT );
         int response = httpCon.getResponseCode();
 
         if ( response != 200 ) {

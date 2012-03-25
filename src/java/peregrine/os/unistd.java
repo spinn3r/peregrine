@@ -161,7 +161,7 @@ public class unistd {
         int result = delegate.chown( path, uid, gid );
 
         if ( result == -1 )
-            throw new IOException( new PlatformException() );
+            throw new IOException( "Unable to chown: " + path, new PlatformException() );
 
         return result;
         
@@ -172,12 +172,43 @@ public class unistd {
         int result = delegate.mkdir( path, mode );
 
         if ( result == -1 )
-            throw new IOException( new PlatformException() );
+            throw new IOException( "Unable to mkdir: " + path, new PlatformException() );
 
         return result;
 
     }
-    
+
+    /**
+     * unlink() deletes a name from the file system. If that name was the last
+     * link to a file and no processes have the file open the file is deleted
+     * and the space it was using is made available for reuse.
+     * 
+     * If the name was the last link to a file but any processes still have the
+     * file open the file will remain in existence until the last file
+     * descriptor referring to it is closed.
+     * 
+     * If the name referred to a symbolic link the link is removed.
+     * 
+     * If the name referred to a socket, fifo or device the name for it is
+     * removed but processes which have the object open may continue to use it.
+     * 
+     * Return Value
+     * 
+     * On success, zero is returned. On error, -1 is returned, and errno is set
+     * appropriately.
+     * 
+     */
+    public static int unlink( String path ) throws IOException {
+
+        int result = delegate.unlink( path );
+
+        if ( result == -1 )
+            throw new IOException( "Unable to unlink: " + path , new PlatformException() );
+
+        return result;
+
+    }
+
     public static class StatStruct extends Structure {
 
         public long     st_dev;     /* ID of device containing file */
@@ -224,6 +255,7 @@ public class unistd {
         int chown( String path, int uid, int gid );
         int stat( String path, StatStruct stat );
         int mkdir( String path, int mode );
+        int unlink( String path );
         
     }
 
