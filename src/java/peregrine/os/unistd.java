@@ -27,6 +27,26 @@ public class unistd {
     private static InterfaceDelegate delegate
         = (InterfaceDelegate)Native.loadLibrary( "c", InterfaceDelegate.class); 
 
+    public static final int S_IXOTH = 1 ;
+    public static final int S_IWOTH = 2 ;
+    public static final int S_IROTH = 4 ;
+
+    public static final int S_IRWXO = S_IROTH | S_IWOTH | S_IXOTH;
+
+    public static final int S_IXGRP = 8  ;
+    public static final int S_IWGRP = 16 ;
+    public static final int S_IRGRP = 32 ;
+
+    public static final int S_IRWXG = S_IRGRP | S_IWGRP | S_IXGRP;
+
+    public static final int S_IXUSR = 64  ;
+    public static final int S_IWUSR = 128 ;
+    public static final int S_IRUSR = 256 ;
+
+    public static final int S_IRWXU = S_IRUSR | S_IWUSR | S_IXUSR;
+
+    public static final int ACCESSPERMS = S_IRWXU|S_IRWXG|S_IRWXO;
+
     /**
      * The sync utility can be called to ensure that all disk writes have been
      * completed before the processor is halted in a way not suitably done by
@@ -130,26 +150,6 @@ public class unistd {
     public static int getpagesize() {
         return delegate.getpagesize();
     }
-
-    public static final int S_IXOTH = 1 ;
-    public static final int S_IWOTH = 2 ;
-    public static final int S_IROTH = 4 ;
-
-    public static final int S_IRWXO = S_IROTH | S_IWOTH | S_IXOTH;
-
-    public static final int S_IXGRP = 8  ;
-    public static final int S_IWGRP = 16 ;
-    public static final int S_IRGRP = 32 ;
-
-    public static final int S_IRWXG = S_IRGRP | S_IWGRP | S_IXGRP;
-
-    public static final int S_IXUSR = 64  ;
-    public static final int S_IWUSR = 128 ;
-    public static final int S_IRUSR = 256 ;
-
-    public static final int S_IRWXU = S_IRUSR | S_IWUSR | S_IXUSR;
-
-    public static final int ACCESSPERMS = S_IRWXU|S_IRWXG|S_IRWXO;
 
     /**
      * chown() changes the ownership of the file specified by path, which is
