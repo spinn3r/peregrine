@@ -37,6 +37,8 @@ public class DefaultPartitionWriter implements PartitionWriter, ChunkWriter {
 
     private static final Logger log = Logger.getLogger();
 
+    private static final boolean ENABLE_LOCAL_DELEGATE = false;
+
     protected String path;
 
     protected Partition partition;
@@ -78,7 +80,7 @@ public class DefaultPartitionWriter implements PartitionWriter, ChunkWriter {
                                    List<Host> hosts ) throws IOException {
 
         this( config, partition, path, append, hosts, MappedFileWriter.DEFAULT_AUTO_SYNC );
-        
+
     }
 
     public DefaultPartitionWriter( Config config,
@@ -97,19 +99,15 @@ public class DefaultPartitionWriter implements PartitionWriter, ChunkWriter {
         for( Host host : hosts ) {
 
             log.info( "Creating partition writer delegate for host: " + host );
-            
-            //PartitionWriterDelegate delegate
-            //    = new RemotePartitionWriterDelegate( config, autoSync );
 
             PartitionWriterDelegate delegate;
             
-            if ( host.equals( config.getHost() ) ) {
+            if ( ENABLE_LOCAL_DELEGATE && host.equals( config.getHost() ) ) {
                 delegate = new LocalPartitionWriterDelegate( config,  autoSync );
             } else { 
                 delegate = new RemotePartitionWriterDelegate( config, autoSync );
             }
 
-            
             delegate.init( config, partition, host, path );
 
             partitionWriterDelegates.add( delegate );
