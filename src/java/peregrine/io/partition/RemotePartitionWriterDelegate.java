@@ -47,7 +47,7 @@ public class RemotePartitionWriterDelegate extends BasePartitionWriterDelegate {
         
     }
 
-    public Map stat() throws IOException {
+    public Map<String,List<String>> stat() throws IOException {
         return request( "HEAD" );
     }
     
@@ -55,7 +55,8 @@ public class RemotePartitionWriterDelegate extends BasePartitionWriterDelegate {
     public void erase() throws IOException {
 
         try {
-            Map map = request( "DELETE" );
+            
+            Map<String,List<String>> map = request( "DELETE" );
             
             readHeader( map, "X-deleted" );
             
@@ -76,13 +77,17 @@ public class RemotePartitionWriterDelegate extends BasePartitionWriterDelegate {
      * as we have to wait for the results ANYWAY before moving forward AND this
      * only happens when writing to a new partition.
      */
-    private Map request( String method ) throws IOException {
+    private Map<String,List<String>> request( String method ) throws IOException {
 
         //FIXME: we should ALWAYS use netty as using TWO HTTP libraries is NOT a
         //good idea and will just lead to problems.  I just need to extend netty
         //so that I can perform synchronous HTTP requests.  
         
-        URL url = new URL( String.format( "http://%s:%s%s", host.getName(), host.getPort(), path ) );
+        URL url = new URL( String.format( "http://%s:%s/%s%s",
+                                          host.getName(),
+                                          host.getPort(),
+                                          partition.getId(),
+                                          path ) );
 
         log.info( "%s: %s", url, method );
 
@@ -100,15 +105,22 @@ public class RemotePartitionWriterDelegate extends BasePartitionWriterDelegate {
 
     }
 
-    private int readHeader( Map headers, String name ) throws IOException {
+    private int readHeader( Map<String,List<String>> map,
+                            String name ) throws IOException {
 
-        String val = headers.get( name ).toString();
-        
-        if ( val == null ) {
-            throw new IOException( "HTTP response header not specified: " + name );
+        List<String> headers = map.get( name );
+
+        String header = null;
+
+        if ( headers != null && headers.size() == 1 ) {
+            header = headers.get( 0 );
         }
 
-        return Integer.parseInt( val );
+        if ( header == null ) {
+            throw new IOException( "Invalid HTTP response header: " + name + " for " + headers);
+        }
+
+        return Integer.parseInt( header );
         
     }
 
