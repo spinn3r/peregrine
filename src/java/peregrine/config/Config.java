@@ -94,7 +94,7 @@ public class Config extends BaseConfig {
         
         initEnabledFeatures();
         
-        log.info( "%s", toDesc() );
+        log.info( "Running with config: %s", toDesc() );
 
     }
 
@@ -156,6 +156,14 @@ public class Config extends BaseConfig {
 			StringBuilder multi = new StringBuilder();
 			    	
 			Field[] fields = BaseConfig.class.getDeclaredFields();
+
+            Arrays.sort( fields, new Comparator<Field>() {
+
+                    public int compare( Field f1, Field f2 ) {
+                        return f1.getName().compareToIgnoreCase( f2.getName() );
+                    }
+                    
+                } );
             
 			buff.append( "\n" );
 			
