@@ -58,9 +58,9 @@ public class RemotePartitionWriterDelegate extends BasePartitionWriterDelegate {
             
             Map<String,List<String>> map = request( "DELETE" );
             
-            readHeader( map, "X-deleted" );
+            int deleted = readHeader( map, "X-deleted" );
             
-            log.info( "Deleted %,d chunks on host: %s", host );
+            log.info( "Deleted %,d chunks on host: %s", deleted, host );
 
         } catch ( RemoteRequestException e ) {
 

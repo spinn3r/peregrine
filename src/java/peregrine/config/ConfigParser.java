@@ -44,7 +44,8 @@ public class ConfigParser {
         Getopt getopt = new Getopt( args );
 
         for ( String key : config.struct.getKeys() ) {
-            
+
+            // override with options provide on the command line.
             if( getopt.containsKey( key ) ) {
                 config.struct.put( key, getopt.getString( key ) );
             }
