@@ -22,11 +22,15 @@ import peregrine.io.util.*;
 import peregrine.util.*;
 import peregrine.os.*;
 
+import com.spinn3r.log5j.Logger;
+
 /**
  * Handles parsing the peregrine.conf file and the peregrine.hosts file as well
  * as handling command line arguments.
  */
 public class ConfigParser {
+
+    private static final Logger log = Logger.getLogger();
 
     /**
      * Load the given configuration.
@@ -57,6 +61,10 @@ public class ConfigParser {
         // re-init the config with the params from the command line.  With no
         // param specified this is essentially idempotent.
         config.init( config.struct );
+
+        //TODO: we should log which hosts file we are reading from.
+
+        log.info( "Parsing host file: %s", config.getHostsFile() );
         
         // now read the hosts file...
         config.setHosts( readHosts( new File( config.getHostsFile() ) ) );

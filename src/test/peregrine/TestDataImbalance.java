@@ -63,11 +63,13 @@ public class TestDataImbalance extends peregrine.BaseTestWithMultipleConfigs {
             controller.map( Mapper.class,
                             new Input( path ),
                             new Output( "shuffle:default" ) );
+            /*
             
             controller.reduce( Reducer.class,
                                new Input( "shuffle:default" ),
                                new Output( output ) );
-
+            */
+                               
         } finally {
             controller.shutdown();
         }
