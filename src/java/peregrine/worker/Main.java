@@ -114,9 +114,7 @@ public class Main {
 
     }
 
-    public static int readPidfile( Config config ) throws IOException {
-
-        File file = new File( config.getRoot(), "worker.pid" );
+    public static int readPidfile( File file ) throws IOException {
 
         if ( file.exists() == false )
             return -1;
@@ -127,6 +125,14 @@ public class Main {
         fis.close();
 
         return Integer.parseInt( new String( data ) );
+
+    }
+
+    public static int readPidfile( Config config ) throws IOException {
+
+        File file = new File( config.getRoot(), "worker.pid" );
+
+        return readPidfile( file );
         
     }
     

@@ -70,6 +70,8 @@ public class ConfigParser {
         // now read the hosts file...
         config.setHosts( readHosts( new File( config.getHostsFile() ) ) );
 
+        log.info( "Read %,d hosts from hosts file." , config.getHosts().size() );
+        
         config.init();
 
         return config;

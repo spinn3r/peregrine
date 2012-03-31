@@ -21,6 +21,7 @@ import java.util.*;
 import peregrine.config.*;
 import peregrine.worker.*;
 import peregrine.util.*;
+import peregrine.io.util.*;
 import peregrine.io.chunk.*;
 import peregrine.io.partition.*;
 
@@ -30,6 +31,8 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
 
     private static final Logger log = Logger.getLogger();
 
+    public static String MAX_MEMORY = "32M";
+    
     protected int concurrency = 0;
     protected int replicas = 0;
     protected int hosts = 0;
@@ -89,37 +92,107 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
             int port = 11112 + i;
             String basedir = "/tmp/peregrine-fs-" + i;
 
+            Files.remove( basedir );
+            
             List<String> args = Arrays.asList( "bin/workerd",
                                                "--hostsFile=/tmp/peregrine.hosts",
                                                "--host=localhost:" + port ,
-                                               "--basedir=" + basedir );
+                                               "--concurrency=" + concurrency,
+                                               "--replicas=" + replicas,
+                                               "--basedir=" + basedir ,
+                                               "start" );
 
             String cmdline = Strings.join( args, " " );
-            
-            System.out.printf( "starting proc: %s\n", cmdline );
-            
+
             ProcessBuilder pb = new ProcessBuilder( args );
 
-            pb.environment().put( "MAX_MEMORY", "32M" );
-            pb.environment().put( "MAX_DIRECT_MEMORY", "32M" );
+            pb.environment().put( "MAX_MEMORY",        MAX_MEMORY );
+            pb.environment().put( "MAX_DIRECT_MEMORY", MAX_MEMORY );
 
             try {
-                
+
+                System.out.printf( "Starting proc: %s\n", cmdline );
+
                 Process proc = pb.start();
+
+                // wait for the pid file to be created OR the process exits.
+
+                int pid = waitForProc( basedir,
+                                       proc,
+                                       port );
+
+                WaitForDaemon.waitForDaemon( pid, port );
                 
                 processes.put( cmdline, proc );
 
-            } catch ( IOException e ) {
-                throw new RuntimeException( e );
+                // wait for startup...
+                
+            } catch ( Throwable t ) {
+                throw new RuntimeException( t );
             }
+            
+        }
+
+        System.out.printf( "setUp complete and all daemons running.\n" );
+        
+    }
+
+    private static int waitForProc( String basedir,
+                                    Process proc,
+                                    int port ) throws Exception {
+
+        long started = System.currentTimeMillis();
+
+        ///tmp/peregrine-fs//localhost/11112/worker.pid
+        
+        File pidfile = new File( String.format( "%s/localhost/%s/worker.pid",
+                                                basedir,
+                                                port ) );
+        
+        while( true ) {
+
+            try {
+
+                proc.exitValue();
+
+                throw new Exception( "Proc terminated abnormally: " + port );
+
+            } catch ( IllegalThreadStateException e ) {
+                //this is ok becuase the daemon hasn't terminted yet.
+            }
+
+            if ( pidfile.exists() ) {
+
+                return peregrine.worker.Main.readPidfile( pidfile );
+                
+            }
+
+            if ( System.currentTimeMillis() - started > 30000 ) {
+                throw new RuntimeException( "timeout while starting proc" );
+            }
+            
+            Thread.sleep( 1000L );
             
         }
 
     }
 
-    public Config getConfig() throws IOException {
+    public List<String> getArguments( int port ) {
 
-        Config config = ConfigParser.parse( "--hostsFile=/tmp/peregrine.hosts" );
+        return Arrays.asList( "--hostsFile=/tmp/peregrine.hosts",
+                              "--host=localhost:" + port ,
+                              "--concurrency=" + concurrency,
+                              "--replicas=" + replicas );
+
+    }
+
+    public Config getConfig() throws IOException {
+        return getConfig( 11111 ); // controller port.
+    }
+    
+    public Config getConfig( int port ) throws IOException {
+
+        Config config = ConfigParser.parse( Strings.toArray( getArguments( port ) ) );
         return config;
         
     }

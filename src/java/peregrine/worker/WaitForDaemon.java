@@ -58,14 +58,8 @@ public class WaitForDaemon {
         }
 
     }
-    
-    public static void main( String[] args ) throws Exception {
 
-        Config config = ConfigParser.parse( args );
-        Getopt getopt = new Getopt( args );
-        
-        int pid      = getopt.getInt( "pid", -1 );
-        int port     = config.getHost().getPort();
+    public static boolean waitForDaemon( int pid, int port ) throws Exception {
 
         long now = System.currentTimeMillis();
 
@@ -80,7 +74,7 @@ public class WaitForDaemon {
 
                 if ( running( pid ) == false ) {
                     System.out.printf( "ERROR: process with pid %s is dead.\n", pid );
-                    System.exit( 1 );
+                    return false;
                 }
 
             }
@@ -93,12 +87,12 @@ public class WaitForDaemon {
                 System.out.printf( "\n" );
                 
                 System.out.printf( "SUCCESS: daemon up and listening on port %s\n", port );
-                System.exit( 0 );
+                return true;
                 
             } catch ( IOException e ) { }
 
             if ( pid == -1 ) {
-                System.exit( 1 );
+                return false;
             }
 
             System.out.printf( "." );
@@ -108,12 +102,28 @@ public class WaitForDaemon {
             if ( System.currentTimeMillis() > now + TIMEOUT ) {
 
                 System.out.printf( "ERROR: exceeded timeout: %,d ms\n", TIMEOUT );
-                System.exit( 1 );
+                return false;
                 
             }
             
         }
+
+    }
+    
+    public static void main( String[] args ) throws Exception {
+
+        Config config = ConfigParser.parse( args );
+        Getopt getopt = new Getopt( args );
         
+        int pid      = getopt.getInt( "pid", -1 );
+        int port     = config.getHost().getPort();
+
+        if ( waitForDaemon( pid, port ) ) {
+            System.exit( 0 );
+        }
+
+        System.exit( 1 );
+
     }
    
 }
