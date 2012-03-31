@@ -27,7 +27,7 @@ import peregrine.util.*;
 import peregrine.util.primitive.IntBytes;
 import peregrine.io.partition.*;
 
-public class TestBroadcastMapReduce extends peregrine.BaseTestWithMultipleConfigs {
+public class TestBroadcastMapReduce extends peregrine.BaseTestWithMultipleProcesses {
 
     public static class Map extends Mapper {
 
@@ -90,7 +90,9 @@ public class TestBroadcastMapReduce extends peregrine.BaseTestWithMultipleConfig
      public void doTest() throws Exception {
 
          String path = String.format( "/test/%s/test1.in", getClass().getName() );
-        
+
+         Config config = getConfig();
+         
          ExtractWriter writer = new ExtractWriter( config, path );
 
          int max = 1000;

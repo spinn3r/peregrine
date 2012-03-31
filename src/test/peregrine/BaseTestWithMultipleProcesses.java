@@ -38,7 +38,9 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
     protected int hosts = 0;
 
     protected Map<String,Process> processes = new HashMap();
-    
+
+    protected Map<Host,Config> configsByHost = new HashMap();
+
     public void setUp() {
 
         super.setUp();
@@ -92,16 +94,16 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
             int port = 11112 + i;
             String basedir = "/tmp/peregrine-fs-" + i;
 
-            Files.remove( basedir );
+            Host host = new Host( "localhost", port );
             
-            List<String> args = Arrays.asList( "bin/workerd",
-                                               "--hostsFile=/tmp/peregrine.hosts",
-                                               "--host=localhost:" + port ,
-                                               "--concurrency=" + concurrency,
-                                               "--replicas=" + replicas,
-                                               "--basedir=" + basedir ,
-                                               "start" );
+            Files.remove( basedir );
 
+            List<String> args = getArguments( port );
+
+            args.add( 0, "bin/workerd" );
+            args.add( "--basedir=" + basedir );
+            args.add( "start" );
+                                               
             String cmdline = Strings.join( args, " " );
 
             ProcessBuilder pb = new ProcessBuilder( args );
@@ -179,10 +181,14 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
 
     public List<String> getArguments( int port ) {
 
-        return Arrays.asList( "--hostsFile=/tmp/peregrine.hosts",
-                              "--host=localhost:" + port ,
-                              "--concurrency=" + concurrency,
-                              "--replicas=" + replicas );
+        List<String> list = new ArrayList();
+        
+        list.add( "--hostsFile=/tmp/peregrine.hosts" );
+        list.add( "--host=localhost:" + port );
+        list.add( "--concurrency=" + concurrency );
+        list.add( "--replicas=" + replicas );
+
+        return list;
 
     }
 
@@ -192,8 +198,7 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
     
     public Config getConfig( int port ) throws IOException {
 
-        Config config = ConfigParser.parse( Strings.toArray( getArguments( port ) ) );
-        return config;
+        return ConfigParser.parse( Strings.toArray( getArguments( port ) ) );
         
     }
 
