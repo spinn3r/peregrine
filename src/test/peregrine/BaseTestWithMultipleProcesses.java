@@ -31,7 +31,7 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
 
     private static final Logger log = Logger.getLogger();
 
-    public static String MAX_MEMORY = "32M";
+    public static String MAX_MEMORY = "128M";
     
     protected int concurrency = 0;
     protected int replicas = 0;
@@ -95,18 +95,32 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
             String basedir = "/tmp/peregrine-fs-" + i;
 
             Host host = new Host( "localhost", port );
-            
+
+            //clean up the previosu basedir
             Files.remove( basedir );
 
-            List<String> args = getArguments( port );
+            List<String> workerd_args = getArguments( port );
 
+            workerd_args.add( 0, "bin/workerd" );
+            workerd_args.add( "--basedir=" + basedir );
+            workerd_args.add( "start" );
+
+            List<String> bash_args = new ArrayList();
+            
+            bash_args.add( "/bin/bash" );
+            bash_args.add( "-c" );
+            bash_args.add( "'" + Strings.join( workerd_args , " " ) + "'" );
+            bash_args.add( "> foo.log" );
+            
+            /*
             args.add( 0, "bin/workerd" );
             args.add( "--basedir=" + basedir );
             args.add( "start" );
-                                               
-            String cmdline = Strings.join( args, " " );
+            */
+            
+            String cmdline = Strings.join( bash_args, " " );
 
-            ProcessBuilder pb = new ProcessBuilder( args );
+            ProcessBuilder pb = new ProcessBuilder( bash_args );
 
             pb.environment().put( "MAX_MEMORY",        MAX_MEMORY );
             pb.environment().put( "MAX_DIRECT_MEMORY", MAX_MEMORY );
