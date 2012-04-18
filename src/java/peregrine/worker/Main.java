@@ -30,51 +30,49 @@ public class Main {
 	
     private static final Logger log = Logger.getLogger();
 
-    private static void stop( String[] args ) {
+    public static void stop( String[] args ) throws Exception {
 
-        try {
+       Config config = ConfigParser.parse( args );
 
-            Config config = ConfigParser.parse( args );
+       stop( config );
+       
+    }
+    
+    public static void stop( Config config ) throws Exception {
 
-            new Initializer( config ).assertRoot();
+        new Initializer( config ).assertRoot();
 
-            log.info( "Stopping on %s" , config.getHost() );
+        log.info( "Stopping on %s" , config.getHost() );
 
-            // read the pid file...
-            int pid = readPidfile( config );
+        // read the pid file...
+        int pid = readPidfile( config );
 
-            if ( pid == -1 || WaitForDaemon.running( pid ) == false ) {
-                System.exit( 0 );
-            }
-
-            // send the kill
-            signal.kill( pid, signal.SIGTERM );
-            
-            // see if the daemon is still running
-            long now = System.currentTimeMillis();
-
-            while( WaitForDaemon.running( pid ) ) {
-
-                Thread.sleep( 1000L );
-                System.out.printf( "." );
-                
-            }
-
-            // after we are done waiting, kill -9 it.
-            if( WaitForDaemon.running( pid ) ) {
-                // force it to terminate
-                System.out.printf( "X" );
-                signal.kill( pid, signal.SIGKILL );
-            }
-
-            System.out.printf( "\n" );
-
-            System.exit( 0 );
-
-        } catch ( Exception e ) {
-            e.printStackTrace( System.out );
+        if ( pid == -1 || WaitForDaemon.running( pid ) == false ) {
+            return;
         }
 
+        // send the kill
+        signal.kill( pid, signal.SIGTERM );
+        
+        // see if the daemon is still running
+        long now = System.currentTimeMillis();
+
+        while( WaitForDaemon.running( pid ) ) {
+
+            Thread.sleep( 1000L );
+            System.out.printf( "." );
+            
+        }
+
+        // after we are done waiting, kill -9 it.
+        if( WaitForDaemon.running( pid ) ) {
+            // force it to terminate
+            System.out.printf( "X" );
+            signal.kill( pid, signal.SIGKILL );
+        }
+
+        System.out.printf( "\n" );
+        
     }
 
     private static void start( String[] args ) throws Exception {

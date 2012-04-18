@@ -37,7 +37,7 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
     protected int replicas = 0;
     protected int hosts = 0;
 
-    protected Map<String,Process> processes = new HashMap();
+    protected Map<Integer,Process> processes = new HashMap();
 
     protected Map<Host,Config> configsByHost = new HashMap();
 
@@ -147,7 +147,7 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
 
                 WaitForDaemon.waitForDaemon( pid, port );
                 
-                processes.put( cmdline, proc );
+                processes.put( port, proc );
 
                 // wait for startup...
                 
@@ -227,10 +227,23 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
 
     public void tearDown() {
 
-        for( String cmdline : processes.keySet() ) {
-            Process proc = processes.get( cmdline );
-            System.out.printf( "Destroying proc: %s\n", cmdline );
-            proc.destroy();
+        // FIXME: for each proc, get the config, read the pid, then send kill,
+        // then kill -9 if it won't shut down.
+        
+        for( int port : processes.keySet() ) {
+
+            try {
+                
+                System.out.printf( "Destroying proc on port: %s\n", port );
+
+                Config config = getConfig( port );
+
+                peregrine.worker.Main.stop( config );
+
+            } catch ( Exception e ) {
+                throw new RuntimeException( e );
+            }
+                
         }
         
         super.tearDown();
