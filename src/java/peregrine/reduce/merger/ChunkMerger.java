@@ -160,10 +160,15 @@ public class ChunkMerger implements Closeable {
 
             }
 
-            if ( writer != null )         
-                writer.close();
+            sortResult.flush();
+
+            if ( writer != null )
+                writer.flush();
 
             sortResult.close();
+
+            if ( writer != null )         
+                writer.close();
 
             log.info( "Merged %,d entries for %s" , entries, partition );
 

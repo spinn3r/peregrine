@@ -64,10 +64,17 @@ public class SortResult implements Closeable {
         
     }
 
-    public void close() throws IOException {
+    public void flush() throws IOException {
 
-        emit( last );
-            
+        if ( last != null ) {
+            emit( last );
+            last = null;
+        }
+
+    }
+    
+    public void close() throws IOException {
+        flush();
     }
 
     private void emit( SortEntry entry ) throws IOException {
