@@ -26,7 +26,7 @@ import peregrine.util.primitive.*;
 import peregrine.util.*;
 import com.spinn3r.log5j.*;
 
-public class TestMapReduce extends peregrine.BaseTestWithMultipleConfigs {
+public class TestMapReduce extends peregrine.BaseTestWithMultipleProcesses {
 
     private static final Logger log = Logger.getLogger();
 
@@ -86,6 +86,8 @@ public class TestMapReduce extends peregrine.BaseTestWithMultipleConfigs {
     private void fsck( String path ) throws IOException {
 
         log.info( "Running fsck of %s", path );
+
+        Config config = getConfig();
         
         Membership membership = config.getMembership();
         
@@ -126,7 +128,9 @@ public class TestMapReduce extends peregrine.BaseTestWithMultipleConfigs {
     private void doTest( int max ) throws Exception {
 
         log.info( "Testing with %,d records." , max );
-        
+
+        Config config = getConfig();
+
         System.gc();
 
         Runtime runtime = Runtime.getRuntime();
@@ -134,7 +138,7 @@ public class TestMapReduce extends peregrine.BaseTestWithMultipleConfigs {
         long before = runtime.totalMemory() - runtime.freeMemory();
         
         String path = String.format( "/test/%s/test1.in", getClass().getName() );
-        
+
         ExtractWriter writer = new ExtractWriter( config, path );
 
         for( int i = 0; i < max; ++i ) {
@@ -238,7 +242,7 @@ public class TestMapReduce extends peregrine.BaseTestWithMultipleConfigs {
         } finally {
             controller.shutdown();
         }
-        
+
     }
 
     public static void main( String[] args ) throws Exception {

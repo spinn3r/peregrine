@@ -79,15 +79,15 @@ public class RemotePartitionWriterDelegate extends BasePartitionWriterDelegate {
      */
     private Map<String,List<String>> request( String method ) throws IOException {
 
-        //FIXME: we should ALWAYS use netty as using TWO HTTP libraries is NOT a
-        //good idea and will just lead to problems.  I just need to extend netty
-        //so that I can perform synchronous HTTP requests.  
-        
         URL url = new URL( String.format( "http://%s:%s/%s%s",
                                           host.getName(),
                                           host.getPort(),
                                           partition.getId(),
                                           path ) );
+
+        //FIXME: we should ALWAYS use netty as using TWO HTTP libraries is NOT a
+        //good idea and will just lead to problems.  I just need to extend netty
+        //so that I can perform synchronous HTTP requests.  
 
         log.info( "%s: %s", url, method );
 

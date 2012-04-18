@@ -31,6 +31,8 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
 
     private static final Logger log = Logger.getLogger();
 
+    public static boolean KILL_WORKERS_ON_TEARDOWN = true;
+    
     public static String MAX_MEMORY = "128M";
     
     protected int concurrency = 0;
@@ -43,11 +45,13 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
 
     public void setUp() {
 
+        System.out.printf( "setUp()\n" );
+        
         super.setUp();
 
         String conf = System.getProperty( "peregrine.test.config" );
 
-        if ( conf == null ) {
+        if ( conf == null || conf.equals( "" ) ) {
             log.warn( "NOT RUNNING %s: peregrine.test.config not defined", getClass().getName() );
             return;
         }
@@ -60,11 +64,11 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
         replicas    = split.readInt();
         hosts       = split.readInt();
 
-        if ( concurrency == 0 ) {
+        if ( concurrency == 0 || replicas == 0 ) {
             log.error( "Concurrency was zero" );
             return;
         }
-        
+
         log.info( "Working with concurrency=%s, replicas=%s, hosts=%s" , concurrency, replicas, hosts );
 
         //Write out a new peregrine.hosts file.
@@ -96,11 +100,15 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
 
             Host host = new Host( "localhost", port );
 
+            Config config = null;
+            
             try {
-                configsByHost.put( host, getConfig( port ) );
+                config = getConfig( port );
             } catch ( IOException e ) {
                 throw new RuntimeException( e );
             }
+            
+            configsByHost.put( host, config );
             
             //clean up the previosu basedir
             Files.remove( basedir );
@@ -110,22 +118,6 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
             workerd_args.add( 0, "bin/workerd" );
             workerd_args.add( "start" );
 
-            /*
-
-            List<String> bash_args = new ArrayList();
-
-            bash_args.add( "/bin/bash" );
-            bash_args.add( "-c" );
-            bash_args.add( "'" + Strings.join( workerd_args , " " ) + "'" );
-            bash_args.add( "> foo.log" );
-            */
-            
-            /*
-            args.add( 0, "bin/workerd" );
-            args.add( "--basedir=" + basedir );
-            args.add( "start" );
-            */
-            
             String cmdline = Strings.join( workerd_args, " " );
 
             ProcessBuilder pb = new ProcessBuilder( workerd_args );
@@ -141,16 +133,13 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
 
                 // wait for the pid file to be created OR the process exits.
 
-                int pid = waitForProc( basedir,
-                                       proc,
-                                       port );
-
+                int pid = waitForProc( config, proc, port );
+                
+                // wait for startup so we know the port is open
                 WaitForDaemon.waitForDaemon( pid, port );
                 
                 processes.put( port, proc );
 
-                // wait for startup...
-                
             } catch ( Throwable t ) {
                 throw new RuntimeException( t );
             }
@@ -161,17 +150,11 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
         
     }
 
-    private static int waitForProc( String basedir,
+    private static int waitForProc( Config config,
                                     Process proc,
                                     int port ) throws Exception {
 
         long started = System.currentTimeMillis();
-
-        ///tmp/peregrine-fs//localhost/11112/worker.pid
-        
-        File pidfile = new File( String.format( "%s/localhost/%s/worker.pid",
-                                                basedir,
-                                                port ) );
         
         while( true ) {
 
@@ -185,10 +168,10 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
                 //this is ok becuase the daemon hasn't terminted yet.
             }
 
-            if ( pidfile.exists() ) {
-
-                return peregrine.worker.Main.readPidfile( pidfile );
-                
+            int pid = peregrine.worker.Main.readPidfile( config );
+            
+            if ( pid > -1 ) {
+                return pid;
             }
 
             if ( System.currentTimeMillis() - started > 30000 ) {
@@ -227,25 +210,31 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
 
     public void tearDown() {
 
-        // FIXME: for each proc, get the config, read the pid, then send kill,
-        // then kill -9 if it won't shut down.
+        System.out.printf( "tearDown()\n" );
+
+        // for each proc, get the config, read the pid, then send kill, then
+        // kill -9 if it won't shut down.
+
+        if ( KILL_WORKERS_ON_TEARDOWN ) {
         
-        for( int port : processes.keySet() ) {
+            for( int port : processes.keySet() ) {
 
-            try {
-                
-                System.out.printf( "Destroying proc on port: %s\n", port );
+                try {
+                    
+                    System.out.printf( "Destroying proc on port: %s\n", port );
 
-                Config config = getConfig( port );
+                    Config config = getConfig( port );
 
-                peregrine.worker.Main.stop( config );
+                    peregrine.worker.Main.stop( config );
 
-            } catch ( Exception e ) {
-                throw new RuntimeException( e );
+                } catch ( Exception e ) {
+                    throw new RuntimeException( e );
+                }
+                    
             }
-                
+
         }
-        
+            
         super.tearDown();
         
     }
@@ -288,7 +277,8 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
     }
 
     /**
-     * The actual test we want to run....
+     * The actual test we want to run.  Implement this method and put your test
+     * logic here.
      */
     public abstract void doTest() throws Exception;
 
