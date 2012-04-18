@@ -38,9 +38,20 @@ public class HeartbeatTimer extends Timer {
 
     private static final Logger log = Logger.getLogger();
 
-    public static long ONLINE_SLEEP_INTERVAL  = 30000L;
-    
-    public static long OFFLINE_SLEEP_INTERVAL = 1000L;      
+    /**
+     * Duration to sleep if the controller is online.
+     *
+     * <p>
+     * TODO: make this a config
+     */
+    public static long CONTROLLER_ONLINE_SLEEP_INTERVAL  = 5000L;
+
+    /**
+     * Duration to sleep if the controller is offline.
+     * <p>
+     * TODO: make this a config
+     */
+    public static long CONTROLLER_OFFLINE_SLEEP_INTERVAL = 1000L;      
 
     private boolean cancelled = false;
 
@@ -78,9 +89,9 @@ public class HeartbeatTimer extends Timer {
             long delay;
             
             if ( config.getMembership().sendHeartbeatToController() ) {
-                delay = ONLINE_SLEEP_INTERVAL;
+                delay = CONTROLLER_OFFLINE_SLEEP_INTERVAL;
             } else {
-                delay = OFFLINE_SLEEP_INTERVAL;
+                delay = CONTROLLER_OFFLINE_SLEEP_INTERVAL;
             }
             
             if ( ! cancelled ) 

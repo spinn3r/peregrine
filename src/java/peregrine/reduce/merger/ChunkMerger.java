@@ -86,7 +86,7 @@ import com.spinn3r.log5j.Logger;
  * 
  * 
  */
-public class ChunkMerger {
+public class ChunkMerger implements Closeable {
 
     private static final Logger log = Logger.getLogger();
 
@@ -99,6 +99,8 @@ public class ChunkMerger {
     private List<JobOutput> output;
 
     private Task task = null;
+
+    private List<SequenceReader> input;
     
     public ChunkMerger() {
     }
@@ -106,20 +108,22 @@ public class ChunkMerger {
     public ChunkMerger( Task task,
                         SortListener listener,
                         Partition partition,
+                        List<SequenceReader> input,
                         List<JobOutput> output ) {
 
         this.task = task;
         this.listener = listener;
         this.partition = partition;
+        this.input = input;
         this.output = output;
         
     }
 
-    public void merge( List<SequenceReader> input ) throws IOException {
-        merge( input, null );
+    public void merge() throws IOException {
+        merge( null );
     }
     
-    public void merge( List<SequenceReader> input, ChunkWriter writer ) throws IOException {
+    public void merge( ChunkWriter writer ) throws IOException {
 
         try {
         
@@ -156,21 +160,23 @@ public class ChunkMerger {
 
             }
 
-            sortResult.close();
-
             if ( writer != null )         
                 writer.close();
+
+            sortResult.close();
 
             log.info( "Merged %,d entries for %s" , entries, partition );
 
             new Flusher( output ).flush();
 
-            new Closer( input ).close();
-
         } catch ( Throwable t ) {
             throw new IOException( "Unable to merge chunks: " + input, t );
         }
 
+    }
+
+    public void close() throws IOException {
+        new Closer( input ).close();
     }
 
 }

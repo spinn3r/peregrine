@@ -198,6 +198,9 @@ public class PrefetchReader implements Closeable {
 
         //log( "Caching %s" , pageEntry );
 
+        if ( closed )
+            return;
+        
         pageEntry.pa = mman.mmap( pageEntry.length,
                                   mman.PROT_READ, mman.MAP_SHARED,
                                   pageEntry.file.fd,
@@ -226,6 +229,7 @@ public class PrefetchReader implements Closeable {
 
     private void evict( PageEntry pageEntry ) throws IOException {
 
+        
         if ( pageEntry.length == 0 )
             return;
 

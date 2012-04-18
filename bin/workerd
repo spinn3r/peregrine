@@ -21,6 +21,7 @@ start() {
 
     # no, we weren't running, so go ahead and startup.
     ./bin/jexec peregrine.worker.Main $args < /dev/null > /dev/null 2> /dev/null &
+
     pid=$!
 
     # now that we started the daemon, wait for it to startup... if it starts, great,

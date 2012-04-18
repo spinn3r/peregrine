@@ -92,6 +92,10 @@ public abstract class BaseTestWithMultipleConfigs extends peregrine.BaseTest {
 
     }
 
+    public Config getConfig() {
+        return config;
+    }
+    
     protected Config newConfig( String host, int port ) {
 
         Config config = new Config( host, port );

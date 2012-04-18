@@ -101,7 +101,14 @@ public class DefaultChunkReader implements SequenceReader, ChunkReader, Closeabl
         init( buff );
 
     }
-    
+
+    public DefaultChunkReader( File file )
+        throws IOException {
+
+        this( null, file );
+        
+    }
+        
     public DefaultChunkReader( byte[] data )
         throws IOException {
                  
@@ -156,6 +163,7 @@ public class DefaultChunkReader implements SequenceReader, ChunkReader, Closeabl
 
     @Override
     public void next() throws IOException {
+
         ++idx;
         keyOffset = reader.index() + 1;
        
@@ -166,11 +174,13 @@ public class DefaultChunkReader implements SequenceReader, ChunkReader, Closeabl
     
     @Override
     public StructReader key() throws IOException {
-    	return key;
+
+        return key;
     }
 
     @Override
     public StructReader value() throws IOException {
+
         return value;
     }
 
@@ -189,12 +199,14 @@ public class DefaultChunkReader implements SequenceReader, ChunkReader, Closeabl
 
     @Override 
     public int keyOffset() throws IOException {
-    	return keyOffset;
+
+        return keyOffset;
     }
     
     @Override 
     public int size() throws IOException {
-    	return size;
+
+        return size;
     }
     
     @Override
@@ -204,6 +216,7 @@ public class DefaultChunkReader implements SequenceReader, ChunkReader, Closeabl
 
     @Override 
     public ChannelBuffer getBuffer() {
+
     	return buffer;
     }
     
@@ -236,6 +249,7 @@ public class DefaultChunkReader implements SequenceReader, ChunkReader, Closeabl
     }
 
     public int index() {
+        
         return reader.index();
     }
     

@@ -85,6 +85,9 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
      */
     public ChannelBuffer map() throws IOException {
 
+        if ( closer.isClosed() )
+            throw new IOException( "closed" );
+        
         try {
 
             // in JDK 1.6 and earlier the max mmap we could have was 2GB so to
@@ -135,6 +138,10 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
      * @see MemLock#unlockRegion
      */
     public void unlockRegion( long len ) throws IOException {
+
+        if ( closer.isClosed() )
+            throw new IOException( "closed" );
+
         if ( memLock == null ) return;
 
         memLock.unlockRegion( len );
@@ -158,8 +165,11 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
         closer.add( channel );
         closer.add( in );
 
-        closer.close();
-
+        //channel.close();
+        //in.close();
+        
+        //closer.close();
+        
     }
 
     /**

@@ -235,8 +235,8 @@ public class TestCombinerEfficiency extends peregrine.BaseTestWithMultipleConfig
 
         ReducerTask task = new ReducerTask();
         
-        ChunkMerger merger = new ChunkMerger( task, null, partition, jobOutput );
-        merger.merge( mergeInput, writer );
+        ChunkMerger merger = new ChunkMerger( task, null, partition, mergeInput, jobOutput );
+        merger.merge( writer );
 
         writer.close();
 

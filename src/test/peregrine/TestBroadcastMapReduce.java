@@ -17,18 +17,17 @@ package peregrine;
 
 import java.io.*;
 import java.util.*;
-import peregrine.config.Config;
-import peregrine.config.Host;
-import peregrine.config.Membership;
-import peregrine.config.Partition;
+import peregrine.config.*;
 import peregrine.controller.*;
 import peregrine.io.*;
 import peregrine.util.*;
 import peregrine.util.primitive.IntBytes;
 import peregrine.io.partition.*;
 
-public class TestBroadcastMapReduce extends peregrine.BaseTestWithMultipleProcesses {
-
+public class TestBroadcastMapReduce
+    extends peregrine.BaseTestWithMultipleProcesses {
+    //extends peregrine.BaseTestWithMultipleConfigs {
+    
     public static class Map extends Mapper {
 
         private int count = 0;
@@ -106,7 +105,9 @@ public class TestBroadcastMapReduce extends peregrine.BaseTestWithMultipleProces
          }
          
          writer.close();
-         
+
+         String count_out = String.format( "/test/%s/test1.count", getClass().getName() );
+             
          Controller controller = new Controller( config );
 
          try {
@@ -116,24 +117,22 @@ public class TestBroadcastMapReduce extends peregrine.BaseTestWithMultipleProces
                              new Output( "shuffle:default",
                                          "broadcast:count" ) );
 
-             String count_out = String.format( "/test/%s/test1.count", getClass().getName() );
-             
              System.out.printf( "job done.. now going to assert the values.\n" );
              
              controller.reduce( Reduce.class,
                                 new Input( "shuffle:count" ),
                                 new Output( count_out ) );
-             
-             // // now read all partition values...
-             
-             assertValueOnAllPartitions( config.getMembership() , count_out, max );
-             
-             System.out.printf( "WIN\n" );
 
          } finally {
              controller.shutdown();
          }
-             
+
+         // // now read all partition values...
+         
+         assertValueOnAllPartitions( config.getMembership() , count_out, max );
+         
+         System.out.printf( "WIN\n" );
+
     }
 
     public void assertValueOnAllPartitions( Membership membership, String path, int value ) throws Exception {
@@ -144,10 +143,12 @@ public class TestBroadcastMapReduce extends peregrine.BaseTestWithMultipleProces
 
                 LocalPartitionReader reader = new LocalPartitionReader( configsByHost.get( host ), part, path );
 
-                System.out.printf( "Reading from: %s\n", reader );
+                String source = String.format( "path=%s , part=%s (%s)", path, part, reader );
+
+                System.out.printf( "Reading from: %s\n", source );
                 
                 if ( reader.hasNext() == false )
-                    throw new Exception( "No values in: " + reader );
+                    throw new Exception( "No values in: " + source );
 
                 reader.next();
                 
@@ -156,10 +157,8 @@ public class TestBroadcastMapReduce extends peregrine.BaseTestWithMultipleProces
                 
                 int count = _value.readInt();
 
-                /*
                 if ( count != value )
                     throw new Exception( "Invalid value: " + count );
-                */
 
                 if ( count == 0 )
                     throw new Exception( "zero" );

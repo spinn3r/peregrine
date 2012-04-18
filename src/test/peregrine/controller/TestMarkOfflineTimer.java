@@ -26,7 +26,7 @@ public class TestMarkOfflineTimer extends peregrine.BaseTestWithTwoDaemons {
 
     public void doTest() throws Exception {
 
-        HeartbeatTimer.ONLINE_SLEEP_INTERVAL = 5000L;
+        HeartbeatTimer.CONTROLLER_ONLINE_SLEEP_INTERVAL = 5000L;
 
         MarkOfflineTimer.FAILED_INTERVAL  = 10000L;
 

@@ -128,7 +128,7 @@ public final class Initializer {
     public void worker() throws Exception {
 
         assertRoot();
-        logger( String.format( "worker-%s",  config.getHost() ) );
+        logger( String.format( "workerd-%s",  config.getHost() ) );
         datadir();
         limitMemoryUsage();
         setuid();

@@ -31,28 +31,6 @@ public class LocalPartition {
         return String.format( "chunk%06d.dat" , local_chunk_id );
     }
 
-    public static List<File> getChunkFiles( String dir ) {
-
-        List<File> files = new ArrayList();
-
-        for( int i = 0; i < Integer.MAX_VALUE; ++i ) {
-
-            String name = getFilenameForChunkID( i );
-
-            File chunk = new File( dir, name );
-            
-            if ( chunk.exists() ) {
-                files.add( chunk);
-            } else {
-                break;
-            }
-                
-        }
-
-        return files;
-
-    }
-    
     public static List<DefaultChunkReader> getChunkReaders( Config config,
                                                             Partition part,
                                                             String path )
@@ -67,13 +45,38 @@ public class LocalPartition {
         }
 
         return result;
-        
+
+    }
+
+    public static List<File> getChunkFiles( String dir ) {
+
+        List<File> files = new ArrayList();
+
+        for( int i = 0; i < Integer.MAX_VALUE; ++i ) {
+
+            String name = getFilenameForChunkID( i );
+
+            File chunk = new File( dir, name );
+
+            if ( chunk.exists() ) {
+                files.add( chunk);
+            } else {
+                break;
+            }
+                
+        }
+
+        return files;
+
     }
 
     public static List<File> getChunkFiles( Config config,
                                             Partition part,
                                             String path ) {
 
+        if ( config == null )
+            throw new NullPointerException( "config" );
+        
         String dir = config.getPath( part, path );
 
         return getChunkFiles( dir );

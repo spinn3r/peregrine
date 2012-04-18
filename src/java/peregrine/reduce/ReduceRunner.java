@@ -52,7 +52,6 @@ public class ReduceRunner {
 
     private List<JobOutput> jobOutput = null;
 
-    
     public ReduceRunner( Config config,
                          Task task,
                          Partition partition,
@@ -114,7 +113,7 @@ public class ReduceRunner {
         }
 
         cleanup();
-        
+
     }
 
     /**
@@ -160,22 +159,26 @@ public class ReduceRunner {
         
         PrefetchReader prefetchReader = null;
 
+        ChunkMerger merger = null;
+        
         try {
 
             SystemProfiler profiler = config.getSystemProfiler();
 
             prefetchReader = createPrefetchReader( readers );
-            
-            ChunkMerger merger = new ChunkMerger( task, listener, partition, jobOutput );
+
+            merger = new ChunkMerger( task, listener, partition, readers, jobOutput );
         
-            merger.merge( readers );
+            merger.merge();
 
             log.info( "Merged with profiler rate: \n%s", profiler.rate() );
 
         } finally {
-            new Closer( prefetchReader ).close();
+                
+            new Closer( prefetchReader, merger ).close();
+            
         }
-
+        
     }
 
     /**
@@ -210,13 +213,15 @@ public class ReduceRunner {
 
             PrefetchReader prefetchReader = null;
 
+            ChunkMerger merger = null;
+            
             try { 
 
                 SystemProfiler profiler = config.getSystemProfiler();
 
                 prefetchReader = createPrefetchReader( work );
 
-                ChunkMerger merger = new ChunkMerger( task, null, partition, jobOutput );
+                merger = new ChunkMerger( task, null, partition, work, jobOutput );
 
                 final DefaultPartitionWriter writer = newInterChunkWriter( path );
 
@@ -242,14 +247,14 @@ public class ReduceRunner {
 
                     } );
 
-                merger.merge( work, writer );
+                merger.merge( writer );
 
                 result.add( newInterChunkReader( path ) );
 
                 log.info( "Merged with profiler rate: \n%s", profiler.rate() );
 
             } finally {
-                new Closer( prefetchReader ).close();
+                new Closer( prefetchReader, merger ).close();
             }
                 
         }

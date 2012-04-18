@@ -92,25 +92,33 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
             // directories.
 
             int port = 11112 + i;
-            String basedir = "/tmp/peregrine-fs-" + i;
+            String basedir = "/tmp/peregrine-fs-" + port;
 
             Host host = new Host( "localhost", port );
 
+            try {
+                configsByHost.put( host, getConfig( port ) );
+            } catch ( IOException e ) {
+                throw new RuntimeException( e );
+            }
+            
             //clean up the previosu basedir
             Files.remove( basedir );
 
             List<String> workerd_args = getArguments( port );
 
             workerd_args.add( 0, "bin/workerd" );
-            workerd_args.add( "--basedir=" + basedir );
             workerd_args.add( "start" );
 
+            /*
+
             List<String> bash_args = new ArrayList();
-            
+
             bash_args.add( "/bin/bash" );
             bash_args.add( "-c" );
             bash_args.add( "'" + Strings.join( workerd_args , " " ) + "'" );
             bash_args.add( "> foo.log" );
+            */
             
             /*
             args.add( 0, "bin/workerd" );
@@ -118,9 +126,9 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
             args.add( "start" );
             */
             
-            String cmdline = Strings.join( bash_args, " " );
+            String cmdline = Strings.join( workerd_args, " " );
 
-            ProcessBuilder pb = new ProcessBuilder( bash_args );
+            ProcessBuilder pb = new ProcessBuilder( workerd_args );
 
             pb.environment().put( "MAX_MEMORY",        MAX_MEMORY );
             pb.environment().put( "MAX_DIRECT_MEMORY", MAX_MEMORY );
@@ -196,12 +204,13 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
     public List<String> getArguments( int port ) {
 
         List<String> list = new ArrayList();
-        
+
         list.add( "--hostsFile=/tmp/peregrine.hosts" );
         list.add( "--host=localhost:" + port );
         list.add( "--concurrency=" + concurrency );
         list.add( "--replicas=" + replicas );
-
+        list.add( "--basedir=" + "/tmp/peregrine-fs-" + port );
+        
         return list;
 
     }
