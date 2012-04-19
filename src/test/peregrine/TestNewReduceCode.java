@@ -24,7 +24,7 @@ import peregrine.config.*;
 import peregrine.io.partition.*;
 import peregrine.task.*;
 
-public class TestNewReduceCode extends peregrine.BaseTestWithMultipleConfigs {
+public class TestNewReduceCode extends peregrine.BaseTestWithMultipleProcesses {
 
     public static class Map extends Mapper {
 
@@ -87,6 +87,8 @@ public class TestNewReduceCode extends peregrine.BaseTestWithMultipleConfigs {
     @Override
     public void doTest() throws Exception {
 
+        Config config = getConfig();
+        
         String path = String.format( "/test/%s/test1.in", getClass().getName() );
 
         config.setChunkSize( 16384 );

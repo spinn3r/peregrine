@@ -18,6 +18,7 @@ package peregrine.shuffle;
 import java.io.*;
 import peregrine.*;
 import peregrine.util.*;
+import peregrine.config.*;
 import peregrine.util.primitive.LongBytes;
 import peregrine.reduce.*;
 import peregrine.config.Partition;
@@ -33,10 +34,12 @@ import peregrine.reduce.sorter.*;
  * daemons, writing a LOT of data, and then reading it back in correctly as if
  * we were a reducer.
  */
-public class TestShufflePerformance extends BaseTestWithMultipleConfigs {
+public class TestShufflePerformance extends BaseTestWithMultipleProcesses {
 
     public void doTest() throws Exception {
 
+        Config config = getConfig();
+        
         byte[] value = new byte[32];
 
         int write_width = 2 * 8 * value.length;
@@ -96,8 +99,8 @@ public class TestShufflePerformance extends BaseTestWithMultipleConfigs {
     public static void main( String[] args ) throws Exception {
 
         //System.setProperty( "peregrine.test.factor", "35" ); 
-        System.setProperty( "peregrine.test.factor", "20000" ); 
-        System.setProperty( "peregrine.test.config", "1:1:256" ); 
+        System.setProperty( "peregrine.test.factor", "1" ); 
+        System.setProperty( "peregrine.test.config", "1:1:1" ); 
         //System.setProperty( "peregrine.test.config", "1:1:1" ); 
 
         runTests();

@@ -43,6 +43,8 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
 
     protected Map<Host,Config> configsByHost = new HashMap();
 
+    protected List<Config> configs = new ArrayList();
+    
     public void setUp() {
 
         System.out.printf( "setUp()\n" );
@@ -109,6 +111,7 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
             }
             
             configsByHost.put( host, config );
+            configs.add( config );
             
             //clean up the previosu basedir
             Files.remove( basedir );
@@ -281,5 +284,129 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
      * logic here.
      */
     public abstract void doTest() throws Exception;
+
+    /**
+     * Read all key/value pairs on the given path on all partitions.  
+     */
+    public List<StructPair> read( String path ) throws IOException {
+
+        Config config = getConfig();
+        
+        List<StructPair> result = new ArrayList();
+        
+        Membership membership = config.getMembership();
+        
+        for( Partition part : membership.getPartitions() ) {
+
+            Host host = membership.getHosts( part ).get( 0 );
+
+            LocalPartitionReader reader = new LocalPartitionReader( configsByHost.get( host ), part, path );
+
+            while( reader.hasNext() ) {
+
+                reader.next();
+
+                StructPair pair = new StructPair();
+                pair.key = reader.key();
+                pair.value = reader.value();
+                
+                result.add( pair );
+
+            }
+
+        }
+
+        return result;
+        
+    }
+
+    /**
+     * 
+     * Read a file on the given path and dump it to stdout.
+     * 
+     * b = byte
+     * s = string
+     * v = varint
+     * i = int
+     * l = long
+     * f = float
+     * d = double
+     * B = boolean
+     * c = char
+     * S = short
+     * h = hashcode
+     * 
+     */
+    public void dump( String path, String key_format, String value_format ) throws IOException {
+
+        System.out.printf( "=====\n" );
+        System.out.printf( "dump:%s\n", path );
+        System.out.printf( "=====\n" );
+        
+        List<StructPair> data = read( path );
+
+        for( StructPair pair : data ) {
+            dump( pair.key,   key_format );
+            System.out.printf( "= " );
+            dump( pair.value, value_format );
+            
+            System.out.printf( "\n" );
+            
+        }
+
+    }
+
+    private void dump( StructReader value , String format ) {
+
+        for ( char c : format.toCharArray() ) {
+
+            switch( c ) {
+                
+            case 'b':
+                System.out.printf( "%s ", value.readByte() );
+                break;
+            case 's':
+                System.out.printf( "%s ", value.readString() );
+                break;
+            case 'v':
+                System.out.printf( "%s ", value.readVarint() );
+                break;
+            case 'i':
+                System.out.printf( "%s ", value.readInt() );
+                break;
+            case 'l':
+                System.out.printf( "%s ", value.readLong() );
+                break;
+            case 'f':
+                System.out.printf( "%s ", value.readFloat() );
+                break;
+            case 'd':
+                System.out.printf( "%s ", value.readDouble() );
+                break;
+            case 'B':
+                System.out.printf( "%s ", value.readBoolean() );
+                break;
+            case 'c':
+                System.out.printf( "%s ", value.readChar() );
+                break;
+            case 'S':
+                System.out.printf( "%s ", value.readShort() );
+                break;
+            case 'h':
+                System.out.printf( "%s ", Base16.encode( value.readHashcode() ) );
+                break;
+
+            };
+            
+        }
+        
+    }
+
+    class StructPair {
+
+        StructReader key;
+        StructReader value;
+        
+    }
 
 }

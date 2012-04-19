@@ -18,11 +18,11 @@ package peregrine.io.partition;
 import java.io.*;
 import java.util.*;
 import peregrine.*;
-import peregrine.config.Partition;
+import peregrine.config.*;
 import peregrine.io.partition.*;
 import peregrine.io.chunk.*;
 
-public class TestDefaultPartitionWriter extends peregrine.BaseTestWithMultipleConfigs {
+public class TestDefaultPartitionWriter extends peregrine.BaseTestWithMultipleProcesses {
 
     public static int[] TESTS = new int[] { 0, 1, 2, 3 , 10, 100, 1000 , 10000 };
 
@@ -37,6 +37,8 @@ public class TestDefaultPartitionWriter extends peregrine.BaseTestWithMultipleCo
 
     public void doTest( int max ) throws Exception {
 
+        Config config = getConfig();
+        
         String path = "/tmp/test";
 
         // STEP 1... make a new file and write lots of chunks to it.

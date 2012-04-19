@@ -26,7 +26,7 @@ import peregrine.util.primitive.*;
 import peregrine.util.*;
 import com.spinn3r.log5j.*;
 
-public class TestMapReduceWithMergeFactor extends peregrine.BaseTestWithMultipleConfigs {
+public class TestMapReduceWithMergeFactor extends peregrine.BaseTestWithMultipleProcesses {
 
     private static final Logger log = Logger.getLogger();
 
@@ -66,6 +66,8 @@ public class TestMapReduceWithMergeFactor extends peregrine.BaseTestWithMultiple
 
     private void doTest( int max ) throws Exception {
 
+        Config config = getConfig();
+        
         String path = String.format( "/test/%s/test1.in", getClass().getName() );
         
         ExtractWriter writer = new ExtractWriter( configs.get(0), path );

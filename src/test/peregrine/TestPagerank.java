@@ -16,9 +16,10 @@
 package peregrine;
 
 import peregrine.io.*;
+import peregrine.config.*;
 import peregrine.app.pagerank.*;
 
-public class TestPagerank extends peregrine.BaseTestWithMultipleConfigs {
+public class TestPagerank extends peregrine.BaseTestWithMultipleProcesses {
 
     @Override
     public void doTest() throws Exception {
@@ -29,6 +30,8 @@ public class TestPagerank extends peregrine.BaseTestWithMultipleConfigs {
 
     private void doTest( int nr_nodes,
                          int max_edges_per_node ) throws Exception {
+
+        Config config = getConfig();
 
         // only 0 and 1 should be dangling.
 

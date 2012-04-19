@@ -34,7 +34,7 @@ import peregrine.http.*;
  * daemons, writing a LOT of data, and then reading it back in correctly as if
  * we were a reducer.
  */
-public class TestFanoutWritePerformance extends BaseTestWithMultipleConfigs {
+public class TestFanoutWritePerformance extends BaseTestWithMultipleProcesses {
 
     List<HttpClient> clients = new ArrayList();
 
@@ -44,6 +44,8 @@ public class TestFanoutWritePerformance extends BaseTestWithMultipleConfigs {
     
     public void init() throws Exception {
 
+        Config config = getConfig();
+        
         max_emits = ((10000000 * getFactor() ) / value.length) / config.getHosts().size();
 
         System.out.printf( "max_emits: %,d\n" , max_emits );
@@ -166,6 +168,8 @@ public class TestFanoutWritePerformance extends BaseTestWithMultipleConfigs {
 
     public void doTest() throws Exception {
 
+        Config config = getConfig();
+        
         // create the writers.
 
         long before = System.currentTimeMillis();

@@ -20,10 +20,10 @@ import java.net.*;
 import java.security.*;
 
 import peregrine.util.*;
-import peregrine.config.Config;
+import peregrine.config.*;
 import peregrine.http.*;
 
-public class TestRemoteChunkWriterClient extends peregrine.BaseTestWithMultipleConfigs {
+public class TestRemoteChunkWriterClient extends peregrine.BaseTestWithMultipleProcesses {
 
     public static int[] TEST = new int[] { 1, 2, 4, 8, 16, 32 };
 
@@ -37,6 +37,8 @@ public class TestRemoteChunkWriterClient extends peregrine.BaseTestWithMultipleC
     }
 
     public void doTest( int max ) throws Exception {
+
+        Config config = getConfig();
 
         URI uri = new URI( "http://localhost:11112/test-write-hash" );
 

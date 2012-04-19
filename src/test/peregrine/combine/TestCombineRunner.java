@@ -25,7 +25,7 @@ import peregrine.io.chunk.*;
 import peregrine.app.pagerank.*;
 import peregrine.io.driver.blackhole.*;
 
-public class TestCombineRunner extends peregrine.BaseTestWithMultipleConfigs {
+public class TestCombineRunner extends peregrine.BaseTestWithMultipleProcesses {
 
     @Override
     public void doTest() throws Exception {

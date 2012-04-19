@@ -16,15 +16,18 @@
 package peregrine.pfsd;
 
 import peregrine.*;
+import peregrine.config.*;
 import peregrine.io.*;
 
-public class TestExtractWriterPerformance extends BaseTestWithMultipleConfigs {
+public class TestExtractWriterPerformance extends BaseTestWithMultipleProcesses {
 
     private ExtractWriter writer;
 
     private String path = "/test/extract1";
 
     public void init() throws Exception {
+
+        Config config = getConfig();
 
         long before = System.currentTimeMillis();
 
@@ -125,7 +128,7 @@ public class TestExtractWriterPerformance extends BaseTestWithMultipleConfigs {
             
             test.setUp();
             test.test();
-            test.shutdown();
+            //test.shutdown();
             test.tearDown();
 
         }

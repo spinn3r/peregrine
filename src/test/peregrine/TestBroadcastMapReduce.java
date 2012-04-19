@@ -24,9 +24,7 @@ import peregrine.util.*;
 import peregrine.util.primitive.IntBytes;
 import peregrine.io.partition.*;
 
-public class TestBroadcastMapReduce
-    extends peregrine.BaseTestWithMultipleProcesses {
-    //extends peregrine.BaseTestWithMultipleConfigs {
+public class TestBroadcastMapReduce extends peregrine.BaseTestWithMultipleProcesses {
     
     public static class Map extends Mapper {
 
