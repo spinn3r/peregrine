@@ -188,6 +188,20 @@
 
                     <include name="**/Test*.java"/>
 
+                    <exclude name="peregrine/TestMapReduceWithMergeFactor.java"/>
+                    <exclude name="peregrine/TestBroadcastMapReduce.java"/>
+                    <exclude name="peregrine/TestDataImbalance.java"/>
+                    <exclude name="peregrine/TestMapReduce.java"/>
+                    
+                    <exclude name="peregrine/TestNewReduceCode.java"/>
+                    <exclude name="peregrine/TestPagerank.java"/>
+                    <exclude name="peregrine/TestPagerankAccuracy.java"/>
+                    <exclude name="peregrine/io/partition/TestDefaultPartitionWriter.java"/>
+                    <exclude name="peregrine/pfs/TestRemoteChunkWriterClient.java"/>
+                    <exclude name="peregrine/pfsd/TestExtractWriterPerformance.java"/>
+                    <exclude name="peregrine/pfsd/TestFanoutWritePerformance.java"/>
+                    <exclude name="peregrine/shuffle/TestShufflePerformance.java"/>
+
                     <exclude name="peregrine/io/driver/cassandra/TestCassandra.java"/>
                     <exclude name="peregrine/TestWorkerFailureDuringJob.java"/>
 
