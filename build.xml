@@ -316,6 +316,80 @@
 
     </target> 
 
+    <target name="test-multi-processes">
+
+        <property name="peregrine.test.factor" value="1" />
+        <property name="peregrine.test.config" value="1:1:1" />
+      
+        <tstamp>
+            <format property="ts" pattern="yyyyMMdd-HHmmss" locale="GMT"/>
+        </tstamp>
+
+        <taskdef name="junit"
+                 classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask"> 
+            <classpath refid="project.classpath"/>
+        </taskdef>	
+
+        <echo message="peregrine.test.config: ${peregrine.test.config}"/>
+
+        <mkdir dir="target/test-reports/${ts}" />
+
+        <junit printsummary="withOutAndErr"
+               fork="true"
+               forkmode="perTest"
+               timeout="1000000"
+               maxmemory="1024m"
+               filtertrace="false"
+               haltonfailure="${haltonfailure}"
+               haltonerror="${haltonerror}"
+               failureproperty="junit.failed"
+               errorproperty="junit.errored"
+               showoutput="true" 
+               logfailedtests="true">
+
+            <jvmarg value="-Dperegrine.test.config=${peregrine.test.config}"/>
+            <jvmarg value="-Dperegrine.test.factor=${peregrine.test.factor}"/>
+
+            <formatter type="plain" usefile="true" />
+            <formatter type="xml"   usefile="true" />
+
+            <classpath>
+                <path refid="project.classpath"/>
+            </classpath>
+
+            <batchtest todir="target/test-reports/${ts}"> 
+
+                <fileset dir="src/test">
+
+                  <include name="peregrine/TestBroadcastMapReduce.java"/>
+                  <include name="peregrine/TestMapReduce.java"/>
+                  <include name="peregrine/TestWorkerFailureDuringJob.java"/>
+                  <include name="peregrine/TestMultipleProcesses.java"/>
+
+                </fileset>
+
+            </batchtest>
+            
+        </junit>
+
+        <echo message="junit.failed: ${junit.failed}"/>
+        <echo message="junit.errored: ${junit.errored}"/>
+
+        <condition property="test.failed">
+            <or>
+                <istrue value="${junit.failed}"/>
+                <istrue value="${junit.errored}"/>
+            </or>
+        </condition>
+
+        <echo message="test.failed: ${test.failed}"/>
+
+        <touch file="target/test-reports/failed.${test.failed}" />
+
+        <fail if="test.failed"/>
+
+    </target> 
+
     <target name="test-report">
 
         <junitreport todir="target/test-reports">
@@ -476,5 +550,4 @@
     </target>
 
 </project>
-
 

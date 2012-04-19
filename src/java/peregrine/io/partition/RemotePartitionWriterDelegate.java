@@ -78,7 +78,7 @@ public class RemotePartitionWriterDelegate extends BasePartitionWriterDelegate {
      * only happens when writing to a new partition.
      */
     private Map<String,List<String>> request( String method ) throws IOException {
-
+        
         URL url = new URL( String.format( "http://%s:%s/%s%s",
                                           host.getName(),
                                           host.getPort(),

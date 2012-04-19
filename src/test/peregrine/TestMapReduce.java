@@ -101,7 +101,7 @@ public class TestMapReduce extends peregrine.BaseTestWithMultipleProcesses {
 
                 try {
 
-                    String relative = String.format( "/%s%s", part.getId(), path );
+                    String relative = String.format( "%s", path );
                     
                     log.info( "Checking %s on %s", relative, host );
                     
