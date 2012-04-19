@@ -53,8 +53,8 @@ public class TestMultipleProcesses extends peregrine.BaseTestWithMultipleProcess
 
         Config config = getConfig();
         
-        String path = String.format( "/test/%s/test1.in",  Test2.class.getName() );
-        String out  = String.format( "/test/%s/test1.out", Test2.class.getName() );
+        String path = String.format( "/test/%s/test1.in",  getClass().getName() );
+        String out  = String.format( "/test/%s/test1.out", getClass().getName() );
          
         extract( config, path );
 
