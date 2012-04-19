@@ -97,7 +97,7 @@ public class TestMapReduceWithMergeFactor extends peregrine.BaseTestWithMultiple
                             new Input( path ),
                             new Output( "shuffle:default" ) );
 
-            int nr_shuffles = new File( "/tmp/peregrine-fs/localhost/11112/tmp/shuffle/default" ).list().length;
+            int nr_shuffles = new File( "/tmp/peregrine-fs-11112/localhost/11112/tmp/shuffle/default" ).list().length;
             
             controller.reduce( Reduce.class,
                                new Input( "shuffle:default" ),
