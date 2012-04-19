@@ -51,7 +51,7 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
         
         super.setUp();
 
-        String conf = System.getProperty( "peregrine.test.config" );
+        String conf = System.getProperty( "peregrine.test.config", "1:1:1" );
 
         if ( conf == null || conf.equals( "" ) ) {
             log.warn( "NOT RUNNING %s: peregrine.test.config not defined", getClass().getName() );
@@ -248,12 +248,7 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
      */
     public int getFactor() {
 
-        String factor = System.getProperty( "peregrine.test.factor" );
-
-        if ( factor == null )
-            return 1;
-
-        return Integer.parseInt( factor );
+        return Integer.parseInt( System.getProperty( "peregrine.test.factor", "1" ) );
         
     }
     
