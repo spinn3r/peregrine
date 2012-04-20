@@ -377,15 +377,21 @@ public abstract class BaseTask implements Task {
     }
 
     protected void sendMessageToController( Message message ) throws IOException {
-    	
-        log.info( "Sending %s message to controller%s", message.get( "action" ), message );
-        
-        message.put( "host"      , config.getHost().toString() );
-        message.put( "job_id"    , job_id );
-        message.put( "input"     , input.getReferences() );
-        message.put( "work"      , work.getReferences() );
 
-        new Client().invoke( config.getController(), "controller", message );
+        try {
+        
+            log.info( "Sending %s message to controller%s", message.get( "action" ), message );
+            
+            message.put( "host"      , config.getHost().toString() );
+            message.put( "job_id"    , job_id );
+            message.put( "input"     , input.getReferences() );
+            message.put( "work"      , work.getReferences() );
+            
+            new Client().invoke( config.getController(), "controller", message );
+
+        } catch ( IOException e ) {
+            throw new IOException( "Unable to send message to controller: " + config.getController(), e );
+        }
     	
     }
     
