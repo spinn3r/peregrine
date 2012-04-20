@@ -40,6 +40,8 @@ public class Files {
         if ( ! file.exists() )
             return;
 
+        //TODO: migrate to using Recursively
+
         if ( file.isDirectory() ) {
         
             File[] files = file.listFiles();
@@ -77,6 +79,8 @@ public class Files {
      */
     public static void purge( File file ) {
 
+        //TODO: migrate to using Recursively
+
         if ( file.isDirectory() ) {
         
             File[] files = file.listFiles();
@@ -97,6 +101,8 @@ public class Files {
         if ( ! file.exists() )
             return;
 
+        //TODO: migrate to using Recursively
+        
         File[] files = file.listFiles();
         
         for ( File current : files ) {
@@ -272,6 +278,10 @@ public class Files {
 
 }
 
+/**
+ * Handles listing the files, looking to see if they are directories, and if so
+ * handling each directory.
+ */
 abstract class Recursively <T extends Throwable> {
 
     public Recursively( File file ) throws T {

@@ -206,7 +206,6 @@ public class PrefetchReader implements Closeable {
                                   pageEntry.file.fd,
                                   pageEntry.offset );
 
-
         if ( config.getShuffleMapLockEnabled() ) {
 
             // now mlock it because MAP_LOCKED isn't supported on all platforms
@@ -229,7 +228,6 @@ public class PrefetchReader implements Closeable {
 
     private void evict( PageEntry pageEntry ) throws IOException {
 
-        
         if ( pageEntry.length == 0 )
             return;
 
@@ -241,16 +239,10 @@ public class PrefetchReader implements Closeable {
 
         mman.munmap( pageEntry.pa, pageEntry.length );
 
-        /*
-
-        TODO: this is returning a bad file descriptor in tests..  Need to figure
-        out why ... 
-
         fcntl.posix_fadvise( pageEntry.file.fd,
                              pageEntry.offset,
                              pageEntry.length,
                              fcntl.POSIX_FADV_DONTNEED );
-        */
                              
         pageEntry.fileMeta.evictedHistory.put( pageEntry );
 
