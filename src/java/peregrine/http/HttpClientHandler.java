@@ -44,11 +44,15 @@ public class HttpClientHandler extends SimpleChannelUpstreamHandler {
         
             HttpResponse response = (HttpResponse) e.getMessage();
             
-            log.info( "Received HTTP response: %s for %s", response.getStatus(), client.uri );
+            //log.info( "Received HTTP response: %s for %s", response.getStatus(), client.uri );
 
             client.channelState = HttpClient.CLOSED;
             
             if ( response.getStatus().getCode() != OK.getCode() ) {
+
+                log.warn( "Received HTTP response: %s for %s",
+                          response.getStatus(), client.uri );
+
                 client.failed( new IOException( response.getStatus().toString() ) );
                 return;
             }

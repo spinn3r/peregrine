@@ -65,7 +65,7 @@ public class BaseConfig {
     /**
      * Unique index of hosts. 
      */
-    protected Set<Host> hosts = new HashSet<Host>();
+    protected SortedSet<Host> hosts = new TreeSet<Host>();
 
     /**
      * The number of replicas per file we are configured for.  Usually 2 or 3.
@@ -180,11 +180,11 @@ public class BaseConfig {
         return this.controller.getName().equals( getHost().getName() );
     }
     
-    public Set<Host> getHosts() {
+    public SortedSet<Host> getHosts() {
         return hosts;
     }
 
-    public void setHosts( Set<Host> hosts ) {
+    public void setHosts( SortedSet<Host> hosts ) {
         this.hosts = hosts;
     }
     

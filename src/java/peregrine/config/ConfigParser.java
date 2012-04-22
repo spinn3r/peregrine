@@ -109,13 +109,13 @@ public class ConfigParser {
         
     }
     
-    protected static Set<Host> readHosts( File file ) throws IOException {
+    protected static SortedSet<Host> readHosts( File file ) throws IOException {
 
         String data = Files.toString( file );
         
         String[] lines = data.split( "\n" );
 
-        Set<Host> hosts = new HashSet();
+        SortedSet<Host> hosts = new TreeSet();
 
         for( String line : lines ) {
 

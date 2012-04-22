@@ -137,6 +137,12 @@ public class Scheduler {
      */
     protected Map<Host,List<Work>> workIndex = new ConcurrentHashMap();
 
+    /**
+     * All known work (sorted) for this job.  This is immutable and won't change
+     * at runtime as a full reference of all the work needed.
+     */
+    protected SortedSet<Work> work = new TreeSet();
+    
     protected ChangedMessage changedMessage = new ChangedMessage();
 
     private ClusterState clusterState;
@@ -167,6 +173,13 @@ public class Scheduler {
         workIndex = createWorkIndex();
 
         offlineWork = new IncrMap();
+        work = new TreeSet( new Comparator<Work>() {
+
+                public int compare( Work w1, Work w2 ) {
+                    return w1.toString().compareTo( w2.toString() );
+                }
+                
+            } );
 
         // make sure EVERY work unit has an entry in the offlineWork index so
         // that when we do a get() we can measure that it is zero (and not
@@ -178,6 +191,7 @@ public class Scheduler {
 
             for( Work current : workForHost ) {
                 offlineWork.init( current );
+                work.add( current );
             }
             
         }
@@ -226,6 +240,10 @@ public class Scheduler {
 
     }
 
+    /**
+     * For each input reference, get a list of work from the driver, for a given
+     * host.
+     */
     protected Map<Host,List<Work>> createWorkIndex() throws IOException {
     
     	Map<Host,List<Work>> result = new ConcurrentHashMap();
@@ -623,13 +641,16 @@ public class Scheduler {
 
         buff.append( String.format( "-- progress for %s %s: --\n", operation, job ) );
         
-        buff.append( String.format( "  scheduled:  %s\n" + 
-                                    "  completed:  %s\n" +
+        buff.append( String.format( "  progress:   %s\n" +
                                     "  available:  %s\n" +
                                     "  spare:      %s\n" +
                                     "  online:     %s\n" +
                                     "  failure:    %s\n", 
-                                    format( scheduled ), format( completed ), available, spare, clusterState.getOnline(), failure ) );
+                                    createProgressBitMap(),
+                                    available,
+                                    createBitMap( spare ),
+                                    createBitMap( clusterState.getOnline() ),
+                                    failure ) );
 
         long perc = (long)(100 * (completed.size() / (double)offlineWork.size()));
         
@@ -641,6 +662,57 @@ public class Scheduler {
 
     }
 
+    /**
+     * 
+     */
+    private String createBitMap( MarkCollection<Host> set ) {
+
+        StringBuilder buff = new StringBuilder();
+
+        for( Host current : config.getHosts() ) {
+
+            if ( set.contains( current ) ) {
+                buff.append( "*" );
+            } else {
+                buff.append( "." );
+            }
+
+        }
+
+        return buff.toString();
+        
+    }
+    
+    /**
+     * Use the existing work list to create a progress bit map.
+     */
+    private String createProgressBitMap() {
+
+        StringBuilder buff = new StringBuilder();
+        
+        for( Work current : work ) {
+
+            if ( scheduled.contains( current ) ) {
+                buff.append( "S" );
+                continue;
+            }
+
+            if ( completed.contains( current ) ) {
+                buff.append( "C" );
+                continue;
+            }
+
+            buff.append( "." );
+
+            //if ( buff.length() % 80 == 0 )
+            //    buff.append( "    \n" );
+            
+        }
+
+        return buff.toString();
+        
+    }
+    
     private String format( MarkSet<Work> set ) {
 
         StringBuilder buff = new StringBuilder();

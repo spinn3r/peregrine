@@ -15,13 +15,18 @@
 */
 package peregrine.util;
 
-public class MarkSet<T> extends MarkMap<T,Long> implements MarkCollection<T> {
+import java.util.*;
+import java.util.concurrent.*;
 
-    private static final Long MARKED = new Long( 1L );
-    
-	@Override
-	public void mark( T entry ) {
-		put( entry, MARKED );
-	}
+/**
+ * Data structure which can keep collections of marks around a given key.
+ */
+public interface MarkCollection<K> {
+
+	public void mark( K key );
+
+	public void clear( K key );
+
+	public boolean contains( K key );
 
 }

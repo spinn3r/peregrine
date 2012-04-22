@@ -22,7 +22,7 @@ import java.util.concurrent.*;
  * Data structure which contains a key to mark map.  You can mark an item as in
  * in the set with a given value.
  */
-public class MarkMap<T,V> {
+public class MarkMap<T,V> implements MarkCollection<T> {
 
 	protected ConcurrentHashMap<T,V> map = new ConcurrentHashMap();
 
