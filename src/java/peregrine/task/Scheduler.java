@@ -637,24 +637,25 @@ public class Scheduler {
 
     private String status() {
 
+        Map<String,String> status = getStatusAsMap();
+        
         StringBuilder buff = new StringBuilder();
 
-        buff.append( String.format( "-- progress for %s %s: --\n", operation, job ) );
+        buff.append( String.format( "-- progress (%s) for %s %s: --\n",
+                                    status.get( "perc" ),
+                                    status.get( "operation" ),
+                                    status.get( "job" ) ) );
         
         buff.append( String.format( "  progress:   %s\n" +
                                     "  available:  %s\n" +
                                     "  spare:      %s\n" +
                                     "  online:     %s\n" +
                                     "  failure:    %s\n", 
-                                    createProgressBitMap(),
-                                    available,
-                                    createBitMap( spare ),
-                                    createBitMap( clusterState.getOnline() ),
-                                    failure ) );
-
-        long perc = (long)(100 * (completed.size() / (double)offlineWork.size()));
-        
-        buff.append( String.format( "  Perc complete (%s): %,d %% \n", operation, perc ) );
+                                    status.get( "progress" ),
+                                    status.get( "available" ),
+                                    status.get( "spare" ),
+                                    status.get( "online" ),
+                                    status.get( "failure" ) ) );
 
         buff.setLength( buff.length() - 1 ); // trim the trailing \n
         
@@ -662,6 +663,29 @@ public class Scheduler {
 
     }
 
+    /**
+     * Get the current status as a map.
+     */
+    public Map<String,String> getStatusAsMap() {
+
+        Map<String,String> result = new HashMap();
+
+        long perc = (long)(100 * (completed.size() / (double)offlineWork.size()));
+
+        result.put( "perc",         Long.toString( perc ) );
+        result.put( "operation",    operation );
+        result.put( "job",          job.toString() );
+                
+        result.put( "progress",     createProgressBitMap() );
+        result.put( "available",    available.toString() );
+        result.put( "spare",        createBitMap( spare ) );
+        result.put( "online",       createBitMap( clusterState.getOnline() ) );
+        result.put( "failure",      failure.toString() );
+
+        return result;
+        
+    }
+    
     /**
      * 
      */

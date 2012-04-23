@@ -74,6 +74,11 @@ public class StructMap {
         delegate.put( key, ""+value );
     }
 
+    public void put( String key, long value ) {
+        keys.add( key );
+        delegate.put( key, ""+value );
+    }
+
     public void put( String key, Object value ) {
     	put( key, value.toString() );
     }

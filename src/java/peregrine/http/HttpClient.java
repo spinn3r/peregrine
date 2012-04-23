@@ -41,10 +41,13 @@ public class HttpClient implements ChannelBufferWritable {
 
     private static final Logger log = Logger.getLogger();
 
+    protected static DefaultThreadFactory threadFactory =
+        new DefaultThreadFactory( HttpClient.class );
+    
     // FIXME: change to a fixed size thread pool based on concurrency... 
     protected static NioClientSocketChannelFactory socketChannelFactory =
-        new NioClientSocketChannelFactory( Executors.newCachedThreadPool( new DefaultThreadFactory( HttpClient.class ) ), 
-                                           Executors.newCachedThreadPool( new DefaultThreadFactory( HttpClient.class ) ) );
+        new NioClientSocketChannelFactory( Executors.newCachedThreadPool( threadFactory ), 
+                                           Executors.newCachedThreadPool( threadFactory ) );
 
     public static final String X_TAG = "X-tag";
     

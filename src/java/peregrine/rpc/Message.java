@@ -37,6 +37,10 @@ public class Message extends StructMap {
 
     }
 
+    public Message( Map map ) {
+        super( map );
+    }
+    
     @Override
     public String toString() {
         

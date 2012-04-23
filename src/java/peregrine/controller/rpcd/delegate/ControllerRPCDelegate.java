@@ -137,6 +137,24 @@ public class ControllerRPCDelegate extends RPCDelegate<ControllerDaemon> {
         return;
 		
     }
-    
+
+    /**
+     * Get the current scheduler state from the controller. 
+     */
+    @RPC
+    public void getSchedulerState( ControllerDaemon controllerDaemon, Channel channel, Message message )
+        throws Exception {
+
+        Scheduler scheduler = controllerDaemon.getScheduler();
+
+        if ( scheduler == null )
+            throw new Exception( "No currently executing job." );
+
+        Message response = new Message( scheduler.getStatusAsMap() );
+
+        channel.write( response );
+        
+    }
+
 }
 
