@@ -56,4 +56,26 @@ public class Message extends StructMap {
 
     }
 
+    /**
+     * Print a message which a human could read.
+     */
+    public String toDebugString() {
+
+        StringBuilder buff = new StringBuilder();
+        
+        for( String key : keys ) {
+
+            Object value = delegate.get( key );
+
+            buff.append( String.format( "%15s = %s\n", key, value ) );
+            
+        }
+
+        if ( buff.length() == 0 )
+            return "";
+        
+        return buff.toString().substring( 0, buff.length() - 1 ) ;
+
+    }
+
 }
