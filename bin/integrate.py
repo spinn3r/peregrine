@@ -33,7 +33,7 @@ BRANCH="default"
 SCRATCH="/tmp/integration/peregrine"
 TEST_LOGS="/var/lib/integration/peregrine"
 
-TEST_COMMAND="hg cat -r default build.xml > build.xml && export ANT_OPTS=-Xmx256M && ant clean test"
+TEST_COMMAND="hg cat -r default build.xml > build.xml && export ANT_OPTS=-Xmx512M && ant clean test"
 #TEST_COMMAND="false"
 
 REPO="https://burtonator:redapplekittycat@bitbucket.org/burtonator/peregrine"
