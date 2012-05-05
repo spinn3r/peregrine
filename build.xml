@@ -313,7 +313,7 @@
 
         <echo message="test.failed: ${test.failed}"/>
 
-        <touch file="target/test-reports/failed.${test.failed}" />
+        <touch file="target/test-failed.${test.failed}" />
 
     </target> 
 

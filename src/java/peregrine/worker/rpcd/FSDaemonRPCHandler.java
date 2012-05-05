@@ -38,6 +38,7 @@ import peregrine.controller.rpcd.delegate.*;
 import com.spinn3r.log5j.*;
 
 /**
+ * RPC handler for worker filesystem operation.
  */
 public class FSDaemonRPCHandler extends BaseRPCHandler<FSDaemon> {
 
@@ -47,6 +48,7 @@ public class FSDaemonRPCHandler extends BaseRPCHandler<FSDaemon> {
         put( "/map/RPC",         new MapperRPCDelegate() );
         put( "/reduce/RPC",      new ReducerRPCDelegate() );
         put( "/merge/RPC",       new MergerRPCDelegate() );
+        put( "/system/RPC",      new SystemRPCDelegate() );
         
     }};
 
