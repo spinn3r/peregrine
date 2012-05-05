@@ -141,7 +141,7 @@
             depends="jar, compile.test, test-basic, test-multi, test-report" 
             description="Run junit tests.">
 
-        <available property="test.failed" file="target/test-reports/failed.true" />
+        <available property="test.failed" file="target/test-failed.true" />
 
         <echo message="test.failed (fail(3)): ${test.failed}"/>
 
@@ -209,7 +209,7 @@
 
         <echo message="test.failed: ${test.failed}"/>
 
-        <touch file="target/test-reports/failed.${test.failed}" />
+        <touch file="target/test-failed.${test.failed}" />
 
     </target>
 
