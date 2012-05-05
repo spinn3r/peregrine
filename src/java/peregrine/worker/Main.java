@@ -47,7 +47,11 @@ public class Main {
         // read the pid file...
         int pid = readPidfile( config );
 
-        if ( pid == -1 || WaitForDaemon.running( pid ) == false ) {
+        if ( pid == -1 ) {
+            return;
+        }
+        
+        if ( WaitForDaemon.running( pid ) == false ) {
             return;
         }
 

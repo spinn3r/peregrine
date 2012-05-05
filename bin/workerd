@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# When true, always allow the existing daemon to work.
+export YIELD_TO_EXISTING_DAEMON=true
+
 start() {
 
     # first check if we are already running ...
@@ -7,7 +10,8 @@ start() {
     result=$?
 
     # yup... we're up and running, so stop and return.
-    if [ "$result" = "0" ]; then
+    if [ "$result" = "0" ] && [ "$YIELD_TO_EXISTING_DAEMON" = "true" ] ; then
+        echo "Daemon was already up and listening."
         exit 0
     fi
 

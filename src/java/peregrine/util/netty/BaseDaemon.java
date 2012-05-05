@@ -50,32 +50,39 @@ public abstract class BaseDaemon {
 
     public void init() {
 
-        String root = config.getRoot();
-
-        if ( root == null )
-            throw new RuntimeException( "Root directory in config not defined." );
-
-        ThreadFactory tf = new DefaultThreadFactory( getClass() );
+        try {
         
-        int concurrency = config.getConcurrency();
-        
-        NioServerSocketChannelFactory factory = 
-        		new NioServerSocketChannelFactory( newDefaultThreadPool( concurrency, tf ),
-                                                   newDefaultThreadPool( concurrency, tf ),
-                                                   concurrency ) ;
-        		
-        bootstrap = BootstrapFactory.newServerBootstrap( factory );
+            String root = config.getRoot();
 
-        // set up the event pipeline factory.
-        bootstrap.setPipelineFactory( getChannelPipelineFactory() );
+            if ( root == null )
+                throw new RuntimeException( "Root directory in config not defined." );
 
-        log.info( "Starting up on %s with root: %s" , config.getHost(), root );
-        
-        // Bind and start to accept incoming connections.
-        channel = bootstrap.bind( new InetSocketAddress( config.getHost().getPort() ) );
+            ThreadFactory tf = new DefaultThreadFactory( getClass() );
+            
+            int concurrency = config.getConcurrency();
+            
+            NioServerSocketChannelFactory factory = 
+            		new NioServerSocketChannelFactory( newDefaultThreadPool( concurrency, tf ),
+                                                       newDefaultThreadPool( concurrency, tf ),
+                                                       concurrency ) ;
+            		
+            bootstrap = BootstrapFactory.newServerBootstrap( factory );
 
-        log.info( "Now listening on %s with root: %s" , config.getHost(), root );
-        
+            // set up the event pipeline factory.
+            bootstrap.setPipelineFactory( getChannelPipelineFactory() );
+
+            log.info( "Starting up on %s with root: %s" , config.getHost(), root );
+            
+            // Bind and start to accept incoming connections.
+            channel = bootstrap.bind( new InetSocketAddress( config.getHost().getPort() ) );
+
+            log.info( "Now listening on %s with root: %s" , config.getHost(), root );
+
+        } catch ( RuntimeException e ) {
+            log.fatal( "Unable to init daemon: " + e.getMessage() , e );
+            throw e;
+        }
+            
     }
 
     public abstract ChannelPipelineFactory getChannelPipelineFactory();

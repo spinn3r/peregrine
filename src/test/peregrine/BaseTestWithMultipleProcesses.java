@@ -112,6 +112,11 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
             
             configsByHost.put( host, config );
             configs.add( config );
+
+            // use the files in the current basedir to see if an existing daemon
+            // is running on this port and if so shut it down.
+
+            stopDaemon( port );
             
             //clean up the previosu basedir
             Files.remove( basedir );
@@ -223,12 +228,10 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
             for( int port : processes.keySet() ) {
 
                 try {
-                    
+
                     System.out.printf( "Destroying proc on port: %s\n", port );
-
-                    Config config = getConfig( port );
-
-                    peregrine.worker.Main.stop( config );
+        
+                    stopDaemon( port );
 
                 } catch ( Exception e ) {
                     throw new RuntimeException( e );
@@ -242,6 +245,20 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
         
     }
 
+    private void stopDaemon( int port ) {
+
+        try {
+        
+            Config config = getConfig( port );
+            
+            peregrine.worker.Main.stop( config );
+
+        } catch ( Exception e ) {
+            throw new RuntimeException( e );
+        }
+
+    }
+    
     /**
      * Get the amount of work relative to the base test that we should be
      * working with.
