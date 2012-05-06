@@ -267,7 +267,7 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
 
         int result = Integer.parseInt( System.getProperty( "peregrine.test.factor", "1" ) );
 
-        log.info( "Using test factor %s", factor );
+        log.info( "Using test factor %s", result );
         
         return result;
         
