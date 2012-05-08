@@ -50,14 +50,8 @@ public class TestPagerank extends peregrine.BaseTestWithMultipleProcesses {
     }
 
     public static void main( String[] args ) throws Exception {
-        //System.setProperty( "peregrine.test.config", "04:01:32" ); 
-        //System.setProperty( "peregrine.test.config", "01:01:1" ); 
-        //System.setProperty( "peregrine.test.config", "8:1:32" );
-        //System.setProperty( "peregrine.test.config", "2:1:3" ); 
-        //System.setProperty( "peregrine.test.config", "2:1:3" ); 
-        System.setProperty( "peregrine.test.config", "1:1:1" ); 
+        setPropertyDefault( "peregrine.test.config", "1:1:1" ); 
         runTests();
-        
     }
 
 }
