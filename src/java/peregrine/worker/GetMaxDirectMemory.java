@@ -34,6 +34,7 @@ public class GetMaxDirectMemory {
 
         Config config = ConfigParser.parse( args );
 
+        // only one of these variables can be active at one time.
         long maxDirectMemorySize = Math.max( config.getShuffleBufferSize(),
                                              config.getSortBufferSize() );
 
