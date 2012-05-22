@@ -34,7 +34,13 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
     public static boolean KILL_WORKERS_ON_TEARDOWN = true;
     
     public static String MAX_MEMORY = "128M";
-    
+
+    /**
+     * Map to store port to base directory maps.  This way unit tests can use
+     * different drives and different devices.
+     */
+    protected static Map<Integer,String> BASEDIR_MAP = new HashMap();
+
     protected int concurrency = 0;
     protected int replicas = 0;
     protected int hosts = 0;
@@ -44,7 +50,7 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
     protected Map<Host,Config> configsByHost = new HashMap();
 
     protected List<Config> configs = new ArrayList();
-    
+
     public void setUp() {
 
         System.out.printf( "setUp()\n" );
@@ -196,11 +202,16 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
 
         List<String> list = new ArrayList();
 
+        String basedir = BASEDIR_MAP.get( port );
+
+        if ( basedir == null )
+            basedir = "/tmp/peregrine-fs-" + port;
+            
         list.add( "--hostsFile=/tmp/peregrine.hosts" );
         list.add( "--host=localhost:" + port );
         list.add( "--concurrency=" + concurrency );
         list.add( "--replicas=" + replicas );
-        list.add( "--basedir=" + "/tmp/peregrine-fs-" + port );
+        list.add( "--basedir=" + basedir );
         
         return list;
 
