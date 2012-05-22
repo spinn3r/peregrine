@@ -50,8 +50,15 @@ public class TestPagerank extends peregrine.BaseTestWithMultipleProcesses {
     }
 
     public static void main( String[] args ) throws Exception {
-        setPropertyDefault( "peregrine.test.config", "1:1:1" ); 
+
+        BaseTestWithMultipleProcesses.BASEDIR_MAP.put( 11112 , "/d0" );
+        BaseTestWithMultipleProcesses.BASEDIR_MAP.put( 11113 , "/d1" );
+        BaseTestWithMultipleProcesses.BASEDIR_MAP.put( 11114 , "/d2" );
+        BaseTestWithMultipleProcesses.BASEDIR_MAP.put( 11115 , "/d3" );
+        
+        setPropertyDefault( "peregrine.test.config", "1:1:4" ); 
         runTests();
+
     }
 
 }
