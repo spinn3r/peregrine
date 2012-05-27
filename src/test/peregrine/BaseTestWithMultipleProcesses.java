@@ -104,7 +104,7 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
             // directories.
 
             int port = 11112 + i;
-            String basedir = "/tmp/peregrine-fs-" + port;
+            String basedir = getBasedir( port );
 
             Host host = new Host( "localhost", port );
 
@@ -124,7 +124,9 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
 
             stopDaemon( port );
             
-            //clean up the previosu basedir
+            //clean up the previous basedir
+
+            System.out.printf( "Removing files in %s\n", basedir );
             Files.remove( basedir );
 
             List<String> workerd_args = getArguments( port );
@@ -225,11 +227,8 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
 
         List<String> list = new ArrayList();
 
-        String basedir = BASEDIR_MAP.get( port );
+        String basedir = getBasedir( port );
 
-        if ( basedir == null )
-            basedir = "/tmp/peregrine-fs-" + port;
-            
         list.add( "--hostsFile=/tmp/peregrine.hosts" );
         list.add( "--host=localhost:" + port );
         list.add( "--concurrency=" + concurrency );
@@ -240,6 +239,17 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
 
     }
 
+    public String getBasedir( int port ) {
+
+        String basedir = BASEDIR_MAP.get( port );
+
+        if ( basedir == null )
+            basedir = "/tmp/peregrine-fs-" + port;
+
+        return basedir;
+        
+    }
+    
     public Config getConfig() throws IOException {
         return getConfig( 11111 ); // controller port.
     }
