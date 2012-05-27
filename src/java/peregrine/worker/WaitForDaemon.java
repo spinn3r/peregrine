@@ -61,6 +61,8 @@ public class WaitForDaemon {
 
     public static void waitForDaemon( int pid, int port ) throws Exception {
 
+        System.out.printf( "FIXME waitForDaemon on %d and %s\n", pid, port );
+        
         long now = System.currentTimeMillis();
 
         InetAddress localhost = InetAddress.getLocalHost();

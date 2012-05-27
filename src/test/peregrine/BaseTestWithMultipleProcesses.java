@@ -141,8 +141,6 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
 
             try {
 
-                System.out.printf( "Starting proc: %s\n", cmdline );
-
                 //First make sure it's not already running by verifying that the
                 //pid does not exist.
                 try {
@@ -153,6 +151,7 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
                     throw new Exception( "Daemon is already running: " + port );
                     
                 } catch ( Exception e ) {
+                    
                     // this is acceptable here because we want to first make
                     // sure this daemon is not running.
 
@@ -160,6 +159,8 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
                     
                 }
 
+                System.out.printf( "Starting proc: %s\n", cmdline );
+                
                 Process proc = pb.start();
 
                 // wait for the pid file to be created OR the process exits.
