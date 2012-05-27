@@ -197,9 +197,9 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
 
             try {
 
-                proc.exitValue();
+                int exit_value = proc.exitValue();
 
-                throw new Exception( "Proc terminated abnormally: " + port );
+                throw new Exception( String.format( "Proc terminated abnormally on port %s: %s" , port, exit_value ); 
 
             } catch ( IllegalThreadStateException e ) {
                 //this is ok becuase the daemon hasn't terminted yet.
