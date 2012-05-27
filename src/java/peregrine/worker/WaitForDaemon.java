@@ -73,7 +73,7 @@ public class WaitForDaemon {
             if ( pid > -1 ) {
 
                 if ( running( pid ) == false ) {
-                    throw new Exception( String.format( "Process with pid %s is dead.", pid ) );
+                    throw new Exception( String.format( "Process with pid %s on port %s is dead.", pid, port ) );
                 }
 
             }
@@ -100,7 +100,7 @@ public class WaitForDaemon {
 
             if ( System.currentTimeMillis() > now + TIMEOUT ) {
 
-                throw new Exception( String.format( "Exceeded timeout: %,d ms", TIMEOUT ) );
+                throw new Exception( String.format( "Exceeded timeout %,d ms waiting for pid %s on port %s", TIMEOUT, pid, port  ) );
                 
             }
             
