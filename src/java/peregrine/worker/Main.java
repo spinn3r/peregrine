@@ -137,6 +137,15 @@ public class Main {
         return readPidfile( file );
         
     }
-    
+
+    public static void deletePidfile( Config config ) throws IOException {
+
+        File file = new File( config.getRoot(), "worker.pid" );
+
+        if ( file.delete() == false )
+            throw new IOException( "Unable to delete pid file: " + file.getPath() );
+        
+    }
+        
 }
     

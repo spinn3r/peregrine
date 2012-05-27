@@ -143,11 +143,28 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
 
                 System.out.printf( "Starting proc: %s\n", cmdline );
 
+                //First make sure it's not already running by verifying that the
+                //pid does not exist.
+                try {
+
+                    WaitForDaemon.waitForDaemon( peregrine.worker.Main.readPidfile( config ), port );
+
+                    //TODO first shut it down now.
+                    throw new Exception( "Daemon is already running: " + port );
+                    
+                } catch ( Exception e ) {
+                    // this is acceptable here because we want to first make
+                    // sure this daemon is not running.
+
+                    peregrine.worker.Main.deletePidfile( config );
+                    
+                }
+
                 Process proc = pb.start();
 
                 // wait for the pid file to be created OR the process exits.
 
-                int pid = waitForProc( config, proc, port );
+                int pid = waitForProcStartup( config, proc, port );
                 
                 // wait for startup so we know the port is open
                 WaitForDaemon.waitForDaemon( pid, port );
@@ -164,9 +181,12 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
         
     }
 
-    private static int waitForProc( Config config,
-                                    Process proc,
-                                    int port ) throws Exception {
+    /**
+     * Wait for the proc to startup and for the pid file to be written.
+     */
+    private static int waitForProcStartup( Config config,
+                                           Process proc,
+                                           int port ) throws Exception {
 
         long started = System.currentTimeMillis();
         
