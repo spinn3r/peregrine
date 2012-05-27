@@ -141,11 +141,13 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
 
             try {
 
+                Pidfile pidfile = new Pidfile( config );
+                
                 //First make sure it's not already running by verifying that the
                 //pid does not exist.
                 try {
 
-                    WaitForDaemon.waitForDaemon( peregrine.worker.Main.readPidfile( config ), port );
+                    WaitForDaemon.waitForDaemon( pidfile.read(), port );
 
                     //TODO first shut it down now.
                     throw new Exception( "Daemon is already running: " + port );
@@ -155,7 +157,7 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
                     // this is acceptable here because we want to first make
                     // sure this daemon is not running.
 
-                    peregrine.worker.Main.deletePidfile( config );
+                    pidfile.delete();
                     
                 }
 
@@ -203,7 +205,7 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
                 //this is ok becuase the daemon hasn't terminted yet.
             }
 
-            int pid = peregrine.worker.Main.readPidfile( config );
+            int pid = new Pidfile( config ).read();
             
             if ( pid > -1 ) {
                 return pid;

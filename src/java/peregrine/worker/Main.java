@@ -43,9 +43,9 @@ public class Main {
         new Initializer( config ).assertRoot();
 
         log.info( "Stopping on %s" , config.getHost() );
-
+        
         // read the pid file...
-        int pid = readPidfile( config );
+        int pid = new Pidfile( config ).read();
 
         if ( pid == -1 ) {
             return;
@@ -114,37 +114,6 @@ public class Main {
             stop( args );
         }
 
-    }
-
-    public static int readPidfile( File file ) throws IOException {
-
-        if ( file.exists() == false )
-            return -1;
-
-        FileInputStream fis = new FileInputStream( file );
-        byte[] data = new byte[ (int)file.length() ]; 
-        fis.read( data );
-        fis.close();
-
-        return Integer.parseInt( new String( data ) );
-
-    }
-
-    public static int readPidfile( Config config ) throws IOException {
-
-        File file = new File( config.getRoot(), "worker.pid" );
-
-        return readPidfile( file );
-        
-    }
-
-    public static void deletePidfile( Config config ) throws IOException {
-
-        File file = new File( config.getRoot(), "worker.pid" );
-
-        if ( file.exists() && file.delete() == false )
-            throw new IOException( "Unable to delete pid file: " + file.getPath() );
-        
     }
         
 }
