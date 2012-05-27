@@ -142,7 +142,7 @@ public class Main {
 
         File file = new File( config.getRoot(), "worker.pid" );
 
-        if ( file.delete() == false )
+        if ( file.exists() && file.delete() == false )
             throw new IOException( "Unable to delete pid file: " + file.getPath() );
         
     }
