@@ -174,9 +174,7 @@ public class ReduceRunner {
             log.info( "Merged with profiler rate: \n%s", profiler.rate() );
 
         } finally {
-                
-            new Closer( prefetchReader, merger ).close();
-            
+            //FIXME: new Closer( prefetchReader, merger ).close();
         }
         
     }
