@@ -96,7 +96,7 @@ public class PrefetchReader implements Closeable {
             
             File file = mappedFile.getFile();
 
-            FileRef fileRef = new FileRef( file.getPath(), file.length(), mappedFile.getFd() );
+            FileRef fileRef = new FileRef( file.getPath(), file.length(), mappedFile );
             
             FileMeta fileMeta = new FileMeta( fileRef, capacity );
 
@@ -205,7 +205,7 @@ public class PrefetchReader implements Closeable {
         
         pageEntry.pa = mman.mmap( pageEntry.length,
                                   mman.PROT_READ, mman.MAP_SHARED,
-                                  pageEntry.file.fd,
+                                  pageEntry.file.getFd(),
                                   pageEntry.offset );
 
         if ( config.getShuffleMapLockEnabled() ) {
@@ -218,12 +218,12 @@ public class PrefetchReader implements Closeable {
                 //TODO: this needs to be an exception but in practice we were
                 //only dropping ONE page and it's better to have a slight
                 //performance impact for now than to completely fail.
-                log.warn( String.format( "Unable to lock %s" , pageEntry ), e );
+                log.warn( String.format( "Unable to lock %s (%s)" , pageEntry, e.getMessage() ), e );
             }
             
         }
         
-        fcntl.posix_fadvise( pageEntry.file.fd,
+        fcntl.posix_fadvise( pageEntry.file.getFd(),
                              pageEntry.offset,
                              pageEntry.length,
                              fcntl.POSIX_FADV_WILLNEED );
@@ -248,7 +248,7 @@ public class PrefetchReader implements Closeable {
 
         mman.munmap( pageEntry.pa, pageEntry.length );
 
-        fcntl.posix_fadvise( pageEntry.file.fd,
+        fcntl.posix_fadvise( pageEntry.file.getFd(),
                              pageEntry.offset,
                              pageEntry.length,
                              fcntl.POSIX_FADV_DONTNEED );
@@ -462,12 +462,16 @@ public class PrefetchReader implements Closeable {
 
         String path;
         long length;
-        int fd;
-        
-        public FileRef( String path, long length, int fd ) {
+        BaseMappedFile mappedFile;
+
+        public FileRef( String path, long length, BaseMappedFile mappedFile ) {
             this.path = path;
             this.length = length;
-            this.fd = fd;
+            this.mappedFile = mappedFile;
+        }
+
+        public int getFd() throws IOException {
+            return mappedFile.getFd();
         }
 
     }
