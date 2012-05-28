@@ -107,6 +107,7 @@ public class ReduceRunner {
                 }
 
             } finally {
+                //TODO: should we purge EVEN when we fail?  
                 purge( pass - 1 );
             }
                 
@@ -162,7 +163,7 @@ public class ReduceRunner {
         ChunkMerger merger = null;
         
         try {
-
+            
             SystemProfiler profiler = config.getSystemProfiler();
 
             prefetchReader = createPrefetchReader( readers );
@@ -174,9 +175,9 @@ public class ReduceRunner {
             log.info( "Merged with profiler rate: \n%s", profiler.rate() );
 
         } finally {
-                
+
             new Closer( prefetchReader, merger ).close();
-            
+
         }
         
     }

@@ -104,7 +104,7 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
             // directories.
 
             int port = 11112 + i;
-            String basedir = "/tmp/peregrine-fs-" + port;
+            String basedir = getBasedir( port );
 
             Host host = new Host( "localhost", port );
 
@@ -124,8 +124,10 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
 
             stopDaemon( port );
             
-            //clean up the previosu basedir
-            Files.remove( basedir );
+            //clean up the previous basedir
+
+            System.out.printf( "Removing files in %s\n", basedir );
+            Files.purge( basedir );
 
             List<String> workerd_args = getArguments( port );
 
@@ -141,13 +143,33 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
 
             try {
 
-                System.out.printf( "Starting proc: %s\n", cmdline );
+                Pidfile pidfile = new Pidfile( config );
+                
+                //First make sure it's not already running by verifying that the
+                //pid does not exist.
+                try {
 
+                    WaitForDaemon.waitForDaemon( pidfile.read(), port );
+
+                    //TODO first shut it down now.
+                    throw new Exception( "Daemon is already running: " + port );
+                    
+                } catch ( Exception e ) {
+                    
+                    // this is acceptable here because we want to first make
+                    // sure this daemon is not running.
+
+                    pidfile.delete();
+                    
+                }
+
+                System.out.printf( "Starting proc: %s\n", cmdline );
+                
                 Process proc = pb.start();
 
                 // wait for the pid file to be created OR the process exits.
 
-                int pid = waitForProc( config, proc, port );
+                int pid = waitForProcStartup( config, proc, port );
                 
                 // wait for startup so we know the port is open
                 WaitForDaemon.waitForDaemon( pid, port );
@@ -164,25 +186,18 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
         
     }
 
-    private static int waitForProc( Config config,
-                                    Process proc,
-                                    int port ) throws Exception {
+    /**
+     * Wait for the proc to startup and for the pid file to be written.
+     */
+    private static int waitForProcStartup( Config config,
+                                           Process proc,
+                                           int port ) throws Exception {
 
         long started = System.currentTimeMillis();
         
         while( true ) {
 
-            try {
-
-                proc.exitValue();
-
-                throw new Exception( "Proc terminated abnormally: " + port );
-
-            } catch ( IllegalThreadStateException e ) {
-                //this is ok becuase the daemon hasn't terminted yet.
-            }
-
-            int pid = peregrine.worker.Main.readPidfile( config );
+            int pid = new Pidfile( config ).read();
             
             if ( pid > -1 ) {
                 return pid;
@@ -202,11 +217,8 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
 
         List<String> list = new ArrayList();
 
-        String basedir = BASEDIR_MAP.get( port );
+        String basedir = getBasedir( port );
 
-        if ( basedir == null )
-            basedir = "/tmp/peregrine-fs-" + port;
-            
         list.add( "--hostsFile=/tmp/peregrine.hosts" );
         list.add( "--host=localhost:" + port );
         list.add( "--concurrency=" + concurrency );
@@ -217,6 +229,17 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
 
     }
 
+    public String getBasedir( int port ) {
+
+        String basedir = BASEDIR_MAP.get( port );
+
+        if ( basedir == null )
+            basedir = "/tmp/peregrine-fs-" + port;
+
+        return basedir;
+        
+    }
+    
     public Config getConfig() throws IOException {
         return getConfig( 11111 ); // controller port.
     }

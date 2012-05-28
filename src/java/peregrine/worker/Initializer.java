@@ -95,11 +95,11 @@ public final class Initializer {
     public void limitMemoryUsage() {
 
         // one page for every file that we could potentially open.
-        long max = config.getShuffleSegmentMergeParallelism() * PrefetchReader.DEFAULT_PAGE_SIZE;
+        long max = config.getSortBufferSize();
 
         try {
 
-            log.info( "Limiting locked memory usage to: %,d bytes", max );
+            log.info( "Limiting locked memory (via rlimit) usage to: %,d bytes", max );
 
             resource.RlimitStruct limit = new resource.RlimitStruct( max );
 

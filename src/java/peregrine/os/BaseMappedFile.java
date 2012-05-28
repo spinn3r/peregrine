@@ -32,7 +32,7 @@ import com.spinn3r.log5j.Logger;
 /**
  *
  */
-public class BaseMappedFile {
+public abstract class BaseMappedFile implements Closeable {
 
     protected FileChannel channel;
 
@@ -54,8 +54,13 @@ public class BaseMappedFile {
         return file;
     }
 
-    public int getFd() {
+    public int getFd() throws IOException {
+
+        if ( closer.isClosed() )
+            throw new IOException( "closed" );
+        
         return fd;
+        
     }
 
     public boolean isClosed() {
@@ -66,5 +71,8 @@ public class BaseMappedFile {
     public String toString() {
         return file.toString();
     }
+
+    @Override
+    public abstract void close() throws IOException;
 
 }

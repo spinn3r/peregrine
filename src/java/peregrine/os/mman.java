@@ -296,7 +296,8 @@ public class mman {
         throws IOException {
 
         if ( Delegate.mlock( addr, len ) != 0 ) {
-            throw new IOException( "Unable to mlock: ", new PlatformException() );
+            PlatformException cause = new PlatformException();
+            throw new IOException( String.format( "Unable to mlock %s with length %s: %s" , addr, len, cause.getMessage() ), cause );
         }
 
     }

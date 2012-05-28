@@ -135,7 +135,7 @@ public class ChunkMerger implements Closeable {
             //world.
 
             if ( input.size() == 0 ) {
-                log.info( "No input to sort." );
+                log.info( "No input to merge." );
                 return;
             }
 

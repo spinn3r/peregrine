@@ -44,7 +44,7 @@ public class PrefetchReader implements Closeable {
 
     public static long DEFAULT_PAGE_SIZE = (long)Math.pow( 2, 17 ); /* 2^17 = 128k */
 
-    public static boolean DEFAULT_ENABLE_LOG = false;
+    public static boolean DEFAULT_ENABLE_LOG = true;
     
     protected long pageSize = DEFAULT_PAGE_SIZE;
 
@@ -96,7 +96,7 @@ public class PrefetchReader implements Closeable {
             
             File file = mappedFile.getFile();
 
-            FileRef fileRef = new FileRef( file.getPath(), file.length(), mappedFile.getFd() );
+            FileRef fileRef = new FileRef( file.getPath(), file.length(), mappedFile );
             
             FileMeta fileMeta = new FileMeta( fileRef, capacity );
 
@@ -125,7 +125,9 @@ public class PrefetchReader implements Closeable {
                     length = fileRef.length - offset;
                 } 
 
-                fileMeta.pendingPages.put( new PageEntry( fileRef, fileMeta, offset, length ) );
+                PageEntry pe = new PageEntry( fileRef, fileMeta, offset, length );
+
+                fileMeta.pendingPages.put( pe );
 
                 // adjust the length or next time around
 
@@ -203,18 +205,34 @@ public class PrefetchReader implements Closeable {
         
         pageEntry.pa = mman.mmap( pageEntry.length,
                                   mman.PROT_READ, mman.MAP_SHARED,
-                                  pageEntry.file.fd,
+                                  pageEntry.file.getFd(),
                                   pageEntry.offset );
 
         if ( config.getShuffleMapLockEnabled() ) {
 
             // now mlock it because MAP_LOCKED isn't supported on all platforms
 
-            mman.mlock( pageEntry.pa, pageEntry.length );
+            try {
+
+                mman.mlock( pageEntry.pa, pageEntry.length );
+
+            } catch( IOException e ) {
+
+                //TODO: this needs to be an exception but in practice we were
+                //only dropping ONE page and it's better to have a slight
+                //performance impact for now than to completely fail.
+
+                if ( config.getEnableFailureDuringMemLockError() ) {
+                    throw e;
+                } else { 
+                    log.warn( String.format( "Unable to lock %s (%s)" , pageEntry, e.getMessage() ), e );
+                }
+
+            }
             
         }
         
-        fcntl.posix_fadvise( pageEntry.file.fd,
+        fcntl.posix_fadvise( pageEntry.file.getFd(),
                              pageEntry.offset,
                              pageEntry.length,
                              fcntl.POSIX_FADV_WILLNEED );
@@ -223,7 +241,7 @@ public class PrefetchReader implements Closeable {
         pageEntry.fileMeta.inCache.addAndGet( pageEntry.length );
 
         pageEntry.fileMeta.cachedHistory.put( pageEntry );
-        
+
     }
 
     private void evict( PageEntry pageEntry ) throws IOException {
@@ -239,7 +257,7 @@ public class PrefetchReader implements Closeable {
 
         mman.munmap( pageEntry.pa, pageEntry.length );
 
-        fcntl.posix_fadvise( pageEntry.file.fd,
+        fcntl.posix_fadvise( pageEntry.file.getFd(),
                              pageEntry.offset,
                              pageEntry.length,
                              fcntl.POSIX_FADV_DONTNEED );
@@ -311,9 +329,12 @@ public class PrefetchReader implements Closeable {
     }
     
     private void handleThrowable( PageEntry page, Throwable t ) {
-    
-        IOException e = new IOException( "Unable to prefetch: " + page, t );
+
+        String message = "Unable to prefetch: " + page;
+
+        log.warn( message , t );
         
+        IOException e = new IOException( message, t );
         page.fileMeta.cachedPages.raise( e );
         
     }
@@ -450,12 +471,16 @@ public class PrefetchReader implements Closeable {
 
         String path;
         long length;
-        int fd;
-        
-        public FileRef( String path, long length, int fd ) {
+        BaseMappedFile mappedFile;
+
+        public FileRef( String path, long length, BaseMappedFile mappedFile ) {
             this.path = path;
             this.length = length;
-            this.fd = fd;
+            this.mappedFile = mappedFile;
+        }
+
+        public int getFd() throws IOException {
+            return mappedFile.getFd();
         }
 
     }
