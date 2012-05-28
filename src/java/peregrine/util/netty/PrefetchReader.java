@@ -217,7 +217,10 @@ public class PrefetchReader implements Closeable {
             try {
                 mman.mlock( pageEntry.pa, pageEntry.length );
             } catch( IOException e ) {
-                throw new IOException( String.format( "Unable to lock %s" , pageEntry ), e );
+                //TODO: this needs to be an exception but in practice we were
+                //only dropping ONE page and it's better to have a slight
+                //performance impact for now than to completely fail.
+                log.warn( String.format( "Unable to lock %s" , pageEntry ), e );
             }
             
         }
