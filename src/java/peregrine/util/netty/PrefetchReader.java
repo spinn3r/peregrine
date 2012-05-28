@@ -125,7 +125,11 @@ public class PrefetchReader implements Closeable {
                     length = fileRef.length - offset;
                 } 
 
-                fileMeta.pendingPages.put( new PageEntry( fileRef, fileMeta, offset, length ) );
+                PageEntry pe = new PageEntry( fileRef, fileMeta, offset, length );
+
+                log.info( "FIXME: Created page entry : %s" , pe );
+                
+                fileMeta.pendingPages.put( pe );
 
                 // adjust the length or next time around
 
