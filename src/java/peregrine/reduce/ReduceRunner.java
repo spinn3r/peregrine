@@ -165,7 +165,7 @@ public class ReduceRunner {
 
             SystemProfiler profiler = config.getSystemProfiler();
 
-            prefetchReader = createPrefetchReader( readers );
+            //prefetchReader = createPrefetchReader( readers );
 
             merger = new ChunkMerger( task, listener, partition, readers, jobOutput );
         
@@ -174,7 +174,7 @@ public class ReduceRunner {
             log.info( "Merged with profiler rate: \n%s", profiler.rate() );
 
         } finally {
-            //FIXME: new Closer( prefetchReader, merger ).close();
+            new Closer( prefetchReader, merger ).close();
         }
         
     }
