@@ -210,7 +210,7 @@ public class PrefetchReader implements Closeable {
 
             // now mlock it because MAP_LOCKED isn't supported on all platforms
 
-            mman.mlock( pageEntry.pa, pageEntry.length );
+            //mman.mlock( pageEntry.pa, pageEntry.length );
             
         }
         
