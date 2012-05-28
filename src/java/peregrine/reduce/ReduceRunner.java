@@ -108,7 +108,7 @@ public class ReduceRunner {
 
             } finally {
                 //TODO: should be purge EVEN if we fail?  
-                purge( pass - 1 );
+                //purge( pass - 1 );
             }
                 
         }
