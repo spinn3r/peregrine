@@ -177,7 +177,7 @@ public class ReduceRunner {
 
             new Closer( merger ).close();
             
-            //new Closer( prefetchReader ).close();
+            new Closer( prefetchReader ).close();
             
             //new Closer( merger, prefetchReader ).close();
 
