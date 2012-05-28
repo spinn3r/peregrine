@@ -44,7 +44,7 @@ public class PrefetchReader implements Closeable {
 
     public static long DEFAULT_PAGE_SIZE = (long)Math.pow( 2, 17 ); /* 2^17 = 128k */
 
-    public static boolean DEFAULT_ENABLE_LOG = true;
+    public static boolean DEFAULT_ENABLE_LOG = false;
     
     protected long pageSize = DEFAULT_PAGE_SIZE;
 
