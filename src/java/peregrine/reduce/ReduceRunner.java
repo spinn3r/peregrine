@@ -165,7 +165,7 @@ public class ReduceRunner {
 
             SystemProfiler profiler = config.getSystemProfiler();
 
-            prefetchReader = createPrefetchReader( readers );
+            //prefetchReader = createPrefetchReader( readers );
 
             merger = new ChunkMerger( task, listener, partition, readers, jobOutput );
         
@@ -177,7 +177,7 @@ public class ReduceRunner {
 
             new Closer( merger ).close();
             
-            new Closer( prefetchReader ).close();
+            //new Closer( prefetchReader ).close();
             
             //new Closer( merger, prefetchReader ).close();
 
