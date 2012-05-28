@@ -127,8 +127,6 @@ public class PrefetchReader implements Closeable {
 
                 PageEntry pe = new PageEntry( fileRef, fileMeta, offset, length );
 
-                log.info( "FIXME: Created page entry : %s" , pe );
-                
                 fileMeta.pendingPages.put( pe );
 
                 // adjust the length or next time around
@@ -235,8 +233,6 @@ public class PrefetchReader implements Closeable {
 
         pageEntry.fileMeta.cachedHistory.put( pageEntry );
 
-        log( "FIXME: cached %s\n" , pageEntry );
-        
     }
 
     private void evict( PageEntry pageEntry ) throws IOException {
