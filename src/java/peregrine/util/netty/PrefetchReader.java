@@ -123,6 +123,7 @@ public class PrefetchReader implements Closeable {
 
                 if ( offset + length > fileRef.length ) {
                     length = fileRef.length - offset;
+                    break;
                 } 
 
                 PageEntry pe = new PageEntry( fileRef, fileMeta, offset, length );
