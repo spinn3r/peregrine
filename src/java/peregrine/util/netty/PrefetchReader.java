@@ -223,6 +223,8 @@ public class PrefetchReader implements Closeable {
         pageEntry.fileMeta.inCache.addAndGet( pageEntry.length );
 
         pageEntry.fileMeta.cachedHistory.put( pageEntry );
+
+        System.out.printf( "FIXME: cached %s\n" , pageEntry );
         
     }
 
