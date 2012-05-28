@@ -44,7 +44,7 @@ public class PrefetchReader implements Closeable {
 
     public static long DEFAULT_PAGE_SIZE = (long)Math.pow( 2, 17 ); /* 2^17 = 128k */
 
-    public static boolean DEFAULT_ENABLE_LOG = false;
+    public static boolean DEFAULT_ENABLE_LOG = true;
     
     protected long pageSize = DEFAULT_PAGE_SIZE;
 
@@ -122,7 +122,7 @@ public class PrefetchReader implements Closeable {
             for( long offset = 0; offset < fileRef.length; offset += pageSize ) {
 
                 if ( offset + length > fileRef.length ) {
-                    length = fileRef.length - offset - 1;
+                    length = fileRef.length - offset;
                 } 
 
                 PageEntry pe = new PageEntry( fileRef, fileMeta, offset, length );
@@ -198,7 +198,7 @@ public class PrefetchReader implements Closeable {
      */
     private void cache( PageEntry pageEntry ) throws IOException {
 
-        //log( "Caching %s" , pageEntry );
+        log( "Caching %s" , pageEntry );
 
         if ( closed )
             return;
@@ -240,7 +240,7 @@ public class PrefetchReader implements Closeable {
         if ( pageEntry.length == 0 )
             return;
 
-        //log( "Evicting %s" , pageEntry );
+        log( "Evicting %s" , pageEntry );
 
         if ( config.getShuffleMapLockEnabled() ) {
             mman.munlock( pageEntry.pa, pageEntry.length );
