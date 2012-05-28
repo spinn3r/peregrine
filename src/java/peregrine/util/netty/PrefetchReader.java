@@ -311,9 +311,12 @@ public class PrefetchReader implements Closeable {
     }
     
     private void handleThrowable( PageEntry page, Throwable t ) {
-    
-        IOException e = new IOException( "Unable to prefetch: " + page, t );
+
+        String message = "Unable to prefetch: " + page;
+
+        log.warn( message , t );
         
+        IOException e = new IOException( message, t );
         page.fileMeta.cachedPages.raise( e );
         
     }
