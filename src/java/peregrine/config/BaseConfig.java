@@ -116,6 +116,8 @@ public class BaseConfig {
 
     protected String user = null;
 
+    protected boolean enableFailureDuringMemLockError = false;
+
     public void init( StructMap struct ) {
 
         this.struct = struct;
@@ -143,7 +145,8 @@ public class BaseConfig {
         setHostsFile( struct.getString( "hostsFile" ) );
         setShuffleMapLockEnabled( struct.getBoolean( "shuffleMapLockEnabled" ) );
         setUser( struct.getString( "user" ) );
-
+        setEnableFailureDuringMemLockError( struct.getBoolean( "enableFailureDuringMemLockError" ) );
+        
         if ( struct.containsKey( "host" ) )
             setHost( Host.parse( struct.getString( "host" ) ) );
 
@@ -351,7 +354,15 @@ public class BaseConfig {
     public Map<String,String> toDict() {
         return struct.toDict();
     }
-    
+
+    public boolean getEnableFailureDuringMemLockError() { 
+        return this.enableFailureDuringMemLockError;
+    }
+
+    public void setEnableFailureDuringMemLockError( boolean enableFailureDuringMemLockError ) { 
+        this.enableFailureDuringMemLockError = enableFailureDuringMemLockError;
+    }
+
     static {
 
         try {

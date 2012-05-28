@@ -213,12 +213,21 @@ public class PrefetchReader implements Closeable {
             // now mlock it because MAP_LOCKED isn't supported on all platforms
 
             try {
+
                 mman.mlock( pageEntry.pa, pageEntry.length );
+
             } catch( IOException e ) {
+
                 //TODO: this needs to be an exception but in practice we were
                 //only dropping ONE page and it's better to have a slight
                 //performance impact for now than to completely fail.
-                log.warn( String.format( "Unable to lock %s (%s)" , pageEntry, e.getMessage() ), e );
+
+                if ( config.getEnableFailureDuringMemLockError() ) {
+                    throw e;
+                } else { 
+                    log.warn( String.format( "Unable to lock %s (%s)" , pageEntry, e.getMessage() ), e );
+                }
+
             }
             
         }
