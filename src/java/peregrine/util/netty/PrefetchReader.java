@@ -198,7 +198,7 @@ public class PrefetchReader implements Closeable {
      */
     private void cache( PageEntry pageEntry ) throws IOException {
 
-        log( "Caching %s" , pageEntry );
+        //log( "Caching %s" , pageEntry );
 
         if ( closed )
             return;
@@ -249,7 +249,7 @@ public class PrefetchReader implements Closeable {
         if ( pageEntry.length == 0 )
             return;
 
-        log( "Evicting %s" , pageEntry );
+        //log( "Evicting %s" , pageEntry );
 
         if ( config.getShuffleMapLockEnabled() ) {
             mman.munlock( pageEntry.pa, pageEntry.length );
