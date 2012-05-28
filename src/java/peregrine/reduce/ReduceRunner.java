@@ -108,7 +108,7 @@ public class ReduceRunner {
 
             } finally {
                 //TODO: should be purge EVEN if we fail?  
-                //FIXME: purge( pass - 1 );
+                purge( pass - 1 );
             }
                 
         }
@@ -163,10 +163,10 @@ public class ReduceRunner {
         ChunkMerger merger = null;
         
         try {
-
+            
             SystemProfiler profiler = config.getSystemProfiler();
 
-            //prefetchReader = createPrefetchReader( readers );
+            prefetchReader = createPrefetchReader( readers );
 
             merger = new ChunkMerger( task, listener, partition, readers, jobOutput );
         
