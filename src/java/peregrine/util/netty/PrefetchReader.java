@@ -210,7 +210,7 @@ public class PrefetchReader implements Closeable {
 
             // now mlock it because MAP_LOCKED isn't supported on all platforms
 
-            //mman.mlock( pageEntry.pa, pageEntry.length );
+            mman.mlock( pageEntry.pa, pageEntry.length );
             
         }
         
@@ -224,7 +224,7 @@ public class PrefetchReader implements Closeable {
 
         pageEntry.fileMeta.cachedHistory.put( pageEntry );
 
-        System.out.printf( "FIXME: cached %s\n" , pageEntry );
+        log( "FIXME: cached %s\n" , pageEntry );
         
     }
 
