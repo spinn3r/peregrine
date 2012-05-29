@@ -33,14 +33,15 @@ public class JoinPagesAndLinksJob {
                     return;
                 
                 List<StructReader> outlinks = StructReaders.unwrap( value );
-                List<StructReader> hashcodes = new ArrayList();
-                
+
+                StructWriter hashcodes = new StructWriter( outlinks.size() * Hashcode.HASH_WIDTH );
+
                 for( StructReader out : outlinks ) {
-                    hashcodes.add( StructReaders.hashcode( out.readString() ) );
+                    hashcodes.writeHashcode( out.readString() );
                 }
                 
                 if ( value != null ) {
-                    emit( key , StructReaders.wrap( hashcodes ) );
+                    emit( key , hashcodes.toStructReader() );
                 }
 
             }
