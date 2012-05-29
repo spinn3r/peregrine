@@ -44,9 +44,13 @@ public class Pagerank {
     private int step = 0;
     
     public Pagerank( Config config, String path ) {
+        this( config, path, new Controller( config ) );
+    }
+
+    public Pagerank( Config config, String path, Controller controller ) {
         this.config = config;
         this.path = path;
-        this.controller = new Controller( config );
+        this.controller = controller;
     }
 
     /**

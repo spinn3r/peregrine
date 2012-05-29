@@ -62,6 +62,11 @@ public class TestWikirank extends peregrine.BaseTestWithMultipleProcesses {
                                          "/wikirank/links.flattened" ),
                               new Output( "/wikirank/graph" ) );
 
+            // the graph is written, now launch a job to finish it up.
+
+            Pagerank pr = new Pagerank( config, "/wikirank/graph", controller );
+            pr.exec();
+            
         } finally {
             controller.shutdown();
         }

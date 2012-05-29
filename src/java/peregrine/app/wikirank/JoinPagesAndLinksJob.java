@@ -4,11 +4,15 @@ import java.util.*;
 import peregrine.*;
 import peregrine.util.*;
 
+import com.spinn3r.log5j.*;
+
 /**
  * Join the wikipedia pages which have an ID to their nodes, which have an ID.
  * This is a merge job because we need two imputs.
  */
 public class JoinPagesAndLinksJob {
+
+    private static final Logger log = Logger.getLogger();
 
     public static class Merge extends Merger {
 
@@ -21,13 +25,26 @@ public class JoinPagesAndLinksJob {
             if ( node != null ) { 
                 
                 String page = node.readString();
+
+                key = StructReaders.hashcode( page );
+                StructReader value = values.get( 1 );
+
+                if ( value == null )
+                    return;
                 
-                System.out.printf( "FIXME: %s\n", page );
+                List<StructReader> outlinks = StructReaders.unwrap( value );
+                List<StructReader> hashcodes = new ArrayList();
+                
+                for( StructReader out : outlinks ) {
+                    hashcodes.add( StructReaders.hashcode( out.readString() ) );
+                }
+                
+                if ( value != null ) {
+                    emit( key , StructReaders.wrap( hashcodes ) );
+                }
 
             }
 
-            System.out.printf( "FIXME: hello world\n" );
-            
         }
 
     }

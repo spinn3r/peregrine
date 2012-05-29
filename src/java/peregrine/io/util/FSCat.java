@@ -142,7 +142,7 @@ public class FSCat {
             }
 
             if ( "hashcode".equals( r ) ) {
-                buff.append( value.readHashcode() );
+                buff.append( Base64.encode( value.readHashcode() ) );
                 continue;
             }
 
@@ -152,6 +152,17 @@ public class FSCat {
 
                 for( StructReader u : unwrapped ) {
                     buff.append( u.readString() + " " );
+                }
+
+                continue;
+            }
+
+            if ( "wrapped:hashcode".equals( r ) ) {
+
+                List<StructReader> unwrapped = StructReaders.unwrap( value );
+
+                for( StructReader u : unwrapped ) {
+                    buff.append( Base64.encode( u.readHashcode() ) + " " );
                 }
 
                 continue;
