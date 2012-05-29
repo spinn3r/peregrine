@@ -53,7 +53,7 @@ public class PageLinkParser {
 
             Link link = new Link();
             link.id = Integer.parseInt( m.group( 1 ) );
-            link.name = m.group( 2 );
+            link.name = m.group( 2 ).trim();
             return link;
         }
 

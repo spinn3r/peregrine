@@ -81,7 +81,8 @@ public class TestWikirank extends peregrine.BaseTestWithMultipleProcesses {
 
             controller.merge( MergeNodeAndRankMetaJob.Merge.class,
                               new Input( "/pr/out/node_metadata",
-                                         "/pr/out/rank_vector" ),
+                                         "/pr/out/rank_vector",
+                                         "/wikirank/nodesByHashcode" ),
                               new Output( "/wikirank/rank_metadata" ) );
 
         } finally {

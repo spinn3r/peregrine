@@ -23,14 +23,17 @@ public class MergeNodeAndRankMetaJob {
         public void merge( StructReader key,
                            List<StructReader> values ) {
 
-            StructReader node_metadata = values.get( 0 );
-            StructReader rank_vector   = values.get( 1 );
+            StructReader node_metadata   = values.get( 0 );
+            StructReader rank_vector     = values.get( 1 );
+            StructReader nodesByHashcode = values.get( 2 );
 
             double rank = 0.0; // default rank
 
             int indegree  = 0;
             int outdegree = 0;
 
+            String name = "";
+            
             if ( node_metadata != null ) {
                 indegree  = node_metadata.readInt();
                 outdegree = node_metadata.readInt();
@@ -40,13 +43,19 @@ public class MergeNodeAndRankMetaJob {
                 rank = rank_vector.readDouble();
             }
 
-            // page name
-            //String name = nodes_sorted.readString();
+            if ( nodesByHashcode != null ) {
+                name = nodesByHashcode.readString();
+            }
 
-            StructWriter writer = new StructWriter( 16 );
+            //TODO: we need a way to statically allocate memory for
+            //StructWriters for variable length aggregate fields.
+            
+            StructWriter writer = new StructWriter( 256 );
+            
             writer.writeInt( indegree );
             writer.writeInt( outdegree );
             writer.writeDouble( rank );
+            writer.writeString( name );
 
             emit( key, writer.toStructReader() );
             

@@ -56,7 +56,7 @@ public class PageParser {
             
             Page page = new Page();
             page.id = Integer.parseInt( m.group( 1 ) );
-            page.name = m.group( 2 );
+            page.name = m.group( 2 ).trim();
             return page;
         }
 
