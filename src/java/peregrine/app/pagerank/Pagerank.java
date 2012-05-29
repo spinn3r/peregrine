@@ -169,6 +169,13 @@ public class Pagerank {
      * Run a full pagerank computation including init, iter, and shutdown.
      */
     public void exec() throws Exception {
+        exec( true );
+    }
+
+    /**
+     * Run a full pagerank computation including init, iter, and shutdown.
+     */
+    public void exec( boolean autoShutdown ) throws Exception {
 
         try {
 
@@ -186,7 +193,8 @@ public class Pagerank {
             
         } finally {
 
-            shutdown();
+            if ( autoShutdown )
+                shutdown();
             
         }
             

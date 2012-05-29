@@ -74,7 +74,9 @@ public class FSCat {
 
        - perhaps store the record format WITH the files so that we never have
          the type system when cating a file.
-       
+
+       - Maybe split them on format specifiers.  For example %d,%d,%2.2f 
+         
      */
     private static String format( String render, StructReader value ) {
 
@@ -128,7 +130,7 @@ public class FSCat {
             }
 
             if ( "double".equals( r ) ) {
-                buff.append( value.readDouble() );
+                buff.append( String.format( "%f", value.readDouble() ) );
                 continue;
             }
 

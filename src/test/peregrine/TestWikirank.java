@@ -39,14 +39,21 @@ public class TestWikirank extends peregrine.BaseTestWithMultipleProcesses {
 
             controller = new Controller( config );
 
-            controller.map( Mapper.class,
+            // CreateNodeLookupjob
+            
+            controller.map( CreateNodeLookupJob.Map.class,
                             new Input( "/wikirank/nodes" ),
-                            new Output( "shuffle:default" ) );
+                            new Output( "shuffle:nodesByPrimaryKey",
+                                        "shuffle:nodesByHashcode" ) );
 
             controller.reduce( Reducer.class,
-                               new Input( "shuffle:default" ),
-                               new Output( "/wikirank/nodes.sorted" ) );
-                            
+                               new Input( "shuffle:nodesByPrimaryKey" ),
+                               new Output( "/wikirank/nodesByPrimaryKey" ) );
+
+            controller.reduce( Reducer.class,
+                               new Input( "shuffle:nodesByHashcode" ),
+                               new Output( "/wikirank/nodesByHashcode" ) );
+                               
             controller.map( FlattenLinksJob.Map.class,
                             new Input( "/wikirank/links" ),
                             new Output( "shuffle:default" ) );
@@ -58,20 +65,25 @@ public class TestWikirank extends peregrine.BaseTestWithMultipleProcesses {
             // this joins the node table AND the links table and then writes a
             // raw hashcode graph for use with pagerank.
             controller.merge( MergePagesAndLinksJob.Merge.class,
-                              new Input( "/wikirank/nodes.sorted",
+                              new Input( "/wikirank/nodesByPrimaryKey",
                                          "/wikirank/links.flattened" ),
                               new Output( "/wikirank/graph" ) );
 
             // the graph is written, now launch a job to finish it up.
 
             Pagerank pr = new Pagerank( config, "/wikirank/graph", controller );
-            pr.exec();
+            pr.exec( false );
 
-            //now join against nodes.sorted and and rank graph so that we can
+            //now join against nodesByPrimaryKey and and rank graph so that we can
             //have rank per node
 
-            // merge /pr/out/rank_vector and nodes.sorted and node_metadata
-            
+            // merge /pr/out/rank_vector and nodesByPrimaryKey and node_metadata
+
+            controller.merge( MergeNodeAndRankMetaJob.Merge.class,
+                              new Input( "/pr/out/node_metadata",
+                                         "/pr/out/rank_vector" ),
+                              new Output( "/wikirank/rank_metadata" ) );
+
         } finally {
             controller.shutdown();
         }
