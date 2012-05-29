@@ -10,7 +10,7 @@ import com.spinn3r.log5j.*;
  * Join the wikipedia pages which have an ID to their nodes, which have an ID.
  * This is a merge job because we need two imputs.
  */
-public class JoinPagesAndLinksJob {
+public class MergePagesAndLinksJob {
 
     private static final Logger log = Logger.getLogger();
 

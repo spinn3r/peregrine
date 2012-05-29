@@ -60,7 +60,23 @@ public class FSCat {
         
     }
 
-    public static String format( String render, StructReader value ) {
+    /**
+
+       TODO:
+
+       - ability to name columns so that the result shows up correctly in the
+         output with named columns.
+
+       - printf format specifiers %02d would be nice.  Maybe just use printf
+         formatters directly.
+
+       - byte[] needs encoding mechanisms.
+
+       - perhaps store the record format WITH the files so that we never have
+         the type system when cating a file.
+       
+     */
+    private static String format( String render, StructReader value ) {
 
         StringBuilder buff = new StringBuilder();
 

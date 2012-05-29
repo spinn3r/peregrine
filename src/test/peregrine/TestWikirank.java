@@ -57,7 +57,7 @@ public class TestWikirank extends peregrine.BaseTestWithMultipleProcesses {
 
             // this joins the node table AND the links table and then writes a
             // raw hashcode graph for use with pagerank.
-            controller.merge( JoinPagesAndLinksJob.Merge.class,
+            controller.merge( MergePagesAndLinksJob.Merge.class,
                               new Input( "/wikirank/nodes.sorted",
                                          "/wikirank/links.flattened" ),
                               new Output( "/wikirank/graph" ) );
@@ -66,6 +66,11 @@ public class TestWikirank extends peregrine.BaseTestWithMultipleProcesses {
 
             Pagerank pr = new Pagerank( config, "/wikirank/graph", controller );
             pr.exec();
+
+            //now join against nodes.sorted and and rank graph so that we can
+            //have rank per node
+
+            // merge /pr/out/rank_vector and nodes.sorted and node_metadata
             
         } finally {
             controller.shutdown();
