@@ -24,7 +24,14 @@ import java.io.*;
 import java.util.*;
 
 /**
- * Cat a file on the filesytem.
+ * Cat a file on the filesytem.  This reads from a local PFS directory file
+ * (someday this may be globally via HTTP across the entire filesystem) and cats
+ * the file to standard out.
+ * 
+ * <p>
+ * 
+ * This can be used for debug purposes so that one can understand what is stored
+ * on the filesystem without having to write additional map reduce jobs.
  */
 public class FSCat {
 
@@ -32,19 +39,131 @@ public class FSCat {
 
         String path = args[0];
 
+        String render = "base64";
+
+        if ( args.length == 2 ) {
+            render = args[1];
+        }
+
         SequenceReader reader = new DefaultChunkReader( new File( path ) );
 
         while ( reader.hasNext() ) {
+
             reader.next();
 
             StructReader key   = reader.key();
             StructReader value = reader.value();
 
-            System.out.printf( "%s = %s\n", Base64.encode( key.toByteArray() ), Base64.encode( value.toByteArray() ) );
+            System.out.printf( "%s = %s\n", Base64.encode( key.toByteArray() ), format( render, value ) );
 
         }
         
     }
-    
+
+    public static String format( String render, StructReader value ) {
+
+        StringBuilder buff = new StringBuilder();
+
+        /*
+         * byte
+         * short
+         * varint
+         * int
+         * long
+         * float
+         * double
+         * boolean
+         * char
+         * string
+         * hashcode
+         */
+             
+        for ( String r : render.split( "," ) ) {
+
+            if ( buff.length() > 0 )
+                buff.append( ", " );
+
+            //TODO we could use reflection here.  Java really needs syntactic
+            //sugar for reflection.
+            
+            if ( "byte".equals( r ) ) {
+                buff.append( value.readByte() );
+                continue;
+            }
+
+            if ( "short".equals( r ) ) {
+                buff.append( value.readShort() );
+                continue;
+            }
+
+            if ( "varint".equals( r ) ) {
+                buff.append( value.readVarint() );
+                continue;
+            }
+
+            if ( "long".equals( r ) ) {
+                buff.append( value.readLong() );
+                continue;
+            }
+
+            if ( "float".equals( r ) ) {
+                buff.append( value.readFloat() );
+                continue;
+            }
+
+            if ( "double".equals( r ) ) {
+                buff.append( value.readDouble() );
+                continue;
+            }
+
+            if ( "boolean".equals( r ) ) {
+                buff.append( value.readBoolean() );
+                continue;
+            }
+
+            if ( "char".equals( r ) ) {
+                buff.append( value.readChar() );
+                continue;
+            }
+
+            if ( "string".equals( r ) ) {
+                buff.append( value.readString() );
+                continue;
+            }
+
+            if ( "int".equals( r ) ) {
+                buff.append( value.readInt() );
+                continue;
+            }
+
+            if ( "byte".equals( r ) ) {
+                buff.append( value.readByte() );
+                continue;
+            }
+
+            if ( "hashcode".equals( r ) ) {
+                buff.append( value.readHashcode() );
+                continue;
+            }
+
+            if ( "wrapped:string".equals( r ) ) {
+
+                List<StructReader> unwrapped = StructReaders.unwrap( value );
+
+                for( StructReader u : unwrapped ) {
+                    buff.append( u.readString() + " " );
+                }
+
+                continue;
+            }
+
+            buff.append( Base64.encode( value.toByteArray() ) );
+
+        }
+
+        return buff.toString();
+        
+    }
+
 }
 
