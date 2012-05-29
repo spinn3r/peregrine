@@ -23,17 +23,10 @@ import peregrine.app.wikirank.*;
 
 public class TestWikirank extends peregrine.BaseTestWithMultipleProcesses {
 
-    public static int LIMIT = 500;
+    public static int LIMIT = 10000;
     
     @Override
     public void doTest() throws Exception {
-
-        doTest( 5000 * getFactor() , 100 ); 
-
-    }
-
-    private void doTest( int nr_nodes,
-                         int max_edges_per_node ) throws Exception {
 
         Config config = getConfig();
 
@@ -129,7 +122,7 @@ public class TestWikirank extends peregrine.BaseTestWithMultipleProcesses {
 
             if ( index > LIMIT )
                 break;
-
+            
             StructReader key = StructReaders.hashcode( "" + link.id );
             StructReader value = StructReaders.wrap( link.name );
             

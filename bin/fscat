@@ -1,0 +1,3 @@
+#!/bin/sh
+
+./bin/jexec peregrine.io.util.FSCat $1

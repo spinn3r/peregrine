@@ -24,9 +24,9 @@ import java.io.*;
 import java.util.*;
 
 /**
- *
+ * Cat a file on the filesytem.
  */
-public class DumpSequenceFile {
+public class FSCat {
 
     public static void main( String[] args ) throws Exception {
 
@@ -40,8 +40,7 @@ public class DumpSequenceFile {
             StructReader key   = reader.key();
             StructReader value = reader.value();
 
-            System.out.printf( "%s= %s\n", Hex.encode( key.toByteArray() ),
-                                          Hex.encode( key.toByteArray() ) );
+            System.out.printf( "%s = %s\n", Base64.encode( key.toByteArray() ), Base64.encode( value.toByteArray() ) );
 
         }
         
