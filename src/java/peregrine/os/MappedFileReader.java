@@ -58,9 +58,15 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
     }
     
     public MappedFileReader( Config config, File file ) throws IOException {
-
         init( config, file );
+    }
 
+    public MappedFileReader( String path ) throws IOException {
+        this( new File( path ) );
+    }
+
+    public MappedFileReader( File file ) throws IOException {
+        init( null, file );
     }
 
     private void init( Config config, File file ) throws IOException {
