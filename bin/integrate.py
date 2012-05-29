@@ -67,6 +67,8 @@ class ReportIndex:
         self.file.write( "<frame src='' name='right' title=''>" )
         self.file.write( "</frameset>" )
         self.file.write( "</html>" )
+
+        self.file.flush()
         
     def close(self):
         self.file.close()
@@ -89,6 +91,7 @@ class ReportSidebar:
         self.file.write( "</head>" )
         self.file.write( "<body>" )
         self.file.write( "<table width='100%' cellspacing='0'>" )
+        self.file.flush()
 
     def link( self, bgcolor, rev, report, log ):
         """Write a link to the given URL."""
@@ -116,6 +119,7 @@ class ReportSidebar:
         now = datetime.datetime.now()
 
         self.file.write( "<br/><center><small>%s</small></center>" % (strftime(now)) )
+        self.file.flush()
 
         self.file.close()
 
