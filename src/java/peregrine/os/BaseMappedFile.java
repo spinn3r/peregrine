@@ -63,6 +63,10 @@ public abstract class BaseMappedFile implements Closeable {
         
     }
 
+    public long length() {
+        return length;
+    }
+
     public boolean isClosed() {
         return closer.isClosed();
     }

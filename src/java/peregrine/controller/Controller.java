@@ -46,6 +46,11 @@ public class Controller {
     private ControllerDaemon daemon = null;
     
     protected ClusterState clusterState;
+
+    /**
+     * True if we are shutdown to avoid multiple shutdown attempts.
+     */
+    protected boolean shutdown = false;
     
     public Controller( Config config ) {
     	
@@ -355,7 +360,14 @@ public class Controller {
     }
 
     public void shutdown() {
+
+        if ( shutdown )
+            return;
+
         daemon.shutdown();
+
+        shutdown = true;
+        
     }
     
 }

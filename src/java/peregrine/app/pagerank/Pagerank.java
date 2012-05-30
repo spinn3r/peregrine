@@ -44,9 +44,13 @@ public class Pagerank {
     private int step = 0;
     
     public Pagerank( Config config, String path ) {
+        this( config, path, new Controller( config ) );
+    }
+
+    public Pagerank( Config config, String path, Controller controller ) {
         this.config = config;
         this.path = path;
-        this.controller = new Controller( config );
+        this.controller = controller;
     }
 
     /**
@@ -165,6 +169,13 @@ public class Pagerank {
      * Run a full pagerank computation including init, iter, and shutdown.
      */
     public void exec() throws Exception {
+        exec( true );
+    }
+
+    /**
+     * Run a full pagerank computation including init, iter, and shutdown.
+     */
+    public void exec( boolean autoShutdown ) throws Exception {
 
         try {
 
@@ -182,7 +193,8 @@ public class Pagerank {
             
         } finally {
 
-            shutdown();
+            if ( autoShutdown )
+                shutdown();
             
         }
             

@@ -1,0 +1,34 @@
+Graph data from the wikipedia database dumps.
+
+These can be fethced from:
+
+http://dumps.wikimedia.org/enwiki/20120502/enwiki-20120502-page.sql.gz
+http://dumps.wikimedia.org/enwiki/20120502/enwiki-20120502-pagelinks.sql.gz
+
+or if you want to use a FAST mirror you can use:
+
+http://dumps.wikimedia.your.org/enwiki/20120502/enwiki-20120502-page.sql.gz
+http://dumps.wikimedia.your.org/enwiki/20120502/enwiki-20120502-pagelinks.sql.gz
+
+The files uncompressed are 27GB so we do NOT include them in the distribution.
+You will have to download them yourself.
+
+page.sql:
+
+Contains primary key and page name.
+
+pagelinks.sql:
+
+Contains primary key to outbound link information.
+
+You can then combine both files to form a graph.
+
+The -sample files included are just the result of reading some chunk of data
+from the head of the file so that we can quickly test import functionality and
+unit testing.
+
+These were gathered with:
+
+dd if=enwiki-20120502-page.sql of=enwiki-20120502-page-sample.sql count=10000
+
+dd if=enwiki-20120502-pagelinks.sql of=enwiki-20120502-pagelinks-sample.sql count=60000

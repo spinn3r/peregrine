@@ -25,11 +25,15 @@ import peregrine.io.chunk.*;
 import peregrine.io.partition.*;
 import peregrine.reduce.merger.*;
 
+import com.spinn3r.log5j.*;
+
 /**
  * Run a merge by taking to chunk readers and blending them into a merge stream.
  * 
  */
 public class MergeRunner {
+
+    private static final Logger log = Logger.getLogger();
 
     private MergerPriorityQueue queue;
     private MergeQueueEntry last = null;
@@ -46,7 +50,7 @@ public class MergeRunner {
         this.readers = readers;
         
         this.queue = new MergerPriorityQueue( readers );
-
+        
     }
     
     public MergedValue next() throws IOException {
