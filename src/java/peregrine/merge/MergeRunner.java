@@ -19,10 +19,11 @@ import java.io.*;
 import java.util.*;
 
 import peregrine.*;
-import peregrine.reduce.*;
 import peregrine.io.*;
 import peregrine.io.chunk.*;
 import peregrine.io.partition.*;
+import peregrine.io.util.*;
+import peregrine.reduce.*;
 import peregrine.reduce.merger.*;
 
 import com.spinn3r.log5j.*;
@@ -31,7 +32,7 @@ import com.spinn3r.log5j.*;
  * Run a merge by taking to chunk readers and blending them into a merge stream.
  * 
  */
-public class MergeRunner {
+public class MergeRunner implements Closeable {
 
     private static final Logger log = Logger.getLogger();
 
@@ -91,6 +92,19 @@ public class MergeRunner {
         
     }
 
+    @Override
+    public void close() throws IOException {
+
+        Closer closer = new Closer();
+
+        for( SequenceReader reader : readers ) {
+            closer.add( reader );
+        }
+
+        closer.close();
+        
+    }
+    
     private List<StructReader> newEmptyList(int size) {
 
         List<StructReader> result = new ArrayList( size );
