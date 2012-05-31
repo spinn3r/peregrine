@@ -51,21 +51,27 @@ public class MapperTask extends BaseMapperTask {
             return;
         
         SequenceReader reader = jobInput.get( 0 );
-        
-        int count = 0;
-        
-        Mapper mapper = (Mapper)jobDelegate;
-        
-        while( reader.hasNext() ) {
 
-            assertAlive();
+        try {
+        
+            int count = 0;
             
-        	reader.next();
-        	
-            //FIXME: mapper.map( reader.key(), reader.value() );
+            Mapper mapper = (Mapper)jobDelegate;
+            
+            while( reader.hasNext() ) {
+                
+                assertAlive();
+                
+                reader.next();
+                
+                mapper.map( reader.key(), reader.value() );
+                
+                ++count;
+                
+            }
 
-            ++count;
-
+        } finally {
+            reader.close();
         }
 
         log.info( "Mapped %,d entries on %s on host %s from %s", count, partition, config.getHost(), reader );
