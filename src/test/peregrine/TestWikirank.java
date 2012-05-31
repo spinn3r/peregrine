@@ -26,6 +26,7 @@ public class TestWikirank extends peregrine.BaseTestWithMultipleProcesses {
     @Override
     public void doTest() throws Exception {
 
+        /*
         Config config = getConfig();
 
         Wikirank wikirank = new Wikirank( config, 
@@ -33,6 +34,7 @@ public class TestWikirank extends peregrine.BaseTestWithMultipleProcesses {
                                           "corpus/wikirank/enwiki-20120502-pagelinks-sample.sql" );
 
         wikirank.exec();
+        */
         
     }
 
