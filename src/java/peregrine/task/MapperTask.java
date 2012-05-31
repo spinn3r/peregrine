@@ -62,7 +62,7 @@ public class MapperTask extends BaseMapperTask {
             
         	reader.next();
         	
-            mapper.map( reader.key(), reader.value() );
+            //FIXME: mapper.map( reader.key(), reader.value() );
 
             ++count;
 
