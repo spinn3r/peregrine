@@ -41,18 +41,20 @@ public class Wikirank {
         this.links_path = links_path;
     }
 
-    public void exec() throws Exception {
+    public void init() throws Exception {
 
         writeNodes( nodes_path );
         writeLinks( links_path );
+
+    }
+    
+    public void exec() throws Exception {
 
         Controller controller = null;
 
         try {
 
             controller = new Controller( config );
-
-            // CreateNodeLookupjob
             
             controller.map( CreateNodeLookupJob.Map.class,
                             new Input( "/wikirank/nodes" ),
