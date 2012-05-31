@@ -52,10 +52,10 @@ public class MapperTask extends BaseMapperTask {
         
         SequenceReader reader = jobInput.get( 0 );
 
+        int count = 0;
+
         try {
-        
-            int count = 0;
-            
+
             Mapper mapper = (Mapper)jobDelegate;
             
             while( reader.hasNext() ) {
