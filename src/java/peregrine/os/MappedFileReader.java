@@ -171,7 +171,11 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
         // FIXME: the order here doesn't matter... 
         //closer.add( in );
         //closer.add( channel );
-        
+
+        //FIXME : this ONE line is fucking us over.. I think it's because the
+        //MemLock was added above.  I need to track down what is causing this
+        //but it's probably not good.  I wonder what happens if we REMOVE
+        //MemLock or change the order.?
         closer.close();
         
     }
