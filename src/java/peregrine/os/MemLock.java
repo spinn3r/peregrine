@@ -91,6 +91,8 @@ public class MemLock implements Closeable {
     @Override
     public void close() throws IOException {
 
+        // FIXME: migrate this to use IdempotentCloser
+        
         if ( closed ) return;
         
         mman.munlock( pa, length );

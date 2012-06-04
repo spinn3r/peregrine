@@ -15,6 +15,10 @@
 */
 package peregrine.io.util;
 
+import com.spinn3r.log5j.*;
+
+import peregrine.util.*;
+
 import java.io.*;
 import java.util.*;
 
@@ -24,6 +28,12 @@ import java.util.*;
  * http://docs.oracle.com/javase/tutorial/essential/exceptions/tryResourceClose.html
  */
 public abstract class BaseCloser<T> {
+
+    // FIXME: migrate this to use IdempotentCloser
+
+    private static final Logger log = Logger.getLogger();
+
+    private boolean trace = false;
 
     protected List<T> delegates = new ArrayList();
 
@@ -51,19 +61,35 @@ public abstract class BaseCloser<T> {
         }
     }
 
+    /**
+     * Get the raw backing of delegates from the Closer.  This can be used to
+     * log which are being closed and in what order.
+     */
+    public List<T> getDelegates() {
+        return delegates;
+    }
+
     public void setCause( Throwable cause ) {
         this.cause = cause;
+    }
+
+    public boolean getTrace() { 
+        return this.trace;
+    }
+
+    public void setTrace( boolean trace ) { 
+        this.trace = trace;
     }
 
     protected boolean executed() {
         return executed;
     }
-    
-    protected void exec() throws GroupIOException {
+
+    public void exec() throws GroupIOException {
 
         if ( executed )
             return;
-        
+
         GroupIOException exc = null;
 
         if ( cause != null )
@@ -76,6 +102,10 @@ public abstract class BaseCloser<T> {
             
             try {
 
+                if ( trace ) {
+                    log.info( "Going to handle %s" , current.getClass().getName() );
+                }
+                
                 onDelegate( current );
 
             } catch ( Throwable t ) {
@@ -92,8 +122,11 @@ public abstract class BaseCloser<T> {
 
         executed = true;
         
-        if ( exc != null )
+        if ( exc != null ) {
             throw exc;
+        }
+
+        return null;
         
     }
 

@@ -176,6 +176,9 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
         //MemLock was added above.  I need to track down what is causing this
         //but it's probably not good.  I wonder what happens if we REMOVE
         //MemLock or change the order.?
+
+        closer.setTrace( true );
+        
         closer.close();
         
     }
