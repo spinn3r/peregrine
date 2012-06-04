@@ -15,13 +15,17 @@
 */
 package peregrine.util;
 
+import java.io.*;
+
 /**
  * A function that is idempotent.  It executes once and then never executes
  * again.  We handle this with a double check idiom around a volatile executed
  * flag.  We also prevent double execution to avoid two threads triggering
  * execution before the first one stops.
  */
-public abstract class IdempotentCloser<Object,E extends IOException> implements Closeable {
+public abstract class IdempotentCloser<Object,E extends IOException>
+    extends IdempotentFunction<Object,IOException>
+    implements Closeable {
 
     public void close() throws IOException {
         exec();
@@ -34,8 +38,9 @@ public abstract class IdempotentCloser<Object,E extends IOException> implements 
      */
     protected abstract void doClose() throws IOException;
 
-    protected Object invoke() throwx IOException {
+    protected Object invoke() throws IOException {
         doClose();
+        return null;
     }
 
 }

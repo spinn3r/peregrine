@@ -126,8 +126,6 @@ public abstract class BaseCloser<T> {
             throw exc;
         }
 
-        return null;
-        
     }
 
     protected abstract void onDelegate( T delegate ) throws IOException;
