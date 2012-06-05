@@ -96,6 +96,7 @@ public class MemLock implements Closeable {
         if ( closed ) return;
         
         mman.munlock( pa, length );
+        
         mman.munmap( pa, length );
 
         log.info( "munlocking %s to pa %s with length %,d", file, pa, length );

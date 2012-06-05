@@ -197,6 +197,24 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
 
     }
 
+    /**
+     * Closer that ONLY fadvises away pages.
+     */
+    class FadviseCloser extends Closer {
+
+        @Override
+        public void close() throws IOException {
+
+            super.close();
+
+            if ( fadviseDontNeedEnabled ) {
+                fcntl.posix_fadvise( fd, offset, length, fcntl.POSIX_FADV_DONTNEED );
+            }
+            
+        }
+
+    }
+    
     interface MapStrategy {
 
         public void map() throws IOException;
@@ -228,7 +246,7 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
                                                                             memLock.getAddress(),
                                                                             new Closer() );
                 
-                closer.add( new MappedByteBufferCloser( byteBuffer ) );
+                closer.add( new FadviseCloser() );
 
             } catch ( Exception e ) {
                 throw new IOException( e );
