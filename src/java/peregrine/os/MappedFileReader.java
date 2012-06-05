@@ -51,7 +51,7 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
 
     protected ByteBuffer byteBuffer = null;
 
-    protected MemLock memLock = null;
+    protected FileMapper fileMapper = null;
 
     public MappedFileReader( Config config, String path ) throws IOException {
         this( config, new File( path ) );
@@ -102,16 +102,11 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
             
             if ( map == null ) {
 
-                if ( autoLock ) {
-                    memLock = new MemLock( file, in.getFD(), offset, length );
-                    closer.add( memLock );
-                }
+                fileMapper = new FileMapper( file, in.getFD(), offset, length );
+                fileMapper.setLock( autoLock );
+                closer.add( fileMapper );
 
-                if ( memLock != null ) {
-                    new NativeMapStrategy().map();
-                } else {
-                    new ChannelMapStrategy().map();
-                }
+                new NativeMapStrategy().map();
                 
                 this.map = ChannelBuffers.wrappedBuffer( byteBuffer );
                 
@@ -145,10 +140,8 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
     public void unlockRegion( long len ) throws IOException {
 
         closer.requireOpen();
-        
-        if ( memLock == null ) return;
 
-        memLock.unlockRegion( len );
+        fileMapper.unlockRegion( len );
         
     }
     
@@ -216,7 +209,7 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
     }
 
     /**
-     * A native mmap strategy that uses mmap directly via the MemLock .
+     * A native mmap strategy that uses mmap directly via the FileMapper .
      */
     class NativeMapStrategy implements MapStrategy {
 
@@ -225,7 +218,7 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
             try {
 
                 byteBuffer = (ByteBuffer)byteBufferConstructor.newInstance( (int)length,
-                                                                            memLock.getAddress(),
+                                                                            fileMapper.getAddress(),
                                                                             new Closer() );
                 
                 //FIXME: add this back in:  closer.add( new MappedByteBufferCloser( byteBuffer ) );
@@ -241,7 +234,7 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
             public void run() {
                 
                 try {
-                    memLock.close();
+                    fileMapper.close();
                 } catch ( IOException e ) {
                     throw new RuntimeException( e );
                 }
