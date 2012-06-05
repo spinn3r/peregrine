@@ -63,7 +63,7 @@ public class BootstrapFactory {
         // set options 	
         setOption( bootstrap, prefix+"tcpNoDelay",            TCP_NODELAY );
         setOption( bootstrap, prefix+"connectTimeoutMillis",  CONNECT_TIMEOUT_MILLIS );
-        setOption( bootstrap, prefix+"bufferFactory",         new DirectChannelBufferFactory() );
+        //setOption( bootstrap, prefix+"bufferFactory",         new DirectChannelBufferFactory() );
 		
 	}
 	

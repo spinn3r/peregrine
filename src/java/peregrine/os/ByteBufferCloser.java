@@ -34,14 +34,12 @@ import com.spinn3r.log5j.Logger;
  */
 public class ByteBufferCloser implements Closeable {
 
-    private ByteBuffer buff;
+    private ByteBuffer buff = null;
 
     public ByteBufferCloser( ChannelBuffer buff ) {
 
         if ( buff instanceof ByteBufferBackedChannelBuffer )
             this.buff = buff.toByteBuffer();
-        else
-            throw new RuntimeException( "Unable to handle: " + buff.getClass().getName() );
 
     }
 
@@ -52,6 +50,9 @@ public class ByteBufferCloser implements Closeable {
     @Override
     public void close() throws IOException {
 
+        if ( buff == null )
+            return;
+        
         sun.misc.Cleaner cl = ((sun.nio.ch.DirectBuffer)buff).cleaner();
 
         if (cl != null) {

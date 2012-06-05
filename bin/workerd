@@ -28,10 +28,6 @@ start() {
 
     # no, we weren't running, so go ahead and startup.
 
-    # peregrine-workerd-util0029.wdc.sl.spinn3r.com:11118.log
-    
-    # stderr=peregrine-workerd-util0029.wdc.sl.spinn3r.com:11118.log
-
     host=$(./bin/jexec peregrine.worker.GetConfig $args 2> /dev/null |grep host= |grep -Eo '[^=]+$')
 
     stderr="logs/peregrine-workerd-$host.err"

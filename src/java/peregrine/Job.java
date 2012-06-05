@@ -90,6 +90,10 @@ public class Job {
 		this.output = output;
 		return this;
 	}
+
+    /**
+     * The time the job was started on the controller.
+     */
     public long getTimestamp() {
         return timestamp;
     }

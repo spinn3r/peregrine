@@ -22,6 +22,10 @@ import peregrine.map.BaseMapper;
  */
 public class Mapper extends BaseMapper {
 
+    /**
+     * Default implementnation of map.  Entity mapper.  Basically emits the key
+     * and value it is given.
+     */
     public void map( StructReader key, StructReader value ) {
         emit( key, value );
     }

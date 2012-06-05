@@ -89,7 +89,7 @@ public class HeartbeatTimer extends Timer {
             long delay;
             
             if ( config.getMembership().sendHeartbeatToController() ) {
-                delay = CONTROLLER_OFFLINE_SLEEP_INTERVAL;
+                delay = CONTROLLER_ONLINE_SLEEP_INTERVAL;
             } else {
                 delay = CONTROLLER_OFFLINE_SLEEP_INTERVAL;
             }
