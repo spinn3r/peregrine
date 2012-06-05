@@ -169,7 +169,7 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
         closer.add( in );
         closer.add( channel );
 
-        closer.setTrace( true );
+        closer.setTrace( true ); //FIXME remove
         
         closer.close();
         
@@ -209,7 +209,7 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
             
             byteBuffer = channel.map( FileChannel.MapMode.READ_ONLY, offset, length );
 
-            //FIXME: add this back in:  closer.add( new MappedByteBufferCloser( byteBuffer ) );
+            closer.add( new MappedByteBufferCloser( byteBuffer ) );
 
         }
 
@@ -228,7 +228,7 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
                                                                             memLock.getAddress(),
                                                                             new Closer() );
                 
-                //FIXME: add this back in:  closer.add( new MappedByteBufferCloser( byteBuffer ) );
+                closer.add( new MappedByteBufferCloser( byteBuffer ) );
 
             } catch ( Exception e ) {
                 throw new IOException( e );
