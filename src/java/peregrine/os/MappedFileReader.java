@@ -246,7 +246,7 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
                                                                             memLock.getAddress(),
                                                                             new Closer() );
                 
-                closer.add( new FadviseCloser() );
+                //closer.add( new FadviseCloser() );
 
             } catch ( Exception e ) {
                 throw new IOException( e );
