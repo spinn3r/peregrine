@@ -23,7 +23,7 @@ import java.io.*;
  * flag.  We also prevent double execution to avoid two threads triggering
  * execution before the first one stops.
  */
-public abstract class IdempotentCloser<Object,E extends IOException>
+public abstract class IdempotentCloser
     extends IdempotentFunction<Object,IOException>
     implements Closeable {
 

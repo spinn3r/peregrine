@@ -24,6 +24,7 @@ import java.lang.reflect.*;
 import org.jboss.netty.buffer.*;
 
 import peregrine.http.*;
+import peregrine.util.*;
 import peregrine.util.netty.*;
 import peregrine.io.util.*;
 import peregrine.config.*;
@@ -37,6 +38,16 @@ import com.spinn3r.log5j.Logger;
  */
 public class MappedFileReader extends BaseMappedFile implements Closeable {
 
+    // TODO: there are a LOT of conflicting issues here:
+
+    //
+    // 1. we have two different strategies for closing files
+    //
+    // 2. we have mlock vs no mlock
+    //
+    // 3. we have background closers and foreground closers... BOTH called
+    // Closer.
+    
     private static final Logger log = Logger.getLogger();
 
     public static boolean DEFAULT_AUTO_LOCK = false;
@@ -52,6 +63,14 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
     protected ByteBuffer byteBuffer = null;
 
     protected FileMapper fileMapper = null;
+
+    public static boolean USE_NATIVE_MAP_STRATEGY = true;
+
+    public static boolean USE_FADVISE_ON_CLOSE = false;
+
+    public static boolean USE_NATIVE_FOREGROUND_CLOSER = false;
+
+    public static boolean USE_NATIVE_BACKGROUND_CLOSER = false;
 
     public MappedFileReader( Config config, String path ) throws IOException {
         this( config, new File( path ) );
@@ -102,14 +121,16 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
             
             if ( map == null ) {
 
-                /*
-                fileMapper = new FileMapper( file, in.getFD(), offset, length );
-                fileMapper.setLock( autoLock );
-                closer.add( fileMapper );
-                new NativeMapStrategy().map();
-                */
+                if ( USE_NATIVE_MAP_STRATEGY ) {
+                
+                    fileMapper = new FileMapper( file, in.getFD(), offset, length );
+                    fileMapper.setLock( autoLock );
+                    closer.add( fileMapper );
+                    new NativeMapStrategy().map();
 
-                new ChannelMapStrategy().map();
+                } else { 
+                    new ChannelMapStrategy().map();
+                }
                 
                 this.map = ChannelBuffers.wrappedBuffer( byteBuffer );
                 
@@ -144,7 +165,8 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
 
         closer.requireOpen();
 
-        //fileMapper.unlockRegion( len );
+        if ( USE_NATIVE_MAP_STRATEGY )
+            fileMapper.unlockRegion( len );
         
     }
     
@@ -181,11 +203,11 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
         }
         
         @Override
-        public void close() throws IOException {
+        protected void doClose() throws IOException {
 
-            super.close();
+            super.doClose();
 
-            if ( fadviseDontNeedEnabled ) {
+            if ( fadviseDontNeedEnabled && USE_FADVISE_ON_CLOSE ) {
                 fcntl.posix_fadvise( fd, offset, length, fcntl.POSIX_FADV_DONTNEED );
             }
             
@@ -196,14 +218,12 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
     /**
      * Closer that ONLY fadvises away pages.
      */
-    class FadviseCloser extends Closer {
+    class FadviseCloser extends IdempotentCloser {
 
         @Override
-        public void close() throws IOException {
+        protected void doClose() throws IOException {
 
-            super.close();
-
-            if ( fadviseDontNeedEnabled ) {
+            if ( fadviseDontNeedEnabled && USE_FADVISE_ON_CLOSE ) {
                 fcntl.posix_fadvise( fd, offset, length, fcntl.POSIX_FADV_DONTNEED );
             }
             
@@ -214,7 +234,6 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
     // FIXME: remove the ChannelMapStrategy and ONLY go with the NativeMapStrategy
     class ChannelMapStrategy {
 
-        
         public void map() throws IOException {
             
             byteBuffer = channel.map( FileChannel.MapMode.READ_ONLY, offset, length );
@@ -236,9 +255,10 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
 
                 byteBuffer = (ByteBuffer)byteBufferConstructor.newInstance( (int)length,
                                                                             fileMapper.getAddress(),
-                                                                            new Closer() );
-                
-                //closer.add( new FadviseCloser() );
+                                                                            new BackgroundCloser() );
+
+                if ( USE_NATIVE_FOREGROUND_CLOSER ) 
+                    closer.add( new FadviseCloser() );
 
             } catch ( Exception e ) {
                 throw new IOException( e );
@@ -246,16 +266,24 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
                 
         }
 
-        class Closer implements Runnable {
+        /**
+         * Closer that runs in the background during GC to free up memory used
+         * by mapped buffers that are no longer used.
+         */
+        class BackgroundCloser implements Runnable {
             
             public void run() {
-                
-                try {
-                    fileMapper.close();
-                } catch ( IOException e ) {
-                    throw new RuntimeException( e );
+
+                if ( USE_NATIVE_BACKGROUND_CLOSER ) {
+
+                    try {
+                        fileMapper.close();
+                    } catch ( IOException e ) {
+                        throw new RuntimeException( e );
+                    }
+
                 }
-                
+                    
             }
             
         };

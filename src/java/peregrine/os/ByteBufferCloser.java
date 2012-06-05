@@ -22,6 +22,7 @@ import java.util.*;
 
 import org.jboss.netty.buffer.*;
 
+import peregrine.util.*;
 import peregrine.http.*;
 import peregrine.util.netty.*;
 import peregrine.io.util.*;
@@ -32,7 +33,7 @@ import com.spinn3r.log5j.Logger;
 /**
  * A closeable which is smart enough to work on byte buffers. 
  */
-public class ByteBufferCloser implements Closeable {
+public class ByteBufferCloser extends IdempotentCloser {
 
     private ByteBuffer buff = null;
 
@@ -48,7 +49,7 @@ public class ByteBufferCloser implements Closeable {
     }
     
     @Override
-    public void close() throws IOException {
+    protected void doClose() throws IOException {
 
         if ( buff == null )
             return;
