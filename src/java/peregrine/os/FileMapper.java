@@ -15,6 +15,8 @@
 */
 package peregrine.os;
 
+import peregrine.util.*;
+
 import java.io.*;
 
 import com.sun.jna.Pointer;
@@ -25,7 +27,7 @@ import com.spinn3r.log5j.*;
  * Facade on top of mlock/mmap that opens up a file, mmaps it, then mlocks it
  * (optionally).
  */
-public class FileMapper implements Closeable {
+public class FileMapper extends IdempotentCloser implements Closeable {
 
     private static final Logger log = Logger.getLogger();
 
@@ -33,8 +35,6 @@ public class FileMapper implements Closeable {
     private long length;
     private File file;
     private FileDescriptor descriptor;
-
-    private boolean closed = false;
 
     private boolean lock = false;
 
@@ -98,11 +98,7 @@ public class FileMapper implements Closeable {
      * wants to us it.
      */
     @Override
-    public void close() throws IOException {
-
-        // FIXME: migrate this to use IdempotentCloser
-        
-        if ( closed ) return;
+    protected void doClose() throws IOException {
 
         if ( lock ) {
             log.info( "munlocking %s to pa %s with length %,d", file, pa, length );
@@ -111,8 +107,6 @@ public class FileMapper implements Closeable {
             
         mman.munmap( pa, length );
 
-        closed = true;
-        
     }
 
     public boolean getLock() { 

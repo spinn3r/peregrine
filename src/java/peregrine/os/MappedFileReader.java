@@ -103,7 +103,7 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
             if ( map == null ) {
 
                 fileMapper = new FileMapper( file, in.getFD(), offset, length );
-                //FIXME: test adding this back in fileMapper.setLock( autoLock );
+                fileMapper.setLock( autoLock );
                 closer.add( fileMapper );
 
                 new NativeMapStrategy().map();
