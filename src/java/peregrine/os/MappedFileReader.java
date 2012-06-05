@@ -257,8 +257,9 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
                                                                             fileMapper.getAddress(),
                                                                             new BackgroundCloser() );
 
-                if ( USE_NATIVE_FOREGROUND_CLOSER ) 
+                if ( USE_NATIVE_FOREGROUND_CLOSER ) {
                     closer.add( new FadviseCloser() );
+                }
 
             } catch ( Exception e ) {
                 throw new IOException( e );
