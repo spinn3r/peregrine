@@ -49,6 +49,14 @@ public class Closer extends BaseCloser<Closeable> implements Closeable {
         return executed();
     }
 
+    public void requireOpen() throws IOException {
+
+        if ( isClosed() ) {
+            throw new IOException( "closed" );
+        }
+        
+    }
+    
     protected void onDelegate( Closeable delegate ) throws IOException {
         delegate.close();
     }

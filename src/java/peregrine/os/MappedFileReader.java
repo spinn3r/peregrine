@@ -91,8 +91,7 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
      */
     public ChannelBuffer map() throws IOException {
 
-        if ( closer.isClosed() )
-            throw new IOException( "closed" );
+        closer.requireOpen();
         
         try {
 
@@ -145,9 +144,8 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
      */
     public void unlockRegion( long len ) throws IOException {
 
-        if ( closer.isClosed() )
-            throw new IOException( "closed" );
-
+        closer.requireOpen();
+        
         if ( memLock == null ) return;
 
         memLock.unlockRegion( len );
