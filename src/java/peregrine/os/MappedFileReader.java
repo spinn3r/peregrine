@@ -212,7 +212,7 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
     }
 
     // FIXME: remove the ChannelMapStrategy and ONLY go with the NativeMapStrategy
-    class ChannelMapStrategy implements MapStrategy {
+    class ChannelMapStrategy {
 
         public void map() throws IOException {
             
