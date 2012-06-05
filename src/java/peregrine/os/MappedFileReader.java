@@ -227,7 +227,7 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
             
             byteBuffer = channel.map( FileChannel.MapMode.READ_ONLY, offset, length );
 
-            closer.add( new MappedByteBufferCloser( byteBuffer ) );
+            //closer.add( new MappedByteBufferCloser( byteBuffer ) );
 
         }
 
@@ -248,7 +248,6 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
                 
                 //closer.add( new FadviseCloser() );
 
-                
             } catch ( Exception e ) {
                 throw new IOException( e );
             }
