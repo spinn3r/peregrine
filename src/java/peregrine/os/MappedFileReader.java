@@ -104,7 +104,7 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
 
                 if ( autoLock ) {
                     memLock = new MemLock( file, in.getFD(), offset, length );
-                    //FIXME: add this back in closer.add( memLock );
+                    closer.add( memLock );
                 }
 
                 if ( memLock != null ) {
