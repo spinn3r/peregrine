@@ -102,11 +102,14 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
             
             if ( map == null ) {
 
+                /*
                 fileMapper = new FileMapper( file, in.getFD(), offset, length );
                 fileMapper.setLock( autoLock );
                 closer.add( fileMapper );
-
                 new NativeMapStrategy().map();
+                */
+
+                new ChannelMapStrategy().map();
                 
                 this.map = ChannelBuffers.wrappedBuffer( byteBuffer );
                 
@@ -141,7 +144,7 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
 
         closer.requireOpen();
 
-        fileMapper.unlockRegion( len );
+        //fileMapper.unlockRegion( len );
         
     }
     
@@ -204,6 +207,19 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
                 fcntl.posix_fadvise( fd, offset, length, fcntl.POSIX_FADV_DONTNEED );
             }
             
+        }
+
+    }
+
+    // FIXME: remove the ChannelMapStrategy and ONLY go with the NativeMapStrategy
+    class ChannelMapStrategy implements MapStrategy {
+
+        public void map() throws IOException {
+            
+            byteBuffer = channel.map( FileChannel.MapMode.READ_ONLY, offset, length );
+
+            closer.add( new MappedByteBufferCloser( byteBuffer ) );
+
         }
 
     }
