@@ -214,8 +214,8 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
         public void map() throws IOException {
             
             byteBuffer = channel.map( FileChannel.MapMode.READ_ONLY, offset, length );
-            
-            closer.add( new MappedByteBufferCloser( byteBuffer ) );
+
+            //FIXME: add this back in:  closer.add( new MappedByteBufferCloser( byteBuffer ) );
 
         }
 
@@ -234,7 +234,7 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
                                                                             memLock.getAddress(),
                                                                             new Closer() );
                 
-                closer.add( new MappedByteBufferCloser( byteBuffer ) );
+                //FIXME: add this back in:  closer.add( new MappedByteBufferCloser( byteBuffer ) );
 
             } catch ( Exception e ) {
                 throw new IOException( e );
