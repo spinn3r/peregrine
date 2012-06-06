@@ -87,6 +87,7 @@ public class DefaultChunkReader implements SequenceReader, ChunkReader, Closeabl
         throws IOException {
 
         mappedFile = new MappedFileReader( config, file );
+        mappedFile.setHoldOpenOverClose( true ); //FIXME: remove
         
         ChannelBuffer buff = mappedFile.map();
       
