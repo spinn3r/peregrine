@@ -64,10 +64,12 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
 
     protected FileMapper fileMapper = null;
 
-    public static boolean USE_NATIVE_MAP_STRATEGY = true;
+    public static boolean USE_NATIVE_MAP_STRATEGY = false;
 
     public static boolean USE_FADVISE_ON_CLOSE = false;
 
+    public static boolean USE_CHANNEL_FOREGROUND_CLOSER = false;
+    
     public static boolean USE_NATIVE_FOREGROUND_CLOSER = false;
 
     public static boolean USE_NATIVE_BACKGROUND_CLOSER = false;
@@ -238,7 +240,9 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
             
             byteBuffer = channel.map( FileChannel.MapMode.READ_ONLY, offset, length );
 
-            closer.add( new MappedByteBufferCloser( byteBuffer ) );
+            if ( USE_CHANNEL_FOREGROUND_CLOSER ) {
+                closer.add( new MappedByteBufferCloser( byteBuffer ) );
+            }
 
         }
 
