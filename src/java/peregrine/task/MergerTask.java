@@ -39,7 +39,7 @@ public class MergerTask extends BaseMapperTask {
 
         try {
             
-            MappedFileReader.setHoldOpenOverClose( true );
+            //MappedFileReader.setHoldOpenOverClose( true );
             
             jobInput = getJobInput();
 
