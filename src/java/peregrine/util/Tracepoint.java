@@ -96,11 +96,14 @@ public class Tracepoint {
             }
                 
         }
-        
+
+        System.out.printf( "Found %,d tracepoints.\n", hits.size() );
+        System.out.printf( "---\n" );
+
         for( String key : keys ) {
             System.out.printf( "%s", hits.get( key ) );
         }
-        
+
     }
 
 }
