@@ -45,19 +45,27 @@ public class FSCat {
             render = args[1];
         }
 
-        SequenceReader reader = new DefaultChunkReader( new File( path ) );
+        SequenceReader reader = null;
 
-        while ( reader.hasNext() ) {
+        try {
+            
+            reader = new DefaultChunkReader( new File( path ) );
+            
+            while ( reader.hasNext() ) {
+                
+                reader.next();
+                
+                StructReader key   = reader.key();
+                StructReader value = reader.value();
+                
+                System.out.printf( "%s = %s\n", Base64.encode( key.toByteArray() ), format( render, value ) );
+                
+            }
 
-            reader.next();
-
-            StructReader key   = reader.key();
-            StructReader value = reader.value();
-
-            System.out.printf( "%s = %s\n", Base64.encode( key.toByteArray() ), format( render, value ) );
-
+        } finally {
+            reader.close();
         }
-        
+
     }
 
     /**
