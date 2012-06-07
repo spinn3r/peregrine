@@ -94,6 +94,8 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
 
     private void init( Config config, File file ) throws IOException {
 
+        log.info( "%s", new Tracepoint() );
+        
         this.config = config;
         this.file = file;
 
