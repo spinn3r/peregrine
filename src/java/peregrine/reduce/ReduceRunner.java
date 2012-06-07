@@ -380,16 +380,9 @@ public class ReduceRunner {
 
                 try {
 
-                    try {
-                        //MappedFileReader.setHoldOpenOverClose( true ); // FIXME: remove
-                        
-                        reader = new ShuffleInputReader( config, path, partition );
-                        header = reader.getHeader( partition );
+                    reader = new ShuffleInputReader( config, path, partition );
+                    header = reader.getHeader( partition );
 
-                    } finally {
-                        MappedFileReader.setHoldOpenOverClose( false ); // FIXME: remove
-                    }
-                     
                 } finally {
                     new Closer( reader ).close();
                 }

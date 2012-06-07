@@ -46,15 +46,7 @@ public class MapperTask extends BaseMapperTask {
             throw new Exception( "Map jobs must have exactly one input." );
         }
 
-        try {
-            
-            //MappedFileReader.setHoldOpenOverClose( true );
-
-            jobInput = getJobInput();
-
-        } finally {
-            MappedFileReader.setHoldOpenOverClose( false );
-        }
+        jobInput = getJobInput();
 
         if ( jobInput.size() == 0 )
             return;

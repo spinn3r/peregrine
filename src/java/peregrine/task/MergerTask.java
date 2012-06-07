@@ -37,15 +37,7 @@ public class MergerTask extends BaseMapperTask {
 
         listeners.add( new MergerLocalPartitionListener() );
 
-        try {
-            
-            //MappedFileReader.setHoldOpenOverClose( true );
-            
-            jobInput = getJobInput();
-
-        } finally {
-            MappedFileReader.setHoldOpenOverClose( false );
-        }
+        jobInput = getJobInput();
 
         MergeRunner localMerger = new MergeRunner( jobInput );
 
