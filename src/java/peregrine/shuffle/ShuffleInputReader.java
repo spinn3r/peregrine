@@ -94,7 +94,6 @@ public class ShuffleInputReader implements Closeable {
         // read them so this make it less difficult to figure out what to map.
 
         this.mappedFile = new MappedFileReader( config, file );
-        this.mappedFile.setHoldOpenOverClose( true ); //FIXME: remove
         
         this.buffer = mappedFile.map();
         
