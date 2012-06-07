@@ -47,12 +47,12 @@ public class MapperTask extends BaseMapperTask {
         }
 
         try {
-            MappedFileReader.setHoldOpenOverClose( true );
+            //MappedFileReader.setHoldOpenOverClose( true );
 
             jobInput = getJobInput();
 
         } finally {
-            MappedFileReader.setHoldOpenOverClose( false );
+            //MappedFileReader.setHoldOpenOverClose( false );
         }
 
         if ( jobInput.size() == 0 )
