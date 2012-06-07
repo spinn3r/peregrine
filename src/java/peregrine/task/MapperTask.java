@@ -48,7 +48,9 @@ public class MapperTask extends BaseMapperTask {
 
         try {
             MappedFileReader.setHoldOpenOverClose( true );
+
             jobInput = getJobInput();
+
         } finally {
             MappedFileReader.setHoldOpenOverClose( false );
         }
