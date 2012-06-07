@@ -74,8 +74,6 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
 
     public static boolean USE_NATIVE_BACKGROUND_CLOSER = false;
 
-    private boolean holdOpenOverClose = false;
-
     public MappedFileReader( Config config, String path ) throws IOException {
         this( config, new File( path ) );
     }
@@ -109,20 +107,28 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
 
     }
 
-    public boolean getHoldOpenOverClose() { 
-        return this.holdOpenOverClose;
+    public static boolean getHoldOpenOverClose() { 
+        return holdOpenOverClose.get();
     }
 
-    public void setHoldOpenOverClose( boolean holdOpenOverClose ) { 
-        this.holdOpenOverClose = holdOpenOverClose;
+    public static void setHoldOpenOverClose( boolean value ) { 
+        holdOpenOverClose.set( value );
     }
 
+    static ThreadLocal<Boolean> holdOpenOverClose = new ThreadLocal<Boolean>() {
+
+        public Boolean initialValue() {
+            return false;
+        }
+        
+    };
+    
     /**
      * Read from this mapped file.
      */
     public ChannelBuffer map() throws IOException {
 
-        log.info( "%s", new Tracepoint( "holdOpenOverClose" , holdOpenOverClose ) ); //FIXME remove this.
+        log.info( "%s", new Tracepoint( "holdOpenOverClose" , holdOpenOverClose.get() ) ); //FIXME remove this.
 
         closer.requireOpen();
         
@@ -252,7 +258,7 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
             
             byteBuffer = channel.map( FileChannel.MapMode.READ_ONLY, offset, length );
 
-            if ( holdOpenOverClose == false && USE_CHANNEL_FOREGROUND_CLOSER ) {
+            if ( holdOpenOverClose.get() == false && USE_CHANNEL_FOREGROUND_CLOSER ) {
                 closer.add( new MappedByteBufferCloser( byteBuffer ) );
             }
 

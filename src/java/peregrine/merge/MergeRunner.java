@@ -95,6 +95,8 @@ public class MergeRunner implements Closeable {
     @Override
     public void close() throws IOException {
 
+        //FIXME: move to IdempotentCloser
+        
         Closer closer = new Closer();
 
         for( SequenceReader reader : readers ) {

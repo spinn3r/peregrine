@@ -21,6 +21,7 @@ import java.util.*;
 import peregrine.config.Config;
 import peregrine.config.Partition;
 import peregrine.io.chunk.*;
+import peregrine.os.*;
 
 /**
  * Write to a logical partition which is a stream of chunk files.... 
@@ -42,8 +43,13 @@ public class LocalPartition {
         
         for( File chunk : chunks ) {
 
-            DefaultChunkReader chunkReader = new DefaultChunkReader( config, chunk, false /* FIXME: remove holdOpenOverClose */ );
-            
+            try {
+                MappedFileReader.setHoldOpenOverClose( true );
+                DefaultChunkReader chunkReader = new DefaultChunkReader( config, chunk );
+            } finally {
+                MappedFileReader.setHoldOpenOverClose( false );
+            }
+
             result.add( chunkReader );
             
         }
