@@ -64,9 +64,9 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
 
     protected FileMapper fileMapper = null;
 
-    public static boolean USE_NATIVE_MAP_STRATEGY = true;
+    public static boolean USE_NATIVE_MAP_STRATEGY = false;
 
-    public static boolean USE_FADVISE_ON_CLOSE = true;
+    public static boolean USE_FADVISE_ON_CLOSE = false;
 
     public static boolean USE_CHANNEL_FOREGROUND_CLOSER = true;
     
