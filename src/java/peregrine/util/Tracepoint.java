@@ -22,9 +22,10 @@ import peregrine.util.netty.*;
 
 /**
  * A Tracepoint is basically a stacktrace which we manually emit to the log
- * along with a hashcode for debug purposes.
+ * along with a hashcode for debug purposes to trace every unique invocation of
+ * a method.
  * 
- * This can allow us to track down bleeding resources.
+ * This can be value for tracking down bleeding resources.
  */
 public class Tracepoint {
 
