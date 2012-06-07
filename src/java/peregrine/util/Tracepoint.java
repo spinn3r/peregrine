@@ -15,6 +15,11 @@
 */
 package peregrine.util;
 
+import java.util.*;
+import java.util.regex.*;
+
+import peregrine.util.netty.*;
+
 /**
  * A Tracepoint is basically a stacktrace which we manually emit to the log
  * along with a hashcode for debug purposes.
@@ -56,12 +61,47 @@ public class Tracepoint {
         buff.append( String.format( "Tracepoint: %s\n", tp ) );
         
         buff.append( stacktrace );
+
+        //buff.append( String.format( "END Tracepoint: %s\n", tp ) );
         
     }
 
     public String toString() {
         return buff.toString();
     }
-    
+
+    public static void main( String[] args ) throws Exception {
+
+        String path = args[0];
+
+        CharSequence seq = new FileCharSequence( path );
+        Pattern p = Pattern.compile( "(?m)Tracepoint: (.*)\n(\t.*\n)+" );
+        Matcher m = p.matcher( seq );
+
+        Map<String,String> hits = new HashMap();
+
+        List<String> keys = new ArrayList();
+        
+        while( m.find() ) {
+
+            String key = m.group( 1 ) ;
+
+            if ( ! hits.containsKey( key ) ) {
+                
+                String trace = m.group( 0 );
+
+                keys.add( key );
+                hits.put( key, trace );
+                
+            }
+                
+        }
+        
+        for( String key : keys ) {
+            System.out.printf( "%s", hits.get( key ) );
+        }
+        
+    }
+
 }
 
