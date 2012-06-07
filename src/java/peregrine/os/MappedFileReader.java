@@ -72,7 +72,7 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
     
     public static boolean USE_NATIVE_FOREGROUND_CLOSER = true;
 
-    public static boolean USE_NATIVE_BACKGROUND_CLOSER = false;
+    public static boolean USE_NATIVE_BACKGROUND_CLOSER = true;
 
     public MappedFileReader( Config config, String path ) throws IOException {
         this( config, new File( path ) );
