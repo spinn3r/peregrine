@@ -83,13 +83,16 @@ public class DefaultChunkReader implements SequenceReader, ChunkReader, Closeabl
     
     private ChannelBuffer buffer = null;
 
-    private boolean holdOpenOverClose = false;
-
     public DefaultChunkReader( Config config, File file )
+        throws IOException {
+        this( config, file, false );
+    }
+        
+    public DefaultChunkReader( Config config, File file, boolean holdOpenOverClose )
         throws IOException {
 
         mappedFile = new MappedFileReader( config, file );
-        mappedFile.setHoldOpenOverClose( false ); //FIXME: remove
+        mappedFile.setHoldOpenOverClose( holdOpenOverClose ); //FIXME: remove
         
         ChannelBuffer buff = mappedFile.map();
       
@@ -124,14 +127,6 @@ public class DefaultChunkReader implements SequenceReader, ChunkReader, Closeabl
 
         init( buff );
         
-    }
-
-    public boolean getHoldOpenOverClose() { 
-        return this.holdOpenOverClose;
-    }
-
-    public void setHoldOpenOverClose( boolean holdOpenOverClose ) { 
-        this.holdOpenOverClose = holdOpenOverClose;
     }
 
     /**

@@ -143,8 +143,7 @@ public class ChunkSorter extends BaseChunkSorter {
         DefaultChunkReader result = null;
         
         if ( output != null ) {
-            result = new DefaultChunkReader( config, output );
-            result.setHoldOpenOverClose( true ); //FIXME: remove
+            result = new DefaultChunkReader( config, output, true /* FIXME: remove */ );
         }
 
         return result;
