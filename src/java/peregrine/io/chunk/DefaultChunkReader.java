@@ -35,7 +35,7 @@ import org.jboss.netty.buffer.*;
  * like CRC32, etc.
  */
 public class DefaultChunkReader implements SequenceReader, ChunkReader, Closeable {
-
+    
     // magic numbers for chunk reader files.
 
     private static Charset ASCII = Charset.forName( "ASCII" );
@@ -82,7 +82,9 @@ public class DefaultChunkReader implements SequenceReader, ChunkReader, Closeabl
     private int keyOffset = -1;
     
     private ChannelBuffer buffer = null;
-    
+
+    private boolean holdOpenOverClose = false;
+
     public DefaultChunkReader( Config config, File file )
         throws IOException {
 
@@ -123,7 +125,15 @@ public class DefaultChunkReader implements SequenceReader, ChunkReader, Closeabl
         init( buff );
         
     }
-    
+
+    public boolean getHoldOpenOverClose() { 
+        return this.holdOpenOverClose;
+    }
+
+    public void setHoldOpenOverClose( boolean holdOpenOverClose ) { 
+        this.holdOpenOverClose = holdOpenOverClose;
+    }
+
     /**
      * Get the backing file.
      */

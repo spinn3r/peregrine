@@ -41,7 +41,12 @@ public class LocalPartition {
         List<DefaultChunkReader> result = new ArrayList();
         
         for( File chunk : chunks ) {
-            result.add( new DefaultChunkReader( config, chunk ) );
+
+            DefaultChunkReader chunkReader = new DefaultChunkReader( config, chunk );
+            chunkReader.setHoldOpenOverClose( true ); // FIXME: remove
+            
+            result.add( chunkReader );
+            
         }
 
         return result;
