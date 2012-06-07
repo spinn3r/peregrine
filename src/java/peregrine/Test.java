@@ -55,7 +55,7 @@ public class Test {
     
     public static void main( String[] args ) throws Exception {
 
-        Tracepoint tp = new Tracepoint();
+        Tracepoint tp = new Tracepoint( "foo" , "bar" );
         
         System.out.printf( "%s\n", tp );
         

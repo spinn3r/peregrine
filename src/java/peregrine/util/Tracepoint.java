@@ -25,10 +25,18 @@ public class Tracepoint {
 
     StringBuffer buff = new StringBuffer();
 
-    public Tracepoint() {
+    public Tracepoint( Object... args ) {
 
         StackTraceElement[] frames = Thread.currentThread().getStackTrace();
 
+        for( int i = 0; i < args.length; i=i + 2 ) {
+            buff.append( String.format( "\t%s = %s, ", args[i], args[i + 1] ) );
+        }
+
+        if ( args.length > 0 ) {
+            buff.append( "\n" );
+        }
+        
         for( int i = 2; i < frames.length; ++i ) {
 
             StackTraceElement frame = frames[i];
