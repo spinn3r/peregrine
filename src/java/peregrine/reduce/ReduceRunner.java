@@ -390,7 +390,7 @@ public class ReduceRunner {
                     } finally {
                         MappedFileReader.setHoldOpenOverClose( false ); // FIXME: remove
                     }
-                     
+
                 } finally {
                     new Closer( reader ).close();
                 }
@@ -422,7 +422,16 @@ public class ReduceRunner {
             
             log.info( "Writing temporary sort file %s", path );
 
-            ChunkSorter sorter = new ChunkSorter( config , partition );
+            ChunkSorter sorter;
+            
+            try {
+                
+                MappedFileReader.setHoldOpenOverClose( true ); // FIXME: remove
+                sorter = new ChunkSorter( config , partition );
+
+            } finally {
+                MappedFileReader.setHoldOpenOverClose( false ); // FIXME: remove
+            }
 
             SequenceReader result = sorter.sort( work, out, jobOutput );
 
