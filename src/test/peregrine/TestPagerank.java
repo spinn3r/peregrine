@@ -17,6 +17,7 @@ package peregrine;
 
 import peregrine.io.*;
 import peregrine.config.*;
+import peregrine.controller.*;
 import peregrine.app.pagerank.*;
 
 public class TestPagerank extends peregrine.BaseTestWithMultipleProcesses {
@@ -44,17 +45,35 @@ public class TestPagerank extends peregrine.BaseTestWithMultipleProcesses {
         builder.buildRandomGraph( nr_nodes , max_edges_per_node );
 
         writer.close();
+
+        Controller controller = null;
         
-        new Pagerank( config, path ).exec();
+        try {
+
+            controller = new Controller( config );
+            
+            Pagerank pr = new Pagerank( config, path, controller );
+
+            pr.exec( false );
+
+            System.out.printf( "DONE but sleeping...\n" ); //FIXME: remove
+            
+            Thread.sleep( 30000 ); //FIXME: remove
+            
+        } finally {
+            controller.shutdown();
+        }
 
     }
 
     public static void main( String[] args ) throws Exception {
 
+        /*
         BaseTestWithMultipleProcesses.BASEDIR_MAP.put( 11112 , "/d0" );
         BaseTestWithMultipleProcesses.BASEDIR_MAP.put( 11113 , "/d1" );
         BaseTestWithMultipleProcesses.BASEDIR_MAP.put( 11114 , "/d2" );
         BaseTestWithMultipleProcesses.BASEDIR_MAP.put( 11115 , "/d3" );
+        */
         
         setPropertyDefault( "peregrine.test.config", "2:1:4" ); 
         runTests();
