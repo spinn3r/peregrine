@@ -108,7 +108,7 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
     static ThreadLocal<Boolean> holdOpenOverClose = new ThreadLocal<Boolean>() {
 
         public Boolean initialValue() {
-            return false;
+            return true;
         }
         
     };
