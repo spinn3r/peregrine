@@ -86,7 +86,7 @@ public class HeartbeatTimer extends Timer {
         @Override
         public void run() {
 
-            log.info( "Sending heartbeat." );
+            log.info( "Sending heartbeat." ); //FIXME: remove
             
             long delay;
             
