@@ -30,6 +30,8 @@ import peregrine.reduce.*;
 import peregrine.shuffle.*;
 import peregrine.util.*;
 import peregrine.util.netty.*;
+import peregrine.os.*;
+
 import org.jboss.netty.buffer.*;
 
 import com.spinn3r.log5j.Logger;
@@ -136,7 +138,7 @@ public class ChunkSorter extends BaseChunkSorter {
             // NOTE: it is important that the writer be closed before the reader
             // because if not then the writer will attempt to read values from 
             // closed reader.
-            //FIXME: new Closer( sortResult, writer, reader ).close();
+            new Closer( sortResult, writer, reader ).close();
 
         }
 
@@ -144,8 +146,22 @@ public class ChunkSorter extends BaseChunkSorter {
 
         DefaultChunkReader result = null;
         
-        if ( output != null )
-            result = new DefaultChunkReader( config, output );
+        if ( output != null ) {
+
+            try { 
+
+                //FIXME: this seems like the bug... 
+                MappedFileReader.setHoldOpenOverClose( true );
+                
+                result = new DefaultChunkReader( config, output );
+
+            } finally {
+
+                MappedFileReader.setHoldOpenOverClose( false );
+                
+            }
+
+        }
 
         return result;
 

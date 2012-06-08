@@ -441,21 +441,10 @@ public class ReduceRunner {
 
             ChunkSorter sorter = new ChunkSorter( config , partition );
 
-            try { 
+            SequenceReader result = sorter.sort( work, out, jobOutput );
 
-                //FIXME: this seems like the bug... 
-                //MappedFileReader.setHoldOpenOverClose( true );
-
-                SequenceReader result = sorter.sort( work, out, jobOutput );
-
-                if ( result != null )
-                    sorted.add( result );
-
-            } finally {
-
-                MappedFileReader.setHoldOpenOverClose( false );
-                
-            }
+            if ( result != null )
+                sorted.add( result );
 
         }
 
