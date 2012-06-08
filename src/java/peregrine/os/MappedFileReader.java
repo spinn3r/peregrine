@@ -99,13 +99,16 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
 
                 if ( autoLock ) {
                     memLock = new MemLock( file, in.getFD(), offset, length );
-                    closer.add( memLock );
                 }
 
                 if ( memLock != null ) {
                     new NativeMapStrategy().map();
                 } else {
                     new ChannelMapStrategy().map();
+                }
+
+                if ( memLock != null ) {
+                    closer.add( memLock );
                 }
                 
                 this.map = ChannelBuffers.wrappedBuffer( byteBuffer );
@@ -183,9 +186,11 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
 
             super.close();
 
+            /*
             if ( fadviseDontNeedEnabled ) {
                 fcntl.posix_fadvise( fd, offset, length, fcntl.POSIX_FADV_DONTNEED );
             }
+            */
             
         }
 
