@@ -121,7 +121,8 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
             if ( reader == null )
                 reader = new StreamReader( map );
 
-            log.info( "%s", new Tracepoint( "holdOpenOverClose" , holdOpenOverClose.get(), "usingMemLock" , memLock != null ) ); //FIXME remove this.
+            log.info( "%s", new Tracepoint( "holdOpenOverClose" , holdOpenOverClose.get(),
+                                            "usingMemLock" ,      memLock != null ) ); //FIXME remove this.
 
             return map;
 

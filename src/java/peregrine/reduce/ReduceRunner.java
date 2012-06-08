@@ -87,7 +87,19 @@ public class ReduceRunner {
 
         // on the first pass we're going to sort and use shuffle input...
 
-        List<SequenceReader> readers = sort( input, sort_dir );
+        List<SequenceReader> readers;
+        
+        try { 
+
+            MappedFileReader.setHoldOpenOverClose( true );
+            
+            readers = sort( input, sort_dir );
+
+        } finally {
+
+            MappedFileReader.setHoldOpenOverClose( false );
+            
+        }
 
         while( true ) {
 
