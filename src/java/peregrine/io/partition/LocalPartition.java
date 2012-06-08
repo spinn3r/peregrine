@@ -45,13 +45,13 @@ public class LocalPartition {
 
             try {
 
-                //MappedFileReader.setHoldOpenOverClose( true ); //FIXME: remove
+                MappedFileReader.setHoldOpenOverClose( true ); //FIXME: remove
 
                 DefaultChunkReader chunkReader = new DefaultChunkReader( config, chunk );
                 result.add( chunkReader );
 
             } finally {
-                //MappedFileReader.setHoldOpenOverClose( false ); //FIXME: remove
+                MappedFileReader.setHoldOpenOverClose( false ); //FIXME: remove
             }
 
             
