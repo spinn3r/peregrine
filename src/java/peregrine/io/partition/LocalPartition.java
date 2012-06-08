@@ -45,12 +45,12 @@ public class LocalPartition {
 
             try {
 
-                MappedFileReader.setHoldOpenOverClose( true );
+                //MappedFileReader.setHoldOpenOverClose( true );
             
                 result.add( new DefaultChunkReader( config, chunk ) );
 
             } finally {
-                MappedFileReader.setHoldOpenOverClose( false );
+                //MappedFileReader.setHoldOpenOverClose( false );
             }
 
         }
