@@ -443,7 +443,7 @@ public class ReduceRunner {
 
             try { 
 
-                MappedFileReader.setHoldOpenOverClose( true );
+                //MappedFileReader.setHoldOpenOverClose( true );
 
                 SequenceReader result = sorter.sort( work, out, jobOutput );
 
