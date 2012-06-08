@@ -64,7 +64,7 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
 
     protected FileMapper fileMapper = null;
 
-    public static boolean USE_NATIVE_MAP_STRATEGY = false;
+    public static boolean USE_NATIVE_MAP_STRATEGY = true;
 
     public static boolean USE_FADVISE_ON_CLOSE = false;
 
@@ -277,8 +277,12 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
                                                                             fileMapper.getAddress(),
                                                                             new BackgroundCloser() );
 
-                if ( USE_NATIVE_FOREGROUND_CLOSER ) {
-                    closer.add( new FadviseCloser() );
+                //if ( USE_NATIVE_FOREGROUND_CLOSER ) {
+                //    closer.add( new FadviseCloser() );
+                //}
+
+                if ( holdOpenOverClose.get() == false && USE_CHANNEL_FOREGROUND_CLOSER ) {
+                    closer.add( new MappedByteBufferCloser( byteBuffer ) );
                 }
 
             } catch ( Exception e ) {
