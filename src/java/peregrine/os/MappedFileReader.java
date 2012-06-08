@@ -53,7 +53,9 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
     protected ByteBuffer byteBuffer = null;
 
     protected FileMapper fileMapper = null;
-
+    
+    public static boolean USE_NATIVE_MAP_STRATEGY = false;
+    
     public static boolean USE_FADVISE_ON_CLOSE = true;
 
     public static boolean USE_CHANNEL_FOREGROUND_CLOSER = true;
@@ -129,11 +131,15 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
             
             if ( map == null ) {
 
-                fileMapper = new FileMapper( file, in.getFD(), offset, length );
-                fileMapper.setLock( autoLock );
-                closer.add( fileMapper );
-                new NativeMapStrategy().map();
-
+                if ( USE_NATIVE_MAP_STRATEGY ) {
+                    fileMapper = new FileMapper( file, in.getFD(), offset, length );
+                    fileMapper.setLock( autoLock );
+                    closer.add( fileMapper );
+                    new NativeMapStrategy().map();
+                } else {
+                    new ChannelMapStrategy().map();
+                }
+                    
                 this.map = ChannelBuffers.wrappedBuffer( byteBuffer );
                 
             }
@@ -167,7 +173,8 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
 
         closer.requireOpen();
 
-        fileMapper.unlockRegion( len );
+        if ( USE_NATIVE_MAP_STRATEGY )
+            fileMapper.unlockRegion( len );
         
     }
     
@@ -226,6 +233,21 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
                 fcntl.posix_fadvise( fd, offset, length, fcntl.POSIX_FADV_DONTNEED );
             }
             
+        }
+
+    }
+    
+    // FIXME: remove the ChannelMapStrategy and ONLY go with the NativeMapStrategy
+    class ChannelMapStrategy {
+
+        public void map() throws IOException {
+            
+            byteBuffer = channel.map( FileChannel.MapMode.READ_ONLY, offset, length );
+
+            if ( holdOpenOverClose.get() == false && USE_CHANNEL_FOREGROUND_CLOSER ) {
+                closer.add( new MappedByteBufferCloser( byteBuffer ) );
+            }
+
         }
 
     }
