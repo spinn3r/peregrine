@@ -200,7 +200,7 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
             closer.close();
 
         }
-            
+
     }
 
     /**
