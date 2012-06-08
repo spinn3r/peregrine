@@ -403,8 +403,17 @@ public class ReduceRunner {
         			break;        			
         		}
 
-        		work.add( new ShuffleInputChunkReader( config, partition, path ) );
-        		pendingIterator.remove();
+                try {
+
+                    MappedFileReader.setHoldOpenOverClose( true ); // FIXME: remove
+
+                    work.add( new ShuffleInputChunkReader( config, partition, path ) );
+
+                } finally {
+                    MappedFileReader.setHoldOpenOverClose( false ); // FIXME: remove
+                }
+
+                pendingIterator.remove();
         		
         	}
         	

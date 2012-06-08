@@ -54,7 +54,6 @@ public class LocalPartition {
                 MappedFileReader.setHoldOpenOverClose( false ); //FIXME: remove
             }
 
-            
         }
 
         return result;
