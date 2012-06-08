@@ -187,15 +187,19 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
         if ( closer.isClosed() )
             return;
 
-        channel.close();
+        if ( holdOpenOverClose.get() == false ) {
+            
+            channel.close();
+            
+            in.close();
+            
+            if ( mappedByteBufferCloser != null )
+                mappedByteBufferCloser.close();
+            
+            if ( memLock != null )
+                memLock.close();
 
-        in.close();
-
-        if ( mappedByteBufferCloser != null )
-            mappedByteBufferCloser.close();
-        
-        if ( memLock != null )
-            memLock.close();
+        }
 
     }
 
