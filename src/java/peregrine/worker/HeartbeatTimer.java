@@ -34,6 +34,9 @@ import peregrine.util.*;
 import com.spinn3r.log5j.Logger;
 import peregrine.util.netty.*;
 
+/**
+ * The HeartbeatTimer sends heartbeat messages to the controller regularly.
+ */
 public class HeartbeatTimer extends Timer {
 
     private static final Logger log = Logger.getLogger();

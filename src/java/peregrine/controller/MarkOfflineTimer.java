@@ -46,7 +46,7 @@ public class MarkOfflineTimer extends Timer {
     /**
      * How long until we mark a host as failed.
      */
-    public static long FAILED_INTERVAL = HeartbeatTimer.CONTROLLER_ONLINE_SLEEP_INTERVAL * 10L;
+    public static long FAILED_INTERVAL = HeartbeatTimer.CONTROLLER_ONLINE_SLEEP_INTERVAL * 20L;
 
     /**
      * How often do we want to wake up and check for machines that have failed.

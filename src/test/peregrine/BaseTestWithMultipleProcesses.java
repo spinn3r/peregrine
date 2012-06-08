@@ -203,7 +203,7 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
                 return pid;
             }
 
-            if ( System.currentTimeMillis() - started > 30000 ) {
+            if ( System.currentTimeMillis() - started > 60000 ) {
                 throw new RuntimeException( "timeout while starting proc" );
             }
             
