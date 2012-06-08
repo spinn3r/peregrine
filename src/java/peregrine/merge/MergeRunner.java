@@ -21,6 +21,7 @@ import java.util.*;
 import peregrine.*;
 import peregrine.reduce.*;
 import peregrine.io.*;
+import peregrine.io.util.*;
 import peregrine.io.chunk.*;
 import peregrine.io.partition.*;
 import peregrine.reduce.merger.*;
@@ -29,7 +30,7 @@ import peregrine.reduce.merger.*;
  * Run a merge by taking to chunk readers and blending them into a merge stream.
  * 
  */
-public class MergeRunner {
+public class MergeRunner implements Closeable {
 
     private MergerPriorityQueue queue;
     private MergeQueueEntry last = null;
@@ -98,5 +99,14 @@ public class MergeRunner {
         return result;
         
     }
-    
+
+    @Override
+    public void close() throws IOException {
+
+        //FIXME: move to IdempotentCloser
+        
+        new Closer( readers ).close();
+        
+    }
+
 }
