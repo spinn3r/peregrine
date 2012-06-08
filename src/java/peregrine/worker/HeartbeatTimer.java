@@ -86,6 +86,8 @@ public class HeartbeatTimer extends Timer {
         @Override
         public void run() {
 
+            log.info( "Sending heartbeat." );
+            
             long delay;
             
             if ( config.getMembership().sendHeartbeatToController() ) {
