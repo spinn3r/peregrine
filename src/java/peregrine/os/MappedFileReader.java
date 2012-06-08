@@ -165,10 +165,7 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
         closer.add( channel );
         closer.add( in );
 
-        //channel.close();
-        //in.close();
-        
-        //closer.close();
+        closer.close();
         
     }
 
