@@ -25,6 +25,7 @@ import peregrine.io.*;
 import peregrine.io.chunk.*;
 import peregrine.rpc.*;
 import peregrine.task.*;
+import peregrine.os.*;
 
 /**
  * Read data from a partition from local storage.
