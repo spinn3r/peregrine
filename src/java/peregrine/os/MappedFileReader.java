@@ -247,13 +247,14 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
         class Closer implements Runnable {
             
             public void run() {
-                
+
+                /*
                 try {
                     //memLock.close();
                 } catch ( IOException e ) {
                     throw new RuntimeException( e );
                 }
-                
+                */
             }
             
         };
