@@ -38,16 +38,6 @@ import com.spinn3r.log5j.Logger;
  */
 public class MappedFileReader extends BaseMappedFile implements Closeable {
 
-    // TODO: there are a LOT of conflicting issues here:
-
-    //
-    // 1. we have two different strategies for closing files
-    //
-    // 2. we have mlock vs no mlock
-    //
-    // 3. we have background closers and foreground closers... BOTH called
-    // Closer.
-    
     private static final Logger log = Logger.getLogger();
 
     public static boolean DEFAULT_AUTO_LOCK = false;
@@ -64,9 +54,7 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
 
     protected FileMapper fileMapper = null;
 
-    public static boolean USE_NATIVE_MAP_STRATEGY = true;
-
-    public static boolean USE_FADVISE_ON_CLOSE = false;
+    public static boolean USE_FADVISE_ON_CLOSE = true;
 
     public static boolean USE_CHANNEL_FOREGROUND_CLOSER = true;
     
@@ -141,17 +129,11 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
             
             if ( map == null ) {
 
-                if ( USE_NATIVE_MAP_STRATEGY ) {
-                
-                    fileMapper = new FileMapper( file, in.getFD(), offset, length );
-                    fileMapper.setLock( autoLock );
-                    closer.add( fileMapper );
-                    new NativeMapStrategy().map();
+                fileMapper = new FileMapper( file, in.getFD(), offset, length );
+                fileMapper.setLock( autoLock );
+                closer.add( fileMapper );
+                new NativeMapStrategy().map();
 
-                } else { 
-                    new ChannelMapStrategy().map();
-                }
-                
                 this.map = ChannelBuffers.wrappedBuffer( byteBuffer );
                 
             }
@@ -185,8 +167,7 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
 
         closer.requireOpen();
 
-        if ( USE_NATIVE_MAP_STRATEGY )
-            fileMapper.unlockRegion( len );
+        fileMapper.unlockRegion( len );
         
     }
     
@@ -248,21 +229,6 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
         }
 
     }
-
-    // FIXME: remove the ChannelMapStrategy and ONLY go with the NativeMapStrategy
-    class ChannelMapStrategy {
-
-        public void map() throws IOException {
-            
-            byteBuffer = channel.map( FileChannel.MapMode.READ_ONLY, offset, length );
-
-            if ( holdOpenOverClose.get() == false && USE_CHANNEL_FOREGROUND_CLOSER ) {
-                closer.add( new MappedByteBufferCloser( byteBuffer ) );
-            }
-
-        }
-
-    }
     
     /**
      * A native mmap strategy that uses mmap directly via the FileMapper .
@@ -276,14 +242,8 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
                 byteBuffer = (ByteBuffer)byteBufferConstructor.newInstance( (int)length,
                                                                             fileMapper.getAddress(),
                                                                             new BackgroundCloser() );
-
-                //if ( USE_NATIVE_FOREGROUND_CLOSER ) {
-                //    closer.add( new FadviseCloser() );
-                //}
-
-                if ( holdOpenOverClose.get() == false && USE_CHANNEL_FOREGROUND_CLOSER ) {
-                    closer.add( new MappedByteBufferCloser( byteBuffer ) );
-                }
+                
+                closer.add( new MappedByteBufferCloser( byteBuffer ) );
 
             } catch ( Exception e ) {
                 throw new IOException( e );
