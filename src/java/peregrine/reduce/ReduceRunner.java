@@ -91,13 +91,13 @@ public class ReduceRunner {
         
         try { 
 
-            //MappedFileReader.setHoldOpenOverClose( true );
+            MappedFileReader.setHoldOpenOverClose( true );
             
             readers = sort( input, sort_dir );
 
         } finally {
 
-            //MappedFileReader.setHoldOpenOverClose( false );
+            MappedFileReader.setHoldOpenOverClose( false );
             
         }
 
@@ -392,7 +392,18 @@ public class ReduceRunner {
 
                 try {
 
-                    reader = new ShuffleInputReader( config, path, partition );
+                    try { 
+
+                        MappedFileReader.setHoldOpenOverClose( true );
+
+                        reader = new ShuffleInputReader( config, path, partition );
+
+                    } finally {
+
+                        MappedFileReader.setHoldOpenOverClose( false );
+                        
+                    }
+
                     header = reader.getHeader( partition );
                      
                 } finally {
@@ -407,8 +418,19 @@ public class ReduceRunner {
         			break;        			
         		}
 
-        		work.add( new ShuffleInputChunkReader( config, partition, path ) );
-        		pendingIterator.remove();
+                try { 
+
+                    MappedFileReader.setHoldOpenOverClose( true );
+
+                    work.add( new ShuffleInputChunkReader( config, partition, path ) );
+
+                } finally {
+
+                    MappedFileReader.setHoldOpenOverClose( false );
+                    
+                }
+
+                pendingIterator.remove();
         		
         	}
         	
@@ -419,10 +441,20 @@ public class ReduceRunner {
 
             ChunkSorter sorter = new ChunkSorter( config , partition );
 
-            SequenceReader result = sorter.sort( work, out, jobOutput );
+            try { 
 
-            if ( result != null )
-                sorted.add( result );
+                MappedFileReader.setHoldOpenOverClose( true );
+
+                SequenceReader result = sorter.sort( work, out, jobOutput );
+
+                if ( result != null )
+                    sorted.add( result );
+
+            } finally {
+
+                MappedFileReader.setHoldOpenOverClose( false );
+                
+            }
 
         }
 
