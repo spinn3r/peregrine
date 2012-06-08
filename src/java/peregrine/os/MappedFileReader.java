@@ -55,6 +55,8 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
     protected MemLock memLock = null;
 
     protected MappedByteBufferCloser mappedByteBufferCloser = null;
+
+    protected boolean _holdOpenOverClose = false;
     
     public MappedFileReader( Config config, String path ) throws IOException {
         this( config, new File( path ) );
@@ -121,7 +123,9 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
             if ( reader == null )
                 reader = new StreamReader( map );
 
-            log.info( "%s", new Tracepoint( "holdOpenOverClose" , holdOpenOverClose.get(),
+            _holdOpenOverClose = holdOpenOverClose.get();
+            
+            log.info( "%s", new Tracepoint( "holdOpenOverClose" , _holdOpenOverClose,
                                             "usingMemLock" ,      memLock != null ) ); //FIXME remove this.
 
             return map;
@@ -188,17 +192,17 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
         if ( closer.isClosed() )
             return;
 
-        if ( holdOpenOverClose.get() == false ) {
+        if ( _holdOpenOverClose == false ) {
 
-            // if ( mappedByteBufferCloser != null )
-            //     mappedByteBufferCloser.close();
+            if ( mappedByteBufferCloser != null )
+                mappedByteBufferCloser.close();
             
-            // if ( memLock != null )
-            //     memLock.close();
+            if ( memLock != null )
+                memLock.close();
 
-            // channel.close();
+            channel.close();
             
-            // in.close();
+            in.close();
 
         }
 
