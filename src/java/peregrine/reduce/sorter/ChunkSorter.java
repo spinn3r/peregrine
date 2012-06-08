@@ -131,6 +131,8 @@ public class ChunkSorter extends BaseChunkSorter {
 
             new Flusher( jobOutput ).flush();
 
+            new Flusher( writer ).flush();
+            
             // NOTE: it is important that the writer be closed before the reader
             // because if not then the writer will attempt to read values from 
             // closed reader.
