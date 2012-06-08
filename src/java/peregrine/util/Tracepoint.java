@@ -79,7 +79,8 @@ public class Tracepoint {
         Pattern p = Pattern.compile( "(?m)Tracepoint: (.*)\n(\t.*\n)+" );
         Matcher m = p.matcher( seq );
 
-        Map<String,String> hits = new HashMap();
+        Map<String,String> traces = new HashMap();
+        Map<String,Integer> hits  = new HashMap();
 
         List<String> keys = new ArrayList();
         
@@ -87,22 +88,28 @@ public class Tracepoint {
 
             String key = m.group( 1 ) ;
 
-            if ( ! hits.containsKey( key ) ) {
+            if ( ! traces.containsKey( key ) ) {
                 
                 String trace = m.group( 0 );
 
                 keys.add( key );
-                hits.put( key, trace );
+                traces.put( key, trace );
                 
             }
-                
+
+            if ( hits.containsKey( key ) ) {
+                hits.put( key, hits.get( key ) + 1 );
+            } else {
+                hits.put( key, 1 );
+            }
+
         }
 
-        System.out.printf( "Found %,d tracepoints.\n", hits.size() );
+        System.out.printf( "Found %,d tracepoints.\n", traces.size() );
         System.out.printf( "---\n" );
 
         for( String key : keys ) {
-            System.out.printf( "%s", hits.get( key ) );
+            System.out.printf( "%s", traces.get( key ) );
         }
 
     }

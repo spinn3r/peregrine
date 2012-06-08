@@ -427,16 +427,19 @@ public class ReduceRunner {
             try {
                 
                 MappedFileReader.setHoldOpenOverClose( true ); // FIXME: remove
+
+
                 sorter = new ChunkSorter( config , partition );
 
+                SequenceReader result = sorter.sort( work, out, jobOutput );
+
+                if ( result != null )
+                    sorted.add( result );
+
+                
             } finally {
                 MappedFileReader.setHoldOpenOverClose( false ); // FIXME: remove
             }
-
-            SequenceReader result = sorter.sort( work, out, jobOutput );
-
-            if ( result != null )
-                sorted.add( result );
 
         }
 
