@@ -27,6 +27,7 @@ import peregrine.http.*;
 import peregrine.util.netty.*;
 import peregrine.io.util.*;
 import peregrine.config.*;
+import peregrine.util.*;
 
 import com.spinn3r.log5j.Logger;
 
@@ -87,6 +88,8 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
      */
     public ChannelBuffer map() throws IOException {
 
+        log.info( "%s", new Tracepoint( "holdOpenOverClose" , holdOpenOverClose.get() ) ); //FIXME remove this.
+        
         if ( closer.isClosed() )
             throw new IOException( "closed" );
         
@@ -160,6 +163,23 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
     public void setAutoLock( boolean autoLock ) { 
         this.autoLock = autoLock;
     }
+
+    // FIXME: remove this... 
+    public static boolean getHoldOpenOverClose() { 
+        return holdOpenOverClose.get();
+    }
+
+    public static void setHoldOpenOverClose( boolean value ) { 
+        holdOpenOverClose.set( value );
+    }
+
+    static ThreadLocal<Boolean> holdOpenOverClose = new ThreadLocal<Boolean>() {
+
+        public Boolean initialValue() {
+            return false;
+        }
+        
+    };
 
     @Override
     public void close() throws IOException {
