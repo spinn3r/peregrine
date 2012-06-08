@@ -43,9 +43,18 @@ public class LocalPartition {
         
         for( File chunk : chunks ) {
 
-            DefaultChunkReader chunkReader = new DefaultChunkReader( config, chunk );
-            result.add( chunkReader );
+            try {
 
+                MappedFileReader.setHoldOpenOverClose( true );
+
+                DefaultChunkReader chunkReader = new DefaultChunkReader( config, chunk );
+                result.add( chunkReader );
+
+            } finally {
+                MappedFileReader.setHoldOpenOverClose( false );
+            }
+
+            
         }
 
         return result;
