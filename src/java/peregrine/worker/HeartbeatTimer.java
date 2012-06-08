@@ -86,14 +86,15 @@ public class HeartbeatTimer extends Timer {
         @Override
         public void run() {
 
-            log.info( "Sending heartbeat." ); //FIXME: remove
-            
             long delay;
             
             if ( config.getMembership().sendHeartbeatToController() ) {
                 delay = CONTROLLER_ONLINE_SLEEP_INTERVAL;
+                log.info( "SUCCESS sending heartbeat." ); //FIXME: remove
+
             } else {
                 delay = CONTROLLER_OFFLINE_SLEEP_INTERVAL;
+                log.info( "FAILED sending heartbeat." ); //FIXME: remove
             }
             
             if ( ! cancelled ) 
