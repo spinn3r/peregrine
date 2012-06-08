@@ -91,13 +91,13 @@ public class ReduceRunner {
         
         try { 
 
-            MappedFileReader.setHoldOpenOverClose( true );
+            //MappedFileReader.setHoldOpenOverClose( true );
             
             readers = sort( input, sort_dir );
 
         } finally {
 
-            MappedFileReader.setHoldOpenOverClose( false );
+            //MappedFileReader.setHoldOpenOverClose( false );
             
         }
 
