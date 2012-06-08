@@ -394,7 +394,7 @@ public class ReduceRunner {
 
                     try { 
 
-                        MappedFileReader.setHoldOpenOverClose( true );
+                        //MappedFileReader.setHoldOpenOverClose( true );
 
                         reader = new ShuffleInputReader( config, path, partition );
 
@@ -419,8 +419,8 @@ public class ReduceRunner {
         		}
 
                 try { 
-
-                    MappedFileReader.setHoldOpenOverClose( true );
+                    
+                    //MappedFileReader.setHoldOpenOverClose( true );
 
                     work.add( new ShuffleInputChunkReader( config, partition, path ) );
 
