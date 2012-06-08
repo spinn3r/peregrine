@@ -35,14 +35,6 @@ public class Tracepoint {
 
         StackTraceElement[] frames = Thread.currentThread().getStackTrace();
 
-        for( int i = 0; i < args.length; i=i + 2 ) {
-            buff.append( String.format( "\t%s = %s, ", args[i], args[i + 1] ) );
-        }
-
-        if ( args.length > 0 ) {
-            buff.append( "\n" );
-        }
-        
         for( int i = 2; i < frames.length; ++i ) {
 
             StackTraceElement frame = frames[i];
@@ -59,8 +51,14 @@ public class Tracepoint {
 
         String tp = Base64.encode( Hashcode.getHashcode( stacktrace ) );
         
-        buff.append( String.format( "Tracepoint: %s\n", tp ) );
-        
+        buff.append( String.format( "Tracepoint: %s (", tp ) );
+
+        for( int i = 0; i < args.length; i=i + 2 ) {
+            buff.append( String.format( "%s = %s, ", args[i], args[i + 1] ) );
+        }
+
+        buff.append( ")\n" );
+
         buff.append( stacktrace );
 
         //buff.append( String.format( "END Tracepoint: %s\n", tp ) );
