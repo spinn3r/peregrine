@@ -136,8 +136,8 @@ public class LocalPartitionReader extends BaseJobInput implements SequenceReader
     public void close() throws IOException {
 
         if ( chunkReader != null ) {
-            chunkReader.close();
             fireOnChunkEnd( chunkRef );
+            chunkReader.close();
         }
 
     }
