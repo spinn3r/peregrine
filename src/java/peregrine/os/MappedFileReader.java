@@ -53,6 +53,8 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
 
     protected MemLock memLock = null;
 
+    protected MappedByteBufferCloser mappedByteBufferCloser = null;
+    
     public MappedFileReader( Config config, String path ) throws IOException {
         this( config, new File( path ) );
     }
@@ -165,11 +167,18 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
         if ( closer.isClosed() )
             return;
 
-        closer.add( channel );
-        closer.add( in );
+        if ( memLock != null ) {
 
-        closer.close();
-        
+            channel.close();
+
+            in.close();
+            
+            mappedByteBufferCloser.close();
+
+            memLock.close();
+                
+        }
+
     }
 
     /**
@@ -226,9 +235,9 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
                 byteBuffer = (ByteBuffer)byteBufferConstructor.newInstance( (int)length,
                                                                             memLock.getAddress(),
                                                                             new Closer() );
-                
-                closer.add( new MappedByteBufferCloser( byteBuffer ) );
 
+                mappedByteBufferCloser = new MappedByteBufferCloser( byteBuffer );
+ 
             } catch ( Exception e ) {
                 throw new IOException( e );
             }
@@ -240,7 +249,7 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
             public void run() {
                 
                 try {
-                    memLock.close();
+                    //memLock.close();
                 } catch ( IOException e ) {
                     throw new RuntimeException( e );
                 }
