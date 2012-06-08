@@ -381,6 +381,7 @@ public class ReduceRunner {
                 try {
 
                     try {
+                        
                         MappedFileReader.setHoldOpenOverClose( true ); // FIXME: remove
                         
                         reader = new ShuffleInputReader( config, path, partition );
