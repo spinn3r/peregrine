@@ -88,8 +88,6 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
      */
     public ChannelBuffer map() throws IOException {
 
-        log.info( "%s", new Tracepoint( "holdOpenOverClose" , holdOpenOverClose.get() ) ); //FIXME remove this.
-        
         if ( closer.isClosed() )
             throw new IOException( "closed" );
         
@@ -122,7 +120,9 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
 
             if ( reader == null )
                 reader = new StreamReader( map );
-            
+
+            log.info( "%s", new Tracepoint( "holdOpenOverClose" , holdOpenOverClose.get(), "usingMemLock" , memLock != null ) ); //FIXME remove this.
+
             return map;
 
         } catch ( IOException e ) {
