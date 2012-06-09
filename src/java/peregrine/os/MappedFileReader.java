@@ -112,10 +112,6 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
                     new ChannelMapStrategy().map();
                 }
 
-                if ( memLock != null ) {
-                    closer.add( memLock );
-                }
-                
                 this.map = ChannelBuffers.wrappedBuffer( byteBuffer );
                 
             }
@@ -175,10 +171,12 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
         return holdOpenOverClose.get();
     }
 
+    // FIXME: remove this... 
     public static void setHoldOpenOverClose( boolean value ) { 
         holdOpenOverClose.set( value );
     }
 
+    // FIXME: remove this... 
     static ThreadLocal<Boolean> holdOpenOverClose = new ThreadLocal<Boolean>() {
 
         public Boolean initialValue() {
@@ -190,6 +188,7 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
     @Override
     public void close() throws IOException {
 
+        //FIXME: migrate to using closer
         if ( closer.isClosed() )
             return;
 
@@ -227,6 +226,9 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
             super.close();
 
             /*
+
+            //FIXME add this back in.
+              
             if ( fadviseDontNeedEnabled ) {
                 fcntl.posix_fadvise( fd, offset, length, fcntl.POSIX_FADV_DONTNEED );
             }
@@ -278,14 +280,6 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
         class Closer implements Runnable {
             
             public void run() {
-
-                /*
-                try {
-                    //memLock.close();
-                } catch ( IOException e ) {
-                    throw new RuntimeException( e );
-                }
-                */
             }
             
         };

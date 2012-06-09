@@ -104,8 +104,7 @@ public class ReduceRunner {
 
                 } else {
 
-                    throw new RuntimeException( "FIXME: not allowing intermerging just yet" );
-                    //FIXME:readers = interMerge( readers, pass );
+                    readers = interMerge( readers, pass );
                 }
 
             } finally {
@@ -177,16 +176,7 @@ public class ReduceRunner {
 
         } finally {
 
-            //FIXME: I think THIS is the problem.  Perhaps we should first flush jobOutput ... 
-
-            //new Flusher( jobOutput ).flush();
-
-            prefetchReader.close();
-
-            //FIXME: this is the problem... if I comment this out it works but I'm NOT sure why... 
-            merger.close();
-
-            //new Closer( prefetchReader, merger ).close();
+            new Closer( prefetchReader, merger ).close();
 
         }
         
