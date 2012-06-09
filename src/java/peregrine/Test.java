@@ -73,23 +73,6 @@ public class Test {
 
     }
 
-    public static void main4( String[] args ) throws Exception {
-
-        File file = new File( "test.dat" );
-        FileInputStream fis = new FileInputStream( file );
-
-        long offset = 0;
-        long length = file.length();
-        
-        final MemLock memLock = new MemLock( file, fis.getFD(), 0, length );
-
-        memLock.unlockRegion( length );
-        memLock.unlockRegion( length );
-        memLock.unlockRegion( length );
-        memLock.unlockRegion( length );
-
-        System.out.printf( "yay\n" );
-    }
 
     public static void main3( String[] args ) throws Exception {
 

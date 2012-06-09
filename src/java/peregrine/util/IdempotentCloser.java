@@ -27,7 +27,12 @@ public abstract class IdempotentCloser
     extends IdempotentFunction<Object,IOException>
     implements Closeable {
 
-    public void close() throws IOException {
+    @Override
+    /**
+     * Idempotently close the resource.  This is a final method so that we don't
+     * accidentally override it during implementation.
+     */
+    public final void close() throws IOException {
         exec();
     }
 
@@ -38,6 +43,9 @@ public abstract class IdempotentCloser
      */
     protected abstract void doClose() throws IOException;
 
+    /**
+     * Used by IdempotentFunction to make this idempotent.
+     */
     protected Object invoke() throws IOException {
         doClose();
         return null;
