@@ -148,18 +148,7 @@ public class ChunkSorter extends BaseChunkSorter {
         
         if ( output != null ) {
 
-            try { 
-
-                //FIXME: this seems like the bug... 
-                //MappedFileReader.setHoldOpenOverClose( true );
-                
-                result = new DefaultChunkReader( config, output );
-
-            } finally {
-
-                //MappedFileReader.setHoldOpenOverClose( false );
-                
-            }
+            result = new DefaultChunkReader( config, output );
 
         }
 

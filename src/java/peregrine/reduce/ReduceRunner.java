@@ -87,19 +87,7 @@ public class ReduceRunner {
 
         // on the first pass we're going to sort and use shuffle input...
 
-        List<SequenceReader> readers;
-        
-        try { 
-
-            //MappedFileReader.setHoldOpenOverClose( true );
-            
-            readers = sort( input, sort_dir );
-
-        } finally {
-
-            //MappedFileReader.setHoldOpenOverClose( false );
-            
-        }
+        List<SequenceReader> readers = sort( input, sort_dir );
 
         while( true ) {
 
@@ -402,17 +390,7 @@ public class ReduceRunner {
 
                 try {
 
-                    try { 
-
-                        //MappedFileReader.setHoldOpenOverClose( true );
-
-                        reader = new ShuffleInputReader( config, path, partition );
-
-                    } finally {
-
-                        //MappedFileReader.setHoldOpenOverClose( false );
-                        
-                    }
+                    reader = new ShuffleInputReader( config, path, partition );
 
                     header = reader.getHeader( partition );
                      
@@ -428,17 +406,7 @@ public class ReduceRunner {
         			break;        			
         		}
 
-                try { 
-                    
-                    //MappedFileReader.setHoldOpenOverClose( true );
-
-                    work.add( new ShuffleInputChunkReader( config, partition, path ) );
-
-                } finally {
-
-                    //MappedFileReader.setHoldOpenOverClose( false );
-                    
-                }
+                work.add( new ShuffleInputChunkReader( config, partition, path ) );
 
                 pendingIterator.remove();
         		
