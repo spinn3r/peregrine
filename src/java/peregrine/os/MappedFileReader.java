@@ -24,6 +24,7 @@ import java.lang.reflect.*;
 import org.jboss.netty.buffer.*;
 
 import peregrine.http.*;
+import peregrine.util.*;
 import peregrine.util.netty.*;
 import peregrine.io.util.*;
 import peregrine.config.*;
@@ -52,7 +53,17 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
 
     protected ByteBuffer byteBuffer = null;
 
-    protected MemLock memLock = null;
+    protected FileMapper fileMapper = null;
+    
+    public static boolean USE_NATIVE_MAP_STRATEGY = true;
+    
+    public static boolean USE_FADVISE_ON_CLOSE = true;
+
+    public static boolean USE_CHANNEL_FOREGROUND_CLOSER = true;
+    
+    public static boolean USE_NATIVE_FOREGROUND_CLOSER = true;
+
+    public static boolean USE_NATIVE_BACKGROUND_CLOSER = true;
 
     protected MappedByteBufferCloser mappedByteBufferCloser = null;
 
@@ -61,9 +72,15 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
     }
     
     public MappedFileReader( Config config, File file ) throws IOException {
-
         init( config, file );
+    }
 
+    public MappedFileReader( String path ) throws IOException {
+        this( new File( path ) );
+    }
+
+    public MappedFileReader( File file ) throws IOException {
+        init( null, file );
     }
 
     private void init( Config config, File file ) throws IOException {
@@ -83,13 +100,30 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
 
     }
 
+    public static boolean getHoldOpenOverClose() { 
+        return holdOpenOverClose.get();
+    }
+
+    public static void setHoldOpenOverClose( boolean value ) { 
+        holdOpenOverClose.set( value );
+    }
+
+    static ThreadLocal<Boolean> holdOpenOverClose = new ThreadLocal<Boolean>() {
+
+        public Boolean initialValue() {
+            return false;
+        }
+        
+    };
+    
     /**
      * Read from this mapped file.
      */
     public ChannelBuffer map() throws IOException {
 
-        if ( closer.isClosed() )
-            throw new IOException( "closed" );
+        log.info( "%s", new Tracepoint( "holdOpenOverClose" , holdOpenOverClose.get() ) ); //FIXME remove this.
+
+        closer.requireOpen();
         
         try {
 
@@ -100,11 +134,9 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
             
             if ( map == null ) {
 
-                if ( autoLock ) {
-                    memLock = new MemLock( file, in.getFD(), offset, length );
-                }
-
-                if ( memLock != null ) {
+                if ( USE_NATIVE_MAP_STRATEGY ) {
+                    fileMapper = new FileMapper( file, in.getFD(), offset, length );
+                    fileMapper.setLock( autoLock );
                     new NativeMapStrategy().map();
                 } else {
                     new ChannelMapStrategy().map();
@@ -142,12 +174,10 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
      */
     public void unlockRegion( long len ) throws IOException {
 
-        if ( closer.isClosed() )
-            throw new IOException( "closed" );
+        closer.requireOpen();
 
-        if ( memLock == null ) return;
-
-        memLock.unlockRegion( len );
+        if ( USE_NATIVE_MAP_STRATEGY )
+            fileMapper.unlockRegion( len );
         
     }
     
@@ -168,13 +198,12 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
         if ( mappedByteBufferCloser != null )
             closer.add( mappedByteBufferCloser );
         
-        if ( memLock != null )
-            closer.add( memLock );
+        if ( fileMapper != null )
+            closer.add( fileMapper );
 
         closer.add( channel, in );
 
         closer.close();
-        
     }
 
     /**
@@ -187,11 +216,11 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
         }
         
         @Override
-        public void close() throws IOException {
+        protected void doClose() throws IOException {
 
-            super.close();
+            super.doClose();
 
-            if ( fadviseDontNeedEnabled ) {
+            if ( fadviseDontNeedEnabled && USE_FADVISE_ON_CLOSE ) {
                 fcntl.posix_fadvise( fd, offset, length, fcntl.POSIX_FADV_DONTNEED );
             }
             
@@ -199,36 +228,49 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
 
     }
 
-    interface MapStrategy {
+    /**
+     * Closer that ONLY fadvises away pages.
+     */
+    class FadviseCloser extends IdempotentCloser {
 
-        public void map() throws IOException;
-        
+        @Override
+        protected void doClose() throws IOException {
+
+            if ( fadviseDontNeedEnabled && USE_FADVISE_ON_CLOSE ) {
+                fcntl.posix_fadvise( fd, offset, length, fcntl.POSIX_FADV_DONTNEED );
+            }
+            
+        }
+
     }
-
-    class ChannelMapStrategy implements MapStrategy {
+    
+    // FIXME: remove the ChannelMapStrategy and ONLY go with the NativeMapStrategy
+    class ChannelMapStrategy {
 
         public void map() throws IOException {
             
             byteBuffer = channel.map( FileChannel.MapMode.READ_ONLY, offset, length );
             
-            mappedByteBufferCloser = new MappedByteBufferCloser( byteBuffer );
+            if ( USE_CHANNEL_FOREGROUND_CLOSER ) {
+                mappedByteBufferCloser = new MappedByteBufferCloser( byteBuffer );
+            }
 
         }
-
+            
     }
-
+    
     /**
-     * A native mmap strategy that uses mmap directly via the MemLock .
+     * A native mmap strategy that uses mmap directly via the FileMapper .
      */
-    class NativeMapStrategy implements MapStrategy {
+    class NativeMapStrategy {
 
         public void map() throws IOException {
 
             try {
 
                 byteBuffer = (ByteBuffer)byteBufferConstructor.newInstance( (int)length,
-                                                                            memLock.getAddress(),
-                                                                            new Closer() );
+                                                                            fileMapper.getAddress(),
+                                                                            new BackgroundCloser() );
 
                 mappedByteBufferCloser = new MappedByteBufferCloser( byteBuffer );
  
@@ -238,17 +280,22 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
                 
         }
 
-        class Closer implements Runnable {
+        /**
+         * Closer that runs in the background during GC to free up memory used
+         * by mapped buffers that are no longer used.
+         */
+        class BackgroundCloser implements Runnable {
             
             public void run() {
+                
             }
             
-        };
-
+        }
+        
     }
-
+        
     private static Constructor byteBufferConstructor = null;
-
+        
     static {
 
         try {
@@ -264,7 +311,7 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
         } catch ( Exception e ) {
             throw new RuntimeException( e );
         }
-
+        
     }
 
 }

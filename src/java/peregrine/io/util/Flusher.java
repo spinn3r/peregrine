@@ -23,6 +23,10 @@ import java.util.*;
  */
 public class Flusher extends BaseCloser<Flushable> implements Flushable {
 
+    // TODO: the semantics of flushing and closing are somewhat different.  Once
+    // a buffer is dirtied again it can be flushed again.  isFlushed should
+    // return different values based on when it is called.
+    
     public Flusher() { }
 
     public Flusher( List delegates ) {
@@ -38,10 +42,7 @@ public class Flusher extends BaseCloser<Flushable> implements Flushable {
         exec();
     }
 
-    public boolean isFlushed() {
-        return executed();
-    }
-
+    @Override
     protected void onDelegate( Flushable delegate ) throws IOException {
         delegate.flush();
     }

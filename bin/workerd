@@ -27,7 +27,13 @@ start() {
     fi
 
     # no, we weren't running, so go ahead and startup.
-    ./bin/jexec peregrine.worker.Main $args < /dev/null > /dev/null 2> /dev/null &
+
+    host=$(./bin/jexec peregrine.worker.GetConfig $args 2> /dev/null |grep host= |grep -Eo '[^=]+$')
+
+    stderr="logs/peregrine-workerd-$host.err"
+    stdout="logs/peregrine-workerd-$host.out"
+    
+    ./bin/jexec peregrine.worker.Main $args < /dev/null > $stdout 2> $stderr &
 
     pid=$!
 

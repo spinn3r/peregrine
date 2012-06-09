@@ -55,10 +55,19 @@ public final class Initializer {
     public void pidfile() throws IOException {
 
         File file = new File( config.getRoot(), "worker.pid" );
+
+        if ( file.exists() )
+            unistd.unlink( file.getPath() );
+
+        file = new File( config.getRoot(), "worker.tmp" );
+
         FileOutputStream fos = new FileOutputStream( file );
         fos.write( String.format( "%s", unistd.getpid() ).getBytes() );
         fos.close();
 
+        unistd.rename( file.getPath(),
+                       new File( config.getRoot(), "worker.pid" ).getPath() );
+                       
     }
 
     public void setuid() throws Exception {
@@ -143,7 +152,6 @@ public final class Initializer {
 
         logger( String.format( "controller-%s",  config.getHost() ) );
 
- 
     }
         
 }

@@ -23,6 +23,7 @@ import peregrine.io.*;
 import peregrine.io.chunk.*;
 import peregrine.io.partition.*;
 import peregrine.sysstat.*;
+import peregrine.os.*;
 
 import com.spinn3r.log5j.*;
 

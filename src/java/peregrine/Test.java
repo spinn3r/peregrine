@@ -55,40 +55,10 @@ public class Test {
     
     public static void main( String[] args ) throws Exception {
 
-        //testlock1();
-
-        int S_IXOTH = 1 ;
-        int S_IWOTH = 2 ;
-        int S_IROTH = 4 ;
-
-        int S_IRWXO = S_IROTH | S_IWOTH | S_IXOTH;
-
-        int S_IXGRP = 8  ;
-        int S_IWGRP = 16 ;
-        int S_IRGRP = 32 ;
-
-        int S_IRWXG = S_IRGRP | S_IWGRP | S_IXGRP;
-
-        int S_IXUSR = 64  ;
-        int S_IWUSR = 128 ;
-        int S_IRUSR = 256 ;
-
-        int S_IRWXU = S_IRUSR | S_IWUSR | S_IXUSR;
-
-        int ACCESSPERMS = S_IRWXU|S_IRWXG|S_IRWXO;
+        Tracepoint tp = new Tracepoint( "foo" , "bar" );
         
-        // # define ACCESSPERMS (S_IRWXU|S_IRWXG|S_IRWXO) /* 0777 */
-
-        //int mode = 777 | 64; // 841
-
-        int mode = ACCESSPERMS;
-
-        //int mode = 0;
+        System.out.printf( "%s\n", tp );
         
-        System.out.printf( "FIXME: mode: %s\n", mode );
-        
-        unistd.mkdir( "test.mkdir", mode );
-
     }
     
     public static void main5( String[] args ) throws Exception {
@@ -103,23 +73,6 @@ public class Test {
 
     }
 
-    public static void main4( String[] args ) throws Exception {
-
-        File file = new File( "test.dat" );
-        FileInputStream fis = new FileInputStream( file );
-
-        long offset = 0;
-        long length = file.length();
-        
-        final MemLock memLock = new MemLock( file, fis.getFD(), 0, length );
-
-        memLock.unlockRegion( length );
-        memLock.unlockRegion( length );
-        memLock.unlockRegion( length );
-        memLock.unlockRegion( length );
-
-        System.out.printf( "yay\n" );
-    }
 
     public static void main3( String[] args ) throws Exception {
 

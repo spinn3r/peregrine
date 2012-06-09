@@ -34,6 +34,9 @@ import peregrine.util.*;
 import com.spinn3r.log5j.Logger;
 import peregrine.util.netty.*;
 
+/**
+ * The HeartbeatTimer sends heartbeat messages to the controller regularly.
+ */
 public class HeartbeatTimer extends Timer {
 
     private static final Logger log = Logger.getLogger();
@@ -89,7 +92,7 @@ public class HeartbeatTimer extends Timer {
             long delay;
             
             if ( config.getMembership().sendHeartbeatToController() ) {
-                delay = CONTROLLER_OFFLINE_SLEEP_INTERVAL;
+                delay = CONTROLLER_ONLINE_SLEEP_INTERVAL;
             } else {
                 delay = CONTROLLER_OFFLINE_SLEEP_INTERVAL;
             }

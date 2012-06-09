@@ -24,7 +24,7 @@ import sys
 import time
 import traceback
 
-VERSION="1.0.1"
+VERSION="1.0.2"
 
 LIMIT=200
 
@@ -54,70 +54,76 @@ TIMEOUT=30*60
 
 class ReportIndex:
 
-    file=None
-
     def __init__(self):
         
-        self.file=open( "%s/index.html" % TEST_LOGS , "w" );
+        file=open( "%s/index.html" % TEST_LOGS , "w" );
 
-        self.file.write( "<html>" )
-        self.file.write( "<head><title>Integration report</title></head>" )
-        self.file.write( "<frameset cols='30%,70%' title=''>" )
-        self.file.write( "<frame src='left.html' name='left' title='all tests'>" )
-        self.file.write( "<frame src='' name='right' title=''>" )
-        self.file.write( "</frameset>" )
-        self.file.write( "</html>" )
+        file.write( "<html>" )
+        file.write( "<head><title>Integration report</title></head>" )
+        file.write( "<frameset cols='30%,70%' title=''>" )
+        file.write( "<frame src='left.html' name='left' title='all tests'>" )
+        file.write( "<frame src='' name='right' title=''>" )
+        file.write( "</frameset>" )
+        file.write( "</html>" )
+
+        file.close()
         
     def close(self):
-        self.file.close()
+        pass
 
 class ReportSidebar:
 
-    file=None
-
     def __init__(self):
 
-        self.file=open( "%s/left.html" % TEST_LOGS , "w" );
+        file=open( "%s/left.html" % TEST_LOGS , "w" );
 
-        self.file.write( "<html>" )
+        file.write( "<html>" )
 
-        self.file.write( "<head>" )
-        self.file.write( "<style>" )
-        self.file.write( "* { font-family: sans-serif; font-size: 12px; }" )
-        self.file.write( "</style>" )
+        file.write( "<head>" )
+        file.write( "<style>" )
+        file.write( "* { font-family: sans-serif; font-size: 12px; }" )
+        file.write( "</style>" )
         
-        self.file.write( "</head>" )
-        self.file.write( "<body>" )
-        self.file.write( "<table width='100%' cellspacing='0'>" )
+        file.write( "</head>" )
+        file.write( "<body>" )
+        file.write( "<table width='100%' cellspacing='0'>" )
+
+        file.flush()
+        file.close()
 
     def link( self, bgcolor, rev, report, log ):
         """Write a link to the given URL."""
 
         time = datetime.datetime.fromtimestamp( float( log['date'] ) )
 
-        self.file.write( "<tr bgcolor='%s'>" % bgcolor )
-        self.file.write( "<td><a href='%s/test.log' target='right'>%s</a></td>" % (rev,rev) )
-        self.file.write( "<td>%s</td>" % log['branch'] )
-        self.file.write( "<td>%s</td>" % strftime(time) )
+        file=open( "%s/left.html" % TEST_LOGS , "a" );
 
-        self.file.write( "<td align='right'><a href='https://bitbucket.org/burtonator/peregrine/changeset/%s' target='right'>CS</a></td>" % rev )
+        file.write( "<tr bgcolor='%s'>" % bgcolor )
+        file.write( "<td><a href='%s/test.log' target='right'>%s</a></td>" % (rev,rev) )
+        file.write( "<td>%s</td>" % log['branch'] )
+        file.write( "<td>%s</td>" % strftime(time) )
+
+        file.write( "<td align='right'><a href='https://bitbucket.org/burtonator/peregrine/changeset/%s' target='right'>CS</a></td>" % rev )
 
         if report != None:
-            self.file.write( "<td align='right'><a href='%s' target='right'>report</a></td>" % report )
+            file.write( "<td align='right'><a href='%s' target='right'>report</a></td>" % report )
         else:
-            self.file.write( "<td align='right'></td>" )
+            file.write( "<td align='right'></td>" )
 
-        self.file.write( "</tr>" )
-        self.file.flush()
+        file.write( "</tr>" )
+        file.close()
 
     def close(self):
-        self.file.write( "</table>" )
+
+        file=open( "%s/left.html" % TEST_LOGS , "a" );
 
         now = datetime.datetime.now()
 
-        self.file.write( "<br/><center><small>%s</small></center>" % (strftime(now)) )
+        file.write( "</table>" )
+        file.write( "<br/><center><small>%s</small></center>" % (strftime(now)) )
+        file.flush()
 
-        self.file.close()
+        file.close()
 
 def strftime( ts ):
 

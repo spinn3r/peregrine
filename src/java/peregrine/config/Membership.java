@@ -255,7 +255,7 @@ public class Membership {
                     return false;
 
                 // we don't normally need to send this message because we would be overly verbose.
-                log.debug( String.format( "Unable to send heartbeat to %s: %s", controller, e.getMessage() ) );
+                log.warn( String.format( "Unable to send heartbeat to %s: %s", controller, e.getMessage() ) );
                 
                 return false;
             }

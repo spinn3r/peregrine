@@ -209,6 +209,43 @@ public class unistd {
 
     }
 
+    /**
+     * rename() renames a file, moving it between directories if required. Any
+     * other hard links to the file (as created using link(2)) are
+     * unaffected. Open file descriptors for oldpath are also unaffected.
+     * 
+     * If newpath already exists it will be atomically replaced (subject to a
+     * few conditions; see ERRORS below), so that there is no point at which
+     * another process attempting to access newpath will find it missing.
+     * 
+     * If oldpath and newpath are existing hard links referring to the same
+     * file, then rename() does nothing, and returns a success status.
+     * 
+     * If newpath exists but the operation fails for some reason rename()
+     * guarantees to leave an instance of newpath in place.
+     * 
+     * oldpath can specify a directory. In this case, newpath must either not
+     * exist, or it must specify an empty directory.
+     * 
+     * However, when overwriting there will probably be a window in which both
+     * oldpath and newpath refer to the file being renamed.
+     * 
+     * If oldpath refers to a symbolic link the link is renamed; if newpath
+     * refers to a symbolic link the link will be overwritten.
+     */
+
+    public static int rename( String oldPath, String newPath ) throws IOException {
+
+        int result = delegate.rename( oldPath, newPath );
+
+        if ( result == -1 )
+            throw new IOException( String.format( "Unable to rename %s to %s" , oldPath , newPath ) ,
+                                   new PlatformException() );
+
+        return result;
+
+    }
+    
     public static class StatStruct extends Structure {
 
         public long     st_dev;     /* ID of device containing file */
@@ -256,6 +293,7 @@ public class unistd {
         int stat( String path, StatStruct stat );
         int mkdir( String path, int mode );
         int unlink( String path );
+        int rename( String oldPath, String newPath );
         
     }
 
