@@ -56,8 +56,6 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
 
     protected MappedByteBufferCloser mappedByteBufferCloser = null;
 
-    protected boolean _holdOpenOverClose = false;
-    
     public MappedFileReader( Config config, String path ) throws IOException {
         this( config, new File( path ) );
     }
@@ -120,11 +118,6 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
                 reader = new StreamReader( map );
             }
             
-            _holdOpenOverClose = holdOpenOverClose.get();
-            
-            log.info( "%s", new Tracepoint( "holdOpenOverClose" , _holdOpenOverClose,
-                                            "usingMemLock" ,      memLock != null ) ); //FIXME remove this.
-
             return map;
 
         } catch ( IOException e ) {
@@ -166,46 +159,22 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
         this.autoLock = autoLock;
     }
 
-    // FIXME: remove this... 
-    public static boolean getHoldOpenOverClose() { 
-        return holdOpenOverClose.get();
-    }
-
-    // FIXME: remove this... 
-    public static void setHoldOpenOverClose( boolean value ) { 
-        holdOpenOverClose.set( value );
-    }
-
-    // FIXME: remove this... 
-    static ThreadLocal<Boolean> holdOpenOverClose = new ThreadLocal<Boolean>() {
-
-        public Boolean initialValue() {
-            return false;
-        }
-        
-    };
-
     @Override
     public void close() throws IOException {
 
-        //FIXME: migrate to using closer
         if ( closer.isClosed() )
             return;
 
-        if ( _holdOpenOverClose == false ) {
+        if ( mappedByteBufferCloser != null )
+            closer.add( mappedByteBufferCloser );
+        
+        if ( memLock != null )
+            closer.add( memLock );
 
-            if ( mappedByteBufferCloser != null )
-                mappedByteBufferCloser.close();
-            
-            if ( memLock != null )
-                memLock.close();
+        closer.add( channel, in );
 
-            channel.close();
-            
-            in.close();
-
-        }
-
+        closer.close();
+        
     }
 
     /**
