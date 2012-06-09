@@ -43,16 +43,8 @@ public class LocalPartition {
         
         for( File chunk : chunks ) {
 
-            try {
-
-                MappedFileReader.setHoldOpenOverClose( true ); //FIXME: remove
-
-                DefaultChunkReader chunkReader = new DefaultChunkReader( config, chunk );
-                result.add( chunkReader );
-
-            } finally {
-                MappedFileReader.setHoldOpenOverClose( false ); //FIXME: remove
-            }
+            DefaultChunkReader chunkReader = new DefaultChunkReader( config, chunk );
+            result.add( chunkReader );
 
         }
 

@@ -380,16 +380,8 @@ public class ReduceRunner {
 
                 try {
 
-                    try {
-                        
-                        MappedFileReader.setHoldOpenOverClose( true ); // FIXME: remove
-                        
-                        reader = new ShuffleInputReader( config, path, partition );
-                        header = reader.getHeader( partition );
-
-                    } finally {
-                        MappedFileReader.setHoldOpenOverClose( false ); // FIXME: remove
-                    }
+                    reader = new ShuffleInputReader( config, path, partition );
+                    header = reader.getHeader( partition );
 
                 } finally {
                     new Closer( reader ).close();
@@ -403,15 +395,7 @@ public class ReduceRunner {
         			break;        			
         		}
 
-                try {
-
-                    MappedFileReader.setHoldOpenOverClose( true ); // FIXME: remove
-
-                    work.add( new ShuffleInputChunkReader( config, partition, path ) );
-
-                } finally {
-                    MappedFileReader.setHoldOpenOverClose( false ); // FIXME: remove
-                }
+                work.add( new ShuffleInputChunkReader( config, partition, path ) );
 
                 pendingIterator.remove();
         		
@@ -423,23 +407,13 @@ public class ReduceRunner {
             log.info( "Writing temporary sort file %s", path );
 
             ChunkSorter sorter;
+
+            sorter = new ChunkSorter( config , partition );
             
-            try {
-                
-                MappedFileReader.setHoldOpenOverClose( true ); // FIXME: remove
-
-
-                sorter = new ChunkSorter( config , partition );
-
-                SequenceReader result = sorter.sort( work, out, jobOutput );
-
-                if ( result != null )
-                    sorted.add( result );
-
-                
-            } finally {
-                MappedFileReader.setHoldOpenOverClose( false ); // FIXME: remove
-            }
+            SequenceReader result = sorter.sort( work, out, jobOutput );
+            
+            if ( result != null )
+                sorted.add( result );
 
         }
 
