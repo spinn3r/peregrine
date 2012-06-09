@@ -91,13 +91,13 @@ public class ReduceRunner {
         
         try { 
 
-            MappedFileReader.setHoldOpenOverClose( true );
+            //MappedFileReader.setHoldOpenOverClose( true );
             
             readers = sort( input, sort_dir );
 
         } finally {
 
-            MappedFileReader.setHoldOpenOverClose( false );
+            //MappedFileReader.setHoldOpenOverClose( false );
             
         }
 
@@ -115,7 +115,9 @@ public class ReduceRunner {
                     break;
 
                 } else {
-                    readers = interMerge( readers, pass );
+
+                    throw new RuntimeException( "FIXME: not allowing intermerging just yet" );
+                    //FIXME:readers = interMerge( readers, pass );
                 }
 
             } finally {
@@ -187,7 +189,16 @@ public class ReduceRunner {
 
         } finally {
 
-            new Closer( prefetchReader, merger ).close();
+            //FIXME: I think THIS is the problem.  Perhaps we should first flush jobOutput ... 
+
+            //new Flusher( jobOutput ).flush();
+
+            prefetchReader.close();
+
+            //FIXME: this is the problem... if I comment this out it works but I'm NOT sure why... 
+            merger.close();
+
+            //new Closer( prefetchReader, merger ).close();
 
         }
         
@@ -399,7 +410,7 @@ public class ReduceRunner {
 
                     } finally {
 
-                        MappedFileReader.setHoldOpenOverClose( false );
+                        //MappedFileReader.setHoldOpenOverClose( false );
                         
                     }
 
@@ -425,7 +436,7 @@ public class ReduceRunner {
 
                 } finally {
 
-                    MappedFileReader.setHoldOpenOverClose( false );
+                    //MappedFileReader.setHoldOpenOverClose( false );
                     
                 }
 

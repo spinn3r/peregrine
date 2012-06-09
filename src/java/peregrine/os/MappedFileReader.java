@@ -120,9 +120,10 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
                 
             }
 
-            if ( reader == null )
+            if ( reader == null ) {
                 reader = new StreamReader( map );
-
+            }
+            
             _holdOpenOverClose = holdOpenOverClose.get();
             
             log.info( "%s", new Tracepoint( "holdOpenOverClose" , _holdOpenOverClose,
@@ -194,6 +195,9 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
 
         if ( _holdOpenOverClose == false ) {
 
+            if ( reader != null )
+                reader.close();
+            
             if ( mappedByteBufferCloser != null )
                 mappedByteBufferCloser.close();
             
