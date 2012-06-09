@@ -394,9 +394,8 @@ public class ReduceRunner {
         			pendingIterator = pending.iterator();
         			break;        			
         		}
-
+                
                 work.add( new ShuffleInputChunkReader( config, partition, path ) );
-
                 pendingIterator.remove();
         		
         	}
@@ -406,9 +405,7 @@ public class ReduceRunner {
             
             log.info( "Writing temporary sort file %s", path );
 
-            ChunkSorter sorter;
-
-            sorter = new ChunkSorter( config , partition );
+            ChunkSorter sorter = new ChunkSorter( config , partition );
             
             SequenceReader result = sorter.sort( work, out, jobOutput );
             
