@@ -225,14 +225,9 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
 
             super.close();
 
-            /*
-
-            //FIXME add this back in.
-              
             if ( fadviseDontNeedEnabled ) {
                 fcntl.posix_fadvise( fd, offset, length, fcntl.POSIX_FADV_DONTNEED );
             }
-            */
             
         }
 

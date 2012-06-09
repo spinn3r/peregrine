@@ -103,7 +103,6 @@ public class ReduceRunner {
                     break;
 
                 } else {
-
                     readers = interMerge( readers, pass );
                 }
 
@@ -381,7 +380,6 @@ public class ReduceRunner {
                 try {
 
                     reader = new ShuffleInputReader( config, path, partition );
-
                     header = reader.getHeader( partition );
                      
                 } finally {
@@ -395,9 +393,8 @@ public class ReduceRunner {
         			pendingIterator = pending.iterator();
         			break;        			
         		}
-
+                
                 work.add( new ShuffleInputChunkReader( config, partition, path ) );
-
                 pendingIterator.remove();
         		
         	}
