@@ -32,16 +32,12 @@ import java.util.*;
  * This is primarily used by a DefaultChunkReader so that all operations that it
  * needs to function can be easily provided (AKA CRC32 and prefetch/mlock).
  */
-public class StreamReader implements Closeable {
+public class StreamReader {
 
-    // TODO should this be Closeable ?
-    
     private ChannelBuffer buff = null;
 
     private StreamReaderListener listener = null;
 
-    private boolean closed = false;
-    
     public StreamReader( ChannelBuffer buff ) {
         this.buff = buff;
     }
@@ -50,7 +46,6 @@ public class StreamReader implements Closeable {
      * Read length `length' bytes from the reader.
      */
     public StructReader read( int length ) {
-        requireOpen();
         fireOnRead( length );
         return new StructReader( buff.readSlice( length ) );
     }
@@ -59,13 +54,11 @@ public class StreamReader implements Closeable {
      * Read a single byte from the stream.
      */
     public byte read() {
-        requireOpen();
         fireOnRead(1);
         return buff.readByte();
     }
 
     public int readInt() {
-        requireOpen();
         fireOnRead(4);
         return buff.readInt();
     }
@@ -76,8 +69,6 @@ public class StreamReader implements Closeable {
      */
     public ChannelBuffer readSlice( int length ) {
 
-        requireOpen();
-        
         fireOnRead( length );
 
         byte[] result = new byte[ length ];
@@ -115,21 +106,4 @@ public class StreamReader implements Closeable {
         
     }
 
-    @Override
-    public void close() throws IOException {
-
-        if ( closed )
-            return;
-
-        closed = true;
-        
-    }
-
-    private void requireOpen() throws RuntimeException {
-
-        if ( closed )
-            throw new RuntimeException( "closed" );
-        
-    }
-    
 }
