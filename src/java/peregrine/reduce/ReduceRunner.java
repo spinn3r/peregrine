@@ -167,8 +167,7 @@ public class ReduceRunner {
      */
     public void finalMerge( List<SequenceReader> readers, int pass ) throws IOException {
 
-        log.info( "Merging on final merge with %,d readers (strategy=finalMerge, pass=%,d)",
-                  readers.size(), pass );
+        log.info( "Merging on final merge with %,d readers (strategy=finalMerge, pass=%,d)", readers.size(), pass );
         
         PrefetchReader prefetchReader = null;
 
