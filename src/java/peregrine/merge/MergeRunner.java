@@ -33,7 +33,7 @@ import com.spinn3r.log5j.*;
  * Run a merge by taking to chunk readers and blending them into a merge stream.
  * 
  */
-public class MergeRunner implements Closeable {
+public class MergeRunner extends IdempotentCloser {
 
     private static final Logger log = Logger.getLogger();
 
@@ -94,11 +94,8 @@ public class MergeRunner implements Closeable {
     }
 
     @Override
-    public void close() throws IOException {
-
-        //FIXME: move to IdempotentCloser
+    public void doClose() throws IOException {
         new Closer( readers ).close();
-        
     }
     
     private List<StructReader> newEmptyList(int size) {

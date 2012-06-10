@@ -29,7 +29,7 @@ public abstract class IdempotentFunction<T,E extends Exception> {
 
     private E cause = null;
     
-    protected T exec() throws E {
+    protected final T exec() throws E {
 
         if ( executed ) {
 

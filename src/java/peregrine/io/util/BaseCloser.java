@@ -27,9 +27,7 @@ import java.util.*;
  *
  * http://docs.oracle.com/javase/tutorial/essential/exceptions/tryResourceClose.html
  */
-public abstract class BaseCloser<T> {
-
-    // FIXME: migrate this to use IdempotentCloser
+public abstract class BaseCloser<T> extends IdempotentFunction<Object,GroupIOException> {
 
     private static final Logger log = Logger.getLogger();
 
@@ -38,8 +36,6 @@ public abstract class BaseCloser<T> {
     protected List<T> delegates = new ArrayList();
 
     private Throwable cause = null;
-
-    private boolean executed = false;
 
     public BaseCloser() { }
 
@@ -81,14 +77,8 @@ public abstract class BaseCloser<T> {
         this.trace = trace;
     }
 
-    protected boolean executed() {
-        return executed;
-    }
-
-    public void exec() throws GroupIOException {
-
-        if ( executed )
-            return;
+    @Override
+    protected Object invoke() throws GroupIOException {
 
         GroupIOException exc = null;
 
@@ -119,13 +109,13 @@ public abstract class BaseCloser<T> {
             }
 
         }
-
-        executed = true;
         
         if ( exc != null ) {
             throw exc;
         }
 
+        return null;
+        
     }
 
     protected abstract void onDelegate( T delegate ) throws IOException;

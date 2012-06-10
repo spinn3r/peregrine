@@ -36,6 +36,14 @@ public abstract class IdempotentCloser
         exec();
     }
 
+    public boolean closed() {
+        return isClosed();
+    }
+    
+    public boolean isClosed() {
+        return executed();
+    }
+    
     /**
      * Implement this to close your required resource.  This is a better name
      * than invoke() since the implementation won't specify what is exactly
