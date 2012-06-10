@@ -20,12 +20,13 @@ import java.util.*;
 
 import peregrine.*;
 import peregrine.io.*;
-import peregrine.io.util.*;
 import peregrine.io.chunk.*;
 import peregrine.io.partition.*;
 import peregrine.io.util.*;
+import peregrine.io.util.*;
 import peregrine.reduce.*;
 import peregrine.reduce.merger.*;
+import peregrine.util.*;
 
 import com.spinn3r.log5j.*;
 
