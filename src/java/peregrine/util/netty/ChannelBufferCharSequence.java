@@ -39,8 +39,6 @@ public class ChannelBufferCharSequence implements CharSequence {
     
     public char charAt(int index) {
 
-        System.out.printf( "FIXME: %s\n", index );
-        
         return buff.getChar( index );
 
     }

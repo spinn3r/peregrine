@@ -63,7 +63,8 @@ public class MergeNodeAndRankMetaJob {
             }
 
             //TODO: we need a way to statically allocate memory for
-            //StructWriters for variable length aggregate fields.
+            //StructWriters for variable length aggregate fields.  Either that
+            //or back them with a dynamic channel buffer.
             
             StructWriter writer = new StructWriter( 256 );
             
