@@ -13,6 +13,8 @@ import peregrine.app.pagerank.*;
 import peregrine.config.*;
 import peregrine.worker.*;
 
+import org.jboss.netty.buffer.*;
+
 import com.sun.jna.Pointer;
 
 import com.spinn3r.log5j.Logger;
@@ -22,6 +24,8 @@ import org.apache.cassandra.hadoop.*;
 import org.apache.cassandra.thrift.*;
 import org.apache.cassandra.utils.*;
 import org.apache.cassandra.db.*;
+
+import java.nio.charset.Charset;
 
 // needed so that we can configure the InputFormat for Cassandra
 import org.apache.hadoop.conf.Configuration;
@@ -55,10 +59,32 @@ public class Test {
     
     public static void main( String[] args ) throws Exception {
 
-        Tracepoint tp = new Tracepoint( "foo" , "bar" );
+        File file = new File( "test.segfault" );
         
-        System.out.printf( "%s\n", tp );
+        FileOutputStream fos = new FileOutputStream( file );
+        fos.write( "hello world".getBytes() );
+        fos.close();
+
+        MappedFileReader reader = new MappedFileReader( file );
         
+        ChannelBuffer buff = reader.map();
+
+        Charset UTF8 = Charset.forName( "UTF-8" );
+
+        String content;
+        
+        content = new String( buff.slice( 0, (int)file.length() ).toString( UTF8 ) );
+        
+        System.out.printf( "content: %s\n", content );
+
+        reader.close();
+
+        //This should cause us to segfault now... 
+        
+        content = new String( buff.slice( 0, (int)file.length() ).toString( UTF8 ) );
+        
+        System.out.printf( "content: %s\n", content );
+
     }
     
     public static void main5( String[] args ) throws Exception {
@@ -72,7 +98,6 @@ public class Test {
         init.setuid();
 
     }
-
 
     public static void main3( String[] args ) throws Exception {
 
