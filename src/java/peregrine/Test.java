@@ -13,6 +13,8 @@ import peregrine.app.pagerank.*;
 import peregrine.config.*;
 import peregrine.worker.*;
 
+import org.jboss.netty.buffer.*;
+
 import com.sun.jna.Pointer;
 
 import com.spinn3r.log5j.Logger;
@@ -22,6 +24,8 @@ import org.apache.cassandra.hadoop.*;
 import org.apache.cassandra.thrift.*;
 import org.apache.cassandra.utils.*;
 import org.apache.cassandra.db.*;
+
+import java.nio.charset.Charset;
 
 // needed so that we can configure the InputFormat for Cassandra
 import org.apache.hadoop.conf.Configuration;
@@ -55,39 +59,31 @@ public class Test {
     
     public static void main( String[] args ) throws Exception {
 
-        //testlock1();
-
-        int S_IXOTH = 1 ;
-        int S_IWOTH = 2 ;
-        int S_IROTH = 4 ;
-
-        int S_IRWXO = S_IROTH | S_IWOTH | S_IXOTH;
-
-        int S_IXGRP = 8  ;
-        int S_IWGRP = 16 ;
-        int S_IRGRP = 32 ;
-
-        int S_IRWXG = S_IRGRP | S_IWGRP | S_IXGRP;
-
-        int S_IXUSR = 64  ;
-        int S_IWUSR = 128 ;
-        int S_IRUSR = 256 ;
-
-        int S_IRWXU = S_IRUSR | S_IWUSR | S_IXUSR;
-
-        int ACCESSPERMS = S_IRWXU|S_IRWXG|S_IRWXO;
+        File file = new File( "test.segfault" );
         
-        // # define ACCESSPERMS (S_IRWXU|S_IRWXG|S_IRWXO) /* 0777 */
+        FileOutputStream fos = new FileOutputStream( file );
+        fos.write( "hello world".getBytes() );
+        fos.close();
 
-        //int mode = 777 | 64; // 841
-
-        int mode = ACCESSPERMS;
-
-        //int mode = 0;
+        MappedFileReader reader = new MappedFileReader( file );
         
-        System.out.printf( "FIXME: mode: %s\n", mode );
+        ChannelBuffer buff = reader.map();
+
+        Charset UTF8 = Charset.forName( "UTF-8" );
+
+        String content;
         
-        unistd.mkdir( "test.mkdir", mode );
+        content = new String( buff.slice( 0, (int)file.length() ).toString( UTF8 ) );
+        
+        System.out.printf( "content: %s\n", content );
+
+        reader.close();
+
+        //This should cause us to segfault now... 
+        
+        content = new String( buff.slice( 0, (int)file.length() ).toString( UTF8 ) );
+        
+        System.out.printf( "content: %s\n", content );
 
     }
     
@@ -101,24 +97,6 @@ public class Test {
 
         init.setuid();
 
-    }
-
-    public static void main4( String[] args ) throws Exception {
-
-        File file = new File( "test.dat" );
-        FileInputStream fis = new FileInputStream( file );
-
-        long offset = 0;
-        long length = file.length();
-        
-        final MemLock memLock = new MemLock( file, fis.getFD(), 0, length );
-
-        memLock.unlockRegion( length );
-        memLock.unlockRegion( length );
-        memLock.unlockRegion( length );
-        memLock.unlockRegion( length );
-
-        System.out.printf( "yay\n" );
     }
 
     public static void main3( String[] args ) throws Exception {

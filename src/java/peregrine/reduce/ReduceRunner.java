@@ -155,8 +155,7 @@ public class ReduceRunner {
      */
     public void finalMerge( List<SequenceReader> readers, int pass ) throws IOException {
 
-        log.info( "Merging on final merge with %,d readers (strategy=finalMerge, pass=%,d)",
-                  readers.size(), pass );
+        log.info( "Merging on final merge with %,d readers (strategy=finalMerge, pass=%,d)", readers.size(), pass );
         
         PrefetchReader prefetchReader = null;
 
@@ -382,7 +381,7 @@ public class ReduceRunner {
 
                     reader = new ShuffleInputReader( config, path, partition );
                     header = reader.getHeader( partition );
-                     
+
                 } finally {
                     new Closer( reader ).close();
                 }
@@ -394,9 +393,9 @@ public class ReduceRunner {
         			pendingIterator = pending.iterator();
         			break;        			
         		}
-
-        		work.add( new ShuffleInputChunkReader( config, partition, path ) );
-        		pendingIterator.remove();
+                
+                work.add( new ShuffleInputChunkReader( config, partition, path ) );
+                pendingIterator.remove();
         		
         	}
         	
@@ -406,9 +405,9 @@ public class ReduceRunner {
             log.info( "Writing temporary sort file %s", path );
 
             ChunkSorter sorter = new ChunkSorter( config , partition );
-
+            
             SequenceReader result = sorter.sort( work, out, jobOutput );
-
+            
             if ( result != null )
                 sorted.add( result );
 

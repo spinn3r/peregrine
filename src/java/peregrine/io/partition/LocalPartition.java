@@ -21,6 +21,7 @@ import java.util.*;
 import peregrine.config.Config;
 import peregrine.config.Partition;
 import peregrine.io.chunk.*;
+import peregrine.os.*;
 
 /**
  * Write to a logical partition which is a stream of chunk files.... 
@@ -41,7 +42,10 @@ public class LocalPartition {
         List<DefaultChunkReader> result = new ArrayList();
         
         for( File chunk : chunks ) {
-            result.add( new DefaultChunkReader( config, chunk ) );
+
+            DefaultChunkReader chunkReader = new DefaultChunkReader( config, chunk );
+            result.add( chunkReader );
+
         }
 
         return result;

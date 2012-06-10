@@ -19,17 +19,24 @@ import java.io.*;
 import java.util.*;
 
 import peregrine.*;
-import peregrine.reduce.*;
 import peregrine.io.*;
 import peregrine.io.chunk.*;
 import peregrine.io.partition.*;
+import peregrine.io.util.*;
+import peregrine.io.util.*;
+import peregrine.reduce.*;
 import peregrine.reduce.merger.*;
+import peregrine.util.*;
+
+import com.spinn3r.log5j.*;
 
 /**
  * Run a merge by taking to chunk readers and blending them into a merge stream.
  * 
  */
-public class MergeRunner {
+public class MergeRunner extends IdempotentCloser {
+
+    private static final Logger log = Logger.getLogger();
 
     private MergerPriorityQueue queue;
     private MergeQueueEntry last = null;
@@ -46,7 +53,7 @@ public class MergeRunner {
         this.readers = readers;
         
         this.queue = new MergerPriorityQueue( readers );
-
+        
     }
     
     public MergedValue next() throws IOException {
@@ -87,6 +94,11 @@ public class MergeRunner {
         
     }
 
+    @Override
+    public void doClose() throws IOException {
+        new Closer( readers ).close();
+    }
+    
     private List<StructReader> newEmptyList(int size) {
 
         List<StructReader> result = new ArrayList( size );
@@ -98,5 +110,5 @@ public class MergeRunner {
         return result;
         
     }
-    
+
 }

@@ -546,13 +546,22 @@ public class Scheduler {
             // Right now , if ANYTHING has failed, we can not continue.
             if ( failure.size() > 0 ) {
 
+                StringBuilder buff = new StringBuilder();
+                
                 // log all root causes.
                 for( Fail fail : failure.values() ) {
-                    log.error( "Failed to handle task: %s \n %s" , fail , fail.stacktrace );
+
+                    String message = String.format( "Failed to handle task: %s \n %s" , fail , fail.stacktrace );
+                    
+                    log.error( "%s" , message );
+
+                    buff.append( message );
+                    buff.append( "\n" );
+                    
                 }
 
                 // throw the current position.
-                throw new Exception( String.format( "Failed job %s due to %s", job, failure ) );
+                throw new Exception( String.format( "Failed job %s due to %s \n%s\n", job, failure, buff.toString() ) );
                 
             }
 

@@ -1,0 +1,89 @@
+/*
+ * Copyright 2011 Kevin A. Burton
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+*/
+package peregrine.app.wikirank;
+
+import java.io.*;
+import java.util.regex.*;
+
+import peregrine.io.*;
+import peregrine.config.*;
+import peregrine.util.*;
+import peregrine.util.netty.*;
+import peregrine.worker.*;
+import peregrine.os.*;
+
+/**
+ * Parse out the wikipedia sample data.
+ */
+public class PageLinkParser {
+
+    Pattern p;
+    Matcher m;
+    
+    /**
+     * 
+     * 
+     *
+     */
+    public PageLinkParser( String path ) throws IOException {
+
+        CharSequence sequence = new FileCharSequence( path );
+        
+        p = Pattern.compile( "\\(([0-9]+),[0-9]+,'([^']+)'\\)"  );
+        m = p.matcher( sequence );
+        
+    }
+
+    public Link next() throws IOException {
+
+        if ( m.find() ) {
+
+            Link link = new Link();
+            link.id = Integer.parseInt( m.group( 1 ) );
+            link.name = m.group( 2 ).trim();
+            return link;
+        }
+
+        return null;
+
+    }
+
+    public class Link {
+
+        public int id = -1;
+        public String name = null;
+        
+    }
+    
+    public static void main( String[] args ) throws Exception {
+
+        PageLinkParser parser = new PageLinkParser( args[0] );
+
+        while( true ) {
+
+            Link link = parser.next();
+
+            if ( link == null )
+                break;
+
+            System.out.printf( "%s=>%s\n", link.id , link.name );
+            
+        }
+        
+    }
+
+}
+

@@ -30,6 +30,8 @@ import peregrine.reduce.*;
 import peregrine.shuffle.*;
 import peregrine.util.*;
 import peregrine.util.netty.*;
+import peregrine.os.*;
+
 import org.jboss.netty.buffer.*;
 
 import com.spinn3r.log5j.Logger;
@@ -131,6 +133,8 @@ public class ChunkSorter extends BaseChunkSorter {
 
             new Flusher( jobOutput ).flush();
 
+            new Flusher( writer ).flush();
+            
             // NOTE: it is important that the writer be closed before the reader
             // because if not then the writer will attempt to read values from 
             // closed reader.
@@ -142,8 +146,9 @@ public class ChunkSorter extends BaseChunkSorter {
 
         DefaultChunkReader result = null;
         
-        if ( output != null )
+        if ( output != null ) {
             result = new DefaultChunkReader( config, output );
+        }
 
         return result;
 

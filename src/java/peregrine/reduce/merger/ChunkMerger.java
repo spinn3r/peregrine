@@ -164,7 +164,7 @@ public class ChunkMerger implements Closeable {
 
             if ( writer != null )
                 writer.flush();
-
+            
             sortResult.close();
 
             if ( writer != null )         
@@ -181,6 +181,7 @@ public class ChunkMerger implements Closeable {
     }
 
     public void close() throws IOException {
+        new Closer( output ).close();
         new Closer( input ).close();
     }
 

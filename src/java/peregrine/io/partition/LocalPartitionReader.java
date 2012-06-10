@@ -25,6 +25,7 @@ import peregrine.io.*;
 import peregrine.io.chunk.*;
 import peregrine.rpc.*;
 import peregrine.task.*;
+import peregrine.os.*;
 
 /**
  * Read data from a partition from local storage.
@@ -136,8 +137,8 @@ public class LocalPartitionReader extends BaseJobInput implements SequenceReader
     public void close() throws IOException {
 
         if ( chunkReader != null ) {
-            chunkReader.close();
             fireOnChunkEnd( chunkRef );
+            chunkReader.close();
         }
 
     }

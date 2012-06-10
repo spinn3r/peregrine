@@ -29,6 +29,22 @@ import peregrine.os.*;
  * StructWriter.  A sibling class {@link StructReaders} provides API around easily
  * accessing primitives.
  * 
+ * <p> We support the following types:
+ *
+ * <pre>
+ *
+ * byte
+ * short
+ * varint
+ * int
+ * long
+ * float
+ * double
+ * boolean
+ * char
+ * string
+ * hashcode
+ * 
  * @see StructWriter
  * @see StructReaders
  */

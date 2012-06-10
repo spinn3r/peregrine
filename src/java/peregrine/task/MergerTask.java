@@ -23,6 +23,7 @@ import peregrine.io.*;
 import peregrine.io.chunk.*;
 import peregrine.io.partition.*;
 import peregrine.sysstat.*;
+import peregrine.os.*;
 
 import com.spinn3r.log5j.*;
 
@@ -38,25 +39,31 @@ public class MergerTask extends BaseMapperTask {
 
         jobInput = getJobInput();
 
-        MergeRunner localMerger = new MergeRunner( jobInput );
+        MergeRunner mergeRunner = new MergeRunner( jobInput );
 
-        Merger merger = (Merger)jobDelegate;
+        try { 
         
-        while( true ) {
-
-            MergedValue joined = localMerger.next();
-
-            if ( joined == null )
-                break;
-
-            assertAlive();
+            Merger merger = (Merger)jobDelegate;
             
-            merger.merge( joined.key, joined.values );
-            
+            while( true ) {
+
+                MergedValue joined = mergeRunner.next();
+
+                if ( joined == null )
+                    break;
+
+                assertAlive();
+                
+                merger.merge( joined.key, joined.values );
+                
+            }
+
+            log.info( "Running merge jobs on host: %s ... done", host );
+
+        } finally {
+            mergeRunner.close();
         }
-
-        log.info( "Running merge jobs on host: %s ... done", host );
-
+            
     }
 
     /**

@@ -34,12 +34,10 @@ import java.util.*;
  */
 public class StreamReader {
 
-    // TODO should this be Closeable ?
-    
     private ChannelBuffer buff = null;
 
     private StreamReaderListener listener = null;
-    
+
     public StreamReader( ChannelBuffer buff ) {
         this.buff = buff;
     }
@@ -107,5 +105,5 @@ public class StreamReader {
         listener.onRead( length );
         
     }
-    
+
 }

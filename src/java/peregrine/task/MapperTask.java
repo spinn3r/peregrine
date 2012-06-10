@@ -25,6 +25,7 @@ import peregrine.io.partition.*;
 import peregrine.io.util.*;
 import peregrine.map.*;
 import peregrine.sysstat.*;
+import peregrine.os.*;
 
 import com.spinn3r.log5j.*;
 
@@ -41,8 +42,8 @@ public class MapperTask extends BaseMapperTask {
         // note a map job with ZERO input files is acceptable.  This would be
         // used for some generator that just emits values on init.
         
-        if ( getInput().getReferences().size() > 1 ) {
-            throw new Exception( "Map jobs must not have more than one input." );
+        if ( getInput().getReferences().size() != 1 ) {
+            throw new Exception( "Map jobs must have exactly one input." );
         }
 
         jobInput = getJobInput();
@@ -51,23 +52,29 @@ public class MapperTask extends BaseMapperTask {
             return;
         
         SequenceReader reader = jobInput.get( 0 );
-        
+
         int count = 0;
-        
-        Mapper mapper = (Mapper)jobDelegate;
-        
-        while( reader.hasNext() ) {
 
-            assertAlive();
+        try {
+
+            Mapper mapper = (Mapper)jobDelegate;
             
-        	reader.next();
-        	
-            mapper.map( reader.key(), reader.value() );
+            while( reader.hasNext() ) {
 
-            ++count;
+                assertAlive();
+                
+            	reader.next();
+            	
+                mapper.map( reader.key(), reader.value() );
 
+                ++count;
+
+            }
+
+        } finally {
+            reader.close();
         }
-
+            
         log.info( "Mapped %,d entries on %s on host %s from %s", count, partition, config.getHost(), reader );
 
     }

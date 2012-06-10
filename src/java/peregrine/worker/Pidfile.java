@@ -41,6 +41,9 @@ public class Pidfile {
         if ( file.exists() == false )
             return -1;
 
+        if ( file.length() == 0 )
+            return -1;
+        
         FileInputStream fis = new FileInputStream( file );
         byte[] data = new byte[ (int)file.length() ]; 
         fis.read( data );
