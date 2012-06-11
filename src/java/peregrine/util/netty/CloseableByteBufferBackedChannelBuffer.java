@@ -185,7 +185,14 @@ public class CloseableByteBufferBackedChannelBuffer extends AbstractChannelBuffe
     }
 
     public ByteBuffer toByteBuffer(int index, int length) {
-        throw new RuntimeException( "not supported" );
+
+        // NOTE: this method is the only dangerous one right now but I can't
+        // provide an implementation of this without converting to a ByteBuffer
+        // but there is NO way that I can wrap ByteBuffers for now.
+
+        requireOpen();
+        return delegate.toByteBuffer( index, length );
+
     }
     
     public ChannelBuffer slice(int index, int length) {
