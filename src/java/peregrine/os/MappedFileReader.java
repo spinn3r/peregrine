@@ -127,7 +127,9 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
                 new NativeMapStrategy().map();
 
                 this.map = ChannelBuffers.wrappedBuffer( byteBuffer );
-                
+
+                this.map = new CloseableByteBufferBackedChannelBuffer( new ByteBufferBackedChannelBuffer( byteBuffer ), this );
+
             }
 
             if ( reader == null ) {
