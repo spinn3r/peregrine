@@ -83,51 +83,23 @@ public class DefaultChunkReader implements SequenceReader, ChunkReader, Closeabl
     
     private ChannelBuffer buffer = null;
 
-    public DefaultChunkReader( Config config, File file )
-        throws IOException {
-
-        mappedFile = new MappedFileReader( config, file );
-        
-        ChannelBuffer buff = mappedFile.map();
-      
-        init( buff, mappedFile.getStreamReader() );
-        
-    }
-
-    public DefaultChunkReader( File file, ChannelBuffer buff )
-        throws IOException {
-
-        this.file = file;
-        init( buff );
-
-    }
-
     public DefaultChunkReader( File file )
         throws IOException {
 
         this( null, file );
         
     }
-        
-    public DefaultChunkReader( byte[] data )
-        throws IOException {
-                 
-        init( ChannelBuffers.wrappedBuffer( data ) );
 
-    }
-
-    public DefaultChunkReader( ChannelBuffer buff )
+    public DefaultChunkReader( Config config, File file )
         throws IOException {
 
-        init( buff );
+        this.file = file;
+        this.mappedFile = new MappedFileReader( config, file );
         
-    }
-
-    /**
-     * Get the backing file.
-     */
-    public MappedFileReader getMappedFile() {
-        return mappedFile;
+        ChannelBuffer buff = mappedFile.map();
+      
+        init( buff, mappedFile.getStreamReader() );
+        
     }
 
     private void init( ChannelBuffer buff )
@@ -149,7 +121,14 @@ public class DefaultChunkReader implements SequenceReader, ChunkReader, Closeabl
         setSize( buff.getInt( buff.writerIndex() - IntBytes.LENGTH ) );
 
     }
-    
+
+    /**
+     * Get the backing file.
+     */
+    public MappedFileReader getMappedFile() {
+        return mappedFile;
+    }
+
     @Override
     public boolean hasNext() throws IOException {
 
