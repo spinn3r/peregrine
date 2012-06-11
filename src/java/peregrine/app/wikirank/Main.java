@@ -19,6 +19,7 @@ import peregrine.io.*;
 import peregrine.config.*;
 import peregrine.util.*;
 import peregrine.worker.*;
+import peregrine.controller.*;
 
 /**
  * Main binary for running peregrine on wikipedia graph data.
@@ -37,23 +38,38 @@ public class Main {
         String nodes_path = getopt.getString( "nodes_path" );
         String links_path = getopt.getString( "links_path" );
 
-        String stage = getopt.getString( "stage", "all" );
+        String stage = getopt.getString( "stage", "run" );
 
-        Wikirank wikirank = new Wikirank( config, nodes_path, links_path );
+        Controller controller = null;
 
-        if ( "init".equals( stage ) ) {
-            wikirank.init();
+        try {
+
+            controller = new Controller( config );
+            
+            Wikirank wikirank = new Wikirank( config, controller, nodes_path, links_path );
+            
+            // extract , transform, load
+            
+            if ( "extract".equals( stage ) ) {
+                wikirank.extract();
+            }
+
+            if ( "transform".equals( stage ) ) {
+                wikirank.transform();
+            }
+
+            if ( "load".equals( stage ) ) {
+                wikirank.load();
+            }
+
+            if ( "run".equals( stage ) ) {
+                wikirank.run();
+            }
+
+        } finally {
+            controller.shutdown();
         }
-
-        if ( "exec".equals( stage ) ) {
-            wikirank.exec();
-        }
-
-        if ( "all".equals( stage ) ) {
-            wikirank.init();
-            wikirank.exec();
-        }
-        
+            
     }
 
 }

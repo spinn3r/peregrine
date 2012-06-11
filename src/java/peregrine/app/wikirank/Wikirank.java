@@ -31,81 +31,84 @@ public class Wikirank {
 
     private Config config;
 
+    private Controller controller;
+    
     private String nodes_path;
 
     private String links_path;
     
-    public Wikirank( Config config, String nodes_path, String links_path ) {
+    public Wikirank( Config config, Controller controller, String nodes_path, String links_path ) {
         this.config = config;
+        this.controller = controller;
         this.nodes_path = nodes_path;
         this.links_path = links_path;
     }
 
-    public void init() throws Exception {
+    public void run() throws Exception {
+        extract();
+        transform();
+        load();
+    }
+
+    public void extract() throws Exception {
 
         writeNodes( nodes_path );
         writeLinks( links_path );
 
+        controller.map( CreateNodeLookupJob.Map.class,
+                        new Input( "/wikirank/nodes" ),
+                        new Output( "shuffle:nodesByPrimaryKey",
+                                    "shuffle:nodesByHashcode" ) );
+
+        controller.reduce( Reducer.class,
+                           new Input( "shuffle:nodesByPrimaryKey" ),
+                           new Output( "/wikirank/nodesByPrimaryKey" ) );
+
+        controller.reduce( Reducer.class,
+                           new Input( "shuffle:nodesByHashcode" ),
+                           new Output( "/wikirank/nodesByHashcode" ) );
+                           
+        controller.map( FlattenLinksJob.Map.class,
+                        new Input( "/wikirank/links" ),
+                        new Output( "shuffle:default" ) );
+
+        controller.reduce( FlattenLinksJob.Reduce.class,
+                           new Input( "shuffle:default" ),
+                           new Output( "/wikirank/links.flattened" ) );
+
+        // this joins the node table AND the links table and then writes a
+        // raw hashcode graph for use with pagerank.
+        controller.merge( MergePagesAndLinksJob.Merge.class,
+                          new Input( "/wikirank/nodesByPrimaryKey",
+                                     "/wikirank/links.flattened" ),
+                          new Output( "/wikirank/graph" ) );
+
     }
     
-    public void exec() throws Exception {
+    public void transform() throws Exception {
 
-        Controller controller = null;
+        // the graph is written, now launch a job to finish it up.
 
-        try {
+        Pagerank pr = new Pagerank( config, "/wikirank/graph", controller );
+        pr.exec( false );
 
-            controller = new Controller( config );
-            
-            controller.map( CreateNodeLookupJob.Map.class,
-                            new Input( "/wikirank/nodes" ),
-                            new Output( "shuffle:nodesByPrimaryKey",
-                                        "shuffle:nodesByHashcode" ) );
-
-            controller.reduce( Reducer.class,
-                               new Input( "shuffle:nodesByPrimaryKey" ),
-                               new Output( "/wikirank/nodesByPrimaryKey" ) );
-
-            controller.reduce( Reducer.class,
-                               new Input( "shuffle:nodesByHashcode" ),
-                               new Output( "/wikirank/nodesByHashcode" ) );
-                               
-            controller.map( FlattenLinksJob.Map.class,
-                            new Input( "/wikirank/links" ),
-                            new Output( "shuffle:default" ) );
-
-            controller.reduce( FlattenLinksJob.Reduce.class,
-                               new Input( "shuffle:default" ),
-                               new Output( "/wikirank/links.flattened" ) );
-
-            // this joins the node table AND the links table and then writes a
-            // raw hashcode graph for use with pagerank.
-            controller.merge( MergePagesAndLinksJob.Merge.class,
-                              new Input( "/wikirank/nodesByPrimaryKey",
-                                         "/wikirank/links.flattened" ),
-                              new Output( "/wikirank/graph" ) );
-
-            // the graph is written, now launch a job to finish it up.
-
-            Pagerank pr = new Pagerank( config, "/wikirank/graph", controller );
-            pr.exec( false );
-
-            //now join against nodesByPrimaryKey and and rank graph so that we can
-            //have rank per node
-
-            // merge /pr/out/rank_vector and nodesByPrimaryKey and node_metadata
-
-            controller.merge( MergeNodeAndRankMetaJob.Merge.class,
-                              new Input( "/pr/out/node_metadata",
-                                         "/pr/out/rank_vector",
-                                         "/wikirank/nodesByHashcode" ),
-                              new Output( "/wikirank/rank_metadata" ) );
-
-        } finally {
-            controller.shutdown();
-        }
-            
     }
+    
+    public void load() throws Exception {
 
+        //now join against nodesByPrimaryKey and and rank graph so that we can
+        //have rank per node
+
+        // merge /pr/out/rank_vector and nodesByPrimaryKey and node_metadata
+
+        controller.merge( MergeNodeAndRankMetaJob.Merge.class,
+                          new Input( "/pr/out/node_metadata",
+                                     "/pr/out/rank_vector",
+                                     "/wikirank/nodesByHashcode" ),
+                          new Output( "/wikirank/rank_metadata" ) );
+
+    }
+    
     private void writeNodes( String input ) throws Exception {
 
         ExtractWriter writer = new ExtractWriter( config, "/wikirank/nodes" );

@@ -38,6 +38,8 @@ flush_logs() {
 
 start() {
 
+    echo "Starting..."
+
     if [ "$FLUSH_LOGS" = "true" ]; then
         flush_logs
     fi
@@ -76,6 +78,8 @@ start() {
 
 stop() {
 
+    echo "Stopping..."
+
     for host in `get_unique_hosts`; do
         runcmd ssh root@$host "pgrep -f peregrine.worker.Main | xargs kill"
     done
@@ -100,7 +104,6 @@ run() {
     ssh root@$controller "cd $DIR && ./bin/jexec $@"
 
 }
-
 
 command=$1
 shift
