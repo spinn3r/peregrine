@@ -38,7 +38,7 @@ public class CloseableByteBufferBackedChannelBuffer extends AbstractChannelBuffe
         this.delegate = delegate;
         this.reader = reader;
 
-        writerIndex(delegate.remaining());
+        writerIndex(delegate.writerIndex());
 
     }
 
