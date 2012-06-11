@@ -37,10 +37,13 @@ public class ByteBufferCloser extends IdempotentCloser {
 
     private ByteBuffer buff = null;
 
-    public ByteBufferCloser( ChannelBuffer buff ) {
+    public ByteBufferCloser( ChannelBuffer _buff ) {
 
-        if ( buff instanceof ByteBufferBackedChannelBuffer )
-            this.buff = buff.toByteBuffer();
+        if ( _buff instanceof CloseableByteBufferBackedChannelBuffer )
+            _buff = ((CloseableByteBufferBackedChannelBuffer)_buff).getDelegate();
+        
+        if ( _buff instanceof ByteBufferBackedChannelBuffer )
+            this.buff = _buff.toByteBuffer();
 
     }
 
