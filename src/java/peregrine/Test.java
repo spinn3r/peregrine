@@ -56,8 +56,18 @@ public class Test {
         reader.map();
 
     }
-    
+
     public static void main( String[] args ) throws Exception {
+
+        Properties props = new Properties();
+        props.load( new FileInputStream( "test.properties" ) );
+
+        System.out.printf( "%s\n" , props );
+        
+        
+    }
+
+    public static void main_segfault( String[] args ) throws Exception {
 
         File file = new File( "test.segfault" );
         
