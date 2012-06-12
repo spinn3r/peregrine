@@ -6,7 +6,7 @@ LOGDIR=/var/log
 MAX_MEMORY=256M
 OPEN_FILES=16384
 FLUSH_LOGS=true
-FLUSH_FS=true
+FLUSH_FS=false
 
 ###
 # run the given command but print what we're about to run... 
@@ -47,6 +47,7 @@ start() {
     fi
 
     for host in `cat conf/peregrine.hosts`; do
+
         hostname=$(echo $host|grep -Eo '^[^:]+')
         port=$(echo $host|grep -Eo '[^:]+$')
 
