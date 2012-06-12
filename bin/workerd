@@ -35,6 +35,8 @@ start() {
     stderr="logs/peregrine-workerd-$host.err"
     stdout="logs/peregrine-workerd-$host.out"
     
+    echo "Running with max JVM memory $MAX_MEMORY and max direct memory $MAX_DIRECT_MEMORY"
+
     ./bin/jexec peregrine.worker.Main $args < /dev/null > $stdout 2> $stderr &
 
     pid=$!
