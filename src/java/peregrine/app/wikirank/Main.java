@@ -54,6 +54,10 @@ public class Main {
                 wikirank.extract();
             }
 
+            if ( "fixup".equals( stage ) ) {
+                wikirank.fixup();
+            }
+
             if ( "transform".equals( stage ) ) {
                 wikirank.transform();
             }

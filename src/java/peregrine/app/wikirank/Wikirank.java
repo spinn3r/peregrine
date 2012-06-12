@@ -46,6 +46,7 @@ public class Wikirank {
 
     public void run() throws Exception {
         extract();
+        fixup();
         transform();
         load();
     }
@@ -54,6 +55,10 @@ public class Wikirank {
 
         writeNodes( nodes_path );
         writeLinks( links_path );
+
+    }
+
+    public void fixup() throws Exception {
 
         controller.map( CreateNodeLookupJob.Map.class,
                         new Input( "/wikirank/nodes" ),
@@ -84,7 +89,7 @@ public class Wikirank {
                           new Output( "/wikirank/graph" ) );
 
     }
-    
+
     public void transform() throws Exception {
 
         // the graph is written, now launch a job to finish it up.
