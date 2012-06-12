@@ -152,6 +152,14 @@ public class BaseConfig {
 
     }
 
+    /**
+     * Get the raw underlying StructMap for use with reading the raw params
+     * specified in the config (by name).
+     */
+    public StructMap getStructMap() {
+        return struct;
+    }
+    
     public Membership getMembership() {
         return membership;
     }

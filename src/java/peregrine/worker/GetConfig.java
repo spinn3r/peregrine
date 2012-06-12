@@ -20,11 +20,14 @@ import java.util.*;
 
 import peregrine.config.*;
 import peregrine.os.*;
+import peregrine.util.*;
 
 import com.spinn3r.log5j.Logger;
 
 /**
  * Parse the config and return the correct amount of memory to constrain the VM.
+ * The given command line arguments are passed to ConfigParser and applied with
+ * the config.
  */
 public class GetConfig {
 	
@@ -32,14 +35,29 @@ public class GetConfig {
 
     public static void main( String[] args ) throws Exception {
 
+        Getopt getopt = new Getopt( args );
+        
         Config config = ConfigParser.parse( args );
 
         Map<String,String> dict = config.toDict();
 
-        for( String key : dict.keySet() ) {
+        // read a specific key.  In the future we should support getInt, etc. 
+        if ( getopt.containsKey( "getSize" ) ) {
 
-            System.out.printf( "%s=%s\n", key, dict.get( key ) );
+            String key = getopt.getString( "getSize" );
+            System.out.printf( "%s\n", config.getStructMap().getSize( key ) );
+
+        } else if ( getopt.containsKey( "getString" ) ) {
+
+            String key = getopt.getString( "getString" );
+            System.out.printf( "%s\n", config.getStructMap().getString( key ) );
+
+        } else {
             
+            for( String key : dict.keySet() ) {
+                System.out.printf( "%s=%s\n", key, dict.get( key ) );
+            }
+
         }
         
     }
