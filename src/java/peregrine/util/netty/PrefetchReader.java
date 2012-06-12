@@ -88,7 +88,8 @@ public class PrefetchReader implements Closeable {
         // define the per file capacity... 
         long capacity = (long)Math.floor( config.getSortBufferSize() / (double)files.size() );
 
-        log.info( "Running with buffer size: %,d and per file capacity: %,d", config.getSortBufferSize(), capacity );
+        log.info( "Running with buffer size %,d and per file capacity %,d and %,d files.",
+                  config.getSortBufferSize(), capacity, files.size() );
 
         for( MappedFileReader mappedFile : files ) {
 
@@ -287,12 +288,17 @@ public class PrefetchReader implements Closeable {
 
         for( FileMeta fileMeta : files ) {
 
-            while( fileMeta.inCache.get() < fileMeta.capacity && fileMeta.pendingPages.size() > 0 ) {
-                
-                PageEntry page = fileMeta.pendingPages.take();
+            while( fileMeta.inCache.get() < fileMeta.capacity ) {
+
+                PageEntry page = fileMeta.pendingPages.peek();
 
                 if ( page == null )
                     break;
+
+                if ( fileMeta.inCache.get() + page.length > fileMeta.capacity )
+                    break;
+                
+                page = fileMeta.pendingPages.take();
 
                 try {
                     cache( page );

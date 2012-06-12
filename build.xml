@@ -321,7 +321,7 @@
 
     <target name="test-large" description="Run a job that uses a LOT of data on disk to test for memory leaks with mapping and reading IO.">
 
-        <property name="peregrine.test.factor" value="50"/>
+        <property name="peregrine.test.factor" value="5000"/>
         <property name="peregrine.test.config" value="1:1:1"/>
 
         <tstamp>
@@ -364,7 +364,6 @@
 
                 <fileset dir="src/test">
                   <include name="peregrine/TestMapReduce.java"/>
-                  <include name="peregrine/TestPagerank.java"/>
                 </fileset>
 
             </batchtest>

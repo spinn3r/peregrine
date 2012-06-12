@@ -66,6 +66,14 @@ public class SimpleBlockingQueue<T> {
         }
     }
 
+    public T peek() {
+        try {
+            return delegate.peek();
+        } catch ( InterruptedException e ) {
+            throw new RuntimeException( e );
+        }
+    }
+
     public Iterator<T> iterator() {
         return delegate.iterator();
     }
