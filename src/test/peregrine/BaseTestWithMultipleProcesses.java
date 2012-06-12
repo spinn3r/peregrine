@@ -27,6 +27,9 @@ import peregrine.io.partition.*;
 
 import com.spinn3r.log5j.Logger;
 
+/**
+ * Base test for running with multiple daemons forked under the test harness.
+ */
 public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
 
     private static final Logger log = Logger.getLogger();

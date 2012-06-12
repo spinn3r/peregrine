@@ -35,8 +35,7 @@ public class GetMaxDirectMemory {
         Config config = ConfigParser.parse( args );
 
         // only one of these variables can be active at one time.
-        long maxDirectMemorySize = Math.max( config.getShuffleBufferSize(),
-                                             config.getSortBufferSize() );
+        long maxDirectMemorySize = config.getConcurrency() * Math.max( config.getShuffleBufferSize(), config.getSortBufferSize() );
 
         System.out.printf( "%s\n", maxDirectMemorySize );
         
