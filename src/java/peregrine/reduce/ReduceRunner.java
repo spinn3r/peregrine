@@ -249,14 +249,15 @@ public class ReduceRunner {
 
                 merger.merge( writer );
 
-                result.add( newInterChunkReader( path ) );
-
                 log.info( "Merged with profiler rate: \n%s", profiler.rate() );
 
             } finally {
                 new Closer( prefetchReader, merger ).close();
             }
-                
+
+            // we should only do this AFTER we have closed out the merger and prefetchReader
+            result.add( newInterChunkReader( path ) );
+
         }
 
         return result;

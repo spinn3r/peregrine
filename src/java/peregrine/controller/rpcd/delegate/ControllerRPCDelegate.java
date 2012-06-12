@@ -139,10 +139,11 @@ public class ControllerRPCDelegate extends RPCDelegate<ControllerDaemon> {
     }
 
     /**
-     * Get the current scheduler state from the controller. 
+     * Get the current controller status as a message/map from the controller
+     * including scheduler information.
      */
     @RPC
-    public void getSchedulerState( ControllerDaemon controllerDaemon, Channel channel, Message message )
+    public void status( ControllerDaemon controllerDaemon, Channel channel, Message message )
         throws Exception {
 
         Scheduler scheduler = controllerDaemon.getScheduler();

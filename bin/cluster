@@ -32,6 +32,8 @@ flush_logs() {
 
     for host in `get_unique_hosts`; do
         runcmd ssh root@$host "find $DIR/logs/ -name '*.log' -exec rm '{}' ';' " 
+        runcmd ssh root@$host "find $DIR/logs/ -name '*.out' -exec rm '{}' ';' " 
+        runcmd ssh root@$host "find $DIR/logs/ -name '*.err' -exec rm '{}' ';' " 
     done
 
 }
