@@ -42,10 +42,8 @@ public class PageParser {
 
         CharSequence sequence = new FileCharSequence( path );
 
-        // ,'',0,1,0,0.33167112649574,'20120430020404',381202555,57)
-        
-        //p = Pattern.compile( "\\(([0-9]+),'([^']+)'[^)]+\\)"  );
-        p = Pattern.compile( "\\(([0-9]+),[0-9]+,'([^']+)'[^)]+\\)"  );
+        //p = Pattern.compile( "\\(([0-9]+),[0-9]+,'([^']+)'[^)]+\\)" );
+        p = Pattern.compile( "\\(([0-9]+)," );
         m = p.matcher( sequence );
         
     }
@@ -53,10 +51,12 @@ public class PageParser {
     public Page next() throws IOException {
 
         if ( m.find() ) {
-            
             Page page = new Page();
-            page.id = Integer.parseInt( m.group( 1 ) );
-            page.name = m.group( 2 ).trim();
+
+            System.out.printf( "." );
+            
+            //page.id = Integer.parseInt( m.group( 1 ) );
+            //page.name = m.group( 2 ).trim();
             return page;
         }
 
