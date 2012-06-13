@@ -101,6 +101,8 @@ public class KeyLookup extends IdempotentCloser {
         }
         
         this.lookup = lookup;
+        this.closer = closer;
+        
         this.end = size - 1;
         this.size = size;
         this.buffers = buffers;

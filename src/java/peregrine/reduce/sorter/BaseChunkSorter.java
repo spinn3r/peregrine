@@ -71,9 +71,9 @@ public class BaseChunkSorter {
             return merged;
             
         } finally {
-            
+
             // close both the left and right inputs to return their memory.
-            new Closer( left, right ).close();
+            new Closer( left, right, input ).close();
 
         }
         

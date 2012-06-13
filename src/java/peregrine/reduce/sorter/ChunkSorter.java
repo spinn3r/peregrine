@@ -76,11 +76,10 @@ public class ChunkSorter extends BaseChunkSorter {
                                 SortListener sortListener )
         throws IOException {
 
-        CompositeChunkReader reader = null;
-
-        ChunkWriter writer = null;
-
-        SortResult sortResult = null;
+        CompositeChunkReader reader  = null;
+        ChunkWriter writer           = null;
+        SortResult sortResult        = null;
+        KeyLookup lookup             = null;
         
         try {
 
@@ -92,7 +91,7 @@ public class ChunkSorter extends BaseChunkSorter {
             
             reader = new CompositeChunkReader( config, input );
             
-            KeyLookup lookup = new KeyLookup( reader );
+            lookup = new KeyLookup( reader );
 
             log.info( "Key lookup for %s has %,d entries." , partition, lookup.size() );
 
