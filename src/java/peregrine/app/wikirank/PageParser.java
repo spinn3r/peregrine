@@ -40,6 +40,8 @@ public class PageParser {
      */
     public PageParser( String path ) throws IOException {
 
+        System.out.printf( "Opening: %s\n", path );
+        
         CharSequence sequence = new FileCharSequence( path );
 
         //p = Pattern.compile( "\\(([0-9]+),[0-9]+,'([^']+)'[^)]+\\)" );
@@ -80,8 +82,10 @@ public class PageParser {
 
             Page page = parser.next();
 
-            if ( page == null )
+            if ( page == null ) {
+                System.out.printf( "DONE\n" );
                 break;
+            }
 
             System.out.printf( "%s=>%s\n", page.id , page.name );
             
