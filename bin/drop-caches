@@ -1,0 +1,5 @@
+#!/bin/sh
+
+# handy command to remember the syntax to drop caches on Linux
+
+echo 3 > /proc/sys/vm/drop_caches
