@@ -48,23 +48,20 @@ public class PageParser {
         
     }
 
-    public Page next() throws IOException {
+    public Match next() throws IOException {
 
         if ( m.find() ) {
-
-            System.out.printf( "FIXME: %s\n", m.group( 0 ) );
-            
-            Page link = new Page();
-            link.id = Integer.parseInt( m.group( 1 ) );
-            link.name = m.group( 2 ).trim();
-            return link;
+            Match match = new Match();
+            match.id = Integer.parseInt( m.group( 1 ) );
+            match.name = m.group( 2 ).trim();
+            return match;
         }
 
         return null;
 
     }
 
-    public class Page {
+    public class Match {
 
         public int id = -1;
         public String name = null;
@@ -77,12 +74,12 @@ public class PageParser {
 
         while( true ) {
 
-            Page link = parser.next();
+            Match match = parser.next();
 
-            if ( link == null )
+            if ( match == null )
                 break;
 
-            System.out.printf( "%s=>%s\n", link.id , link.name );
+            System.out.printf( "%s=>%s\n", match.id , match.name );
             
         }
         

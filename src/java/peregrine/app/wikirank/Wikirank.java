@@ -126,13 +126,13 @@ public class Wikirank {
         
         while( true ) {
 
-            PageParser.Page page = parser.next();
+            PageParser.Match match = parser.next();
 
-            if ( page == null )
+            if ( match == null )
                 break;
 
-            StructReader key = StructReaders.hashcode( "" + page.id );
-            StructReader value = StructReaders.wrap( page.name );
+            StructReader key = StructReaders.hashcode( "" + match.id );
+            StructReader value = StructReaders.wrap( match.name );
             
             writer.write( key , value );
 
