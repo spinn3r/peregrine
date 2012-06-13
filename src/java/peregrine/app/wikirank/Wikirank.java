@@ -77,12 +77,9 @@ public class Wikirank {
                         new Input( "/wikirank/links" ),
                         new Output( "shuffle:default" ) );
 
-
-        
-        
-        // controller.reduce( FlattenLinksJob.Reduce.class,
-        //                    new Input( "shuffle:default" ),
-        //                    new Output( "/wikirank/links.flattened" ) );
+        controller.reduce( FlattenLinksJob.Reduce.class,
+                           new Input( "shuffle:default" ),
+                           new Output( "/wikirank/links.flattened" ) );
 
         // // this joins the node table AND the links table and then writes a
         // // raw hashcode graph for use with pagerank.
