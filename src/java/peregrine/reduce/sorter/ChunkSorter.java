@@ -115,7 +115,7 @@ public class ChunkSorter extends BaseChunkSorter {
 
                 StructReader value = keyLookupReader.value();
 
-                sortResult.accept( new SortEntry( key, value ) );
+                //sortResult.accept( new SortEntry( key, value ) );
                 
             }
 
