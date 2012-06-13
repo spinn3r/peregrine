@@ -95,28 +95,40 @@ public class ChunkSorter extends BaseChunkSorter {
             KeyLookup lookup = new KeyLookup( reader );
 
             log.info( "Key lookup for %s has %,d entries." , partition, lookup.size() );
-            
+
+            log.info( "FIXME: 0" );
             lookup = sort( lookup );
+            log.info( "FIXME: 1" );
             
             //write this into the final ChunkWriter now.
 
             if ( output != null )
                 writer = new DefaultChunkWriter( config, output );
 
+            log.info( "FIXME: 2" );
+
             sortResult = new SortResult( writer, sortListener );
-            
+
+            log.info( "FIXME: 3" );
+
             KeyLookupReader keyLookupReader = new KeyLookupReader( lookup );
-            
+
+            log.info( "FIXME: 4" );
+
             while( keyLookupReader.hasNext() ) {
 
             	keyLookupReader.next();
+
+                log.info( "FIXME: 5" );
 
                 StructReader key = keyLookupReader.key();
 
                 StructReader value = keyLookupReader.value();
 
-                //sortResult.accept( new SortEntry( key, value ) );
-                
+                sortResult.accept( new SortEntry( key, value ) );
+
+                log.info( "FIXME: 6" );
+
             }
 
             log.info( "Sort output file %s has %,d entries.", output, lookup.size() );
