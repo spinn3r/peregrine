@@ -42,8 +42,8 @@ public class PageParser {
 
         CharSequence sequence = new FileCharSequence( path );
         
-        //p = Pattern.compile( "\\(([0-9]+),[0-9]+,'([^']+)'\\)"  );
-        p = Pattern.compile( "\\(([0-9]+),[0-9]+,"  );
+        p = Pattern.compile( "\\(([0-9]+),[0-9]+,'([^']+)'[^)]+\\)"  );
+        //p = Pattern.compile( "\\(([0-9]+),[0-9]+,'([^']+)'"  );
         m = p.matcher( sequence );
         
     }
