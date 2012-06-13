@@ -54,7 +54,7 @@ public class Wikirank {
     public void extract() throws Exception {
 
         writeNodes( nodes_path );
-        writeLinks( links_path );
+        //writeLinks( links_path );
 
     }
 
@@ -138,8 +138,8 @@ public class Wikirank {
 
             ++wrote;
 
-            if ( (wrote % 1000) == 0 )
-                log.info( "Write %,d records." , wrote );
+            if ( (wrote % 10000) == 0 )
+                log.info( "Wrote %,d nodes." , wrote );
 
         }
 
@@ -176,8 +176,8 @@ public class Wikirank {
 
             ++wrote;
 
-            if ( (wrote % 1000) == 0 )
-                log.info( "Write %,d records." , wrote );
+            if ( (wrote % 10000) == 0 )
+                log.info( "Wrote %,d links." , wrote );
 
         }
 
