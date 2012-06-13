@@ -87,10 +87,10 @@ public class KeyLookup {
     public KeyLookup( int size,
                       ChannelBuffer[] buffers ) {
 
-    	this( ChannelBuffers.directBuffer( size * KEY_SIZE ), size, buffers );
+    	this( allocate( size ), size, buffers );
     	
     }
-    
+
     public KeyLookup( CompositeChunkReader reader )
         throws IOException {
 
@@ -115,6 +115,16 @@ public class KeyLookup {
         }
 
         reset();
+        
+    }
+    
+    private static ChannelBuffer allocate( int size ) {
+
+        int capacity = size * KEY_SIZE;
+        
+        log.info( "Allocating buffer of %,d capacity with %,d size.", capacity, size );
+
+        return ChannelBuffers.directBuffer( capacity );
         
     }
 
