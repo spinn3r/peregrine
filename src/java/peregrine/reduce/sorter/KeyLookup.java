@@ -126,7 +126,7 @@ public class KeyLookup {
 
         int capacity = size * KEY_SIZE;
         
-        //log.info( "Allocating buffer of %,d capacity with %,d size.", capacity, size );
+        log.info( "Allocating buffer of %,d capacity with %,d size.", capacity, size );
 
         return ChannelBuffers.directBuffer( capacity );
         

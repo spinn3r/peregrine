@@ -363,7 +363,7 @@ public class ReduceRunner {
         	
         	List<ChunkReader> work = new ArrayList();
         	long workCapacity = 0;
-
+            
             //factor in the overhead of the key lookup before we sort.
             //We will have to create the shuffle input readers HERE and then
             //pass them INTO the chunk sorter.  I also factor in the
@@ -389,7 +389,7 @@ public class ReduceRunner {
 
         		workCapacity += header.length;
                 workCapacity += KeyLookup.computeCapacity( header.count ) * 2;
-                
+
         		if ( workCapacity > config.getSortBufferSize() ) {
         			pendingIterator = pending.iterator();
         			break;        			
