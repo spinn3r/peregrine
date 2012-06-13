@@ -81,6 +81,8 @@ public class Wikirank {
                            new Input( "shuffle:default" ),
                            new Output( "/wikirank/links.flattened" ) );
 
+        // links.flattened is ok... 
+        
         // this joins the node table AND the links table and then writes a
         // raw hashcode graph for use with pagerank.
         controller.merge( MergePagesAndLinksJob.Merge.class,
@@ -129,12 +131,15 @@ public class Wikirank {
             if ( page == null )
                 break;
 
-            ++wrote;
-            
             StructReader key = StructReaders.hashcode( "" + page.id );
             StructReader value = StructReaders.wrap( page.name );
             
             writer.write( key , value );
+
+            ++wrote;
+
+            if ( (wrote % 1000) == 0 )
+                log.info( "Write %,d records." , wrote );
 
         }
 
@@ -168,7 +173,12 @@ public class Wikirank {
             StructReader value = StructReaders.wrap( link.name );
             
             writer.write( key , value );
+
             ++wrote;
+
+            if ( (wrote % 1000) == 0 )
+                log.info( "Write %,d records." , wrote );
+
         }
 
         writer.close();
