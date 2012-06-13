@@ -306,7 +306,7 @@ public class Controller {
     
     private void callMethodOnCluster( String service, Message message ) throws Exception {
 
-        String desc = String.format( "Calling %s %,d hosts with message: %s" , message, config.getHosts().size(), message );
+        String desc = String.format( "CALL %s %,d hosts with message: %s" , message, config.getHosts().size(), message );
         
         log.info( "STARTING %s", desc );
 
