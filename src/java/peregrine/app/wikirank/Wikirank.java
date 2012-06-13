@@ -60,6 +60,7 @@ public class Wikirank {
 
     public void fixup() throws Exception {
 
+        /*
         controller.map( CreateNodeLookupJob.Map.class,
                         new Input( "/wikirank/nodes" ),
                         new Output( "shuffle:nodesByPrimaryKey",
@@ -76,7 +77,8 @@ public class Wikirank {
         controller.map( FlattenLinksJob.Map.class,
                         new Input( "/wikirank/links" ),
                         new Output( "shuffle:default" ) );
-
+        */
+                        
         controller.reduce( FlattenLinksJob.Reduce.class,
                            new Input( "shuffle:default" ),
                            new Output( "/wikirank/links.flattened" ) );
