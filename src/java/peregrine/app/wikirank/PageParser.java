@@ -47,7 +47,7 @@ public class PageParser {
         System.out.printf( "FIXME: %s\n", sequence.subSequence( 0, 100 ) );
         
         //p = Pattern.compile( "\\(([0-9]+),[0-9]+,'([^']+)'[^)]+\\)" );
-        p = Pattern.compile( "INSERT" );
+        p = Pattern.compile( "Host" );
         m = p.matcher( sequence );
         
     }
