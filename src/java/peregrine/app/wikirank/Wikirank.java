@@ -114,13 +114,13 @@ public class Wikirank {
 
     }
     
-    private void writeNodes( String input ) throws Exception {
+    private int writeNodes( String input ) throws Exception {
 
         ExtractWriter writer = new ExtractWriter( config, "/wikirank/nodes" );
 
         PageParser parser = new PageParser( input );
 
-        int index = 0;
+        int wrote = 0;
         
         while( true ) {
 
@@ -129,10 +129,7 @@ public class Wikirank {
             if ( page == null )
                 break;
 
-            ++index;
-
-            //if ( index > LIMIT )
-            //    break;
+            ++wrote;
             
             StructReader key = StructReaders.hashcode( "" + page.id );
             StructReader value = StructReaders.wrap( page.name );
@@ -143,24 +140,26 @@ public class Wikirank {
 
         writer.close();
 
+        log.info( "Wrote %,d nodes", wrote );
+        
+        return wrote;
+        
     }
 
-    private void writeLinks( String input ) throws Exception {
+    private int writeLinks( String input ) throws Exception {
 
         ExtractWriter writer = new ExtractWriter( config, "/wikirank/links" );
 
         PageLinkParser parser = new PageLinkParser( input );
 
-        int index = 0;
-        
+        int wrote = 0;
+
         while( true ) {
 
             PageLinkParser.Link link = parser.next();
 
             if ( link == null )
                 break;
-
-            ++index;
 
             //if ( index > LIMIT )
             //    break;
@@ -169,10 +168,14 @@ public class Wikirank {
             StructReader value = StructReaders.wrap( link.name );
             
             writer.write( key , value );
-
+            ++wrote;
         }
 
         writer.close();
+
+        log.info( "Wrote %,d links", wrote );
+
+        return wrote;
         
     }
 

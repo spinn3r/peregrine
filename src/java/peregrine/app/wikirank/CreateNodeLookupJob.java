@@ -35,7 +35,7 @@ public class CreateNodeLookupJob {
 
     public static class Map extends Mapper {
 
-        JobOutput nodesByPrimaryKeyOutput         = null;
+        JobOutput nodesByPrimaryKeyOutput       = null;
         JobOutput nodesByHashcodeOutput         = null;
         
         @Override
