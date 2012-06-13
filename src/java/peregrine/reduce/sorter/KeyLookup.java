@@ -221,5 +221,13 @@ public class KeyLookup {
     public static long computeCapacity( int count ) {
         return count * KeyLookup.KEY_SIZE;
     }
+
+    /**
+     * The opposite of computeCapacity.  Given a capacity, compute the number of
+     * items we can hold.
+     */
+    public static long computeSize( int capacity ) {
+        return (long) Math.floor( capacity / KeyLookup.KEY_SIZE );
+    }
     
 }

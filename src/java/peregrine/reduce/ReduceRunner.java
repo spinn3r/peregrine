@@ -338,7 +338,7 @@ public class ReduceRunner {
     }
 
     /**
-     * Sort a given set of input files adn wite the results to the output
+     * Sort a given set of input files and write the results to the output
      * directory.
      */
     public List<SequenceReader> sort( List<File> input, String target_dir ) throws IOException {
@@ -421,5 +421,57 @@ public class ReduceRunner {
         return sorted;
 
     }
-    
+
+    /**
+     * Sort a given set of input files and write the results to the output
+     * directory and return a List of SequenceReaders we can then merge.
+     */
+    public List<SequenceReader> sort2( List<File> input, String target_dir ) throws IOException {
+
+        SystemProfiler profiler = config.getSystemProfiler();
+
+        List<SequenceReader> sorted = new ArrayList();
+
+        int id = 0;
+
+        // make the parent dir for holding sort files.
+        Files.mkdirs( target_dir );
+        
+        log.info( "Going to sort() %,d files for %s", input.size(), partition );
+
+        // the total number of items we need to sort.
+        int total = 0;
+
+        List<ChunkReader> readers = new ArrayList();
+        
+        for ( File current : input ) {
+
+            String path = current.getPath();                
+            
+            ShuffleInputReader reader = null;
+            ShuffleHeader header = null;
+
+            try {
+
+                reader = new ShuffleInputReader( config, path, partition );
+                header = reader.getHeader( partition );
+                total += header.count;
+
+            } finally {
+                new Closer( reader ).close();
+            }
+
+            readers.add( new ShuffleInputChunkReader( config, partition, path ) );
+
+        }
+
+        CompositeChunkReader composite = new CompositeChunkReader( config, readers );
+
+        // the blocks of items we should be sorting.
+        List<ChunkReader> blocks = new ArrayList();
+        
+        return null;
+        
+    }
+
 }
