@@ -17,10 +17,13 @@ package peregrine.reduce.sorter;
 
 import java.io.*;
 import java.util.*;
+
 import peregrine.config.Config;
 import peregrine.config.Partition;
 import peregrine.io.*;
 import peregrine.io.driver.shuffle.*;
+import peregrine.util.*;
+import peregrine.io.util.*;
 
 import org.jboss.netty.buffer.*;
 
@@ -48,19 +51,31 @@ public class BaseChunkSorter {
 
         int middle = input.size() / 2; 
 
-        KeyLookup left  = input.slice( 0, middle - 1 );
-        KeyLookup right = input.slice( middle, input.size() - 1 );
+        KeyLookup left  = null;
+        KeyLookup right = null;
 
-        left  = sort( left  , depth + 1 );
-        right = sort( right , depth + 1 );
+        try {
 
-        // determine which merge structure to use... if this is the LAST merger
-        // just write the results to disk.  Writing to memory and THEN writing
-        // to disk would just waste CPU time.
+            left  = input.slice( 0, middle - 1 );
+            right = input.slice( middle, input.size() - 1 );
 
-        KeyLookup merged = merge( left, right, depth );
+            left  = sort( left  , depth + 1 );
+            right = sort( right , depth + 1 );
 
-        return merged;
+            // determine which merge structure to use... if this is the LAST merger
+            // just write the results to disk.  Writing to memory and THEN writing
+            // to disk would just waste CPU time.
+
+            KeyLookup merged = merge( left, right, depth );
+
+            return merged;
+            
+        } finally {
+            
+            // close both the left and right inputs to return their memory.
+            new Closer( left, right ).close();
+
+        }
         
     }
 
