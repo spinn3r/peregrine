@@ -52,13 +52,12 @@ public final class SortEntry {
 
     public void addValue( StructReader value ) {
         this.values.add( value );
+        log.info( "FIXME: Now holding %,d entries", this.values.size() );
     }
 
     public void addValues( List<StructReader> _values ) {
         this.values.addAll( _values );
-
         log.info( "FIXME: Now holding %,d entries", this.values.size() );
-        
     }
     
     public List<StructReader> getValues() {
