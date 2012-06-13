@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+*/
 package peregrine.app.wikirank;
 
 import java.io.*;
@@ -39,36 +39,29 @@ public class PageParser {
      *
      */
     public PageParser( String path ) throws IOException {
-        
-        CharSequence sequence = new FileCharSequence( path );
 
-        //p = Pattern.compile( "\\(([0-9]+),[0-9]+,'([^']+)'[^)]+\\)" );
+        CharSequence sequence = new FileCharSequence( path );
+        
         p = Pattern.compile( "\\(([0-9]+),[0-9]+,'([^']+)'\\)"  );
         m = p.matcher( sequence );
         
     }
 
-    public Page next() throws IOException {
+    public Link next() throws IOException {
 
         if ( m.find() ) {
-            
-            Page page = new Page();
 
-            System.out.printf( "." );
-            
-            //page.id = Integer.parseInt( m.group( 1 ) );
-            //page.name = m.group( 2 ).trim();
-            return page;
-
+            Link link = new Link();
+            link.id = Integer.parseInt( m.group( 1 ) );
+            link.name = m.group( 2 ).trim();
+            return link;
         }
 
-        System.out.printf( "FAIL\n" );
-        
         return null;
 
     }
 
-    public class Page {
+    public class Link {
 
         public int id = -1;
         public String name = null;
@@ -81,14 +74,12 @@ public class PageParser {
 
         while( true ) {
 
-            Page page = parser.next();
+            Link link = parser.next();
 
-            if ( page == null ) {
-                System.out.printf( "DONE\n" );
+            if ( link == null )
                 break;
-            }
 
-            System.out.printf( "%s=>%s\n", page.id , page.name );
+            System.out.printf( "%s=>%s\n", link.id , link.name );
             
         }
         
