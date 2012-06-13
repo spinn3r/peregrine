@@ -36,7 +36,7 @@ public class FlattenLinksJob {
         @Override
         public void reduce( StructReader key, List<StructReader> values ) {
 
-            emit( key, StructReaders.wrap( values ) );
+            //FIXME: emit( key, StructReaders.wrap( values ) );
             
         }
         
