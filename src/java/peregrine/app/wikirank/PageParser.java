@@ -47,11 +47,11 @@ public class PageParser {
         
     }
 
-    public Link next() throws IOException {
+    public Page next() throws IOException {
 
         if ( m.find() ) {
 
-            Link link = new Link();
+            Page link = new Page();
             link.id = Integer.parseInt( m.group( 1 ) );
             link.name = m.group( 2 ).trim();
             return link;
@@ -61,7 +61,7 @@ public class PageParser {
 
     }
 
-    public class Link {
+    public class Page {
 
         public int id = -1;
         public String name = null;
@@ -74,7 +74,7 @@ public class PageParser {
 
         while( true ) {
 
-            Link link = parser.next();
+            Page link = parser.next();
 
             if ( link == null )
                 break;
