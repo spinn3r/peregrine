@@ -23,11 +23,15 @@ import peregrine.shuffle.*;
 
 import org.jboss.netty.buffer.*;
 
+import com.spinn3r.log5j.Logger;
+
 /**
  * Maintains a key lookup system from the ChunkReader and backing ChannelBuffer
  * to the offset of the key in the channel buffer.  
  */
 public class KeyLookup {
+
+    private static final Logger log = Logger.getLogger();
 
 	/**
 	 * Number of bytes needed to store a key in memory.  This is used so that 
