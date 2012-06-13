@@ -15,6 +15,8 @@
 */
 package peregrine.reduce;
 
+import com.spinn3r.log5j.Logger;
+
 import java.util.*;
 
 import peregrine.*;
@@ -24,6 +26,10 @@ import peregrine.*;
  */
 public final class SortEntry {
 
+    private static final Logger log = Logger.getLogger();
+
+    //public static final int LIMIT = 5000;
+    
     public StructReader key;
     public byte[] keyAsByteArray;
     
@@ -50,6 +56,9 @@ public final class SortEntry {
 
     public void addValues( List<StructReader> _values ) {
         this.values.addAll( _values );
+
+        log.info( "FIXME: Now holding %,d entries", this.values.size() );
+        
     }
     
     public List<StructReader> getValues() {
