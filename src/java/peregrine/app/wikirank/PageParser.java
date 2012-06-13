@@ -42,7 +42,8 @@ public class PageParser {
 
         CharSequence sequence = new FileCharSequence( path );
         
-        p = Pattern.compile( "\\(([0-9]+),[0-9]+,'([^']+)'\\)"  );
+        //p = Pattern.compile( "\\(([0-9]+),[0-9]+,'([^']+)'\\)"  );
+        p = Pattern.compile( "\\("  );
         m = p.matcher( sequence );
         
     }
@@ -50,12 +51,9 @@ public class PageParser {
     public Page next() throws IOException {
 
         if ( m.find() ) {
-
-            System.out.printf( "FIXME: %s\n", m.group( 0 ) );
-            
             Page link = new Page();
-            link.id = Integer.parseInt( m.group( 1 ) );
-            link.name = m.group( 2 ).trim();
+            //link.id = Integer.parseInt( m.group( 1 ) );
+            //link.name = m.group( 2 ).trim();
             return link;
         }
 
