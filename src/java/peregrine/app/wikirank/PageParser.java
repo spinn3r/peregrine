@@ -51,6 +51,9 @@ public class PageParser {
     public Page next() throws IOException {
 
         if ( m.find() ) {
+
+            System.out.printf( "FIXME: %s\n", m.group( 0 ) );
+            
             Page link = new Page();
             //link.id = Integer.parseInt( m.group( 1 ) );
             //link.name = m.group( 2 ).trim();
