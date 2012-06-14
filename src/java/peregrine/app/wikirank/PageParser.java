@@ -51,6 +51,8 @@ public class PageParser {
 
     public Match next() throws IOException {
 
+        System.out.printf( "FIXME next()\n" );
+        
         if ( m.find() ) {
             Match match = new Match();
             match.id = Integer.parseInt( m.group( 1 ) );
