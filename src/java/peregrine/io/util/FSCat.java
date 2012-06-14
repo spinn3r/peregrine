@@ -63,7 +63,7 @@ public class FSCat {
             }
 
         } finally {
-            reader.close();
+            new Closer( reader ).close();
         }
 
     }

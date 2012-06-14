@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+*/
 package peregrine.app.wikirank;
 
 import java.io.*;
@@ -41,30 +41,27 @@ public class PageParser {
     public PageParser( String path ) throws IOException {
 
         CharSequence sequence = new FileCharSequence( path );
-
-        // ,'',0,1,0,0.33167112649574,'20120430020404',381202555,57)
         
-        //p = Pattern.compile( "\\(([0-9]+),'([^']+)'[^)]+\\)"  );
         p = Pattern.compile( "\\(([0-9]+),[0-9]+,'([^']+)'[^)]+\\)"  );
+        //p = Pattern.compile( "\\(([0-9]+),[0-9]+,'([^']+)'"  );
         m = p.matcher( sequence );
         
     }
 
-    public Page next() throws IOException {
+    public Match next() throws IOException {
 
         if ( m.find() ) {
-            
-            Page page = new Page();
-            page.id = Integer.parseInt( m.group( 1 ) );
-            page.name = m.group( 2 ).trim();
-            return page;
+            Match match = new Match();
+            match.id = Integer.parseInt( m.group( 1 ) );
+            match.name = m.group( 2 ).trim();
+            return match;
         }
 
         return null;
 
     }
 
-    public class Page {
+    public class Match {
 
         public int id = -1;
         public String name = null;
@@ -77,12 +74,12 @@ public class PageParser {
 
         while( true ) {
 
-            Page page = parser.next();
+            Match match = parser.next();
 
-            if ( page == null )
+            if ( match == null )
                 break;
 
-            System.out.printf( "%s=>%s\n", page.id , page.name );
+            System.out.printf( "%s=>%s\n", match.id , match.name );
             
         }
         

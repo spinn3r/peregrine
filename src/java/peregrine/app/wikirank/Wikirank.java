@@ -54,13 +54,12 @@ public class Wikirank {
     public void extract() throws Exception {
 
         writeNodes( nodes_path );
-        writeLinks( links_path );
+        //writeLinks( links_path );
 
     }
 
     public void fixup() throws Exception {
 
-        /*
         controller.map( CreateNodeLookupJob.Map.class,
                         new Input( "/wikirank/nodes" ),
                         new Output( "shuffle:nodesByPrimaryKey",
@@ -77,18 +76,19 @@ public class Wikirank {
         controller.map( FlattenLinksJob.Map.class,
                         new Input( "/wikirank/links" ),
                         new Output( "shuffle:default" ) );
-        */
                         
         controller.reduce( FlattenLinksJob.Reduce.class,
                            new Input( "shuffle:default" ),
                            new Output( "/wikirank/links.flattened" ) );
 
-        // // this joins the node table AND the links table and then writes a
-        // // raw hashcode graph for use with pagerank.
-        // controller.merge( MergePagesAndLinksJob.Merge.class,
-        //                   new Input( "/wikirank/nodesByPrimaryKey",
-        //                              "/wikirank/links.flattened" ),
-        //                   new Output( "/wikirank/graph" ) );
+        // links.flattened is ok... 
+        
+        // this joins the node table AND the links table and then writes a
+        // raw hashcode graph for use with pagerank.
+        controller.merge( MergePagesAndLinksJob.Merge.class,
+                          new Input( "/wikirank/nodesByPrimaryKey",
+                                     "/wikirank/links.flattened" ),
+                          new Output( "/wikirank/graph" ) );
 
     }
 
@@ -126,17 +126,20 @@ public class Wikirank {
         
         while( true ) {
 
-            PageParser.Page page = parser.next();
+            PageParser.Match match = parser.next();
 
-            if ( page == null )
+            if ( match == null )
                 break;
 
-            ++wrote;
-            
-            StructReader key = StructReaders.hashcode( "" + page.id );
-            StructReader value = StructReaders.wrap( page.name );
+            StructReader key = StructReaders.hashcode( "" + match.id );
+            StructReader value = StructReaders.wrap( match.name );
             
             writer.write( key , value );
+
+            ++wrote;
+
+            if ( (wrote % 10000) == 0 )
+                log.info( "Wrote %,d nodes." , wrote );
 
         }
 
@@ -170,7 +173,12 @@ public class Wikirank {
             StructReader value = StructReaders.wrap( link.name );
             
             writer.write( key , value );
+
             ++wrote;
+
+            if ( (wrote % 10000) == 0 )
+                log.info( "Wrote %,d links." , wrote );
+
         }
 
         writer.close();

@@ -16,10 +16,12 @@
 package peregrine.reduce.sorter;
 
 import java.io.*;
-import peregrine.util.*;
-import peregrine.util.primitive.LongBytes;
+
 import peregrine.io.chunk.*;
 import peregrine.shuffle.*;
+import peregrine.util.*;
+import peregrine.os.*;
+import peregrine.util.primitive.LongBytes;
 
 import org.jboss.netty.buffer.*;
 
@@ -29,7 +31,7 @@ import com.spinn3r.log5j.Logger;
  * Maintains a key lookup system from the ChunkReader and backing ChannelBuffer
  * to the offset of the key in the channel buffer.  
  */
-public class KeyLookup {
+public class KeyLookup extends IdempotentCloser {
 
     private static final Logger log = Logger.getLogger();
 
@@ -76,23 +78,41 @@ public class KeyLookup {
      * resolve from `buffer` based on the index (index).
      */
     protected ChannelBuffer[] buffers;
- 
-    private KeyLookup( ChannelBuffer lookup, 
+
+    protected IdempotentCloser closer = null;
+    
+    private KeyLookup( ChannelBuffer lookup,
+                       IdempotentCloser closer,
                        int size,
                        ChannelBuffer[] buffers ) {
 
+        if ( lookup == null ) {
+
+            //request that we allocate directly...
+
+            int capacity = size * KEY_SIZE;
+            
+            log.info( "Allocating buffer of %,d capacity with %,d size.", capacity, size );
+
+            lookup = ChannelBuffers.directBuffer( capacity );
+
+            closer = new ByteBufferCloser( lookup );
+            
+        }
+        
         this.lookup = lookup;
+        this.closer = closer;
+        
         this.end = size - 1;
         this.size = size;
         this.buffers = buffers;
         
     }
     	
-    public KeyLookup( int size,
-                      ChannelBuffer[] buffers ) {
+    public KeyLookup( int size, ChannelBuffer[] buffers ) {
 
-    	this( allocate( size ), size, buffers );
-    	
+    	this( null, null, size, buffers );
+
     }
 
     public KeyLookup( CompositeChunkReader reader )
@@ -119,16 +139,6 @@ public class KeyLookup {
         }
 
         reset();
-        
-    }
-    
-    private static ChannelBuffer allocate( int size ) {
-
-        int capacity = size * KEY_SIZE;
-        
-        log.info( "Allocating buffer of %,d capacity with %,d size.", capacity, size );
-
-        return ChannelBuffers.directBuffer( capacity );
         
     }
 
@@ -179,7 +189,7 @@ public class KeyLookup {
     // zero copy slice implementation.
     public KeyLookup slice( int slice_start, int slice_end ) {
 
-        KeyLookup slice = new KeyLookup( lookup, size, buffers );
+        KeyLookup slice = new KeyLookup( lookup, closer, size, buffers );
 
         slice.size    = (slice_end - slice_start) + 1;
         
@@ -214,6 +224,11 @@ public class KeyLookup {
 
     }
 
+    @Override
+    public void doClose() throws IOException {
+        closer.close();
+    }
+    
     /**
      * Compute the required memory to store the given KeyLookup structure as a
      * direct buffer.

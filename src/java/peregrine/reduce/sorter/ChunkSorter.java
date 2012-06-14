@@ -76,11 +76,10 @@ public class ChunkSorter extends BaseChunkSorter {
                                 SortListener sortListener )
         throws IOException {
 
-        CompositeChunkReader reader = null;
-
-        ChunkWriter writer = null;
-
-        SortResult sortResult = null;
+        CompositeChunkReader reader  = null;
+        ChunkWriter writer           = null;
+        SortResult sortResult        = null;
+        KeyLookup lookup             = null;
         
         try {
 
@@ -92,42 +91,30 @@ public class ChunkSorter extends BaseChunkSorter {
             
             reader = new CompositeChunkReader( config, input );
             
-            KeyLookup lookup = new KeyLookup( reader );
+            lookup = new KeyLookup( reader );
 
             log.info( "Key lookup for %s has %,d entries." , partition, lookup.size() );
 
-            System.out.printf( "FIXME: 0\n" );
             lookup = sort( lookup );
-            System.out.printf( "FIXME: 1\n" );
             
             //write this into the final ChunkWriter now.
 
             if ( output != null )
                 writer = new DefaultChunkWriter( config, output );
 
-            System.out.printf( "FIXME: 2\n" );
-
             sortResult = new SortResult( writer, sortListener );
 
-            System.out.printf( "FIXME: 3\n" );
-
             KeyLookupReader keyLookupReader = new KeyLookupReader( lookup );
-
-            System.out.printf( "FIXME: 4\n" );
 
             while( keyLookupReader.hasNext() ) {
 
             	keyLookupReader.next();
-
-                System.out.printf( "FIXME: 5\n" );
 
                 StructReader key = keyLookupReader.key();
 
                 StructReader value = keyLookupReader.value();
 
                 sortResult.accept( new SortEntry( key, value ) );
-
-                System.out.printf( "FIXME: 6\n" );
 
             }
 
