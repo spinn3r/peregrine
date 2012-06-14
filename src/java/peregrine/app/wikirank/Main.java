@@ -42,6 +42,8 @@ public class Main {
 
         Controller controller = null;
 
+        int result = 0;
+        
         try {
 
             controller = new Controller( config );
@@ -52,28 +54,25 @@ public class Main {
             
             if ( "extract".equals( stage ) ) {
                 wikirank.extract();
-            }
-
-            if ( "fixup".equals( stage ) ) {
+            } else if ( "fixup".equals( stage ) ) {
                 wikirank.fixup();
-            }
-
-            if ( "transform".equals( stage ) ) {
+            } else if ( "transform".equals( stage ) ) {
                 wikirank.transform();
-            }
-
-            if ( "load".equals( stage ) ) {
+            } else if ( "load".equals( stage ) ) {
                 wikirank.load();
-            }
-
-            if ( "run".equals( stage ) ) {
+            } else if ( "run".equals( stage ) ) {
                 wikirank.run();
+            } else {
+                System.err.printf( "Unknown stage: %s\n", stage );
+                result = 1;
             }
 
         } finally {
             controller.shutdown();
         }
-            
+
+        System.exit( result );
+        
     }
 
 }
