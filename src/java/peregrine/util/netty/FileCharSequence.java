@@ -57,10 +57,12 @@ public class FileCharSequence implements CharSequence {
 
     public int length() {
 
-        if ( trace )
-            System.out.printf( "length()" );
+        int result = (int)file.length()
 
-        return (int)file.length();
+        if ( trace )
+            System.out.printf( "length(): %,d\n", result );
+
+        return result;
     }
     
     public CharSequence subSequence( int start, int end ) {
@@ -83,7 +85,7 @@ public class FileCharSequence implements CharSequence {
     public String toString() {
 
         if ( trace )
-            System.out.printf( "toString" );
+            System.out.printf( "toString\n" );
 
         throw new RuntimeException( "not implemented" );
     }
