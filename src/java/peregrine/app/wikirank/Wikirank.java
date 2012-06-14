@@ -151,7 +151,7 @@ public class Wikirank {
             ++wrote;
 
             if ( (wrote % 10000) == 0 )
-                log.info( "Wrote %,d nodes." , wrote );
+                log.info( "Wrote %,d nodes and skipped %,d", wrote, skipped );
 
         }
 
@@ -201,7 +201,7 @@ public class Wikirank {
 
         writer.close();
 
-        log.info( "Wrote %,d links", wrote );
+        log.info( "Wrote %,d links and skipped %,d" , wrote, skipped );
 
         return wrote;
         
