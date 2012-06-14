@@ -54,7 +54,7 @@ public class Wikirank {
     public void extract() throws Exception {
 
         writeNodes( nodes_path );
-        //writeLinks( links_path );
+        writeLinks( links_path );
 
     }
 
@@ -80,8 +80,6 @@ public class Wikirank {
         controller.reduce( FlattenLinksJob.Reduce.class,
                            new Input( "shuffle:default" ),
                            new Output( "/wikirank/links.flattened" ) );
-
-        // links.flattened is ok... 
         
         // this joins the node table AND the links table and then writes a
         // raw hashcode graph for use with pagerank.

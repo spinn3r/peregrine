@@ -32,3 +32,7 @@ These were gathered with:
 dd if=enwiki-20120502-page.sql of=enwiki-20120502-page-sample.sql count=10000
 
 dd if=enwiki-20120502-pagelinks.sql of=enwiki-20120502-pagelinks-sample.sql count=60000
+
+# 48
+
+2410 - 48
