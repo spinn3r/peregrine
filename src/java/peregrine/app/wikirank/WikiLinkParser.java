@@ -28,53 +28,36 @@ import peregrine.os.*;
 /**
  * Parse out the wikipedia sample data.
  */
-public class PageLinkParser {
+public class WikiLinkParser extends BaseParser<WikiLink> {
 
-    Pattern p;
-    Matcher m;
-    
     /**
      * 
      * 
      *
      */
-    public PageLinkParser( String path ) throws IOException {
+    public WikiLinkParser( String path ) throws IOException {
 
-        CharSequence sequence = new FileCharSequence( path );
-        
-        p = Pattern.compile( "\\(([0-9]+),[0-9]+,'([^']+)'\\)"  );
-        m = p.matcher( sequence );
+        super( path, "\\(([0-9]+),[0-9]+,'([^']+)'\\)" );
         
     }
 
-    public Link next() throws IOException {
+    @Override
+    public WikiLink newInstance( Matcher m ) {
 
-        if ( m.find() ) {
-
-            Link link = new Link();
-            link.id = Integer.parseInt( m.group( 1 ) );
-            link.name = m.group( 2 ).trim();
-            return link;
-        }
-
-        return null;
+        WikiLink link = new WikiLink();
+        link.id = Integer.parseInt( m.group( 1 ) );
+        link.name = m.group( 2 ).trim();
+        return link;
 
     }
 
-    public class Link {
-
-        public int id = -1;
-        public String name = null;
-        
-    }
-    
     public static void main( String[] args ) throws Exception {
 
-        PageLinkParser parser = new PageLinkParser( args[0] );
+        WikiLinkParser parser = new WikiLinkParser( args[0] );
 
         while( true ) {
 
-            Link link = parser.next();
+            WikiLink link = parser.next();
 
             if ( link == null )
                 break;

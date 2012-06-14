@@ -153,13 +153,13 @@ public class Wikirank {
 
         ExtractWriter writer = new ExtractWriter( config, "/wikirank/links" );
 
-        PageLinkParser parser = new PageLinkParser( input );
+        WikiLinkParser parser = new WikiLinkParser( input );
 
         int wrote = 0;
 
         while( true ) {
 
-            PageLinkParser.Link link = parser.next();
+            WikiLink link = parser.next();
 
             if ( link == null )
                 break;

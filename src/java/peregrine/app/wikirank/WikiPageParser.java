@@ -33,7 +33,7 @@ import org.jboss.netty.buffer.*;
 /**
  * Parse out the wikipedia sample data.
  */
-public class WikiPageParser extends BaseParser<WikiPage>{
+public class WikiPageParser extends BaseParser<WikiPage> {
 
     public WikiPageParser( String path ) throws IOException {
         super( path, "\\(([0-9]+),[0-9]+,'([^']+)'[^)]+\\)" );
