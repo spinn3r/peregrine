@@ -67,7 +67,12 @@ public class Splitter {
                      (char)read(end - 2) == ')' ) {
                     
                     --end;
-                    splits.add( new InputSplit( offset, end ) );
+
+                    InputSplit split = new InputSplit( offset, end );
+
+                    System.out.printf( "Found split: %s\n", split );
+                    
+                    splits.add( split );
                     break;
                     
                 }
