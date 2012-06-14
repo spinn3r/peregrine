@@ -129,7 +129,8 @@ public class Wikirank {
         WikiPageParser parser = new WikiPageParser( input );
 
         int wrote = 0;
-        
+        int skipped = 0;
+
         while( true ) {
 
             WikiPage match = parser.next();
@@ -137,8 +138,10 @@ public class Wikirank {
             if ( match == null )
                 break;
 
-            if ( match.namespace != NAMESPACE )
+            if ( match.namespace != NAMESPACE ) {
+                ++skipped;
                 continue;
+            }
             
             StructReader key = StructReaders.hashcode( "" + match.id );
             StructReader value = StructReaders.wrap( match.name );
@@ -154,7 +157,7 @@ public class Wikirank {
 
         writer.close();
 
-        log.info( "Wrote %,d nodes", wrote );
+        log.info( "Wrote %,d nodes and skipped %,d", wrote, skipped );
         
         return wrote;
         
@@ -167,6 +170,7 @@ public class Wikirank {
         WikiLinkParser parser = new WikiLinkParser( input );
 
         int wrote = 0;
+        int skipped = 0;
 
         while( true ) {
 
@@ -175,8 +179,10 @@ public class Wikirank {
             if ( link == null )
                 break;
 
-            if ( link.namespace != NAMESPACE )
+            if ( link.namespace != NAMESPACE ) {
+                ++skipped;
                 continue;
+            }
 
             //if ( index > LIMIT )
             //    break;
@@ -189,7 +195,7 @@ public class Wikirank {
             ++wrote;
 
             if ( (wrote % 10000) == 0 )
-                log.info( "Wrote %,d links." , wrote );
+                log.info( "Wrote %,d links and skipped %,d" , wrote, skipped );
 
         }
 
