@@ -86,10 +86,6 @@ public class Splitter {
 
         }
 
-        for ( InputSplit split : splits ) {
-            System.out.printf( "%s\n", split );
-        }
-        
     }
 
     public List<InputSplit> getInputSplits() {
@@ -99,7 +95,7 @@ public class Splitter {
     private void registerInputSplit( long start, long end ) {
 
         InputSplit split = new InputSplit( start, end );
-        System.out.printf( "Found split: %s\n", split );
+        //System.out.printf( "Found split: %s\n", split );
         
         splits.add( split );
 
