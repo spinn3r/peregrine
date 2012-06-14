@@ -38,9 +38,7 @@ public class ChannelBufferCharSequence implements CharSequence {
     }
     
     public char charAt(int index) {
-
-        return buff.getChar( index );
-
+        return (char)buff.getByte( index );
     }
 
     public int length() {
