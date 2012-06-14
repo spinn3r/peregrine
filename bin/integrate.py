@@ -49,8 +49,8 @@ IGNORE_CHANGESETS={}
 IGNORE_CHANGESETS['1852']=1
 
 ##
-# Timeout for build commands.
-TIMEOUT=30*60
+# Timeout for build commands (in seconds)
+TIMEOUT=45*60
 
 class ReportIndex:
 

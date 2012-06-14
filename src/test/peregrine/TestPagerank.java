@@ -57,7 +57,8 @@ public class TestPagerank extends peregrine.BaseTestWithMultipleProcesses {
             pr.exec( false );
 
         } finally {
-            controller.shutdown();
+            if ( controller != null ) 
+                controller.shutdown();
         }
 
     }
