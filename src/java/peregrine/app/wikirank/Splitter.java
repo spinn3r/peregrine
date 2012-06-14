@@ -88,7 +88,7 @@ public class Splitter {
 
             }
 
-            offset = end;
+            offset = end + 1;
 
         }
 
