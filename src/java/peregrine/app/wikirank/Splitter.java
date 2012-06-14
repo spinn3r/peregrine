@@ -15,6 +15,9 @@
 */
 package peregrine.app.wikirank;
 
+import java.io.*;
+import java.util.*;
+
 import peregrine.io.*;
 import peregrine.config.*;
 import peregrine.util.*;
@@ -26,18 +29,24 @@ import peregrine.controller.*;
  */
 public class Splitter {
 
-    public static void main( String[] args ) throws Exception {
+    private int split_size = 134217728; /* 2^27 ... 100MB splits */
 
-        int split_size = 134217728; /* 2^27 ... 100MB splits */
-        
-        String path = args[0];
+    private File file = null;
 
-        File file = new File( path );
+    private RandomAccessFile raf = null;
+    
+    /**
+     * 
+     * 
+     *
+     */
+    public Splitter( String path ) throws IOException {
 
-        int length = file.length();
+        this.file = new File( path );
+        this.raf = new RandomAccessFile( file, "r" );
+
+        long length = file.length();
         int offset = 0;
-
-        RandomAccessFile raf = new RandomAccessFile( file, "r" );
 
         //FIXME: is ( encoded in names?  NO ... it is not.  WHAT about COMMAS?
 
@@ -49,12 +58,14 @@ public class Splitter {
 
             while( true ) {
 
-                if ( (char)raf.read(end - 0) == '(' &&
-                     (char)raf.read(end - 1) == ',' &&
-                     (char)raf.read(end - 2) == ')' ) {
+                if ( (char)read(end - 0) == '(' &&
+                     (char)read(end - 1) == ',' &&
+                     (char)read(end - 2) == ')' ) {
+                    
                     --end;
                     splits.add( new InputSplit( offset, end ) );
                     break;
+                    
                 }
 
                 --end;
@@ -64,7 +75,22 @@ public class Splitter {
             offset = end;
 
         }
+
+        for ( InputSplit split : splits ) {
+            System.out.printf( "%s\n", split );
+        }
         
+    }
+
+    private char read( int pos ) throws IOException {
+        raf.seek( pos );
+        return (char)raf.read();
+    }
+    
+    public static void main( String[] args ) throws Exception {
+
+        String path = args[0];
+
     }
 
     class InputSplit {
