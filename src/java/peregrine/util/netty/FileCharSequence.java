@@ -56,6 +56,10 @@ public class FileCharSequence implements CharSequence {
     }
 
     public int length() {
+
+        if ( trace )
+            System.out.printf( "length()" );
+
         return (int)file.length();
     }
     
@@ -77,6 +81,10 @@ public class FileCharSequence implements CharSequence {
     }
 
     public String toString() {
+
+        if ( trace )
+            System.out.printf( "toString" );
+
         throw new RuntimeException( "not implemented" );
     }
     
