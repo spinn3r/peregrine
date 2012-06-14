@@ -58,9 +58,7 @@ public class Splitter {
 
             if ( end > length ) {
                 end = length - 1;
-
-                InputSplit split = new InputSplit( offset, end );
-                System.out.printf( "Found split: %s\n", split );
+                registerInputSplit( offset, end );
                 break;
             }
             
@@ -76,10 +74,8 @@ public class Splitter {
                     
                     --end;
 
-                    InputSplit split = new InputSplit( offset, end );
-                    System.out.printf( "Found split: %s\n", split );
+                    registerInputSplit( offset, end );
                     
-                    splits.add( split );
                     break;
                     
                 }
@@ -98,6 +94,15 @@ public class Splitter {
         
     }
 
+    private void registerInputSplit( long start, long end ) {
+
+        InputSplit split = new InputSplit( start, end );
+        System.out.printf( "Found split: %s\n", split );
+        
+        splits.add( split );
+
+    }
+    
     private char read( long pos ) throws IOException {
         raf.seek( pos );
         return (char)raf.read();
