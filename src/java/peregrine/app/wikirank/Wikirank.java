@@ -118,7 +118,7 @@ public class Wikirank {
 
         ExtractWriter writer = new ExtractWriter( config, "/wikirank/nodes" );
 
-        PageParser parser = new PageParser( input );
+        WikiPageParser parser = new WikiPageParser( input );
 
         int wrote = 0;
         
