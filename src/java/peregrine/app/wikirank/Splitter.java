@@ -58,6 +58,9 @@ public class Splitter {
 
             while( true ) {
 
+                if ( end <= offset )
+                    throw new IOException( String.format( "Reached previous offset before finding split ( end=%s vs offset=%s )", end , offset ) );
+                
                 if ( (char)read(end - 0) == '(' &&
                      (char)read(end - 1) == ',' &&
                      (char)read(end - 2) == ')' ) {
