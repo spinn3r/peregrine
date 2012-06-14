@@ -18,6 +18,7 @@ package peregrine.app.wikirank;
 public class WikiLink {
 
     public int id = -1;
+    public int namespace = -1;
     public String name = null;
     
 }

@@ -32,6 +32,11 @@ public class Wikirank {
     
     private static final Logger log = Logger.getLogger();
 
+    /**
+     * The namespace to import and compute rank over.  
+     */
+    private static int NAMESPACE = 0;
+    
     private Config config;
 
     private Controller controller;
@@ -132,6 +137,9 @@ public class Wikirank {
             if ( match == null )
                 break;
 
+            if ( match.namespace != NAMESPACE )
+                continue;
+            
             StructReader key = StructReaders.hashcode( "" + match.id );
             StructReader value = StructReaders.wrap( match.name );
             
@@ -166,6 +174,9 @@ public class Wikirank {
 
             if ( link == null )
                 break;
+
+            if ( link.namespace != NAMESPACE )
+                continue;
 
             //if ( index > LIMIT )
             //    break;

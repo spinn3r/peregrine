@@ -37,7 +37,7 @@ public class WikiLinkParser extends BaseParser<WikiLink> {
      */
     public WikiLinkParser( String path ) throws IOException {
 
-        super( path, "\\(([0-9]+),[0-9]+,'([^']+)'\\)" );
+        super( path, "\\(([0-9]+),([0-9]+),'([^']+)'\\)" );
         
     }
 
@@ -46,7 +46,8 @@ public class WikiLinkParser extends BaseParser<WikiLink> {
 
         WikiLink link = new WikiLink();
         link.id = Integer.parseInt( m.group( 1 ) );
-        link.name = m.group( 2 ).trim();
+        link.namespace = Integer.parseInt( m.group( 2 ) );
+        link.name = m.group( 3 ).trim();
         return link;
 
     }

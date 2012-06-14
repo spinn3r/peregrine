@@ -36,14 +36,15 @@ import org.jboss.netty.buffer.*;
 public class WikiPageParser extends BaseParser<WikiPage> {
 
     public WikiPageParser( String path ) throws IOException {
-        super( path, "\\(([0-9]+),[0-9]+,'([^']+)'[^)]+\\)" );
+        super( path, "\\(([0-9]+),([0-9]+),'([^']+)'[^)]+\\)" );
     }
 
     @Override
     public WikiPage newInstance( Matcher m ) {
         WikiPage result = new WikiPage();
         result.id = Integer.parseInt( m.group( 1 ) );
-        result.name = m.group( 2 ).trim();
+        result.namespace = Integer.parseInt( m.group( 2 ) );
+        result.name = m.group( 3 ).trim();
         return result;
     }
 
