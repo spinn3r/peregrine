@@ -40,6 +40,8 @@ public class PageParser {
      */
     public PageParser( String path ) throws IOException {
 
+        System.out.printf( "Going to read: %s\n", path );
+        
         FileCharSequence sequence = new FileCharSequence( path );
         sequence.setTrace( true );
         
