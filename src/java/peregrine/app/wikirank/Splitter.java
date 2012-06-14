@@ -56,6 +56,9 @@ public class Splitter {
 
             long end = offset + split_size;
 
+            if ( end > length )
+                end = length - 1;
+            
             while( true ) {
 
                 if ( end <= offset )
