@@ -34,7 +34,9 @@ public class Splitter {
     private File file = null;
 
     private RandomAccessFile raf = null;
-    
+
+    private List<InputSplit> splits = new ArrayList();
+
     /**
      * 
      * 
@@ -50,14 +52,17 @@ public class Splitter {
 
         //FIXME: is ( encoded in names?  NO ... it is not.  WHAT about COMMAS?
 
-        List<InputSplit> splits = new ArrayList();
-        
         while ( offset < length ) {
 
             long end = offset + split_size;
 
-            if ( end > length )
+            if ( end > length ) {
                 end = length - 1;
+
+                InputSplit split = new InputSplit( offset, end );
+                System.out.printf( "Found split: %s\n", split );
+                break;
+            }
             
             while( true ) {
 
@@ -72,7 +77,6 @@ public class Splitter {
                     --end;
 
                     InputSplit split = new InputSplit( offset, end );
-
                     System.out.printf( "Found split: %s\n", split );
                     
                     splits.add( split );
