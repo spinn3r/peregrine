@@ -40,7 +40,8 @@ public class PageParser {
      */
     public PageParser( String path ) throws IOException {
 
-        CharSequence sequence = new FileCharSequence( path );
+        FileCharSequence sequence = new FileCharSequence( path );
+        sequence.setTrace( true );
         
         p = Pattern.compile( "\\(([0-9]+),[0-9]+,'([^']+)'[^)]+\\)"  );
         //p = Pattern.compile( "\\(([0-9]+),[0-9]+,'([^']+)'"  );

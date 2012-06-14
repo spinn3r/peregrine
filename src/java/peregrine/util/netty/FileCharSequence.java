@@ -16,6 +16,8 @@ public class FileCharSequence implements CharSequence {
     private RandomAccessFile in = null;
     private File file = null;
 
+    private boolean trace = false;
+    
     public FileCharSequence( String path ) throws IOException {
         this( new File( path ) );
     }
@@ -28,9 +30,16 @@ public class FileCharSequence implements CharSequence {
         this.in = in;
         this.file = file;
     }
+
+    public void setTrace( boolean trace ) {
+        this.trace = trace;
+    }
     
     public char charAt(int index) {
 
+        if ( trace )
+            System.out.printf( "charAt: %,d\n", index );
+        
         try {
 
             //NOTE: this is safe but might NOT perform very well
@@ -51,6 +60,9 @@ public class FileCharSequence implements CharSequence {
     }
     
     public CharSequence subSequence( int start, int end ) {
+
+        if ( trace )
+            System.out.printf( "subSequence: %,d : %,d\n", start, end );
 
         char[] c = new char[ end - start ];
 
