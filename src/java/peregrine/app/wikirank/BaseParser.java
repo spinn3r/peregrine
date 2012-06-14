@@ -30,10 +30,14 @@ import peregrine.os.*;
 
 import org.jboss.netty.buffer.*;
 
+import com.spinn3r.log5j.Logger;
+
 /**
  * Parse out the wikipedia sample data.
  */
 public abstract class BaseParser<T> {
+
+    private static final Logger log = Logger.getLogger();
 
     private Pattern p = null;
     
@@ -57,7 +61,7 @@ public abstract class BaseParser<T> {
 
         this.p = Pattern.compile( regexp );
 
-        System.out.printf( "Going to read: %s\n", path );
+        log.info( "Going to read: %s", path );
 
         Splitter splitter = new Splitter( path );
 
@@ -71,7 +75,7 @@ public abstract class BaseParser<T> {
 
         InputSplit split = splits.remove( 0 );
 
-        System.out.printf( "Working with split: %s\n", split );
+        log.info( "Working with split: %s", split );
         
         long length = split.end - split.start;
         ByteBuffer buff = channel.map( FileChannel.MapMode.READ_ONLY, split.start , length );

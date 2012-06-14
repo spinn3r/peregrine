@@ -25,6 +25,9 @@ import peregrine.app.pagerank.*;
 
 import com.spinn3r.log5j.Logger;
 
+/**
+ * Compute Pagerank from the Wikipedia data.
+ */
 public class Wikirank {
     
     private static final Logger log = Logger.getLogger();
