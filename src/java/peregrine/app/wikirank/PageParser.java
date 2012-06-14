@@ -16,7 +16,10 @@
 package peregrine.app.wikirank;
 
 import java.io.*;
+import java.util.*;
 import java.util.regex.*;
+import java.nio.*;
+import java.nio.channels.*;
 
 import peregrine.io.*;
 import peregrine.config.*;
@@ -25,14 +28,23 @@ import peregrine.util.netty.*;
 import peregrine.worker.*;
 import peregrine.os.*;
 
+import org.jboss.netty.buffer.*;
+
 /**
  * Parse out the wikipedia sample data.
  */
 public class PageParser {
 
-    Pattern p;
-    Matcher m;
+    Pattern p = Pattern.compile( "\\(([0-9]+),[0-9]+,'([^']+)'[^)]+\\)"  );
+
+    Matcher m = null;
     
+    List<InputSplit> splits = null;
+
+    private FileInputStream fis = null;
+
+    private FileChannel channel = null;
+
     /**
      * 
      * 
@@ -40,21 +52,38 @@ public class PageParser {
      */
     public PageParser( String path ) throws IOException {
 
+        this.fis = new FileInputStream( path );
+        this.channel = fis.getChannel();
+        
         System.out.printf( "Going to read: %s\n", path );
-        
-        FileCharSequence sequence = new FileCharSequence( path );
-        sequence.setTrace( true );
-        
-        p = Pattern.compile( "\\(([0-9]+),[0-9]+,'([^']+)'[^)]+\\)"  );
-        //p = Pattern.compile( "\\(([0-9]+),[0-9]+,'([^']+)'"  );
-        m = p.matcher( sequence );
+
+        Splitter splitter = new Splitter( path );
+
+        splits = splitter.getInputSplits();
+
+        nextSplit();
         
     }
 
+    private void nextSplit() throws IOException {
+
+        InputSplit split = splits.remove( 0 );
+
+        System.out.printf( "Working with split: %s\n", split );
+        
+        long length = split.end - split.start;
+        ByteBuffer buff = channel.map( FileChannel.MapMode.READ_ONLY, split.start , length );
+
+        ChannelBuffer channelBuffer = ChannelBuffers.wrappedBuffer( buff );
+        
+        CharSequence sequence = new ChannelBufferCharSequence( channelBuffer, (int)length );
+
+        m = p.matcher( sequence );
+
+    }
+    
     public Match next() throws IOException {
 
-        System.out.printf( "FIXME next()\n" );
-        
         if ( m.find() ) {
             Match match = new Match();
             match.id = Integer.parseInt( m.group( 1 ) );
@@ -62,6 +91,11 @@ public class PageParser {
             return match;
         }
 
+        if ( splits.size() > 0 ) {
+            nextSplit();
+            return next();
+        }
+        
         return null;
 
     }

@@ -50,8 +50,6 @@ public class Splitter {
         long length = file.length();
         long offset = 0;
 
-        //FIXME: is ( encoded in names?  NO ... it is not.  WHAT about COMMAS?
-
         while ( offset < length ) {
 
             long end = offset + split_size;
@@ -94,6 +92,10 @@ public class Splitter {
         
     }
 
+    public List<InputSplit> getInputSplits() {
+        return splits;
+    }
+    
     private void registerInputSplit( long start, long end ) {
 
         InputSplit split = new InputSplit( start, end );
@@ -115,20 +117,4 @@ public class Splitter {
         
     }
 
-    class InputSplit {
-
-        public long start = 0;
-        public long end = 0;
-
-        public InputSplit( long start, long end ) {
-            this.start = start;
-            this.end = end;
-        }
-
-        public String toString() {
-            return String.format( "start=%,d , end=%,d" , start, end );
-        }
-        
-    }
-    
 }
