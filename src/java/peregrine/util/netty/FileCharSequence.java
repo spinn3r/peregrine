@@ -57,7 +57,7 @@ public class FileCharSequence implements CharSequence {
 
     public int length() {
 
-        int result = (int)file.length()
+        int result = (int)file.length();
 
         if ( trace )
             System.out.printf( "length(): %,d\n", result );
