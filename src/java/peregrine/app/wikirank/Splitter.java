@@ -46,7 +46,7 @@ public class Splitter {
         this.raf = new RandomAccessFile( file, "r" );
 
         long length = file.length();
-        int offset = 0;
+        long offset = 0;
 
         //FIXME: is ( encoded in names?  NO ... it is not.  WHAT about COMMAS?
 
@@ -54,12 +54,13 @@ public class Splitter {
         
         while ( offset < length ) {
 
-            int end = offset + split_size;
+            long end = offset + split_size;
 
             while( true ) {
 
                 if ( end <= offset )
-                    throw new IOException( String.format( "Reached previous offset before finding split ( end=%s vs offset=%s )", end , offset ) );
+                    throw new IOException( String.format( "Reached previous offset before finding split ( end=%s vs offset=%s )",
+                                                          end , offset ) );
                 
                 if ( (char)read(end - 0) == '(' &&
                      (char)read(end - 1) == ',' &&
@@ -85,7 +86,7 @@ public class Splitter {
         
     }
 
-    private char read( int pos ) throws IOException {
+    private char read( long pos ) throws IOException {
         raf.seek( pos );
         return (char)raf.read();
     }
@@ -99,10 +100,10 @@ public class Splitter {
 
     class InputSplit {
 
-        public int start = 0;
-        public int end = 0;
+        public long start = 0;
+        public long end = 0;
 
-        public InputSplit( int start, int end ) {
+        public InputSplit( long start, long end ) {
             this.start = start;
             this.end = end;
         }
