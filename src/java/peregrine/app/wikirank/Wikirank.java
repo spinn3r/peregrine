@@ -124,7 +124,7 @@ public class Wikirank {
         
         while( true ) {
 
-            PageParser.Match match = parser.next();
+            WikiPage match = parser.next();
 
             if ( match == null )
                 break;

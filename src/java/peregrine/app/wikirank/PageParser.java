@@ -33,87 +33,27 @@ import org.jboss.netty.buffer.*;
 /**
  * Parse out the wikipedia sample data.
  */
-public class PageParser {
+public class PageParser extends BaseParser<WikiPage>{
 
-    Pattern p = Pattern.compile( "\\(([0-9]+),[0-9]+,'([^']+)'[^)]+\\)"  );
-
-    Matcher m = null;
-    
-    List<InputSplit> splits = null;
-
-    private FileInputStream fis = null;
-
-    private FileChannel channel = null;
-
-    /**
-     * 
-     * 
-     *
-     */
     public PageParser( String path ) throws IOException {
-
-        this.fis = new FileInputStream( path );
-        this.channel = fis.getChannel();
-        
-        System.out.printf( "Going to read: %s\n", path );
-
-        Splitter splitter = new Splitter( path );
-
-        splits = splitter.getInputSplits();
-
-        nextSplit();
-        
+        super( path, "\\(([0-9]+),[0-9]+,'([^']+)'[^)]+\\)" );
     }
 
-    private void nextSplit() throws IOException {
-
-        InputSplit split = splits.remove( 0 );
-
-        System.out.printf( "Working with split: %s\n", split );
-        
-        long length = split.end - split.start;
-        ByteBuffer buff = channel.map( FileChannel.MapMode.READ_ONLY, split.start , length );
-
-        ChannelBuffer channelBuffer = ChannelBuffers.wrappedBuffer( buff );
-        
-        CharSequence sequence = new ChannelBufferCharSequence( channelBuffer, (int)length );
-
-        m = p.matcher( sequence );
-
-    }
-    
-    public Match next() throws IOException {
-
-        if ( m.find() ) {
-            Match match = new Match();
-            match.id = Integer.parseInt( m.group( 1 ) );
-            match.name = m.group( 2 ).trim();
-            return match;
-        }
-
-        if ( splits.size() > 0 ) {
-            nextSplit();
-            return next();
-        }
-        
-        return null;
-
+    @Override
+    public WikiPage newInstance( Matcher m ) {
+        WikiPage result = new WikiPage();
+        result.id = Integer.parseInt( m.group( 1 ) );
+        result.name = m.group( 2 ).trim();
+        return result;
     }
 
-    public class Match {
-
-        public int id = -1;
-        public String name = null;
-        
-    }
-    
     public static void main( String[] args ) throws Exception {
 
         PageParser parser = new PageParser( args[0] );
 
         while( true ) {
 
-            Match match = parser.next();
+            WikiPage match = parser.next();
 
             if ( match == null )
                 break;
