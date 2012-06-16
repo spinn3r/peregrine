@@ -94,9 +94,15 @@ public abstract class BaseRPCHandler<T> extends SimpleChannelUpstreamHandler {
             final RPCDelegate delegate = getRPCDelegate( path );
 
             if ( delegate != null ) {
-            	
-            	log.info( "Handling with %,d params for URI: %s with %s: \n%s",
-                          message.size(), uri, delegate.getClass().getName(), message.toDebugString() );
+
+                // don't log heartbeat messages as they are overly verbose.
+                
+                if ( ! "heartbeat".equals( message.getString( "action" ) ) ) {
+                    
+                    log.info( "Handling with %,d params for URI: %s with %s: \n%s",
+                              message.size(), uri, delegate.getClass().getName(), message.toDebugString() );
+
+                }
             	
                 executorService.submit( new AsyncMessageHandler( channel, message ) {
 
