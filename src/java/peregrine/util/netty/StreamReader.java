@@ -64,10 +64,10 @@ public class StreamReader {
     }
 
     /**
-     * Read a slice from this stream reader, as a COPY, not this copies data
+     * Read a slice from this stream reader, as a COPY, note this copies data
      * into the heap.
      */
-    public ChannelBuffer readSlice( int length ) {
+    private ChannelBuffer readSlice( int length ) {
 
         fireOnRead( length );
 

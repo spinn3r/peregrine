@@ -153,13 +153,11 @@ public class DefaultChunkReader implements SequenceReader, ChunkReader, Closeabl
     
     @Override
     public StructReader key() throws IOException {
-
         return key;
     }
 
     @Override
     public StructReader value() throws IOException {
-
         return value;
     }
 
@@ -178,13 +176,11 @@ public class DefaultChunkReader implements SequenceReader, ChunkReader, Closeabl
 
     @Override 
     public int keyOffset() throws IOException {
-
         return keyOffset;
     }
     
     @Override 
     public int size() throws IOException {
-
         return size;
     }
     
@@ -195,7 +191,6 @@ public class DefaultChunkReader implements SequenceReader, ChunkReader, Closeabl
 
     @Override 
     public ChannelBuffer getBuffer() {
-
     	return buffer;
     }
     

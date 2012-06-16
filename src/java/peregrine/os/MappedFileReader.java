@@ -120,7 +120,7 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
             // files , one per 2GB region and then use a composite channel
             // buffer
             
-            if ( map == null ) {
+            if ( this.map == null ) {
 
                 fileMapper = new FileMapper( file, in.getFD(), offset, length );
                 fileMapper.setLock( autoLock );
@@ -131,7 +131,7 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
             }
 
             if ( reader == null ) {
-                reader = new StreamReader( map );
+                reader = new StreamReader( this.map );
             }
             
             return map;

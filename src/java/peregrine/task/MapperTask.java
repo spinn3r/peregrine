@@ -53,6 +53,8 @@ public class MapperTask extends BaseMapperTask {
         
         SequenceReader reader = jobInput.get( 0 );
 
+        System.out.printf( "FIXME: %s\n", reader.getClass().getName() );
+        
         int count = 0;
 
         try {

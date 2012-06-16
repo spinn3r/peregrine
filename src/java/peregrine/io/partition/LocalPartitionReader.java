@@ -136,6 +136,8 @@ public class LocalPartitionReader extends BaseJobInput implements SequenceReader
     @Override
     public void close() throws IOException {
 
+        //TODO: migrate to using IdempotentCloser ...
+        
         if ( chunkReader != null ) {
             fireOnChunkEnd( chunkRef );
             chunkReader.close();
