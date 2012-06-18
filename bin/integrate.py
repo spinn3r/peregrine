@@ -24,7 +24,7 @@ import sys
 import time
 import traceback
 
-VERSION="1.0.4"
+VERSION="1.0.5"
 
 LIMIT=200
 
@@ -33,7 +33,7 @@ BRANCH="default"
 SCRATCH="/tmp/integration/peregrine"
 TEST_LOGS="/var/lib/integration/peregrine"
 
-TEST_COMMAND="pkill -9 -u nobody java 2> /dev/null ; hg cat -r default build.xml > build.xml && export ANT_OPTS=-Xmx512M && ant clean test"
+TEST_COMMAND="pkill -9 -u nobody java 2> /dev/null ; hg cat -r default build.xml > build.xml && export ANT_OPTS=-Xmx512M && ant clean coverage"
 #TEST_COMMAND="false"
 
 REPO="https://burtonator:redapplekittycat@bitbucket.org/burtonator/peregrine"
