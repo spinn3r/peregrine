@@ -24,7 +24,7 @@ import sys
 import time
 import traceback
 
-VERSION="1.0.5"
+VERSION="1.0.6"
 
 LIMIT=200
 
@@ -38,7 +38,7 @@ TEST_COMMAND="pkill -9 -u nobody java 2> /dev/null ; hg cat -r default build.xml
 
 REPO="https://burtonator:redapplekittycat@bitbucket.org/burtonator/peregrine"
 
-DAEMON_SLEEP_INTERVAL=120
+DAEMON_SLEEP_INTERVAL=240
 
 IGNORE_BRANCHES={}
 
