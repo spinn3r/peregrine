@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
 */
-package peregrine.io.partition;
+package peregrine;
 
 import java.io.*;
 import java.util.*;
@@ -24,9 +24,58 @@ import peregrine.io.chunk.*;
 
 public class TestChunkWriterClose extends peregrine.BaseTest {
 
-    public void doTest() throws Exception {
+    public void test1() throws Exception {
 
-        System.out.printf( "hello world.\n" );
+        String path = "/tmp/test.chunk";
+        
+        File file = new File( path );
+
+        DefaultChunkWriter writer = new DefaultChunkWriter( null, file );
+
+        writer.write( StructReaders.hashcode( "1" ),
+                      StructReaders.wrap( 1 ) );
+
+        writer.close();
+
+        //now read from it... 
+
+        DefaultChunkReader reader = new DefaultChunkReader( null, file );
+
+        List<StructReader> keys = new ArrayList();
+        List<StructReader> values = new ArrayList();
+        
+        if ( reader.hasNext() ) {
+            reader.next();
+
+            keys.add( reader.key() );
+            values.add( reader.value() );
+                
+        }
+
+        reader.close();
+
+        int count = 0;
+        
+        try {
+        
+            for( int i = 0; i < keys.size(); ++i ) {
+
+                StructReader key = keys.get( i ) ;
+                StructReader value = values.get( i ) ;
+
+                byte[] hashcode = key.readHashcode();
+                int v = value.readInt();
+
+                ++count;
+                
+            }
+
+        } catch ( Exception e ) {
+            // this is correct behavior.
+        }
+
+        if ( count > 0 )
+            throw new Exception( "Test failed.  count=" + count );
         
     }
 
