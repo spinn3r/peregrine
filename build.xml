@@ -398,6 +398,8 @@
 
         </junitreport>
 
+        <echo message="Wrote test-reports successfully." />
+
     </target>
 
     <target name="javadoc" description="Generate javadoc" depends="compile">
@@ -546,5 +548,4 @@
     </target>
 
 </project>
-
 
