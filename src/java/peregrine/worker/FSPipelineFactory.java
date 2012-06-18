@@ -20,11 +20,16 @@ import static org.jboss.netty.channel.Channels.*;
 import org.jboss.netty.channel.*;
 import org.jboss.netty.handler.codec.http.HttpRequestDecoder;
 import org.jboss.netty.handler.codec.http.HttpResponseEncoder;
+
 import peregrine.config.Config;
+
+import com.spinn3r.log5j.Logger;
 
 /**
  */
 public class FSPipelineFactory implements ChannelPipelineFactory {
+
+    private static final Logger log = Logger.getLogger();
 
     public static int MAX_INITIAL_LINE_LENGTH    = 1024;
     public static int MAX_HEADER_SIZE            = 1024;
@@ -63,7 +68,13 @@ public class FSPipelineFactory implements ChannelPipelineFactory {
         // Create a default pipeline implementation.
         ChannelPipeline pipeline = pipeline();
 
-        //pipeline.addLast("hex",            new HexPipelineEncoder());
+        if ( config.getTraceWorkerTraffic() ) {
+
+            log.info( "Adding hex pipeline encoder to Netty pipeline." );
+            
+            pipeline.addLast( "hex",       new HexPipelineEncoder() );
+        }
+        
         pipeline.addLast("decoder",        new HttpRequestDecoder( MAX_INITIAL_LINE_LENGTH ,
                                                                    MAX_HEADER_SIZE,
                                                                    MAX_CHUNK_SIZE ) );

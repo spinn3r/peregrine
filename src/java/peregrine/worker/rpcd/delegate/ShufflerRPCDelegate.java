@@ -17,6 +17,7 @@ package peregrine.worker.rpcd.delegate;
 
 import java.io.*;
 
+import org.jboss.netty.buffer.*;
 import org.jboss.netty.channel.*;
 
 import peregrine.rpc.*;
@@ -32,9 +33,10 @@ public class ShufflerRPCDelegate extends RPCDelegate<FSDaemon> {
      * Flush pending shuffle data to disk.
      */
     @RPC
-    public void flush( FSDaemon daemon, Channel channel, Message message ) throws IOException {
+    public ChannelBuffer flush( FSDaemon daemon, Channel channel, Message message ) throws IOException {
         // FIXME: this should be async should it not?
         daemon.shuffleReceiverFactory.flush();
+        return null;
     }
 
     /**
@@ -42,8 +44,9 @@ public class ShufflerRPCDelegate extends RPCDelegate<FSDaemon> {
      * name.
      */
     @RPC
-    public void purge( FSDaemon daemon, Channel channel, Message message ) throws IOException {
+    public ChannelBuffer purge( FSDaemon daemon, Channel channel, Message message ) throws IOException {
         daemon.shuffleReceiverFactory.purge( message.get( "name" ) );
+        return null;
     }
 
 }

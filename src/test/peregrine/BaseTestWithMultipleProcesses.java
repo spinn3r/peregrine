@@ -24,6 +24,8 @@ import peregrine.util.*;
 import peregrine.io.util.*;
 import peregrine.io.chunk.*;
 import peregrine.io.partition.*;
+import peregrine.os.*;
+import peregrine.rpc.*;
 
 import com.spinn3r.log5j.Logger;
 
@@ -148,17 +150,28 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
 
                 Pidfile pidfile = new Pidfile( config );
                 
-                //First make sure it's not already running by verifying that the
-                //pid does not exist.
+                // First make sure it's not already running by verifying that
+                // the pid file does not exist.
+
+                System.out.printf( "Testing for daemon on port: %s\n", port );
+                
                 try {
 
                     WaitForDaemon.waitForDaemon( pidfile.read(), port );
 
-                    //TODO first shut it down now.
-                    throw new Exception( "Daemon is already running: " + port );
+                    // send it a term signal
+
+                    Client client = new Client();
+
+                    Message message = new Message();
+                    message.put( "action", "kill" );
                     
+                    client.invoke( host, "system", message );
+
                 } catch ( Exception e ) {
                     
+                } finally {
+
                     // this is acceptable here because we want to first make
                     // sure this daemon is not running.
 
@@ -167,7 +180,7 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
                 }
 
                 System.out.printf( "Starting proc: %s\n", cmdline );
-                
+
                 Process proc = pb.start();
 
                 // wait for the pid file to be created OR the process exits.

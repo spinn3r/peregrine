@@ -24,14 +24,8 @@ import com.spinn3r.log5j.*;
 public class HexPipelineEncoder implements ChannelUpstreamHandler, ChannelDownstreamHandler {
 
     private static final Logger log = Logger.getLogger();
-
-    /**
-     * When true dump all packets sent over the wire to stdout for debug
-     * purposes.
-     */
-    public static boolean ENABLED = false;
     
-    public void handleUpstream( ChannelHandlerContext ctx, ChannelEvent evt) throws Exception {
+    public void handleUpstream(ChannelHandlerContext ctx, ChannelEvent evt) throws Exception {
 
         try {
 
@@ -57,17 +51,29 @@ public class HexPipelineEncoder implements ChannelUpstreamHandler, ChannelDownst
 
     private void handleEvent( ChannelEvent evt ) throws Exception {
 
-        if ( ! ENABLED ) return;
-
         if ( evt instanceof MessageEvent ) {
             
             MessageEvent e = (MessageEvent) evt;
 
             if ( e.getMessage() instanceof ChannelBuffer ) {
                 ChannelBuffer buff = (ChannelBuffer) e.getMessage();
-                log.info( "\n%s\n", Hex.pretty( buff ) );
+                log.info( "\n%s", Hex.pretty( buff ) );
             }
-            
+
+        } else if ( evt instanceof ChannelStateEvent ) {
+
+            /*
+            ChannelStateEvent e = (ChannelStateEvent) evt;
+
+            log.warn( "Unable to handle ChannelStateEvent %s", e );
+            log.warn( "Unable to handle ChannelStateEvent value %s", e.getValue() );
+
+            if ( e.getValue() ! null )
+                log.warn( "Unable to handle ChannelStateEvent value class %s", e.getValue().getClass() );
+            */
+                
+        } else {
+            //log.warn( "Unable to handle %s", evt.getClass().getName() );
         }
 
     }

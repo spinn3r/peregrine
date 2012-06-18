@@ -25,6 +25,7 @@ import java.util.concurrent.*;
 import org.jboss.netty.buffer.*;
 import org.jboss.netty.channel.*;
 import org.jboss.netty.handler.codec.http.*;
+
 import peregrine.util.*;
 import peregrine.worker.*;
 import peregrine.worker.rpcd.delegate.*;
@@ -71,11 +72,11 @@ public class FSDaemonRPCHandler extends BaseRPCHandler<FSDaemon> {
     }
  
     @Override
-    public void handleMessage( RPCDelegate handler, Channel channel, Message message ) 
+    public ChannelBuffer handleMessage( RPCDelegate handler, Channel channel, Message message ) 
         throws Exception {
         	
-       	handler.handleMessage(  daemon, channel, message );
-        	
+       	return handler.handleMessage(  daemon, channel, message );
+        
     }   
     
 }

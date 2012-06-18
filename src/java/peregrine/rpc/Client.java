@@ -25,7 +25,7 @@ import peregrine.http.*;
 import com.spinn3r.log5j.*;
 
 /**
- * 
+ * Basic RPC client for sending messages to peregrine workers.
  * 
  */
 public class Client {
@@ -40,10 +40,21 @@ public class Client {
         this.silent = silent;
     }
 
-    public void invoke( Host host, String service, Message message ) throws IOException {
-        invokeAsync( host, service, message ).close();
+    /**
+     * 
+     */
+    public Message invoke( Host host, String service, Message message ) throws IOException {
+
+        HttpClient client = invokeAsync( host, service, message );
+        
+        client.close();
+
+        System.out.printf( "FIXME: %s\n", client.getResponse().getContent() );
+        
+        return new Message( client.getResponse().getContent().toString() );
+        
     }
-    
+
     public HttpClient invokeAsync( Host host, String service, Message message ) throws IOException {
 
         try {

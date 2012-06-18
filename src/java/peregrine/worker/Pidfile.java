@@ -53,12 +53,12 @@ public class Pidfile {
 
     }
 
+    public File getFile() {
+        return new File( config.getRoot(), "worker.pid" );
+    }
+    
     public int read() throws IOException {
-
-        File file = new File( config.getRoot(), "worker.pid" );
-
-        return read( file );
-        
+        return read( getFile() );        
     }
 
     public void delete() throws IOException {

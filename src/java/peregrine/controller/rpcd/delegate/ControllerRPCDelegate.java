@@ -17,6 +17,7 @@ package peregrine.controller.rpcd.delegate;
 
 import java.util.*;
 
+import org.jboss.netty.buffer.*;
 import org.jboss.netty.channel.*;
 
 import peregrine.config.Host;
@@ -37,7 +38,7 @@ public class ControllerRPCDelegate extends RPCDelegate<ControllerDaemon> {
      * mapper/reducers have executed correctly.
      */
     @RPC
-    public void complete( ControllerDaemon controllerDaemon, Channel channel, Message message )
+    public ChannelBuffer complete( ControllerDaemon controllerDaemon, Channel channel, Message message )
         throws Exception {
 
         Host host     = Host.parse( message.get( "host" ) );
@@ -49,7 +50,7 @@ public class ControllerRPCDelegate extends RPCDelegate<ControllerDaemon> {
         if ( scheduler != null )
             scheduler.markComplete( host, work );
         
-        return;
+        return null;
 		
     }
 	
@@ -59,7 +60,7 @@ public class ControllerRPCDelegate extends RPCDelegate<ControllerDaemon> {
      * the machine failed via other means (such as gossip).
      */
     @RPC
-    public void failed( ControllerDaemon controllerDaemon, Channel channel, Message message )
+    public ChannelBuffer failed( ControllerDaemon controllerDaemon, Channel channel, Message message )
         throws Exception {
         
         Host host          = Host.parse( message.get( "host" ) );
@@ -73,7 +74,7 @@ public class ControllerRPCDelegate extends RPCDelegate<ControllerDaemon> {
         if ( scheduler != null )
             scheduler.markFailed( host, work, killed, stacktrace );
 	    
-        return;
+        return null;
 		
     }
 
@@ -84,14 +85,14 @@ public class ControllerRPCDelegate extends RPCDelegate<ControllerDaemon> {
      * sort or even the final reduce sort.
      */
     @RPC
-    public void progress( ControllerDaemon controllerDaemon, Channel channel, Message message )
+    public ChannelBuffer progress( ControllerDaemon controllerDaemon, Channel channel, Message message )
         throws Exception {
 
         Host host          = Host.parse( message.get( "host" ) );
         Input input        = new Input( message.getList( "input" ) );
         Work work          = new Work( host, input, message.getList( "work" ) );
         
-        return;
+        return null;
 		
     }
 
@@ -101,7 +102,7 @@ public class ControllerRPCDelegate extends RPCDelegate<ControllerDaemon> {
      * are 'out there' in the ether.
      */
     @RPC
-    public void heartbeat( ControllerDaemon controllerDaemon, Channel channel, Message message )
+    public ChannelBuffer heartbeat( ControllerDaemon controllerDaemon, Channel channel, Message message )
         throws Exception {
         
         Host host = Host.parse( message.get( "host" ) );
@@ -114,7 +115,7 @@ public class ControllerRPCDelegate extends RPCDelegate<ControllerDaemon> {
         // mark this host as online for the entire controller.
         controllerDaemon.getClusterState().getOnline().mark( host );
 		
-        return;
+        return null;
 		
     }
 
@@ -124,7 +125,7 @@ public class ControllerRPCDelegate extends RPCDelegate<ControllerDaemon> {
      * messages and can make informed decisions about which to mark offline.
      */
     @RPC
-    public void gossip( ControllerDaemon controllerDaemon, Channel channel, Message message )
+    public ChannelBuffer gossip( ControllerDaemon controllerDaemon, Channel channel, Message message )
         throws Exception {
         
         // mark that a machine has failed to process some unit of work.
@@ -134,7 +135,7 @@ public class ControllerRPCDelegate extends RPCDelegate<ControllerDaemon> {
         
         controllerDaemon.getClusterState().getGossip().mark( reporter, failed ); 
         
-        return;
+        return null;
 		
     }
 
@@ -143,7 +144,7 @@ public class ControllerRPCDelegate extends RPCDelegate<ControllerDaemon> {
      * including scheduler information.
      */
     @RPC
-    public void status( ControllerDaemon controllerDaemon, Channel channel, Message message )
+    public ChannelBuffer status( ControllerDaemon controllerDaemon, Channel channel, Message message )
         throws Exception {
 
         Scheduler scheduler = controllerDaemon.getScheduler();
@@ -154,7 +155,9 @@ public class ControllerRPCDelegate extends RPCDelegate<ControllerDaemon> {
         Message response = new Message( scheduler.getStatusAsMap() );
 
         channel.write( response );
-        
+
+        return null;
+
     }
 
 }

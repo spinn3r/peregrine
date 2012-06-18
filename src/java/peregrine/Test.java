@@ -12,6 +12,7 @@ import peregrine.util.*;
 import peregrine.app.pagerank.*;
 import peregrine.config.*;
 import peregrine.worker.*;
+import peregrine.rpc.*;
 
 import org.jboss.netty.buffer.*;
 
@@ -59,12 +60,17 @@ public class Test {
 
     public static void main( String[] args ) throws Exception {
 
-        Properties props = new Properties();
-        props.load( new FileInputStream( "test.properties" ) );
+        Host host = new Host( "localhost", 11112 );
+        
+        Client client = new Client();
+        
+        Message message = new Message();
+        message.put( "action", "stat" );
+        
+        Message result = client.invoke( host, "system", message );
 
-        System.out.printf( "%s\n" , props );
-        
-        
+        System.out.printf( "response: %s\n", result );
+
     }
 
     public static void main_segfault( String[] args ) throws Exception {

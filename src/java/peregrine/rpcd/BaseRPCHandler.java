@@ -49,7 +49,11 @@ public abstract class BaseRPCHandler<T> extends SimpleChannelUpstreamHandler {
         this.uri = uri;
     }
 
-    public abstract void handleMessage( RPCDelegate<T> handler, Channel channel, Message message ) 
+    /**
+     * Handle an RPC message.  Return a ChannelBuffer for a custom response.
+     * Use null for the default response.
+     */
+    public abstract ChannelBuffer handleMessage( RPCDelegate<T> handler, Channel channel, Message message ) 
     	throws Exception;
     
     public abstract RPCDelegate<T> getRPCDelegate( String path );
@@ -106,8 +110,8 @@ public abstract class BaseRPCHandler<T> extends SimpleChannelUpstreamHandler {
             	
                 executorService.submit( new AsyncMessageHandler( channel, message ) {
 
-                        public void doAction() throws Exception {
-                            handleMessage( delegate, channel, message );
+                        public ChannelBuffer doAction() throws Exception {
+                            return handleMessage( delegate, channel, message );
                         }
                         
                     } );
@@ -147,9 +151,15 @@ public abstract class BaseRPCHandler<T> extends SimpleChannelUpstreamHandler {
 
             try {
 
-                doAction();
+                ChannelBuffer content = doAction();
 
+                if ( content == null ) {
+                    content = ChannelBuffers.wrappedBuffer( "".getBytes() );
+                }
+                
                 HttpResponse response = new DefaultHttpResponse( HTTP_1_1, OK );
+                response.setContent( content );
+                
                 channel.write(response).addListener(ChannelFutureListener.CLOSE);
 
             } catch ( Exception e ) {
@@ -163,7 +173,10 @@ public abstract class BaseRPCHandler<T> extends SimpleChannelUpstreamHandler {
 
         }
 
-        public abstract void doAction() throws Exception;
+        /**
+         * 
+         */
+        public abstract ChannelBuffer doAction() throws Exception;
 
     }
     

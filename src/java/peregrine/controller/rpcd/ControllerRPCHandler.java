@@ -65,11 +65,12 @@ public class ControllerRPCHandler extends BaseRPCHandler<ControllerDaemon> {
     }
 
     @Override
-    public void handleMessage( RPCDelegate<ControllerDaemon> handler, Channel channel, Message message ) 
+    public ChannelBuffer handleMessage( RPCDelegate<ControllerDaemon> handler, Channel channel, Message message ) 
     	throws Exception {
 
     	handler.handleMessage( controllerDaemon, channel, message );
-    	
+    	return null;
+        
     }
 
 }

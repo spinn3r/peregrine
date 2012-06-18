@@ -47,6 +47,7 @@ public class HttpClientHandler extends SimpleChannelUpstreamHandler {
             //log.info( "Received HTTP response: %s for %s", response.getStatus(), client.uri );
 
             client.channelState = HttpClient.CLOSED;
+            client.response = response;
             
             if ( response.getStatus().getCode() != OK.getCode() ) {
 

@@ -18,6 +18,7 @@ package peregrine.worker.rpcd.delegate;
 import java.util.*;
 import java.util.concurrent.*;
 
+import org.jboss.netty.buffer.*;
 import org.jboss.netty.channel.*;
 
 import peregrine.config.*;
@@ -29,7 +30,6 @@ import peregrine.io.*;
 import peregrine.task.*;
 
 import com.spinn3r.log5j.*;
-
 
 /**
  * Handles messages related to tasks.  Keeps track of them and resets them and
@@ -46,20 +46,22 @@ public class BaseTaskRPCDelegate extends RPCDelegate<FSDaemon> {
      * Reset state between partition runs.
      */
     @RPC
-    public void reset( FSDaemon daemon, Channel channel, Message message )
+    public ChannelBuffer reset( FSDaemon daemon, Channel channel, Message message )
         throws Exception {
 
         log.info( "Going to reset()" );
         
         tasks = new ConcurrentHashMap();
 
+        return null;
+        
     }
 
     /**
      * Kill a given task by partition.
      */
     @RPC
-    public void kill( FSDaemon daemon, Channel channel, Message message )
+    public ChannelBuffer kill( FSDaemon daemon, Channel channel, Message message )
         throws Exception {
 
         Input input   = new Input( message.getList( "input" ) );
@@ -70,11 +72,13 @@ public class BaseTaskRPCDelegate extends RPCDelegate<FSDaemon> {
         Task task = tasks.get( work );
 
         if ( task == null )
-            return;
+            return null;
 
         task.setKilled( true );
 
         log.info( "Task on %s sent kill request.", work );
+
+        return null;
         
     }
 

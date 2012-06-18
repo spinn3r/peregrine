@@ -18,6 +18,7 @@ package peregrine.worker.rpcd.delegate;
 import java.io.*;
 
 import org.jboss.netty.channel.*;
+import org.jboss.netty.buffer.*;
 
 import peregrine.rpc.*;
 import peregrine.rpcd.delegate.*;
@@ -31,21 +32,18 @@ import peregrine.os.*;
 public class SystemRPCDelegate extends RPCDelegate<FSDaemon> {
 
     /**
-     * Terminate the current daemon.  This is similar to kill and sends the SIGKILL
-     * signal AKA 'kill pid'
+     * Get status (stat) information on the current daemon.  This includes the
+     * pid so that control daemons can connect to the port, get the pid, and
+     * kill it if necessary.
      */
     @RPC
-    public void term( FSDaemon daemon, Channel channel, Message message ) throws Exception {
-        signal.kill( unistd.getpid(), signal.SIGTERM );
-    }
+    public ChannelBuffer stat( FSDaemon daemon, Channel channel, Message message ) throws Exception {
 
-    /**
-     * Kill the current daemon.  This is similar to kill -9 and sends the
-     * SIGKILL signal AKA 'kill -9 pid'
-     */
-    @RPC
-    public void kill( FSDaemon daemon, Channel channel, Message message ) throws Exception {
-        signal.kill( unistd.getpid(), signal.SIGKILL );
+        Message response = new Message();
+        response.put( "pid", "" + unistd.getpid() );
+
+        return ChannelBuffers.wrappedBuffer( response.toString().getBytes() );
+        
     }
 
 }

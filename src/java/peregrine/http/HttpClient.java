@@ -137,6 +137,8 @@ public class HttpClient implements ChannelBufferWritable {
      * The default method to use (normally HTTP PUT).
      */
     protected HttpMethod method = HttpMethod.PUT;
+
+    protected HttpResponse response = null;
     
     public HttpClient( List<Host> hosts, String path ) throws IOException {
 
@@ -244,6 +246,13 @@ public class HttpClient implements ChannelBufferWritable {
     public void setHeader( String name, String value ) {
         requireInit();
         request.setHeader( name , value );
+    }
+
+    /**
+     * Return the HTTP response.
+     */
+    public HttpResponse getResponse() {
+        return response;
     }
     
     public void write( byte[] data ) throws IOException {

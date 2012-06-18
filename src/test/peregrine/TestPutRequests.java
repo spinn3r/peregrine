@@ -52,8 +52,6 @@ public class TestPutRequests extends peregrine.BaseTestWithTwoDaemons {
 
     public void _test1WithHexPipeline() throws Exception {
 
-        HexPipelineEncoder.ENABLED = true;
-        
         doTest( 1000 );
     }
 
