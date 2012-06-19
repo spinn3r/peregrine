@@ -56,6 +56,8 @@ public class ProcessList {
                     
                     String cmdline = new String( data );
 
+                    System.out.printf( "FIXME: %s\n", cmdline );
+                    
                     ProcessListEntry entry = new ProcessListEntry();
 
                     entry.setId( Integer.parseInt( current ) );
