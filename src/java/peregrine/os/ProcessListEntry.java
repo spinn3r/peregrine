@@ -48,7 +48,7 @@ public class ProcessListEntry {
     }
 
     public String toString() {
-        return Strings.join( arguments, " " );
+        return String.format( "%10s %s" , id , Strings.join( arguments, " " ) );
     }
 
 }
