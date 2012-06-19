@@ -27,7 +27,7 @@ import com.spinn3r.log5j.Logger;
  */
 public class ProcessList {
     
-    private List<ProcessListEntry> processes = null;
+    private List<ProcessListEntry> processes = new ArrayList();;
 
     private static final String NULL = new String( new char[] { (char)0 } );
     
