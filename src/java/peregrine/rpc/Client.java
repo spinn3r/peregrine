@@ -43,7 +43,8 @@ public class Client {
     }
 
     /**
-     * 
+     * Invoke an RPC method and block.  Return a {@link Message} object which
+     * represents the result and is parsed.
      */
     public Message invoke( Host host, String service, Message message ) throws IOException {
 
@@ -58,9 +59,9 @@ public class Client {
         byte[] data = new byte[ len ];
         content.readBytes( data );
 
-        String str = new String( data );
+        String data_str = new String( data );
         
-        return new Message( str );
+        return new Message( data_str );
         
     }
 
