@@ -34,6 +34,18 @@ public class Strings {
 
     }
 
+    public static List<String> toList( String[] array ) {
+
+        List<String> result = new ArrayList( array.length );
+
+        for ( String current : array ) {
+            result.add( current );
+        }
+
+        return result;
+
+    }
+    
     /**
      * Join the given strings , adding a separator between them.
      */
