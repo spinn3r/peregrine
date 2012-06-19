@@ -60,21 +60,7 @@ public class HexPipelineEncoder implements ChannelUpstreamHandler, ChannelDownst
                 log.info( "\n%s", Hex.pretty( buff ) );
             }
 
-        } else if ( evt instanceof ChannelStateEvent ) {
-
-            /*
-            ChannelStateEvent e = (ChannelStateEvent) evt;
-
-            log.warn( "Unable to handle ChannelStateEvent %s", e );
-            log.warn( "Unable to handle ChannelStateEvent value %s", e.getValue() );
-
-            if ( e.getValue() ! null )
-                log.warn( "Unable to handle ChannelStateEvent value class %s", e.getValue().getClass() );
-            */
-                
-        } else {
-            //log.warn( "Unable to handle %s", evt.getClass().getName() );
-        }
+        } 
 
     }
     
