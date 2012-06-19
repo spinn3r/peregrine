@@ -139,7 +139,9 @@ public class HttpClient implements ChannelBufferWritable {
     protected HttpMethod method = HttpMethod.PUT;
 
     protected HttpResponse response = null;
-    
+
+    protected ChannelBuffer content = null;
+
     public HttpClient( List<Host> hosts, String path ) throws IOException {
 
         try {
@@ -333,6 +335,13 @@ public class HttpClient implements ChannelBufferWritable {
 
     }
 
+    /**
+     * Get HTTP response content.
+     */
+    public ChannelBuffer getContent() {
+        return content;
+    }
+    
     private Boolean handleResult( Object peek ) throws IOException {
 
         if ( peek instanceof IOException )

@@ -17,6 +17,8 @@ package peregrine.rpc;
 
 import java.io.*;
 import java.net.*;
+
+import org.jboss.netty.buffer.*;
 import org.jboss.netty.handler.codec.http.*;
 
 import peregrine.config.Host;
@@ -49,9 +51,16 @@ public class Client {
         
         client.close();
 
-        System.out.printf( "FIXME: %s\n", client.getResponse().getContent() );
+        ChannelBuffer content = client.getContent();
+
+        int len = content.writerIndex();
+
+        byte[] data = new byte[ len ];
+        content.readBytes( data );
+
+        String str = new String( data );
         
-        return new Message( client.getResponse().getContent().toString() );
+        return new Message( str );
         
     }
 

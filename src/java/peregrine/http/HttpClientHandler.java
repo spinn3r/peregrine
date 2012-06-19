@@ -16,9 +16,12 @@
 package peregrine.http;
 
 import java.io.*;
+import java.util.*;
 
+import org.jboss.netty.buffer.*;
 import org.jboss.netty.channel.*;
 import org.jboss.netty.handler.codec.http.*;
+
 import static org.jboss.netty.handler.codec.http.HttpResponseStatus.*;
 
 import com.spinn3r.log5j.Logger;
@@ -30,6 +33,10 @@ public class HttpClientHandler extends SimpleChannelUpstreamHandler {
     private static final Logger log = Logger.getLogger();
 
     private HttpClient client = null;
+
+    private HttpResponse response = null;
+
+    private List<ChannelBuffer> chunks = new ArrayList();
     
     public HttpClientHandler( HttpClient client ) {
         this.client = client;
@@ -39,27 +46,37 @@ public class HttpClientHandler extends SimpleChannelUpstreamHandler {
     public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
 
         Object message = e.getMessage();
-        
+
         if ( message instanceof HttpResponse ) {
-        
-            HttpResponse response = (HttpResponse) e.getMessage();
-            
-            //log.info( "Received HTTP response: %s for %s", response.getStatus(), client.uri );
 
-            client.channelState = HttpClient.CLOSED;
-            client.response = response;
-            
-            if ( response.getStatus().getCode() != OK.getCode() ) {
+            this.response = (HttpResponse)message;
 
-                log.warn( "Received HTTP response: %s for %s",
-                          response.getStatus(), client.uri );
+        } else if ( message instanceof HttpChunk ) {
 
-                client.failed( new IOException( response.getStatus().toString() ) );
-                return;
+            HttpChunk chunk = (HttpChunk)message;
+
+            if ( chunk.isLast() ) {
+
+                //log.info( "Received HTTP response: %s for %s", response.getStatus(), client.uri );
+
+                client.channelState  = HttpClient.CLOSED;
+                client.response      = response;
+                client.content       = getContent();
+
+                if ( response.getStatus().getCode() != OK.getCode() ) {
+
+                    log.warn( "Received HTTP response: %s for %s", response.getStatus(), client.uri );
+
+                    client.failed( new IOException( response.getStatus().toString() ) );
+                    return;
+                }
+
+                client.success();
+
+            } else {
+                chunks.add( chunk.getContent() );
             }
             
-            client.success();
-
         }
         
     }
@@ -72,5 +89,14 @@ public class HttpClientHandler extends SimpleChannelUpstreamHandler {
 
     }
 
+    private ChannelBuffer getContent() {
+
+        ChannelBuffer[] buffers = new ChannelBuffer[ chunks.size() ];
+        buffers = chunks.toArray( buffers );
+
+        return ChannelBuffers.wrappedBuffer( buffers );
+        
+    }
+    
 }
 
