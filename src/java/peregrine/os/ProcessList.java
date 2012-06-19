@@ -56,7 +56,7 @@ public class ProcessList {
                     
                     String cmdline = new String( data );
 
-                    System.out.printf( "FIXME: %s\n", cmdline );
+                    System.out.printf( "FIXME: data length %s vs cmdline length\n", data.length, cmdline.length() );
                     
                     ProcessListEntry entry = new ProcessListEntry();
 
