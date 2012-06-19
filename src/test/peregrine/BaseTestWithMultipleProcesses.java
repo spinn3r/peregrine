@@ -153,30 +153,13 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
                 // First make sure it's not already running by verifying that
                 // the pid file does not exist.
 
-                System.out.printf( "Testing for daemon on port: %s\n", port );
-                
-                try {
+                System.out.printf( "Reading pid for daemon on port: %s\n", port );
 
-                    WaitForDaemon.waitForDaemon( pidfile.read(), port );
+                int pid = getPidFromDaemon( port );
 
-                    // send it a term signal
-
-                    Client client = new Client();
-
-                    Message message = new Message();
-                    message.put( "action", "kill" );
-                    
-                    client.invoke( host, "system", message );
-
-                } catch ( Exception e ) {
-                    
-                } finally {
-
-                    // this is acceptable here because we want to first make
-                    // sure this daemon is not running.
-
-                    pidfile.delete();
-                    
+                if ( pid != -1 ) {
+                    System.out.printf( "Sending SIGTERM to %s\n", pid );
+                    signal.kill( pid, signal.SIGTERM );
                 }
 
                 System.out.printf( "Starting proc: %s\n", cmdline );
@@ -185,7 +168,7 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
 
                 // wait for the pid file to be created OR the process exits.
 
-                int pid = waitForProcStartup( config, proc, port );
+                pid = waitForProcStartup( config, proc, port );
                 
                 // wait for startup so we know the port is open
                 WaitForDaemon.waitForDaemon( pid, port );
@@ -202,6 +185,28 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
         
     }
 
+    private int getPidFromDaemon( int port ) {
+
+        try {
+        
+            Host host = new Host( "localhost", port );
+            
+            Client client = new Client();
+            
+            Message message = new Message();
+            message.put( "action", "stat" );
+            
+            Message result = client.invoke( host, "system", message );
+
+            return result.getInt( "pid" );
+
+        } catch ( IOException e ) {
+            // this is normal if the daemon is offline
+            return -1;
+        }
+            
+    }
+    
     /**
      * Wait for the proc to startup and for the pid file to be written.
      */
