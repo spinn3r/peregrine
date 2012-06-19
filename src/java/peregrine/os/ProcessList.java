@@ -60,7 +60,7 @@ public class ProcessList {
 
                     ProcessListEntry entry = new ProcessListEntry();
 
-                    entry.setId( Integer.parseInt( cmdline ) );
+                    entry.setId( Integer.parseInt( current ) );
                     entry.setArguments( Strings.toList( cmdline.split( NULL ) ) );
                     
                     processes.add( entry );
