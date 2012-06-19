@@ -48,6 +48,7 @@ public class ProcessList {
                 try {
 
                     File file = new File( proc, current );
+                    file = new File( file, "cmdline" );
                     
                     fis = new FileInputStream( file );
 
