@@ -39,6 +39,8 @@ public class ProcessList {
 
         for ( String current : proc.list() ) {
 
+            System.out.printf( "FIXME: %s\n", current );
+
             if ( current.matches( "[0-9]+" ) ) {
 
                 FileInputStream fis = null;
