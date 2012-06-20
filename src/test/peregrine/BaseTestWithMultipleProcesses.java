@@ -201,7 +201,7 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
                 
                 int pid = proc.getId();
                 
-                System.out.printf( "Sending SIGTERM to %s\n", pid );
+                System.out.printf( "Sending SIGTERM to %s\n", proc  );
                 signal.kill( pid, signal.SIGTERM );
                 
             }
