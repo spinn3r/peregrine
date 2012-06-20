@@ -50,10 +50,12 @@ public class ProcessList {
                     
                     fis = new FileInputStream( file );
 
-                    byte[] data = new byte[ (int)file.length() ];
-                    if ( fis.read( data ) != data.length )
-                        throw new IOException( "Didn't read full cmdline" );
-                    
+                    byte[] data = new byte[ 1024 ];
+                    int read = fis.read( data );
+                    byte[] _data = new byte[read];
+                    System.arraycopy( data, 0, _data, 0, read );
+                    data = _data;
+                                                     
                     String cmdline = new String( data );
 
                     System.out.printf( "FIXME: data length %s vs cmdline length\n", data.length, cmdline.length() );
