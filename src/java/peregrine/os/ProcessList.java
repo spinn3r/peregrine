@@ -52,6 +52,10 @@ public class ProcessList {
 
                     byte[] data = new byte[ 1024 ];
                     int read = fis.read( data );
+
+                    if ( read <= 0 )
+                        continue;
+                    
                     byte[] _data = new byte[read];
                     System.arraycopy( data, 0, _data, 0, read );
                     data = _data;
