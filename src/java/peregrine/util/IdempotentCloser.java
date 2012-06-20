@@ -27,6 +27,12 @@ public abstract class IdempotentCloser
     extends IdempotentFunction<Object,IOException>
     implements Closeable {
 
+    public static boolean ENABLE_TRACING = true;
+    
+    public IdempotentCloser() {
+        super( ENABLE_TRACING );
+    }
+
     @Override
     /**
      * Idempotently close the resource.  This is a final method so that we don't
@@ -59,5 +65,9 @@ public abstract class IdempotentCloser
         return null;
     }
 
+    public Exception getCloser() {
+        return caller;
+    }
+        
 }
 

@@ -58,20 +58,20 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
     
     protected MappedByteBufferCloser mappedByteBufferCloser = null;
 
-    public MappedFileReader( Config config, String path ) throws IOException {
-        this( config, new File( path ) );
-    }
-    
     public MappedFileReader( Config config, File file ) throws IOException {
         init( config, file );
     }
 
-    public MappedFileReader( String path ) throws IOException {
-        this( new File( path ) );
+    public MappedFileReader( File file ) throws IOException {
+        this( null, file );
     }
 
-    public MappedFileReader( File file ) throws IOException {
-        init( null, file );
+    public MappedFileReader( Config config, String path ) throws IOException {
+        this( config, new File( path ) );
+    }
+
+    public MappedFileReader( String path ) throws IOException {
+        this( new File( path ) );
     }
 
     private void init( Config config, File file ) throws IOException {
@@ -174,7 +174,7 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
     }
 
     @Override
-    public void close() throws IOException {
+    protected void doClose() throws IOException {
 
         if ( closer.isClosed() )
             return;

@@ -48,8 +48,16 @@ public class CloseableByteBufferBackedChannelBuffer extends AbstractChannelBuffe
     
     private void requireOpen() {
 
-        if ( reader.isClosed() )
-            throw new RuntimeException( "closed" );
+        if ( reader.isClosed() ) {
+
+            RuntimeException rte = new RuntimeException( "closed" );
+
+            if ( reader.getCloser() != null ) {
+                rte.initCause( reader.getCloser() );
+            }
+            
+            throw rte;
+        }
         
     }
 

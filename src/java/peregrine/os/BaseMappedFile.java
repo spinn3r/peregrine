@@ -23,6 +23,7 @@ import java.util.*;
 import org.jboss.netty.buffer.*;
 
 import peregrine.http.*;
+import peregrine.util.*;
 import peregrine.util.netty.*;
 import peregrine.io.util.*;
 import peregrine.config.*;
@@ -32,7 +33,7 @@ import com.spinn3r.log5j.Logger;
 /**
  *
  */
-public abstract class BaseMappedFile implements Closeable {
+public abstract class BaseMappedFile extends IdempotentCloser {
 
     protected FileChannel channel;
 
@@ -75,8 +76,5 @@ public abstract class BaseMappedFile implements Closeable {
     public String toString() {
         return file.toString();
     }
-
-    @Override
-    public abstract void close() throws IOException;
 
 }
