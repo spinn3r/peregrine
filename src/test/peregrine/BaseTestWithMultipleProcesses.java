@@ -66,7 +66,9 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
         try {
             killAllDaemons();
         } catch ( Exception e ) {
-            throw new RuntimeException( "Unable to kill daemons: ", e );
+            RuntimeException rte = new RuntimeException( "Unable to kill daemons: ", e );
+            rte.initCause( e );
+            throw rte;
         }
         
         String conf = System.getProperty( "peregrine.test.config", "1:1:1" );
