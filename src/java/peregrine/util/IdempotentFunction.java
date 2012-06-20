@@ -27,14 +27,14 @@ public abstract class IdempotentFunction<T,E extends Exception> {
 
     private T result = null;
 
-    private E cause = null;
-    
+    private E failure = null;
+
     protected final T exec() throws E {
 
         if ( executed ) {
 
-            if ( cause != null )
-                throw cause;
+            if ( failure != null )
+                throw failure;
             
             return result;
 
@@ -51,8 +51,8 @@ public abstract class IdempotentFunction<T,E extends Exception> {
                 return result;
 
             } catch ( Exception e ) {
-                cause = (E)e;
-                throw cause;
+                failure = (E)e;
+                throw failure;
             } finally {
                 executed = true;
             }

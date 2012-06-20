@@ -34,7 +34,8 @@ import com.spinn3r.log5j.Logger;
 
 /**
  * Facade around a MappedByteBuffer but we also support mlock on the mapped
- * pages, and closing all dependent resources.
+ * pages, and closing all dependent resources in the foreground via close()
+ * without having to wait for the GC.
  *
  */
 public class MappedFileReader extends BaseMappedFile implements Closeable {
@@ -239,7 +240,20 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
         class BackgroundCloser implements Runnable {
             
             public void run() {
-                
+
+                try {
+
+                    // close if done in the background... allows us to have the
+                    // GC release mmap resources if we want.  It doesn't matter
+                    // if this happens twice because this is an IdempotentCloser
+                    
+                    mappedByteBufferCloser.close();
+                    
+                } catch ( IOException e ) {
+                    RuntimeException rte = new RuntimeException( "Unable to close: " , e );
+                    rte.initCause( e );
+                    throw rte;
+                }
             }
             
         }
