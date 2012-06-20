@@ -43,7 +43,7 @@ fi
 
 set -o noglob
 
-export CLASSPATH=target/compile:lib/*:lib/optional/cassandra/*
+export CLASSPATH=target/compile:lib/*:lib/optional/cassandra/*:lib/build/*
 
 run $JAVA \
   -XX:MaxDirectMemorySize=$MAX_DIRECT_MEMORY \
