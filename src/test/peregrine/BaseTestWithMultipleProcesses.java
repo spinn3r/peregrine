@@ -25,6 +25,7 @@ import peregrine.io.util.*;
 import peregrine.io.chunk.*;
 import peregrine.io.partition.*;
 import peregrine.os.*;
+import peregrine.os.proc.*;
 import peregrine.rpc.*;
 
 import com.spinn3r.log5j.Logger;
@@ -59,9 +60,15 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
     public void setUp() {
 
         System.out.printf( "setUp()\n" );
-        
+
         super.setUp();
 
+        try {
+            killAllDaemons();
+        } catch ( Exception e ) {
+            throw new RuntimeException( "Unable to kill daemons: ", e );
+        }
+        
         String conf = System.getProperty( "peregrine.test.config", "1:1:1" );
 
         if ( conf == null || conf.equals( "" ) ) {
@@ -124,11 +131,6 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
             configsByHost.put( host, config );
             configs.add( config );
 
-            // use the files in the current basedir to see if an existing daemon
-            // is running on this port and if so shut it down.
-
-            stopDaemon( port );
-            
             //clean up the previous basedir
 
             System.out.printf( "Removing files in %s\n", basedir );
@@ -148,27 +150,13 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
 
             try {
 
-                Pidfile pidfile = new Pidfile( config );
-                
-                // First make sure it's not already running by verifying that
-                // the pid file does not exist.
-
-                System.out.printf( "Reading pid for daemon on port: %s\n", port );
-
-                int pid = getPidFromDaemon( port );
-
-                if ( pid != -1 ) {
-                    System.out.printf( "Sending SIGTERM to %s\n", pid );
-                    signal.kill( pid, signal.SIGTERM );
-                }
-
                 System.out.printf( "Starting proc: %s\n", cmdline );
 
                 Process proc = pb.start();
 
                 // wait for the pid file to be created OR the process exits.
 
-                pid = waitForProcStartup( config, proc, port );
+                int pid = waitForProcStartup( config, proc, port );
                 
                 // wait for startup so we know the port is open
                 WaitForDaemon.waitForDaemon( pid, port );
@@ -185,6 +173,43 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
         
     }
 
+    private void killAllDaemons() throws Exception {
+
+        ProcessList ps = new ProcessList();
+
+        for( ProcessListEntry proc : ps.getProcesses() ) {
+
+            List<String> arguments = proc.getArguments();
+
+            if ( arguments.size() <= 1 )
+                continue;
+
+            if ( ! "java".equals( arguments.get( 0 ) ) ) {
+                continue;
+            }
+
+            boolean isDaemon = false;
+
+            for( String arg : arguments ) {
+                if ( peregrine.worker.Main.class.getName().equals( arg ) ) {
+                    isDaemon = true;
+                    break;
+                }
+            }
+
+            if ( isDaemon ) {
+                
+                int pid = proc.getId();
+                
+                System.out.printf( "Sending SIGTERM to %s\n", pid );
+                signal.kill( pid, signal.SIGTERM );
+                
+            }
+            
+        }
+
+    }
+    
     private int getPidFromDaemon( int port ) {
 
         try {
