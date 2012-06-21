@@ -69,6 +69,7 @@ public abstract class IdempotentFunction<T,E extends Exception> {
                 return result;
 
             } catch ( Exception e ) {
+                
                 failure = (E)e;
 
                 if ( traceExec ) {
