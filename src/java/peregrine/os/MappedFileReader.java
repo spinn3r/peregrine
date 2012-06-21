@@ -181,6 +181,8 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
         if ( closer.isClosed() )
             return;
 
+        log.info( "Closing %s" , file.getPath() );
+        
         if ( mappedByteBufferCloser != null )
             closer.add( mappedByteBufferCloser );
         
