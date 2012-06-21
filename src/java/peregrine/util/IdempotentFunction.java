@@ -39,21 +39,25 @@ public abstract class IdempotentFunction<T,E extends Exception> {
         this.traceExec = traceExec;
     }
 
+    protected final T getResult() throws E {
+        
+        if ( failure != null )
+            throw failure;
+        
+        return result;
+        
+    }
+    
     protected final T exec() throws E {
 
         if ( executed ) {
-
-            if ( failure != null )
-                throw failure;
-            
-            return result;
-
+            return getResult();
         }
 
         synchronized( this ) {
 
             if ( executed ) {
-                return result;
+                return getResult();
             }
 
             if ( traceExec )

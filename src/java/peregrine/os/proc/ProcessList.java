@@ -37,6 +37,9 @@ public class ProcessList {
 
         File proc = new File( "/proc" );
 
+        if ( ! proc.exists() )
+            return;
+        
         for ( String current : proc.list() ) {
 
             if ( current.matches( "[0-9]+" ) ) {

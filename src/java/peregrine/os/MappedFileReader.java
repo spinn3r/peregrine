@@ -176,6 +176,8 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
     @Override
     protected void doClose() throws IOException {
 
+        log.info( "Closing %s", file.getPath() );
+        
         if ( closer.isClosed() )
             return;
 
@@ -241,19 +243,20 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
             
             public void run() {
 
-                try {
+                // try {
 
-                    // close if done in the background... allows us to have the
-                    // GC release mmap resources if we want.  It doesn't matter
-                    // if this happens twice because this is an IdempotentCloser
+                //     // close if done in the background... allows us to have the
+                //     // GC release mmap resources if we want.  It doesn't matter
+                //     // if this happens twice because this is an IdempotentCloser
                     
-                    mappedByteBufferCloser.close();
+                //     close();
                     
-                } catch ( IOException e ) {
-                    RuntimeException rte = new RuntimeException( "Unable to close: " , e );
-                    rte.initCause( e );
-                    throw rte;
-                }
+                // } catch ( IOException e ) {
+                //     RuntimeException rte = new RuntimeException( "Unable to close: " );
+                //     rte.initCause( e );
+                //     throw rte;
+                // }
+
             }
             
         }
