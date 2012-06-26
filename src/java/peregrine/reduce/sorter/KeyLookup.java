@@ -104,6 +104,7 @@ public class KeyLookup extends IdempotentCloser {
 
             } catch ( OutOfMemoryError e ) {
                 DirectMemoryAllocationTracker.getInstance().fail( capacity, e );
+                throw e;
             }
 
             closer = new ByteBufferCloser( lookup );
