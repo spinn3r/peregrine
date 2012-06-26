@@ -21,10 +21,14 @@ import java.util.concurrent.atomic.*;
 
 import peregrine.*;
 
+import com.spinn3r.log5j.Logger;
+
 /**
  * Track memory allocations.
  */
 public class MemoryAllocationTracker {
+
+    private static final Logger log = Logger.getLogger();
 
     /**
      * True when we should trace memory allocations.
@@ -43,7 +47,7 @@ public class MemoryAllocationTracker {
     public void incr( long v ) {
 
         if ( TRACE ) {
-            log.info( "Current capacity is %,d and incrementing by %,d", get(), v );
+            log.info( "Current capacity is %,d and incrementing by %,d bytes.", get(), v );
         }
             
         allocated.getAndAdd( v );
@@ -53,10 +57,19 @@ public class MemoryAllocationTracker {
     public void decr( long v ) {
 
         if ( TRACE ) {
-            log.info( "Current capacity is %,d and about to decrement by %,d", get(), v );
+            log.info( "Current capacity is %,d and about to decrement by %,d bytes.", get(), v );
         }
 
         incr( -1 * v );
+    }
+
+    /**
+     * Not that we failed to allocate memory.
+     */
+    public void fail( long v, Throwable cause ) {
+        if ( TRACE ) {
+            log.error( String.format( "Current capacity is %,d and FAILED to allocate by %,d bytes.", get(), v ), cause );
+        }
     }
     
 }

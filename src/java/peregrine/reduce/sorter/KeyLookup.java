@@ -80,6 +80,8 @@ public class KeyLookup extends IdempotentCloser {
     protected ChannelBuffer[] buffers;
 
     protected IdempotentCloser closer = null;
+
+    protected int capacity = -1;
     
     private KeyLookup( ChannelBuffer lookup,
                        IdempotentCloser closer,
@@ -90,15 +92,19 @@ public class KeyLookup extends IdempotentCloser {
 
             //request that we allocate directly...
 
-            int capacity = size * KEY_SIZE;
+            this.capacity = size * KEY_SIZE;
             
             log.info( "Allocating buffer of %,d capacity with %,d size.", capacity, size );
 
-            lookup = ChannelBuffers.directBuffer( capacity );
+            try {
+                lookup = ChannelBuffers.directBuffer( capacity );
 
-            // increment our capacity 
-            DirectMemoryAllocationTracker.getInstance().incr( capacity );
-            
+                DirectMemoryAllocationTracker.getInstance().incr( capacity );
+
+            } catch ( OutOfMemoryError e ) {
+                DirectMemoryAllocationTracker.getInstance().fail( capacity, e );
+            }
+
             closer = new ByteBufferCloser( lookup );
             
         }
@@ -230,6 +236,7 @@ public class KeyLookup extends IdempotentCloser {
     @Override
     public void doClose() throws IOException {
         closer.close();
+        DirectMemoryAllocationTracker.getInstance().decr( capacity );
     }
     
     /**

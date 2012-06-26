@@ -30,7 +30,7 @@ public class DirectMemoryAllocationTracker extends MemoryAllocationTracker {
 
     public static final DirectMemoryAllocationTracker instance = new DirectMemoryAllocationTracker();
 
-    public MemoryAllocationTracker getInstance() {
+    public static MemoryAllocationTracker getInstance() {
         return instance;
     }
     
