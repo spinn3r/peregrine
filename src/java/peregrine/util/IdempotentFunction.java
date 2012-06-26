@@ -42,7 +42,7 @@ public abstract class IdempotentFunction<T,E extends Exception> {
     protected final T getResult() throws E {
         
         if ( failure != null )
-            throw failure;
+            throw (E)failure;
         
         return result;
         
@@ -60,15 +60,16 @@ public abstract class IdempotentFunction<T,E extends Exception> {
                 return getResult();
             }
 
-            if ( traceExec )
-                caller = new Exception( "TRACE" );
-                
             try {
-                
+
+                if ( traceExec )
+                    caller = new Exception( "TRACE" );
+
                 result = invoke();
                 return result;
 
             } catch ( Exception e ) {
+                
                 failure = (E)e;
 
                 if ( traceExec ) {
