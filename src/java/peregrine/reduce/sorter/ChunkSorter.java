@@ -80,6 +80,7 @@ public class ChunkSorter extends BaseChunkSorter {
         ChunkWriter writer           = null;
         SortResult sortResult        = null;
         KeyLookup lookup             = null;
+        KeyLookup sorted             = null;
         
         try {
 
@@ -95,7 +96,11 @@ public class ChunkSorter extends BaseChunkSorter {
 
             log.info( "Key lookup for %s has %,d entries." , partition, lookup.size() );
 
-            lookup = sort( lookup );
+            try {
+                sorted = sort( lookup );
+            } finally {
+                lookup.close();
+            }
             
             //write this into the final ChunkWriter now.
 
@@ -104,7 +109,7 @@ public class ChunkSorter extends BaseChunkSorter {
 
             sortResult = new SortResult( writer, sortListener );
 
-            KeyLookupReader keyLookupReader = new KeyLookupReader( lookup );
+            KeyLookupReader keyLookupReader = new KeyLookupReader( sorted );
 
             while( keyLookupReader.hasNext() ) {
 
@@ -118,7 +123,7 @@ public class ChunkSorter extends BaseChunkSorter {
 
             }
 
-            log.info( "Sort output file %s has %,d entries.", output, lookup.size() );
+            log.info( "Sort output file %s has %,d entries.", output, sorted.size() );
 
         } catch ( Throwable t ) {
 
@@ -130,6 +135,7 @@ public class ChunkSorter extends BaseChunkSorter {
             
         } finally {
 
+            //TODO: these need to be the same flusher.
             new Flusher( jobOutput ).flush();
 
             new Flusher( writer ).flush();
@@ -137,7 +143,7 @@ public class ChunkSorter extends BaseChunkSorter {
             // NOTE: it is important that the writer be closed before the reader
             // because if not then the writer will attempt to read values from 
             // closed reader.
-            new Closer( sortResult, writer, reader ).close();
+            new Closer( sortResult, writer, reader, sorted ).close();
 
         }
 

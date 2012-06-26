@@ -66,9 +66,7 @@ public class BaseChunkSorter {
             // just write the results to disk.  Writing to memory and THEN writing
             // to disk would just waste CPU time.
 
-            KeyLookup merged = merge( left, right, depth );
-
-            return merged;
+            return merge( left, right, depth );
             
         } finally {
 
@@ -79,9 +77,9 @@ public class BaseChunkSorter {
         
     }
 
-    protected KeyLookup merge( KeyLookup left,
-                               KeyLookup right,
-                               int depth )
+    private KeyLookup merge( KeyLookup left,
+                             KeyLookup right,
+                             int depth )
         throws IOException {
         
         KeyLookup result = new KeyLookup( left.size() + right.size(), left.buffers );

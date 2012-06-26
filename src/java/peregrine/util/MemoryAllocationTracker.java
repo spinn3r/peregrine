@@ -47,7 +47,8 @@ public class MemoryAllocationTracker {
     public void incr( long v ) {
 
         if ( TRACE ) {
-            log.info( "Current capacity is %,d and incrementing by %,d bytes.", get(), v );
+            long current = get();
+            log.info( String.format( "Current capacity is %,d and incrementing by %,d bytes.", current, v ) );
         }
             
         allocated.getAndAdd( v );
@@ -56,11 +57,14 @@ public class MemoryAllocationTracker {
 
     public void decr( long v ) {
 
+
         if ( TRACE ) {
-            log.info( "Current capacity is %,d and about to decrement by %,d bytes.", get(), v );
+            long current = get();
+            log.info( String.format( "Current capacity is %,d and about to decrement by %,d bytes.", current, v ) );
         }
 
-        incr( -1 * v );
+        allocated.getAndAdd( -1 * v );
+
     }
 
     /**
