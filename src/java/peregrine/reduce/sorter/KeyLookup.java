@@ -96,6 +96,9 @@ public class KeyLookup extends IdempotentCloser {
 
             lookup = ChannelBuffers.directBuffer( capacity );
 
+            // increment our capacity 
+            DirectMemoryAllocationTracker.getInstance().incr( capacity );
+            
             closer = new ByteBufferCloser( lookup );
             
         }
