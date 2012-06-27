@@ -54,6 +54,8 @@ public interface Task extends Callable {
 
     public void init( Config config, Work work, Class delegate ) throws IOException;
 
-    public void setJobId( String job_id );
+    //TODO: this should be setJob and we should support taking a FULL Job object
+    //with all metadata and sending it...
+    public void setJobHandle( String job_handle );
 
 }

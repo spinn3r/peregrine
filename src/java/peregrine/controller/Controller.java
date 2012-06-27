@@ -51,6 +51,11 @@ public class Controller {
      * True if we are shutdown to avoid multiple shutdown attempts.
      */
     protected boolean shutdown = false;
+
+    /**
+     * By default, specify which jobs we should execute.
+     */
+    protected ExecutionRange executionRange = new ExecutionRange();
     
     public Controller( Config config ) {
     	
@@ -77,6 +82,21 @@ public class Controller {
 
         this.daemon = new ControllerDaemon( this, config, clusterState );
 
+    }
+
+    public void setExecutionRange( int start, int end ) {
+        this.executionRange = new ExecutionRange( start, end );
+    }
+
+    public void setExecutionRange( String executionRange ) {
+
+        String[] split = executionRange.split( ":" );
+
+        int start = Integer.parseInt( split[0] );
+        int end   = Integer.parseInt( split[1] );
+        
+        setExecutionRange( start, end );
+        
     }
 
     public void map( Class mapper,
@@ -232,9 +252,18 @@ public class Controller {
 
         String operation = scheduler.getOperation();
         
-        String desc = String.format( "%s %s (%s) for input %s and output %s ",
-                                     operation, job.getDelegate().getName(),
-                                     job.getName(), job.getInput(), job.getOutput() );
+        String desc = String.format( "%s for delegate %s, named %s, with identifier %,d for input %s and output %s ",
+                                     operation,
+                                     job.getDelegate().getName(),
+                                     job.getName(),
+                                     job.getIdentifier(),
+                                     job.getInput(),
+                                     job.getOutput() );
+
+        if ( job.getIdentifier() < executionRange.start || job.getIdentifier() > executionRange.end ) {
+            log.info( "SKIP job due to execution range %s (%s)", executionRange, desc );
+            return;
+        }
 
         log.info( "STARTING %s", desc );
 
@@ -346,7 +375,7 @@ public class Controller {
         
         message.put( "action",     action );
         message.put( "delegate",   delegate.getName() );
-        message.put( "job_id",     job.getId() );
+        message.put( "job_handle",     job.getHandle() );
     	message.put( "work" ,      work.getReferences() );
 
         if ( input != null )
@@ -378,3 +407,26 @@ interface CallableFactory {
 
 }
 
+/**
+ * Represents which jobs we should be executing.
+ */
+class ExecutionRange {
+
+    protected int start;
+
+    protected int end;
+
+    public ExecutionRange() {
+        this( 0, Integer.MAX_VALUE );
+    }
+
+    public ExecutionRange( int start, int end ) {
+        this.start = start;
+        this.end   = end;
+    }
+
+    public String toString() {
+        return String.format( "%s:%s", start, end );
+    }
+    
+}

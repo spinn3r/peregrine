@@ -25,11 +25,12 @@ import java.util.concurrent.atomic.*;
  */
 public class Job {
 
-    public static AtomicInteger nonce = new AtomicInteger();
+    private static AtomicInteger nonce = new AtomicInteger();
 
     protected long timestamp = System.currentTimeMillis();
-	protected String id = String.format( "%010d.%010d", timestamp, nonce.getAndIncrement() );
-	protected String name = id;
+    protected int identifier = nonce.getAndIncrement();
+	protected String handle = String.format( "%010d.%010d", timestamp, identifier );
+	protected String name = handle;
 	protected String description = null;
 	protected Class delegate = null; 
 	protected Class combiner = null;
@@ -37,10 +38,19 @@ public class Job {
 	protected Output output = null;
 
     /**
-     * Get the unique job ID (nonce). 
+     * Get a unique identifier for this job.  Every job stats at 0 (zero) and is
+     * every new job identifier is incremented by 1 (one).
      */
-    public String getId() {
-        return id;        
+    public int getIdentifier() {
+        return identifier;
+    }
+    
+    /**
+     * Get the unique job ID (nonce).  This is an opaque string used to identify
+     * the job.
+     */
+    public String getHandle() {
+        return handle;        
     }
 
     /**

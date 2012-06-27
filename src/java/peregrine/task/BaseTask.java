@@ -78,7 +78,7 @@ public abstract class BaseTask implements Task {
     /**
      * The job ID we are working with.
      */
-    protected String job_id = null;
+    protected String job_handle = null;
     
     public void init( Config config, Work work, Class delegate ) throws IOException {
     	this.config      = config;
@@ -320,8 +320,8 @@ public abstract class BaseTask implements Task {
     }
 
     @Override
-    public void setJobId( String job_id ) {
-        this.job_id = job_id;
+    public void setJobHandle( String job_handle ) {
+        this.job_handle = job_handle;
     }
     
     /**
@@ -331,9 +331,9 @@ public abstract class BaseTask implements Task {
 
         Message message = new Message();
 
-        message.put( "action" ,   "complete" );
-        message.put( "job_id" ,   job_id );
-        message.put( "killed" ,   killed );
+        message.put( "action" ,      "complete" );
+        message.put( "job_handle" ,  job_handle );
+        message.put( "killed" ,      killed );
 
         sendMessageToController( message );
 
@@ -347,7 +347,7 @@ public abstract class BaseTask implements Task {
         Message message = new Message();
         
         message.put( "action"      , "failed" );
-        message.put( "job_id"      , job_id );
+        message.put( "job_handle"  , job_handle );
         message.put( "stacktrace"  , cause );
         
         sendMessageToController( message );
@@ -367,10 +367,10 @@ public abstract class BaseTask implements Task {
 
         Message message = new Message();
         
-        message.put( "action"  , "progress" );
-        message.put( "job_id"  , job_id );
-        message.put( "nonce"   , nonce );
-        message.put( "pointer" , pointer );
+        message.put( "action"  ,    "progress" );
+        message.put( "job_handle" ,  job_handle );
+        message.put( "nonce"   ,     nonce );
+        message.put( "pointer" ,     pointer );
 
         sendMessageToController( message );
 
@@ -382,10 +382,10 @@ public abstract class BaseTask implements Task {
         
             log.info( "Sending %s message to controller%s", message.get( "action" ), message );
             
-            message.put( "host"      , config.getHost().toString() );
-            message.put( "job_id"    , job_id );
-            message.put( "input"     , input.getReferences() );
-            message.put( "work"      , work.getReferences() );
+            message.put( "host"      ,    config.getHost().toString() );
+            message.put( "job_handle",    job_handle );
+            message.put( "input"     ,    input.getReferences() );
+            message.put( "work"      ,    work.getReferences() );
             
             new Client().invoke( config.getController(), "controller", message );
 
