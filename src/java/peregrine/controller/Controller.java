@@ -85,10 +85,17 @@ public class Controller {
     }
 
     public void setExecutionRange( int start, int end ) {
+
         this.executionRange = new ExecutionRange( start, end );
+
+        log.info( "Using execution range: %s", this.executionRange );
+        
     }
 
     public void setExecutionRange( String executionRange ) {
+
+        if ( executionRange == null || "".equals( executionRange ) )
+            return;
 
         String[] split = executionRange.split( ":" );
 

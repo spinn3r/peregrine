@@ -47,6 +47,8 @@ public class Main {
         try {
 
             controller = new Controller( config );
+
+            controller.setExecutionRange( getopt.getString( "execution-range" ) );
             
             Wikirank wikirank = new Wikirank( config, controller, nodes_path, links_path );
             
