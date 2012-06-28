@@ -3,6 +3,10 @@
 # When true, always allow the existing daemon to work.
 export YIELD_TO_EXISTING_DAEMON=true
 
+# When true, save standard out.
+export SAVE_STDOUT=false
+
+
 start() {
 
     # first check if we are already running ...
@@ -35,6 +39,11 @@ start() {
     stderr="logs/peregrine-workerd-$host.err"
     stdout="logs/peregrine-workerd-$host.out"
     
+    if [ "$SAVE_STDOUT" == "false" ]; then
+        stderr="/dev/null"
+        stdout="/dev/null"
+    fi
+
     echo "Running with max JVM memory $MAX_MEMORY and max direct memory $MAX_DIRECT_MEMORY"
 
     ./bin/jexec peregrine.worker.Main $args < /dev/null > $stdout 2> $stderr &
