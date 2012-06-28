@@ -76,7 +76,7 @@ public class MemoryAllocationTracker {
     }
 
     public String toString() {
-        return String.format( "capacity=%,d", capacity.get() );
+        return String.format( "%s capacity=%,d", getClass().getSimpleName(), capacity.get() );
     }
     
 }
