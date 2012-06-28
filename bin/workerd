@@ -39,7 +39,7 @@ start() {
     stderr="logs/peregrine-workerd-$host.err"
     stdout="logs/peregrine-workerd-$host.out"
     
-    if [ "$SAVE_STDOUT" == "false" ]; then
+    if [ "$SAVE_STDOUT" != "true" ]; then
         stderr="/dev/null"
         stdout="/dev/null"
     fi
