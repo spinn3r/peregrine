@@ -38,20 +38,20 @@ public class MemoryAllocationTracker {
     /**
      * The current amount of memory allocated.
      */
-    public AtomicLong allocated = new AtomicLong();
+    private AtomicLong capacity = new AtomicLong();
 
     public long get() {
-        return allocated.get();
+        return capacity.get();
     }
 
     public void incr( long v ) {
 
         if ( TRACE ) {
             long current = get();
-            log.info( String.format( "Current capacity is %,d and incrementing by %,d bytes.", current, v ) );
+            log.info( String.format( "Capacity is %,d and incrementing by %,d bytes.", current, v ) );
         }
             
-        allocated.getAndAdd( v );
+        capacity.getAndAdd( v );
 
     }
 
@@ -60,10 +60,10 @@ public class MemoryAllocationTracker {
 
         if ( TRACE ) {
             long current = get();
-            log.info( String.format( "Current capacity is %,d and about to decrement by %,d bytes.", current, v ) );
+            log.info( String.format( "Capacity is %,d and about to decrement by %,d bytes.", current, v ) );
         }
 
-        allocated.getAndAdd( -1 * v );
+        capacity.getAndAdd( -1 * v );
 
     }
 
@@ -72,8 +72,12 @@ public class MemoryAllocationTracker {
      */
     public void fail( long v, Throwable cause ) {
         if ( TRACE ) {
-            log.error( String.format( "Current capacity is %,d and FAILED to allocate by %,d bytes.", get(), v ), cause );
+            log.error( String.format( "Capacity is %,d and FAILED to allocate by %,d bytes.", get(), v ), cause );
         }
+    }
+
+    public String toString() {
+        return String.format( "capacity=%,d", capacity.get() );
     }
     
 }

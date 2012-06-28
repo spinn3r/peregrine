@@ -94,8 +94,6 @@ public class KeyLookup extends IdempotentCloser {
 
             this.capacity = size * KEY_SIZE;
             
-            log.info( "Allocating buffer of %,d capacity with %,d size.", capacity, size );
-
             try {
                 
                 lookup = ChannelBuffers.directBuffer( capacity );

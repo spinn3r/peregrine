@@ -84,7 +84,7 @@ public class ChunkSorter extends BaseChunkSorter {
         
         try {
 
-            log.info( "Going to sort: %s", input );
+            log.info( "Going to sort: %s (current memory footprint=%s)", input, DirectMemoryAllocationTracker.getInstance() );
 
             // TODO: do this async so that we can read from disk and compute at
             // the same time... we need a background thread to trigger the
@@ -123,7 +123,7 @@ public class ChunkSorter extends BaseChunkSorter {
 
             }
 
-            log.info( "Sort output file %s has %,d entries.", output, sorted.size() );
+            log.info( "Sort output file %s has %,d entries. (current memory footprint=%s)", output, sorted.size(), DirectMemoryAllocationTracker.getInstance() );
 
         } catch ( Throwable t ) {
 
