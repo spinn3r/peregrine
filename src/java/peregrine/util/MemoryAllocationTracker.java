@@ -57,7 +57,6 @@ public class MemoryAllocationTracker {
 
     public void decr( long v ) {
 
-
         if ( TRACE ) {
             long current = get();
             log.info( String.format( "Capacity is %,d and about to decrement by %,d bytes.", current, v ) );
