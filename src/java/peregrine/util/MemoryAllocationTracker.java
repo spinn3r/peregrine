@@ -38,45 +38,55 @@ public class MemoryAllocationTracker {
     /**
      * The current amount of memory allocated.
      */
-    private AtomicLong capacity = new AtomicLong();
+    private AtomicLong allocated = new AtomicLong();
+
+    protected long capacity = -1;
 
     public long get() {
-        return capacity.get();
+        return allocated.get();
     }
 
     public void incr( long v ) {
 
         if ( TRACE ) {
-            long current = get();
-            log.info( String.format( "Capacity is %,d and incrementing by %,d bytes.", current, v ) );
+            log.info( String.format( "%s and incr() by %,d bytes.", getStatus(), v ) );
         }
             
-        capacity.getAndAdd( v );
+        allocated.getAndAdd( v );
 
     }
 
     public void decr( long v ) {
 
         if ( TRACE ) {
-            long current = get();
-            log.info( String.format( "Capacity is %,d and about to decrement by %,d bytes.", current, v ) );
+            log.info( String.format( "%s and decr() by %,d bytes.", getStatus(), v ) );
         }
 
-        capacity.getAndAdd( -1 * v );
+        allocated.getAndAdd( -1 * v );
 
     }
 
+    private String getStatus() {
+
+        long current = get();
+
+        int perc = (int)(100 * ((double)current / (double)capacity));
+
+        return String.format( "Allocated %,d with capacity %,d (%s %%)", current, capacity, perc );
+
+    }
+    
     /**
      * Not that we failed to allocate memory.
      */
     public void fail( long v, Throwable cause ) {
         if ( TRACE ) {
-            log.error( String.format( "Capacity is %,d and FAILED to allocate by %,d bytes.", get(), v ), cause );
+            log.error( String.format( "%s and FAILED to allocate by %,d bytes.", getStatus(), v ), cause );
         }
     }
 
     public String toString() {
-        return String.format( "%s capacity=%,d", getClass().getSimpleName(), capacity.get() );
+        return String.format( "%s %s", getClass().getSimpleName(), getStatus() );
     }
     
 }

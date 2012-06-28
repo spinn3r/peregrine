@@ -28,7 +28,15 @@ import peregrine.*;
  */
 public class DirectMemoryAllocationTracker extends MemoryAllocationTracker {
 
-    public static final DirectMemoryAllocationTracker instance = new DirectMemoryAllocationTracker();
+    private static DirectMemoryAllocationTracker instance = null;
+
+    static {
+
+        instance = new DirectMemoryAllocationTracker();
+        
+        instance.capacity = Long.parseLong( System.getProperty( "MaxDirectMemorySize" ) );
+        
+    }
 
     public static MemoryAllocationTracker getInstance() {
         return instance;
