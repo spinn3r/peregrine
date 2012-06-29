@@ -146,12 +146,17 @@ public final class Initializer {
     }
 
     /**
-     * Perform all init steps required for the worker daemon.
+     * Perform basic init.
+     */
+    public void basic( String name ) throws Exception {
+        logger( String.format( "%s-%s", name, config.getHost() ) );
+    }
+    
+    /**
+     * Perform all init steps required for the controller.
      */
     public void controller() throws Exception {
-
         logger( String.format( "controller-%s",  config.getHost() ) );
-
     }
         
 }

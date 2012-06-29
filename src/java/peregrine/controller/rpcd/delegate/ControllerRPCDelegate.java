@@ -154,9 +154,7 @@ public class ControllerRPCDelegate extends RPCDelegate<ControllerDaemon> {
 
         Message response = new Message( scheduler.getStatusAsMap() );
 
-        channel.write( response );
-
-        return null;
+        return ChannelBuffers.wrappedBuffer( response.toString().getBytes() );
 
     }
 

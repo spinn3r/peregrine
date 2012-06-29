@@ -245,7 +245,7 @@ public class Membership {
             
             try {           
                 
-                new Client( true ).invoke( controller, "controller", message );
+                new Client( false ).invoke( controller, "controller", message );
                 
                 return true;
 

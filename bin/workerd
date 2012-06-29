@@ -3,9 +3,15 @@
 # When true, always allow the existing daemon to work.
 export YIELD_TO_EXISTING_DAEMON=true
 
-# When true, save standard out.
-export SAVE_STDOUT=false
+# Determine how to handle stdout and stderr from the worker daemon.  
+#
+# none: (default) we write to /dev/null.
+# 
+# standard: write to standard out and standard err
+#
+# file: write to .err and .out files.
 
+export OUTPUT=none
 
 start() {
 
@@ -18,7 +24,6 @@ start() {
         echo "Daemon was already up and listening."
         exit 0
     fi
-
 
     export MAX_MEMORY=$(./bin/jexec peregrine.worker.GetConfig $args --getString=maxMemory 2> /dev/null)
 
@@ -36,15 +41,31 @@ start() {
     # no, we weren't running, so go ahead and startup.
     host=$(./bin/jexec peregrine.worker.GetConfig $args --getString=host 2> /dev/null)
 
-    stderr="logs/peregrine-workerd-$host.err"
-    stdout="logs/peregrine-workerd-$host.out"
-    
-    if [ "$SAVE_STDOUT" != "true" ]; then
-        stderr="/dev/null"
-        stdout="/dev/null"
-    fi
+    case $OUTPUT in
 
-    echo "Running with max JVM memory $MAX_MEMORY and max direct memory $MAX_DIRECT_MEMORY"
+        none)
+            stderr="/dev/null"
+            stdout="/dev/null"
+            ;;
+
+        standard)
+            stderr="/dev/stderr"
+            stdout="/dev/stdout"
+            ;;
+
+        file)
+            stderr="logs/peregrine-workerd-$host.err"
+            stdout="logs/peregrine-workerd-$host.out"
+            ;;
+
+        *)
+            echo "UNKNOWN output option: $OUTPUT" > /dev/stderr
+            exit 1
+            ;;
+
+    esac
+
+    echo "Running with max JVM memory $MAX_MEMORY and max direct memory $MAX_DIRECT_MEMORY and writing output to '$OUTPUT'"
 
     ./bin/jexec peregrine.worker.Main $args < /dev/null > $stdout 2> $stderr &
 

@@ -68,7 +68,7 @@ public class FSPipelineFactory implements ChannelPipelineFactory {
         // Create a default pipeline implementation.
         ChannelPipeline pipeline = pipeline();
 
-        if ( config.getTraceWorkerTraffic() ) {
+        if ( config.getTraceNetworkTraffic() ) {
 
             log.info( "Adding hex pipeline encoder to Netty pipeline." );
             

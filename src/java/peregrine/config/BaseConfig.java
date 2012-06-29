@@ -118,7 +118,7 @@ public class BaseConfig {
 
     protected boolean enableFailureDuringMemLockError = false;
 
-    protected boolean traceWorkerTraffic = false;
+    protected boolean traceNetworkTraffic = false;
 
     public void init( StructMap struct ) {
 
@@ -148,7 +148,7 @@ public class BaseConfig {
         setShuffleMapLockEnabled( struct.getBoolean( "shuffleMapLockEnabled" ) );
         setUser( struct.getString( "user" ) );
         setEnableFailureDuringMemLockError( struct.getBoolean( "enableFailureDuringMemLockError" ) );
-        setTraceWorkerTraffic( struct.getBoolean( "traceWorkerTraffic" ) );
+        setTraceNetworkTraffic( struct.getBoolean( "traceNetworkTraffic" ) );
         
         if ( struct.containsKey( "host" ) )
             setHost( Host.parse( struct.getString( "host" ) ) );
@@ -374,12 +374,12 @@ public class BaseConfig {
         this.enableFailureDuringMemLockError = enableFailureDuringMemLockError;
     }
 
-    public boolean getTraceWorkerTraffic() { 
-        return this.traceWorkerTraffic;
+    public boolean getTraceNetworkTraffic() { 
+        return this.traceNetworkTraffic;
     }
 
-    public void setTraceWorkerTraffic( boolean traceWorkerTraffic ) { 
-        this.traceWorkerTraffic = traceWorkerTraffic;
+    public void setTraceNetworkTraffic( boolean traceNetworkTraffic ) { 
+        this.traceNetworkTraffic = traceNetworkTraffic;
     }
 
     static {

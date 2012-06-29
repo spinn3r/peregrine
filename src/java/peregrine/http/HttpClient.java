@@ -327,22 +327,15 @@ public class HttpClient implements ChannelBufferWritable {
      * @return True on success, null on pending.
      * @throws IOException on failure
      */
-    public Boolean getResult() throws IOException {
+    public ChannelBuffer getResult() throws IOException {
 
         Object peek = result.peek();
 
         return handleResult( peek );
 
     }
-
-    /**
-     * Get HTTP response content.
-     */
-    public ChannelBuffer getContent() {
-        return content;
-    }
     
-    private Boolean handleResult( Object peek ) throws IOException {
+    private ChannelBuffer handleResult( Object peek ) throws IOException {
 
         if ( peek instanceof IOException )
             throw (IOException) peek;
@@ -350,13 +343,21 @@ public class HttpClient implements ChannelBufferWritable {
         if ( peek instanceof Throwable )
             throw new IOException( (Throwable)peek );
 
-        if ( peek instanceof Boolean )
-            return (Boolean)peek;
+        if ( peek instanceof Boolean ) {
+
+            boolean result = ((Boolean)peek).booleanValue();
+
+            if ( result )
+                return content;
+            else
+                throw new IOException( "false" );
+
+        }
 
         if ( peek != null )
             throw new IllegalArgumentException( "unknown value: " + peek );
         
-        return null;
+        return content;
 
     }
 

@@ -25,11 +25,15 @@ import peregrine.*;
 import peregrine.config.*;
 import peregrine.worker.*;
 
+import com.spinn3r.log5j.Logger;
+
 /**
  * Netty pipeline handler for our controller.
  *
  */
 public class ControllerPipelineFactory implements ChannelPipelineFactory {
+
+    private static final Logger log = Logger.getLogger();
 
     private Config config;
     private ControllerDaemon controllerDaemon;
@@ -47,7 +51,13 @@ public class ControllerPipelineFactory implements ChannelPipelineFactory {
         // Create a default pipeline implementation.
         ChannelPipeline pipeline = pipeline();
 
-        //pipeline.addLast("hex",            new HexPipelineEncoder());
+        if ( config.getTraceNetworkTraffic() ) {
+
+            log.info( "Adding hex pipeline encoder to Netty pipeline." );
+            
+            pipeline.addLast( "hex",       new HexPipelineEncoder() );
+        }
+
         pipeline.addLast("decoder",        new HttpRequestDecoder( MAX_INITIAL_LINE_LENGTH ,
                                                                    MAX_HEADER_SIZE,
                                                                    MAX_CHUNK_SIZE ) );

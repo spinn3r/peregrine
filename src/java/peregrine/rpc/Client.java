@@ -34,12 +34,12 @@ public class Client {
 
     private static final Logger log = Logger.getLogger();
 
-    private boolean silent = false;
+    private boolean trace = false;
     
     public Client() {}
 
-    public Client( boolean silent ) {
-        this.silent = silent;
+    public Client( boolean trace ) {
+        this.trace = trace;
     }
 
     /**
@@ -49,11 +49,10 @@ public class Client {
     public Message invoke( Host host, String service, Message message ) throws IOException {
 
         HttpClient client = invokeAsync( host, service, message );
-        
         client.close();
 
-        ChannelBuffer content = client.getContent();
-
+        ChannelBuffer content = client.getResult();
+        
         int len = content.writerIndex();
 
         byte[] data = new byte[ len ];
@@ -74,8 +73,9 @@ public class Client {
             
             URI uri = new URI( String.format( "http://%s:%s/%s/RPC", host.getName(), host.getPort(), service ) );
 
-            if( ! silent )
+            if( trace ) {
                 log.info( "Sending RPC %s %s ..." , data, uri );
+            }
             
             HttpClient client = new HttpClient( uri );
 
