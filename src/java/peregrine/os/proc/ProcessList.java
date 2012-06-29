@@ -50,7 +50,7 @@ public class ProcessList {
 
                     File file = new File( proc, current );
                     file = new File( file, "cmdline" );
-                    
+
                     fis = new FileInputStream( file );
 
                     byte[] data = new byte[ 1024 ];
@@ -71,6 +71,11 @@ public class ProcessList {
                     entry.setArguments( Strings.toList( cmdline.split( NULL ) ) );
                     
                     processes.add( entry );
+
+                } catch ( FileNotFoundException fff ) {
+
+                    // this is acceptable because the proc could have terminated
+                    // since the first list of procs.
                     
                 } finally {
                     if ( fis != null )
