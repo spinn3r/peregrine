@@ -176,8 +176,6 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
     @Override
     protected void doClose() throws IOException {
 
-        log.info( "Closing %s", file.getPath() );
-        
         if ( closer.isClosed() )
             return;
 

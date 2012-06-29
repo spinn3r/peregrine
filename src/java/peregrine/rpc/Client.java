@@ -58,10 +58,8 @@ public class Client {
 
         byte[] data = new byte[ len ];
         content.readBytes( data );
-
-        String data_str = new String( data );
         
-        return new Message( data_str );
+        return new Message( new String( data ) );
         
     }
 

@@ -100,9 +100,6 @@ public class LocalPartitionReader extends BaseJobInput implements SequenceReader
 
                 chunkRef.incr();
                 
-                //if ( chunkReader != null )
-                    //chunkReader.close();
-                
                 chunkReader = iterator.next();
 
                 fireOnChunk( chunkRef );
