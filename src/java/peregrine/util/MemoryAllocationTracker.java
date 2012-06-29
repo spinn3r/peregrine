@@ -70,10 +70,16 @@ public class MemoryAllocationTracker {
 
         long current = get();
 
-        int perc = (int)(100 * ((double)current / (double)capacity));
+        if ( capacity > 0 ) {
+        
+            int perc = (int)(100 * ((double)current / (double)capacity));
+            
+            return String.format( "Allocated %,d with capacity %,d (%s %%)", current, capacity, perc );
 
-        return String.format( "Allocated %,d with capacity %,d (%s %%)", current, capacity, perc );
-
+        } else {
+            return String.format( "Allocated %,d (unknown capacity)", current );
+        }
+            
     }
     
     /**

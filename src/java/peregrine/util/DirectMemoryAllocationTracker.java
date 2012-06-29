@@ -33,8 +33,12 @@ public class DirectMemoryAllocationTracker extends MemoryAllocationTracker {
     static {
 
         instance = new DirectMemoryAllocationTracker();
+
+        String maxDirectMemorySize = System.getProperty( "MaxDirectMemorySize" );
         
-        instance.capacity = Long.parseLong( System.getProperty( "MaxDirectMemorySize" ) );
+        if ( maxDirectMemorySize != null ) {
+            instance.capacity = Long.parseLong( maxDirectMemorySize );
+        }
         
     }
 
