@@ -56,6 +56,8 @@ public class Controller {
      * By default, specify which jobs we should execute.
      */
     protected ExecutionRange executionRange = new ExecutionRange();
+
+    protected Collection<Job> jobs = new ConcurrentLinkedQueue();
     
     public Controller( Config config ) {
     	
@@ -106,6 +108,10 @@ public class Controller {
         
     }
 
+    public Config getConfig() {
+        return config;
+    }
+    
     public void map( Class mapper,
                      String... paths ) throws Exception {
         map( mapper, new Input( paths ) );
@@ -380,16 +386,16 @@ public class Controller {
     
         Message message = new Message();
         
-        message.put( "action",     action );
-        message.put( "delegate",   delegate.getName() );
+        message.put( "action",         action );
+        message.put( "delegate",       delegate.getName() );
         message.put( "job_handle",     job.getHandle() );
-    	message.put( "work" ,      work.getReferences() );
+    	message.put( "work" ,          work.getReferences() );
 
         if ( input != null )
-        	message.put( "input" ,  input.getReferences() );
+        	message.put( "input" ,     input.getReferences() );
 
         if ( output != null )
-        	message.put( "output" , output.getReferences() );
+        	message.put( "output" ,    output.getReferences() );
 
         return message;
         

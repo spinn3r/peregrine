@@ -15,8 +15,10 @@
 */
 package peregrine;
 
-import peregrine.io.*;
 import java.util.concurrent.atomic.*;
+
+import peregrine.io.*;
+import peregrine.rpc.*;
 
 /**
  * Represents a job (map, merge, or, reduce) which much be run by Peregrine.
@@ -31,11 +33,11 @@ public class Job {
     protected int identifier = nonce.getAndIncrement();
 	protected String handle = String.format( "%010d.%010d", timestamp, identifier );
 	protected String name = handle;
-	protected String description = null;
+	protected String description = "";
 	protected Class delegate = null; 
 	protected Class combiner = null;
-	protected Input input = null;
-	protected Output output = null;
+	protected Input input = new Input();
+	protected Output output = new Output();
 
     /**
      * Get a unique identifier for this job.  Every job stats at 0 (zero) and is
@@ -116,6 +118,42 @@ public class Job {
                               getName(),
                               getInput(),
                               getOutput() );
+
+    }
+
+    /**
+     * Convert this to an RPC message.
+     */
+    public Message toMessage() {
+
+        Message message = new Message();
+
+        message.put( "class",         getClass().getName() );
+        message.put( "timestamp",     timestamp );
+        message.put( "identifier",    identifier );
+        message.put( "handle",        handle );
+        message.put( "name",          name );
+        message.put( "description",   description );
+        message.put( "delegate",      delegate );
+        message.put( "combiner",      combiner );
+        message.put( "input",         input.getReferences() );
+        message.put( "output",        output.getReferences() );
+
+        return message;
+        
+    }
+
+    public void fromMessage( Message message ) {
+
+        timestamp     = message.getLong( "timestamp" );
+        identifier    = message.getInt( "identifier" );
+        handle        = message.getString( "handle" );
+        name          = message.getString( "name" );
+        description   = message.getString( "description" );
+        delegate      = message.getClass( "delegate" );
+        combiner      = message.getClass( "combiner" );
+        input         = new Input( message.getList( "input" ) );
+        output        = new Output( message.getList( "output" ) );
 
     }
     

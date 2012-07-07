@@ -137,7 +137,7 @@ public final class Initializer {
     public void worker() throws Exception {
 
         assertRoot();
-        logger( String.format( "workerd-%s",  config.getHost() ) );
+        basic( "workerd" );
         datadir();
         limitMemoryUsage();
         setuid();
@@ -156,7 +156,7 @@ public final class Initializer {
      * Perform all init steps required for the controller.
      */
     public void controller() throws Exception {
-        logger( String.format( "controller-%s",  config.getHost() ) );
+        basic( "controller" );
     }
         
 }

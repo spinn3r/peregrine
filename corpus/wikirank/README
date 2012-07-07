@@ -36,3 +36,5 @@ dd if=enwiki-20120502-pagelinks.sql of=enwiki-20120502-pagelinks-sample.sql coun
 # 48
 
 2410 - 48
+
+

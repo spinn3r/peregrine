@@ -149,11 +149,14 @@ public class ControllerRPCDelegate extends RPCDelegate<ControllerDaemon> {
 
         Scheduler scheduler = controllerDaemon.getScheduler();
 
-        if ( scheduler == null )
-            throw new Exception( "No currently executing job." );
+        Message response = new Message();
+        
+        if ( scheduler != null ) {
+            response.put( "scheduler", scheduler.getStatusAsMap() );
+        }
 
-        Message response = new Message( scheduler.getStatusAsMap() );
-
+        response.put( "host", controllerDaemon.getController().getConfig().getHost() );
+        
         return ChannelBuffers.wrappedBuffer( response.toString().getBytes() );
 
     }

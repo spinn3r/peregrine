@@ -68,8 +68,7 @@ public class ControllerRPCHandler extends BaseRPCHandler<ControllerDaemon> {
     public ChannelBuffer handleMessage( RPCDelegate<ControllerDaemon> handler, Channel channel, Message message ) 
     	throws Exception {
 
-    	handler.handleMessage( controllerDaemon, channel, message );
-    	return null;
+        return handler.handleMessage( controllerDaemon, channel, message );
         
     }
 

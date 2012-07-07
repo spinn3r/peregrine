@@ -26,7 +26,7 @@ import java.security.*;
  * @author <a href="mailto:burton@tailrank.com">Kevin Burton</a>
  * @version $Id: ThreadLocalMessageDigest.java,v 1.2 2004/05/21 22:21:32 burton Exp $
  */
-public class ThreadLocalMessageDigest extends ThreadLocal {
+public class ThreadLocalMessageDigest extends ThreadLocal<MessageDigest> {
 
     private String name = null;
     
@@ -34,7 +34,7 @@ public class ThreadLocalMessageDigest extends ThreadLocal {
         this.name = name;
     }
 
-    protected Object initialValue() {
+    protected MessageDigest initialValue() {
 
         try {
             

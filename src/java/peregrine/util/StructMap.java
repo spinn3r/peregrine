@@ -79,6 +79,15 @@ public class StructMap {
         delegate.put( key, ""+value );
     }
 
+    public void put( String key, Class value ) {
+
+        if ( value == null )
+            return;
+
+        put( key, value.getName() );
+        
+    }
+
     public void put( String key, Object value ) {
     	put( key, value.toString() );
     }
@@ -98,7 +107,7 @@ public class StructMap {
     /**
      * Put a list of values which can later be read as an ordered list of values.
      */
-    public void put( String prefix, List list ) {
+    public void put( String prefix, Collection list ) {
 
         if ( list == null )
         	return;
@@ -134,10 +143,6 @@ public class StructMap {
 
     }
 
-    public void setInt( String key, int value ) {
-        delegate.put( key, Integer.toString( value ) );
-    }
-
     public long getSize( String key ) {
 
         String value = get( key );
@@ -171,13 +176,13 @@ public class StructMap {
 
     }
     
-    public List getList( String prefix ) {
+    public List<String> getList( String prefix ) {
     	
-        List result = new ArrayList();
+        List<String> result = new ArrayList();
         
         for( int i = 0 ; i < Integer.MAX_VALUE; ++i ) {
 
-            Object val = get( prefix + "." + i );
+            String val = get( prefix + "." + i );
 
             if ( val == null )
                 break;
@@ -202,14 +207,23 @@ public class StructMap {
 
     }
 
-    public void set( String key, String value ) {
-        delegate.put( key, value );
-    }
-
     public String getString( String key ) {
         return get( key );
     }
 
+    public Class getClass( String key ) {
+
+        if ( ! containsKey( key ) )
+            return null;
+        
+        try {
+            return Class.forName( getString( key ) );
+        } catch ( ClassNotFoundException e ) {
+            throw new RuntimeException( e );
+        }
+        
+    }
+    
     public List<String> getKeys() {
 
         List<String> result = new ArrayList();

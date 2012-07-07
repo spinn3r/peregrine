@@ -60,17 +60,37 @@ public class Test {
 
     public static void main( String[] args ) throws Exception {
 
-        Host host = new Host( "localhost", 11112 );
+        /*
+        Config config = new Config();
+
+        new Initializer( config ).basic( "test" );
+
+        System.out.printf( "%s\n" , new Tracepoint() );
+        System.out.printf( "%s\n" , new Tracepoint("foo", "bar", "cat", "dog") );
+        System.out.printf( "%s\n" , new Tracepoint( new Exception( "fake exception" ) ) );
+        System.out.printf( "%s\n" , new Tracepoint( new Exception() ) );
+
+        new Exception().printStackTrace();
+
+        log.info( "INFO: hello world" );
+        log.error( "ERROR: hello world" );
+        log.error( String.format( "hello world: \n%s", new Tracepoint( new Exception( "fake exception" ) ) ) );
+        log.error( "hello world: %s", new Tracepoint( new Exception( "fake exception" ) ) );
+        */
+
+        new Job().fromMessage( new Job().toMessage() );
+
+        Host host = new Host( "localhost", 11111 );
         
         Client client = new Client();
         
         Message message = new Message();
-        message.put( "action", "stat" );
+        message.put( "action", "status" );
         
-        Message result = client.invoke( host, "system", message );
+        Message result = client.invoke( host, "controller", message );
 
         System.out.printf( "response: %s\n", result );
-
+        
     }
 
     public static void main_segfault( String[] args ) throws Exception {
