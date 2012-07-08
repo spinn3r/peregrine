@@ -22,23 +22,26 @@ import java.io.*;
  * Implements JDK 1.7 try-with-resources style closing for multiple Closeables /
  * Flushables with an exception that includes all exceptions.
  *
+ * We use the term 'repressed' instead of 'suppressed' to allow us to compile on
+ * JDK 1.7.
+ *
  * @see <a href='http://docs.oracle.com/javase/tutorial/essential/exceptions/tryResourceClose.html'>try-with-resources</a>
  */
 public class GroupIOException extends IOException {
 
-    List<Throwable> suppressed = new ArrayList();
+    List<Throwable> repressed = new ArrayList();
     
     public GroupIOException( Throwable cause ) {
-        suppressed.add( cause );
+        repressed.add( cause );
     }
     
-    public void addSuppressed( Throwable t ) {
-        suppressed.add( t );
+    public void addRepressed( Throwable t ) {
+        repressed.add( t );
     }
 
     public void printStackTrace( PrintStream out ) {
 
-        for ( Throwable current : suppressed ) {
+        for ( Throwable current : repressed ) {
             current.printStackTrace( out );
         }
 
@@ -49,7 +52,7 @@ public class GroupIOException extends IOException {
 
     public void printStackTrace( PrintWriter out ) {
 
-        for ( Throwable current : suppressed ) {
+        for ( Throwable current : repressed ) {
             current.printStackTrace( out );
         }
 
