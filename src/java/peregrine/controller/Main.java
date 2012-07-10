@@ -37,7 +37,7 @@ public class Main {
         Config config = ConfigParser.parse( args );
 
         Initializer init = new Initializer( config );
-        init.controllerd();
+        init.controller();
 
         Controller controller = new Controller( config );
 
