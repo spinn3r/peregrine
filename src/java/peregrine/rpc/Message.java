@@ -22,6 +22,9 @@ import org.jboss.netty.handler.codec.http.*;
 import peregrine.io.*;
 import peregrine.util.*;
 
+/**
+ * A message sent between two hosts.
+ */
 public class Message extends StructMap {
 
     public Message() { }

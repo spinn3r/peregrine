@@ -25,7 +25,7 @@ import peregrine.rpc.*;
  * All necessary metadata is included here and specified for an entire job.
  *
  */
-public class Job {
+public class Job implements MessageSerializable {
 
     private static AtomicInteger nonce = new AtomicInteger();
 

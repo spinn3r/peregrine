@@ -13,37 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
 */
-package peregrine.controller;
+package peregrine.rpc;
 
 import java.io.*;
 import java.util.*;
+import org.jboss.netty.handler.codec.http.*;
 
-import peregrine.*;
-import peregrine.config.*;
-import peregrine.os.*;
-import peregrine.worker.*;
-
-import com.spinn3r.log5j.Logger;
+import peregrine.io.*;
+import peregrine.util.*;
 
 /**
- * Command line main() class for the controller daemon.
  */
-public class Main {
-	
-    private static final Logger log = Logger.getLogger();
+public interface MessageSerializable {
 
-    public static void main( String[] args ) throws Exception {
+    public Message toMessage();
 
-        Config config = ConfigParser.parse( args );
+    public void fromMessage( Message message );
 
-        Initializer init = new Initializer( config );
-        init.controller();
-
-        Controller controller = new Controller( config );
-
-        Thread.sleep( Long.MAX_VALUE );
-        
-    }
-        
 }
-    

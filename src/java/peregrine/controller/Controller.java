@@ -111,7 +111,11 @@ public class Controller {
     public Config getConfig() {
         return config;
     }
-    
+
+    public Collection<Job> getJobs() {
+        return jobs;
+    }
+
     public void map( Class mapper,
                      String... paths ) throws Exception {
         map( mapper, new Input( paths ) );

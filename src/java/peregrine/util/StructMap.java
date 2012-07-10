@@ -15,10 +15,11 @@
 */
 package peregrine.util;
 
+import java.io.*;
 import java.util.*;
 import java.util.concurrent.*;
 
-import java.io.*;
+import peregrine.rpc.*;
 
 /**
  * Simple map for dealing with primitive types stored in a type or anonymous
@@ -114,7 +115,18 @@ public class StructMap {
             
         int idx = 0;
         for( Object val : list ) {
-        	put( prefix + "." + idx++, val );
+
+            String key = prefix + "." + idx++;
+            
+            if ( val instanceof MessageSerializable ) {
+
+                MessageSerializable ms = (MessageSerializable)val;
+                put( key, ms.toMessage() );
+
+            } else {
+                put( key, val );
+            }
+
         }
     	
     }
