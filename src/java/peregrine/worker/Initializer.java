@@ -134,7 +134,7 @@ public final class Initializer {
     /**
      * Perform all init steps required for the worker daemon.
      */
-    public void worker() throws Exception {
+    public void workerd() throws Exception {
 
         assertRoot();
         basic( "workerd" );
@@ -146,7 +146,17 @@ public final class Initializer {
     }
 
     /**
-     * Perform basic init.
+     * Perform all init steps required for the controller.
+     */
+    public void controllerd() throws Exception {
+        assertRoot();
+        basic( "controllerd" );
+        limitMemoryUsage();
+        setuid();
+    }
+
+    /**
+     * Perform basic init for all daemons.
      */
     public void basic( String name ) throws Exception {
         logger( String.format( "%s-%s", name, config.getHost() ) );

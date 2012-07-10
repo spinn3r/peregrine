@@ -85,7 +85,7 @@ public class Main {
 
         log.info( "Starting on %s with controller: %s" , config.getHost(), config.getController() );
 
-        new Initializer( config ).worker();
+        new Initializer( config ).workerd();
 
         log.info( "Running with config: \n%s", config.toDesc() );
 
