@@ -12,6 +12,7 @@ export YIELD_TO_EXISTING_DAEMON=true
 # file: write to .err and .out files.
 
 export OUTPUT=none
+export JMX_PORT_OFFSET=1000
 
 start() {
 
@@ -26,6 +27,10 @@ start() {
     fi
 
     export MAX_MEMORY=$(./bin/jexec peregrine.worker.GetConfig $args --getString=maxMemory 2> /dev/null)
+
+    port=$(./bin/jexec peregrine.worker.GetConfig $args --getString=port 2> /dev/null)
+    export JMX_PORT=$(expr $port + $JMX_PORT_OFFSET)
+    
 
     # Get the max direct memory we will use.  This can't use GetConfig because
     # there may be multiple variables involved.

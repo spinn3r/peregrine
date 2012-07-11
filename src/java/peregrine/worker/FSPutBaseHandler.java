@@ -18,12 +18,13 @@ package peregrine.worker;
 import org.jboss.netty.buffer.*;
 import org.jboss.netty.channel.*;
 import org.jboss.netty.handler.codec.http.*;
+
 import com.spinn3r.log5j.*;
 
 /**
  * Base handler for dealing with logging throughput and other issues with PUT.
  */
-public class FSPutBaseHandler extends SimpleChannelUpstreamHandler {
+public class FSPutBaseHandler extends ErrorLoggingChannelUpstreamHandler {
 
     protected static final Logger log = Logger.getLogger();
 

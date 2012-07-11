@@ -25,6 +25,7 @@ run() {
 : ${PROFILER_ENABLED:="false"}
 : ${PROFILER_PATH:="/usr/local/jprofiler"}
 : ${PROFILER_OPTS:="-agentlib:jprofilerti=port=8849 -Xint -Xbootclasspath/a:$PROFILER_PATH/bin/agent.jar"}
+: ${JMX_PORT:=12112}
 
 # TODO: would be nice to not have to use sed here.
 
@@ -53,6 +54,7 @@ run $JAVA \
   -Xms$MAX_MEMORY \
   -Xmx$MAX_MEMORY \
   -DMaxDirectMemorySize=$MAX_DIRECT_MEMORY \
+  -D
   $JAVA_OPTS \
   $CLASSNAME "$@"
 

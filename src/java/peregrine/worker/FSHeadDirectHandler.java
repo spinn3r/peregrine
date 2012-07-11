@@ -29,7 +29,7 @@ import peregrine.util.*;
 
 /**
  */
-public class FSHeadDirectHandler extends SimpleChannelUpstreamHandler {
+public class FSHeadDirectHandler extends ErrorLoggingChannelUpstreamHandler {
 
     private FSDaemon daemon;
     private FSHandler handler;

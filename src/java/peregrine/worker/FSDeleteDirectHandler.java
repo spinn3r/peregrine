@@ -31,8 +31,9 @@ import peregrine.util.*;
 import com.spinn3r.log5j.Logger;
 
 /**
+ * Handles HTTP DELETE of files in PFS.
  */
-public class FSDeleteDirectHandler extends SimpleChannelUpstreamHandler {
+public class FSDeleteDirectHandler extends ErrorLoggingChannelUpstreamHandler {
 
     protected static final Logger log = Logger.getLogger();
 

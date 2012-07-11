@@ -267,6 +267,9 @@ public class Controller {
     private void withScheduler( Job job, Scheduler scheduler ) 
     		throws Exception {
 
+        // add this to the list of jobs that have been submitted.
+        jobs.add( job );
+        
         String operation = scheduler.getOperation();
         
         String desc = String.format( "%s for delegate %s, named %s, with identifier %,d for input %s and output %s ",
