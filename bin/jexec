@@ -54,7 +54,6 @@ run $JAVA \
   -Xms$MAX_MEMORY \
   -Xmx$MAX_MEMORY \
   -DMaxDirectMemorySize=$MAX_DIRECT_MEMORY \
-  -D
   $JAVA_OPTS \
   $CLASSNAME "$@"
 
