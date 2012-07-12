@@ -75,18 +75,17 @@ public class FSDeleteDirectHandler extends ErrorLoggingChannelUpstreamHandler {
                 
                 for( File file : files ) {
 
-                    log.info( "Deleting %s", file.getPath() );
+                    try {
+                        log.info( "Deleting %s", file.getPath() );
+                        Files.remove( file );
+                    } catch ( IOException e ) {
 
-                    //TODO: move to unistd.unlink
-                    
-                    if ( ! file.delete() ) {
-                        
-                        log.error( String.format( "Failed to delete: %s (Sending INTERNAL_SERVER_ERROR)", file.getPath() ), new IOException() );
+                        log.error( "Failed to delete: %s (Sending INTERNAL_SERVER_ERROR)", e, file.getPath() );
                         
                         HttpResponse response = new DefaultHttpResponse( HTTP_1_1, INTERNAL_SERVER_ERROR );
                         channel.write(response).addListener(ChannelFutureListener.CLOSE);
                         return null;
-                        
+
                     }
 
                     ++deleted;

@@ -37,8 +37,10 @@ public class Files {
      */
     public static void remove( File file ) {
 
-        if ( ! file.exists() )
+        if ( ! file.exists() ) {
+            // the file is already deleted.  We don't need to do anything.
             return;
+        }
 
         //TODO: migrate to using Recursively
 
