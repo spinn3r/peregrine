@@ -212,9 +212,9 @@ public class FSHandler extends DefaultChannelUpstreamHandler {
                                     if ( cause == null )
                                         cause = new Exception();
                                     
-                                    log.error( "Failed to close pipeline correctly: " , cause );
-
+                                    log.error( "Failed to close pipeline correctly: (Sending INTERNAL_SERVER_ERROR) " , cause );
                                     sendError( ctx, INTERNAL_SERVER_ERROR );
+
                                 }
                                 
                             } 

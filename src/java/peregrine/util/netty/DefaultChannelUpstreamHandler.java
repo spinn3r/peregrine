@@ -69,12 +69,15 @@ public class DefaultChannelUpstreamHandler extends SimpleChannelUpstreamHandler 
         }
 
         if (cause instanceof TooLongFrameException) {
+            log.error( "Sending BAD_REQUEST" );
             sendError(ctx, BAD_REQUEST);
             return;
         }
 
         if (ch.isConnected()) {
+            log.error( "Sending INTERNAL_SERVER_ERROR" );
             sendError(ctx, INTERNAL_SERVER_ERROR);
+            return;
         }
         
     }
