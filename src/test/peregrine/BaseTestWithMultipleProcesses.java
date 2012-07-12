@@ -146,7 +146,12 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
             //clean up the previous basedir
 
             System.out.printf( "Removing files in %s\n", basedir );
-            Files.purge( basedir );
+
+            try {
+                Files.purge( basedir );
+            } catch ( IOException e ) {
+                throw new RuntimeException( e );
+            }
 
             List<String> workerd_args = getArguments( port );
 

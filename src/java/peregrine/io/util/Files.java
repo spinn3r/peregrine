@@ -28,14 +28,14 @@ public class Files {
     /**
      * @see #remove(File)
      */
-    public static void remove( String path ) {
+    public static void remove( String path ) throws IOException {
         remove( new File( path ) );
     }
 
     /**
      * Recursive removal of the given file and any children.
      */
-    public static void remove( File file ) {
+    public static void remove( File file ) throws IOException {
 
         if ( ! file.exists() ) {
             // the file is already deleted.  We don't need to do anything.
@@ -64,14 +64,14 @@ public class Files {
 
     }
 
-    private static void remove0( File file ) {
+    private static void remove0( File file ) throws IOException {
 
         if ( ! file.delete() )
-            throw new RuntimeException( "Unable to delete: " + file.getPath() );
+            throw new IOException( "Unable to delete: " + file.getPath() );
 
     }
 
-    public static void purge( String path ) {
+    public static void purge( String path ) throws IOException {
         purge( new File( path ) );
     }
 
@@ -79,7 +79,7 @@ public class Files {
      * Purge all files in the given directory but keep the given directory
      * itself.
      */
-    public static void purge( File file ) {
+    public static void purge( File file ) throws IOException {
 
         //TODO: migrate to using Recursively
 
@@ -98,7 +98,7 @@ public class Files {
     /**
      * Remove all files in the given directory but keep the parent directory.
      */
-    public static void removeChildren( File file ) {
+    public static void removeChildren( File file ) throws IOException {
 
         if ( ! file.exists() )
             return;

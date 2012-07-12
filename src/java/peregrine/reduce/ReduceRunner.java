@@ -120,7 +120,7 @@ public class ReduceRunner {
     /**
      * Purge shuffle data for a given pass.
      */
-    private void purge( int pass ) {
+    private void purge( int pass ) throws IOException {
 
         String dir = getTargetDir( pass );
 

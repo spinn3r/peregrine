@@ -35,7 +35,11 @@ public abstract class BaseTest extends junit.framework.TestCase {
         System.out.printf( "================================================================================\n" );
         
         if ( REMOVE_BASEDIR ) {
-            Files.purge( Config.DEFAULTS.getString( "basedir" ) );
+            try {
+                Files.purge( Config.DEFAULTS.getString( "basedir" ) );
+            } catch ( IOException e ) {
+                throw new RuntimeException( e );
+            }
         }
 
         //org.apache.log4j.MDC.put( "server.hostname",    Initializer.HOSTNAME );

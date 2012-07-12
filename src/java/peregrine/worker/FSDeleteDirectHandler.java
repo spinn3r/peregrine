@@ -26,6 +26,7 @@ import org.jboss.netty.channel.*;
 import org.jboss.netty.handler.codec.http.*;
 
 import peregrine.io.partition.*;
+import peregrine.io.util.*;
 import peregrine.util.*;
 
 import com.spinn3r.log5j.Logger;
