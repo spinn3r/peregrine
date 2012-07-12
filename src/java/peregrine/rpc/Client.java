@@ -38,7 +38,9 @@ public class Client {
 
     private Config config = null;
     
-    public Client( Config config ) {}
+    public Client( Config config ) {
+        this.config = config;
+    }
 
     public Client( Config config , boolean trace ) {
         this.config= config;
