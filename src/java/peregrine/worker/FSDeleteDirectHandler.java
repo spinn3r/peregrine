@@ -77,13 +77,12 @@ public class FSDeleteDirectHandler extends ErrorLoggingChannelUpstreamHandler {
 
                     log.info( "Deleting %s", file.getPath() );
 
-                    // TODO: use the new JDK 1.7 API so we can get the reason why the
-                    // delete failed ... However, at the time this code was being
-                    // written the delete() method did not exist in the Javadoc for 1.7
-                    // so we can revisit it later once this problem has been sorted out.
+                    //TODO: move to unistd.unlink
                     
                     if ( ! file.delete() ) {
-
+                        
+                        log.error( "Failed to delete: " + file.getPath(), new IOException() );
+                        
                         HttpResponse response = new DefaultHttpResponse( HTTP_1_1, INTERNAL_SERVER_ERROR );
                         channel.write(response).addListener(ChannelFutureListener.CLOSE);
                         return null;

@@ -208,6 +208,12 @@ public class FSHandler extends DefaultChannelUpstreamHandler {
                                 if( success ) {
                                     sendOK( ctx );
                                 } else {
+
+                                    if ( cause == null )
+                                        cause = new Exception();
+                                    
+                                    log.error( "Failed to close pipeline correctly: " , cause );
+
                                     sendError( ctx, INTERNAL_SERVER_ERROR );
                                 }
                                 

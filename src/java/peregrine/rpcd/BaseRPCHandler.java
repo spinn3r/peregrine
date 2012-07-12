@@ -126,6 +126,8 @@ public abstract class BaseRPCHandler<T> extends SimpleChannelUpstreamHandler {
             log.error( "Could not handle RPC call: " , e );
         }
 
+        log.error( "Unable to handle RPC call: ", new Exception() );
+        
         HttpResponse response = new DefaultHttpResponse( HTTP_1_1, INTERNAL_SERVER_ERROR );
         channel.write(response).addListener(ChannelFutureListener.CLOSE);
         return;
