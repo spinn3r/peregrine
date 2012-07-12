@@ -26,7 +26,7 @@ import org.jboss.netty.channel.*;
 import org.jboss.netty.channel.socket.nio.*;
 import org.jboss.netty.handler.codec.http.*;
 
-import peregrine.config.Host;
+import peregrine.config.*;
 import peregrine.util.*;
 import peregrine.util.netty.*;
 import peregrine.worker.*;
@@ -142,10 +142,13 @@ public class HttpClient implements ChannelBufferWritable {
 
     protected ChannelBuffer content = null;
 
-    public HttpClient( List<Host> hosts, String path ) throws IOException {
+    protected Config config = null;
+    
+    public HttpClient( Config config, List<Host> hosts, String path ) throws IOException {
 
         try {
-            
+
+            this.config = config;
             this.uri = new URI( String.format( "http://%s%s", hosts.get(0), path ) );
 
             init();
@@ -168,9 +171,10 @@ public class HttpClient implements ChannelBufferWritable {
         
     }
 
-    public HttpClient( String uri ) throws IOException {
+    public HttpClient( Config config, String uri ) throws IOException {
 
         try {
+            this.config = config;
             this.uri = new URI( uri );
         } catch ( URISyntaxException e ) {
             throw new IOException( e );
@@ -178,11 +182,13 @@ public class HttpClient implements ChannelBufferWritable {
 
     }
 
-    public HttpClient( URI uri ) throws IOException {
+    public HttpClient( Config config, URI uri ) throws IOException {
+        this.config = config;
         this.uri = uri;
     }
     
-    public HttpClient( HttpRequest request, URI uri ) throws IOException {
+    public HttpClient( Config config, HttpRequest request, URI uri ) throws IOException {
+        this.config = config;
         this.request = request;
         this.uri = uri;
     }
@@ -219,7 +225,7 @@ public class HttpClient implements ChannelBufferWritable {
         ClientBootstrap bootstrap = BootstrapFactory.newClientBootstrap( socketChannelFactory );
 
         // Set up the event pipeline factory.
-        bootstrap.setPipelineFactory( new HttpClientPipelineFactory( this ) );
+        bootstrap.setPipelineFactory( new HttpClientPipelineFactory( config, this ) );
 
         // Start the connection attempt... where is the connect timeout set?
         ChannelFuture connectFuture = bootstrap.connect( new InetSocketAddress( host, port ) );

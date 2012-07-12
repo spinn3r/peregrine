@@ -205,7 +205,7 @@ public class Membership {
 			message.put( "failed",     failed );
 			message.put( "cause",      cause );
 
-			new Client().invoke( config.getController(), "controller", message );
+			new Client( config ).invoke( config.getController(), "controller", message );
 
             log.info( "Sent gossip that %s failed: %s", failed, cause.getMessage() );
 
@@ -245,7 +245,7 @@ public class Membership {
             
             try {           
                 
-                new Client( false ).invoke( controller, "controller", message );
+                new Client( config, false ).invoke( controller, "controller", message );
                 
                 return true;
 

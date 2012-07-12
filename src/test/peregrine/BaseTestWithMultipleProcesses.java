@@ -227,29 +227,7 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
         }
 
     }
-    
-    private int getPidFromDaemon( int port ) {
 
-        try {
-        
-            Host host = new Host( "localhost", port );
-            
-            Client client = new Client();
-            
-            Message message = new Message();
-            message.put( "action", "stat" );
-            
-            Message result = client.invoke( host, "system", message );
-
-            return result.getInt( "pid" );
-
-        } catch ( IOException e ) {
-            // this is normal if the daemon is offline
-            return -1;
-        }
-            
-    }
-    
     /**
      * Wait for the proc to startup and for the pid file to be written.
      */

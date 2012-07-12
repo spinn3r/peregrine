@@ -55,7 +55,7 @@ public class TestFanoutWritePerformance extends BaseTestWithMultipleProcesses {
         int idx = 0;
         for( Host host : config.getHosts() ) {
 
-            HttpClient client = new HttpClient( String.format( "http://%s/test-%s", host, idx++ ) );
+            HttpClient client = new HttpClient( config, String.format( "http://%s/test-%s", host, idx++ ) );
             clients.add( client );
             
         }

@@ -23,8 +23,17 @@ import com.spinn3r.log5j.*;
 
 public class HexPipelineEncoder implements ChannelUpstreamHandler, ChannelDownstreamHandler {
 
-    private static final Logger log = Logger.getLogger();
-    
+    private Logger log = null;
+
+    /**
+     * 
+     * 
+     *
+     */
+    public HexPipelineEncoder( Logger log ) {
+        this.log = log;
+    }
+
     public void handleUpstream(ChannelHandlerContext ctx, ChannelEvent evt) throws Exception {
 
         try {

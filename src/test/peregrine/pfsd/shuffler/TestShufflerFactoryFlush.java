@@ -31,7 +31,7 @@ public class TestShufflerFactoryFlush extends peregrine.BaseTestWithTwoDaemons {
         encoder.addParam( "action", "flush" );
         String query = encoder.toString();
 
-        HttpClient client = new HttpClient( new URI( "http://localhost:11112/shuffler/RPC" ) );
+        HttpClient client = new HttpClient( config, new URI( "http://localhost:11112/shuffler/RPC" ) );
 
         client.setMethod( HttpMethod.POST );
         client.write( query.getBytes() );

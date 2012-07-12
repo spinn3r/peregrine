@@ -78,18 +78,6 @@ public class Test {
         log.error( "hello world: %s", new Tracepoint( new Exception( "fake exception" ) ) );
         */
 
-        new Job().fromMessage( new Job().toMessage() );
-
-        Host host = new Host( "localhost", 11111 );
-        
-        Client client = new Client();
-        
-        Message message = new Message();
-        message.put( "action", "status" );
-        
-        Message result = client.invoke( host, "controller", message );
-
-        System.out.printf( "response: %s\n", result );
         
     }
 

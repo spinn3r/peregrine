@@ -18,8 +18,13 @@ package peregrine.http;
 import static org.jboss.netty.channel.Channels.*;
 import static peregrine.worker.FSPipelineFactory.*;
 
+import peregrine.config.*;
+import peregrine.worker.*;
+
 import org.jboss.netty.channel.*;
 import org.jboss.netty.handler.codec.http.*;
+
+import com.spinn3r.log5j.Logger;
 
 /**
  *
@@ -27,15 +32,24 @@ import org.jboss.netty.handler.codec.http.*;
  */
 public class HttpClientPipelineFactory implements ChannelPipelineFactory {
 
+    private static final Logger log = Logger.getLogger();
+
     private HttpClient client;
+    private Config config;
     
-    public HttpClientPipelineFactory( HttpClient client ) {
+    public HttpClientPipelineFactory( Config config, HttpClient client ) {
+        this.config = config;
         this.client = client;
     }
     
     public ChannelPipeline getPipeline() throws Exception {
 
         ChannelPipeline pipeline = pipeline();
+
+        if ( config.getTraceNetworkTraffic() ) {
+            log.info( "Adding hex pipeline encoder to Netty pipeline." );
+            pipeline.addLast( "hex",       new HexPipelineEncoder( log ) );
+        }
 
         pipeline.addLast("codec",   new HttpClientCodec( MAX_INITIAL_LINE_LENGTH ,
                                                          MAX_HEADER_SIZE,

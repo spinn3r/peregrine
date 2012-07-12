@@ -149,7 +149,7 @@ public class Controller {
                     Message message 
                         = createSchedulerMessage( "exec", job, work );
 
-                    new Client().invoke( host, "map", message );
+                    new Client( config ).invoke( host, "map", message );
                     
                 }
                 
@@ -199,7 +199,7 @@ public class Controller {
                 public void invoke( Host host, Work work ) throws Exception {
 
                     Message message = createSchedulerMessage( "exec", job, work );
-                    new Client().invoke( host, "merge", message );
+                    new Client( config ).invoke( host, "merge", message );
                     
                 }
                 
@@ -242,7 +242,7 @@ public class Controller {
                 public void invoke( Host host, Work work ) throws Exception {
 
                     Message message = createSchedulerMessage( "exec", job, work );
-                    new Client().invoke( host, "reduce", message );
+                    new Client( config ).invoke( host, "reduce", message );
                     
                 }
                 
@@ -364,7 +364,7 @@ public class Controller {
         List<HttpClient> clients = new ArrayList();
         
         for ( Host host : config.getHosts() ) {
-            clients.add( new Client().invokeAsync( host, service, message ) );
+            clients.add( new Client( config ).invokeAsync( host, service, message ) );
         }
 
         for( HttpClient client : clients ) {

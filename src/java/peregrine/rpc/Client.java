@@ -21,7 +21,7 @@ import java.net.*;
 import org.jboss.netty.buffer.*;
 import org.jboss.netty.handler.codec.http.*;
 
-import peregrine.config.Host;
+import peregrine.config.*;
 import peregrine.http.*;
 
 import com.spinn3r.log5j.*;
@@ -35,10 +35,13 @@ public class Client {
     private static final Logger log = Logger.getLogger();
 
     private boolean trace = false;
-    
-    public Client() {}
 
-    public Client( boolean trace ) {
+    private Config config = null;
+    
+    public Client( Config config ) {}
+
+    public Client( Config config , boolean trace ) {
+        this.config= config;
         this.trace = trace;
     }
 
@@ -77,7 +80,7 @@ public class Client {
                 log.info( "Sending RPC %s %s ..." , data, uri );
             }
             
-            HttpClient client = new HttpClient( uri );
+            HttpClient client = new HttpClient( config, uri );
 
             client.setMethod( HttpMethod.POST );
             client.write( data.getBytes() );

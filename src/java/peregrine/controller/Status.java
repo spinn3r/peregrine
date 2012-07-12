@@ -31,7 +31,7 @@ public class Status {
 
         Config config = ConfigParser.parse( args );
 
-        Client client = new Client();
+        Client client = new Client( config );
         
         Message message = new Message();
         message.put( "action", "status" );

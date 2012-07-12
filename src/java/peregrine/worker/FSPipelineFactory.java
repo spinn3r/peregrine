@@ -69,10 +69,8 @@ public class FSPipelineFactory implements ChannelPipelineFactory {
         ChannelPipeline pipeline = pipeline();
 
         if ( config.getTraceNetworkTraffic() ) {
-
             log.info( "Adding hex pipeline encoder to Netty pipeline." );
-            
-            pipeline.addLast( "hex",       new HexPipelineEncoder() );
+            pipeline.addLast( "hex",       new HexPipelineEncoder( log ) );
         }
         
         pipeline.addLast("decoder",        new HttpRequestDecoder( MAX_INITIAL_LINE_LENGTH ,

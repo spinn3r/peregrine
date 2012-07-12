@@ -139,7 +139,7 @@ public class RemotePartitionWriterDelegate extends BasePartitionWriterDelegate {
 
             log.info( "Creating new chunk writer: %s" , uri );
 
-            return new HttpClient( uri );
+            return new HttpClient( config, uri );
             
         } catch ( URISyntaxException e ) {
             throw new IOException( "Unable to create new chunk writer: " , e );

@@ -387,7 +387,7 @@ public abstract class BaseTask implements Task {
             message.put( "input"     ,    input.getReferences() );
             message.put( "work"      ,    work.getReferences() );
             
-            new Client().invoke( config.getController(), "controller", message );
+            new Client( config ).invoke( config.getController(), "controller", message );
 
         } catch ( IOException e ) {
             throw new IOException( "Unable to send message to controller: " + config.getController(), e );

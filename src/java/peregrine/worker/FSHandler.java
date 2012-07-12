@@ -184,7 +184,7 @@ public class FSHandler extends DefaultChannelUpstreamHandler {
 
                 log.info( "Going to pipeline requests to: %s ", uri );
                 
-                remote = new HttpClient( request, uri ) {
+                remote = new HttpClient( config, request, uri ) {
 
                         @Override
                         public void onCapacityChange( boolean hasCapacity ) {
