@@ -35,7 +35,7 @@ public class vfs {
         public long f_bavail;   /* free blocks available to unprivileged user */
         public long f_files;    /* total file nodes in file system */
         public long f_ffree;    /* free file nodes in fs */
-        public int  f_fsid = new int[2]; /* file system id */ /* struct { int val[2]; }. */
+        public int[] f_fsid = new int[2]; /* file system id */ /* struct { int val[2]; }. */
         public long f_namelen; /* maximum length of filenames */
         public long f_frsize; /* fragment size (since Linux 2.6) */
         public long[] f_spare = new long[5];
