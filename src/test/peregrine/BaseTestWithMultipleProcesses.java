@@ -235,6 +235,8 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
                                            Process proc,
                                            int port ) throws Exception {
 
+        System.out.printf( "Waiting for startup: " );
+        
         long started = System.currentTimeMillis();
         
         while( true ) {
@@ -242,12 +244,15 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
             int pid = new Pidfile( config ).read();
             
             if ( pid > -1 ) {
+                System.out.printf( "done\n" );
                 return pid;
             }
 
             if ( System.currentTimeMillis() - started > 60000 ) {
                 throw new RuntimeException( "timeout while starting proc" );
             }
+
+            System.out.printf( "." );
             
             Thread.sleep( 1000L );
             
