@@ -42,7 +42,7 @@ public class vfs {
 
         @Override
         public String toString() {
-            return String.format( "f_type: %s" , f_type );
+            return String.format( "f_type: %s, f_bsize: %s, f_blocks: %s, f_bfree, f_bavail" , f_type, f_bsize, f_blocks, f_bfree, f_bavail );
         }
         
     }
