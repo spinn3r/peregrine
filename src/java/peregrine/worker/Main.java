@@ -97,23 +97,29 @@ public class Main {
 
     }
 
-    public static void main( String[] args ) throws Exception {
+    public static void main( String[] args ) {
 
-        if ( args.length == 0 ) {
-            System.out.printf( "SYNTAX start|stop\n" );
-            System.exit( 1 );
-        }
-
-        String command = args[ args.length - 1 ];
+        try {
         
-        if ( "start".equals( command ) ) {
-            start( args );
-        } 
+            if ( args.length == 0 ) {
+                System.out.printf( "SYNTAX start|stop\n" );
+                System.exit( 1 );
+            }
 
-        if ( "stop".equals( command ) ) {
-            stop( args );
+            String command = args[ args.length - 1 ];
+            
+            if ( "start".equals( command ) ) {
+                start( args );
+            } 
+
+            if ( "stop".equals( command ) ) {
+                stop( args );
+            }
+
+        } catch ( Exception e ) {
+            log.error( e );
         }
-
+            
     }
         
 }
