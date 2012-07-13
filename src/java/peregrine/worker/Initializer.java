@@ -120,6 +120,22 @@ public final class Initializer {
 
     }
 
+    public void requireFreeDiskSpace() throws IOException {
+
+        if ( config.getRequireFreeDiskSpaceSize() == -1 )
+            return;
+
+        vfs.StatfsStruct struct = new vfs.StatfsStruct();
+        vfs.statfs( config.getBasedir(), struct );
+
+        long free_disk_space = struct.f_bsize * struct.f_bfree;
+
+        if ( free_disk_space < config.getRequireFreeDiskSpaceSize() ) {
+            throw new IOException( String.format( "Disk space too low: %s", free_disk_space ) );
+        }
+        
+    }
+    
     public void assertRoot() throws Exception {
 
         int uid = unistd.getuid();
@@ -136,6 +152,7 @@ public final class Initializer {
      */
     public void workerd() throws Exception {
 
+        requireFreeDiskSpace();
         assertRoot();
         basic( "workerd" );
         datadir();

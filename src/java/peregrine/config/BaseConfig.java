@@ -120,6 +120,8 @@ public class BaseConfig {
 
     protected boolean traceNetworkTraffic = false;
 
+    protected long requireFreeDiskSpaceSize = -1;
+
     public void init( StructMap struct ) {
 
         this.struct = struct;
@@ -149,6 +151,7 @@ public class BaseConfig {
         setUser( struct.getString( "user" ) );
         setEnableFailureDuringMemLockError( struct.getBoolean( "enableFailureDuringMemLockError" ) );
         setTraceNetworkTraffic( struct.getBoolean( "traceNetworkTraffic" ) );
+        setRequireFreeDiskSpaceSize( struct.getSize( "requireFreeDiskSpaceSize" ) );
         
         if ( struct.containsKey( "host" ) )
             setHost( Host.parse( struct.getString( "host" ) ) );
@@ -380,6 +383,14 @@ public class BaseConfig {
 
     public void setTraceNetworkTraffic( boolean traceNetworkTraffic ) { 
         this.traceNetworkTraffic = traceNetworkTraffic;
+    }
+
+    public long getRequireFreeDiskSpaceSize() { 
+        return this.requireFreeDiskSpaceSize;
+    }
+
+    public void setRequireFreeDiskSpaceSize( long requireFreeDiskSpaceSize ) { 
+        this.requireFreeDiskSpaceSize = requireFreeDiskSpaceSize;
     }
 
     static {

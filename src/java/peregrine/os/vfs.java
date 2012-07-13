@@ -51,10 +51,13 @@ public class vfs {
         public int[] val = new int[2];
     }
 
-    public static int statfs( String path, StatfsStruct struct )
+    public static void statfs( String path, StatfsStruct struct )
         throws IOException {
 
-        return Delegate.statfs( path, struct );
+        if ( Delegate.statfs( path, struct ) != 0 ) {
+            PlatformException cause = new PlatformException();
+            throw new IOException( String.format( "Unable to statfs: %s" , path, cause.getMessage() ), cause );
+        }
 
     }
     
@@ -71,9 +74,8 @@ public class vfs {
     public static void main( String[] args ) throws Exception {
 
         StatfsStruct struct = new StatfsStruct();
-        int result = statfs( "/", struct );
+        statfs( "/", struct );
 
-        System.out.printf( "result: %s\n", result );
         System.out.printf( "struct: %s\n", struct );
 
     }
