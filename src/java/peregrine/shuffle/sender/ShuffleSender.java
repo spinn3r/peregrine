@@ -205,6 +205,10 @@ public class ShuffleSender implements Flushable, Closeable {
         public HttpClient getClient() {
             return client;
         }
+
+        public String toString() {
+            return String.format( "%s", host );
+        }
         
     }
 
