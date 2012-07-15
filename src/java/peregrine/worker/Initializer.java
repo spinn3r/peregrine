@@ -122,6 +122,11 @@ public final class Initializer {
 
     public void requireFreeDiskSpace() throws IOException {
 
+        // we only perform this on Linux because statfs on OS X and other
+        // platforms have more struct fields.
+        if ( ! Platform.isLinux() )
+            return;
+
         if ( config.getRequireFreeDiskSpaceSize() == -1 )
             return;
 

@@ -78,6 +78,9 @@ public class FSPipelineFactory implements ChannelPipelineFactory {
                                                                    MAX_CHUNK_SIZE ) );
 
         pipeline.addLast("encoder",        new HttpResponseEncoder() );
+
+        pipeline.addLast("logger",         new HttpResponseLoggingChannelHandler() );
+
         pipeline.addLast("handler",        new FSHandler( config, daemon ));
         
         return pipeline;

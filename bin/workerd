@@ -11,13 +11,13 @@ export YIELD_TO_EXISTING_DAEMON=true
 #
 # file: write to .err and .out files.
 
-export OUTPUT=none
+export OUTPUT=file
 export JMX_PORT_OFFSET=1000
 
 start() {
 
     # first check if we are already running ...
-    ./bin/jexec peregrine.worker.WaitForDaemon 2> /dev/null $args 
+    ./bin/jexec peregrine.worker.WaitForDaemon 2> /dev/null > /dev/null $args 
     result=$?
 
     # yup... we're up and running, so stop and return.

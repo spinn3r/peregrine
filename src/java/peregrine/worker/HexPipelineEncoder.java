@@ -69,7 +69,9 @@ public class HexPipelineEncoder implements ChannelUpstreamHandler, ChannelDownst
                 log.info( "\n%s", Hex.pretty( buff ) );
             }
 
-        } 
+        } else {
+            //log.warn( "NOT logging: %s", evt.getClass().getName() );
+        }
 
     }
     
