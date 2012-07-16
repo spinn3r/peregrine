@@ -71,8 +71,8 @@ public class FSPutBaseHandler extends ErrorLoggingChannelUpstreamHandler {
 
             } else {
 
-                // log that this was written successfully including the NR of
-                // bytes.
+                // log that this was written successfully including the number
+                // of bytes.
 
                 long duration = System.currentTimeMillis() - started;
 

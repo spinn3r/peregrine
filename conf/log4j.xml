@@ -51,7 +51,7 @@
 	
 	        <param name="File" value="logs/peregrine-${peregrine.log.suffix}.log" />
 	        <param name="MaxFileSize" value="100MB" />
-	        <param name="MaxBackupIndex" value="1" />
+	        <param name="MaxBackupIndex" value="2" />
 	
 	        <layout class="org.apache.log4j.PatternLayout">
 	          <param name="ConversionPattern" value="%d{ISO8601} %p [%t] %c %m%n"/>   
