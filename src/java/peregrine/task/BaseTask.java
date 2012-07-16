@@ -306,15 +306,11 @@ public abstract class BaseTask implements Task {
         return killed;
     }
 
-    /**
-     * Assert that we are alive and have not been marked killed by the
-     * controller.
-     */
     @Override
-    public void assertAlive() throws IOException {
+    public void assertActiveJob() throws IOException {
 
         if ( killed ) {
-            throw new IOException( "This task was killed for partition: %s" + partition );
+            throw new IOException( "Job was killed for partition: " + partition );
         }
 
     }

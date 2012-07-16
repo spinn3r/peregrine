@@ -452,7 +452,7 @@ public class Scheduler {
 
         markInactive( host, work );
 
-        // for each one of the hosts that are executing.. add them to the prey
+        // for each one of the hosts that are executing.. Add them to the prey
         // queue so they can be killed.
 
         if ( executing.contains( work ) ) {

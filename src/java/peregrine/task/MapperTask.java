@@ -61,7 +61,7 @@ public class MapperTask extends BaseMapperTask {
             
             while( reader.hasNext() ) {
 
-                assertAlive();
+                assertActiveJob();
                 
             	reader.next();
             	

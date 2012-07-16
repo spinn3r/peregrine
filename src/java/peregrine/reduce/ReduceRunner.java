@@ -370,7 +370,7 @@ public class ReduceRunner {
             //amount of data IN this partition and not the ENTIRE file size.
         	while( pendingIterator.hasNext() ) {
         		
-        		task.assertAlive();
+        		task.assertActiveJob();
         		
         		File current = pendingIterator.next();
                 String path = current.getPath();                
