@@ -33,7 +33,7 @@ public class MemoryAllocationTracker {
     /**
      * True when we should trace memory allocations.
      */
-    public static boolean TRACE = true;
+    public static boolean TRACE = false;
     
     /**
      * The current amount of memory allocated.

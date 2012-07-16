@@ -167,6 +167,17 @@ public class unistd {
         
     }
 
+    public static int chmod( String path, int mode ) throws IOException {
+
+        int result = delegate.chmod( path, mode );
+
+        if ( result == -1 )
+            throw new IOException( "Unable to chmod: " + path, new PlatformException() );
+
+        return result;
+        
+    }
+
     public static int mkdir( String path, int mode ) throws IOException {
 
         int result = delegate.mkdir( path, mode );
@@ -290,6 +301,7 @@ public class unistd {
         int getuid();
         int getpagesize();
         int chown( String path, int uid, int gid );
+        int chmod( String path, int perms );
         int stat( String path, StatStruct stat );
         int mkdir( String path, int mode );
         int unlink( String path );

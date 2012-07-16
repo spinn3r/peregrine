@@ -224,20 +224,45 @@ public class Files {
         }
 
     }
-    
+
     /**
      * Make a given directory readable and writable and optionally recurse all
      * children.
      */
-    public static void setReadableAndWritable( final String path,
-                                               final boolean ownerOnly,
-                                               final boolean recursive ) throws IOException {
+    public static void setReadable( final String path,
+                                    final boolean ownerOnly,
+                                    final boolean recursive ) throws IOException {
 
         File file = new File( path );
 
         if ( file.setReadable( true, ownerOnly ) == false ) {
             throw new IOException( "Unable to make readable: " + path );
         }
+
+        if ( recursive ) {
+
+            new Recursively<IOException>( file ) {
+
+                public void handle( File current ) throws IOException {
+                    setReadable( current.getPath() , ownerOnly, recursive );
+                }
+                
+            };
+
+        }
+
+    }
+
+
+    /**
+     * Make a given directory writable and optionally recurse all
+     * children.
+     */
+    public static void setWritable( final String path,
+                                    final boolean ownerOnly,
+                                    final boolean recursive ) throws IOException {
+
+        File file = new File( path );
 
         if ( file.setWritable( true, ownerOnly ) == false ) {
             throw new IOException( "Unable to make writable: " + path );
@@ -248,13 +273,27 @@ public class Files {
             new Recursively<IOException>( file ) {
 
                 public void handle( File current ) throws IOException {
-                    setReadableAndWritable( current.getPath() , ownerOnly, recursive );
+                    setWritable( current.getPath() , ownerOnly, recursive );
                 }
                 
             };
 
         }
 
+    }
+
+    
+    /**
+     * Make a given directory readable and writable and optionally recurse all
+     * children.
+     */
+    public static void setReadableAndWritable( final String path,
+                                               final boolean ownerOnly,
+                                               final boolean recursive ) throws IOException {
+
+        setReadable( path, ownerOnly, recursive );
+        setWritable( path, ownerOnly, recursive );
+        
     }
     
     /**

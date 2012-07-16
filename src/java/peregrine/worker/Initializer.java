@@ -40,15 +40,29 @@ public final class Initializer {
 		this.config = config;
 	}
 
-    public void datadir() throws IOException {
+    public void permissions() throws IOException {
+        
+        Files.setReadable( "conf/", false, true );
+        Files.setReadableAndWritable( "logs/", false, true );
+        
         Files.initDataDir( config.getRoot(),    config.getUser() );
         Files.initDataDir( config.getBasedir(), config.getUser() );
     }
-    
-    public void logger( String suffix ) {
 
+    public void logger( String suffix ) throws IOException {
+
+        String conf = "conf/log4j.xml";
+
+        if ( new File( conf ).canRead() == false ) {
+            throw new IOException( "Unable to read: " + conf );
+        }
+
+        if ( new File( "logs" ).canWrite() == false ) {
+            throw new IOException( "Unable to write to log directory" );
+        }
+            
         System.setProperty( "peregrine.log.suffix", suffix );
-        DOMConfigurator.configure( "conf/log4j.xml" );
+        DOMConfigurator.configure( conf );
 
     }
 
@@ -159,10 +173,10 @@ public final class Initializer {
 
         requireFreeDiskSpace();
         assertRoot();
-        basic( "workerd" );
-        datadir();
+        permissions();
         limitMemoryUsage();
         setuid();
+        basic( "workerd" );
         pidfile();
  
     }
@@ -172,9 +186,9 @@ public final class Initializer {
      */
     public void controllerd() throws Exception {
         assertRoot();
-        basic( "controllerd" );
         limitMemoryUsage();
         setuid();
+        basic( "controllerd" );
     }
 
     /**
