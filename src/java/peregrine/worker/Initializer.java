@@ -47,6 +47,8 @@ public final class Initializer {
     
     public void logger( String suffix ) {
 
+        // TODO: make sure we can write the logs directory.
+        
         System.setProperty( "peregrine.log.suffix", suffix );
         DOMConfigurator.configure( "conf/log4j.xml" );
 
@@ -159,10 +161,10 @@ public final class Initializer {
 
         requireFreeDiskSpace();
         assertRoot();
-        basic( "workerd" );
         datadir();
         limitMemoryUsage();
         setuid();
+        basic( "workerd" );
         pidfile();
  
     }
@@ -172,9 +174,9 @@ public final class Initializer {
      */
     public void controllerd() throws Exception {
         assertRoot();
-        basic( "controllerd" );
         limitMemoryUsage();
         setuid();
+        basic( "controllerd" );
     }
 
     /**
