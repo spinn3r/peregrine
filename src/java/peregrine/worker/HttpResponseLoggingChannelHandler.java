@@ -76,7 +76,7 @@ public class HttpResponseLoggingChannelHandler extends SimpleChannelHandler {
         if ( errorsOnly == false )
             return true;
 
-        return response.getStatus().getCode() < 300;
+        return response.getStatus().getCode() >= 300;
 
     }
     
