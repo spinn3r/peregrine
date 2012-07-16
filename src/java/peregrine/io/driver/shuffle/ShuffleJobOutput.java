@@ -96,9 +96,9 @@ public class ShuffleJobOutput
 
         long throughput = -1;
 
-        try {
-            throughput = (long)((length() / (double)duration) * 1000);
-        } catch ( Throwable t ) { }
+        if ( duration > 0 ) {
+            throughput = (long)(( length() / (double)duration) * 1000 );
+        }
 
         log.info( "Shuffled %,d entries (%,d bytes) from %s in %s %,d ms with throughput %,d b/s",
                   emits, length(), partition, this, duration, throughput );

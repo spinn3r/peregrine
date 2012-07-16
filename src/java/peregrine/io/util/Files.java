@@ -159,7 +159,8 @@ public class Files {
 
             File test = new File( file.getPath() );
 
-            // TODO: technically we also have to look at the permissions.
+            // TODO: technically we also have to look at the permissions and
+            // chown them
             
             if ( test.isDirectory() )
                 return;
