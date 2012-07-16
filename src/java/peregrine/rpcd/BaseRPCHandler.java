@@ -89,8 +89,10 @@ public abstract class BaseRPCHandler<T> extends SimpleChannelUpstreamHandler {
 
     private void doHandleMessage() {
 
+        String rpc_call = this.uri;
+        
         try {
-            
+
             URI uri = new URI( this.uri );
 
             String path = uri.getPath();
@@ -99,13 +101,12 @@ public abstract class BaseRPCHandler<T> extends SimpleChannelUpstreamHandler {
 
             if ( delegate != null ) {
 
+                rpc_call = String.format( "%s %s: %s", uri, delegate.getClass().getName(), message.toDebugString() );
+
                 // don't log heartbeat messages as they are overly verbose.
                 
                 if ( ! "heartbeat".equals( message.getString( "action" ) ) ) {
-                    
-                    log.info( "Handling with %,d params for URI: %s with %s: \n%s",
-                              message.size(), uri, delegate.getClass().getName(), message.toDebugString() );
-
+                    log.info( "Handling RPC call %s", rpc_call );
                 }
             	
                 executorService.submit( new AsyncMessageHandler( channel, message ) {
@@ -119,21 +120,30 @@ public abstract class BaseRPCHandler<T> extends SimpleChannelUpstreamHandler {
                 return;
                 
             } else {
-                log.warn( "No handler for message %s at URI %s", message, uri );
+                log.error( "No handler for message %s at URI %s", message, uri );
+                sendError();
+                return;
             }
+
+        } catch ( RejectedExecutionException e ) {
+
+            log.error( "Unable to accept request.  The executor service is shutdown: %s", rpc_call );
+            sendError();
+            return;
 
         } catch ( Exception e ) {
             log.error( "Could not handle RPC call: " , e );
+            sendError();
+            return;
         }
-
-        log.error( "Unable to handle RPC call: (sending INTERNAL_SERVER_ERROR)", new Exception() );
-        
-        HttpResponse response = new DefaultHttpResponse( HTTP_1_1, INTERNAL_SERVER_ERROR );
-        channel.write(response).addListener(ChannelFutureListener.CLOSE);
-        return;
 
     }
 
+    private void sendError() {
+        HttpResponse response = new DefaultHttpResponse( HTTP_1_1, INTERNAL_SERVER_ERROR );
+        channel.write(response).addListener(ChannelFutureListener.CLOSE);
+    }
+    
     /**
      * Perform an action in a background thread, and then send a response code.
      */

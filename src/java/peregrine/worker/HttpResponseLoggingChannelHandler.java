@@ -27,7 +27,7 @@ import org.jboss.netty.handler.codec.http.*;
 import com.spinn3r.log5j.*;
 
 /**
- * 
+ * Handler to log all HTTP requests.
  */
 public class HttpResponseLoggingChannelHandler extends SimpleChannelHandler {
 
