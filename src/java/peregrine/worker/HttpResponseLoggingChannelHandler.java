@@ -35,6 +35,14 @@ public class HttpResponseLoggingChannelHandler extends SimpleChannelHandler {
 
     private HttpRequest request = null;
 
+    private boolean errorsOnly = false;
+
+    public HttpResponseLoggingChannelHandler() { }
+
+    public HttpResponseLoggingChannelHandler( boolean errorsOnly ) {
+        this.errorsOnly = errorsOnly;
+    }
+
     @Override
     public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
         
@@ -53,6 +61,9 @@ public class HttpResponseLoggingChannelHandler extends SimpleChannelHandler {
             
             HttpResponse response = (HttpResponse) e.getMessage();
 
+            if ( errorsOnly && response.getStatus().getCode() < 300 )
+                return;
+            
             log.info( "%s %s %s %s", request.getMethod(), request.getUri(), request.getProtocolVersion(), response.getStatus() );
 
         }

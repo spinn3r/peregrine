@@ -62,7 +62,7 @@ public class ControllerPipelineFactory implements ChannelPipelineFactory {
 
         pipeline.addLast("encoder",        new HttpResponseEncoder() );
 
-        pipeline.addLast("logger",         new HttpResponseLoggingChannelHandler() );
+        pipeline.addLast("logger",         new HttpResponseLoggingChannelHandler( true ) );
 
         pipeline.addLast("handler",        new ControllerHandler( config, controllerDaemon ) );
         
