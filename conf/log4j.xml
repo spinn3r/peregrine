@@ -47,12 +47,15 @@
 
     </appender>
 
-    <appender name="file" class="org.apache.log4j.RollingFileAppender">
+    <appender name="file" class="org.apache.log4j.FileAppender">
 	
 	        <param name="File" value="logs/peregrine-${peregrine.log.suffix}.log" />
+            
+            <!--
 	        <param name="MaxFileSize" value="100MB" />
 	        <param name="MaxBackupIndex" value="5" />
-	
+            -->
+
 	        <layout class="org.apache.log4j.PatternLayout">
 	          <param name="ConversionPattern" value="%d{ISO8601} %p [%t] %c %m%n"/>   
 	        </layout>
