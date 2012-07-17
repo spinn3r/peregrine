@@ -122,7 +122,7 @@ public class BaseConfig {
 
     protected long requireFreeDiskSpaceSize = -1;
 
-    private long httpMaxChunkSize = -1;
+    protected long httpMaxChunkSize = -1;
 
     public void init( StructMap struct ) {
 
