@@ -83,8 +83,6 @@ public class FSPutShuffleHandler extends FSPutBaseHandler {
                     // get the last 4 bytes to parse the count.
                     int count = content.getInt( suffix_idx );
 
-                    log.info( "FIXME: buffer of %,d bytes has a count of: %,d", content.writerIndex(), count );
-                    
                     // now slice the data sans suffix.
                     ChannelBuffer data = content.slice( 0, suffix_idx );
                     

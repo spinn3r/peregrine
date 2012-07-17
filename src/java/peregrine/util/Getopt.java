@@ -34,7 +34,7 @@ import java.security.*;
  */
 public class Getopt {
 
-    // FIXME refactor this to use StructMap as the backend.
+    // TODO refactor this to use StructMap as the backend.
     private Map<String,String> params = new HashMap();
     
     private List<String> values = new ArrayList();
