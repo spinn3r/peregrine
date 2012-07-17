@@ -109,7 +109,7 @@ public class FSCat {
         for ( String r : render.split( "," ) ) {
 
             if ( buff.length() > 0 )
-                buff.append( ", " );
+                buff.append( " , " );
 
             if ( r.matches( "(?i)%.*d" ) ) {
                 buff.append( String.format( r, value.readInt() ) );
