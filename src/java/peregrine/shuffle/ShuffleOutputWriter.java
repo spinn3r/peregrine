@@ -142,7 +142,7 @@ public class ShuffleOutputWriter implements Closeable {
                 throw new IOException( "No locally defined partition for: " + current.to_partition );
 
             if ( current.count < 0 )
-                throw new IOException( "count < 0: " + count );
+                throw new IOException( "count < 0: " + current.count );
 
             shuffleOutputPartition.count += current.count;
             
