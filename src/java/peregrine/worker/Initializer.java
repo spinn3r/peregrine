@@ -171,9 +171,9 @@ public final class Initializer {
      */
     public void workerd() throws Exception {
 
-        requireFreeDiskSpace();
         assertRoot();
         permissions();
+        requireFreeDiskSpace();
         limitMemoryUsage();
         setuid();
         basic( "workerd" );
