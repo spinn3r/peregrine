@@ -53,7 +53,7 @@ public class HttpClientPipelineFactory implements ChannelPipelineFactory {
 
         pipeline.addLast("codec",   new HttpClientCodec( MAX_INITIAL_LINE_LENGTH ,
                                                          MAX_HEADER_SIZE,
-                                                         MAX_CHUNK_SIZE ));
+                                                         (int)config.getHttpMaxChunkSize() ));
         
         pipeline.addLast("handler", new HttpClientHandler( client ) );
 

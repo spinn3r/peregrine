@@ -58,7 +58,7 @@ public class ControllerPipelineFactory implements ChannelPipelineFactory {
 
         pipeline.addLast("decoder",        new HttpRequestDecoder( MAX_INITIAL_LINE_LENGTH ,
                                                                    MAX_HEADER_SIZE,
-                                                                   MAX_CHUNK_SIZE ) );
+                                                                   (int)config.getHttpMaxChunkSize() ) );
 
         pipeline.addLast("encoder",        new HttpResponseEncoder() );
 

@@ -122,6 +122,8 @@ public class BaseConfig {
 
     protected long requireFreeDiskSpaceSize = -1;
 
+    private long httpMaxChunkSize = -1;
+
     public void init( StructMap struct ) {
 
         this.struct = struct;
@@ -152,6 +154,7 @@ public class BaseConfig {
         setEnableFailureDuringMemLockError( struct.getBoolean( "enableFailureDuringMemLockError" ) );
         setTraceNetworkTraffic( struct.getBoolean( "traceNetworkTraffic" ) );
         setRequireFreeDiskSpaceSize( struct.getSize( "requireFreeDiskSpaceSize" ) );
+        setHttpMaxChunkSize( struct.getSize( "httpMaxChunkSize" ) );
         
         if ( struct.containsKey( "host" ) )
             setHost( Host.parse( struct.getString( "host" ) ) );
@@ -391,6 +394,14 @@ public class BaseConfig {
 
     public void setRequireFreeDiskSpaceSize( long requireFreeDiskSpaceSize ) { 
         this.requireFreeDiskSpaceSize = requireFreeDiskSpaceSize;
+    }
+
+    public long getHttpMaxChunkSize() { 
+        return this.httpMaxChunkSize;
+    }
+
+    public void setHttpMaxChunkSize( long httpMaxChunkSize ) { 
+        this.httpMaxChunkSize = httpMaxChunkSize;
     }
 
     static {
