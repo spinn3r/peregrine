@@ -151,7 +151,7 @@ public class ShuffleSender implements Flushable, Closeable {
                 HttpClient client = new HttpClient( config, hosts, path );
 
                 ShuffleOutputTarget target
-                    = new ShuffleOutputTarget( hosts.get( 0 ), client, MAX_CHUNK_SIZE - IntBytes.LENGTH  );
+                    = new ShuffleOutputTarget( hosts.get( 0 ), client, MAX_CHUNK_SIZE - IntBytes.LENGTH );
 
                 result.put( part.getId(), target );
                 
@@ -181,7 +181,7 @@ public class ShuffleSender implements Flushable, Closeable {
         protected int count = 0;
         
         public ShuffleOutputTarget( Host host, HttpClient client, int capacity ) {
-            super( client, capacity - HttpClient.CHUNK_OVERHEAD - IntBytes.LENGTH );
+            super( client, capacity - HttpClient.CHUNK_OVERHEAD - 100 /* FIXME */ );
             this.host = host;
             this.client = client;            
         }
