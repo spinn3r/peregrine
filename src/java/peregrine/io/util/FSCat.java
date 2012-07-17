@@ -35,16 +35,18 @@ import java.util.*;
  */
 public class FSCat {
 
+    public static void syntax() {
+
+    }
+    
     public static void main( String[] args ) throws Exception {
 
-        String path = args[0];
+        Getopt getopt = new Getopt( args );
+        
+        String render = getopt.getString( "render" , "base64" );
 
-        String render = "base64";
-
-        if ( args.length == 2 ) {
-            render = args[1];
-        }
-
+        String path = getopt.getValues().get( 0 );
+        
         SequenceReader reader = null;
 
         try {
@@ -108,6 +110,21 @@ public class FSCat {
 
             if ( buff.length() > 0 )
                 buff.append( ", " );
+
+            if ( r.matches( "(?i)%.*d" ) ) {
+                buff.append( String.format( r, value.readInt() ) );
+                continue;
+            }
+
+            if ( r.matches( "(?i)%%.*[efga]" ) ) {
+                buff.append( String.format( r, value.readDouble() ) );
+                continue;
+            }
+
+            if ( r.matches( "(?i)%%.*s" ) ) {
+                buff.append( String.format( r, value.readString() ) );
+                continue;
+            }
 
             //TODO we could use reflection here.  Java really needs syntactic
             //sugar for reflection.

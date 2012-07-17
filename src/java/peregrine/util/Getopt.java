@@ -24,13 +24,19 @@ import java.net.*;
 import java.security.*;
 
 /**
+ * <p>
  * Simple getopt implementation which doesn't have many features but works for
  * 80% of common usage and doesn't require an external library.
  *
+ * <p>
+ * 
+ * 
  */
 public class Getopt {
 
+    // FIXME refactor this to use StructMap as the backend.
     private Map<String,String> params = new HashMap();
+    
     private List<String> values = new ArrayList();
     
     /**
