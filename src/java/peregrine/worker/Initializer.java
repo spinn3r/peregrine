@@ -144,7 +144,10 @@ public final class Initializer {
         if ( config.getRequireFreeDiskSpaceSize() == -1 )
             return;
 
-        long free_disk_space = new File( config.getBasedir() ).getFreeSpace();
+        vfs.StatfsStruct struct = new vfs.StatfsStruct();
+        vfs.statfs( config.getBasedir(), struct );
+
+        long free_disk_space = struct.f_bsize * struct.f_bfree;
 
         if ( free_disk_space < config.getRequireFreeDiskSpaceSize() ) {
             throw new IOException( String.format( "Disk space too low: %s", free_disk_space ) );
