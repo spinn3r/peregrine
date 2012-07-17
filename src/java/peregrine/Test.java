@@ -78,6 +78,8 @@ public class Test {
         log.error( "hello world: %s", new Tracepoint( new Exception( "fake exception" ) ) );
         */
 
+        System.out.printf( "%s\n", new File( "/tmp/" ).getFreeSpace() );
+        
         
     }
 
