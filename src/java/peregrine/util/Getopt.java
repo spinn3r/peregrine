@@ -57,8 +57,10 @@ public class Getopt {
 
             String key = split[0];
 
-            if ( key.startsWith( "--" ) )
+            //strip the -- prefix
+            if ( key.startsWith( "--" ) ) {
                 key = key.substring( 2, key.length() );
+            }
 
             if ( split.length != 2 ) {
                 // make this a boolean

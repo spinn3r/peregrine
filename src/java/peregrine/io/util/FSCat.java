@@ -35,18 +35,29 @@ import java.util.*;
  */
 public class FSCat {
 
-    public static void syntax() {
+    public static void help() {
 
+        System.out.printf( "Usage: fscat [OPTION] [FILE]\n" );
+        System.err.printf( "Simple Peregrine filesystem 'cat' command \n" );
+        System.err.printf( "\n" );
+        System.out.printf( "  --render   Render the value(s) in the following format.\n" );
+        System.out.printf( "             Multiple columns are separated by a comma (,)\n" );
+        
     }
     
     public static void main( String[] args ) throws Exception {
 
         Getopt getopt = new Getopt( args );
+
+        if ( getopt.getBoolean( "help" ) ) {
+            help();
+            System.exit( 1 );
+        }
         
         String render = getopt.getString( "render" , "base64" );
 
         String path = getopt.getValues().get( 0 );
-        
+
         SequenceReader reader = null;
 
         try {
@@ -109,7 +120,7 @@ public class FSCat {
         for ( String r : render.split( "," ) ) {
 
             if ( buff.length() > 0 )
-                buff.append( " , " );
+                buff.append( " " );
 
             if ( r.matches( "(?i)%.*d" ) ) {
                 buff.append( String.format( r, value.readInt() ) );
