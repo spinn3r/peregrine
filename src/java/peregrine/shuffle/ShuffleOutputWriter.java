@@ -87,6 +87,9 @@ public class ShuffleOutputWriter implements Closeable {
         if ( closed )
             throw new IOException( "writer is closed" );
 
+        if ( count < 0 )
+            throw new IOException( "invalid count: " + count );
+        
         ShufflePacket pack = new ShufflePacket( from_partition, from_chunk, to_partition, -1, count, data );
         
         this.length.getAndAdd( data.capacity() );
@@ -139,7 +142,7 @@ public class ShuffleOutputWriter implements Closeable {
                 throw new IOException( "No locally defined partition for: " + current.to_partition );
 
             if ( current.count < 0 )
-                throw new IOException( "count < 0" );
+                throw new IOException( "count < 0: " + count );
 
             shuffleOutputPartition.count += current.count;
             

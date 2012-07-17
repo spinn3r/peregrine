@@ -181,7 +181,7 @@ public class ShuffleSender implements Flushable, Closeable {
         protected int count = 0;
         
         public ShuffleOutputTarget( Host host, HttpClient client, int capacity ) {
-            super( client, capacity - HttpClient.CHUNK_OVERHEAD );
+            super( client, capacity - HttpClient.CHUNK_OVERHEAD - IntBytes.LENGTH );
             this.host = host;
             this.client = client;            
         }
