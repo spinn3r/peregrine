@@ -56,7 +56,7 @@ public class vfs {
 
         if ( Delegate.statfs( path, struct ) != 0 ) {
             PlatformException cause = new PlatformException();
-            throw new IOException( String.format( "Unable to statfs: %s" , path, cause.getMessage() ), cause );
+            throw new IOException( String.format( "Unable to statfs: %s (%s)" , path, cause.getMessage() ), cause );
         }
 
     }
