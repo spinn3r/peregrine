@@ -35,12 +35,12 @@ public class Main {
     public static void main( String[] args ) throws Exception {
 
         Config config = ConfigParser.parse( args );
-
+        
         Initializer init = new Initializer( config );
         init.controller();
-
+        
         Controller controller = new Controller( config );
-
+        
         Thread.sleep( Long.MAX_VALUE );
         
     }

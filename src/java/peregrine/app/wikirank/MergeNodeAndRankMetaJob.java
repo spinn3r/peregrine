@@ -66,7 +66,7 @@ public class MergeNodeAndRankMetaJob {
             //StructWriters for variable length aggregate fields.  Either that
             //or back them with a dynamic channel buffer.
             
-            StructWriter writer = new StructWriter( 256 );
+            StructWriter writer = new StructWriter( 4096 );
             
             writer.writeInt( indegree );
             writer.writeInt( outdegree );
