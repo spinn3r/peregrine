@@ -116,12 +116,12 @@ public class FSCat {
                 continue;
             }
 
-            if ( r.matches( "(?i)%%.*[efga]" ) ) {
+            if ( r.matches( "(?i)%.*f" ) ) {
                 buff.append( String.format( r, value.readDouble() ) );
                 continue;
             }
 
-            if ( r.matches( "(?i)%%.*s" ) ) {
+            if ( r.matches( "(?i)%.*s" ) ) {
                 buff.append( String.format( r, value.readString() ) );
                 continue;
             }
