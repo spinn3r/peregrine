@@ -50,7 +50,7 @@ public class FSPipelineFactory implements ChannelPipelineFactory {
      * 1000       25            8192      204.0 MB
      * </pre>
      */
-    public static int MAX_CHUNK_SIZE             = 16384;
+    public static int MAX_CHUNK_SIZE             = 65536;
 
     private Config config;
     private FSDaemon daemon;
