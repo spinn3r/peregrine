@@ -206,27 +206,6 @@ public class StructMap {
         return result;
     }
 
-    public Collection<MessageSerializable> getList( String prefix, Class clazz ) {
-
-        try {
-
-            Collection<MessageSerializable> result = new ArrayList();
-            
-            for ( String str : getList( prefix ) ) {
-                
-                MessageSerializable msg = (MessageSerializable)clazz.newInstance();
-                msg.fromMessage( new Message( str ) );
-                result.add( msg );
-            }
-
-            return result;
-            
-        } catch ( Exception e ) {
-            throw new RuntimeException( e );
-        }
-
-    }
-    
     public String get( String key ) {
         return get( key, null );        
     }
