@@ -361,8 +361,9 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
             // directories.
 
             int port = Host.DEFAULT_PORT + i;
-            include( new File( String.format( "logs/peregrine-workerd-localhost:%s.log", port ) ) );
-            include( new File( String.format( "logs/peregrine-workerd-localhost:%s.err", port ) ) );
+
+            //include( new File( String.format( "logs/peregrine-workerd-localhost:%s.log", port ) ) );
+            //include( new File( String.format( "logs/peregrine-workerd-localhost:%s.err", port ) ) );
             
         }
             
