@@ -58,7 +58,7 @@ public class CompositeChunkReader implements Closeable {
     /**
      * The buffer index we're on.
      */
-    private int index = -1;
+    private int bufferIndex = -1;
     
     /**
      * The sum of items in all delegate readers.
@@ -119,7 +119,7 @@ public class CompositeChunkReader implements Closeable {
 
     private void nextReader() {
 
-        ++index;
+        ++bufferIndex;
         
         reader = readerIterator.next();
 
@@ -127,8 +127,8 @@ public class CompositeChunkReader implements Closeable {
 
     }
 
-    public int index() {
-        return index;
+    public int bufferIndex() {
+        return bufferIndex;
     }
     
     /**

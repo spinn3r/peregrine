@@ -139,7 +139,7 @@ public class KeyLookup extends IdempotentCloser {
 
             ChunkReader delegate = reader.getChunkReader();
            
-            KeyEntry entry = new KeyEntry( (byte)reader.index(), delegate.keyOffset() );
+            KeyEntry entry = new KeyEntry( (byte)reader.bufferIndex(), delegate.keyOffset() );
             
             entry.backing = reader.getBuffer();
             
@@ -165,7 +165,7 @@ public class KeyLookup extends IdempotentCloser {
     public void set( KeyEntry entry ) {
         
         lookup.writerIndex( index * KEY_SIZE );
-        lookup.writeByte( entry.buffer );
+        lookup.writeByte( entry.bufferIndex );
         lookup.writeInt( entry.offset );
         
     }
@@ -175,9 +175,10 @@ public class KeyLookup extends IdempotentCloser {
     	KeyEntry result = new KeyEntry();
     	
         lookup.readerIndex( index * KEY_SIZE );
-        result.buffer  = lookup.readByte();
-        result.offset  = lookup.readInt();
-    	result.backing = buffers[(int)result.buffer];
+
+        result.bufferIndex  = lookup.readByte();
+        result.offset       = lookup.readInt();
+    	result.backing      = buffers[(int)result.bufferIndex];
 
     	return result;
         

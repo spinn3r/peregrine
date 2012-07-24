@@ -21,17 +21,15 @@ import peregrine.util.primitive.*;
 
 public class KeyEntry {
 
-	public byte buffer;
+	public byte bufferIndex;
 	public int offset;
 	
 	public ChannelBuffer backing; 
 	
-	public KeyEntry() {
-		
-	}
+	public KeyEntry() { }
 	
-	public KeyEntry( byte buffer, int offset ) {
-		this.buffer = buffer;
+	public KeyEntry( byte bufferIndex, int offset ) {
+		this.bufferIndex = bufferIndex;
 		this.offset = offset;
 	}
 	
