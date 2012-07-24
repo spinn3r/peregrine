@@ -229,10 +229,10 @@ public class StructReader {
 
     /**
      * Get a byte at an absolute position.  This is used so that we can do
-     * sorting based on values or keys.
+     * sorting based on values or keys and an arbitrary comparator.
      */
-    public void getByte( int index ) {
-        buff.getByte( index );
+    public byte getByte( int index ) {
+        return buff.getByte( index );
     }
     
     /**
