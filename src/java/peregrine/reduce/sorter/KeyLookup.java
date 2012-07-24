@@ -139,9 +139,9 @@ public class KeyLookup extends IdempotentCloser {
 
             ChunkReader delegate = reader.getChunkReader();
            
-            KeyEntry entry = new KeyEntry( (byte)reader.bufferIndex(), delegate.keyOffset() );
-            
-            entry.backing = reader.getBuffer();
+            KeyEntry entry = new KeyEntry( (byte)reader.bufferIndex(),
+                                           delegate.keyOffset(),
+                                           reader.getBuffer() );
             
             set( entry );
 

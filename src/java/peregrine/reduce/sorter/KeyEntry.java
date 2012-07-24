@@ -23,14 +23,14 @@ public class KeyEntry {
 
 	public byte bufferIndex;
 	public int offset;
-	
-	public ChannelBuffer backing; 
+    public ChannelBuffer backing; 
 	
 	public KeyEntry() { }
 	
-	public KeyEntry( byte bufferIndex, int offset ) {
+	public KeyEntry( byte bufferIndex, int offset, ChannelBuffer backing ) {
 		this.bufferIndex = bufferIndex;
 		this.offset = offset;
+        this.backing = backing;
 	}
 	
     public byte[] read() {

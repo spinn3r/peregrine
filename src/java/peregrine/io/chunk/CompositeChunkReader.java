@@ -148,9 +148,7 @@ public class CompositeChunkReader implements Closeable {
     
     @Override
     public void close() throws IOException {
-
         new Closer( readers ).close();
-        
     }
     
     public int size() {

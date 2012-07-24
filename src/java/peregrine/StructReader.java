@@ -45,6 +45,8 @@ import peregrine.os.*;
  * string
  * hashcode
  * 
+ * </pre>
+ * 
  * @see StructWriter
  * @see StructReaders
  */
@@ -225,6 +227,14 @@ public class StructReader {
         buff.readerIndex( 0 );
     }
 
+    /**
+     * Get a byte at an absolute position.  This is used so that we can do
+     * sorting based on values or keys.
+     */
+    public void getByte( int index ) {
+        buff.getByte( index );
+    }
+    
     /**
      * <p>
      * Return true if the struct is currently readable and there is data ready
