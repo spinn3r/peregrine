@@ -84,40 +84,4 @@ public class SorterPriorityQueue {
 
 }
 
-class SortMergeComparator implements Comparator<SortQueueEntry> {
-
-    public int compare( SortQueueEntry e0, SortQueueEntry e1 ) {
-                
-        KeyEntry entry0 = e0.lookup.get();
-        KeyEntry entry1 = e1.lookup.get();
-        
-        int diff = 0;
-
-        for( int offset = 0; offset < LongBytes.LENGTH; ++offset ) {
-
-            diff = entry0.read( offset ) - entry1.read( offset );
-
-            if ( diff != 0 )
-                return diff;
-            
-        }
-
-        return diff;
-
-    }
-
-}
-
-class SortQueueEntry {
-
-    protected SorterPriorityQueue queue = null;
-
-    protected KeyLookup lookup = null;
-
-    /**
-     * Used to store the offset pointer.
-     */
-    protected KeyEntry entry = null;
-    
-}
 
