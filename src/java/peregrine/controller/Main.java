@@ -33,7 +33,7 @@ public class Main {
     private static final Logger log = Logger.getLogger();
 
     public static void main( String[] args ) throws Exception {
-
+        
         Config config = ConfigParser.parse( args );
         
         Initializer init = new Initializer( config );

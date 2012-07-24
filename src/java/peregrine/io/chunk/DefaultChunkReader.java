@@ -223,7 +223,6 @@ public class DefaultChunkReader implements SequenceReader, ChunkReader, Closeabl
     }
 
     public int index() {
-        
         return reader.index();
     }
     
