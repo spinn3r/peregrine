@@ -171,16 +171,14 @@ public class KeyLookup extends IdempotentCloser {
     }
 
     public KeyEntry get() {
-    	
-    	KeyEntry result = new KeyEntry();
-    	
+
         lookup.readerIndex( index * KEY_SIZE );
 
-        result.bufferIndex  = lookup.readByte();
-        result.offset       = lookup.readInt();
-    	result.backing      = buffers[(int)result.bufferIndex];
+        byte bufferIndex       = lookup.readByte();
+        int offset             = lookup.readInt();
+    	ChannelBuffer backing  = buffers[(int)bufferIndex];
 
-    	return result;
+    	return new KeyEntry( bufferIndex, offset, backing );
         
     }
 
