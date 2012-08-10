@@ -190,7 +190,7 @@ public class KeyLookup extends IdempotentCloser {
         this.index = start - 1;
     }
 
-    public byte[] key() {
+    private byte[] key() {
         return get().read();
     }
     
