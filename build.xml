@@ -10,12 +10,14 @@
 
     <property file="build.properties"/>
 
-    <property name="project"       value="peregrine"/>
-    <property name="javadocdir"    value="target/javadoc"/>
-    <property name="version"       value="0.5.3"/>
+    <property name="project"         value="peregrine"/>
+    <property name="javadocdir"      value="target/javadoc"/>
+    <property name="version"         value="0.5.3"/>
 
-    <property name="haltonfailure" value="false"/>
-    <property name="haltonerror"   value="false"/>
+    <property name="haltonfailure"   value="false"/>
+    <property name="haltonerror"     value="false"/>
+
+    <property name="junit.timeout"   value="2000000"/>
 
     <path id="project.classpath">
 
@@ -165,7 +167,7 @@
         <junit printsummary="withOutAndErr"
                fork="true"
                forkmode="perTest"
-               timeout="1000000"
+               timeout="${junit.timeout}"
                maxmemory="1024m"
                filtertrace="false"
                haltonfailure="${haltonfailure}"
@@ -255,7 +257,7 @@
         <junit printsummary="withOutAndErr"
                fork="true"
                forkmode="perTest"
-               timeout="1000000"
+               timeout="${junit.timeout}"
                maxmemory="1024m"
                filtertrace="false"
                haltonfailure="${haltonfailure}"
@@ -340,7 +342,7 @@
         <junit printsummary="withOutAndErr"
                fork="true"
                forkmode="perTest"
-               timeout="1000000"
+               timeout="${junit.timeout}"
                maxmemory="1024m"
                filtertrace="false"
                haltonfailure="${haltonfailure}"
