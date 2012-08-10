@@ -189,10 +189,6 @@ public class KeyLookup extends IdempotentCloser {
     public void reset() {
         this.index = start - 1;
     }
-
-    private byte[] key() {
-        return get().read();
-    }
     
     // zero copy slice implementation.
     public KeyLookup slice( int slice_start, int slice_end ) {
@@ -227,7 +223,7 @@ public class KeyLookup extends IdempotentCloser {
 
         while( copy.hasNext() ) {
             copy.next();
-            System.out.printf( "\t\t%s\n", Hex.encode( copy.key() ) );
+            //System.out.printf( "\t\t%s\n", Hex.encode( copy.key() ) );
         }
 
     }

@@ -30,13 +30,16 @@ public class KeyEntry {
 		this.offset = offset;
         this.backing = backing;
 	}
-	
+
+    /*
     public byte[] read() {
         byte[] data = new byte[LongBytes.LENGTH];
         backing.getBytes( offset, data );
         return data;
     }
 
+    */
+    
     /**
      * Read a byte from the entry at the given position within the key. 
      * 
