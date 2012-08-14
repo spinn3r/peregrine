@@ -83,6 +83,10 @@ public class DefaultChunkReader implements SequenceReader, ChunkReader, Closeabl
     
     private ChannelBuffer buffer = null;
 
+    public DefaultChunkReader( ChannelBuffer buff ) {
+        init( buff );
+    }
+    
     public DefaultChunkReader( File file )
         throws IOException {
 
@@ -102,15 +106,13 @@ public class DefaultChunkReader implements SequenceReader, ChunkReader, Closeabl
         
     }
 
-    private void init( ChannelBuffer buff )
-        throws IOException {
+    public void init( ChannelBuffer buff ) {
 
         init( buff, new StreamReader( buff ) );
         
     }
     
-    private void init( ChannelBuffer buff, StreamReader reader )
-        throws IOException {
+    private void init( ChannelBuffer buff, StreamReader reader ) {
 
     	this.buffer = buff;
         this.reader = reader;
@@ -194,21 +196,25 @@ public class DefaultChunkReader implements SequenceReader, ChunkReader, Closeabl
     	return buffer;
     }
     
-    private void assertLength() throws IOException {
+    private void assertLength() {
         if ( this.length < IntBytes.LENGTH )
-            throw new IOException( String.format( "File %s is too short (%,d bytes)", file.getPath(), length ) );
+            throw new RuntimeException( String.format( "File %s is too short (%,d bytes)", file.getPath(), length ) );
     }
 
-    private void setSize( int size ) throws IOException {
+    private void setSize( int size ) {
 
         if ( size < 0 ) {
-            throw new IOException( String.format( "Invalid size: %s (%s)", size, toString() ) );
+            throw new RuntimeException( String.format( "Invalid size: %s (%s)", size, toString() ) );
         }
 
         this.size = size;
     }
 
-    private StructReader readEntry() throws IOException {
+    /**
+     * Not part of the API but public so that sorting can read directly from
+     * varint encoded key/value streams.
+     */
+    public StructReader readEntry() {
 
         try {
 
@@ -217,7 +223,7 @@ public class DefaultChunkReader implements SequenceReader, ChunkReader, Closeabl
             return reader.read( len );
             
         } catch ( Throwable t ) {
-            throw new IOException( "Unable to parse: " + toString() , t );
+            throw new RuntimeException( "Unable to read entry: " + toString() , t );
         }
         
     }

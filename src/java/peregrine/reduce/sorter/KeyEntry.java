@@ -17,20 +17,39 @@ package peregrine.reduce.sorter;
 
 import org.jboss.netty.buffer.*;
 
+import peregrine.*;
+import peregrine.util.netty.*;
 import peregrine.util.primitive.*;
+import peregrine.io.chunk.*;
 
-public class KeyEntry {
+public class KeyEntry extends KeyValuePair {
 
-	public byte bufferIndex;
-	public int offset;
-    public ChannelBuffer backing; 
-	
+	protected byte bufferIndex;
+
+	protected int offset;
+
+    protected ChannelBuffer backing = null; 
+
+    protected DefaultChunkReader reader = null;
+    
+    protected int valueOffset = -1;
+    
 	public KeyEntry( byte bufferIndex, int offset, ChannelBuffer backing ) {
 		this.bufferIndex = bufferIndex;
 		this.offset = offset;
         this.backing = backing;
 	}
-    
+
+	public KeyEntry( byte bufferIndex, int offset, ChannelBuffer backing, DefaultChunkReader reader ) {
+
+        this( bufferIndex, offset, backing );
+
+        this.reader = reader;
+
+        readKey();
+        
+	}
+
     /**
      * Read a byte from the entry at the given position within the key. 
      * 
@@ -38,5 +57,37 @@ public class KeyEntry {
     public byte read( int pos ) {    	
         return backing.getByte( offset + pos );
     }
+
+    public void readKey() {
+
+        backing.readerIndex( offset - 1 );
+
+        this.key = reader.readEntry();
+        this.valueOffset = backing.readerIndex() + 1;
+        
+    }
+
+    public void readValue() {
+
+        backing.readerIndex( valueOffset - 1 );
+
+        this.value = reader.readEntry();
+
+    }
     
+    public StructReader getKey() { 
+        return this.key;
+    }
+
+    public StructReader getValue() { 
+
+        if ( value == null ) {
+            readValue();
+        }
+            
+        return this.value;
+
+    }
+
 }
+

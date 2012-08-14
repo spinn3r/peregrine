@@ -20,8 +20,11 @@ package peregrine;
  */
 public class KeyValuePair {
 
-    private StructReader key;
-    private StructReader value;
+    protected StructReader key = null;
+
+    protected StructReader value = null;
+
+    public KeyValuePair() { }
 
     public KeyValuePair( StructReader key, StructReader value ) {
         this.key = key;

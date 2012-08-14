@@ -156,9 +156,16 @@ public class StructMap {
     }
 
     public long getSize( String key ) {
+        return getSize( key, 0L );
+    }
+
+    public long getSize( String key, long _default ) {
 
         String value = get( key );
 
+        if ( value == null )
+            return _default;
+        
         if ( value.matches( "[0-9]+[a-zA-Z]" ) ) {
         
             int len = value.length();

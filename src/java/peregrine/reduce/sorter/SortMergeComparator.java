@@ -23,6 +23,7 @@ import org.jboss.netty.buffer.*;
 
 public class SortMergeComparator implements Comparator<SortQueueEntry> {
 
+    //FIXME: remove this in favor of DefaultReduceComparator 
     public int compare( SortQueueEntry e0, SortQueueEntry e1 ) {
                 
         KeyEntry entry0 = e0.lookup.get();

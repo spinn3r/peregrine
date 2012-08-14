@@ -17,6 +17,7 @@ package peregrine.reduce.sorter;
 
 import java.io.*;
 
+import peregrine.*;
 import peregrine.io.chunk.*;
 import peregrine.shuffle.*;
 import peregrine.util.*;
@@ -79,6 +80,8 @@ public class KeyLookup extends IdempotentCloser {
      */
     protected ChannelBuffer[] buffers;
 
+    protected DefaultChunkReader[] defaultChunkReaders;
+
     protected IdempotentCloser closer = null;
 
     protected int capacity = 0;
@@ -115,6 +118,12 @@ public class KeyLookup extends IdempotentCloser {
         this.end = size - 1;
         this.size = size;
         this.buffers = buffers;
+        
+        this.defaultChunkReaders = new DefaultChunkReader[ buffers.length ];
+        
+        for( int i = 0; i < this.defaultChunkReaders.length; ++i ) {
+            this.defaultChunkReaders[i] = new DefaultChunkReader( this.buffers[ i ] );
+        }
         
     }
     	
@@ -165,20 +174,28 @@ public class KeyLookup extends IdempotentCloser {
     public void set( KeyEntry entry ) {
         
         lookup.writerIndex( index * KEY_SIZE );
+        
         lookup.writeByte( entry.bufferIndex );
         lookup.writeInt( entry.offset );
         
     }
 
+    /**
+     * Get the current entry in the lookup when advancing with next() and
+     * hasNext().
+     */
     public KeyEntry get() {
 
         lookup.readerIndex( index * KEY_SIZE );
 
-        byte bufferIndex       = lookup.readByte();
-        int offset             = lookup.readInt();
-    	ChannelBuffer backing  = buffers[(int)bufferIndex];
+        byte bufferIndex           = lookup.readByte();
+        int offset                 = lookup.readInt();
+    	ChannelBuffer backing      = buffers[ (byte)bufferIndex ];
+        DefaultChunkReader reader  = defaultChunkReaders[ (byte)bufferIndex ];
 
-    	return new KeyEntry( bufferIndex, offset, backing );
+        KeyEntry result = new KeyEntry( bufferIndex, offset, backing, reader );
+        
+    	return result;
         
     }
 
