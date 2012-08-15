@@ -26,7 +26,7 @@ import peregrine.util.primitive.*;
 /**
  * Compares KeyValuePairs by key.
  */
-public class DefaultReduceComparator {
+public class DefaultReduceComparator implements ReduceComparator {
 
     /**
      */

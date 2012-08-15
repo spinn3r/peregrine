@@ -41,7 +41,9 @@ public class CombineRunner {
                          ChunkReader reader,
                          final Combiner combiner ) throws IOException {
 
-        ChunkSorter sorter = new ChunkSorter( config, partition );
+        ReduceComparator comparator = new DefaultReduceComparator();
+        
+        ChunkSorter sorter = new ChunkSorter( config, partition, comparator );
 
         List<ChunkReader> input = new ArrayList();
         input.add( reader );

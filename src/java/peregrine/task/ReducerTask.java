@@ -30,6 +30,9 @@ import peregrine.sysstat.*;
 
 import com.spinn3r.log5j.Logger;
 
+/**
+ * Task and actual code used for running a reduce on shuffled data.
+ */
 public class ReducerTask extends BaseTask implements Callable {
 
     private static final Logger log = Logger.getLogger();

@@ -18,6 +18,7 @@ package peregrine.reduce;
 import java.io.*;
 import java.util.*;
 
+import peregrine.*;
 import peregrine.config.*;
 import peregrine.io.*;
 import peregrine.io.chunk.*;
@@ -405,8 +406,12 @@ public class ReduceRunner {
             
             log.info( "Writing temporary sort file %s", path );
             log.info( "Going to sort %,d files requiring %,d bytes of memory", work.size(), workCapacity );
+
+            ReduceJob reduceJob = (ReduceJob)task.getJob();
             
-            ChunkSorter sorter = new ChunkSorter( config , partition );
+            ReduceComparator comparator = (ReduceComparator)reduceJob.getReduceComparator();
+            
+            ChunkSorter sorter = new ChunkSorter( config , partition, comparator );
             
             SequenceReader result = sorter.sort( work, out, jobOutput );
             

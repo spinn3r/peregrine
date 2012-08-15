@@ -78,6 +78,13 @@ public class TestChunkSorterWithCustomComparator extends peregrine.BaseTest {
             System.out.printf( "%d\n", entry.getValue().readInt() );
             
         }
+
+        reader.close();
+
+        /*
+        ChunkSorter sorter = new ChunkSorter( config , partition );
+        SequenceReader result = sorter.sort( work, out, jobOutput );
+        */
         
     }
 
