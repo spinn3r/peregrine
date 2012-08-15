@@ -22,7 +22,7 @@ import peregrine.util.netty.*;
 import peregrine.util.primitive.*;
 import peregrine.io.chunk.*;
 
-public class KeyEntry extends KeyValuePair {
+public class KeyEntry implements KeyValuePair {
 
 	protected byte bufferIndex;
 
@@ -33,7 +33,11 @@ public class KeyEntry extends KeyValuePair {
     protected DefaultChunkReader reader = null;
     
     protected int valueOffset = -1;
-    
+
+    protected StructReader key = null;
+
+    protected StructReader value = null;
+
 	public KeyEntry( byte bufferIndex, int offset, ChannelBuffer backing ) {
 		this.bufferIndex = bufferIndex;
 		this.offset = offset;

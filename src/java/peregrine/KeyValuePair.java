@@ -18,25 +18,10 @@ package peregrine;
 /**
  * Create a key/value pair used to represent and entry in computation.  
  */
-public class KeyValuePair {
+public interface KeyValuePair {
 
-    protected StructReader key = null;
+    public StructReader getKey();
 
-    protected StructReader value = null;
-
-    public KeyValuePair() { }
-
-    public KeyValuePair( StructReader key, StructReader value ) {
-        this.key = key;
-        this.value = value;
-    }
-
-    public StructReader getKey() {
-        return key;
-    }
-
-    public StructReader getValue() {
-        return value;
-    }
+    public StructReader getValue();
 
 }
