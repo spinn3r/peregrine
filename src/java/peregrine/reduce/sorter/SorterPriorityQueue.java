@@ -43,7 +43,6 @@ public class SorterPriorityQueue {
             lookup.next();
             SortQueueEntry entry = new SortQueueEntry();
             entry.lookup = lookup;
-            entry.queue  = this;
 
             queue.add( entry );
             

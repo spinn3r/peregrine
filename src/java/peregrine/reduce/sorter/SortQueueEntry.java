@@ -23,7 +23,7 @@ import org.jboss.netty.buffer.*;
 
 public class SortQueueEntry {
 
-    protected SorterPriorityQueue queue = null;
+    //protected SorterPriorityQueue queue = null;
 
     protected KeyLookup lookup = null;
 

@@ -409,7 +409,7 @@ public class ReduceRunner {
 
             ReduceJob reduceJob = (ReduceJob)task.getJob();
             
-            ReduceComparator comparator = (ReduceComparator)reduceJob.getReduceComparator();
+            ReduceComparator comparator = reduceJob.getReduceComparator();
             
             ChunkSorter sorter = new ChunkSorter( config , partition, comparator );
             
