@@ -38,6 +38,8 @@ public class DefaultReduceComparator implements ReduceComparator {
 
         int diff = 0;
 
+        //TODO is it faster to make these byte arrays in one method call or call
+        //getByte() for each byte?
         for( int offset = 0; offset < LongBytes.LENGTH; ++offset ) {
 
             diff = key0.getByte( offset ) - key1.getByte( offset );

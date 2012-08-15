@@ -101,6 +101,8 @@ public class ChunkMerger implements Closeable {
     private Task task = null;
 
     private List<SequenceReader> input;
+
+    private ReduceComparator reduceComparator = null;
     
     public ChunkMerger() {
     }
@@ -109,13 +111,15 @@ public class ChunkMerger implements Closeable {
                         SortListener listener,
                         Partition partition,
                         List<SequenceReader> input,
-                        List<JobOutput> output ) {
+                        List<JobOutput> output,
+                        ReduceComparator reduceComparator ) {
 
         this.task = task;
         this.listener = listener;
         this.partition = partition;
         this.input = input;
         this.output = output;
+        this.reduceComparator = reduceComparator;
         
     }
 
