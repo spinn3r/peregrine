@@ -22,8 +22,9 @@ import peregrine.config.Config;
 import peregrine.config.Partition;
 import peregrine.io.*;
 import peregrine.io.driver.shuffle.*;
-import peregrine.util.*;
 import peregrine.io.util.*;
+import peregrine.reduce.*;
+import peregrine.util.*;
 
 import org.jboss.netty.buffer.*;
 
@@ -32,6 +33,12 @@ import org.jboss.netty.buffer.*;
  * 
  */
 public class BaseChunkSorter {
+
+    private ReduceComparator comparator;
+
+    public BaseChunkSorter( ReduceComparator comparator ) {
+        this.comparator = comparator;
+    }
 
     public KeyLookup sort( KeyLookup input ) 
         throws IOException {
@@ -89,7 +96,7 @@ public class BaseChunkSorter {
         list.add( left );
         list.add( right );
 
-        SorterPriorityQueue queue = new SorterPriorityQueue( list );
+        SorterPriorityQueue queue = new SorterPriorityQueue( list, comparator );
 
         while( true ) {
             

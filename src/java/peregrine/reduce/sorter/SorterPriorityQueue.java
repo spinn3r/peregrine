@@ -18,6 +18,7 @@ package peregrine.reduce.sorter;
 import java.io.*;
 import java.util.*;
 import peregrine.util.primitive.LongBytes;
+import peregrine.reduce.*;
 
 import org.jboss.netty.buffer.*;
 
@@ -29,11 +30,13 @@ public class SorterPriorityQueue {
 
     protected SortQueueEntry result = new SortQueueEntry();
 
-    protected SortMergeComparator comparator = new SortMergeComparator();
+    protected SortMergeComparator comparator;
     
-    public SorterPriorityQueue( List<KeyLookup> lookups ) throws IOException {
+    public SorterPriorityQueue( List<KeyLookup> lookups,
+                                ReduceComparator reduceComparator ) throws IOException {
 
-        this.queue = new PriorityQueue( lookups.size(), comparator );
+        this.comparator = new SortMergeComparator( reduceComparator );
+        this.queue = new PriorityQueue( lookups.size(), this.comparator );
         
         for( KeyLookup lookup : lookups ) {
 

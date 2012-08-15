@@ -50,20 +50,16 @@ public class ChunkSorter extends BaseChunkSorter {
     private int id = 0;
 
     private Config config;
-
-    private ReduceComparator comparator;
-    
-    public ChunkSorter() {}
-    
+        
     public ChunkSorter( Config config,
                         Partition partition,
                         ReduceComparator comparator ) {
 
+        super( comparator );
+
     	this.config = config;
 		this.partition = partition;
-        this.comparator = comparator;
-        
-        
+
     }
 
     public SequenceReader sort( List<ChunkReader> input,

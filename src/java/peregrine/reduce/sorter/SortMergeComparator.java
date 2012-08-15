@@ -17,30 +17,26 @@ package peregrine.reduce.sorter;
 
 import java.io.*;
 import java.util.*;
+
+import peregrine.reduce.*;
 import peregrine.util.primitive.LongBytes;
 
 import org.jboss.netty.buffer.*;
 
 public class SortMergeComparator implements Comparator<SortQueueEntry> {
 
-    //FIXME: remove this in favor of DefaultReduceComparator 
+    protected ReduceComparator reduceComparator;
+    
+    public SortMergeComparator( ReduceComparator reduceComparator ) {
+        this.reduceComparator = reduceComparator;
+    }
+
     public int compare( SortQueueEntry e0, SortQueueEntry e1 ) {
                 
         KeyEntry entry0 = e0.lookup.get();
         KeyEntry entry1 = e1.lookup.get();
-        
-        int diff = 0;
 
-        for( int offset = 0; offset < LongBytes.LENGTH; ++offset ) {
-
-            diff = entry0.read( offset ) - entry1.read( offset );
-
-            if ( diff != 0 )
-                return diff;
-            
-        }
-
-        return diff;
+        return reduceComparator.compare( entry0, entry1 );
 
     }
 
