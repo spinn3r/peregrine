@@ -145,7 +145,7 @@ public class ChunkMerger implements Closeable {
 
             log.info( "Merging %,d readers." , input.size() );
             
-            MergerPriorityQueue queue = new MergerPriorityQueue( input );
+            MergerPriorityQueue queue = new MergerPriorityQueue( input, reduceComparator );
                             
             SortResult sortResult = new SortResult( writer, listener );
 

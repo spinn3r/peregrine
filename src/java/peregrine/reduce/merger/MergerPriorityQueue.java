@@ -28,10 +28,13 @@ public class MergerPriorityQueue {
 
     protected int key_offset = 0;
 
-    protected ChunkMergeComparator comparator = new ChunkMergeComparator();
+    protected ChunkMergeComparator comparator = null;
     
-    public MergerPriorityQueue( List<SequenceReader> readers ) throws IOException {
+    public MergerPriorityQueue( List<SequenceReader> readers,
+                                ReduceComparator reduceComparator ) throws IOException {
 
+        this.comparator = new ChunkMergeComparator( reduceComparator );
+        
         if ( readers.size() == 0 )
             throw new IllegalArgumentException( "readers" );
     	

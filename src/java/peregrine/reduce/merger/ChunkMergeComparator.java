@@ -6,11 +6,14 @@ import peregrine.reduce.*;
 
 public class ChunkMergeComparator implements Comparator<MergeQueueEntry> {
 
-    //private DepthBasedKeyComparator delegate = new DepthBasedKeyComparator();
-    private FullKeyComparator delegate = new FullKeyComparator();
-    
+    private ReduceComparator delegate = null;
+
+    public ChunkMergeComparator( ReduceComparator delegate ) {
+        this.delegate = delegate;
+    }
+
     public int compare( MergeQueueEntry k0, MergeQueueEntry k1 ) {
-        return delegate.compare( k0.keyAsByteArray, k1.keyAsByteArray );
+        return delegate.compare( k0, k1 );
     }
 
 }

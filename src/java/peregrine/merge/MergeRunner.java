@@ -40,7 +40,9 @@ public class MergeRunner extends IdempotentCloser {
 
     private MergerPriorityQueue queue;
     private MergeQueueEntry last = null;
-    private ChunkMergeComparator comparator = new ChunkMergeComparator();
+
+    private ChunkMergeComparator comparator
+        = new ChunkMergeComparator( new DefaultReduceComparator() );
 
     private List<SequenceReader> readers;
 
@@ -52,7 +54,7 @@ public class MergeRunner extends IdempotentCloser {
         
         this.readers = readers;
         
-        this.queue = new MergerPriorityQueue( readers );
+        this.queue = new MergerPriorityQueue( readers, new DefaultReduceComparator() );
         
     }
     
