@@ -35,6 +35,9 @@ public class Job implements MessageSerializable {
 	protected String name = handle;
 	protected String description = "";
 	protected Class delegate = null; 
+
+    //TODO: a combiner does NOT make sense for a reduce job so move this to a
+    //MapJob class (which we use with map and merge).
 	protected Class combiner = null;
 	protected Input input = new Input();
 	protected Output output = new Output();
@@ -124,6 +127,7 @@ public class Job implements MessageSerializable {
     /**
      * Convert this to an RPC message.
      */
+    @Override
     public Message toMessage() {
 
         Message message = new Message();
@@ -143,6 +147,7 @@ public class Job implements MessageSerializable {
         
     }
 
+    @Override
     public void fromMessage( Message message ) {
 
         timestamp     = message.getLong( "timestamp" );

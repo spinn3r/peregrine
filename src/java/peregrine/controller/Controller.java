@@ -211,16 +211,21 @@ public class Controller {
     				    final Input input,
     				    final Output output ) 
             		throws Exception {
-    	
-    	reduce( new Job().setDelegate( delegate )
-		                 .setInput( input )
-		                 .setOutput( output ) );    	
+
+        ReduceJob job = new ReduceJob();
+
+        job.setDelegate( delegate )
+           .setInput( input )
+           .setOutput( output )
+           ;
+        
+    	reduce( job );    	
     }
 
     /**
      * Perform a reduce over the previous shuffle data (or broadcast data).
      */
-    public void reduce( final Job job ) 
+    public void reduce( final ReduceJob job ) 
         throws Exception {
 
     	final Input input = job.getInput();
@@ -387,22 +392,10 @@ public class Controller {
                                             Job job,
                                             Work work ) {
 
-    	Class delegate = job.getDelegate();
-    	Input input = job.getInput();
-    	Output output = job.getOutput();
-    
-        Message message = new Message();
+        Message message = job.toMessage();
         
-        message.put( "action",         action );
-        message.put( "delegate",       delegate.getName() );
-        message.put( "job_handle",     job.getHandle() );
-    	message.put( "work" ,          work.getReferences() );
-
-        if ( input != null )
-        	message.put( "input" ,     input.getReferences() );
-
-        if ( output != null )
-        	message.put( "output" ,    output.getReferences() );
+        message.put( "action", action );
+    	message.put( "work" ,  work.getReferences() );
 
         return message;
         

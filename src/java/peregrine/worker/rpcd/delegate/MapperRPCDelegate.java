@@ -21,17 +21,18 @@ import java.util.concurrent.*;
 import org.jboss.netty.buffer.*;
 import org.jboss.netty.channel.*;
 
+import peregrine.*;
 import peregrine.config.*;
 import peregrine.util.*;
 import peregrine.worker.*;
-
-import com.spinn3r.log5j.*;
 
 import peregrine.rpc.*;
 import peregrine.rpcd.delegate.*;
 
 import peregrine.io.*;
 import peregrine.task.*;
+
+import com.spinn3r.log5j.*;
 
 /**
  */
@@ -46,20 +47,21 @@ public class MapperRPCDelegate extends BaseTaskRPCDelegate {
     public ChannelBuffer exec( FSDaemon daemon, Channel channel, Message message )
         throws Exception {
 
-        log.info( "Going to map from action: %s", message );
+        log.info( "Going to exec with action: %s", message );
 
+        Job job                = (Job)message.getClass( "class" ).newInstance();
         Input input            = readInput( message );
         Output output          = readOutput( message );
         Work work              = readWork( daemon, input, message );
-        Class delegate         = Class.forName( message.get( "delegate" ) );
+        Class delegate         = message.getClass( "delegate" );
 
         log.info( "Running %s with input %s and output %s and work %s", delegate.getName(), input, output, work );
 
         Task task = newTask();
 
+        task.setJob( job );
         task.setInput( input );
         task.setOutput( output );
-        task.setJobHandle( message.getString( "job_handle" ) );
         
         task.init( daemon.getConfig(), work, delegate );
 

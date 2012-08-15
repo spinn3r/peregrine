@@ -75,10 +75,7 @@ public abstract class BaseTask implements Task {
      */
     protected long started = -1;
 
-    /**
-     * The job ID we are working with.
-     */
-    protected String job_handle = null;
+    protected Job job = null;
     
     public void init( Config config, Work work, Class delegate ) throws IOException {
     	this.config      = config;
@@ -100,7 +97,15 @@ public abstract class BaseTask implements Task {
     public List<BroadcastInput> getBroadcastInput() { 
         return this.broadcastInput;
     }
-    
+
+    public Job getJob() {
+        return this.job;
+    }
+
+    public void setJob( Job job ) {
+        this.job = job;
+    }
+
     public Input getInput() { 
         return this.input;
     }
@@ -315,11 +320,6 @@ public abstract class BaseTask implements Task {
 
     }
 
-    @Override
-    public void setJobHandle( String job_handle ) {
-        this.job_handle = job_handle;
-    }
-    
     /**
      * Mark the partition for this task complete.  
      */
@@ -328,7 +328,7 @@ public abstract class BaseTask implements Task {
         Message message = new Message();
 
         message.put( "action" ,      "complete" );
-        message.put( "job_handle" ,  job_handle );
+        message.put( "job"    ,      job.getHandle() );
         message.put( "killed" ,      killed );
 
         sendMessageToController( message );
@@ -343,7 +343,7 @@ public abstract class BaseTask implements Task {
         Message message = new Message();
         
         message.put( "action"      , "failed" );
-        message.put( "job_handle"  , job_handle );
+        message.put( "job"         , job.getHandle() );
         message.put( "stacktrace"  , cause );
         
         sendMessageToController( message );
@@ -364,9 +364,9 @@ public abstract class BaseTask implements Task {
         Message message = new Message();
         
         message.put( "action"  ,    "progress" );
-        message.put( "job_handle" ,  job_handle );
-        message.put( "nonce"   ,     nonce );
-        message.put( "pointer" ,     pointer );
+        message.put( "job"     ,    job.getHandle() );
+        message.put( "nonce"   ,    nonce );
+        message.put( "pointer" ,    pointer );
 
         sendMessageToController( message );
 
@@ -379,7 +379,7 @@ public abstract class BaseTask implements Task {
             log.info( "Sending %s message to controller%s", message.get( "action" ), message );
             
             message.put( "host"      ,    config.getHost().toString() );
-            message.put( "job_handle",    job_handle );
+            message.put( "job"       ,    job.getHandle() );
             message.put( "input"     ,    input.getReferences() );
             message.put( "work"      ,    work.getReferences() );
             
