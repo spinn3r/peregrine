@@ -20,6 +20,7 @@ import java.io.*;
 import peregrine.*;
 import peregrine.util.*;
 import peregrine.io.chunk.*;
+import peregrine.reduce.*;
 
 import peregrine.util.primitive.*;
 

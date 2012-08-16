@@ -106,41 +106,6 @@ public class TestSortViaMapReduce extends peregrine.BaseTestWithMultipleProcesse
 
         writer.close();
 
-        // verify that the right number of items have been written to filesystem.
-
-        Set<Partition> partitions = config.getMembership().getPartitions();
-
-        int count = 0;
-
-        int idx = 0;
-
-        for( Partition part : partitions ) {
-
-            Config part_config = configsByHost.get( config.getMembership().getHosts( part ).get( 0 ) );
-            
-            LocalPartitionReader reader = new LocalPartitionReader( part_config , part, path );
-
-            int countInPartition = 0;
-            
-            while( reader.hasNext() ) {
-
-                reader.next();
-                
-                reader.key();
-                reader.value();
-
-                ++countInPartition;
-                
-            }
-
-            System.out.printf( "Partition %s has entries: %,d \n", part, countInPartition );
-
-            count += countInPartition;
-
-        }
-
-        assertEquals( max * 2, count );
-
         // the writes worked correctly.
         
         String output = String.format( "/test/%s/test1.out", getClass().getName() );

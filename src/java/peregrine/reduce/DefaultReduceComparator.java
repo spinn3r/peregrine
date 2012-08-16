@@ -36,13 +36,19 @@ public class DefaultReduceComparator implements ReduceComparator {
         StructReader key0 = pair0.getKey();
         StructReader key1 = pair1.getKey();
 
+        return compare( key0, key1 );
+        
+    }
+
+    protected int compare( StructReader sr0, StructReader sr1 ) {
+
         int diff = 0;
 
         //TODO is it faster to make these byte arrays in one method call or call
         //getByte() for each byte?
         for( int offset = 0; offset < LongBytes.LENGTH; ++offset ) {
 
-            diff = key0.getByte( offset ) - key1.getByte( offset );
+            diff = sr0.getByte( offset ) - sr1.getByte( offset );
 
             if ( diff != 0 )
                 return diff;
@@ -52,5 +58,5 @@ public class DefaultReduceComparator implements ReduceComparator {
         return diff;
 
     }
-
+    
 }
