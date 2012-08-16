@@ -21,12 +21,16 @@ import peregrine.io.*;
 import peregrine.rpc.*;
 import peregrine.reduce.*;
 
+import com.spinn3r.log5j.*;
+
 /**
  * Represents a job (map, merge, or, reduce) which much be run by Peregrine.
  * All necessary metadata is included here and specified for an entire job.
  *
  */
 public class ReduceJob extends Job implements MessageSerializable {
+
+    private static final Logger log = Logger.getLogger();
 
 	protected Class comparator = DefaultReduceComparator.class; 
 
@@ -80,9 +84,8 @@ public class ReduceJob extends Job implements MessageSerializable {
     public void fromMessage( Message message ) {
 
         super.fromMessage( message );
-
         comparator = message.getClass( "comparator" );
-
+        
     }
     
 }

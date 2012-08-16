@@ -26,6 +26,7 @@ import peregrine.io.*;
 import peregrine.io.partition.*;
 import peregrine.util.primitive.*;
 import peregrine.util.*;
+
 import com.spinn3r.log5j.*;
 
 public class TestSortViaMapReduce extends peregrine.BaseTestWithMultipleProcesses {
@@ -50,29 +51,11 @@ public class TestSortViaMapReduce extends peregrine.BaseTestWithMultipleProcesse
         
         @Override
         public void reduce( StructReader key, List<StructReader> values ) {
-
-            List<Integer> ints = new ArrayList();
-
-            // decode these so we know what they actually mean.
-            for( StructReader val : values ) {
-                ints.add( val.readInt() );
-            }
-
-            if ( values.size() != 2 ) {
-
-                throw new RuntimeException( String.format( "%s does not equal %s (%s) on nth reduce %s" ,
-                                                           values.size(), 2, ints, count ) );
-            }
-
-            count.getAndIncrement();
-
+            emit( key, values.get( 0 ) );
         }
 
         @Override
         public void cleanup() {
-
-            if ( count.get() == 0 )
-               throw new RuntimeException( "count is zero" );
             
         }
 
@@ -119,10 +102,15 @@ public class TestSortViaMapReduce extends peregrine.BaseTestWithMultipleProcesse
                             new Output( "shuffle:default" ) );
 
             // make sure the shuffle output worked
+
+            ReduceJob job = new ReduceJob();
             
-            controller.reduce( Reduce.class,
-                               new Input( "shuffle:default" ),
-                               new Output( output ) );
+            job.setDelegate( Reduce.class );
+            job.setInput( new Input( "shuffle:default" ) );
+            job.setOutput( new Output( output ) );
+            job.setComparator( SortByValueReduceComparator.class );
+            
+            controller.reduce( job );
 
         } finally {
             controller.shutdown();

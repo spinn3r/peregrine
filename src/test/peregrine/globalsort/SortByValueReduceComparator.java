@@ -21,19 +21,22 @@ import peregrine.*;
 import peregrine.util.*;
 import peregrine.io.chunk.*;
 import peregrine.reduce.*;
-
 import peregrine.util.primitive.*;
+
+import com.spinn3r.log5j.*;
 
 /**
  * Compares KeyValuePairs by key.
  */
 public class SortByValueReduceComparator extends DefaultReduceComparator {
 
+    private static final Logger log = Logger.getLogger();
+
     /**
      */
     public int compare( KeyValuePair pair0 , 
                         KeyValuePair pair1 ) {
-
+        
         return super.compare( StructReaders.join( pair0.getValue(), pair0.getKey() ),
                               StructReaders.join( pair1.getValue(), pair1.getKey() ) );
         

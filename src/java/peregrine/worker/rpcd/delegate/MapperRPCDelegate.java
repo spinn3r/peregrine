@@ -50,11 +50,14 @@ public class MapperRPCDelegate extends BaseTaskRPCDelegate {
         log.info( "Going to exec with action: %s", message );
 
         Job job                = (Job)message.getClass( "class" ).newInstance();
+
         Input input            = readInput( message );
         Output output          = readOutput( message );
         Work work              = readWork( daemon, input, message );
         Class delegate         = message.getClass( "delegate" );
 
+        job.fromMessage( message );
+        
         log.info( "Running %s with input %s and output %s and work %s", delegate.getName(), input, output, work );
 
         Task task = newTask();
