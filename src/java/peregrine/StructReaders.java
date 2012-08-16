@@ -200,4 +200,16 @@ public class StructReaders {
         
     }
 
+    public static StructReader join( StructReader... readers ) {
+
+        ChannelBuffer[] buffers = new ChannelBuffer[ readers.length ];
+
+        for( int i = 0; i < readers.length; ++i ) {
+            buffers[i] = readers[i].buff;
+        }
+
+        return new StructReader( ChannelBuffers.wrappedBuffer( buffers ) );
+        
+    }
+    
 }
