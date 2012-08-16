@@ -64,7 +64,7 @@ public class TestSortViaMapReduce extends peregrine.BaseTestWithMultipleProcesse
     @Override
     public void doTest() throws Exception {
 
-        doTest( 2500 * getFactor() );
+        doTest( 10 * getFactor() );
         
     }
 
