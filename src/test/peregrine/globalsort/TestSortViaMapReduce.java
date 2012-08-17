@@ -97,6 +97,17 @@ public class TestSortViaMapReduce extends peregrine.BaseTestWithMultipleProcesse
 
         try {
 
+            /*
+            ReduceJob job = new ReduceJob();
+            
+            job.setDelegate( Reduce.class );
+            job.setInput( new Input( path ) );
+            job.setOutput( new Output( output ) );
+            job.setComparator( SortByValueReduceComparator.class );
+            
+            controller.reduce( job );
+            */
+            
             controller.map( Map.class,
                             new Input( path ),
                             new Output( "shuffle:default" ) );
@@ -111,7 +122,7 @@ public class TestSortViaMapReduce extends peregrine.BaseTestWithMultipleProcesse
             job.setComparator( SortByValueReduceComparator.class );
             
             controller.reduce( job );
-
+            
             // TODO: the output here needs to be a shuffle with a new
             // partitioner which knows how many items are in the result
 
@@ -125,7 +136,7 @@ public class TestSortViaMapReduce extends peregrine.BaseTestWithMultipleProcesse
 
     public static void main( String[] args ) throws Exception {
 
-        //System.setProperty( "peregrine.test.config", "1:1:1" ); // 3sec
+        System.setProperty( "peregrine.test.config", "1:1:2" ); // 3sec
 
         //setPropertyDefault( "peregrine.test.factor", "1" ); // 
         //setPropertyDefault( "peregrine.test.config", "01:01:01" ); // takes 3 seconds
@@ -134,18 +145,6 @@ public class TestSortViaMapReduce extends peregrine.BaseTestWithMultipleProcesse
         //System.setProperty( "peregrine.test.config", "08:01:32" );  // 1m
 
         runTests();
-
-        /*
-        SortByValueReduceComparator comparator = new SortByValueReduceComparator();
-
-        int cmp = comparator.compare( new DefaultKeyValuePair( StructReaders.hashcode( 128 ),
-                                                               StructReaders.wrap( 128 ) ),
-
-                                      new DefaultKeyValuePair( StructReaders.hashcode( 127 ),
-                                                               StructReaders.wrap( 127 ) ) );
-
-        System.out.printf( "result: %d\n", cmp );
-        */
         
     }
 

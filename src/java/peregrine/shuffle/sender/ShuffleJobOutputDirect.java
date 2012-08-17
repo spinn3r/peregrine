@@ -43,7 +43,6 @@ public class ShuffleJobOutputDirect extends ShuffleJobOutputBase implements Clos
     public ShuffleJobOutputDirect( ShuffleJobOutput parent ) {
         this.parent = parent;
         this.partitioner = parent.job.getPartitionerInstance();
-        this.partitioner.init( parent.config );
     }
     
     @Override
@@ -56,10 +55,10 @@ public class ShuffleJobOutputDirect extends ShuffleJobOutputBase implements Clos
     }
 
     @Override
-    public void emit( int to_partition, StructReader key , StructReader value ) {
+    public void emit( int targetPartition, StructReader key , StructReader value ) {
 
         try {
-            sender.emit( to_partition, key, value );
+            sender.emit( targetPartition, key, value );
         } catch ( ShuffleFailedException e ) {
             // this should cause the job to (correctly) fail
             throw new RuntimeException( e );

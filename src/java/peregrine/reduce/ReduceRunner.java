@@ -93,6 +93,9 @@ public class ReduceRunner {
 
         List<SequenceReader> readers = sort( input, sort_dir );
 
+        //TODO: we now know how many records are in the local shuffle, we should
+        //now init the partitioner with the context.
+        
         while( true ) {
 
             log.info( "Working with %,d readers now." , readers.size() );
@@ -362,6 +365,8 @@ public class ReduceRunner {
         pending.addAll( input );
 
         Iterator<File> pendingIterator = pending.iterator();
+
+        Map<File,Integer> counts = new HashMap();
         
         while( pendingIterator.hasNext() ) {
         	
@@ -387,6 +392,8 @@ public class ReduceRunner {
                     reader = new ShuffleInputReader( config, path, partition );
                     header = reader.getHeader( partition );
 
+                    counts.put( current , header.count );
+                    
                 } finally {
                     new Closer( reader ).close();
                 }

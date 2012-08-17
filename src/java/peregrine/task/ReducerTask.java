@@ -66,7 +66,9 @@ public class ReducerTask extends BaseTask implements Callable {
     protected void doCall() throws Exception {
     	
     	SortListener listener = new ReducerTaskSortListener();
-        
+
+        job.getPartitionerInstance().init( config );
+
         ReduceRunner reduceRunner = new ReduceRunner( config, this, partition, listener, shuffleInput, getJobOutput() );
 
         String shuffle_dir = config.getShuffleDir( shuffleInput.getName() );
@@ -76,13 +78,14 @@ public class ReducerTask extends BaseTask implements Callable {
         File shuffle_dir_file = new File( shuffle_dir );
 
         if ( ! shuffle_dir_file.exists() ) {
-            throw new IOException( String.format( "Shuffle output for %s does not exist at %s",
+            throw new IOException( String.format( "Shuffle dir for %s does not exist at %s",
                                                   shuffleInput.getName(), shuffle_dir ) );
         }
 
         File[] shuffles = shuffle_dir_file.listFiles();
 
-        //TODO: we should probably make sure these look like shuffle files.
+        //TODO: we should probably make sure these look like shuffle files with
+        //the right extension, etc.
         for( File shuffle : shuffles ) {
         	reduceRunner.add( shuffle );
         }
