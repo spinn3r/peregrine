@@ -165,7 +165,7 @@ public abstract class BaseTask implements Task {
             throw new Exception( "No output specified. " );
         }
     	
-        this.jobOutput = JobOutputFactory.getJobOutput( config, partition, output );
+        this.jobOutput = JobOutputFactory.getJobOutput( config, job, partition, output );
        
         for( JobOutput current : jobOutput ) {
 

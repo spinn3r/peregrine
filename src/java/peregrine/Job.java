@@ -19,6 +19,7 @@ import java.util.concurrent.atomic.*;
 
 import peregrine.io.*;
 import peregrine.rpc.*;
+import peregrine.config.partitioner.*;
 
 /**
  * Represents a job (map, merge, or, reduce) which much be run by Peregrine.
@@ -41,6 +42,7 @@ public class Job implements MessageSerializable {
 	protected Class combiner = null;
 	protected Input input = new Input();
 	protected Output output = new Output();
+    protected Class partitioner = RangePartitioner.class;
 
     /**
      * Get a unique identifier for this job.  Every job stats at 0 (zero) and is
@@ -113,6 +115,24 @@ public class Job implements MessageSerializable {
         return timestamp;
     }
 
+    public Class getPartitioner() { 
+        return this.partitioner;
+    }
+
+    public void setPartitioner( Class partitioner ) { 
+        this.partitioner = partitioner;
+    }
+
+    public Partitioner getPartionerInstance() {
+
+        try {
+            return (Partitioner)getPartitioner().newInstance();
+        } catch ( Throwable t ) {
+            throw new RuntimeException( t );
+        }
+        
+    }
+
     @Override
     public String toString() {
 
@@ -142,6 +162,7 @@ public class Job implements MessageSerializable {
         message.put( "combiner",      combiner );
         message.put( "input",         input.getReferences() );
         message.put( "output",        output.getReferences() );
+        message.put( "partitioner",   partitioner );
 
         return message;
         
@@ -159,6 +180,7 @@ public class Job implements MessageSerializable {
         combiner      = message.getClass( "combiner" );
         input         = new Input( message.getList( "input" ) );
         output        = new Output( message.getList( "output" ) );
+        partitioner   = message.getClass( "partitioner" );
 
     }
     

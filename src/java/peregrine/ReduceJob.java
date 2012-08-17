@@ -35,8 +35,6 @@ public class ReduceJob extends Job implements MessageSerializable {
 
 	protected Class comparator = DefaultReduceComparator.class; 
 
-    protected Class partitioner = RangePartitioner.class;
-
 	public Class getComparator() {
 		return comparator;
 	}
@@ -50,24 +48,6 @@ public class ReduceJob extends Job implements MessageSerializable {
 
         try {
             return (ReduceComparator)getComparator().newInstance();
-        } catch ( Throwable t ) {
-            throw new RuntimeException( t );
-        }
-        
-    }
-
-    public Class getPartitioner() { 
-        return this.partitioner;
-    }
-
-    public void setPartitioner( Class partitioner ) { 
-        this.partitioner = partitioner;
-    }
-
-    public Partitioner getPartionerInstance() {
-
-        try {
-            return (Partitioner)getPartitioner().newInstance();
         } catch ( Throwable t ) {
             throw new RuntimeException( t );
         }
@@ -96,7 +76,6 @@ public class ReduceJob extends Job implements MessageSerializable {
 
         message.put( "class",       getClass().getName() );
         message.put( "comparator",  comparator );
-        message.put( "partitioner", partitioner );
 
         return message;
         
@@ -106,8 +85,7 @@ public class ReduceJob extends Job implements MessageSerializable {
     public void fromMessage( Message message ) {
 
         super.fromMessage( message );
-        comparator = message.getClass( "comparator" );
-        partitioner = message.getClass( "partitioner" );
+        comparator  = message.getClass( "comparator" );
         
     }
     
