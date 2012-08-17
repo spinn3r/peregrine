@@ -71,12 +71,18 @@ public class ShuffleSender implements Flushable, Closeable {
 
         } catch ( Exception e ) {
 
-            config.getMembership().sendGossipToController( client.getHost(), e );
+            try {
 
-            // TODO: I think we have to block here until the controller tells us
-            // what to do (in normal situations write to a new host).
-            
-            throw new ShuffleFailedException( String.format( "Unable to write to %s: %s" , client, e.getMessage() ) , e );
+                config.getMembership().sendGossipToController( client.getHost(), e );
+
+                // TODO: I think we have to block here until the controller tells us
+                // what to do (in normal situations write to a new host).
+
+            } finally {
+                throw new ShuffleFailedException( String.format( "Unable to write to %s: %s on partition %s" ,
+                                                                 client, e.getMessage(), to_partition ) ,
+                                                  e );
+            }
 
         }
 

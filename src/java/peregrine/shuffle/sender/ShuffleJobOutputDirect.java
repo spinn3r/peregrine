@@ -42,8 +42,8 @@ public class ShuffleJobOutputDirect extends ShuffleJobOutputBase implements Clos
     
     public ShuffleJobOutputDirect( ShuffleJobOutput parent ) {
         this.parent = parent;
-        this.partitioner = parent.getJob().getPartitionerInstance();
-        
+        this.partitioner = parent.job.getPartitionerInstance();
+        this.partitioner.init( parent.config );
     }
     
     @Override

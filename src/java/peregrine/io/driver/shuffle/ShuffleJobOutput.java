@@ -34,14 +34,16 @@ public class ShuffleJobOutput
     private static final Logger log = Logger.getLogger();
 
     public Config config;
+
     public String name;
+
     protected Partition partition;
 
     protected ShuffleJobOutputDelegate jobOutputDelegate;
 
     protected ChunkStreamListener localPartitionReaderListener;
 
-    protected Job job = null;
+    public Job job = null;
     
     private long started = System.currentTimeMillis();
 
@@ -68,10 +70,6 @@ public class ShuffleJobOutput
         
     }
 
-    public Job getJob() {
-        return this.job;
-    }
-    
     @Override
     public void emit( StructReader key , StructReader value ) {
 
