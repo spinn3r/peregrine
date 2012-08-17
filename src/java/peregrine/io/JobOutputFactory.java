@@ -48,7 +48,7 @@ public class JobOutputFactory {
             
             // see if it is registered as a driver.
             if ( driver != null ) {
-                result.add( driver.getJobOutput( config, ref, new PartitionWorkReference( partition ) ) );
+                result.add( driver.getJobOutput( config, job, ref, new PartitionWorkReference( partition ) ) );
                 continue;
             }
 

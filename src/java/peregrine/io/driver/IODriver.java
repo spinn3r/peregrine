@@ -18,6 +18,7 @@ package peregrine.io.driver;
 import java.io.*;
 import java.util.*;
 
+import peregrine.*;
 import peregrine.config.*;
 import peregrine.io.*;
 import peregrine.task.*;
@@ -58,6 +59,7 @@ public interface IODriver {
      * specific data for executing this taks.
      */
     public JobInput getJobInput( Config config,
+                                 Job job,
                                  InputReference inputReference ,
                                  WorkReference work ) throws IOException;
 
@@ -71,6 +73,7 @@ public interface IODriver {
      * writing the output of the job.
      */
     public JobOutput getJobOutput( Config config,
+                                   Job job,
                                    OutputReference outputReference,
                                    WorkReference Work ) throws IOException;
     
