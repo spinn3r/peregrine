@@ -112,6 +112,11 @@ public class TestSortViaMapReduce extends peregrine.BaseTestWithMultipleProcesse
             
             controller.reduce( job );
 
+            // TODO: the output here needs to be a shuffle with a new
+            // partitioner which knows how many items are in the result
+
+            // then 
+            
         } finally {
             controller.shutdown();
         }

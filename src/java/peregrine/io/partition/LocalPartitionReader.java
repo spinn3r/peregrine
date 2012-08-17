@@ -46,6 +46,8 @@ public class LocalPartitionReader extends BaseJobInput implements SequenceReader
     private Partition partition;
     
     private ChunkReference chunkRef;
+
+    private int size = -1;
     
     public LocalPartitionReader( Config config,
                                  Partition partition,
@@ -79,6 +81,12 @@ public class LocalPartitionReader extends BaseJobInput implements SequenceReader
         this.chunkRef = new ChunkReference( partition, path );
 
         addListeners( listeners );
+
+        // update the size by looking at all the chunks and returning the number
+        // of key/value pairs they contain.
+        for( ChunkReader reader : chunkReaders ) {
+            size += reader.size();
+        }
         
     }
 
@@ -163,4 +171,9 @@ public class LocalPartitionReader extends BaseJobInput implements SequenceReader
 
     }
 
+    @Override
+    public int size() {
+        return size;
+    }
+    
 }

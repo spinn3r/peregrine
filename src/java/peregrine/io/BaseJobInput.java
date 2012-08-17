@@ -27,7 +27,7 @@ import peregrine.io.chunk.*;
 /**
  * Read data from a partition from local storage.
  */
-public abstract class BaseJobInput {
+public abstract class BaseJobInput implements JobInput {
 
     private List<ChunkStreamListener> listeners = new ArrayList();
 
@@ -51,10 +51,12 @@ public abstract class BaseJobInput {
 
     }
 
+    @Override
     public void addListener( ChunkStreamListener listener ) {
         listeners.add( listener );
     }
 
+    @Override
     public void addListeners( List<ChunkStreamListener> listeners ) {
 
         for( ChunkStreamListener listener : listeners ) {
@@ -63,4 +65,8 @@ public abstract class BaseJobInput {
 
     }
 
+    @Override
+    public int size() {
+        throw new RuntimeException( "not implemented" );
+    }
 }
