@@ -25,9 +25,9 @@ import peregrine.util.primitive.*;
 import com.spinn3r.log5j.*;
 
 /**
- * Compares KeyValuePairs by key.
+ * Compares KeyValuePairs by key and preserves strict binary ordering by byte.
  */
-public class DefaultReduceComparator implements ReduceComparator {
+public class StrictReduceComparator implements ReduceComparator {
 
     private static final Logger log = Logger.getLogger();
 
@@ -54,7 +54,10 @@ public class DefaultReduceComparator implements ReduceComparator {
         //getByte() for each byte?
         for( int offset = 0; offset < len; ++offset ) {
 
-            diff = sr0.getByte( offset ) - sr1.getByte( offset );
+            //TODO: this will be SLOW for raw key comparison (so don't use it
+            //when we are in that mode).
+
+            diff = (sr0.getByte( offset ) & 0xFF) - (sr1.getByte( offset ) & 0xFF);
 
             if ( diff != 0 )
                 return diff;
