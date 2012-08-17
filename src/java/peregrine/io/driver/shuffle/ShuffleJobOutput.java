@@ -41,21 +41,24 @@ public class ShuffleJobOutput
 
     protected ChunkStreamListener localPartitionReaderListener;
 
+    protected Job job = null;
+    
     private long started = System.currentTimeMillis();
 
     private int emits = 0;
     
-    public ShuffleJobOutput( Config config, Partition partition ) {
-        this( config, "default", partition );
+    public ShuffleJobOutput( Config config, Job job, Partition partition ) {
+        this( config, job, "default", partition );
     }
 
-    public ShuffleJobOutput( Config config, ShuffleOutputReference outputReference, Partition partition ) {
-    	this(config, outputReference.getName(), partition );
+    public ShuffleJobOutput( Config config, Job job, ShuffleOutputReference outputReference, Partition partition ) {
+    	this(config, job, outputReference.getName(), partition );
     }
     
-    public ShuffleJobOutput( Config config, String name, Partition partition ) {
+    public ShuffleJobOutput( Config config, Job job, String name, Partition partition ) {
     	
         this.config = config;
+        this.job = job;
         this.name = name;
         this.partition = partition;
         

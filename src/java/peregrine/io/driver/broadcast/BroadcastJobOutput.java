@@ -21,12 +21,12 @@ import peregrine.io.driver.shuffle.*;
 
 public class BroadcastJobOutput extends ShuffleJobOutput {
 
-    public BroadcastJobOutput( Config config, Partition partition ) {
-        this( config, "default", partition );
+    public BroadcastJobOutput( Config config, Job job, Partition partition ) {
+        this( config, job, "default", partition );
     }
         
-    public BroadcastJobOutput( Config config, String name, Partition partition ) {
-        super( config, name, partition );
+    public BroadcastJobOutput( Config config, Job job, String name, Partition partition ) {
+        super( config, job, name, partition );
     }
     
     @Override
