@@ -78,9 +78,18 @@ public class Test {
         log.error( "hello world: %s", new Tracepoint( new Exception( "fake exception" ) ) );
         */
 
-        System.out.printf( "%s\n", new File( "/tmp/" ).getFreeSpace() );
-        
-        
+        //System.out.printf( "%s\n", new File( "/tmp/" ).getFreeSpace() );
+
+        for( int i = -128; i <= 127; ++i ) {
+
+            byte b = (byte)i;
+            
+            int v = b & 0xFF;
+
+            System.out.printf( "b: %s , v: %s\n", b, v );
+
+        }
+
     }
 
     public static void main_segfault( String[] args ) throws Exception {

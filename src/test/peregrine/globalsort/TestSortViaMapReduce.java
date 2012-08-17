@@ -64,7 +64,7 @@ public class TestSortViaMapReduce extends peregrine.BaseTestWithMultipleProcesse
     @Override
     public void doTest() throws Exception {
 
-        doTest( 10 * getFactor() );
+        doTest( 2500 * getFactor() );
         
     }
 
@@ -122,14 +122,46 @@ public class TestSortViaMapReduce extends peregrine.BaseTestWithMultipleProcesse
 
         //System.setProperty( "peregrine.test.config", "1:1:1" ); // 3sec
 
-        setPropertyDefault( "peregrine.test.factor", "1" ); // 
-        setPropertyDefault( "peregrine.test.config", "01:01:01" ); // takes 3 seconds
+        //setPropertyDefault( "peregrine.test.factor", "1" ); // 
+        //setPropertyDefault( "peregrine.test.config", "01:01:01" ); // takes 3 seconds
 
         // 256 partitions... 
         //System.setProperty( "peregrine.test.config", "08:01:32" );  // 1m
 
         runTests();
 
+        /*
+        SortByValueReduceComparator comparator = new SortByValueReduceComparator();
+
+        int cmp = comparator.compare( new DefaultKeyValuePair( StructReaders.hashcode( 128 ),
+                                                               StructReaders.wrap( 128 ) ),
+
+                                      new DefaultKeyValuePair( StructReaders.hashcode( 127 ),
+                                                               StructReaders.wrap( 127 ) ) );
+
+        System.out.printf( "result: %d\n", cmp );
+        */
+        
+    }
+
+}
+
+class DefaultKeyValuePair implements KeyValuePair {
+
+    StructReader key = null;
+    StructReader value = null;
+
+    public DefaultKeyValuePair( StructReader key, StructReader value ) {
+        this.key = key;
+        this.value = value;
+    }
+
+    public StructReader getKey() {
+        return key;
+    }
+
+    public StructReader getValue() {
+        return value;
     }
 
 }

@@ -47,11 +47,17 @@ public class DefaultReduceComparator implements ReduceComparator {
 
         int diff = 0;
 
+        //TODO: right now we assume that the 
+        int len = sr0.length();
+
         //TODO is it faster to make these byte arrays in one method call or call
         //getByte() for each byte?
-        for( int offset = 0; offset < LongBytes.LENGTH; ++offset ) {
+        for( int offset = 0; offset < len; ++offset ) {
 
-            diff = sr0.getByte( offset ) - sr1.getByte( offset );
+            //TODO: this will be SLOW for raw key comparison (so don't use it
+            //when we are in that mode).
+
+            diff = (sr0.getByte( offset ) & 0xFF) - (sr1.getByte( offset ) & 0xFF);
 
             if ( diff != 0 )
                 return diff;
