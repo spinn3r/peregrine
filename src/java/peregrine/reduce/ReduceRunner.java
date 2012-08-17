@@ -171,7 +171,7 @@ public class ReduceRunner {
 
             prefetchReader = createPrefetchReader( readers );
 
-            merger = new ChunkMerger( task, listener, partition, readers, jobOutput, reduceJob.getReduceComparator() );
+            merger = new ChunkMerger( task, listener, partition, readers, jobOutput, reduceJob.getComparatorInstance() );
         
             merger.merge();
 
@@ -225,7 +225,7 @@ public class ReduceRunner {
 
                 prefetchReader = createPrefetchReader( work );
 
-                merger = new ChunkMerger( task, null, partition, work, jobOutput, reduceJob.getReduceComparator() );
+                merger = new ChunkMerger( task, null, partition, work, jobOutput, reduceJob.getComparatorInstance() );
 
                 final DefaultPartitionWriter writer = newInterChunkWriter( path );
 
@@ -410,7 +410,7 @@ public class ReduceRunner {
             log.info( "Writing temporary sort file %s", path );
             log.info( "Going to sort %,d files requiring %,d bytes of memory", work.size(), workCapacity );
 
-            ChunkSorter sorter = new ChunkSorter( config , partition, reduceJob.getReduceComparator() );
+            ChunkSorter sorter = new ChunkSorter( config , partition, reduceJob.getComparatorInstance() );
             
             SequenceReader result = sorter.sort( work, out, jobOutput );
             

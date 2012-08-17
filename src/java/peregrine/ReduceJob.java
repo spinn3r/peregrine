@@ -20,6 +20,7 @@ import java.util.concurrent.atomic.*;
 import peregrine.io.*;
 import peregrine.rpc.*;
 import peregrine.reduce.*;
+import peregrine.config.partitioner.*;
 
 import com.spinn3r.log5j.*;
 
@@ -34,6 +35,8 @@ public class ReduceJob extends Job implements MessageSerializable {
 
 	protected Class comparator = DefaultReduceComparator.class; 
 
+    protected Class partitioner = RangePartitioner.class;
+
 	public Class getComparator() {
 		return comparator;
 	}
@@ -43,7 +46,7 @@ public class ReduceJob extends Job implements MessageSerializable {
 		return this;
 	}
 
-    public ReduceComparator getReduceComparator() {
+    public ReduceComparator getComparatorInstance() {
 
         try {
             return (ReduceComparator)getComparator().newInstance();
@@ -52,7 +55,25 @@ public class ReduceJob extends Job implements MessageSerializable {
         }
         
     }
-    
+
+    public Class getPartitioner() { 
+        return this.partitioner;
+    }
+
+    public void setPartitioner( Class partitioner ) { 
+        this.partitioner = partitioner;
+    }
+
+    public Partitioner getPartionerInstance() {
+
+        try {
+            return (Partitioner)getPartitioner().newInstance();
+        } catch ( Throwable t ) {
+            throw new RuntimeException( t );
+        }
+        
+    }
+
     @Override
     public String toString() {
 
@@ -73,8 +94,9 @@ public class ReduceJob extends Job implements MessageSerializable {
 
         Message message = super.toMessage();
 
-        message.put( "class",      getClass().getName() );
-        message.put( "comparator", comparator );
+        message.put( "class",       getClass().getName() );
+        message.put( "comparator",  comparator );
+        message.put( "partitioner", partitioner );
 
         return message;
         
@@ -85,6 +107,7 @@ public class ReduceJob extends Job implements MessageSerializable {
 
         super.fromMessage( message );
         comparator = message.getClass( "comparator" );
+        partitioner = message.getClass( "partitioner" );
         
     }
     
