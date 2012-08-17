@@ -123,7 +123,7 @@ public class Job implements MessageSerializable {
         this.partitioner = partitioner;
     }
 
-    public Partitioner getPartionerInstance() {
+    public Partitioner getPartitionerInstance() {
 
         try {
             return (Partitioner)getPartitioner().newInstance();

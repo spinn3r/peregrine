@@ -67,6 +67,10 @@ public class ShuffleJobOutput
         localPartitionReaderListener = (ChunkStreamListener) jobOutputDelegate;
         
     }
+
+    public Job getJob() {
+        return this.job;
+    }
     
     @Override
     public void emit( StructReader key , StructReader value ) {

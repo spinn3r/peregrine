@@ -20,6 +20,7 @@ import java.util.concurrent.*;
 
 import peregrine.*;
 import peregrine.config.*;
+import peregrine.config.partitioner.*;
 import peregrine.io.*;
 import peregrine.io.partition.*;
 import peregrine.shuffle.sender.*;
@@ -36,15 +37,19 @@ public class ShuffleJobOutputDirect extends ShuffleJobOutputBase implements Clos
     private ShuffleJobOutput parent;
 
     private ShuffleSender sender = null;
+
+    private Partitioner partitioner = null;
     
     public ShuffleJobOutputDirect( ShuffleJobOutput parent ) {
         this.parent = parent;
+        this.partitioner = parent.getJob().getPartitionerInstance();
+        
     }
     
     @Override
     public void emit( StructReader key , StructReader value ) {
             
-        Partition target = parent.config.partition( key );
+        Partition target = partitioner.partition( key );
         
         emit( target.getId(), key, value );
                     
