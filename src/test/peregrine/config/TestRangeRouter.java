@@ -27,41 +27,43 @@ public class TestRangeRouter extends BaseTest {
 
         Config config = new Config();
 
-        int nr_partitions = 10;
+        //TODO: this needs to be refactored to use BaseTestWithMultipleProcesses
         
-		//Partitioner partitioner = new HashPartitioner();
-        Partitioner partitioner = new RangePartitioner();
-		partitioner.init(nr_partitions);
-
-        // keep track of our results.
+        // int nr_partitions = 10;
         
-        Map<Partition,AtomicInteger> map = new HashMap();
+		// //Partitioner partitioner = new HashPartitioner();
+        // Partitioner partitioner = new RangePartitioner();
+		// partitioner.init(nr_partitions);
 
-        for( int i = 0; i < nr_partitions; ++i ) {
-            map.put( new Partition( i ), new AtomicInteger() );
-        }
-
-        // the max value to distribute... 
-        int max = 500;
-
-        long gap = (long)((Math.pow( 2, 63 ) / 500));
-
-        long key = 0;
+        // // keep track of our results.
         
-	    for( long i = 0; i < 5000; ++i ) {
+        // Map<Partition,AtomicInteger> map = new HashMap();
 
-			Partition result = partitioner.partition( StructReaders.hashcode( i ) );
+        // for( int i = 0; i < nr_partitions; ++i ) {
+        //     map.put( new Partition( i ), new AtomicInteger() );
+        // }
 
-            map.get( result ).getAndIncrement();
+        // // the max value to distribute... 
+        // int max = 500;
 
-            key += gap;
+        // long gap = (long)((Math.pow( 2, 63 ) / 500));
 
-			//System.out.printf( "result: %s\n", result );
-			//assertEquals( i , result.getId() );
+        // long key = 0;
+        
+	    // for( long i = 0; i < 5000; ++i ) {
+
+		// 	Partition result = partitioner.partition( StructReaders.hashcode( i ) );
+
+        //     map.get( result ).getAndIncrement();
+
+        //     key += gap;
+
+		// 	//System.out.printf( "result: %s\n", result );
+		// 	//assertEquals( i , result.getId() );
 			
-	    }
+	    // }
 
-        System.out.printf( "map: %s\n", map );
+        // System.out.printf( "map: %s\n", map );
 
 	}
 	

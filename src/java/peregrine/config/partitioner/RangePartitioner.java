@@ -29,20 +29,13 @@ public class RangePartitioner extends BasePartitioner {
 	
 	@Override
     public void init( Config config ) {
+
 		super.init( config );
-        init();
-    }
 
-	@Override
-    public void init( int nr_partitions ) {
-        super.init( nr_partitions );
-        init();
-    }
-
-    public void init() {
     	this.range = WIDTH / (double)nr_partitions;	
+
     }
-    
+
 	@Override
 	public Partition partition( StructReader key ) {
 		
@@ -56,7 +49,11 @@ public class RangePartitioner extends BasePartitioner {
             ;
 
 		int part = (int)(value / range);
-			
+
+        //TODO: technically we should require this but it will slow down mapping.
+        //if ( part > nr_partitions )
+        //    throw new RuntimeException( String.format( "Unable to correctly route to partition. %s vs %s", part, nr_partitions ) );
+        
 		return new Partition( part );
 		
 	}

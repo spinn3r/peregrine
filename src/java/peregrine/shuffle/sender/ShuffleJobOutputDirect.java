@@ -49,7 +49,7 @@ public class ShuffleJobOutputDirect extends ShuffleJobOutputBase implements Clos
     public void emit( StructReader key , StructReader value ) {
             
         Partition target = partitioner.partition( key );
-        
+
         emit( target.getId(), key, value );
                     
     }

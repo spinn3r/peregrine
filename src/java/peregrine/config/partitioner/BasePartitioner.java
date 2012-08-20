@@ -23,16 +23,12 @@ public abstract class BasePartitioner implements Partitioner {
 
 	@Override
     public void init( Config config ) {
-    	init( config.getMembership().size() );
 
-    }
+    	this.nr_partitions = config.getMembership().size();
 
-    /**
-     * Used to make it easier to create directly from various basic
-     * configurations.
-     */
-    public void init( int nr_partitions ) {
-        this.nr_partitions = nr_partitions;
+        if ( this.nr_partitions <= 0 )
+            throw new RuntimeException( "Invalid partition count: " + this.nr_partitions );
+        
     }
 
 	@Override

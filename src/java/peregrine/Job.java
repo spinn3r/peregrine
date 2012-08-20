@@ -44,6 +44,8 @@ public class Job implements MessageSerializable {
 	protected Output output = new Output();
     protected Class partitioner = RangePartitioner.class;
 
+    protected Partitioner partitionerInstance = null;
+    
     /**
      * Get a unique identifier for this job.  Every job stats at 0 (zero) and is
      * every new job identifier is incremented by 1 (one).
@@ -125,11 +127,17 @@ public class Job implements MessageSerializable {
 
     public Partitioner getPartitionerInstance() {
 
-        try {
-            return (Partitioner)getPartitioner().newInstance();
-        } catch ( Throwable t ) {
-            throw new RuntimeException( t );
+        if ( partitionerInstance == null ) {
+        
+            try {
+                partitionerInstance = (Partitioner)getPartitioner().newInstance();
+            } catch ( Throwable t ) {
+                throw new RuntimeException( t );
+            }
+
         }
+
+        return partitionerInstance;
         
     }
 
