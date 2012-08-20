@@ -30,6 +30,8 @@ public class TestNewShuffleJobOutput extends peregrine.BaseTestWithTwoDaemons {
         Partition part = new Partition( 0 );
 
         Job job = new Job();
+
+        job.getPartitionerInstance().init( config );
         
         ShuffleJobOutput output = new ShuffleJobOutput( config, job, part );
 

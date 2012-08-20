@@ -53,7 +53,9 @@ public class TestShufflePerformance extends BaseTestWithMultipleProcesses {
         Controller controller = new Controller( config );
 
         Job job = new Job();
-        
+
+        job.getPartitionerInstance().init( config );
+
         try {
 
             long before = System.currentTimeMillis();
