@@ -67,8 +67,6 @@ public class ReducerTask extends BaseTask implements Callable {
     	
     	SortListener listener = new ReducerTaskSortListener();
 
-        job.getPartitionerInstance().init( config );
-
         ReduceRunner reduceRunner = new ReduceRunner( config, this, partition, listener, shuffleInput, getJobOutput() );
 
         String shuffle_dir = config.getShuffleDir( shuffleInput.getName() );

@@ -78,11 +78,14 @@ public abstract class BaseTask implements Task {
     protected Job job = null;
     
     public void init( Config config, Work work, Class delegate ) throws IOException {
-    	this.config      = config;
+
+        this.config      = config;
         this.host        = config.getHost();
         this.work        = work;
         this.delegate    = delegate;
         this.started     = System.currentTimeMillis();
+
+        job.getPartitionerInstance().init( config );
 
         for ( WorkReference current : work.getReferences() ) {
             

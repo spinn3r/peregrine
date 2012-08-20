@@ -41,7 +41,7 @@ public class MapperTask extends BaseMapperTask {
 
         // note a map job with ZERO input files is acceptable.  This would be
         // used for some generator that just emits values on init.
-        
+
         if ( getInput().getReferences().size() != 1 ) {
             throw new Exception( "Map jobs must have exactly one input." );
         }
