@@ -122,7 +122,7 @@ public class KeyLookup extends IdempotentCloser {
         this.defaultChunkReaders = new DefaultChunkReader[ buffers.length ];
         
         for( int i = 0; i < this.defaultChunkReaders.length; ++i ) {
-            this.defaultChunkReaders[i] = new DefaultChunkReader( this.buffers[ i ] );
+            this.defaultChunkReaders[i] = new DefaultChunkReader( this.buffers[ i ], false );
         }
         
     }

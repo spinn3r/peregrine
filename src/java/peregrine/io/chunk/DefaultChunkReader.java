@@ -83,10 +83,20 @@ public class DefaultChunkReader implements SequenceReader, ChunkReader, Closeabl
     
     private ChannelBuffer buffer = null;
 
+    /**
+     * When true, parse the number of items we are holding.
+     */
+    private boolean readSize = true;
+    
     public DefaultChunkReader( ChannelBuffer buff ) {
         init( buff );
     }
-    
+
+    public DefaultChunkReader( ChannelBuffer buff, boolean readSize ) {
+        this.readSize = false;
+        init( buff );
+    }
+
     public DefaultChunkReader( File file )
         throws IOException {
 
@@ -118,9 +128,11 @@ public class DefaultChunkReader implements SequenceReader, ChunkReader, Closeabl
         this.reader = reader;
         this.varintReader = new VarintReader( reader );
         this.length = buff.writerIndex();
-        
-        assertLength();
-        setSize( buff.getInt( buff.writerIndex() - IntBytes.LENGTH ) );
+
+        if ( readSize ) {
+            assertLength();
+            setSize( buff.getInt( buff.writerIndex() - IntBytes.LENGTH ) );
+        }
 
     }
 
