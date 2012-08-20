@@ -83,6 +83,7 @@ public class TestNewShuffleJobOutput extends peregrine.BaseTestWithTwoDaemons {
     }
 
     public static void main( String[] args ) throws Exception {
+        System.setProperty( "peregrine.test.config", "1:1:2" ); 
         runTests();
     }
 
