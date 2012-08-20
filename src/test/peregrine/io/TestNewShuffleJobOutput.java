@@ -28,8 +28,10 @@ public class TestNewShuffleJobOutput extends peregrine.BaseTestWithTwoDaemons {
     private void doTestIter( int max_emits ) throws Exception {
 
         Partition part = new Partition( 0 );
+
+        Job job = new Job();
         
-        ShuffleJobOutput output = new ShuffleJobOutput( config, part );
+        ShuffleJobOutput output = new ShuffleJobOutput( config, job, part );
 
         ChunkReference chunkRef = new ChunkReference( part );
         chunkRef.local = 0;

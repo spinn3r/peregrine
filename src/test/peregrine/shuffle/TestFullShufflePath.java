@@ -68,9 +68,11 @@ public class TestFullShufflePath extends peregrine.BaseTestWithMultipleDaemons {
 
         Controller controller = new Controller( config );
 
+        Job job = new Job();
+        
         try {
 
-            ShuffleJobOutput output = new ShuffleJobOutput( config, new Partition( 0 ) );
+            ShuffleJobOutput output = new ShuffleJobOutput( config, job, new Partition( 0 ) );
 
             for( int i = 0; i < iterations; ++i ) {
 
