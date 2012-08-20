@@ -243,7 +243,7 @@ def get_change_index():
 def get_change_index_flat():
     """Get the full HG log output."""
 
-    return parse_hg_log_flat(get_hg_log())
+    return parse_hg_log_flat(get_hg_log()) 
 
 def get_hg_log():
     """Get the output of 'hg log'""" 

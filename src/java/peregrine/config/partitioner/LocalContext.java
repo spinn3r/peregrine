@@ -15,31 +15,25 @@
 */
 package peregrine.config.partitioner;
 
-import peregrine.*;
 import peregrine.config.*;
 
 /**
- * Interface for handling partitioning keys.  Takes a given key and routes it to
- * the correct partition.
+ * Provides MetaInfo to a partitioner, when available, about the state of the
+ * job as it is executing.
  */
-public interface Partitioner {
-
-	/**
-	 * Init the range router with the given config so that we can
-     * 
-	 * @param config The config to read configuration data.
-	 */
-	public void init( Config config );
+public class LocalContext {
+    
+    private int records = 0;
 
     /**
-     * Init the partitioner with the local context of the job which we are about
-     * to execute.
+     * Return the number of records that this operation will handle.
      */
-    public void init( LocalContext LocalContext );
+    public int getRecords() { 
+        return this.records;
+    }
 
-    /**
-     * Route the given key to a given partition.
-     */
-	public Partition partition( StructReader key );
-	
+    public void setRecords( int records ) { 
+        this.records = records;
+    }
+
 }

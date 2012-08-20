@@ -20,6 +20,7 @@ import java.util.*;
 
 import peregrine.*;
 import peregrine.config.*;
+import peregrine.config.partitioner.*;
 import peregrine.io.*;
 import peregrine.io.chunk.*;
 import peregrine.io.driver.shuffle.*;
@@ -54,6 +55,8 @@ public class ReduceRunner {
     private List<JobOutput> jobOutput = null;
 
     private ReduceJob reduceJob = null;
+
+    private LocalContext localContext = new LocalContext();
     
     public ReduceRunner( Config config,
                          Task task,
@@ -93,8 +96,10 @@ public class ReduceRunner {
 
         List<SequenceReader> readers = sort( input, sort_dir );
 
-        //TODO: we now know how many records are in the local shuffle, we should
-        //now init the partitioner with the context.
+        //we now know how many records are in the local shuffle, we should now
+        //init the partitioner with the context.
+
+        reduceJob.getPartitionerInstance().init( localContext );
         
         while( true ) {
 
@@ -426,6 +431,10 @@ public class ReduceRunner {
 
         }
 
+        for( int i : counts.values() ) {
+            localContext.setRecords( localContext.getRecords() + i );
+        }
+        
         log.info( "Sorted %,d files for %s", sorted.size(), partition );
         
         log.info( "Sorted with profiler rate: \n%s", profiler.rate() );

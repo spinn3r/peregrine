@@ -31,6 +31,11 @@ public abstract class BasePartitioner implements Partitioner {
         
     }
 
+    @Override
+    public void init( LocalContext LocalContext ) {
+        // noop
+    }
+
 	@Override
 	public String toString() {
 		return getClass().getSimpleName();
