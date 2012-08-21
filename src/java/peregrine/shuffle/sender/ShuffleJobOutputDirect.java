@@ -43,6 +43,13 @@ public class ShuffleJobOutputDirect extends ShuffleJobOutputBase implements Clos
     public ShuffleJobOutputDirect( ShuffleJobOutput parent ) {
         this.parent = parent;
         this.partitioner = parent.job.getPartitionerInstance();
+
+        // create a basic sender.  This is used for global sort shuffling.  In
+        // normal shuffling this wouldn't be used.
+
+        ChunkReference chunkRef = new ChunkReference( parent.getPartition(), 0 );
+        this.sender = new ShuffleSender( parent.config, parent.name, chunkRef );
+        
     }
     
     @Override

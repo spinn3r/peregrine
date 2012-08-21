@@ -33,6 +33,8 @@ public class TestSortViaMapReduce extends peregrine.BaseTestWithMultipleProcesse
 
     private static final Logger log = Logger.getLogger();
 
+    private static String MODE = "all";
+    
     public static class Map extends Mapper {
 
         @Override
@@ -76,19 +78,23 @@ public class TestSortViaMapReduce extends peregrine.BaseTestWithMultipleProcesse
 
         String path = String.format( "/test/%s/test1.in", getClass().getName() );
 
-        ExtractWriter writer = new ExtractWriter( config, path );
+        if ( MODE.equals( "extract" ) || MODE.equals( "all" ) ) {
+        
+            ExtractWriter writer = new ExtractWriter( config, path );
 
-        for( int i = 0; i < max; ++i ) {
+            for( int i = 0; i < max; ++i ) {
 
-            StructReader key = StructReaders.hashcode( i );
-            StructReader value = StructReaders.wrap( i );
-            
-            writer.write( key, value );
-            
+                StructReader key = StructReaders.hashcode( i );
+                StructReader value = StructReaders.wrap( i );
+                
+                writer.write( key, value );
+                
+            }
+
+            writer.close();
+
         }
-
-        writer.close();
-
+            
         // the writes worked correctly.
         
         String output = String.format( "/test/%s/test1.out", getClass().getName() );
@@ -107,22 +113,31 @@ public class TestSortViaMapReduce extends peregrine.BaseTestWithMultipleProcesse
             
             controller.reduce( job );
             */
-            
-            controller.map( Map.class,
-                            new Input( path ),
-                            new Output( "shuffle:default" ) );
 
+            if ( MODE.equals( "map" ) || MODE.equals( "all" ) ) {
+
+                controller.map( Map.class,
+                                new Input( path ),
+                                new Output( "shuffle:default" ) );
+
+            }
+                
             // make sure the shuffle output worked
 
-            ReduceJob job = new ReduceJob();
-            
-            job.setDelegate( Reduce.class );
-            job.setInput( new Input( "shuffle:default" ) );
-            job.setOutput( new Output( output ) );
-            job.setComparator( SortByValueReduceComparator.class );
-            
-            controller.reduce( job );
-            
+            if ( MODE.equals( "reduce" ) || MODE.equals( "all" ) ) {
+
+                ReduceJob job = new ReduceJob();
+                
+                job.setDelegate( Reduce.class );
+                job.setInput( new Input( "shuffle:default" ) );
+                job.setOutput( new Output( "shuffle:intermediate" ) );
+                job.setComparator( SortByValueReduceComparator.class );
+                job.setPartitioner( GlobalSortPartitioner.class );
+                
+                controller.reduce( job );
+
+            }
+                
             // TODO: the output here needs to be a shuffle with a new
             // partitioner which knows how many items are in the result
 
@@ -136,7 +151,7 @@ public class TestSortViaMapReduce extends peregrine.BaseTestWithMultipleProcesse
 
     public static void main( String[] args ) throws Exception {
 
-        System.setProperty( "peregrine.test.config", "1:1:2" ); // 3sec
+        //System.setProperty( "peregrine.test.config", "1:1:2" ); // 3sec
 
         //setPropertyDefault( "peregrine.test.factor", "1" ); // 
         //setPropertyDefault( "peregrine.test.config", "01:01:01" ); // takes 3 seconds
@@ -144,6 +159,12 @@ public class TestSortViaMapReduce extends peregrine.BaseTestWithMultipleProcesse
         // 256 partitions... 
         //System.setProperty( "peregrine.test.config", "08:01:32" );  // 1m
 
+        if ( args.length == 1 ) {
+            MODE=args[0].split( "=" )[1];
+        }
+
+        System.out.printf( "MODE: %s\n" , MODE );
+        
         runTests();
         
     }

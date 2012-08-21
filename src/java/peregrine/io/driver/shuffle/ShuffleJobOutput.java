@@ -128,6 +128,10 @@ public class ShuffleJobOutput
     public long length() {
         return jobOutputDelegate.length();
     }
+
+    public Partition getPartition() {
+        return partition;
+    }
     
 }
 
