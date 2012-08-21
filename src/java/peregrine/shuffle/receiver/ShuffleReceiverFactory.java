@@ -75,6 +75,9 @@ public class ShuffleReceiverFactory {
      */
     public void flush() throws IOException {
 
+        if ( instances.size() == 0 )
+            return;
+        
         log.info( "Flushing %,d shufflers...", instances.size() );
 
         for( ShuffleReceiver current : instances.values() ) {

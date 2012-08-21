@@ -150,4 +150,8 @@ public class ShuffleReceiver {
         
     }
 
+    public String toString() {
+        return String.format( "shuffle:%s" , name );
+    }
+    
 }

@@ -36,7 +36,7 @@ public class GlobalSortPartitioner extends BasePartitioner {
 
     private int partition = -1;
 
-    private int sentRemoteRecords = false;
+    private boolean sentRemoteRecords = false;
     
 	@Override
     public void init( LocalContext localContext ) {

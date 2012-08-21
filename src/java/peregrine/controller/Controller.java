@@ -301,12 +301,8 @@ public class Controller {
         daemon.setScheduler( null );
 
         // shufflers can be flushed after any stage even reduce as nothing will
-        // happen
-
-        // TODO: this should be a typesafe enum with map|merge|reducem
-        
-        if ( "map".equals( operation ) || "merge".equals( operation ) )
-            flushAllShufflers();
+        // happen other than a bit more latency.
+        flushAllShufflers();
 
         // now reset the worker nodes between jobs.
         reset();

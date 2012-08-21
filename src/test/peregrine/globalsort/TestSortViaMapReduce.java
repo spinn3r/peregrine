@@ -121,23 +121,26 @@ public class TestSortViaMapReduce extends peregrine.BaseTestWithMultipleProcesse
                                 new Output( "shuffle:default" ) );
 
             }
-                
-            // make sure the shuffle output worked
 
-            if ( MODE.equals( "reduce" ) || MODE.equals( "all" ) ) {
+            ReduceJob job = new ReduceJob();
+            
+            job.setDelegate( Reduce.class );
+            job.setInput( new Input( "shuffle:default" ) );
+            job.setOutput( new Output( "shuffle:intermediate" ) );
+            job.setComparator( SortByValueReduceComparator.class );
+            job.setPartitioner( GlobalSortPartitioner.class );
+            
+            controller.reduce( job );
 
-                ReduceJob job = new ReduceJob();
-                
-                job.setDelegate( Reduce.class );
-                job.setInput( new Input( "shuffle:default" ) );
-                job.setOutput( new Output( "shuffle:intermediate" ) );
-                job.setComparator( SortByValueReduceComparator.class );
-                job.setPartitioner( GlobalSortPartitioner.class );
-                
-                controller.reduce( job );
-
-            }
-                
+            job = new ReduceJob();
+            
+            job.setDelegate( Reduce.class );
+            job.setInput( new Input( "shuffle:intermediate" ) );
+            job.setOutput( new Output( output ) );
+            job.setComparator( SortByValueReduceComparator.class );
+            
+            controller.reduce( job );
+            
             // TODO: the output here needs to be a shuffle with a new
             // partitioner which knows how many items are in the result
 

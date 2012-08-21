@@ -20,10 +20,14 @@ import java.lang.reflect.*;
 
 import peregrine.os.*;
 
+import com.spinn3r.log5j.*;
+
 /**
  * Handles a facade on top of various bulk filesystem manipulation primitives.
  */
 public class Files {
+
+    private static final Logger log = Logger.getLogger();
 
     /**
      * @see #remove(File)
@@ -36,7 +40,7 @@ public class Files {
      * Recursive removal of the given file and any children.
      */
     public static void remove( File file ) throws IOException {
-
+        
         if ( ! file.exists() ) {
             // the file is already deleted.  We don't need to do anything.
             return;
@@ -253,7 +257,6 @@ public class Files {
 
     }
 
-
     /**
      * Make a given directory writable and optionally recurse all
      * children.
@@ -282,7 +285,6 @@ public class Files {
 
     }
 
-    
     /**
      * Make a given directory readable and writable and optionally recurse all
      * children.

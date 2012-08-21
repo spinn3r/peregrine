@@ -57,6 +57,8 @@ public class FSPutShuffleHandler extends FSPutBaseHandler {
         this.from_chunk     = Integer.parseInt( m.group( 4 ) );
 
         this.shuffleReceiver = handler.daemon.shuffleReceiverFactory.getInstance( this.name );
+
+        this.path = shuffleReceiver.toString();
         
     }
 
@@ -89,7 +91,7 @@ public class FSPutShuffleHandler extends FSPutBaseHandler {
                     shuffleReceiver.accept( from_partition, from_chunk, to_partition, count, data );
                     
                 } else {
-                    
+
                     HttpResponse response = new DefaultHttpResponse( HTTP_1_1, OK );
                     ctx.getChannel().write(response).addListener(ChannelFutureListener.CLOSE);
                     

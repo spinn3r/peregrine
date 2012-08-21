@@ -44,13 +44,16 @@ public class FSPutBaseHandler extends ErrorLoggingChannelUpstreamHandler {
     protected long chunks = 0;
 
     protected FSHandler handler;
+
+    protected String path = null;
     
     public FSPutBaseHandler( FSHandler handler ) {
 
         this.handler = handler;
-
+        this.path = handler.path;
+        
         started = System.currentTimeMillis();
-
+        
     }
 
     @Override
@@ -65,7 +68,6 @@ public class FSPutBaseHandler extends ErrorLoggingChannelUpstreamHandler {
             if ( ! chunk.isLast() ) {
 
                 ChannelBuffer content = chunk.getContent();
-
                 written += content.writerIndex();
                 chunks = chunks + 1;
 
@@ -80,9 +82,9 @@ public class FSPutBaseHandler extends ErrorLoggingChannelUpstreamHandler {
 
                 if ( chunks > 0 )
                     mean_chunk_size = (int)(written / chunks);
-                
+
                 log.info( "Wrote %,d bytes in %,d chunks (mean chunk size = %,d bytes) in %,d ms to %s",
-                          written, chunks, mean_chunk_size, duration, handler.path );
+                          written, chunks, mean_chunk_size, duration, path );
 
             }
 
