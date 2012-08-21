@@ -23,6 +23,8 @@ import peregrine.config.*;
  */
 public class LocalContext {
     
+    private Partition partition = null;
+    
     private int records = 0;
 
     /**
@@ -34,6 +36,17 @@ public class LocalContext {
 
     public void setRecords( int records ) { 
         this.records = records;
+    }
+
+    /**
+     * The partition we are going to execute over.
+     */
+    public Partition getPartition() { 
+        return this.partition;
+    }
+
+    public void setPartition( Partition partition ) { 
+        this.partition = partition;
     }
 
 }

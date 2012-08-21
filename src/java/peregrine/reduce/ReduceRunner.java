@@ -72,6 +72,7 @@ public class ReduceRunner {
         this.shuffleInput = shuffleInput;
         this.jobOutput = jobOutput;
         this.reduceJob = (ReduceJob)task.getJob();
+        this.localContext.setPartition( partition );
 
     }
 

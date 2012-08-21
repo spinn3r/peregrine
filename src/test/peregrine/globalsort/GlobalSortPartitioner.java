@@ -33,6 +33,10 @@ public class GlobalSortPartitioner extends BasePartitioner {
     private int index = 0;
 
     private int width;
+
+    private int partition = -1;
+
+    private int sentRemoteRecords = false;
     
 	@Override
     public void init( LocalContext localContext ) {
@@ -42,20 +46,30 @@ public class GlobalSortPartitioner extends BasePartitioner {
         records = localContext.getRecords();
 
         width = (int)(records / nr_partitions);
+
+        partition = localContext.getPartition().getId();
         
     }
 
 	@Override
 	public Partition partition( StructReader key ) {
 
-        int part = (int)Math.floor(index / width);
+        int targetPartition = (int)Math.floor(index / width);
 
-        ++index;
-
-        log.info( "FIXME: sending to: %s", part );
+        if ( targetPartition != partition )
+            sentRemoteRecords = true;
         
-		return new Partition( part );
+        ++index;
+        
+		return new Partition( targetPartition );
 
 	}
 
+    /**
+     * Return true if we've broadcast remote records.
+     */
+    public boolean hasSentRemoteRecords() {
+        return sentRemoteRecords;
+    }
+    
 }
