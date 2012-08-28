@@ -114,13 +114,9 @@ public class TestSortViaMapReduce extends peregrine.BaseTestWithMultipleProcesse
             controller.reduce( job );
             */
 
-            if ( MODE.equals( "map" ) || MODE.equals( "all" ) ) {
-
-                controller.map( Map.class,
-                                new Input( path ),
-                                new Output( "shuffle:default" ) );
-
-            }
+            controller.map( Map.class,
+                            new Input( path ),
+                            new Output( "shuffle:default" ) );
 
             ReduceJob job = new ReduceJob();
             

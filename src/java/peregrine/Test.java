@@ -60,38 +60,208 @@ public class Test {
 
     public static void main( String[] args ) throws Exception {
 
-        /*
-        Config config = new Config();
+        int nr_hosts = 3;
+        int nr_tuples = 180;
 
-        new Initializer( config ).basic( "test" );
+        int nr_tuples_per_host = nr_tuples / nr_hosts;
 
-        System.out.printf( "%s\n" , new Tracepoint() );
-        System.out.printf( "%s\n" , new Tracepoint("foo", "bar", "cat", "dog") );
-        System.out.printf( "%s\n" , new Tracepoint( new Exception( "fake exception" ) ) );
-        System.out.printf( "%s\n" , new Tracepoint( new Exception() ) );
+        System.out.printf( "nr_tuples_per_host: %s\n", nr_tuples_per_host );
+        
+        Map<Integer,List<Integer>> db = newHostIntegerListMap( nr_hosts );
 
-        new Exception().printStackTrace();
+        int host = 0;
 
-        log.info( "INFO: hello world" );
-        log.error( "ERROR: hello world" );
-        log.error( String.format( "hello world: \n%s", new Tracepoint( new Exception( "fake exception" ) ) ) );
-        log.error( "hello world: %s", new Tracepoint( new Exception( "fake exception" ) ) );
-        */
+        for ( int i = nr_tuples - 1; i >= 0; --i ) {
 
-        //System.out.printf( "%s\n", new File( "/tmp/" ).getFreeSpace() );
+            //System.out.printf( "i: %s,  host: %s\n", i, host );
 
-        for( int i = -128; i <= 127; ++i ) {
+            List<Integer> values = db.get( host );
 
-            byte b = (byte)i;
+            values.add( i );
+
+            if ( values.size() == nr_tuples_per_host && host + 1 != nr_hosts )
+                ++host;
+
+        }
+
+        System.out.printf( "before: %s\n", db );
+
+        // now sort the local host values
+
+        for( int current : db.keySet() ) {
+            Collections.sort( db.get( current ) );
+        }
+
+        System.out.printf( "sorted: \n" );
+
+        dump( db );
+
+        //FIXME: this part is fucked and I need actually ONE point not TWO
+        
+        // now determine the mean points... take each host and their values and
+        // determine their points.
+
+        // if there are an even number we have to take two and mean then. If
+        // there are an ODD number we have to take 1 directly.
+
+        int tuples_per_local_region = (int)Math.ceil( nr_tuples_per_host / (double)nr_hosts );
+
+        int tuple_index = tuples_per_local_region;
+        
+        System.out.printf( "tuples_per_local_region: %s\n", tuples_per_local_region );
+        
+        Map<Integer, List<Integer>> meanPointLookup = newHostIntegerListMap( nr_hosts );
+
+        List<Integer> points = new ArrayList();
+        
+        while( tuple_index < nr_tuples_per_host - 1 ) {
+
+            System.out.printf( "tuple_index: %s\n", tuple_index );
+
+            List<Integer> hostPoints = new ArrayList();
+
+            for( int source_host : db.keySet() ) {
+                hostPoints.add( db.get( source_host ).get( tuple_index - ( tuples_per_local_region / 2 ) ) );
+            }
+
+            System.out.printf( "hostPoints: %s\n", hostPoints );
+
+            tuple_index += tuples_per_local_region;
+
+            points.add( meanWithFloor( hostPoints ) );
             
-            int v = b & 0xFF;
+        }
 
-            System.out.printf( "b: %s , v: %s\n", b, v );
+        System.out.printf( "points: %s\n", points );
 
+        Map<Integer,List<Integer>> routed = newHostIntegerListMap( nr_hosts );
+
+        // now route all the values in the db
+
+        for( List<Integer> host_values : db.values() ) {
+
+            for( int value : host_values ) {
+
+                int routed_host = route( value, points );
+
+                //System.out.printf( "routed_host: %s\n", routed_host );
+                
+                routed.get( routed_host ).add( value );
+                
+            }
+            
+        }
+
+        // now sort routed
+
+        for( List<Integer> routed_values : routed.values() ) {
+            Collections.sort( routed_values );
+        }
+
+        System.out.printf( "routed: %s\n", routed );
+
+        System.out.printf( "====\n" );
+
+        for( int current_host = 0; current_host < nr_hosts; ++current_host ) {
+            System.out.printf( "%s = %s %s\n", current_host, routed.get( current_host ).size(), routed.get( current_host ) );
+        }
+
+        // the real points are 60 and 120... should I take the MEAN of the
+        // median points?  or use the median points?  Right now I take the MAX
+        // which isn't right. 
+        
+        // for( int current_host : db.keySet() ) {
+
+        //     List<Integer> meanPoints = meanPointLookup.get( current_host );
+            
+        //     for( int source_host : db.keySet() ) {
+        //         meanPoints.add( db.get( source_host ).get( tuple_index ) );
+        //     }
+
+        //     tuple_index += tuples_per_local_region;
+            
+        // }
+
+        // System.out.printf( "meanPointLookup: %s\n", meanPointLookup );
+
+        // // now for each host in meanPointLookup we need to determine the mean.
+        // Map<Integer,Integer> hostMeanPoints = new HashMap();
+
+        // for ( int current_host : meanPointLookup.keySet() ) {
+
+        //     List<Integer> meanPoints = meanPointLookup.get( current_host );
+
+        //     int sum = 0;
+
+        //     for( int i : meanPoints ) {
+        //         sum += i;
+        //     }
+
+        //     hostMeanPoints.put( current_host, (int)Math.floor( sum / meanPoints.size() ) );
+            
+        // }
+
+        // System.out.printf( "hostMeanPoints: %s\n", hostMeanPoints );
+
+        // // now create global hostMeanPoints 
+
+        // List<Integer> meanPoints = new ArrayList();
+
+        // for( int current : hostMeanPoints.values() ) {
+
+        // }
+
+    }
+
+    public static void dump( Map<Integer,List<Integer>> map ) {
+
+        for( int current_host = 0; current_host < map.size(); ++current_host ) {
+            System.out.printf( "%s = %s %s\n", current_host, map.get( current_host ).size(), map.get( current_host ) );
         }
 
     }
 
+    public static int route( int value, List<Integer> points ) {
+
+        int result = 0;
+        
+        for( int i : points ) {
+
+            if ( value <= i )
+                return result;
+
+            ++result;
+            
+        }
+
+        return points.size();
+        
+    }
+    
+    public static Map<Integer,List<Integer>> newHostIntegerListMap( int nr_hosts ) {
+
+        Map<Integer, List<Integer>> result = new HashMap();
+
+        for( int i = 0; i < nr_hosts; ++i ) {
+            result.put( i, new ArrayList() );
+        }
+
+        return result;
+        
+    }
+    
+    public static int meanWithFloor( List<Integer> list ) {
+
+        int sum = 0;
+        
+        for( int i : list ) {
+            sum += i;
+        }
+        
+        return (int)Math.floor( sum / list.size() );
+
+    }
+    
     public static void main_segfault( String[] args ) throws Exception {
 
         File file = new File( "test.segfault" );
