@@ -52,7 +52,8 @@ public class RangePartitioner extends BasePartitioner {
 
         //TODO: technically we should require this but it will slow down mapping.
         //if ( part > nr_partitions )
-        //    throw new RuntimeException( String.format( "Unable to correctly route to partition. %s vs %s", part, nr_partitions ) );
+        //    throw new RuntimeException( String.format( "Unable to correctly route to partition. %s vs %s",
+        //                                               part, nr_partitions ) );
         
 		return new Partition( part );
 		

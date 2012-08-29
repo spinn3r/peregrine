@@ -9,6 +9,7 @@ import java.lang.reflect.*;
 
 import peregrine.os.*;
 import peregrine.util.*;
+import peregrine.util.primitive.*;
 import peregrine.app.pagerank.*;
 import peregrine.config.*;
 import peregrine.worker.*;
@@ -59,6 +60,81 @@ public class Test {
     }
 
     public static void main( String[] args ) throws Exception {
+
+        int max = 5000;
+
+        long[] data = new long[max];
+
+        for( int i = 0; i < max; ++i ){
+            data[i] = (long)i;
+        }
+
+        Map<String,Integer> buckets0 = partition( 0, data );
+        Map<String,Integer> buckets1 = partition( 1, data );
+        Map<String,Integer> buckets2 = partition( 2, data );
+        Map<String,Integer> buckets3 = partition( 3, data );
+        Map<String,Integer> buckets4 = partition( 4, data );
+        Map<String,Integer> buckets5 = partition( 5, data );
+        Map<String,Integer> buckets6 = partition( 6, data );
+        Map<String,Integer> buckets7 = partition( 7, data );
+
+        // for( int i = 0; i < 7; ++i ) {
+
+        //     if ( buckets.size() > 1 )
+        //         break;
+            
+        // }
+        
+        // // now dump them
+
+        // for( String key : buckets.keySet() ) {
+        //     System.out.printf( "%s=%s\n", key, buckets.get( key ) );
+        // }
+        
+    }
+
+    public static Map<String,Integer> partition( int offset, long[] data ) {
+
+        System.out.printf( "offset: %s\n" , offset );
+        
+        int[][] buckets = new int[256][256];
+
+        for( long i : data ){
+
+            byte[] ba = LongBytes.toByteArray( i );
+
+            //System.out.printf( "FIXME: %s %s\n", i , ba[] );
+            
+            ++buckets[ba[offset+0]][ba[offset+1]];
+        }
+
+        return filter( buckets );
+    
+    }
+
+    public static Map<String,Integer> filter( int[][] buckets ) {
+
+        Map<String,Integer> result = new TreeMap();
+        
+        for( int i = 0; i < 256; ++i ) {
+
+            for( int j = 0; j < 256; ++j ) {
+
+                int v = buckets[i][j];
+
+                if ( v > 0 ) {
+                    result.put( String.format( "%s:%s", i, j ), v );
+                }
+                
+            }
+                
+        }
+
+        return result;
+        
+    }
+    
+    public static void main20( String[] args ) throws Exception {
 
         int nr_hosts = 3;
         int nr_tuples = 180;

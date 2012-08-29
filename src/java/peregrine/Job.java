@@ -49,7 +49,9 @@ public class Job implements MessageSerializable {
     protected Class partitioner = RangePartitioner.class;
 
     protected Partitioner partitionerInstance = null;
-    
+
+    protected int maxChunks = Integer.MAX_VALUE;
+
     /**
      * Get a unique identifier for this job.  Every job stats at 0 (zero) and is
      * every new job identifier is incremented by 1 (one).
@@ -145,6 +147,14 @@ public class Job implements MessageSerializable {
         
     }
 
+    public int getMaxChunks() { 
+        return this.maxChunks;
+    }
+
+    public void setMaxChunks( int maxChunks ) { 
+        this.maxChunks = maxChunks;
+    }
+
     @Override
     public String toString() {
 
@@ -175,6 +185,7 @@ public class Job implements MessageSerializable {
         message.put( "input",         input.getReferences() );
         message.put( "output",        output.getReferences() );
         message.put( "partitioner",   partitioner );
+        message.put( "maxChunks",     maxChunks );
 
         return message;
         
@@ -193,7 +204,8 @@ public class Job implements MessageSerializable {
         input         = new Input( message.getList( "input" ) );
         output        = new Output( message.getList( "output" ) );
         partitioner   = message.getClass( "partitioner" );
-
+        maxChunks     = message.getInt( "maxChunks" );
+        
     }
     
 }
