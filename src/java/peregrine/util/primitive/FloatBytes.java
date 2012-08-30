@@ -20,8 +20,6 @@ public class FloatBytes {
 
     public static final int LENGTH = 4;
 
-    /**
-     */
     public static byte[] toByteArray( float value ) {
         return IntBytes.toByteArray( Float.floatToIntBits( value ) );
     }
