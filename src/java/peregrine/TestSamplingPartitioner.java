@@ -37,53 +37,74 @@ public class TestSamplingPartitioner {
     
     private static final Logger log = Logger.getLogger();
     
-    // the max number of buckets to consider before we punt.
+    /**
+     * The max number of buckets to consider before we punt.
+     */
     public static final int LIMIT = 65536;
-    
+
     public static void main( String[] args ) throws Exception {
 
-        int max   = 20000;
-        int range = 50000;
-        int offset = 1000;
+        int max    = 5000;
+        int range  = 100;
+        int offset = 10000;
+
+        // TODO: create a artificial graph with a spike in ONE region ...
         
         Random r = new Random();
         
-        List<Integer> data = new ArrayList();
+        List<Long> datapoints = new ArrayList();
         
-        for( int i = 0; i < max; ++i ) {
-            data.add( offset + r.nextInt( range ) );            
+        for( long i = 0; i < max; ++i ) {
+
+            long val = (long)(offset + r.nextInt( range ) );
+            val = val << 32;
+
+            byte[] data = LongBytes.toByteArray( val );
+            
+            //FIXME add four random bytes now.
+            byte[] hash = Hashcode.getHashcode( Long.toString( i ) );
+            System.arraycopy( hash, 0, data, 4, 4 );
+
+            val = LongBytes.toLong( data );
+            
+            System.out.printf( "val: %s\n", val );
+            
+            datapoints.add( val ); 
         }
 
-        partition( data, 10 );
+        partition( datapoints, 10 );
         
     }
 
-    public static Bucket partition( List<Integer> data, int nr_partitions ) {
+    public static Bucket partition( List<Long> data, int nr_partitions ) {
 
         // create the bucket index.
         
-        Map<Integer,Bucket> buckets = new HashMap();
+        Map<Long,Bucket> buckets = new HashMap();
         
-        for ( int i = nr_partitions; i >= 0 && i < Integer.MAX_VALUE; i = i * 2 ) {
+        for ( int nr_buckets = nr_partitions; nr_buckets >= 0 && nr_buckets < Long.MAX_VALUE; nr_buckets = nr_buckets * 2 ) {
 
-            int split = (int)(Integer.MAX_VALUE / i);
+            long split = (Long.MAX_VALUE / nr_buckets);
 
-            System.out.printf( "%10s: %20s\n", i, split );
+            System.out.printf( "nr_buckets=%14s: split=%20s\n", nr_buckets, split );
             
-            buckets.put( split, new Bucket() );
+            buckets.put( split, new Bucket( split ) );
+            
         }
 
         //now route the values into buckets
 
-        List<Integer> splits = new ArrayList( buckets.keySet() );
+        List<Long> splits = new ArrayList( buckets.keySet() );
         Collections.sort( splits );
         
-        for( int value : data ) {
+        for( long value : data ) {
 
-            for ( int split : splits ) {
+            for ( long split : splits ) {
 
-                int bucket_id = value / split;
+                long bucket_id = value / split;
 
+                System.out.printf( "bucket_id: %s\n", bucket_id );
+                
                 Bucket bucket = buckets.get( split );
 
                 if ( bucket.size() >= LIMIT ) {
@@ -98,11 +119,11 @@ public class TestSamplingPartitioner {
 
         //now move these into a partition which first matches.
 
-        int idealValuesPerPartition = data.size() / nr_partitions;
+        int idealPartitionSize = data.size() / nr_partitions;
         
         PartitionIndex partitionIndex = new PartitionIndex();
 
-        for ( int split : splits ) {
+        for ( long split : splits ) {
 
             Bucket bucket = buckets.get( split );
 
@@ -110,20 +131,24 @@ public class TestSamplingPartitioner {
                 continue;
             }
 
-            RangeList rangeList = new RangeList( split, idealValuesPerPartition );
+            RangeList rangeList = new RangeList( split, idealPartitionSize );
 
-            List<Integer> bucketKeys = new ArrayList( bucket.keySet() );
+            List<Long> bucketKeys = new ArrayList( bucket.keySet() );
             Collections.sort( bucketKeys );
 
             Range current = new Range();
 
-            for( int bucketKey : bucketKeys ) {
+            for( long bucketKey : bucketKeys ) {
 
                 int count = bucket.get( bucketKey );
 
                 current.count += count;
 
-                if ( current.count >= idealValuesPerPartition ) {
+                if ( current.count >= idealPartitionSize ) {
+
+                    if ( current.end == -1 )
+                        current.end = bucketKey;
+                    
                     rangeList.add( current );
                     current = new Range( current.end );
                 }
@@ -151,42 +176,25 @@ public class TestSamplingPartitioner {
         
     }
 
-    public static void dump( Map<Integer,Bucket> buckets ) {
-
-        List<Integer> keys = new ArrayList( buckets.keySet() );
-
-        Collections.sort( keys );
-        
-        for ( int key : keys ) {
-            System.out.printf( "%10s: %s\n", key, buckets.get( key ) );
-        }
-        
-    }
-
-    public static void dump( PartitionIndex partitionIndex ) {
-
-        List<Integer> keys = new ArrayList( partitionIndex.keySet() );
-        Collections.sort( keys );
-        
-        for ( int key : keys ) {
-            System.out.printf( "%10s: %s\n", key, partitionIndex.get( key ) );
-        }
-
-    }
-
     public static void dump( List<RangeList> sortedRangeList ) {
 
         for ( RangeList rangeList : sortedRangeList ) {
-            System.out.printf( "%10s: %s\n", rangeList.id, rangeList );
+            System.out.printf( "%25s: %s\n", rangeList.id, rangeList );
         }
 
     }
 
 }
 
-class Bucket extends HashMap<Integer,Integer> {
+class Bucket extends HashMap<Long,Integer> {
 
-    public void incr( int key ) {
+    public long split;
+
+    public Bucket( long split ) {
+        this.split = split;
+    }
+    
+    public void incr( long key ) {
 
         if ( containsKey( key ) ) {
             put( key, get( key ) + 1 );
@@ -200,8 +208,8 @@ class Bucket extends HashMap<Integer,Integer> {
 
 class Range {
 
-    public int start = 0;
-    public int end   = -1;
+    public long start = 0;
+    public long end   = -1;
 
     public int count = 0;
 
@@ -209,7 +217,7 @@ class Range {
     
     public Range() { }
 
-    public Range( int start ) {
+    public Range( long start ) {
         this.start = start;
     }
 
@@ -231,12 +239,12 @@ class Range {
 
 class RangeList extends ArrayList<Range> implements Comparable<RangeList> {
 
-    public int id;
-    public int idealValuesPerPartition;
+    public long id;
+    public int idealPartitionSize;
     
-    public RangeList( int id, int idealValuesPerPartition ) {
+    public RangeList( long id, int idealPartitionSize ) {
         this.id = id;
-        this.idealValuesPerPartition = idealValuesPerPartition;
+        this.idealPartitionSize = idealPartitionSize;
     }
     
     public String toString() {
@@ -251,7 +259,7 @@ class RangeList extends ArrayList<Range> implements Comparable<RangeList> {
         int result = 0;
 
         for( Range current : this ) {
-            result += Math.abs( current.count - idealValuesPerPartition );
+            result += Math.abs( current.count - idealPartitionSize );
         }
 
         return result;
@@ -269,4 +277,4 @@ class RangeList extends ArrayList<Range> implements Comparable<RangeList> {
 
 }
 
-class PartitionIndex extends HashMap<Integer,RangeList> { }
+class PartitionIndex extends HashMap<Long,RangeList> { }
