@@ -49,12 +49,16 @@ public abstract class BaseMapperTask extends BaseTask implements Callable {
      * The current nonce computed from the current input position.
      */
     protected String nonce = null;
+
+    protected MapperChunkStreamListener mapperChunkStreamListener = null;
     
     /**
      * Run init just on Mapper and Merger tasks.
      */
     public void init( Config config, Work work, Class delegate ) throws IOException {
 
+        mapperChunkStreamListener = new MapperChunkStreamListener();
+        
         super.init( config, work, delegate );
 
         // make all shuffle dirs for the shuffle output paths to make sure we
@@ -90,7 +94,7 @@ public abstract class BaseMapperTask extends BaseTask implements Callable {
             listeners.add( current );
         }
 
-        listeners.add( new MapperChunkStreamListener() );
+        listeners.add( mapperChunkStreamListener );
         
         List<SequenceReader> readers = new ArrayList();
 
@@ -155,8 +159,12 @@ public abstract class BaseMapperTask extends BaseTask implements Callable {
      */
     class MapperChunkStreamListener implements ChunkStreamListener{
 
+        public int lastChunk = -1;
+        
         public void onChunk( ChunkReference ref ) {
 
+            ++lastChunk;
+            
             // get the first nonce... 
             if ( nonce == null ) {
                 nonce = getNonce();

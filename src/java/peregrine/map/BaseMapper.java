@@ -15,6 +15,7 @@
 */
 package peregrine.map;
 
+import java.io.*;
 import java.util.*;
 
 import peregrine.*;
@@ -23,16 +24,20 @@ import peregrine.io.driver.broadcast.*;
 import peregrine.shuffle.sender.*;
 import peregrine.task.*;
 
-public abstract class BaseMapper extends BaseJobDelegate {
+public abstract class BaseMapper extends BaseJobDelegate implements Closeable {
 
     public void init( List<JobOutput> output ) {
 
         super.init( output );
 
         if ( this.stdout instanceof BroadcastJobOutput ) {
-            throw new RuntimeException( "Standard out may not be a broadcast reference: " + this.stdout );
+            throw new RuntimeException( "Standard output may not be a broadcast reference: " + this.stdout );
         }
         
+    }
+
+    @Override
+    public void close() throws IOException {
     }
 
 }

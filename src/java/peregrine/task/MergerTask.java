@@ -16,14 +16,16 @@
 package peregrine.task;
 
 import java.util.*;
+
 import peregrine.*;
-import peregrine.map.*;
-import peregrine.merge.*;
 import peregrine.io.*;
 import peregrine.io.chunk.*;
 import peregrine.io.partition.*;
-import peregrine.sysstat.*;
+import peregrine.io.util.*;
+import peregrine.map.*;
+import peregrine.merge.*;
 import peregrine.os.*;
+import peregrine.sysstat.*;
 
 import com.spinn3r.log5j.*;
 
@@ -41,10 +43,11 @@ public class MergerTask extends BaseMapperTask {
 
         MergeRunner mergeRunner = new MergeRunner( jobInput );
 
-        try { 
+        Merger merger = (Merger)jobDelegate;
+        Closer closer = new Closer( merger, mergeRunner );
         
-            Merger merger = (Merger)jobDelegate;
-            
+        try { 
+
             while( true ) {
 
                 MergedValue joined = mergeRunner.next();
@@ -61,7 +64,7 @@ public class MergerTask extends BaseMapperTask {
             log.info( "Running merge jobs on host: %s ... done", host );
 
         } finally {
-            mergeRunner.close();
+            closer.close();
         }
             
     }

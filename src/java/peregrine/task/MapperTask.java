@@ -55,12 +55,19 @@ public class MapperTask extends BaseMapperTask {
         
         int count = 0;
 
+        Mapper mapper = (Mapper)jobDelegate;
+        
+        Closer closer = new Closer( mapper, reader );
+
         try {
 
-            Mapper mapper = (Mapper)jobDelegate;
-            
             while( reader.hasNext() ) {
 
+                //TODO: this comparison over maxChunks is going to waste a bit
+                //of CPU so it would be nice to have a way to disable it.
+                if ( mapperChunkStreamListener.lastChunk < job.getMaxChunks() )
+                    break;
+                
                 assertActiveJob();
                 
             	reader.next();
@@ -72,7 +79,7 @@ public class MapperTask extends BaseMapperTask {
             }
 
         } finally {
-            reader.close();
+            closer.close();
         }
             
         log.info( "Mapped %,d entries on %s on host %s from %s", count, partition, config.getHost(), reader );

@@ -40,13 +40,63 @@ public class TestSamplingPartitioner {
     /**
      * The max number of buckets to consider before we punt.
      */
-    public static final int LIMIT = 65536;
+    public static final int LIMIT = 262144;
 
-    public static void main( String[] args ) throws Exception {
+    // the MAX buckets we could have is 6M in a 100MB sampled chunk... so it
+    // would be like 20-30MB of memory to build a partition for each sized
+    // partition.
 
-        int max    = 5000;
-        int range  = 100;
-        int offset = 10000;
+    public static List<Long> buildRandomGraph( int nr_nodes,
+                                               int max_edges_per_node ) {
+
+        Random r = new Random();
+
+        Map<Long,Long> indegree = new HashMap();
+
+        for( long i = 0; i < nr_nodes; ++i ) {
+            indegree.put( i, 0L );
+        }
+
+        for( long i = 0; i < nr_nodes; ++i ) {
+
+            HashSet<Long> linked = new HashSet();
+            long source = i;
+            
+            //TODO: I think we should create a random number of edges.
+            for( long j = 0; j < max_edges_per_node && j < i ; ++j ) {
+
+                //connect this node to any of the existing other nodes other
+                //than itself.
+                long target = (long)(r.nextFloat() * (i - 1));
+
+                if ( linked.contains( target ) ) {
+                    //TODO: in the future we should just retry another random
+                    //number say N times.
+                    continue;
+                }
+
+                // addEdge( source, target )
+
+                indegree.put( source, indegree.get( source ) + 1 );
+                
+                //System.out.printf( "%s -> %s\n", n_i, n_j );
+                linked.add( target );
+                
+            }
+            
+        }
+
+        List<Long> result = new ArrayList();
+
+        for( long val : indegree.values() ) {
+            result.add( padd( val ) );
+        }
+        
+        return result;
+
+    }
+
+    public static List<Long> rangeDataSet( int max, int range, int offset ) {
 
         // TODO: create a artificial graph with a spike in ONE region ...
         
@@ -56,22 +106,39 @@ public class TestSamplingPartitioner {
         
         for( long i = 0; i < max; ++i ) {
 
-            long val = (long)(offset + r.nextInt( range ) );
-            val = val << 32;
+            long val = padd( (long)(offset + r.nextInt( range ) ) );
 
-            byte[] data = LongBytes.toByteArray( val );
-            
-            //FIXME add four random bytes now.
-            byte[] hash = Hashcode.getHashcode( Long.toString( i ) );
-            System.arraycopy( hash, 0, data, 4, 4 );
-
-            val = LongBytes.toLong( data );
-            
             System.out.printf( "val: %s\n", val );
             
             datapoints.add( val ); 
         }
 
+        return datapoints;
+        
+    }
+
+    public static long padd( long val ) {
+
+        val = val * 100000000;
+
+        byte[] hash = Hashcode.getHashcode( Long.toString( val ) );
+        byte[] zeros = new byte[] { 0, 0, 0, 0, 0 };
+        System.arraycopy( zeros, 0, hash, 0, zeros.length );
+        val = val + LongBytes.toLong( hash );
+
+        return val;
+        
+    }
+
+    public static void main( String[] args ) throws Exception {
+
+        // System.out.printf( "%20s\n", padd( 0 ) );
+        // System.out.printf( "%20s\n", padd( 1 ) );
+        // System.out.printf( "%20s\n", padd( 2 ) );
+        
+        //List<Long> datapoints = rangeDataSet( 5000, 100, 10000 );
+        List<Long> datapoints = buildRandomGraph( 10000, 100 );
+        
         partition( datapoints, 10 );
         
     }
