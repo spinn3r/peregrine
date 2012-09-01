@@ -133,6 +133,9 @@ public class Job implements MessageSerializable {
 
     public Partitioner getPartitionerInstance() {
 
+        // we do not need the double check idiom here because this isn't
+        // multithreaded code.
+        
         if ( partitionerInstance == null ) {
         
             try {

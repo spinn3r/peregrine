@@ -16,6 +16,7 @@
 package peregrine.reduce;
 
 import java.io.*;
+import java.util.*;
 
 import peregrine.*;
 import peregrine.util.*;
@@ -27,22 +28,34 @@ import com.spinn3r.log5j.*;
 /**
  * Compares KeyValuePairs by key and preserves strict binary ordering by byte.
  */
-public class StrictReduceComparator implements ReduceComparator {
+public class StrictStructReaderComparator implements Comparator<StructReader> {
 
     private static final Logger log = Logger.getLogger();
 
-    private StrictStructReaderComparator delegate = new StrictStructReaderComparator();
-    
-    /**
-     */
-    public int compare( KeyValuePair pair0 , 
-                        KeyValuePair pair1 ) {
+    public int compare( StructReader sr0, StructReader sr1 ) {
 
-        StructReader key0 = pair0.getKey();
-        StructReader key1 = pair1.getKey();
+        int diff = 0;
 
-        return delegate.compare( key0, key1 );
-        
+        //TODO: right now we assume that the both StructReaders are of equal
+        //length.
+        int len = sr0.length();
+
+        //TODO is it faster to make these byte arrays in one method call or call
+        //getByte() for each byte?
+        for( int offset = 0; offset < len; ++offset ) {
+
+            //TODO: this will be SLOW for raw key comparison (so don't use it
+            //when we are in that mode).
+
+            diff = (sr0.getByte( offset ) & 0xFF) - (sr1.getByte( offset ) & 0xFF);
+
+            if ( diff != 0 )
+                return diff;
+            
+        }
+
+        return diff;
+
     }
     
 }
