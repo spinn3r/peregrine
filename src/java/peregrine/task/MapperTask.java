@@ -65,7 +65,7 @@ public class MapperTask extends BaseMapperTask {
 
                 //TODO: this comparison over maxChunks is going to waste a bit
                 //of CPU so it would be nice to have a way to disable it.
-                if ( mapperChunkStreamListener.lastChunk < job.getMaxChunks() )
+                if ( mapperChunkStreamListener.lastChunk > job.getMaxChunks() )
                     break;
                 
                 assertActiveJob();

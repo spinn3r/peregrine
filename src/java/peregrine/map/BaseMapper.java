@@ -30,9 +30,9 @@ public abstract class BaseMapper extends BaseJobDelegate implements Closeable {
 
         super.init( output );
 
-        if ( this.stdout instanceof BroadcastJobOutput ) {
-            throw new RuntimeException( "Standard output may not be a broadcast reference: " + this.stdout );
-        }
+        //if ( this.stdout instanceof BroadcastJobOutput ) {
+        //    throw new RuntimeException( "Standard output may not be a broadcast reference: " + this.stdout );
+        //}
         
     }
 

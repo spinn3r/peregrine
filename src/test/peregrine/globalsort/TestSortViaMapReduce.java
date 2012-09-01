@@ -78,22 +78,18 @@ public class TestSortViaMapReduce extends peregrine.BaseTestWithMultipleProcesse
 
         String path = String.format( "/test/%s/test1.in", getClass().getName() );
 
-        if ( MODE.equals( "extract" ) || MODE.equals( "all" ) ) {
-        
-            ExtractWriter writer = new ExtractWriter( config, path );
+        ExtractWriter writer = new ExtractWriter( config, path );
 
-            for( int i = 0; i < max; ++i ) {
+        for( int i = 0; i < max; ++i ) {
 
-                StructReader key = StructReaders.hashcode( i );
-                StructReader value = StructReaders.wrap( i );
-                
-                writer.write( key, value );
-                
-            }
-
-            writer.close();
-
+            StructReader key = StructReaders.hashcode( i );
+            StructReader value = StructReaders.wrap( i );
+            
+            writer.write( key, value );
+            
         }
+
+        writer.close();
             
         // the writes worked correctly.
         
@@ -114,6 +110,17 @@ public class TestSortViaMapReduce extends peregrine.BaseTestWithMultipleProcesse
             controller.reduce( job );
             */
 
+            Job job = new Job();
+            job.setDelegate( ComputePartitionTableJob.Map.class );
+            job.setInput( new Input( path ) );
+            job.setOutput( new Output( "broadcast:/test/globalsort/partitions" ) );
+            // this is a sample job so we don't need to read ALL the data.
+            job.setMaxChunks( 1 ); 
+
+            controller.map( job );
+            
+            /*
+            
             controller.map( Map.class,
                             new Input( path ),
                             new Output( "shuffle:default" ) );
@@ -136,6 +143,8 @@ public class TestSortViaMapReduce extends peregrine.BaseTestWithMultipleProcesse
             job.setComparator( SortByValueReduceComparator.class );
             
             controller.reduce( job );
+            
+            */
             
             // TODO: the output here needs to be a shuffle with a new
             // partitioner which knows how many items are in the result
