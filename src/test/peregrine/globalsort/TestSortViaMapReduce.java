@@ -118,7 +118,13 @@ public class TestSortViaMapReduce extends peregrine.BaseTestWithMultipleProcesse
             job.setMaxChunks( 1 ); 
 
             controller.map( job );
-            
+
+            //
+            //nr_nodes = getBroadcastInput()
+            //               .get( 0 )
+            //               .getValue()
+            //               .readInt();
+
             /*
             
             controller.map( Map.class,

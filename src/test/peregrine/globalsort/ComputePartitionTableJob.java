@@ -68,14 +68,14 @@ public class ComputePartitionTableJob {
 
             log.info( "Going to split across %,d partitions" , nr_partitions );
             
-            for( int i = 0; i < nr_partitions - 1; ++i ) {
+            for( long i = 0; i < nr_partitions - 1; ++i ) {
 
                 offset += width;
                 
                 StructReader val = sample.get( offset - 1 );
 
                 log.info( "Using partition boundary: %s", Hex.encode( val ) );
-                
+                emit( StructReaders.wrap( i ), val );
             }
             
         }
@@ -87,6 +87,26 @@ public class ComputePartitionTableJob {
         @Override
         public void reduce( StructReader key, List<StructReader> values ) {
 
+            if ( values.size() > 0 ) {
+            
+                int len = values.get( 0 ).length();
+
+                int sum = 0;
+
+                byte[] result = new byte[len];
+                
+                for( int i = 0; i < len; ++i ) {
+
+                    for( StructReader current : values ) {
+                        sum += current.getByte( i ) & 0xFF;
+                    }
+
+                    result[i] = (byte)(sum / values.size());
+                    
+                }
+                
+            }
+                
         }
         
     }

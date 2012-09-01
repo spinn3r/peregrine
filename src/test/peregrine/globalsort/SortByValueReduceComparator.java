@@ -32,13 +32,15 @@ public class SortByValueReduceComparator extends StrictReduceComparator {
 
     private static final Logger log = Logger.getLogger();
 
+    private StrictStructReaderComparator delegate = new StrictStructReaderComparator();
+    
     /**
      */
     public int compare( KeyValuePair pair0 , 
                         KeyValuePair pair1 ) {
         
-        return super.compare( StructReaders.join( pair0.getValue(), pair0.getKey() ),
-                              StructReaders.join( pair1.getValue(), pair1.getKey() ) );
+        return delegate.compare( StructReaders.join( pair0.getValue(), pair0.getKey() ),
+                                 StructReaders.join( pair1.getValue(), pair1.getKey() ) );
         
     }
 
