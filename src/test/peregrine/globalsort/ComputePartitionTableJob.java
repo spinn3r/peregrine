@@ -59,6 +59,24 @@ public class ComputePartitionTableJob {
             Collections.sort( sample, new StrictStructReaderComparator() );
 
             //now write out the partitions.
+
+            int nr_partitions = getConfig().getMembership().size();
+
+            int width = sample.size() / nr_partitions;
+
+            int offset = 0;
+
+            log.info( "Going to split across %,d partitions" , nr_partitions );
+            
+            for( int i = 0; i < nr_partitions - 1; ++i ) {
+
+                offset += width;
+                
+                StructReader val = sample.get( offset - 1 );
+
+                log.info( "Using partition boundary: %s", Hex.encode( val ) );
+                
+            }
             
         }
 
