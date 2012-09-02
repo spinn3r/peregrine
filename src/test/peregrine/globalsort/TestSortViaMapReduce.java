@@ -120,11 +120,9 @@ public class TestSortViaMapReduce extends peregrine.BaseTestWithMultipleProcesse
 
             controller.map( job );
 
-            /*
             controller.reduce( ComputePartitionTableJob.Reduce.class,
                                new Input( "shuffle:partition_table" ),
                                new Output( "file:/test/globalsort/partition_table" ) );
-            */
                                
             //
             //nr_nodes = getBroadcastInput()

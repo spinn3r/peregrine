@@ -113,10 +113,8 @@ public class ComputePartitionTableJob {
 
             StructReader lastEmittedBoundary = FIRST_BOUNDARY;
 
-            int partition_id = 0;
+            long partition_id = 0;
 
-            //TODO: this code is too complicated what with all the StructReaders usage.
-            
             for( ; partition_id < nr_partitions - 1; ++partition_id ) {
 
                 offset += width;
@@ -127,8 +125,7 @@ public class ComputePartitionTableJob {
 
                 StructReader key = StructReaders.wrap( partition_id );
 
-                partitionTable.emit( key,
-                                     StructReaders.join( lastEmittedBoundary, currentBoundary ) );
+                partitionTable.emit( key, StructReaders.join( lastEmittedBoundary, currentBoundary ) );
 
                 lastEmittedBoundary = currentBoundary;
                 
@@ -136,8 +133,7 @@ public class ComputePartitionTableJob {
 
             StructReader key = StructReaders.wrap( partition_id );
             
-            partitionTable.emit( lastEmittedBoundary,
-                                 StructReaders.join( lastEmittedBoundary, LAST_BOUNDARY ) );
+            partitionTable.emit( key, StructReaders.join( lastEmittedBoundary, LAST_BOUNDARY ) );
                 
         }
 
@@ -166,6 +162,8 @@ public class ComputePartitionTableJob {
             if ( partition_id == 0 ) {
 
                 //first partition
+
+                emit( key, mean( ending( parse( values ) ) ) );
                 
             } else if ( partition_id == nr_partitions - 1 ) {
 
