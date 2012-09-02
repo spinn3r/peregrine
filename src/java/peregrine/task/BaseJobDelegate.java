@@ -15,6 +15,7 @@
 */
 package peregrine.task;
 
+import java.io.*;
 import java.util.*;
 
 import peregrine.*;
@@ -47,7 +48,9 @@ public abstract class BaseJobDelegate implements JobDelegate {
     }
     
     @Override
-    public void cleanup() {}
+    public void close() throws IOException {
+        //noop
+    }
         
     public List<BroadcastInput> getBroadcastInput() { 
         return this.broadcastInput;

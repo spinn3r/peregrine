@@ -57,7 +57,7 @@ public class TestSortViaMapReduce extends peregrine.BaseTestWithMultipleProcesse
         }
 
         @Override
-        public void cleanup() {
+        public void close() throws IOException {
             
         }
 
@@ -113,12 +113,19 @@ public class TestSortViaMapReduce extends peregrine.BaseTestWithMultipleProcesse
             Job job = new Job();
             job.setDelegate( ComputePartitionTableJob.Map.class );
             job.setInput( new Input( path ) );
-            job.setOutput( new Output( "broadcast:/test/globalsort/partitions" ) );
+            job.setOutput( new Output( "shuffle:default",
+                                       "broadcast:partition_table" ) );
             // this is a sample job so we don't need to read ALL the data.
             job.setMaxChunks( 1 ); 
 
             controller.map( job );
 
+            /*
+            controller.reduce( ComputePartitionTableJob.Reduce.class,
+                               new Input( "shuffle:partition_table" ),
+                               new Output( "file:/test/globalsort/partition_table" ) );
+            */
+                               
             //
             //nr_nodes = getBroadcastInput()
             //               .get( 0 )

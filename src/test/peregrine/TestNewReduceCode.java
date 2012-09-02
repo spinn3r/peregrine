@@ -15,6 +15,7 @@
 */
 package peregrine;
 
+import java.io.*;
 import java.util.*;
 
 import peregrine.controller.*;
@@ -65,7 +66,7 @@ public class TestNewReduceCode extends peregrine.BaseTestWithMultipleProcesses {
         }
 
         @Override
-        public void cleanup() {
+        public void close() throws IOException {
 
             if ( count == 0 )
                 throw new RuntimeException( "no results reduced.... " );

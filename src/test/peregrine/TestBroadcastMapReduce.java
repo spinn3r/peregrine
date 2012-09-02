@@ -47,7 +47,7 @@ public class TestBroadcastMapReduce extends peregrine.BaseTestWithMultipleProces
         }
 
         @Override
-        public void cleanup() {
+        public void close() throws IOException {
             
             if ( count == 0 ) {
                 throw new RuntimeException( "no results" );
@@ -174,7 +174,7 @@ public class TestBroadcastMapReduce extends peregrine.BaseTestWithMultipleProces
 
     public static void main( String[] args ) throws Exception {
 
-        System.setProperty( "peregrine.test.config", "1:1:1" ); 
+        System.setProperty( "peregrine.test.config", "1:1:2" ); 
 
         //System.setProperty( "peregrine.test.config", "4:1:16" ); 
         //System.setProperty( "peregrine.test.config", "01:01:1" ); 

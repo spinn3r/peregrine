@@ -24,7 +24,7 @@ import peregrine.io.driver.broadcast.*;
 import peregrine.shuffle.sender.*;
 import peregrine.task.*;
 
-public abstract class BaseMapper extends BaseJobDelegate implements Closeable {
+public abstract class BaseMapper extends BaseJobDelegate {
 
     public void init( List<JobOutput> output ) {
 
@@ -34,10 +34,6 @@ public abstract class BaseMapper extends BaseJobDelegate implements Closeable {
         //    throw new RuntimeException( "Standard output may not be a broadcast reference: " + this.stdout );
         //}
         
-    }
-
-    @Override
-    public void close() throws IOException {
     }
 
 }

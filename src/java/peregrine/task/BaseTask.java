@@ -207,7 +207,7 @@ public abstract class BaseTask implements Task {
             }
 
             try {
-            	jobDelegate.cleanup();
+            	jobDelegate.close();
             } catch ( Throwable t ) {
                 handleFailure( log, t );
             }

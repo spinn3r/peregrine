@@ -15,7 +15,9 @@
 */
 package peregrine.app.pagerank;
 
+import java.io.*;
 import java.util.*;
+
 import peregrine.*;
 import peregrine.util.*;
 import peregrine.util.primitive.*;
@@ -113,7 +115,7 @@ public class IterJob {
         }
 
         @Override
-        public void cleanup() {
+        public void close() throws IOException {
 
             StructReader key = StructReaders.hashcode( "id" );
             StructReader value = StructReaders.wrap( dangling_rank_sum );

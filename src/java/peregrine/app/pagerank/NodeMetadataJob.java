@@ -15,7 +15,9 @@
 */
 package peregrine.app.pagerank;
 
+import java.io.*;
 import java.util.*;
+
 import peregrine.*;
 import peregrine.util.*;
 import peregrine.util.primitive.IntBytes;
@@ -91,7 +93,7 @@ public class NodeMetadataJob {
         }
 
         @Override
-        public void cleanup() {
+        public void close() throws IOException {
 
             StructReader key = StructReaders.hashcode( "id" );
 

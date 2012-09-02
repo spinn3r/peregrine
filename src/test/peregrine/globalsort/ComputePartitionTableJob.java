@@ -6,6 +6,7 @@ import java.io.*;
 import peregrine.*;
 import peregrine.util.*;
 import peregrine.reduce.*;
+import peregrine.io.*;
 
 import com.spinn3r.log5j.*;
 
@@ -24,7 +25,17 @@ public class ComputePartitionTableJob {
          * The sample data 
          */
         List<StructReader> sample = new ArrayList();
-        
+
+        private JobOutput partitionTable = null;
+
+        @Override
+        public void init( List<JobOutput> output ) {
+
+            super.init( output );
+            partitionTable = output.get(1);
+            
+        }
+
         @Override
         public void map( StructReader key,
                          StructReader value ) {
@@ -75,7 +86,7 @@ public class ComputePartitionTableJob {
                 StructReader val = sample.get( offset - 1 );
 
                 log.info( "Using partition boundary: %s", Hex.encode( val ) );
-                emit( StructReaders.wrap( i ), val );
+                partitionTable.emit( StructReaders.wrap( i ), val );
             }
             
         }
@@ -83,6 +94,8 @@ public class ComputePartitionTableJob {
     }
 
     public static class Reduce extends Reducer {
+
+        private static final Logger log = Logger.getLogger();
 
         @Override
         public void reduce( StructReader key, List<StructReader> values ) {
@@ -104,6 +117,12 @@ public class ComputePartitionTableJob {
                     result[i] = (byte)(sum / values.size());
                     
                 }
+
+                StructReader value = StructReaders.wrap( result );
+
+                log.info( "Going to emit midpoint: %s", Hex.encode( value ) );
+                
+                emit( key, value );
                 
             }
                 
