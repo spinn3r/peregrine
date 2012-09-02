@@ -44,7 +44,7 @@ public class MergerTask extends BaseMapperTask {
         MergeRunner mergeRunner = new MergeRunner( jobInput );
 
         Merger merger = (Merger)jobDelegate;
-        Closer closer = new Closer( merger, mergeRunner );
+        Closer closer = new Closer( mergeRunner );
         
         try { 
 

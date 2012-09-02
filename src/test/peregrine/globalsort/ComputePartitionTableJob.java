@@ -18,6 +18,32 @@ public class ComputePartitionTableJob {
     private static final Logger log = Logger.getLogger();
 
     public static final int MAX_SAMPLE_SIZE = 100000;
+
+    /**
+     * The key length for partition boundaries.  Eight (8) bites for the first
+     * component and 8 bytes for the second component.
+     *
+     * The first component is the value we are sorting by.  Eight bytes give us
+     * enough room for doubles/longs.
+     *
+     * The second component is an 8 byte value for the hashcode for that item.
+     * This way we have enough bytes to split data even when the sorting column
+     * is the same for 2^64 items.
+     * 
+     */
+    public static final int KEY_LEN = 16;
+
+    public static final byte[] FIRST_BOUNDARY = new byte[ KEY_LEN ]; 
+    public static final byte[] LAST_BOUNDARY  = new byte[ KEY_LEN ]; 
+
+    static {
+
+        // the last boundary should be all ones.
+        for( int i = 0; i < KEY_LEN; ++i ) {
+            LAST_BOUNDARY[i] = 1;
+        }
+        
+    }
     
     public static class Map extends Mapper {
 
@@ -81,17 +107,29 @@ public class ComputePartitionTableJob {
             int offset = 0;
 
             log.info( "Going to split across %,d partitions" , nr_partitions );
+
+            StructReader lastEmittedBoundary = StructReaders.wrap( FIRST_BOUNDARY );
+
+            int partition_id = 0;
             
-            for( long i = 0; i < nr_partitions - 1; ++i ) {
+            for( ; partition_id < nr_partitions - 1; ++partition_id ) {
 
                 offset += width;
                 
-                StructReader val = sample.get( offset - 1 );
+                StructReader currentBoundary = sample.get( offset - 1 );
 
-                log.info( "Using partition boundary: %s", Hex.encode( val ) );
-                partitionTable.emit( StructReaders.wrap( i ), val );
+                log.info( "Using partition boundary: %s", Hex.encode( currentBoundary ) );
+                
+                partitionTable.emit( StructReaders.wrap( partition_id ), StructReaders.join( lastEmittedBoundary,
+                                                                                             currentBoundary ) );
+
+                lastEmittedBoundary = currentBoundary;
+                
             }
-            
+
+            partitionTable.emit( lastEmittedBoundary, StructReaders.join( lastEmittedBoundary, 
+                                                                          StructReaders.wrap( LAST_BOUNDARY ) ) );
+                
         }
 
     }
@@ -110,6 +148,8 @@ public class ComputePartitionTableJob {
                 int sum = 0;
 
                 byte[] result = new byte[len];
+
+                byte[] last_key = new byte[ KEY_LEN ];
                 
                 for( int i = 0; i < len; ++i ) {
 

@@ -57,7 +57,7 @@ public class MapperTask extends BaseMapperTask {
 
         Mapper mapper = (Mapper)jobDelegate;
         
-        Closer closer = new Closer( mapper, reader );
+        Closer closer = new Closer( reader );
 
         try {
 
