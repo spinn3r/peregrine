@@ -146,6 +146,8 @@ public class ComputePartitionTableJob {
         private int partition_id = 0;
 
         private int nr_partitions = -1;
+
+        private StructReader last = null;
         
         @Override
         public void init( List<JobOutput> output ) {
@@ -163,12 +165,15 @@ public class ComputePartitionTableJob {
 
                 //first partition
 
-                emit( key, mean( ending( parse( values ) ) ) );
+                last = mean( ending( parse( values ) ) );
+                emit( key, last );
                 
             } else if ( partition_id == nr_partitions - 1 ) {
-
                 //last partition
-                
+                emit( last, LAST_BOUNDARY );
+            } else {
+                last = mean( starting( parse( values ) ) );
+                emit( key, last );
             }
             
             ++partition_id;
