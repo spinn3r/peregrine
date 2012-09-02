@@ -170,7 +170,7 @@ public class ComputePartitionTableJob {
                 
             } else if ( partition_id == nr_partitions - 1 ) {
                 //last partition
-                emit( last, LAST_BOUNDARY );
+                emit( key, LAST_BOUNDARY );
             } else {
                 last = mean( starting( parse( values ) ) );
                 emit( key, last );
@@ -214,6 +214,8 @@ public class ComputePartitionTableJob {
             
             for( StructReader current : list ) {
 
+                log.info( "FIXME: length : %s", current.length() );
+                
                 result.add( new PartitionRange( current.readSlice( KEY_LEN ),
                                                 current.readSlice( KEY_LEN ) ) );
                 

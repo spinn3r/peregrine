@@ -80,7 +80,7 @@ public class TestSortViaMapReduce extends peregrine.BaseTestWithMultipleProcesse
 
         ExtractWriter writer = new ExtractWriter( config, path );
 
-        for( int i = 0; i < max; ++i ) {
+        for( long i = 0; i < max; ++i ) {
 
             StructReader key = StructReaders.hashcode( i );
             StructReader value = StructReaders.wrap( i );
@@ -170,7 +170,7 @@ public class TestSortViaMapReduce extends peregrine.BaseTestWithMultipleProcesse
 
     public static void main( String[] args ) throws Exception {
 
-        //System.setProperty( "peregrine.test.config", "1:1:2" ); // 3sec
+        System.setProperty( "peregrine.test.config", "1:1:4" ); // 3sec
 
         //setPropertyDefault( "peregrine.test.factor", "1" ); // 
         //setPropertyDefault( "peregrine.test.config", "01:01:01" ); // takes 3 seconds
