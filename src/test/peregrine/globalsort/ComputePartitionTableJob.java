@@ -40,6 +40,9 @@ public class ComputePartitionTableJob {
         public void map( StructReader key,
                          StructReader value ) {
 
+            key   = StructReaders.wrap( key.toByteArray() );
+            value = StructReaders.wrap( value.toByteArray() );
+            
             addSample( StructReaders.join( value, key ) );
 
         }
