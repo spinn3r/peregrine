@@ -36,7 +36,7 @@ public class GlobalSortPartitioner extends BasePartitioner {
 
     private int partition = -1;
 
-    private boolean sentRemoteRecords = false;
+    private TreeMap<StructReader,Long> partitionIndex = null;
     
 	@Override
     public void init( LocalContext localContext ) {
@@ -51,25 +51,19 @@ public class GlobalSortPartitioner extends BasePartitioner {
         
     }
 
+    public void init( TreeMap<StructReader,Long> partitionIndex ) {
+        this.partitionIndex = partitionIndex;
+    }
+    
 	@Override
 	public Partition partition( StructReader key, StructReader value ) {
 
         int targetPartition = (int)Math.floor(index / width);
 
-        if ( targetPartition != partition )
-            sentRemoteRecords = true;
-        
         ++index;
         
 		return new Partition( targetPartition );
 
 	}
-
-    /**
-     * Return true if we've broadcast remote records.
-     */
-    public boolean hasSentRemoteRecords() {
-        return sentRemoteRecords;
-    }
     
 }
