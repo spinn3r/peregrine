@@ -15,6 +15,8 @@
 */
 package peregrine.globalsort;
 
+import java.util.*;
+
 import peregrine.*;
 import peregrine.config.*;
 import peregrine.config.partitioner.*;
@@ -36,7 +38,7 @@ public class GlobalSortPartitioner extends BasePartitioner {
 
     private int partition = -1;
 
-    private TreeMap<StructReader,Long> partitionIndex = null;
+    private TreeMap<StructReader,Partition> partitionIndex = null;
     
 	@Override
     public void init( LocalContext localContext ) {
@@ -51,19 +53,21 @@ public class GlobalSortPartitioner extends BasePartitioner {
         
     }
 
-    public void init( TreeMap<StructReader,Long> partitionIndex ) {
+    public void init( TreeMap<StructReader,Partition> partitionIndex ) {
         this.partitionIndex = partitionIndex;
     }
     
 	@Override
 	public Partition partition( StructReader key, StructReader value ) {
 
-        int targetPartition = (int)Math.floor(index / width);
+        StructReader ptr = StructReaders.join( value.readSlice( 8 ), key );
 
-        ++index;
+        StructReader higherKey = partitionIndex.higherKey( ptr );
         
-		return new Partition( targetPartition );
+        Partition result = partitionIndex.get( higherKey );
 
+        return result;
+        
 	}
     
 }
