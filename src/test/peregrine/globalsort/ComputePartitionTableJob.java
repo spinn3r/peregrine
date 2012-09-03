@@ -111,8 +111,6 @@ public class ComputePartitionTableJob {
 
             log.info( "Going to split across %,d partitions" , nr_partitions );
 
-            StructReader lastEmittedBoundary = FIRST_BOUNDARY;
-
             long partition_id = 0;
 
             for( ; partition_id < nr_partitions - 1; ++partition_id ) {
@@ -121,22 +119,27 @@ public class ComputePartitionTableJob {
                 
                 StructReader currentBoundary = sample.get( offset - 1 );
 
-                log.info( "Using partition boundary: %s", Hex.encode( currentBoundary ) );
-
                 StructReader key = StructReaders.wrap( partition_id );
 
-                partitionTable.emit( key, StructReaders.join( lastEmittedBoundary, currentBoundary ) );
+                emit( key, currentBoundary);
 
-                lastEmittedBoundary = currentBoundary;
-                
             }
 
             StructReader key = StructReaders.wrap( partition_id );
             
-            partitionTable.emit( key, StructReaders.join( lastEmittedBoundary, LAST_BOUNDARY ) );
+            emit( key, LAST_BOUNDARY );
                 
         }
 
+        @Override
+        public void emit( StructReader key, StructReader value ) {
+
+            log.info( "Going to emit partition table entry: %s" , Hex.encode( value ) );
+            
+            partitionTable.emit( key, value );
+            
+        }
+        
     }
 
     public static class Reduce extends Reducer {
@@ -147,8 +150,6 @@ public class ComputePartitionTableJob {
 
         private int nr_partitions = -1;
 
-        private StructReader last = null;
-        
         @Override
         public void init( List<JobOutput> output ) {
 
@@ -161,23 +162,31 @@ public class ComputePartitionTableJob {
         @Override
         public void reduce( StructReader key, List<StructReader> values ) {
 
-            if ( partition_id == 0 ) {
-
-                //first partition
-
-                last = mean( ending( parse( values ) ) );
-                emit( key, last );
-                
-            } else if ( partition_id == nr_partitions - 1 ) {
+            if ( partition_id == nr_partitions - 1 ) {
                 //last partition
                 emit( key, LAST_BOUNDARY );
             } else {
-                last = mean( starting( parse( values ) ) );
-                emit( key, last );
+                emit( key, mean( values ) );
             }
             
             ++partition_id;
 
+        }
+
+        @Override
+        public void emit( StructReader key, StructReader value ) {
+
+            log.info( "Going to emit final broadcast partition boundary: %s", Hex.encode( value ) );
+            
+            super.emit( key, value );
+            
+        }
+
+        private StructReader min( List<StructReader> values ) {
+
+            Collections.sort( values, new StrictStructReaderComparator() );
+            return values.get( 0 );
+            
         }
 
         private StructReader mean( List<StructReader> values ) {
@@ -186,8 +195,6 @@ public class ComputePartitionTableJob {
 
             byte[] result = new byte[ KEY_LEN ];
 
-            byte[] last_key = new byte[ KEY_LEN ];
-            
             for( int i = 0; i < KEY_LEN; ++i ) {
 
                 for( StructReader current : values ) {
@@ -203,67 +210,32 @@ public class ComputePartitionTableJob {
 
         }
 
-        /**
-         * Take a list of struct readers and build then into a list of
-         * PartitionRange objects representing the start and end of a partition
-         * range.
-         */         
-        private List<PartitionRange> parse( List<StructReader> list ) {
+    }
 
-            List<PartitionRange> result = new ArrayList();
-            
-            for( StructReader current : list ) {
+}
 
-                log.info( "FIXME: length : %s", current.length() );
-                
-                result.add( new PartitionRange( current.readSlice( KEY_LEN ),
-                                                current.readSlice( KEY_LEN ) ) );
-                
-            }
+/**
+ * Represents the start and end of a partition range.
+ */
+class PartitionRange {
 
-            return result;
-            
-        }
+    public StructReader start;
+    public StructReader end;
 
-        private List<StructReader> starting( List<PartitionRange> list ) {
+    public PartitionRange( StructReader value ) {
 
-            List<StructReader> result = new ArrayList();
-
-            for( PartitionRange current : list ) {
-                result.add( current.start );
-            }
-
-            return result;
-            
-        }
-
-        private List<StructReader> ending( List<PartitionRange> list ) {
-
-            List<StructReader> result = new ArrayList();
-
-            for( PartitionRange current : list ) {
-                result.add( current.end );
-            }
-
-            return result;
-            
-        }
-
-        /**
-         * Represents the start and end of a partition range.
-         */
-        class PartitionRange {
-
-            public StructReader start;
-            public StructReader end;
-
-            public PartitionRange( StructReader start, StructReader end ) {
-                this.start = start;
-                this.end = end;
-            }
-
-        }
+        this( value.readSlice( ComputePartitionTableJob.KEY_LEN ),
+              value.readSlice( ComputePartitionTableJob.KEY_LEN ) );
         
     }
 
+    public PartitionRange( StructReader start, StructReader end ) {
+        this.start = start;
+        this.end = end;
+    }
+
+    public String toString() {
+        return String.format( "%s:%s", Hex.encode( start ), Hex.encode( end ) );
+    }
+    
 }

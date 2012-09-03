@@ -26,6 +26,7 @@ import peregrine.io.*;
 import peregrine.io.partition.*;
 import peregrine.util.primitive.*;
 import peregrine.util.*;
+import peregrine.reduce.*;
 
 import com.spinn3r.log5j.*;
 
@@ -66,7 +67,7 @@ public class TestSortViaMapReduce extends peregrine.BaseTestWithMultipleProcesse
     @Override
     public void doTest() throws Exception {
 
-        doTest( 2500 * getFactor() );
+        doTest( ComputePartitionTableJob.MAX_SAMPLE_SIZE * 30 );
         
     }
 
@@ -80,10 +81,14 @@ public class TestSortViaMapReduce extends peregrine.BaseTestWithMultipleProcesse
 
         ExtractWriter writer = new ExtractWriter( config, path );
 
+        int range = 1000;
+
+        Random r = new Random();
+        
         for( long i = 0; i < max; ++i ) {
 
             StructReader key = StructReaders.hashcode( i );
-            StructReader value = StructReaders.wrap( i );
+            StructReader value = StructReaders.wrap( (long)r.nextInt( range ) );
             
             writer.write( key, value );
             
@@ -123,7 +128,67 @@ public class TestSortViaMapReduce extends peregrine.BaseTestWithMultipleProcesse
             controller.reduce( ComputePartitionTableJob.Reduce.class,
                                new Input( "shuffle:partition_table" ),
                                new Output( "file:/test/globalsort/partition_table" ) );
-                               
+
+            LocalPartitionReader reader = new LocalPartitionReader( configs.get( 0 ),
+                                                                    new Partition( 0 ),
+                                                                    "/test/globalsort/partition_table" );
+            
+            // use a TreeSet and higher() to find the boundary for a given
+            // value.
+            
+            TreeMap<StructReader,Long> partitionTable = new TreeMap( new StrictStructReaderComparator() );
+
+            long partition_id = 0;
+            
+            while( reader.hasNext() ) {
+
+                reader.next();
+
+                partitionTable.put( reader.value(), partition_id );
+                
+                System.out.printf( "entry: %s\n", Hex.encode( reader.value() ) );
+
+                ++partition_id;
+                
+            }
+
+            System.out.printf( "%s\n", partitionTable );
+            
+            reader = new LocalPartitionReader( configs.get( 0 ), new Partition( 0 ), path );
+
+            System.out.printf( "Going to read key/value pairs.\n" );
+
+            HashMap<Long,Integer> histograph = new HashMap();
+
+            for( long i = 0; i < partitionTable.size(); ++i ) {
+                histograph.put( i, 0 );
+            }
+            
+            int count = 0;
+
+            while( reader.hasNext() ) {
+
+                reader.next();
+
+                StructReader ptr = StructReaders.join( reader.value(), reader.key() );
+
+                StructReader key = partitionTable.higherKey( ptr );
+
+                long partition = partitionTable.get( key );
+                histograph.put( partition , histograph.get( partition ) + 1 );
+                
+                ++count;
+                
+            }
+
+            System.out.printf( "histograph: %s\n", histograph );
+            
+            System.out.printf( "read %,d entries.\n", count );
+
+            //now we should in theory be able to read all the values out of the
+            //input and route them with the partition table and make sure we end
+            //up with somewhat even buckets.
+            
             //
             //nr_nodes = getBroadcastInput()
             //               .get( 0 )
@@ -170,7 +235,7 @@ public class TestSortViaMapReduce extends peregrine.BaseTestWithMultipleProcesse
 
     public static void main( String[] args ) throws Exception {
 
-        System.setProperty( "peregrine.test.config", "1:1:4" ); // 3sec
+        System.setProperty( "peregrine.test.config", "1:1:2" ); // 3sec
 
         //setPropertyDefault( "peregrine.test.factor", "1" ); // 
         //setPropertyDefault( "peregrine.test.config", "01:01:01" ); // takes 3 seconds
