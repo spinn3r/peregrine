@@ -33,9 +33,9 @@ public class TestBroadcastMapReduce extends peregrine.BaseTestWithMultipleProces
         private JobOutput countBroadcast = null;
         
         @Override
-        public void init( List<JobOutput> output ) {
+        public void init( Job job, List<JobOutput> output ) {
 
-            super.init( output );
+            super.init( job, output );
             countBroadcast = output.get(1);
             
         }

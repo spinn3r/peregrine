@@ -117,80 +117,72 @@ public class TestSortViaMapReduce extends peregrine.BaseTestWithMultipleProcesse
                                new Input( "shuffle:partition_table" ),
                                new Output( "/test/globalsort/partition_table" ) );
 
-            LocalPartitionReader reader = new LocalPartitionReader( configs.get( 0 ),
-                                                                    new Partition( 0 ),
-                                                                    "/test/globalsort/partition_table" );
-            
-            // use a TreeSet and higher() to find the boundary for a given
-            // value.
-            
-            TreeMap<StructReader,Long> partitionTable = new TreeMap( new StrictStructReaderComparator() );
-
-            long partition_id = 0;
-            
-            while( reader.hasNext() ) {
-
-                reader.next();
-
-                partitionTable.put( reader.value(), partition_id );
-                
-                System.out.printf( "entry: %s\n", Hex.encode( reader.value() ) );
-
-                ++partition_id;
-                
-            }
-
-            System.out.printf( "%s\n", partitionTable );
-            
-            reader = new LocalPartitionReader( configs.get( 0 ), new Partition( 0 ), path );
-
-            System.out.printf( "Going to read key/value pairs.\n" );
-
-            HashMap<Long,Integer> histograph = new HashMap();
-
-            for( long i = 0; i < partitionTable.size(); ++i ) {
-                histograph.put( i, 0 );
-            }
-            
-            int count = 0;
-
-            while( reader.hasNext() ) {
-
-                reader.next();
-
-                StructReader ptr = StructReaders.join( reader.value(), reader.key() );
-
-                StructReader key = partitionTable.higherKey( ptr );
-
-                long partition = partitionTable.get( key );
-                histograph.put( partition , histograph.get( partition ) + 1 );
-                
-                ++count;
-                
-            }
-
-            System.out.printf( "histograph: %s\n", histograph );
-            
-            System.out.printf( "read %,d entries.\n", count );
-
-            //now we should in theory be able to read all the values out of the
-            //input and route them with the partition table and make sure we end
-            //up with somewhat even buckets.
-            
-            //
-            //nr_nodes = getBroadcastInput()
-            //               .get( 0 )
-            //               .getValue()
-            //               .readInt();
-
             job = new Job();
 
-            job.setDelegate( Mapper.class );
+            job.setDelegate( GlobalSortJob.Map.class );
             job.setInput( new Input( path, "broadcast:/test/globalsort/partition_table" ) );
             job.setOutput( new Output( "shuffle:default" ) );
             job.setPartitioner( GlobalSortPartitioner.class );
             
             controller.map( job );
+
+            
+            // LocalPartitionReader reader = new LocalPartitionReader( configs.get( 0 ),
+            //                                                         new Partition( 0 ),
+            //                                                         "/test/globalsort/partition_table" );
+            
+            // // use a TreeSet and higher() to find the boundary for a given
+            // // value.
+            
+            // TreeMap<StructReader,Long> partitionTable = new TreeMap( new StrictStructReaderComparator() );
+
+            // long partition_id = 0;
+            
+            // while( reader.hasNext() ) {
+
+            //     reader.next();
+
+            //     partitionTable.put( reader.value(), partition_id );
+                
+            //     System.out.printf( "entry: %s\n", Hex.encode( reader.value() ) );
+
+            //     ++partition_id;
+                
+            // }
+
+            // System.out.printf( "%s\n", partitionTable );
+            
+            // reader = new LocalPartitionReader( configs.get( 0 ), new Partition( 0 ), path );
+
+            // System.out.printf( "Going to read key/value pairs.\n" );
+
+            // HashMap<Long,Integer> histograph = new HashMap();
+
+            // for( long i = 0; i < partitionTable.size(); ++i ) {
+            //     histograph.put( i, 0 );
+            // }
+            
+            // int count = 0;
+
+            // while( reader.hasNext() ) {
+
+            //     reader.next();
+
+            //     StructReader ptr = StructReaders.join( reader.value(), reader.key() );
+
+            //     StructReader key = partitionTable.higherKey( ptr );
+
+            //     long partition = partitionTable.get( key );
+            //     histograph.put( partition , histograph.get( partition ) + 1 );
+                
+            //     ++count;
+                
+            // }
+
+            // System.out.printf( "histograph: %s\n", histograph );
+            
+            // System.out.printf( "read %,d entries.\n", count );
+
 
             // TODO: in production we can sample, then map right over ALL the
             // values, send them to the target partitions, then reduce them

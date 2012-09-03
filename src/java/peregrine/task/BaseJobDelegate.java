@@ -33,7 +33,7 @@ public abstract class BaseJobDelegate implements JobDelegate {
     private List<BroadcastInput> broadcastInput = new ArrayList();
     
     @Override
-    public void init( List<JobOutput> output ) {
+    public void init( Job job, List<JobOutput> output ) {
         this.stdout = output.get(0);
     }
 

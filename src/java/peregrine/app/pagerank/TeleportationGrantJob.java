@@ -26,9 +26,9 @@ public class TeleportationGrantJob {
         int nr_nodes;
 
         @Override
-        public void init( List<JobOutput> output ) {
+        public void init( Job job, List<JobOutput> output ) {
 
-            super.init( output );
+            super.init( job, output );
 
             BroadcastInput nrNodesBroadcastInput = getBroadcastInput().get( 0 );
             

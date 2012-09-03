@@ -26,9 +26,10 @@ import peregrine.task.*;
 
 public abstract class BaseMapper extends BaseJobDelegate {
 
-    public void init( List<JobOutput> output ) {
+    @Override
+    public void init( Job job, List<JobOutput> output ) {
 
-        super.init( output );
+        super.init( job, output );
 
         //if ( this.stdout instanceof BroadcastJobOutput ) {
         //    throw new RuntimeException( "Standard output may not be a broadcast reference: " + this.stdout );

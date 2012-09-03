@@ -43,7 +43,8 @@ public class MapperTask extends BaseMapperTask {
         // used for some generator that just emits values on init.
 
         if ( getInput().getReferences().size() != 1 ) {
-            throw new Exception( "Map jobs must have exactly one input." );
+            //TODO: not true if one of them is broadcast input.
+            log.warn( "Map jobs should have exactly one input." );
         }
 
         jobInput = getJobInput();

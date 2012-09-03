@@ -20,6 +20,7 @@ import java.util.*;
 import peregrine.*;
 import peregrine.config.*;
 import peregrine.config.partitioner.*;
+import peregrine.util.*;
 
 import com.spinn3r.log5j.*;
 
@@ -63,6 +64,9 @@ public class GlobalSortPartitioner extends BasePartitioner {
         StructReader ptr = StructReaders.join( value.readSlice( 8 ), key );
 
         StructReader higherKey = partitionTable.higherKey( ptr );
+
+        if ( higherKey == null )
+            throw new RuntimeException( String.format( "No higher key than %s", Hex.encode( ptr ) ) );
         
         Partition result = partitionTable.get( higherKey );
 

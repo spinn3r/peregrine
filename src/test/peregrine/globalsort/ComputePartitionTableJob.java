@@ -6,6 +6,7 @@ import java.io.*;
 import peregrine.*;
 import peregrine.util.*;
 import peregrine.reduce.*;
+import peregrine.config.*;
 import peregrine.io.*;
 
 import com.spinn3r.log5j.*;
@@ -58,9 +59,9 @@ public class ComputePartitionTableJob {
         private JobOutput partitionTable = null;
 
         @Override
-        public void init( List<JobOutput> output ) {
+        public void init( Job job, List<JobOutput> output ) {
 
-            super.init( output );
+            super.init( job, output );
             partitionTable = output.get(1);
             
         }
@@ -121,7 +122,7 @@ public class ComputePartitionTableJob {
 
                 StructReader key = StructReaders.wrap( partition_id );
 
-                emit( key, currentBoundary);
+                emit( key, currentBoundary );
 
             }
 
@@ -146,42 +147,19 @@ public class ComputePartitionTableJob {
 
         private static final Logger log = Logger.getLogger();
 
-        private int partition_id = 0;
-
-        private int nr_partitions = -1;
-
-        @Override
-        public void init( List<JobOutput> output ) {
-
-            super.init( output );
-
-            nr_partitions = getConfig().getMembership().size();
-
-        }
+        private List<StructReader> boundaries = new ArrayList();
 
         @Override
         public void reduce( StructReader key, List<StructReader> values ) {
 
-            if ( partition_id == nr_partitions - 1 ) {
+            StructReader value = mean( values );
 
-                //FIXME: I don't think we need this any more.  nor
-                //nr_partitions, nor init(), nor partition_id
+            log.info( "Going to use final broadcast partition boundary: %s", Hex.encode( value ) );
+            boundaries.add( value );
 
-                emit( key, LAST_BOUNDARY );
-            } else {
-                emit( key, mean( values ) );
+            if ( boundaries.size() == getConfig().getMembership().size() ) {
+                emit( key, StructReaders.wrap( boundaries ) );
             }
-            
-            ++partition_id;
-
-        }
-
-        @Override
-        public void emit( StructReader key, StructReader value ) {
-
-            log.info( "Going to emit final broadcast partition boundary: %s", Hex.encode( value ) );
-            
-            super.emit( key, value );
             
         }
 

@@ -32,12 +32,12 @@ public class TestExampleDriver extends peregrine.BaseTestWithTwoDaemons {
     public static class Map extends Mapper {
 
         @Override
-        public void init( List<JobOutput> output ) {
+        public void init( Job job, List<JobOutput> output ) {
 
             //register the driver we want to use for jobs.
             IODriverRegistry.register( new ExampleIODriver() );
 
-            super.init( output );
+            super.init( job, output );
 
         }
 

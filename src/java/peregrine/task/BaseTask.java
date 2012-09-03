@@ -198,7 +198,7 @@ public abstract class BaseTask implements Task {
             jobDelegate.setBroadcastInput( getBroadcastInput() );
             jobDelegate.setPartition( partition );
             jobDelegate.setConfig( config );
-            jobDelegate.init( getJobOutput() );
+            jobDelegate.init( job, getJobOutput() );
 
             try {
                 doCall();

@@ -34,7 +34,7 @@ public interface JobDelegate extends Closeable {
     /**
      * Init this job with the output it is supposed to handle.
      */
-    public void init( List<JobOutput> output );
+    public void init( Job job, List<JobOutput> output );
     
     /**
      * Emit a key / value pair from the job.

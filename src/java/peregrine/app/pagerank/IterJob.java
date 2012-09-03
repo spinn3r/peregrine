@@ -46,9 +46,9 @@ public class IterJob {
         private JobOutput danglingRankSumBroadcast = null;
 
         @Override
-        public void init( List<JobOutput> output ) {
+        public void init( Job job, List<JobOutput> output ) {
 
-            super.init( output );
+            super.init( job, output );
             
             danglingRankSumBroadcast = output.get(1);
             
@@ -138,9 +138,9 @@ public class IterJob {
         protected int nr_dangling = 0;
         
         @Override
-        public void init( List<JobOutput> output ) {
+        public void init( Job job, List<JobOutput> output ) {
 
-            super.init( output );
+            super.init( job, output );
             
             nr_nodes = getBroadcastInput()
                            .get( 0 )

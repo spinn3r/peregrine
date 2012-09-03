@@ -38,7 +38,7 @@ public class NodeMetadataJob {
         int nrDangling = 0;
         
         @Override
-        public void init( List<JobOutput> output ) {
+        public void init( Job job, List<JobOutput> output ) {
             nodeMetadataOutput           = output.get(0);
             danglingOutput               = output.get(1);
             nonlinkedOutput              = output.get(2);
