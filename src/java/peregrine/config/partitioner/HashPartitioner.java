@@ -26,7 +26,7 @@ import peregrine.util.primitive.*;
 public class HashPartitioner extends BasePartitioner {
 	
 	@Override
-	public Partition partition( StructReader key ) {
+	public Partition partition( StructReader key, StructReader value ) {
 
         if ( key.length() < 8 )
             throw new IllegalArgumentException( "key too short: " + key.length() );
@@ -39,14 +39,14 @@ public class HashPartitioner extends BasePartitioner {
         // can route to 65536 partitions which is probably fine for all users
         // for a LONG time.
 
-        long value =
+        long val =
             (long)((bytes[7] & 0xFF)     ) +
             (long)((bytes[6] & 0xFF) << 8)
             ;
 
-        value = Math.abs( value );
+        val = Math.abs( val );
         
-        int partition = (int)value % nr_partitions;
+        int partition = (int)val % nr_partitions;
         
         return new Partition( partition );		
 

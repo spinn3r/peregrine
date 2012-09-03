@@ -37,18 +37,18 @@ public class RangePartitioner extends BasePartitioner {
     }
 
 	@Override
-	public Partition partition( StructReader key ) {
+	public Partition partition( StructReader key, StructReader value ) {
 		
 		byte[] bytes = key.toByteArray();
 		
 		// the domain of the route function...  basically the key space as an
 		// integer so that we can place partitions within that space.
 
-        int value = ((((int) bytes[7]) & 0xFF)     ) +
+        int val = ((((int) bytes[7]) & 0xFF)     ) +
                     ((((int) bytes[6]) & 0xFF) << 8)
             ;
 
-		int part = (int)(value / range);
+		int part = (int)(val / range);
 
         //TODO: technically we should require this but it will slow down mapping.
         //if ( part > nr_partitions )

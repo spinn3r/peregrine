@@ -52,7 +52,7 @@ public class GlobalSortPartitioner extends BasePartitioner {
     }
 
 	@Override
-	public Partition partition( StructReader key ) {
+	public Partition partition( StructReader key, StructReader value ) {
 
         int targetPartition = (int)Math.floor(index / width);
 

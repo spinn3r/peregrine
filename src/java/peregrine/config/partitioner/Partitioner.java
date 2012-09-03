@@ -40,6 +40,6 @@ public interface Partitioner {
     /**
      * Route the given key to a given partition.
      */
-	public Partition partition( StructReader key );
+	public Partition partition( StructReader key, StructReader value );
 	
 }

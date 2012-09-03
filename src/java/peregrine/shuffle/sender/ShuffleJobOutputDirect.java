@@ -55,7 +55,7 @@ public class ShuffleJobOutputDirect extends ShuffleJobOutputBase implements Clos
     @Override
     public void emit( StructReader key , StructReader value ) {
             
-        Partition target = partitioner.partition( key );
+        Partition target = partitioner.partition( key, value );
 
         emit( target.getId(), key, value );
                     

@@ -227,8 +227,8 @@ public class Config extends BaseConfig {
     /**
      * For a given key, in bytes, route it to the correct partition/partition.
      */
-    public Partition partition( StructReader key ) {
-    	return partitioner.partition( key );    
+    public Partition partition( StructReader key, StructReader value ) {
+    	return partitioner.partition( key, value );    
     }
 
     /**

@@ -68,7 +68,7 @@ public class ExtractWriter implements Closeable {
     public void write( StructReader key, StructReader value )
         throws IOException {
 
-        Partition partition = config.partition( key );
+        Partition partition = config.partition( key, value );
         
         write( partition, key, value );
         
