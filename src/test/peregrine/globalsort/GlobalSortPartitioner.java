@@ -38,7 +38,7 @@ public class GlobalSortPartitioner extends BasePartitioner {
 
     private int partition = -1;
 
-    private TreeMap<StructReader,Partition> partitionIndex = null;
+    private TreeMap<StructReader,Partition> partitionTable = null;
     
 	@Override
     public void init( LocalContext localContext ) {
@@ -53,8 +53,8 @@ public class GlobalSortPartitioner extends BasePartitioner {
         
     }
 
-    public void init( TreeMap<StructReader,Partition> partitionIndex ) {
-        this.partitionIndex = partitionIndex;
+    public void init( TreeMap<StructReader,Partition> partitionTable ) {
+        this.partitionTable = partitionTable;
     }
     
 	@Override
@@ -62,9 +62,9 @@ public class GlobalSortPartitioner extends BasePartitioner {
 
         StructReader ptr = StructReaders.join( value.readSlice( 8 ), key );
 
-        StructReader higherKey = partitionIndex.higherKey( ptr );
+        StructReader higherKey = partitionTable.higherKey( ptr );
         
-        Partition result = partitionIndex.get( higherKey );
+        Partition result = partitionTable.get( higherKey );
 
         return result;
         

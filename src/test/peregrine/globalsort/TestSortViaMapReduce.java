@@ -35,18 +35,6 @@ public class TestSortViaMapReduce extends peregrine.BaseTestWithMultipleProcesse
     private static final Logger log = Logger.getLogger();
 
     private static String MODE = "all";
-    
-    public static class Map extends Mapper {
-
-        @Override
-        public void map( StructReader key,
-                         StructReader value ) {
-
-            emit( key, value );
-            
-        }
-
-    }
 
     public static class Reduce extends Reducer {
 
@@ -127,7 +115,7 @@ public class TestSortViaMapReduce extends peregrine.BaseTestWithMultipleProcesse
 
             controller.reduce( ComputePartitionTableJob.Reduce.class,
                                new Input( "shuffle:partition_table" ),
-                               new Output( "file:/test/globalsort/partition_table" ) );
+                               new Output( "/test/globalsort/partition_table" ) );
 
             LocalPartitionReader reader = new LocalPartitionReader( configs.get( 0 ),
                                                                     new Partition( 0 ),
@@ -195,16 +183,28 @@ public class TestSortViaMapReduce extends peregrine.BaseTestWithMultipleProcesse
             //               .getValue()
             //               .readInt();
 
-            controller.map( Map.class,
-                            new Input( path ),
-                            new Output( "shuffle:default" ) );
+            job = new Job();
 
+            job.setDelegate( Mapper.class );
+            job.setInput( new Input( path, "broadcast:/test/globalsort/partition_table" ) );
+            job.setOutput( new Output( "shuffle:default" ) );
+            job.setPartitioner( GlobalSortPartitioner.class );
+            
+            controller.map( job );
+
+            // TODO: in production we can sample, then map right over ALL the
+            // values, send them to the target partitions, then reduce them
+            // there.
+            
             /*
 
             ReduceJob job = new ReduceJob();
             
             job.setDelegate( Reduce.class );
-            job.setInput( new Input( "shuffle:default" ) );
+            
+            job.setInput( new Input( "shuffle:default",
+                                     "broadcast:/test/globalsort/partition_table" ) );
+                                     
             job.setOutput( new Output( "shuffle:intermediate" ) );
             job.setComparator( SortByValueReduceComparator.class );
             job.setPartitioner( GlobalSortPartitioner.class );

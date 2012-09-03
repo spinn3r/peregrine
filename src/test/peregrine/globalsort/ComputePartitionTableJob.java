@@ -163,7 +163,10 @@ public class ComputePartitionTableJob {
         public void reduce( StructReader key, List<StructReader> values ) {
 
             if ( partition_id == nr_partitions - 1 ) {
-                //last partition
+
+                //FIXME: I don't think we need this any more.  nor
+                //nr_partitions, nor init(), nor partition_id
+
                 emit( key, LAST_BOUNDARY );
             } else {
                 emit( key, mean( values ) );
@@ -179,13 +182,6 @@ public class ComputePartitionTableJob {
             log.info( "Going to emit final broadcast partition boundary: %s", Hex.encode( value ) );
             
             super.emit( key, value );
-            
-        }
-
-        private StructReader min( List<StructReader> values ) {
-
-            Collections.sort( values, new StrictStructReaderComparator() );
-            return values.get( 0 );
             
         }
 
@@ -212,30 +208,4 @@ public class ComputePartitionTableJob {
 
     }
 
-}
-
-/**
- * Represents the start and end of a partition range.
- */
-class PartitionRange {
-
-    public StructReader start;
-    public StructReader end;
-
-    public PartitionRange( StructReader value ) {
-
-        this( value.readSlice( ComputePartitionTableJob.KEY_LEN ),
-              value.readSlice( ComputePartitionTableJob.KEY_LEN ) );
-        
-    }
-
-    public PartitionRange( StructReader start, StructReader end ) {
-        this.start = start;
-        this.end = end;
-    }
-
-    public String toString() {
-        return String.format( "%s:%s", Hex.encode( start ), Hex.encode( end ) );
-    }
-    
 }
