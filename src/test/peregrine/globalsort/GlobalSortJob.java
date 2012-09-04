@@ -55,5 +55,9 @@ public class GlobalSortJob {
 
     }
 
+    public static class Reduce extends Reducer {
+
+    }
+
 }
 

@@ -36,26 +36,11 @@ public class TestSortViaMapReduce extends peregrine.BaseTestWithMultipleProcesse
 
     private static String MODE = "all";
 
-    public static class Reduce extends Reducer {
-
-        AtomicInteger count = new AtomicInteger();
-        
-        @Override
-        public void reduce( StructReader key, List<StructReader> values ) {
-            emit( key, values.get( 0 ) );
-        }
-
-        @Override
-        public void close() throws IOException {
-            
-        }
-
-    }
-
     @Override
     public void doTest() throws Exception {
 
-        doTest( ComputePartitionTableJob.MAX_SAMPLE_SIZE * 30 );
+        //doTest( ComputePartitionTableJob.MAX_SAMPLE_SIZE * 30 );
+        doTest( ComputePartitionTableJob.MAX_SAMPLE_SIZE * 2 );
         
     }
 
@@ -103,6 +88,8 @@ public class TestSortViaMapReduce extends peregrine.BaseTestWithMultipleProcesse
             controller.reduce( job );
             */
 
+            // Step 1.  Sample the input data to build a partition table.
+            
             Job job = new Job();
             job.setDelegate( ComputePartitionTableJob.Map.class );
             job.setInput( new Input( path ) );
@@ -113,20 +100,34 @@ public class TestSortViaMapReduce extends peregrine.BaseTestWithMultipleProcesse
 
             controller.map( job );
 
+            // Step 2.  Reduce that partition table and broadcast it so everyone
+            // has the same values.
             controller.reduce( ComputePartitionTableJob.Reduce.class,
                                new Input( "shuffle:partition_table" ),
                                new Output( "/test/globalsort/partition_table" ) );
 
+            // Step 3.  Map across all the data in the input file and send it to
+            // right partition which would need to hold this value.
+            
             job = new Job();
 
             job.setDelegate( GlobalSortJob.Map.class );
+            //job.setDelegate( Mapper.class );
             job.setInput( new Input( path, "broadcast:/test/globalsort/partition_table" ) );
             job.setOutput( new Output( "shuffle:default" ) );
             job.setPartitioner( GlobalSortPartitioner.class );
             
             controller.map( job );
 
+            ReduceJob reduceJob = new ReduceJob();
             
+            reduceJob.setDelegate( GlobalSortJob.Reduce.class );
+            reduceJob.setInput( new Input( "shuffle:default" ) );
+            reduceJob.setOutput( new Output( output ) );
+            //reduceJob.setComparator( SortByValueReduceComparator.class );
+            
+            controller.reduce( reduceJob );
+
             // LocalPartitionReader reader = new LocalPartitionReader( configs.get( 0 ),
             //                                                         new Partition( 0 ),
             //                                                         "/test/globalsort/partition_table" );
@@ -182,7 +183,6 @@ public class TestSortViaMapReduce extends peregrine.BaseTestWithMultipleProcesse
             // System.out.printf( "histograph: %s\n", histograph );
             
             // System.out.printf( "read %,d entries.\n", count );
-
 
             // TODO: in production we can sample, then map right over ALL the
             // values, send them to the target partitions, then reduce them
