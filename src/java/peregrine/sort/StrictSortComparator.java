@@ -21,7 +21,6 @@ import peregrine.*;
 import peregrine.util.*;
 import peregrine.io.chunk.*;
 import peregrine.util.primitive.*;
-import peregrine.reduce.StrictStructReaderComparator;
 
 import com.spinn3r.log5j.*;
 
