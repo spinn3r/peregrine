@@ -42,6 +42,12 @@ public class FSCat {
         System.err.printf( "\n" );
         System.out.printf( "  --render   Render the value(s) in the following format.\n" );
         System.out.printf( "             Multiple columns are separated by a comma (,)\n" );
+        System.out.printf( "\n" );
+        System.out.printf( " * Render column formatting:\n" );
+        System.out.printf( "\n" );
+        System.out.printf( "The --render option supports a comma separated list\n" );
+        System.out.printf( "of values to print from the byte stream.\n" );
+        System.out.printf( "\n" );
         
     }
     

@@ -49,7 +49,7 @@ public class ComputePartitionTableJob {
      */
     public static final int KEY_LEN = 16;
 
-    public static final StructReader FIRST_BOUNDARY = createByteArray( 0, KEY_LEN ); 
+    public static final StructReader FIRST_BOUNDARY = createByteArray( 0,   KEY_LEN ); 
     public static final StructReader LAST_BOUNDARY  = createByteArray( 127, KEY_LEN );
 
     private static StructReader createByteArray( int val, int len ) {

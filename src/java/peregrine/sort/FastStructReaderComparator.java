@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
 */
-package peregrine.reduce;
+package peregrine.sort;
 
 import java.io.*;
 import java.util.*;
@@ -28,26 +28,23 @@ import com.spinn3r.log5j.*;
 /**
  * Compares KeyValuePairs by key and preserves strict binary ordering by byte.
  */
-public class StrictStructReaderComparator implements Comparator<StructReader> {
+public class FastStructReaderComparator implements Comparator<StructReader> {
 
     private static final Logger log = Logger.getLogger();
 
+    @Override
     public int compare( StructReader sr0, StructReader sr1 ) {
 
         int diff = 0;
 
-        //TODO: right now we assume that the both StructReaders are of equal
-        //length.
+        //TODO: right now we assume that the 
         int len = sr0.length();
 
         //TODO is it faster to make these byte arrays in one method call or call
         //getByte() for each byte?
         for( int offset = 0; offset < len; ++offset ) {
 
-            //TODO: this will be SLOW for raw key comparison (so don't use it
-            //when we are in that mode).
-
-            diff = (sr0.getByte( offset ) & 0xFF) - (sr1.getByte( offset ) & 0xFF);
+            diff = sr0.getByte( offset ) - sr1.getByte( offset );
 
             if ( diff != 0 )
                 return diff;
@@ -57,5 +54,5 @@ public class StrictStructReaderComparator implements Comparator<StructReader> {
         return diff;
 
     }
-    
+
 }
