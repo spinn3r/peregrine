@@ -15,7 +15,27 @@ import com.spinn3r.log5j.*;
 /**
  * Map reduce job which computes the partition routing table.
  */
-public class RankVectorByRankSortComparator extends StrictSortComparator {
+public class RankVectorByRankSortComparator extends StrictSortDescendingComparator {
+
+    private DescendingSortComparator comparator = new DescendingSortComparator() {
+
+            @Override
+            public int compare( KeyValuePair pair0 , KeyValuePair pair1 ) {
+                // make the result ascending... 
+                return super.compare( pair0, pair1 ) * -1;
+                
+            }
+
+        };
+
+    /**
+     * 
+     * 
+     *
+     */
+    public RankVectorByRankSortComparator() {
+        super( 
+    }
 
     @Override
     public StructReader getSortKey( StructReader key, StructReader value ) {

@@ -16,43 +16,42 @@
 package peregrine.sort;
 
 import java.io.*;
-import java.util.*;
 
 import peregrine.*;
 import peregrine.util.*;
 import peregrine.io.chunk.*;
 import peregrine.util.primitive.*;
+import peregrine.reduce.StrictStructReaderComparator;
 
 import com.spinn3r.log5j.*;
 
 /**
- * Sorts key value pairs but does so quickly without preserving strict order.
+ * <p>
+ * Compares KeyValuePairs by key and preserves strict binary ordering by byte.
+ * 
+ * <p>
+ * This is a descending comparator.
+ * 
  */
-public class FastStructReaderComparator implements Comparator<StructReader> {
+public class StrictSortDescendingComparator extends DefaultSortComparator {
 
     private static final Logger log = Logger.getLogger();
 
+    private StrictStructReaderComparator delegate = new StrictStructReaderComparator();
+
     @Override
-    public int compare( StructReader sr0, StructReader sr1 ) {
-
-        int diff = 0;
-
-        //TODO: right now we assume that the 
-        int len = sr0.length();
-
-        //TODO is it faster to make these byte arrays in one method call or call
-        //getByte() for each byte?
-        for( int offset = 0; offset < len; ++offset ) {
-
-            diff = sr0.getByte( offset ) - sr1.getByte( offset );
-
-            if ( diff != 0 )
-                return diff;
-            
-        }
-
-        return diff;
-
+    public int compare( KeyValuePair pair0 , KeyValuePair pair1 ) {
+        // invert the order of passed pairs
+        return delegate.compare( pair1, pair0 );
     }
 
+    /**
+     */
+    public int compare( KeyValuePair pair0 , KeyValuePair pair1 ) {
+
+        return delegate.compare( getSortKey( pair0.getKey(), pair0.getValue() ),
+                                 getSortKey( pair1.getKey(), pair1.getValue() ) );
+
+    }
+    
 }

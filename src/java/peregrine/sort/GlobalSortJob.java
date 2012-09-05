@@ -27,7 +27,7 @@ import peregrine.util.*;
 import com.spinn3r.log5j.*;
 
 /**
- * Map reduce job which computes the partition routing table.
+ * Map reduce job which does the full global sort.
  */
 public class GlobalSortJob {
 

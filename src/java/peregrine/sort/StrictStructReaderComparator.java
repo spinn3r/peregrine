@@ -26,7 +26,7 @@ import peregrine.util.primitive.*;
 import com.spinn3r.log5j.*;
 
 /**
- * Compares KeyValuePairs by key and preserves strict binary ordering by byte.
+ * 
  */
 public class StrictStructReaderComparator implements Comparator<StructReader> {
 

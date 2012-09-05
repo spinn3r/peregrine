@@ -25,7 +25,7 @@ import peregrine.util.primitive.*;
 import com.spinn3r.log5j.*;
 
 /**
- * Compares KeyValuePairs by key.
+ * 
  */
 public class DefaultSortComparator implements SortComparator {
 
