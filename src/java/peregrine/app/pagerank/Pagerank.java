@@ -60,6 +60,8 @@ public class Pagerank {
 
         // ***** INIT stage... 
 
+        log.info( "Running init() stage." );
+        
         // TODO: We can elide this and the next step by reading the input
         // once and writing two two destinations.  this would read from
         // 'path' and then wrote to node_indegree and graph_by_source at the
@@ -122,6 +124,8 @@ public class Pagerank {
      */
     public void iter() throws Exception {
 
+        log.info( "Running init() stage (step=%s)", step );
+
         if ( step == 0 ) {
 
             // init empty files which we can still join against.
@@ -167,10 +171,12 @@ public class Pagerank {
 
     public void term() throws Exception {
 
-        //controller.sort( "/pr/out/rank_vector", "/pr/out/rank_vector_by_rank",  );
+        log.info( "Running term() stage." );
+
+        controller.sort( "/pr/out/rank_vector", "/pr/out/rank_vector_by_rank", RankVectorByRankSortComparator.class );
         
-        //we should also merge with the node_metadata table and write out
-        //everything and then sort that table.
+        // we should also merge with the node_metadata table and write out
+        // everything and then sort that table.
         
     }
     
@@ -198,8 +204,10 @@ public class Pagerank {
                 iter();
             }
 
-            log.info( "Pagerank complete" );
+            term();
             
+            log.info( "Pagerank complete" );
+
         } finally {
 
             if ( autoShutdown )
