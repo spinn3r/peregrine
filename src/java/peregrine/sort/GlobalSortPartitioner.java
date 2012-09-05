@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
 */
-package peregrine.globalsort;
+package peregrine.sort;
 
 import java.util.*;
 
@@ -40,15 +40,13 @@ public class GlobalSortPartitioner extends BasePartitioner {
 	@Override
 	public Partition partition( StructReader key, StructReader value ) {
 
-        //TODO: we can't read an arbitrary value from the partitioner.  We have
-        //to specify this as part of a comparator
+        // use the sort key of the sort comparator specified. 
+        StructReader ptr = job.getComparatorInstance().getSortKey( key, value );
         
-        StructReader ptr = StructReaders.join( value.slice( 0, 8 ), key.slice() );
-
         StructReader higherKey = partitionTable.higherKey( ptr );
 
         if ( higherKey == null )
-            throw new RuntimeException( String.format( "No higher key than %s", Hex.encode( ptr ) ) );
+            throw new RuntimeException( String.format( "No higher key than %s in table %s", Hex.encode( ptr ), partitionTable ) );
         
         Partition result = partitionTable.get( higherKey );
 

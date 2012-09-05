@@ -26,6 +26,7 @@ import peregrine.http.*;
 import peregrine.io.*;
 import peregrine.io.driver.shuffle.*;
 import peregrine.rpc.*;
+import peregrine.sort.*;
 import peregrine.task.*;
 
 import com.spinn3r.log5j.*;
@@ -212,7 +213,7 @@ public class Controller {
     				    final Output output ) 
             		throws Exception {
 
-        ReduceJob job = new ReduceJob();
+        Job job = new Job();
 
         job.setDelegate( delegate )
            .setInput( input )
@@ -225,7 +226,7 @@ public class Controller {
     /**
      * Perform a reduce over the previous shuffle data (or broadcast data).
      */
-    public void reduce( final ReduceJob job ) 
+    public void reduce( final Job job ) 
         throws Exception {
 
     	final Input input = job.getInput();
@@ -269,6 +270,47 @@ public class Controller {
 
     }
 
+    public void sort( String input, String output, Class comparator ) throws Exception {
+
+        Job job = new Job();
+        job.setDelegate( ComputePartitionTableJob.Map.class );
+        job.setInput( new Input( input ) );
+        job.setOutput( new Output( "shuffle:default", "broadcast:partition_table" ) );
+        // this is a sample job so we don't need to read ALL the data.
+        job.setMaxChunks( 1 ); 
+
+        map( job );
+
+        // Step 2.  Reduce that partition table and broadcast it so everyone
+        // has the same values.
+        reduce( ComputePartitionTableJob.Reduce.class,
+                new Input( "shuffle:partition_table" ),
+                new Output( "/tmp/partition_table" ) );
+
+        // Step 3.  Map across all the data in the input file and send it to
+        // right partition which would need to hold this value.
+        
+        job = new Job();
+
+        job.setDelegate( GlobalSortJob.Map.class );
+        job.setInput( new Input( input, "broadcast:/tmp/partition_table" ) );
+        job.setOutput( new Output( "shuffle:default" ) );
+        job.setPartitioner( GlobalSortPartitioner.class );
+        job.setComparator( comparator );
+        
+        map( job );
+
+        job = new Job();
+        
+        job.setDelegate( GlobalSortJob.Reduce.class );
+        job.setInput( new Input( "shuffle:default" ) );
+        job.setOutput( new Output( output ) );
+        job.setComparator( comparator );
+        
+        reduce( job );
+
+    }
+    
     private void withScheduler( Job job, Scheduler scheduler ) 
     		throws Exception {
 

@@ -257,5 +257,10 @@ public class StructReader {
         return buff.readerIndex() < buff.writerIndex();
     }
 
+    @Override
+    public String toString() {
+        return Hex.encode( this );
+    }
+
 }
 

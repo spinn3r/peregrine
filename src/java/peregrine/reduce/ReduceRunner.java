@@ -53,8 +53,7 @@ public class ReduceRunner {
     private ShuffleInputReference shuffleInput;
 
     private List<JobOutput> jobOutput = null;
-
-    private ReduceJob reduceJob = null;
+    private Job job = null;
 
     private LocalContext localContext = new LocalContext();
     
@@ -71,7 +70,7 @@ public class ReduceRunner {
         this.listener = listener;
         this.shuffleInput = shuffleInput;
         this.jobOutput = jobOutput;
-        this.reduceJob = (ReduceJob)task.getJob();
+        this.job = task.getJob();
         this.localContext.setPartition( partition );
 
     }
@@ -100,7 +99,7 @@ public class ReduceRunner {
         //we now know how many records are in the local shuffle, we should now
         //init the partitioner with the context.
 
-        reduceJob.getPartitionerInstance().init( localContext );
+        job.getPartitionerInstance().init( localContext );
         
         while( true ) {
 
@@ -180,7 +179,7 @@ public class ReduceRunner {
 
             prefetchReader = createPrefetchReader( readers );
 
-            merger = new ChunkMerger( task, listener, partition, readers, jobOutput, reduceJob.getComparatorInstance() );
+            merger = new ChunkMerger( task, listener, partition, readers, jobOutput, job.getComparatorInstance() );
         
             merger.merge();
 
@@ -234,7 +233,7 @@ public class ReduceRunner {
 
                 prefetchReader = createPrefetchReader( work );
 
-                merger = new ChunkMerger( task, null, partition, work, jobOutput, reduceJob.getComparatorInstance() );
+                merger = new ChunkMerger( task, null, partition, work, jobOutput, job.getComparatorInstance() );
 
                 final DefaultPartitionWriter writer = newInterChunkWriter( path );
 
@@ -423,7 +422,7 @@ public class ReduceRunner {
             log.info( "Writing temporary sort file %s", path );
             log.info( "Going to sort %,d files requiring %,d bytes of memory", work.size(), workCapacity );
 
-            ChunkSorter sorter = new ChunkSorter( config , partition, reduceJob.getComparatorInstance() );
+            ChunkSorter sorter = new ChunkSorter( config , partition, job.getComparatorInstance() );
             
             SequenceReader result = sorter.sort( work, out, jobOutput );
             

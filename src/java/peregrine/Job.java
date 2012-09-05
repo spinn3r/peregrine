@@ -17,9 +17,10 @@ package peregrine;
 
 import java.util.concurrent.atomic.*;
 
+import peregrine.config.partitioner.*;
 import peregrine.io.*;
 import peregrine.rpc.*;
-import peregrine.config.partitioner.*;
+import peregrine.sort.*;
 
 import com.spinn3r.log5j.Logger;
 
@@ -51,6 +52,8 @@ public class Job implements MessageSerializable {
     protected Partitioner partitionerInstance = null;
 
     protected int maxChunks = Integer.MAX_VALUE;
+
+    protected Class comparator = DefaultSortComparator.class; 
 
     /**
      * Get a unique identifier for this job.  Every job stats at 0 (zero) and is
@@ -150,6 +153,25 @@ public class Job implements MessageSerializable {
         
     }
 
+	public Class getComparator() {
+		return comparator;
+	}
+
+	public Job setComparator(Class comparator) {
+		this.comparator = comparator;
+		return this;
+	}
+
+    public SortComparator getComparatorInstance() {
+
+        try {
+            return (SortComparator)getComparator().newInstance();
+        } catch ( Throwable t ) {
+            throw new RuntimeException( t );
+        }
+        
+    }
+
     public int getMaxChunks() { 
         return this.maxChunks;
     }
@@ -189,6 +211,7 @@ public class Job implements MessageSerializable {
         message.put( "output",        output.getReferences() );
         message.put( "partitioner",   partitioner );
         message.put( "maxChunks",     maxChunks );
+        message.put( "comparator",    comparator );
 
         return message;
         
@@ -208,6 +231,7 @@ public class Job implements MessageSerializable {
         output        = new Output( message.getList( "output" ) );
         partitioner   = message.getClass( "partitioner" );
         maxChunks     = message.getInt( "maxChunks" );
+        comparator    = message.getClass( "comparator" );
         
     }
     

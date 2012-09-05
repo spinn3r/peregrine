@@ -31,6 +31,13 @@ public interface Partitioner {
 	 */
 	public void init( Config config );
 
+	/**
+	 * Init the partitioner with the current job.
+     * 
+	 * @param config The config to read configuration data.
+	 */
+	public void init( Job job );
+
     /**
      * Init the partitioner with the local context of the job which we are about
      * to execute.

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
 */
-package peregrine.reduce;
+package peregrine.sort;
 
 import java.io.*;
 
@@ -27,7 +27,7 @@ import com.spinn3r.log5j.*;
 /**
  * Compares KeyValuePairs by key.
  */
-public class DefaultReduceComparator implements ReduceComparator {
+public class DefaultSortComparator implements SortComparator {
 
     private static final Logger log = Logger.getLogger();
 
@@ -63,6 +63,10 @@ public class DefaultReduceComparator implements ReduceComparator {
 
         return diff;
 
+    }
+
+    public StructReader getSortKey( StructReader key, StructReader value ) {
+        return key.slice();
     }
     
 }

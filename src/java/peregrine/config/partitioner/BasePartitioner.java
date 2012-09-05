@@ -15,12 +15,15 @@
 */
 package peregrine.config.partitioner;
 
+import peregrine.*;
 import peregrine.config.*;
 
 public abstract class BasePartitioner implements Partitioner {
 
 	protected int nr_partitions;
 
+    protected Job job = null;
+    
 	@Override
     public void init( Config config ) {
 
@@ -30,6 +33,13 @@ public abstract class BasePartitioner implements Partitioner {
             throw new RuntimeException( "Invalid partition count: " + this.nr_partitions );
         
     }
+
+
+    @Override
+    public void init( Job job ) {
+        this.job = job;
+    }
+
 
     @Override
     public void init( LocalContext LocalContext ) {

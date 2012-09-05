@@ -199,7 +199,8 @@ public abstract class BaseTask implements Task {
             jobDelegate.setPartition( partition );
             jobDelegate.setConfig( config );
             jobDelegate.init( job, getJobOutput() );
-
+            job.getPartitionerInstance().init( job );
+            
             try {
                 doCall();
             } catch ( Throwable t ) {
