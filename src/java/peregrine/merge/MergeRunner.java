@@ -24,6 +24,7 @@ import peregrine.io.chunk.*;
 import peregrine.io.partition.*;
 import peregrine.io.util.*;
 import peregrine.io.util.*;
+import peregrine.sort.*;
 import peregrine.reduce.*;
 import peregrine.reduce.merger.*;
 import peregrine.util.*;
@@ -42,7 +43,7 @@ public class MergeRunner extends IdempotentCloser {
     private MergeQueueEntry last = null;
 
     private ChunkMergeComparator comparator
-        = new ChunkMergeComparator( new DefaultReduceComparator() );
+        = new ChunkMergeComparator( new DefaultSortComparator() );
 
     private List<SequenceReader> readers;
 
@@ -54,7 +55,7 @@ public class MergeRunner extends IdempotentCloser {
         
         this.readers = readers;
         
-        this.queue = new MergerPriorityQueue( readers, new DefaultReduceComparator() );
+        this.queue = new MergerPriorityQueue( readers, new DefaultSortComparator() );
         
     }
     

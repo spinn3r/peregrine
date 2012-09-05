@@ -24,6 +24,7 @@ import peregrine.io.*;
 import peregrine.io.driver.shuffle.*;
 import peregrine.io.util.*;
 import peregrine.reduce.*;
+import peregrine.sort.*;
 import peregrine.util.*;
 
 import org.jboss.netty.buffer.*;
@@ -34,9 +35,9 @@ import org.jboss.netty.buffer.*;
  */
 public class BaseChunkSorter {
 
-    private ReduceComparator comparator;
+    private SortComparator comparator;
 
-    public BaseChunkSorter( ReduceComparator comparator ) {
+    public BaseChunkSorter( SortComparator comparator ) {
         this.comparator = comparator;
     }
 

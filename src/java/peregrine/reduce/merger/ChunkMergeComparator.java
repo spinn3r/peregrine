@@ -2,13 +2,13 @@ package peregrine.reduce.merger;
 
 import java.util.*;
 
-import peregrine.reduce.*;
+import peregrine.sort.*;
 
 public class ChunkMergeComparator implements Comparator<MergeQueueEntry> {
 
-    private ReduceComparator delegate = null;
+    private SortComparator delegate = null;
 
-    public ChunkMergeComparator( ReduceComparator delegate ) {
+    public ChunkMergeComparator( SortComparator delegate ) {
         this.delegate = delegate;
     }
 

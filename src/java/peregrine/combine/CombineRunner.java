@@ -26,6 +26,7 @@ import peregrine.io.*;
 import peregrine.io.chunk.*;
 import peregrine.util.*;
 import peregrine.util.primitive.*;
+import peregrine.sort.*;
 
 /**
  * Run a combine on the given ChunkReader and use the given combiner to
@@ -41,7 +42,7 @@ public class CombineRunner {
                          ChunkReader reader,
                          final Combiner combiner ) throws IOException {
 
-        ReduceComparator comparator = new DefaultReduceComparator();
+        SortComparator comparator = new DefaultSortComparator();
         
         ChunkSorter sorter = new ChunkSorter( config, partition, comparator );
 

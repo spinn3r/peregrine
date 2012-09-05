@@ -25,6 +25,7 @@ import peregrine.io.chunk.*;
 import peregrine.io.util.*;
 import peregrine.reduce.*;
 import peregrine.task.*;
+import peregrine.sort.*;
 
 import com.spinn3r.log5j.Logger;
 
@@ -102,7 +103,7 @@ public class ChunkMerger implements Closeable {
 
     private List<SequenceReader> input;
 
-    private ReduceComparator reduceComparator = null;
+    private SortComparator sortComparator = null;
     
     public ChunkMerger() {
     }
@@ -112,14 +113,14 @@ public class ChunkMerger implements Closeable {
                         Partition partition,
                         List<SequenceReader> input,
                         List<JobOutput> output,
-                        ReduceComparator reduceComparator ) {
+                        SortComparator sortComparator ) {
 
         this.task = task;
         this.listener = listener;
         this.partition = partition;
         this.input = input;
         this.output = output;
-        this.reduceComparator = reduceComparator;
+        this.sortComparator = sortComparator;
         
     }
 
@@ -145,7 +146,7 @@ public class ChunkMerger implements Closeable {
 
             log.info( "Merging %,d readers." , input.size() );
             
-            MergerPriorityQueue queue = new MergerPriorityQueue( input, reduceComparator );
+            MergerPriorityQueue queue = new MergerPriorityQueue( input, sortComparator );
                             
             SortResult sortResult = new SortResult( writer, listener );
 

@@ -27,6 +27,7 @@ import peregrine.io.driver.shuffle.*;
 import peregrine.reduce.*;
 import peregrine.reduce.merger.*;
 import peregrine.reduce.sorter.*;
+import peregrine.sort.*;
 import peregrine.shuffle.*;
 import peregrine.task.*;
 import peregrine.util.*;
@@ -220,7 +221,7 @@ public class TestCombinerEfficiency extends peregrine.BaseTestWithMultipleConfig
             
             work.add( shuffleInputChunkReader );
 
-            ChunkSorter sorter = new ChunkSorter( config , partition, new DefaultReduceComparator() );
+            ChunkSorter sorter = new ChunkSorter( config , partition, new DefaultSortComparator() );
 
             SequenceReader sorted = sorter.sort( work, sorted_chunk, jobOutput );
 
@@ -241,7 +242,7 @@ public class TestCombinerEfficiency extends peregrine.BaseTestWithMultipleConfig
                                               partition,
                                               mergeInput,
                                               jobOutput,
-                                              new DefaultReduceComparator() );
+                                              new DefaultSortComparator() );
         merger.merge( writer );
 
         writer.close();

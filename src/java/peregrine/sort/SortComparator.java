@@ -31,14 +31,13 @@ import peregrine.util.*;
  * When using a value which is NOT globally unique the key should also be
  * specified which would make it unique.
  */
-public interface SortComparator extends ReduceComparator {
+public interface SortComparator {
 
     /**
      * <q>Compares its two arguments for order. Returns a negative integer,
      * zero, or a positive integer as the first argument is less than, equal to,
      * or greater than the second.</q>
      */
-    @Override
     public int compare( KeyValuePair pair0 , KeyValuePair pair1 );
 
     /**

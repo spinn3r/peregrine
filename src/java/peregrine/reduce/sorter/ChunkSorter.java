@@ -31,6 +31,7 @@ import peregrine.shuffle.*;
 import peregrine.util.*;
 import peregrine.util.netty.*;
 import peregrine.os.*;
+import peregrine.sort.*;
 
 import org.jboss.netty.buffer.*;
 
@@ -53,7 +54,7 @@ public class ChunkSorter extends BaseChunkSorter {
         
     public ChunkSorter( Config config,
                         Partition partition,
-                        ReduceComparator comparator ) {
+                        SortComparator comparator ) {
 
         super( comparator );
 
