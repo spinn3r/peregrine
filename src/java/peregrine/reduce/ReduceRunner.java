@@ -55,8 +55,6 @@ public class ReduceRunner {
     private List<JobOutput> jobOutput = null;
     private Job job = null;
 
-    private LocalContext localContext = new LocalContext();
-    
     public ReduceRunner( Config config,
                          Task task,
                          Partition partition,
@@ -71,7 +69,6 @@ public class ReduceRunner {
         this.shuffleInput = shuffleInput;
         this.jobOutput = jobOutput;
         this.job = task.getJob();
-        this.localContext.setPartition( partition );
 
     }
 
@@ -95,11 +92,6 @@ public class ReduceRunner {
         // on the first pass we're going to sort and use shuffle input...
 
         List<SequenceReader> readers = sort( input, sort_dir );
-
-        //we now know how many records are in the local shuffle, we should now
-        //init the partitioner with the context.
-
-        job.getPartitionerInstance().init( localContext );
         
         while( true ) {
 
@@ -431,10 +423,6 @@ public class ReduceRunner {
 
         }
 
-        for( int i : counts.values() ) {
-            localContext.setRecords( localContext.getRecords() + i );
-        }
-        
         log.info( "Sorted %,d files for %s", sorted.size(), partition );
         
         log.info( "Sorted with profiler rate: \n%s", profiler.rate() );

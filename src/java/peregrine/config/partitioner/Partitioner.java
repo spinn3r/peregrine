@@ -39,12 +39,6 @@ public interface Partitioner {
 	public void init( Job job );
 
     /**
-     * Init the partitioner with the local context of the job which we are about
-     * to execute.
-     */
-    public void init( LocalContext LocalContext );
-
-    /**
      * Route the given key to a given partition.
      */
 	public Partition partition( StructReader key, StructReader value );
