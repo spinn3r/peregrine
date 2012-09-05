@@ -165,6 +165,15 @@ public class Pagerank {
         
     }
 
+    public void term() throws Exception {
+
+        //controller.sort( "/pr/out/rank_vector", "/pr/out/rank_vector_by_rank",  );
+        
+        //we should also merge with the node_metadata table and write out
+        //everything and then sort that table.
+        
+    }
+    
     /**
      * Run a full pagerank computation including init, iter, and shutdown.
      */
