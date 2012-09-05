@@ -173,7 +173,13 @@ public class Pagerank {
 
         log.info( "Running term() stage." );
 
-        controller.sort( "/pr/out/rank_vector", "/pr/out/rank_vector_by_rank", RankVectorByRankSortComparator.class );
+        controller.sort( "/pr/out/rank_vector",
+                         "/pr/out/rank_vector_by_rank",
+                         RankVectorByRankSortComparator.class );
+        
+        controller.sort( "/pr/out/node_metadata",
+                         "/pr/out/node_metadata_by_indegree",
+                         NodeMetadataByIndegreeComparator.class );
         
         // we should also merge with the node_metadata table and write out
         // everything and then sort that table.
