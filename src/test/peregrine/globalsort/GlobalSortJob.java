@@ -24,7 +24,13 @@ public class GlobalSortJob {
         public void init( Job job, List<JobOutput> output ) {
 
             super.init( job, output );
+
+            doInitGlobalSortPartitioner( job );
             
+        }
+
+        private void doInitGlobalSortPartitioner( Job job ) {
+
             BroadcastInput partitionTableBroadcastInput = getBroadcastInput().get( 0 );
 
             List<StructReader> partitionTableEntries
@@ -50,9 +56,9 @@ public class GlobalSortJob {
             }
             
             partitioner.init( partitionTable );
-            
-        }
 
+        }
+        
     }
 
     public static class Reduce extends Reducer {

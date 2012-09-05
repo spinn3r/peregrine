@@ -61,7 +61,10 @@ public class GlobalSortPartitioner extends BasePartitioner {
 	@Override
 	public Partition partition( StructReader key, StructReader value ) {
 
-        StructReader ptr = StructReaders.join( value.readSlice( 8 ), key );
+        //TODO: we can't read an arbitrary value from the partitioner.  We have
+        //to specify this as part of a comparator
+        
+        StructReader ptr = StructReaders.join( value.slice( 0, 8 ), key.slice() );
 
         StructReader higherKey = partitionTable.higherKey( ptr );
 

@@ -234,6 +234,14 @@ public class StructReader {
     public byte getByte( int index ) {
         return buff.getByte( index );
     }
+
+    public StructReader slice() {
+        return new StructReader( buff.slice() );
+    }
+
+    public StructReader slice( int index, int length ) {
+        return new StructReader( buff.slice( index, length ) );
+    }
     
     /**
      * <p>

@@ -41,6 +41,7 @@ public class TestSortViaMapReduce extends peregrine.BaseTestWithMultipleProcesse
 
         //doTest( ComputePartitionTableJob.MAX_SAMPLE_SIZE * 30 );
         doTest( ComputePartitionTableJob.MAX_SAMPLE_SIZE * 2 );
+        //doTest( 100 );
         
     }
 
@@ -54,7 +55,7 @@ public class TestSortViaMapReduce extends peregrine.BaseTestWithMultipleProcesse
 
         ExtractWriter writer = new ExtractWriter( config, path );
 
-        int range = 1000;
+        int range = max;
 
         Random r = new Random();
         
@@ -124,7 +125,7 @@ public class TestSortViaMapReduce extends peregrine.BaseTestWithMultipleProcesse
             reduceJob.setDelegate( GlobalSortJob.Reduce.class );
             reduceJob.setInput( new Input( "shuffle:default" ) );
             reduceJob.setOutput( new Output( output ) );
-            //reduceJob.setComparator( SortByValueReduceComparator.class );
+            reduceJob.setComparator( SortByValueReduceComparator.class );
             
             controller.reduce( reduceJob );
 

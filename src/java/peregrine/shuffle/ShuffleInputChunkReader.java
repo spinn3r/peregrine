@@ -37,6 +37,8 @@ import com.spinn3r.log5j.Logger;
  */
 public class ShuffleInputChunkReader implements ChunkReader {
 
+    private static final Logger log = Logger.getLogger();
+
     public static int QUEUE_CAPACITY = 100;
 
     private static PrefetchReaderManager prefetchReaderManager

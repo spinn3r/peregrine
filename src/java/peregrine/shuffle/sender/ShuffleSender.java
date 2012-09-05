@@ -61,7 +61,7 @@ public class ShuffleSender implements Flushable, Closeable {
     public void emit( int targetPartition, StructReader key, StructReader value ) throws ShuffleFailedException {
 
         ShuffleOutputTarget client = partitionOutput.get( targetPartition );
-        
+
         try {
         
             length += DefaultChunkWriter.write( client, key, value );
@@ -80,8 +80,7 @@ public class ShuffleSender implements Flushable, Closeable {
 
             } finally {
                 throw new ShuffleFailedException( String.format( "Unable to write to %s: %s on partition %s" ,
-                                                                 client, e.getMessage(), targetPartition ) ,
-                                                  e );
+                                                                 client, e.getMessage(), targetPartition ) , e );
             }
 
         }
