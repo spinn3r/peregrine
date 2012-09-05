@@ -36,10 +36,8 @@ public class DefaultSortComparator implements SortComparator {
     @Override
     public int compare( KeyValuePair pair0 , KeyValuePair pair1 ) {
 
-        StructReader key0 = pair0.getKey();
-        StructReader key1 = pair1.getKey();
-
-        return compare( key0, key1 );
+        return compare( getSortKey( pair0.getKey(), pair0.getValue() ),
+                        getSortKey( pair1.getKey(), pair1.getValue() ) );
         
     }
 

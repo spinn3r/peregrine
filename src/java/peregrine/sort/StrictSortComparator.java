@@ -36,14 +36,11 @@ public class StrictSortComparator extends DefaultSortComparator {
     
     /**
      */
-    public int compare( KeyValuePair pair0 , 
-                        KeyValuePair pair1 ) {
+    public int compare( KeyValuePair pair0 , KeyValuePair pair1 ) {
 
-        StructReader key0 = pair0.getKey();
-        StructReader key1 = pair1.getKey();
+        return delegate.compare( getSortKey( pair0.getKey(), pair0.getValue() ),
+                                 getSortKey( pair1.getKey(), pair1.getValue() ) );
 
-        return delegate.compare( key0, key1 );
-        
     }
     
 }

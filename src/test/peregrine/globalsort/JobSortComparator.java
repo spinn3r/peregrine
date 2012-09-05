@@ -17,6 +17,7 @@ import com.spinn3r.log5j.*;
  */
 public class JobSortComparator extends StrictSortComparator {
 
+    @Override
     public StructReader getSortKey( StructReader key, StructReader value ) {
         // read the first 8 bytes which is the long representation
         // of what we should sort be sorting by.
