@@ -276,6 +276,8 @@ public class Controller {
         job.setDelegate( ComputePartitionTableJob.Map.class );
         job.setInput( new Input( input ) );
         job.setOutput( new Output( "shuffle:default", "broadcast:partition_table" ) );
+        // the comparator is needed so that we can setup the partition table.
+        job.setComparator( comparator );
         // this is a sample job so we don't need to read ALL the data.
         job.setMaxChunks( 1 ); 
 

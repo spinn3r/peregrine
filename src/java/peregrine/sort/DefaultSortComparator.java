@@ -44,14 +44,19 @@ public class DefaultSortComparator implements SortComparator, Comparator<StructR
         
     }
 
+    @Override
     public int compare( StructReader sr0 , StructReader sr1 ) {
         return delegate.compare( sr0, sr1 );
     }
-
 
     @Override
     public StructReader getSortKey( StructReader key, StructReader value ) {
         return key.slice();
     }
-    
+
+    @Override
+    public boolean isAscending() {
+        return true;
+    }
+
 }

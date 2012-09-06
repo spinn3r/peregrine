@@ -14,6 +14,7 @@ import peregrine.app.pagerank.*;
 import peregrine.config.*;
 import peregrine.worker.*;
 import peregrine.rpc.*;
+import peregrine.sort.*;
 
 import org.jboss.netty.buffer.*;
 
@@ -21,17 +22,7 @@ import com.sun.jna.Pointer;
 
 import com.spinn3r.log5j.Logger;
 
-import org.apache.cassandra.thrift.*;
-import org.apache.cassandra.hadoop.*;
-import org.apache.cassandra.thrift.*;
-import org.apache.cassandra.utils.*;
-import org.apache.cassandra.db.*;
-
 import java.nio.charset.Charset;
-
-// needed so that we can configure the InputFormat for Cassandra
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.mapreduce.*;
 
 public class Test {
 
@@ -61,35 +52,20 @@ public class Test {
 
     public static void main( String[] args ) throws Exception {
 
-        int max = 5000;
+        byte[] b0 = new byte[] { (byte)0x00 , (byte)0x00 , (byte)0x00 , (byte)0x00 , (byte)0x00 , (byte)0x01 , (byte)0x85 , (byte)0x84 , (byte)0x6d , (byte)0x40 , (byte)0x27 , (byte)0x64 , (byte)0xd5 , (byte)0x3c , (byte)0x61 , (byte)0xe2 };
 
-        long[] data = new long[max];
+        byte[] b1 = new byte[] { (byte)0x7f , (byte)0x7f , (byte)0x7f , (byte)0x7f , (byte)0x7f , (byte)0x7f , (byte)0x7f , (byte)0x7f , (byte)0x7f , (byte)0x7f , (byte)0x7f , (byte)0x7f , (byte)0x7f , (byte)0x7f , (byte)0x7f , (byte)0x7f };
 
-        for( int i = 0; i < max; ++i ){
-            data[i] = (long)i;
-        }
+        List<StructReader> list = new ArrayList();
 
-        Map<String,Integer> buckets0 = partition( 0, data );
-        Map<String,Integer> buckets1 = partition( 1, data );
-        Map<String,Integer> buckets2 = partition( 2, data );
-        Map<String,Integer> buckets3 = partition( 3, data );
-        Map<String,Integer> buckets4 = partition( 4, data );
-        Map<String,Integer> buckets5 = partition( 5, data );
-        Map<String,Integer> buckets6 = partition( 6, data );
-        Map<String,Integer> buckets7 = partition( 7, data );
+        list.add( StructReaders.wrap( b0 ) );
+        list.add( StructReaders.wrap( b1 ) );
 
-        // for( int i = 0; i < 7; ++i ) {
-
-        //     if ( buckets.size() > 1 )
-        //         break;
-            
-        // }
+        Collections.sort( list, new StrictSortDescendingComparator() );
         
-        // // now dump them
-
-        // for( String key : buckets.keySet() ) {
-        //     System.out.printf( "%s=%s\n", key, buckets.get( key ) );
-        // }
+        for( StructReader current : list ) {
+            System.out.printf( "%s\n", Hex.encode( current ) );
+        }
         
     }
 

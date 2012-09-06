@@ -127,30 +127,37 @@ public class ComputePartitionTableJob {
 
             log.info( "Going to split across %,d partitions" , nr_partitions );
 
+            List<StructReader> partitionBoundaries = new ArrayList();
+            
             long partition_id = 0;
 
             for( ; partition_id < nr_partitions - 1; ++partition_id ) {
 
                 offset += width;
-                
-                StructReader currentBoundary = sample.get( offset - 1 );
-
-                StructReader key = StructReaders.wrap( partition_id );
-
-                emit( key, currentBoundary );
+                partitionBoundaries.add( sample.get( offset - 1 ) );
 
             }
 
-            StructReader key = StructReaders.wrap( partition_id );
+            partitionBoundaries.add( LAST_BOUNDARY );
+
+            //sort the partitions so that the sort order (asc/desc) of the query
+            //is taken into consideration.
+            Collections.sort( partitionBoundaries, job.getComparatorInstance() );
+
+            partition_id = 0;
+
+            for( StructReader boundary : partitionBoundaries ) {
+                StructReader key = StructReaders.wrap( partition_id );
+                emit( key, boundary );
+                ++partition_id;
+            }
             
-            emit( key, LAST_BOUNDARY );
-                
         }
 
         @Override
         public void emit( StructReader key, StructReader value ) {
 
-            log.info( "Going to emit partition table entry: %s" , Hex.encode( value ) );
+            log.info( "Going to emit partition table entry: %s=%s" , key.slice().readLong(), Hex.encode( value ) );
             
             partitionTable.emit( key, value );
             

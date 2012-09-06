@@ -16,6 +16,7 @@
 package peregrine.sort;
 
 import java.io.*;
+import java.util.*;
 
 import peregrine.*;
 import peregrine.util.*;
@@ -25,28 +26,17 @@ import peregrine.util.primitive.*;
 import com.spinn3r.log5j.*;
 
 /**
- * <p>
- * Compares KeyValuePairs by key and preserves strict binary ordering by byte.
- * 
- * <p>
- * This is a descending comparator.
  * 
  */
-public class StrictSortDescendingComparator extends DefaultSortComparator {
+public class StrictStructReaderDescendingComparator implements Comparator<StructReader> {
 
     private static final Logger log = Logger.getLogger();
 
     private StrictStructReaderComparator delegate = new StrictStructReaderComparator();
-
+    
     @Override
-    public int compare( KeyValuePair pair0 , KeyValuePair pair1 ) {
-        return delegate.compare( getSortKey( pair1.getKey(), pair1.getValue() ),
-                                 getSortKey( pair0.getKey(), pair0.getValue() ) );
-    }
-
-    @Override
-    public int compare( StructReader sr0 , StructReader sr1 ) {
+    public int compare( StructReader sr0, StructReader sr1 ) {
         return delegate.compare( sr1, sr0 );
     }
-
+    
 }

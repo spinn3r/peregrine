@@ -24,16 +24,19 @@ import peregrine.config.*;
 
 public abstract class BaseJobDelegate implements JobDelegate {
     
-    private Config config = null;
+    protected Config config = null;
     
-    private Partition partition = null;
+    protected Partition partition = null;
 
     protected JobOutput stdout = null;
 
+    protected Job job = null;
+    
     private List<BroadcastInput> broadcastInput = new ArrayList();
     
     @Override
     public void init( Job job, List<JobOutput> output ) {
+        this.job = job;
         this.stdout = output.get(0);
     }
 

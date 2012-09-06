@@ -21,6 +21,7 @@ import peregrine.*;
 import peregrine.config.*;
 import peregrine.config.partitioner.*;
 import peregrine.util.*;
+import peregrine.io.*;
 
 import com.spinn3r.log5j.*;
 
@@ -36,6 +37,32 @@ public class GlobalSortPartitioner extends BasePartitioner {
     public void init( TreeMap<StructReader,Partition> partitionTable ) {
         this.partitionTable = partitionTable;
     }
+
+    public void init( Job job, BroadcastInput partitionTableBroadcastInput ) {
+
+        List<StructReader> partitionTableEntries
+            = StructReaders.unwrap( partitionTableBroadcastInput.getValue() );
+        
+        if ( partitionTableEntries.size() == 0 )
+            throw new RuntimeException( "No partition table entries" );
+        
+        log.info( "Working with %,d partition entries", partitionTableEntries.size() );
+        
+        TreeMap<StructReader,Partition> partitionTable = new TreeMap( new StrictStructReaderComparator() );
+        
+        int partition_id = 0;
+        
+        for( StructReader current : partitionTableEntries ) {
+            
+            log.info( "Adding partition table entry: %s" , Hex.encode( current ) );
+            
+            partitionTable.put( current, new Partition( partition_id ) );
+            ++partition_id;
+        }
+        
+        init( partitionTable );
+
+    }
     
 	@Override
 	public Partition partition( StructReader key, StructReader value ) {
@@ -43,12 +70,13 @@ public class GlobalSortPartitioner extends BasePartitioner {
         // use the sort key of the sort comparator specified. 
         StructReader ptr = job.getComparatorInstance().getSortKey( key, value );
         
-        StructReader higherKey = partitionTable.higherKey( ptr );
+        StructReader boundaryKey = partitionTable.ceilingKey( ptr );
 
-        if ( higherKey == null )
-            throw new RuntimeException( String.format( "No higher key than %s in table %s", Hex.encode( ptr ), partitionTable ) );
+        if ( boundaryKey == null ) {
+            throw new RuntimeException( String.format( "No found key for %s in table %s", Hex.encode( ptr ), partitionTable ) );
+        }
         
-        Partition result = partitionTable.get( higherKey );
+        Partition result = partitionTable.get( boundaryKey );
 
         return result;
         

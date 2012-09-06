@@ -16,6 +16,7 @@
 package peregrine.sort;
 
 import java.io.*;
+import java.util.*;
 
 import peregrine.*;
 import peregrine.io.chunk.*;
@@ -31,7 +32,7 @@ import peregrine.util.*;
  * When using a value which is NOT globally unique the key should also be
  * specified which would make it unique.
  */
-public interface SortComparator {
+public interface SortComparator extends Comparator<StructReader> {
 
     /**
      * <q>Compares its two arguments for order. Returns a negative integer,
@@ -39,7 +40,6 @@ public interface SortComparator {
      * or greater than the second.</q>
      */
     public int compare( KeyValuePair pair0 , KeyValuePair pair1 );
-
 
     /**
      * Compare on a per StructReader basis.
@@ -58,5 +58,9 @@ public interface SortComparator {
      * are identical so that we have globally unique keys for everything.
      */
     public StructReader getSortKey( StructReader key, StructReader value );
-    
+
+    /**
+     * Return true if we are sorting descending.
+     */
+    public boolean isAscending();
 }

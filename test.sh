@@ -37,16 +37,17 @@ sudo killall -9 java ; rm -rf logs/* && ant jar compile.test && sudo ./bin/jexec
 ./bin/fscat --render=int,int /tmp/peregrine-fs-11113/localhost/11113/1/pr/out/node_metadata_by_indegree/chunk000000.dat |tail
 
 
-./bin/fscat --render=long /tmp/peregrine-fs-11112/localhost/11112/0/test/peregrine.globalsort.TestSortDescendingViaMapReduce/test1.out/chunk000000.dat  |head
-./bin/fscat --render=long /tmp/peregrine-fs-11112/localhost/11112/0/test/peregrine.globalsort.TestSortDescendingViaMapReduce/test1.out/chunk000000.dat  |tail
-
-./bin/fscat --render=long /tmp/peregrine-fs-11113/localhost/11113/1/test/peregrine.globalsort.TestSortDescendingViaMapReduce/test1.out/chunk000000.dat  |head
-./bin/fscat --render=long /tmp/peregrine-fs-11113/localhost/11113/1/test/peregrine.globalsort.TestSortDescendingViaMapReduce/test1.out/chunk000000.dat  |tail
 
 
 
 
 ./bin/fscat --render=long /tmp/peregrine-fs-11112/localhost/11112/0/test/peregrine.globalsort.TestSortDescendingViaMapReduce/test1.out/chunk000000.dat  |head
+
+
+
+# ASCENDING
+
+ sudo killall -9 java ; rm -rf logs/* && ant jar compile.test && sudo ./bin/jexec src/test/peregrine/globalsort/TestSortViaMapReduce.java 
 
 
 ./bin/fscat --render=long /tmp/peregrine-fs-11112/localhost/11112/0/test/peregrine.globalsort.TestSortViaMapReduce/test1.out/chunk000000.dat |head
@@ -54,3 +55,12 @@ sudo killall -9 java ; rm -rf logs/* && ant jar compile.test && sudo ./bin/jexec
 
 ./bin/fscat --render=long /tmp/peregrine-fs-11113/localhost/11113/1/test/peregrine.globalsort.TestSortViaMapReduce/test1.out/chunk000000.dat |head
 ./bin/fscat --render=long /tmp/peregrine-fs-11113/localhost/11113/1/test/peregrine.globalsort.TestSortViaMapReduce/test1.out/chunk000000.dat |tail
+
+# DESCENDING
+sudo killall -9 java ; rm -rf logs/* && ant jar compile.test && sudo ./bin/jexec src/test/peregrine/globalsort/TestSortDescendingViaMapReduce.java 
+
+./bin/fscat --render=long /tmp/peregrine-fs-11112/localhost/11112/0/test/peregrine.globalsort.TestSortDescendingViaMapReduce/test1.out/chunk000000.dat  |head
+./bin/fscat --render=long /tmp/peregrine-fs-11112/localhost/11112/0/test/peregrine.globalsort.TestSortDescendingViaMapReduce/test1.out/chunk000000.dat  |tail
+
+./bin/fscat --render=long /tmp/peregrine-fs-11113/localhost/11113/1/test/peregrine.globalsort.TestSortDescendingViaMapReduce/test1.out/chunk000000.dat  |head
+./bin/fscat --render=long /tmp/peregrine-fs-11113/localhost/11113/1/test/peregrine.globalsort.TestSortDescendingViaMapReduce/test1.out/chunk000000.dat  |tail

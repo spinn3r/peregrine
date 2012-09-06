@@ -262,5 +262,9 @@ public class StructReader {
         return Hex.encode( this );
     }
 
+    public boolean equals( StructReader reader ) {
+        return buff.equals( reader.buff );
+    }
+    
 }
 

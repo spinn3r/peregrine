@@ -40,38 +40,11 @@ public class GlobalSortJob {
 
             super.init( job, output );
 
-            doInitGlobalSortPartitioner( job );
-            
-        }
-
-        private void doInitGlobalSortPartitioner( Job job ) {
-
+            GlobalSortPartitioner partitioner = (GlobalSortPartitioner)job.getPartitionerInstance();
             BroadcastInput partitionTableBroadcastInput = getBroadcastInput().get( 0 );
 
-            List<StructReader> partitionTableEntries
-                = StructReaders.unwrap( partitionTableBroadcastInput.getValue() );
-
-            if ( partitionTableEntries.size() == 0 )
-                throw new RuntimeException( "No partition table entries" );
+            partitioner.init( job, partitionTableBroadcastInput );
             
-            log.info( "Working with %,d partition entries", partitionTableEntries.size() );
-            
-            GlobalSortPartitioner partitioner = (GlobalSortPartitioner)job.getPartitionerInstance();
-
-            TreeMap<StructReader,Partition> partitionTable = new TreeMap( new StrictStructReaderComparator() );
-
-            int partition_id = 0;
-
-            for( StructReader current : partitionTableEntries ) {
-                
-                log.info( "Adding partition table entry: %s" , Hex.encode( current ) );
-                
-                partitionTable.put( current, new Partition( partition_id ) );
-                ++partition_id;
-            }
-            
-            partitioner.init( partitionTable );
-
         }
         
     }
