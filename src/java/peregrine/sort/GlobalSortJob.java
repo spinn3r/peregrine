@@ -58,7 +58,7 @@ public class GlobalSortJob {
             
             GlobalSortPartitioner partitioner = (GlobalSortPartitioner)job.getPartitionerInstance();
 
-            TreeMap<StructReader,Partition> partitionTable = new TreeMap( new StrictStructReaderComparator() );
+            TreeMap<StructReader,Partition> partitionTable = new TreeMap( (Comparator<StructReader>)job.getComparatorInstance() );
 
             int partition_id = 0;
 

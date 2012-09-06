@@ -40,9 +40,7 @@ public class TestSortViaMapReduce extends peregrine.BaseTestWithMultipleProcesse
     @Override
     public void doTest() throws Exception {
 
-        //doTest( ComputePartitionTableJob.MAX_SAMPLE_SIZE * 30 );
         doTest( ComputePartitionTableJob.MAX_SAMPLE_SIZE * 2 );
-        //doTest( 100 );
         
     }
 
@@ -70,120 +68,14 @@ public class TestSortViaMapReduce extends peregrine.BaseTestWithMultipleProcesse
         }
 
         writer.close();
-            
-        // the writes worked correctly.
-        
+
         String output = String.format( "/test/%s/test1.out", getClass().getName() );
 
         Controller controller = new Controller( config );
 
         try {
 
-            /*
-            ReduceJob job = new ReduceJob();
-            
-            job.setDelegate( Reduce.class );
-            job.setInput( new Input( path ) );
-            job.setOutput( new Output( output ) );
-            job.setComparator( SortByValueReduceComparator.class );
-            
-            controller.reduce( job );
-            */
-
-            // Step 1.  Sample the input data to build a partition table.
-
             controller.sort( path, output, JobSortComparator.class );
-
-            // LocalPartitionReader reader = new LocalPartitionReader( configs.get( 0 ),
-            //                                                         new Partition( 0 ),
-            //                                                         "/test/globalsort/partition_table" );
-            
-            // // use a TreeSet and higher() to find the boundary for a given
-            // // value.
-            
-            // TreeMap<StructReader,Long> partitionTable = new TreeMap( new StrictStructReaderComparator() );
-
-            // long partition_id = 0;
-            
-            // while( reader.hasNext() ) {
-
-            //     reader.next();
-
-            //     partitionTable.put( reader.value(), partition_id );
-                
-            //     System.out.printf( "entry: %s\n", Hex.encode( reader.value() ) );
-
-            //     ++partition_id;
-                
-            // }
-
-            // System.out.printf( "%s\n", partitionTable );
-            
-            // reader = new LocalPartitionReader( configs.get( 0 ), new Partition( 0 ), path );
-
-            // System.out.printf( "Going to read key/value pairs.\n" );
-
-            // HashMap<Long,Integer> histograph = new HashMap();
-
-            // for( long i = 0; i < partitionTable.size(); ++i ) {
-            //     histograph.put( i, 0 );
-            // }
-            
-            // int count = 0;
-
-            // while( reader.hasNext() ) {
-
-            //     reader.next();
-
-            //     StructReader ptr = StructReaders.join( reader.value(), reader.key() );
-
-            //     StructReader key = partitionTable.higherKey( ptr );
-
-            //     long partition = partitionTable.get( key );
-            //     histograph.put( partition , histograph.get( partition ) + 1 );
-                
-            //     ++count;
-                
-            // }
-
-            // System.out.printf( "histograph: %s\n", histograph );
-            
-            // System.out.printf( "read %,d entries.\n", count );
-
-            // TODO: in production we can sample, then map right over ALL the
-            // values, send them to the target partitions, then reduce them
-            // there.
-            
-            /*
-
-            ReduceJob job = new ReduceJob();
-            
-            job.setDelegate( Reduce.class );
-            
-            job.setInput( new Input( "shuffle:default",
-                                     "broadcast:/test/globalsort/partition_table" ) );
-                                     
-            job.setOutput( new Output( "shuffle:intermediate" ) );
-            job.setComparator( SortByValueReduceComparator.class );
-            job.setPartitioner( GlobalSortPartitioner.class );
-            
-            controller.reduce( job );
-
-            job = new ReduceJob();
-            
-            job.setDelegate( Reduce.class );
-            job.setInput( new Input( "shuffle:intermediate" ) );
-            job.setOutput( new Output( output ) );
-            job.setComparator( SortByValueReduceComparator.class );
-            
-            controller.reduce( job );
-            
-            */
-            
-            // TODO: the output here needs to be a shuffle with a new
-            // partitioner which knows how many items are in the result
-
-            // then 
             
         } finally {
             controller.shutdown();
@@ -194,19 +86,7 @@ public class TestSortViaMapReduce extends peregrine.BaseTestWithMultipleProcesse
     public static void main( String[] args ) throws Exception {
 
         System.setProperty( "peregrine.test.config", "1:1:2" ); // 3sec
-
-        //setPropertyDefault( "peregrine.test.factor", "1" ); // 
-        //setPropertyDefault( "peregrine.test.config", "01:01:01" ); // takes 3 seconds
-
-        // 256 partitions... 
-        //System.setProperty( "peregrine.test.config", "08:01:32" );  // 1m
-
-        if ( args.length == 1 ) {
-            MODE=args[0].split( "=" )[1];
-        }
-
-        System.out.printf( "MODE: %s\n" , MODE );
-        
+   
         runTests();
         
     }

@@ -40,6 +40,12 @@ public interface SortComparator {
      */
     public int compare( KeyValuePair pair0 , KeyValuePair pair1 );
 
+
+    /**
+     * Compare on a per StructReader basis.
+     */
+    public int compare( StructReader sr0 , StructReader sr1 );
+    
     /**
      * <p>
      * Given a key and value, compute a sort key.

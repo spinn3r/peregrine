@@ -16,6 +16,7 @@
 package peregrine.sort;
 
 import java.io.*;
+import java.util.*;
 
 import peregrine.*;
 import peregrine.util.*;
@@ -27,7 +28,7 @@ import com.spinn3r.log5j.*;
 /**
  * 
  */
-public class DefaultSortComparator implements SortComparator {
+public class DefaultSortComparator implements SortComparator, Comparator<StructReader> {
 
     private static final Logger log = Logger.getLogger();
 
@@ -43,6 +44,12 @@ public class DefaultSortComparator implements SortComparator {
         
     }
 
+    public int compare( StructReader sr0 , StructReader sr1 ) {
+        return delegate.compare( sr0, sr1 );
+    }
+
+
+    @Override
     public StructReader getSortKey( StructReader key, StructReader value ) {
         return key.slice();
     }
