@@ -31,7 +31,7 @@ import peregrine.sort.*;
 
 import com.spinn3r.log5j.*;
 
-public class TestSortViaMapReduce extends peregrine.BaseTestWithMultipleProcesses {
+public class TestSortDescendingViaMapReduce extends peregrine.BaseTestWithMultipleProcesses {
 
     private static final Logger log = Logger.getLogger();
 
@@ -75,7 +75,7 @@ public class TestSortViaMapReduce extends peregrine.BaseTestWithMultipleProcesse
 
         try {
 
-            controller.sort( path, output, JobSortComparator.class );
+            controller.sort( path, output, JobSortDescendingComparator.class );
             
         } finally {
             controller.shutdown();
@@ -92,3 +92,4 @@ public class TestSortViaMapReduce extends peregrine.BaseTestWithMultipleProcesse
     }
 
 }
+
