@@ -149,7 +149,8 @@ public class Pagerank {
                                       "broadcast:/pr/out/nr_nodes",
                                       "broadcast:/pr/out/nr_dangling",
                                       "broadcast:/pr/out/teleport_grant" ),
-                           new Output( "/pr/out/rank_vector" ) );
+                           new Output( "/pr/out/rank_vector",
+                                       "broadcast:rank_sum" ) );
 
         // ***
         // 
