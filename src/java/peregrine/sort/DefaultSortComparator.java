@@ -54,9 +54,4 @@ public class DefaultSortComparator implements SortComparator, Comparator<StructR
         return key.slice();
     }
 
-    @Override
-    public boolean isAscending() {
-        return true;
-    }
-
 }

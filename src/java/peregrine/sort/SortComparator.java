@@ -59,8 +59,4 @@ public interface SortComparator extends Comparator<StructReader> {
      */
     public StructReader getSortKey( StructReader key, StructReader value );
 
-    /**
-     * Return true if we are sorting descending.
-     */
-    public boolean isAscending();
 }
