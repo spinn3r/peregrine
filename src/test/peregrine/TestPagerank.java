@@ -25,7 +25,7 @@ public class TestPagerank extends peregrine.BaseTestWithMultipleProcesses {
     @Override
     public void doTest() throws Exception {
 
-        doTest( 5000 * getFactor() , 1000 ); 
+        doTest( 5000 * getFactor() , 100 ); 
 
     }
 

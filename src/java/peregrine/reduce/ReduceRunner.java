@@ -179,6 +179,7 @@ public class ReduceRunner {
 
         } finally {
 
+            new Flusher( prefetchReader, merged ).flush();
             new Closer( prefetchReader, merger ).close();
 
         }

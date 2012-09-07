@@ -136,12 +136,19 @@ public class IterJob {
         protected int nr_nodes;
 
         protected int nr_dangling = 0;
-        
+
+        // the rank sum for this partition.
+        protected double rank_sum = 0.0;
+
+        protected JobOutput rankSumBroadcastOutput = null;
+
         @Override
         public void init( Job job, List<JobOutput> output ) {
 
             super.init( job, output );
-            
+
+            rankSumBroadcastOutput = output.get(1);
+
             nr_nodes = getBroadcastInput()
                            .get( 0 )
                            .getValue()
@@ -173,24 +180,37 @@ public class IterJob {
         @Override
         public void reduce( StructReader key, List<StructReader> values ) {
 
-            double rank_sum = 0.0;
+            double node_rank_sum = 0.0;
             
             // sum up the values... 
             for ( StructReader value : values ) {
-                rank_sum += value.readDouble();
+                node_rank_sum += value.readDouble();
             }
 
             String node = Base64.encode( key.toByteArray() );
 
-            double rank = (DAMPENING * rank_sum) + teleport_grant;
+            double rank = (DAMPENING * node_rank_sum) + teleport_grant;
 
-            //System.out.printf( "TRACE rank_sum for %s: %s\n", node, rank_sum );
+            //System.out.printf( "TRACE node_rank_sum for %s: %s\n", node, node_rank_sum );
             //System.out.printf( "TRACE rank for %s: %s\n", node, rank );
 
             emit( key, StructReaders.wrap( rank ) );
+
+            // keep track of the global rank sum.
+            rank_sum += rank;
             
         }
 
+        @Override
+        public void close() throws IOException {
+
+            //broadcast the rank_sum for this partition now.
+
+            //rankSumBroadcastOutput.emit( StructReaders.wrap( 0L ),
+            //                             StructReaders.wrap( rank_sum ) );
+            
+        }
+        
     }
 
 }

@@ -30,8 +30,8 @@ public class TestChunkWriterCloseOnReferenceCount extends peregrine.BaseTestWith
 
     private static final Logger log = Logger.getLogger();
 
-    private static final int COUNT = 1000;
-    private static final int DUPLICATES = 10000;
+    private static final int COUNT = 15000;
+    private static final int DUPLICATES = 1000;
     
     public static class Merge extends Merger {
 

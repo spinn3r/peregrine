@@ -39,6 +39,10 @@ public class ShuffleJobOutputDirect extends ShuffleJobOutputBase implements Clos
     private ShuffleSender sender = null;
 
     private Partitioner partitioner = null;
+
+    private boolean closed = true;
+
+    private ShuffleJobOutputDirect() {}
     
     public ShuffleJobOutputDirect( ShuffleJobOutput parent ) {
         this.parent = parent;
@@ -65,7 +69,11 @@ public class ShuffleJobOutputDirect extends ShuffleJobOutputBase implements Clos
     public void emit( int targetPartition, StructReader key , StructReader value ) {
 
         try {
+
+            //assertOpen();
+
             sender.emit( targetPartition, key, value );
+            
         } catch ( ShuffleFailedException e ) {
             // this should cause the job to (correctly) fail
             throw new RuntimeException( e );
@@ -100,15 +108,24 @@ public class ShuffleJobOutputDirect extends ShuffleJobOutputBase implements Clos
 
     @Override 
     public void close() throws IOException {
-
+        
         if ( sender != null ) {
             sender.close();
             length += sender.length();
             sender = null;
         }
-            
+
+        closed = true;
+        
     }
 
+    private void assertOpen() throws RuntimeException {
+
+        if ( closed )
+            throw new RuntimeException( "closed" );
+        
+    }
+    
     private void closeWithUncheckedException() {
 
         try {
