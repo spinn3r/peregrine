@@ -37,8 +37,6 @@ public class MergerTask extends BaseMapperTask {
 
         log.info( "Running merge jobs on host: %s ...", host );
 
-        listeners.add( new MergerLocalPartitionListener() );
-
         jobInput = getJobInput();
 
         MergeRunner mergeRunner = new MergeRunner( jobInput );
@@ -68,23 +66,6 @@ public class MergerTask extends BaseMapperTask {
         }
             
     }
-
-    /**
-     * Used so that we can keep track of progress as we execute jobs. Multiple
-     * chunks will be used to we need to keep track of which ones we're running
-     * over.
-     */
-    class MergerLocalPartitionListener implements ChunkStreamListener {
-
-    	@Override
-    	public void onChunk( ChunkReference ref ) {
-    	    log.info( "Merging chunk: %s" , ref );
-    	}
-
-        @Override
-        public void onChunkEnd( ChunkReference ref ) {}
-
-   } 
     
 }
 
