@@ -24,6 +24,14 @@ import peregrine.io.*;
 
 import com.spinn3r.log5j.Logger;
 
+/**
+ * <p> Pagerank implementation which uses Peregrine as a backend for fast
+ * computation.
+ *
+ * <p>
+ * Our pagerank implementation takes an input file and writes resulting files to
+ * /pr/out/ for external analysis and use within external systems.
+ */
 public class Pagerank {
     
     private static final Logger log = Logger.getLogger();

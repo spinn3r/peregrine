@@ -32,11 +32,15 @@ import peregrine.map.*;
 import peregrine.shuffle.sender.*;
 import peregrine.util.*;
 
+import com.spinn3r.log5j.*;
+
 /**
  * Base task for all task that read input from external systems or the 
  * filesystem (or pipes).  In practice this boils down to map and merge tasks.
  */
 public abstract class BaseMapperTask extends BaseTask implements Callable {
+
+    private static final Logger log = Logger.getLogger();
 
     /**
      * This tasks partition listeners.
@@ -162,6 +166,8 @@ public abstract class BaseMapperTask extends BaseTask implements Callable {
         public int lastChunk = -1;
         
         public void onChunk( ChunkReference ref ) {
+
+    	    log.info( "Handling chunk: %s for %s" , ref, getClass().getName() );
 
             ++lastChunk;
             
