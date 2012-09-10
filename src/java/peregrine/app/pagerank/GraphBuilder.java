@@ -15,21 +15,36 @@
 */
 package peregrine.app.pagerank;
 
+import java.io.*;
 import java.util.*;
 
 import peregrine.*;
+import peregrine.io.*;
+import peregrine.config.*;
 import peregrine.io.*;
 import peregrine.util.*;
 import peregrine.util.primitive.*;
 
 public class GraphBuilder {
 
-    private ExtractWriter writer;
+    private ExtractWriter graphWriter = null;;
+
+    private ExtractWriter nodesByHashcodeWriter = null;
     
-    public GraphBuilder( ExtractWriter writer ) {
-        this.writer = writer;
+    public GraphBuilder( Config config, String graph, String nodes_by_hashcode ) throws IOException {
+
+        graphWriter = new ExtractWriter( config, graph );
+        
+        nodesByHashcodeWriter = new ExtractWriter( config, nodes_by_hashcode );
+
+        
     }
 
+    public void close() throws IOException {
+        graphWriter.close();
+        nodesByHashcodeWriter.close();
+    }
+    
     public void buildRandomGraph( int nr_nodes,
                                   int max_edges_per_node ) throws Exception {
         
@@ -94,8 +109,8 @@ public class GraphBuilder {
     public void addRecord( long source,
                            List<Long> targets ) throws Exception {
 
-        writer.write( StructReaders.hashcode( source ),
-                      StructReaders.hashcode( targets ) );
+        graphWriter.write( StructReaders.hashcode( source ),
+                           StructReaders.hashcode( targets ) );
 
     }
     

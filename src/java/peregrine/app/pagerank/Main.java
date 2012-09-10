@@ -36,14 +36,12 @@ public class Main {
 
         String graph = "/pr/graph";
         String nodes_by_hashcode = "/pr/nodes_by_hashcode";
-        
-        ExtractWriter writer = new ExtractWriter( config, graph );
 
-        GraphBuilder builder = new GraphBuilder( writer );
+        GraphBuilder builder = new GraphBuilder( config, graph, nodes_by_hashcode );
         
         builder.buildRandomGraph( nr_nodes , max_edges_per_node );
         
-        writer.close();
+        builder.close();
 
         new Pagerank( config, graph, nodes_by_hashcode ).exec();
         

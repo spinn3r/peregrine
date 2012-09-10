@@ -71,15 +71,14 @@ public class TestCombinerEfficiency extends peregrine.BaseTestWithMultipleConfig
         
         if ( PREP ) {
             
-            String path = "/pr/test.graph";
+            String graph = "/pr/graph";
+            String nodes_by_hashcode = "/pr/nodes_by_hashcode";
 
-            ExtractWriter writer = new ExtractWriter( config, path );
-
-            GraphBuilder builder = new GraphBuilder( writer );
+            GraphBuilder builder = new GraphBuilder( config, graph, nodes_by_hashcode );
             
             builder.buildRandomGraph( nr_nodes , max_edges_per_node );
             
-            writer.close();
+            builder.close();
 
             Controller controller = new Controller( config );
 
@@ -91,7 +90,7 @@ public class TestCombinerEfficiency extends peregrine.BaseTestWithMultipleConfig
                 // same time.
                 
                 controller.map( NodeIndegreeJob.Map.class,
-                                new Input( path ),
+                                new Input( graph ),
                                 new Output( "shuffle:default" ) );
 
                 controller.flushAllShufflers();

@@ -60,9 +60,7 @@ public class TestPagerankAccuracy extends peregrine.BaseTestWithMultipleProcesse
         String graph = "/pr/graph";
         String nodes_by_hashcode = "/pr/nodes_by_hashcode";
 
-        ExtractWriter writer = new ExtractWriter( config, graph );
-
-        GraphBuilder builder = new GraphBuilder( writer );
+        GraphBuilder builder = new GraphBuilder( config, graph, nodes_by_hashcode );
 
         /*
         builder.addRecord( "c9f0f895fb98ab91", "c4ca4238a0b92382", "c81e728d9d4c2f63" );
@@ -72,7 +70,7 @@ public class TestPagerankAccuracy extends peregrine.BaseTestWithMultipleProcesse
         builder.addRecord( "67c6a1e7ce56d3d6", "98f13708210194c4" );
         */
         
-        writer.close();
+        builder.close();
         
         Pagerank pr = null;
 
