@@ -182,6 +182,9 @@ public class Pagerank {
 
         log.info( "Running term() stage." );
 
+        // TODO: join rank_vector, node_metadata, and node_desc into one file,
+        // then sort that file desc by various columns (rank, indegree)
+        
         controller.sort( "/pr/out/rank_vector",
                          "/pr/out/rank_vector_by_rank",
                          RankVectorByRankSortComparator.class );

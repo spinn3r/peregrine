@@ -37,5 +37,16 @@ public abstract class BaseMapper extends BaseJobDelegate {
         
     }
 
+    /**
+     * Used so that map jobs can output periodic rollup / aggregate function
+     * data per every chunk to a broadcast file.  For example, with pagerank we
+     * can use this to compute the global rank sum so that every time we process
+     * an item we add to an accumulator.  Then we emit the value of the
+     * accumulator, and reset on every chunk end.
+     */
+    public void onChunkEnd() {
+
+    }
+
 }
 
