@@ -262,6 +262,21 @@ public class StructReader {
         return Hex.encode( this );
     }
 
+    @Override
+    public int hashCode() {
+        return buff.hashCode();
+    }
+    
+    @Override
+    public boolean equals( Object obj ) {
+
+        if ( ! ( obj instanceof StructReader ) )
+            return false;
+
+        return equals( (StructReader) obj );
+        
+    }
+    
     public boolean equals( StructReader reader ) {
         return buff.equals( reader.buff );
     }

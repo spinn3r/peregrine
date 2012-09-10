@@ -37,7 +37,6 @@ public class GraphBuilder {
         
         nodesByHashcodeWriter = new ExtractWriter( config, nodes_by_hashcode );
 
-        
     }
 
     public void close() throws IOException {
@@ -109,9 +108,12 @@ public class GraphBuilder {
     public void addRecord( long source,
                            List<Long> targets ) throws Exception {
 
-        graphWriter.write( StructReaders.hashcode( source ),
-                           StructReaders.hashcode( targets ) );
+        StructReader key = StructReaders.hashcode( source );
+        
+        graphWriter.write( key, StructReaders.hashcode( targets ) );
 
+        nodesByHashcodeWriter.write( key, StructReaders.wrap( "" + source ) );
+        
     }
     
 }
