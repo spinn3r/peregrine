@@ -71,7 +71,8 @@ public class TestPagerank extends peregrine.BaseTestWithMultipleProcesses {
         BaseTestWithMultipleProcesses.BASEDIR_MAP.put( 11115 , "/d3" );
         */
         
-        setPropertyDefault( "peregrine.test.config", "2:1:4" ); 
+        //setPropertyDefault( "peregrine.test.config", "2:1:4" ); 
+        setPropertyDefault( "peregrine.test.config", "1:1:1" ); 
         runTests();
 
     }

@@ -19,9 +19,10 @@ import java.io.*;
 import java.util.*;
 
 import peregrine.*;
-import peregrine.io.*;
 import peregrine.config.*;
 import peregrine.io.*;
+import peregrine.io.*;
+import peregrine.sort.*;
 import peregrine.util.*;
 import peregrine.util.primitive.*;
 
@@ -30,6 +31,8 @@ public class GraphBuilder {
     private ExtractWriter graphWriter = null;;
 
     private ExtractWriter nodesByHashcodeWriter = null;
+
+    private Set<Long> nodes = new TreeSet();
     
     public GraphBuilder( Config config, String graph, String nodes_by_hashcode ) throws IOException {
 
@@ -40,7 +43,31 @@ public class GraphBuilder {
     }
 
     public void close() throws IOException {
+
         graphWriter.close();
+
+        //technically this can be a map reduce job 
+        
+        // sort and write out the nodes.
+        List<StructReader> list = new ArrayList();
+
+        Map<StructReader, Long> lookup = new HashMap();
+        
+        for( long node : nodes ) {
+            
+            StructReader key = StructReaders.hashcode( node );
+            lookup.put( key, node );
+            
+            list.add( key );
+        }
+
+        Collections.sort( list, new FastStructReaderComparator() );
+
+        for( StructReader key : list ) {
+            long node = lookup.get( key );
+            nodesByHashcodeWriter.write( key, StructReaders.wrap( "" + node ) );
+        }
+        
         nodesByHashcodeWriter.close();
     }
     
@@ -112,8 +139,16 @@ public class GraphBuilder {
         
         graphWriter.write( key, StructReaders.hashcode( targets ) );
 
-        nodesByHashcodeWriter.write( key, StructReaders.wrap( "" + source ) );
+        for( long target : targets ) {
+            nodes.add( target );
+        }
         
+        nodes.add( source );
+        
+    }
+
+    private void writeNode( long id ) throws IOException {
+
     }
     
 }
