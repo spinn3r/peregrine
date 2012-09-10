@@ -189,17 +189,25 @@ public class Pagerank {
 
         log.info( "Running term() stage." );
 
+        controller.merge( MergeNodeAndRankMetaJob.Merge.class,
+                          new Input( "/pr/out/node_metadata",
+                                     "/pr/out/rank_vector",
+                                     nodes_by_hashcode ),
+                          new Output( "/pr/out/rank_metadata" ) );
+
         // TODO: join rank_vector, node_metadata, and node_desc into one file,
         // then sort that file desc by various columns (rank, indegree)
-        
-        controller.sort( "/pr/out/rank_vector",
-                         "/pr/out/rank_vector_by_rank",
+
+        /*
+        controller.sort( "/pr/out/rank_metadata",
+                         "/pr/out/rank_metadata_by_rank",
                          RankVectorByRankSortComparator.class );
         
-        controller.sort( "/pr/out/node_metadata",
-                         "/pr/out/node_metadata_by_indegree",
+        controller.sort( "/pr/out/rank_metadata",
+                         "/pr/out/rank_metadata_by_indegree",
                          NodeMetadataByIndegreeComparator.class );
-        
+        */
+                         
         // we should also merge with the node_metadata table and write out
         // everything and then sort that table.
         
