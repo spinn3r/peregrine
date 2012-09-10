@@ -16,11 +16,15 @@ import com.spinn3r.log5j.*;
 /**
  * 
  */
-public class RankVectorByRankSortComparator extends StrictSortDescendingComparator {
+public class RankMetadataByRankSortComparator extends StrictSortDescendingComparator {
 
     @Override
     public StructReader getSortKey( StructReader key, StructReader value ) {
-        return StructReaders.join( value.slice( 0, IntBytes.LENGTH ), key.slice() );
+
+        int offset = IntBytes.LENGTH + IntBytes.LENGTH;
+        
+        return StructReaders.join( value.slice( 0, DoubleBytes.LENGTH ), key.slice() );
+
     }
 
 }

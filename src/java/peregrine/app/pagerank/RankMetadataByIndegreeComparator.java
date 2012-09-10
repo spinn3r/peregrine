@@ -16,7 +16,7 @@ import com.spinn3r.log5j.*;
 /**
  * 
  */
-public class NodeMetadataByIndegreeComparator extends StrictSortDescendingComparator {
+public class RankMetadataByIndegreeComparator extends StrictSortDescendingComparator {
 
     @Override
     public StructReader getSortKey( StructReader key, StructReader value ) {

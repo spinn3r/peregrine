@@ -165,7 +165,7 @@ public abstract class BaseMapperTask extends BaseTask implements Callable {
 
         public int lastChunk = -1;
 
-        private BaseMapper baseMapper = (BaseMapper)jobDelegate;
+        //private BaseMapper baseMapper = (BaseMapper)jobDelegate;
         
         public void onChunk( ChunkReference ref ) {
 
@@ -186,7 +186,7 @@ public abstract class BaseMapperTask extends BaseTask implements Callable {
 
                 // fire onChunkEnd on the mapper so that intermediate chunk data
                 // can be sent to broadcast shuffles.
-                baseMapper.onChunkEnd();
+                // baseMapper.onChunkEnd();
                 
                 // first try to flush job output.
                 new Flusher( getJobOutput() ).flush();

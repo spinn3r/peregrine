@@ -196,15 +196,13 @@ public class Pagerank {
         // TODO: join rank_vector, node_metadata, and node_desc into one file,
         // then sort that file desc by various columns (rank, indegree)
 
-        /*
         controller.sort( "/pr/out/rank_metadata",
                          "/pr/out/rank_metadata_by_rank",
-                         RankVectorByRankSortComparator.class );
-        
+                         RankMetadataByRankSortComparator.class );
+
         controller.sort( "/pr/out/rank_metadata",
                          "/pr/out/rank_metadata_by_indegree",
-                         NodeMetadataByIndegreeComparator.class );
-        */
+                         RankMetadataByIndegreeComparator.class );
                          
         // we should also merge with the node_metadata table and write out
         // everything and then sort that table.
