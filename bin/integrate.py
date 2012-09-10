@@ -26,7 +26,7 @@ import traceback
 
 VERSION="1.0.3"
 
-LIMIT=200
+LIMIT=800
 
 BRANCH="default"
 
