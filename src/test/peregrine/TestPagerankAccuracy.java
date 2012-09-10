@@ -57,9 +57,10 @@ public class TestPagerankAccuracy extends peregrine.BaseTestWithMultipleProcesse
 
         // only 0 and 1 should be dangling.
 
-        String path = "/pr/test.graph";
+        String graph = "/pr/graph";
+        String nodes_by_hashcode = "/pr/nodes_by_hashcode";
 
-        ExtractWriter writer = new ExtractWriter( config, path );
+        ExtractWriter writer = new ExtractWriter( config, graph );
 
         GraphBuilder builder = new GraphBuilder( writer );
 
@@ -75,7 +76,7 @@ public class TestPagerankAccuracy extends peregrine.BaseTestWithMultipleProcesse
 
         try {
             
-            pr = new Pagerank( config, path );
+            pr = new Pagerank( config, graph, nodes_by_hashcode );
 
             pr.init();
 

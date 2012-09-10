@@ -102,7 +102,7 @@ public class Wikirank {
 
         // the graph is written, now launch a job to finish it up.
 
-        Pagerank pr = new Pagerank( config, "/wikirank/graph", controller );
+        Pagerank pr = new Pagerank( config, "/wikirank/graph", "/wikirank/nodes_by_hashcode", controller );
         pr.exec( false );
 
     }

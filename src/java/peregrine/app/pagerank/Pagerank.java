@@ -38,7 +38,13 @@ public class Pagerank {
 
     private Config config;
 
-    private String path = null;
+    /**
+     */
+    private String graph = null;
+
+    /**
+     */
+    private String nodes_by_hashcode = null;
     
     /**
      * The number of iterations we should perform.
@@ -51,13 +57,14 @@ public class Pagerank {
      */
     private int step = 0;
     
-    public Pagerank( Config config, String path ) {
-        this( config, path, new Controller( config ) );
+    public Pagerank( Config config, String graph, String nodes_by_hashcode ) {
+        this( config, graph, nodes_by_hashcode, new Controller( config ) );
     }
 
-    public Pagerank( Config config, String path, Controller controller ) {
+    public Pagerank( Config config, String graph, String nodes_by_hashcode, Controller controller ) {
         this.config = config;
-        this.path = path;
+        this.graph = graph;
+        this.nodes_by_hashcode = nodes_by_hashcode;
         this.controller = controller;
     }
 
@@ -72,7 +79,7 @@ public class Pagerank {
         
         // TODO: We can elide this and the next step by reading the input
         // once and writing two two destinations.  this would read from
-        // 'path' and then wrote to node_indegree and graph_by_source at the
+        // 'graph' and then wrote to node_indegree and graph_by_source at the
         // same time.
 
         // ***
@@ -80,7 +87,7 @@ public class Pagerank {
         // compute the node_indegree 
 
         controller.map( NodeIndegreeJob.Map.class,
-                        new Input( path ),
+                        new Input( graph ),
                         new Output( "shuffle:default" ) );
 
         controller.reduce( NodeIndegreeJob.Reduce.class,
@@ -96,7 +103,7 @@ public class Pagerank {
         // 
 
         controller.map( Mapper.class,
-                        new Input( path ),
+                        new Input( graph ),
                         new Output( "shuffle:default" ) );
         
         controller.reduce( GraphBySourceJob.Reduce.class,

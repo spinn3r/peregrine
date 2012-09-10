@@ -34,9 +34,10 @@ public class Main {
         Config config = ConfigParser.parse( args );
         new Initializer( config ).controller();
 
-        String path = "/pr/test.graph";
+        String graph = "/pr/graph";
+        String nodes_by_hashcode = "/pr/nodes_by_hashcode";
         
-        ExtractWriter writer = new ExtractWriter( config, path );
+        ExtractWriter writer = new ExtractWriter( config, graph );
 
         GraphBuilder builder = new GraphBuilder( writer );
         
@@ -44,7 +45,7 @@ public class Main {
         
         writer.close();
 
-        new Pagerank( config, path ).exec();
+        new Pagerank( config, graph, nodes_by_hashcode ).exec();
         
     }
 
