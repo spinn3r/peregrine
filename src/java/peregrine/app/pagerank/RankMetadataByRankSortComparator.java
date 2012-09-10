@@ -22,8 +22,10 @@ public class RankMetadataByRankSortComparator extends StrictSortDescendingCompar
     public StructReader getSortKey( StructReader key, StructReader value ) {
 
         int offset = IntBytes.LENGTH + IntBytes.LENGTH;
-        
-        return StructReaders.join( value.slice( 0, DoubleBytes.LENGTH ), key.slice() );
+
+        StructReader prefix = value.slice( offset, DoubleBytes.LENGTH );
+
+        return StructReaders.join( prefix, key.slice() );
 
     }
 
