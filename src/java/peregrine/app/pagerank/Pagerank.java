@@ -190,9 +190,7 @@ public class Pagerank {
         log.info( "Running term() stage." );
 
         controller.merge( MergeNodeAndRankMetaJob.Merge.class,
-                          new Input( "/pr/out/node_metadata",
-                                     "/pr/out/rank_vector",
-                                     nodes_by_hashcode ),
+                          new Input( "/pr/out/node_metadata", "/pr/out/rank_vector", nodes_by_hashcode ),
                           new Output( "/pr/out/rank_metadata" ) );
 
         // TODO: join rank_vector, node_metadata, and node_desc into one file,

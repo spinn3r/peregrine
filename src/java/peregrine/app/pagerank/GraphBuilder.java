@@ -90,30 +90,7 @@ public class GraphBuilder {
         addRecord( source, Longs.toList( targets ) );
         
     }
-
-    public void addRecord( String source,
-                           String... targets ) throws Exception {
-
-        List<Long> list = new ArrayList();
-
-        for( String target : targets ) {
-            list.add( hash( target ) );
-        }
-
-        StructReader key = StructReaders.wrap( Base16.decode( source ) );
-
-        StructWriter structWriter = new StructWriter( targets.length * Hashcode.HASH_WIDTH );
-        
-        for( String target : targets ) {
-            structWriter.writeBytesFixed( Base16.decode( target ) );
-        }
-
-        StructReader value = structWriter.toStructReader();
-
-        writer.write( key, value );
-        
-    }
-
+    
     public void addRecord( long source,
                            List<Long> targets ) throws Exception {
 
