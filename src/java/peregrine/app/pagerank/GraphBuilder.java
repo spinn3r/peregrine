@@ -22,6 +22,9 @@ import peregrine.io.*;
 import peregrine.util.*;
 import peregrine.util.primitive.*;
 
+/**
+ * Build various graphs for testing.
+ */
 public class GraphBuilder {
 
     private ExtractWriter writer;

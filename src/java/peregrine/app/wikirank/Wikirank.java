@@ -109,17 +109,8 @@ public class Wikirank {
     
     public void load() throws Exception {
 
-        //now join against nodesByPrimaryKey and and rank graph so that we can
-        //have rank per node
-
-        // merge /pr/out/rank_vector and nodesByPrimaryKey and node_metadata
-
-        controller.merge( MergeNodeAndRankMetaJob.Merge.class,
-                          new Input( "/pr/out/node_metadata",
-                                     "/pr/out/rank_vector",
-                                     "/wikirank/nodesByHashcode" ),
-                          new Output( "/wikirank/rank_metadata" ) );
-
+        // load isn't needed any more.
+        
     }
     
     private int writeNodes( String input ) throws Exception {
