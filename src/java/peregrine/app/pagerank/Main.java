@@ -34,17 +34,16 @@ public class Main {
         Config config = ConfigParser.parse( args );
         new Initializer( config ).controller();
 
-        String path = "/pr/test.graph";
-        
-        ExtractWriter writer = new ExtractWriter( config, path );
+        String graph = "/pr/graph";
+        String nodes_by_hashcode = "/pr/nodes_by_hashcode";
 
-        GraphBuilder builder = new GraphBuilder( writer );
+        GraphBuilder builder = new GraphBuilder( config, graph, nodes_by_hashcode );
         
         builder.buildRandomGraph( nr_nodes , max_edges_per_node );
         
-        writer.close();
+        builder.close();
 
-        new Pagerank( config, path ).exec();
+        new Pagerank( config, graph, nodes_by_hashcode ).exec();
         
     }
 

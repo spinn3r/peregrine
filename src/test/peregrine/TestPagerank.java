@@ -36,15 +36,14 @@ public class TestPagerank extends peregrine.BaseTestWithMultipleProcesses {
 
         // only 0 and 1 should be dangling.
 
-        String path = "/pr/test.graph";
+        String graph = "/pr/graph";
+        String nodes_by_hashcode = "/pr/nodes_by_hashcode";
 
-        ExtractWriter writer = new ExtractWriter( config, path );
-
-        GraphBuilder builder = new GraphBuilder( writer );
+        GraphBuilder builder = new GraphBuilder( config, graph, nodes_by_hashcode );
         
         builder.buildRandomGraph( nr_nodes , max_edges_per_node );
 
-        writer.close();
+        builder.close();
 
         Controller controller = null;
         
@@ -52,7 +51,7 @@ public class TestPagerank extends peregrine.BaseTestWithMultipleProcesses {
 
             controller = new Controller( config );
             
-            Pagerank pr = new Pagerank( config, path, controller );
+            Pagerank pr = new Pagerank( config, graph, nodes_by_hashcode, controller );
 
             pr.exec( false );
 
@@ -72,7 +71,8 @@ public class TestPagerank extends peregrine.BaseTestWithMultipleProcesses {
         BaseTestWithMultipleProcesses.BASEDIR_MAP.put( 11115 , "/d3" );
         */
         
-        setPropertyDefault( "peregrine.test.config", "2:1:4" ); 
+        //setPropertyDefault( "peregrine.test.config", "2:1:4" ); 
+        setPropertyDefault( "peregrine.test.config", "1:1:1" ); 
         runTests();
 
     }

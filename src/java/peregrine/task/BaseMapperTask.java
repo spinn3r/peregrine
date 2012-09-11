@@ -32,11 +32,15 @@ import peregrine.map.*;
 import peregrine.shuffle.sender.*;
 import peregrine.util.*;
 
+import com.spinn3r.log5j.*;
+
 /**
  * Base task for all task that read input from external systems or the 
  * filesystem (or pipes).  In practice this boils down to map and merge tasks.
  */
 public abstract class BaseMapperTask extends BaseTask implements Callable {
+
+    private static final Logger log = Logger.getLogger();
 
     /**
      * This tasks partition listeners.
@@ -90,12 +94,12 @@ public abstract class BaseMapperTask extends BaseTask implements Callable {
      */
     protected List<SequenceReader> getJobInput() throws IOException {
 
+        listeners.add( mapperChunkStreamListener );
+
         for( ShuffleJobOutput current : shuffleJobOutput ) {
             listeners.add( current );
         }
 
-        listeners.add( mapperChunkStreamListener );
-        
         List<SequenceReader> readers = new ArrayList();
 
         for( int i = 0; i < getInput().getReferences().size(); ++i ) {
@@ -157,11 +161,15 @@ public abstract class BaseMapperTask extends BaseTask implements Callable {
      * per every 100MB or so and isn't the end of the world.
      * 
      */
-    class MapperChunkStreamListener implements ChunkStreamListener{
+    class MapperChunkStreamListener implements ChunkStreamListener {
 
         public int lastChunk = -1;
+
+        //private BaseMapper baseMapper = (BaseMapper)jobDelegate;
         
         public void onChunk( ChunkReference ref ) {
+
+    	    log.info( "Handling chunk: %s for %s" , ref, getClass().getName() );
 
             ++lastChunk;
             
@@ -176,6 +184,10 @@ public abstract class BaseMapperTask extends BaseTask implements Callable {
 
             try {
 
+                // fire onChunkEnd on the mapper so that intermediate chunk data
+                // can be sent to broadcast shuffles.
+                // baseMapper.onChunkEnd();
+                
                 // first try to flush job output.
                 new Flusher( getJobOutput() ).flush();
 

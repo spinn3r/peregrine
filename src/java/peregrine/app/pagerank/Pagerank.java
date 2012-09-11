@@ -24,13 +24,27 @@ import peregrine.io.*;
 
 import com.spinn3r.log5j.Logger;
 
+/**
+ * <p> Pagerank implementation which uses Peregrine as a backend for fast
+ * computation.
+ *
+ * <p>
+ * Our pagerank implementation takes an input file and writes resulting files to
+ * /pr/out/ for external analysis and use within external systems.
+ */
 public class Pagerank {
     
     private static final Logger log = Logger.getLogger();
 
     private Config config;
 
-    private String path = null;
+    /**
+     */
+    private String graph = null;
+
+    /**
+     */
+    private String nodes_by_hashcode = null;
     
     /**
      * The number of iterations we should perform.
@@ -43,13 +57,14 @@ public class Pagerank {
      */
     private int step = 0;
     
-    public Pagerank( Config config, String path ) {
-        this( config, path, new Controller( config ) );
+    public Pagerank( Config config, String graph, String nodes_by_hashcode ) {
+        this( config, graph, nodes_by_hashcode, new Controller( config ) );
     }
 
-    public Pagerank( Config config, String path, Controller controller ) {
+    public Pagerank( Config config, String graph, String nodes_by_hashcode, Controller controller ) {
         this.config = config;
-        this.path = path;
+        this.graph = graph;
+        this.nodes_by_hashcode = nodes_by_hashcode;
         this.controller = controller;
     }
 
@@ -64,7 +79,7 @@ public class Pagerank {
         
         // TODO: We can elide this and the next step by reading the input
         // once and writing two two destinations.  this would read from
-        // 'path' and then wrote to node_indegree and graph_by_source at the
+        // 'graph' and then wrote to node_indegree and graph_by_source at the
         // same time.
 
         // ***
@@ -72,7 +87,7 @@ public class Pagerank {
         // compute the node_indegree 
 
         controller.map( NodeIndegreeJob.Map.class,
-                        new Input( path ),
+                        new Input( graph ),
                         new Output( "shuffle:default" ) );
 
         controller.reduce( NodeIndegreeJob.Reduce.class,
@@ -88,7 +103,7 @@ public class Pagerank {
         // 
 
         controller.map( Mapper.class,
-                        new Input( path ),
+                        new Input( graph ),
                         new Output( "shuffle:default" ) );
         
         controller.reduce( GraphBySourceJob.Reduce.class,
@@ -174,17 +189,19 @@ public class Pagerank {
 
         log.info( "Running term() stage." );
 
-        controller.sort( "/pr/out/rank_vector",
-                         "/pr/out/rank_vector_by_rank",
-                         RankVectorByRankSortComparator.class );
-        
-        controller.sort( "/pr/out/node_metadata",
-                         "/pr/out/node_metadata_by_indegree",
-                         NodeMetadataByIndegreeComparator.class );
-        
-        // we should also merge with the node_metadata table and write out
-        // everything and then sort that table.
-        
+        // merge the rank vector, node metadata (indegree, outdegree) as well as name of the node, title, and description.
+        controller.merge( MergeNodeAndRankMetaJob.Merge.class,
+                          new Input( "/pr/out/node_metadata", "/pr/out/rank_vector", nodes_by_hashcode ),
+                          new Output( "/pr/out/rank_metadata" ) );
+
+        controller.sort( "/pr/out/rank_metadata",
+                         "/pr/out/rank_metadata_by_rank",
+                         RankMetadataByRankSortComparator.class );
+
+        controller.sort( "/pr/out/rank_metadata",
+                         "/pr/out/rank_metadata_by_indegree",
+                         RankMetadataByIndegreeComparator.class );
+
     }
     
     /**

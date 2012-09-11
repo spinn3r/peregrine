@@ -8,6 +8,12 @@
 sudo killall -9 java ; rm -rf logs/* && ant jar compile.test && sudo ./bin/jexec src/test/peregrine/TestPagerank.java
 
 
+
+#./bin/fscat --render=int,int,double,string /tmp/peregrine-fs-11112/localhost/11112/0/pr/out/rank_metadata_by_indegree/chunk000000.dat |head
+
+ ./bin/fscat --render=%10d,%10d,%15f,%10s /tmp/peregrine-fs-11112/localhost/11112/0/pr/out/rank_metadata_by_indegree/chunk000000.dat |head -100
+
+
 ./bin/fscat --render=int,int /tmp/peregrine-fs-11112/localhost/11112/0/pr/out/node_metadata_by_indegree/chunk000000.dat |head
 ./bin/fscat --render=int,int /tmp/peregrine-fs-11112/localhost/11112/0/pr/out/node_metadata_by_indegree/chunk000000.dat |tail
 

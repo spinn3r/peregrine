@@ -70,16 +70,16 @@ public class Wikirank {
 
         controller.map( CreateNodeLookupJob.Map.class,
                         new Input( "/wikirank/nodes" ),
-                        new Output( "shuffle:nodesByPrimaryKey",
-                                    "shuffle:nodesByHashcode" ) );
+                        new Output( "shuffle:nodes_by_primary_Key",
+                                    "shuffle:nodes_by_hashcode" ) );
 
         controller.reduce( Reducer.class,
-                           new Input( "shuffle:nodesByPrimaryKey" ),
-                           new Output( "/wikirank/nodesByPrimaryKey" ) );
+                           new Input( "shuffle:nodes_by_primary_Key" ),
+                           new Output( "/wikirank/nodes_by_primary_Key" ) );
 
         controller.reduce( Reducer.class,
-                           new Input( "shuffle:nodesByHashcode" ),
-                           new Output( "/wikirank/nodesByHashcode" ) );
+                           new Input( "shuffle:nodes_by_hashcode" ),
+                           new Output( "/wikirank/nodes_by_hashcode" ) );
                            
         controller.map( FlattenLinksJob.Map.class,
                         new Input( "/wikirank/links" ),
@@ -92,7 +92,7 @@ public class Wikirank {
         // this joins the node table AND the links table and then writes a
         // raw hashcode graph for use with pagerank.
         controller.merge( MergePagesAndLinksJob.Merge.class,
-                          new Input( "/wikirank/nodesByPrimaryKey",
+                          new Input( "/wikirank/nodes_by_primary_Key",
                                      "/wikirank/links.flattened" ),
                           new Output( "/wikirank/graph" ) );
 
@@ -102,15 +102,13 @@ public class Wikirank {
 
         // the graph is written, now launch a job to finish it up.
 
-        Pagerank pr = new Pagerank( config, "/wikirank/graph", controller );
+        Pagerank pr = new Pagerank( config, "/wikirank/graph", "/wikirank/nodes_by_hashcode", controller );
         pr.exec( false );
 
     }
     
     public void load() throws Exception {
 
-        // load isn't needed any more.
-        
     }
     
     private int writeNodes( String input ) throws Exception {

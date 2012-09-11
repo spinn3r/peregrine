@@ -15,10 +15,14 @@
 */
 package peregrine.app.pagerank;
 
+import java.io.*;
 import java.util.*;
 
 import peregrine.*;
+import peregrine.config.*;
 import peregrine.io.*;
+import peregrine.io.*;
+import peregrine.sort.*;
 import peregrine.util.*;
 import peregrine.util.primitive.*;
 
@@ -27,12 +31,49 @@ import peregrine.util.primitive.*;
  */
 public class GraphBuilder {
 
-    private ExtractWriter writer;
+    private ExtractWriter graphWriter = null;;
+
+    private ExtractWriter nodesByHashcodeWriter = null;
+
+    private Set<Long> nodes = new TreeSet();
     
-    public GraphBuilder( ExtractWriter writer ) {
-        this.writer = writer;
+    public GraphBuilder( Config config, String graph, String nodes_by_hashcode ) throws IOException {
+
+        graphWriter = new ExtractWriter( config, graph );
+        
+        nodesByHashcodeWriter = new ExtractWriter( config, nodes_by_hashcode );
+
     }
 
+    public void close() throws IOException {
+
+        graphWriter.close();
+
+        //technically this can be a map reduce job 
+        
+        // sort and write out the nodes.
+        List<StructReader> list = new ArrayList();
+
+        Map<StructReader, Long> lookup = new HashMap();
+        
+        for( long node : nodes ) {
+            
+            StructReader key = StructReaders.hashcode( node );
+            lookup.put( key, node );
+            
+            list.add( key );
+        }
+
+        Collections.sort( list, new FastStructReaderComparator() );
+
+        for( StructReader key : list ) {
+            long node = lookup.get( key );
+            nodesByHashcodeWriter.write( key, StructReaders.wrap( "" + node ) );
+        }
+        
+        nodesByHashcodeWriter.close();
+    }
+    
     public void buildRandomGraph( int nr_nodes,
                                   int max_edges_per_node ) throws Exception {
         
@@ -93,35 +134,23 @@ public class GraphBuilder {
         addRecord( source, Longs.toList( targets ) );
         
     }
-
-    public void addRecord( String source,
-                           String... targets ) throws Exception {
-
-        List<Long> list = new ArrayList();
-
-        for( String target : targets ) {
-            list.add( hash( target ) );
-        }
-
-        StructReader key = StructReaders.wrap( Base16.decode( source ) );
-
-        StructWriter structWriter = new StructWriter( targets.length * Hashcode.HASH_WIDTH );
-        
-        for( String target : targets ) {
-            structWriter.writeBytesFixed( Base16.decode( target ) );
-        }
-
-        StructReader value = structWriter.toStructReader();
-
-        writer.write( key, value );
-        
-    }
-
+    
     public void addRecord( long source,
                            List<Long> targets ) throws Exception {
 
-        writer.write( StructReaders.hashcode( source ),
-                      StructReaders.hashcode( targets ) );
+        StructReader key = StructReaders.hashcode( source );
+        
+        graphWriter.write( key, StructReaders.hashcode( targets ) );
+
+        for( long target : targets ) {
+            nodes.add( target );
+        }
+        
+        nodes.add( source );
+        
+    }
+
+    private void writeNode( long id ) throws IOException {
 
     }
     
