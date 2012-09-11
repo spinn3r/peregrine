@@ -33,8 +33,6 @@ public interface Partitioner {
 
 	/**
 	 * Init the partitioner with the current job.
-     * 
-	 * @param config The config to read configuration data.
 	 */
 	public void init( Job job );
 
