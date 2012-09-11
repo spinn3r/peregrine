@@ -58,23 +58,71 @@ public class StreamReader {
         return buff.readByte();
     }
 
+    /**
+     * Read a fixed width 4 byte int.
+     */
     public int readInt() {
         fireOnRead(4);
         return buff.readInt();
     }
 
     /**
-     * Read a slice from this stream reader, as a COPY, note this copies data
-     * into the heap.
+     * Read a single line of input from the stream.  When the stream is
+     * exhausted we return null.
      */
-    private ChannelBuffer readSlice( int length ) {
+    public ChannelBuffer readLine() {
 
-        fireOnRead( length );
+        // TODO: this is not super efficient in terms of memory
+        // allocation/deallocation but it forces us to remain a sequential
+        // reader which us required with the StreamReader.
+        
+        SlabDynamicChannelBuffer result = new SlabDynamicChannelBuffer( 1024, 1024 );
+        
+        while( true ) {
 
-        byte[] result = new byte[ length ];
-        buff.readBytes( result);
+            // we have exhausted the buffer
+            if ( buff.readerIndex() >= buff.writerIndex() ) {
 
-        return ChannelBuffers.wrappedBuffer( result );
+                // if we NOT read any data, return null
+                if ( result.writerIndex() == 0 ) {
+                    return null;
+                }
+
+                break;
+                
+            }
+            
+            byte b = read();
+
+            // break when we have read a full line.
+            if ( b == '\n' )
+                break;
+
+            // skip DOS style EOL
+            if ( b == '\r' )
+                continue;
+
+            result.writeByte( b );
+            
+        }
+
+        return result;
+
+    }
+
+    /**
+     * Call readLine but return the result as a String.
+     */
+    public String readLineAsString() {
+
+        ChannelBuffer line = readLine();
+
+        if ( line == null )
+            return null;
+
+        byte[] data = new byte[ line.writerIndex() ];
+        line.readBytes( data );
+        return new String( data );
 
     }
     
@@ -91,6 +139,21 @@ public class StreamReader {
 
     public void setListener( StreamReaderListener listener ) { 
         this.listener = listener;
+    }
+
+    /**
+     * Read a slice from this stream reader, as a COPY, note this copies data
+     * into the heap.
+     */
+    private ChannelBuffer readSlice( int length ) {
+
+        fireOnRead( length );
+
+        byte[] result = new byte[ length ];
+        buff.readBytes( result);
+
+        return ChannelBuffers.wrappedBuffer( result );
+
     }
 
     /** 
