@@ -24,6 +24,12 @@ import peregrine.util.*;
 import peregrine.worker.*;
 import peregrine.controller.*;
 
+/**
+ * A region of a file which has a deterministic size and ends on a record
+ * boundary.  This way we can parse the file easily.  We can also still use a
+ * ChannelBuffer/ByteBuffer as a backing since we can make it each one less than
+ * 2GB but aggregate them on files <b>larger</b> than 2GB.
+ */
 public class InputSplit {
 
     public long start = 0;

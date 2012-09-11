@@ -25,7 +25,10 @@ import peregrine.worker.*;
 import peregrine.controller.*;
 
 /**
- * Take large files and break them up into input splits.
+ * Take large files and break them up into input splits.  We take an InputFile,
+ * seek to the next offset, then find the place within that file where a record
+ * ends.  Right now this splits on the Wikipedia import boundaries.  In the
+ * future we should make boundary detection a plugin based on file format.
  */
 public class Splitter {
 
