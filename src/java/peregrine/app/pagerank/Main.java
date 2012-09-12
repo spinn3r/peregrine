@@ -15,8 +15,9 @@
 */
 package peregrine.app.pagerank;
 
-import peregrine.io.*;
+import peregrine.app.pagerank.extract.*;
 import peregrine.config.*;
+import peregrine.io.*;
 import peregrine.util.*;
 import peregrine.worker.*;
 
@@ -24,24 +25,39 @@ public class Main {
 
     public static void main( String[] args ) throws Exception {
 
-        Getopt getopt = new Getopt( args );
-        
-        int nr_nodes = getopt.getInt( "nr_nodes", 500 );
-        int max_edges_per_node = getopt.getInt( "max_edges_per_node", 500 );
-        
-        System.out.printf( "Running with nr_nodes: %,d , max_edges_per_node: %,d\n", nr_nodes, max_edges_per_node );
-        
         Config config = ConfigParser.parse( args );
         new Initializer( config ).controller();
+
+        Getopt getopt = new Getopt( args );
 
         String graph = "/pr/graph";
         String nodes_by_hashcode = "/pr/nodes_by_hashcode";
 
-        GraphBuilder builder = new GraphBuilder( config, graph, nodes_by_hashcode );
+        String corpus = getopt.getString( "corpus" );
+
+        if ( corpus == null ) {
+
+            //build a grandom graph
+            
+            int nr_nodes = getopt.getInt( "nr_nodes", 500 );
+            int max_edges_per_node = getopt.getInt( "max_edges_per_node", 500 );
+            
+            System.out.printf( "Running with nr_nodes: %,d , max_edges_per_node: %,d\n", nr_nodes, max_edges_per_node );
+            
+            GraphBuilder builder = new GraphBuilder( config, graph, nodes_by_hashcode );
+            
+            builder.buildRandomGraph( nr_nodes , max_edges_per_node );
         
-        builder.buildRandomGraph( nr_nodes , max_edges_per_node );
-        
-        builder.close();
+            builder.close();
+
+        } else {
+
+            // extract the corpus specified on the command line...
+
+            CorpusExtracter extracter = new CorpusExtracter( corpus );
+            extracter.exec();
+            
+        }
 
         new Pagerank( config, graph, nodes_by_hashcode ).exec();
         

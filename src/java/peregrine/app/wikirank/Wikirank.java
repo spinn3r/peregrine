@@ -16,6 +16,7 @@
 package peregrine.app.wikirank;
 
 import java.io.*;
+import java.util.*;
 
 import peregrine.*;
 import peregrine.config.Config;
@@ -197,4 +198,3 @@ public class Wikirank {
     }
 
 }
-

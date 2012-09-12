@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
 */
-package peregrine.app.wikirank;
+package peregrine.app.pagerank.extract;
 
 import java.io.*;
 import java.util.*;
@@ -31,8 +31,8 @@ import org.jboss.netty.buffer.*;
 /**
  * Callback used when we are parsing streams of wikipedia dumps.
  */
-public class ParserListener {
+public interface ParserListener {
 
-    public void onEntry( String source, List<String> targets );
+    public void onEntry( String source, List<String> targets ) throws Exception;
     
 }

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
 */
-package peregrine.app.wikirank;
+package peregrine.app.pagerank.extract;
 
 import java.io.*;
 import java.util.*;
@@ -33,12 +33,13 @@ import org.jboss.netty.buffer.*;
  */
 public class CorpusExtracter {
 
-    /**
-     * 
-     * 
-     *
-     */
-    public CorpusExtracter( String path ) throws IOException {
+    private String path = null;
+
+    public CorpusExtracter( String path ) {
+        this.path = path;
+    }
+
+    public void exec() throws IOException {
 
         MappedFileReader mappedFileReader = new MappedFileReader( path );
 
@@ -77,13 +78,13 @@ public class CorpusExtracter {
 
         System.out.printf( "skipped: %,d\n", skipped );
         System.out.printf( "indexed: %,d\n", indexed );
-        
+
     }
-    
+
     public static void main( String[] args ) throws Exception {
 
         String path = args[0];
-        new CorpusExtracter( path );
+        new CorpusExtracter( path ).exec();
         
     }
 
