@@ -53,13 +53,12 @@ public class Main {
         } else {
 
             // extract the corpus specified on the command line...
-
-            CorpusExtracter extracter = new CorpusExtracter( corpus );
-            extracter.exec();
+            ExtractFromFlatFormat extracter = new ExtractFromFlatFormat( config, corpus );
+            extracter.extract();
             
         }
-
-        new Pagerank( config, graph, nodes_by_hashcode ).exec();
+        
+        //new Pagerank( config, graph, nodes_by_hashcode ).exec();
         
     }
 

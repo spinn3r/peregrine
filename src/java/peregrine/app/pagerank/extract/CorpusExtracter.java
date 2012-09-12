@@ -35,11 +35,14 @@ public class CorpusExtracter {
 
     private String path = null;
 
-    public CorpusExtracter( String path ) {
+    private ParserListener listener = null;
+    
+    public CorpusExtracter( String path, ParserListener listener ) {
         this.path = path;
+        this.listener = listener;
     }
 
-    public void exec() throws IOException {
+    public void exec() throws Exception {
 
         MappedFileReader mappedFileReader = new MappedFileReader( path );
 
@@ -70,8 +73,10 @@ public class CorpusExtracter {
             String source  = split[0];
             List<String> targets = Strings.split( split[1], ":" );
 
-            System.out.printf( "%s=%s\n", source, targets );
+            //System.out.printf( "%s=%s\n", source, targets );
 
+            listener.onEntry( source, targets );
+            
             ++indexed;
             
         }
@@ -84,7 +89,7 @@ public class CorpusExtracter {
     public static void main( String[] args ) throws Exception {
 
         String path = args[0];
-        new CorpusExtracter( path ).exec();
+        //new CorpusExtracter( path ).exec();
         
     }
 

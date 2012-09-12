@@ -39,6 +39,8 @@ public class ExtractFromFlatFormat {
     private Config config = null;
 
     private String path = null;
+
+    private int written = 0;
     
     public ExtractFromFlatFormat( Config config, String path ) {
         this.config = config;
@@ -55,6 +57,12 @@ public class ExtractFromFlatFormat {
         log.info( "Running extract() on %s", path );
 
         CorpusParserListener listener = new CorpusParserListener();
+
+        CorpusExtracter extracter = new CorpusExtracter( path, listener );
+
+        extracter.exec();
+        
+        System.out.printf( "Wrote %,d entries\n", written );
         
     }
 
@@ -90,6 +98,8 @@ public class ExtractFromFlatFormat {
 
             linksWriter.write( StructReaders.hashcode( source ),
                                StructReaders.wrap( outbound ) );
+
+            ++written;
             
         }
 
