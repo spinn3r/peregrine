@@ -17,6 +17,7 @@ package peregrine.app.pagerank;
 
 import peregrine.app.pagerank.extract.*;
 import peregrine.config.*;
+import peregrine.controller.*;
 import peregrine.io.*;
 import peregrine.util.*;
 import peregrine.worker.*;
@@ -35,6 +36,8 @@ public class Main {
 
         String corpus = getopt.getString( "corpus" );
 
+        Controller controller = new Controller( config );
+        
         if ( corpus == null ) {
 
             //build a grandom graph
@@ -53,12 +56,12 @@ public class Main {
         } else {
 
             // extract the corpus specified on the command line...
-            ExtractFromFlatFormat extracter = new ExtractFromFlatFormat( config, corpus );
+            ExtractFromFlatFormat extracter = new ExtractFromFlatFormat( config, controller, corpus );
             extracter.extract();
             
         }
         
-        //new Pagerank( config, graph, nodes_by_hashcode ).exec();
+        new Pagerank( config, graph, nodes_by_hashcode, controller ).exec();
         
     }
 

@@ -38,12 +38,15 @@ public class ExtractFromFlatFormat {
 
     private Config config = null;
 
+    private Controller controller = null;
+    
     private String path = null;
 
     private int written = 0;
     
-    public ExtractFromFlatFormat( Config config, String path ) {
+    public ExtractFromFlatFormat( Config config, Controller controller, String path ) {
         this.config = config;
+        this.controller = controller;
         this.path = path;
     }
 
@@ -61,9 +64,31 @@ public class ExtractFromFlatFormat {
         CorpusExtracter extracter = new CorpusExtracter( path, listener );
 
         extracter.exec();
+
+        listener.close();
         
         System.out.printf( "Wrote %,d entries\n", written );
+
+        controller.map( Mapper.class,
+                        new Input( "/pr/corpus-nodes" ),
+                        new Output( "shuffle:default" ) );
+
+        controller.reduce( UniqueNodeJob.Reduce.class,
+                           new Input( "shuffle:default" ),
+                           new Output( "/pr/nodes_by_hashcode" ) );
+
+        /*
         
+        controller.map( Mapper.class,
+                        new Input( "/pr/corpus-links" ),
+                        new Output( "shuffle:default" ) );
+
+        controller.reduce( Reducer.class,
+                           new Input( "shuffle:default" ),
+                           new Output( "/wikirank/nodes_by_hashcode" ) );
+                           
+        */
+                           
     }
 
     /**
@@ -103,6 +128,11 @@ public class ExtractFromFlatFormat {
             
         }
 
+        public void close() throws IOException {
+            linksWriter.close();
+            nodesWriter.close();                
+        }
+        
         private void writeNode( String name ) throws Exception {
 
             StructReader key = StructReaders.hashcode( name);
