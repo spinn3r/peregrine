@@ -65,5 +65,13 @@ public class Strings {
         return buff.toString();
         
     }
+
+    /**
+     * Split a string and return the result as a list.
+     */
+    public static List<String> split( String str , String sep ) {
+        return Arrays.asList( str.split( sep ) );
+    }
+    
     
 }

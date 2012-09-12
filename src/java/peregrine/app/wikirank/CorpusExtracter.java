@@ -42,6 +42,9 @@ public class CorpusExtracter {
 
         MappedFileReader mappedFileReader = new MappedFileReader( path );
 
+        int skipped = 0;
+        int wrote = 0;
+        
         StreamReader reader = new StreamReader( mappedFileReader.map() );
 
         while( true ) {
@@ -51,9 +54,29 @@ public class CorpusExtracter {
             if ( line == null )
                 break;
 
-            System.out.printf( "line: %s\n" , line );
+            //System.out.printf( "line: %s\n" , line );
+            
+            String[] split;
+
+            split = line.split( "=" );
+
+            if ( split.length <= 1 ) {
+                //System.out.printf( "WARN: %s\n", line );
+                ++skipped;
+                continue;
+            }
+            
+            String source  = split[0];
+            List<String> targets = Strings.split( split[1], ":" );
+
+            System.out.printf( "%s=%s\n", source, targets );
+
+            ++wrote;
             
         }
+
+        System.out.printf( "skipped: %,d\n", skipped );
+        System.out.printf( "wrote: %,d\n", wrote );
         
     }
     
