@@ -43,7 +43,7 @@ public class CorpusExtracter {
         MappedFileReader mappedFileReader = new MappedFileReader( path );
 
         int skipped = 0;
-        int wrote = 0;
+        int indexed = 0;
         
         StreamReader reader = new StreamReader( mappedFileReader.map() );
 
@@ -71,12 +71,12 @@ public class CorpusExtracter {
 
             System.out.printf( "%s=%s\n", source, targets );
 
-            ++wrote;
+            ++indexed;
             
         }
 
         System.out.printf( "skipped: %,d\n", skipped );
-        System.out.printf( "wrote: %,d\n", wrote );
+        System.out.printf( "indexed: %,d\n", indexed );
         
     }
     
