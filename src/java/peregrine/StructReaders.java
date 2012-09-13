@@ -144,15 +144,6 @@ public class StructReaders {
         
     }
     
-    public static StructReader hashcode( String value ) {
-
-        return new StructWriter()
-            .writeHashcode( value )
-            .toStructReader()
-            ;
-        
-    }
-
     public static StructReader hashcode( long value ) {
 
         return new StructWriter()
@@ -187,6 +178,24 @@ public class StructReaders {
         
     }
 
+    
+    /**
+     * Generate a StructReader for a list of hashcodes.
+     */
+    // TODO: make all methods use this form so that we can easily make lists of
+    // types which are fixed width.  
+    public static StructReader hashcode( String... values ) {
+
+        StructWriter writer = new StructWriter( values.length * Hashcode.HASH_WIDTH );
+
+        for( String current : values ) {
+            writer.writeHashcode( current );
+        }
+
+        return writer.toStructReader();
+
+    }
+    
     public static StructReader hashcode( int value ) {
         return hashcode( (long)value );
     }

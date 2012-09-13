@@ -23,6 +23,7 @@ import peregrine.config.Config;
 import peregrine.controller.*;
 import peregrine.io.*;
 import peregrine.app.pagerank.*;
+import peregrine.util.*;
 
 import com.spinn3r.log5j.Logger;
 
@@ -77,17 +78,13 @@ public class ExtractFromFlatFormat {
                            new Input( "shuffle:default" ),
                            new Output( "/pr/nodes_by_hashcode" ) );
 
-        /*
-        
         controller.map( Mapper.class,
                         new Input( "/pr/corpus-links" ),
                         new Output( "shuffle:default" ) );
 
         controller.reduce( Reducer.class,
                            new Input( "shuffle:default" ),
-                           new Output( "/wikirank/nodes_by_hashcode" ) );
-                           
-        */
+                           new Output( "/pr/graph" ) );
                            
     }
 
@@ -109,20 +106,16 @@ public class ExtractFromFlatFormat {
         @Override
         public void onEntry( String source, List<String> targets ) throws Exception {
 
+            if ( targets.size() == 0 )
+                return;
+            
             writeNode( source );
 
             for( String target : targets ) {
                 writeNode( target );
             }
 
-            List<StructReader> outbound = new ArrayList();
-
-            for( String target : targets ) {
-                outbound.add( StructReaders.wrap( target ) );
-            }
-
-            linksWriter.write( StructReaders.hashcode( source ),
-                               StructReaders.wrap( outbound ) );
+            linksWriter.write( StructReaders.hashcode( source ), StructReaders.hashcode( Strings.toArray( targets ) ) );
 
             ++written;
             
