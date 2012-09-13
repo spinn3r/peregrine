@@ -25,6 +25,8 @@ import peregrine.worker.*;
 import peregrine.controller.*;
 
 /**
+ * Facade which we pass to the API so that we can expose a read() method easily
+ * without exposing any other internals.
  */
 public class InputFileReader {
 
@@ -41,7 +43,7 @@ public class InputFileReader {
      * Read a character from a position in the file so we can return the end
      * point of a record.
      */
-    public char read( int pos ) {
+    public char read( int pos ) throws IOException {
 
         if ( pos <= prev ) {
 
