@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
 */
-package peregrine.app.wikirank;
+package peregrine.split;
 
 import java.io.*;
 import java.util.*;
@@ -24,6 +24,8 @@ import peregrine.util.*;
 import peregrine.worker.*;
 import peregrine.controller.*;
 
+import com.spinn3r.log5j.Logger;
+
 /**
  * Take large files and break them up into input splits.  We take an input file,
  * seek to the next offset, then find the point within that file where a record
@@ -32,9 +34,13 @@ import peregrine.controller.*;
  * <p> Right now this splits on the Wikipedia import boundaries.  In the future
  * we should make boundary detection a plugin based on file format.
  */
-public class Splitter {
+public class InputSplitter {
 
-    private int split_size = 134217728; /* 2^27 ... 100MB splits */
+    private static final Logger log = Logger.getLogger();
+
+    public static final int SPLIT_SIZE = 134217728; /* 2^27 ... 100MB splits */
+    
+    private int split_size = SPLIT_SIZE;
 
     private File file = null;
 
@@ -42,14 +48,14 @@ public class Splitter {
 
     private List<InputSplit> splits = new ArrayList();
 
-    /**
-     * 
-     * 
-     *
-     */
-    public Splitter( String path ) throws IOException {
+    public InputSplitter( String path ) throws IOException {
+        this( path, SPLIT_SIZE );
+    }
+
+    public InputSplitter( String path, int split_size ) throws IOException {
 
         this.file = new File( path );
+        this.split_size = split_size;
         this.raf = new RandomAccessFile( file, "r" );
 
         long length = file.length();
@@ -100,7 +106,7 @@ public class Splitter {
     private void registerInputSplit( long start, long end ) {
 
         InputSplit split = new InputSplit( start, end );
-        //System.out.printf( "Found split: %s\n", split );
+        log.info( "Found split: %s", split );
         
         splits.add( split );
 
@@ -114,7 +120,11 @@ public class Splitter {
     public static void main( String[] args ) throws Exception {
 
         String path = args[0];
-        new Splitter( path );
+        InputSplitter splitter = new InputSplitter( path, 128000 );
+
+        List<InputSplit> result = splitter.getInputSplits();
+
+        System.out.printf( "Found %,d splits\n", result.size() );
         
     }
 
