@@ -23,6 +23,7 @@ import peregrine.config.*;
 import peregrine.util.*;
 import peregrine.worker.*;
 import peregrine.controller.*;
+import peregrine.app.wikirank.*;
 
 import com.spinn3r.log5j.Logger;
 
@@ -107,36 +108,12 @@ public class InputSplitter {
     public static void main( String[] args ) throws Exception {
 
         String path = args[0];
-        InputSplitter splitter = new InputSplitter( path, new ExampleRecordFinder(), 128000 );
+        InputSplitter splitter = new InputSplitter( path, new WikiRecordFinder(), 128000 );
 
         List<InputSplit> result = splitter.getInputSplits();
 
         System.out.printf( "Found %,d splits\n", result.size() );
         
-    }
-
-}
-
-class ExampleRecordFinder implements RecordFinder {
-
-    @Override
-    public long findRecord( InputFileReader reader, long pos ) throws IOException {
-
-        while( true ) {
-
-            if ( reader.read(pos - 0) == '(' &&
-                 reader.read(pos - 1) == ',' &&
-                 reader.read(pos - 2) == ')' ) {
-                
-                return pos - 1;
-                
-            }
-
-            // go back one character now.
-            --pos;
-            
-        }
-
     }
 
 }
