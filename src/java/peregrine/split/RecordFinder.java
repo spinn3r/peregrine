@@ -25,7 +25,8 @@ import peregrine.worker.*;
 import peregrine.controller.*;
 
 /**
- * Find the end of a record in the input file.
+ * Find the end of a record in the input file.  This method allows us to parse
+ * custom file formats.
  */
 public interface RecordFinder {
 
