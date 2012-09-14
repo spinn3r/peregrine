@@ -46,15 +46,18 @@ public class InputSplitter {
 
     private RandomAccessFile raf = null;
 
+    private RecordFinder finder = null;
+    
     private List<InputSplit> splits = new ArrayList();
 
-    public InputSplitter( String path ) throws IOException {
-        this( path, SPLIT_SIZE );
+    public InputSplitter( String path, RecordFinder finder ) throws IOException {
+        this( path, finder, SPLIT_SIZE );
     }
 
-    public InputSplitter( String path, int split_size ) throws IOException {
+    public InputSplitter( String path, RecordFinder finder, int split_size ) throws IOException {
 
         this.file = new File( path );
+        this.finder = finder;
         this.split_size = split_size;
         this.raf = new RandomAccessFile( file, "r" );
 
@@ -70,31 +73,15 @@ public class InputSplitter {
                 registerInputSplit( offset, end );
                 break;
             }
-            
-            while( true ) {
 
-                if ( end <= offset )
-                    throw new IOException( String.format( "Reached previous offset before finding split ( end=%s vs offset=%s )",
-                                                          end , offset ) );
-                
-                if ( read(end - 0) == '(' &&
-                     read(end - 1) == ',' &&
-                     read(end - 2) == ')' ) {
-                    
-                    --end;
+            InputFileReader current = new InputFileReader( raf, offset, end );
 
-                    registerInputSplit( offset, end );
-                    
-                    break;
-                    
-                }
+            end = finder.findRecord( current, end );
 
-                --end;
-
-            }
+            registerInputSplit( offset, end );
 
             offset = end + 1;
-
+            
         }
 
     }
@@ -120,12 +107,36 @@ public class InputSplitter {
     public static void main( String[] args ) throws Exception {
 
         String path = args[0];
-        InputSplitter splitter = new InputSplitter( path, 128000 );
+        InputSplitter splitter = new InputSplitter( path, new ExampleRecordFinder(), 128000 );
 
         List<InputSplit> result = splitter.getInputSplits();
 
         System.out.printf( "Found %,d splits\n", result.size() );
         
+    }
+
+}
+
+class ExampleRecordFinder implements RecordFinder {
+
+    @Override
+    public long findRecord( InputFileReader reader, long pos ) throws IOException {
+
+        while( true ) {
+
+            if ( reader.read(pos - 0) == '(' &&
+                 reader.read(pos - 1) == ',' &&
+                 reader.read(pos - 2) == ')' ) {
+                
+                return pos - 1;
+                
+            }
+
+            // go back one character now.
+            --pos;
+            
+        }
+
     }
 
 }

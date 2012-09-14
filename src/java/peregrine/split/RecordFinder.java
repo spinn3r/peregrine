@@ -25,36 +25,13 @@ import peregrine.worker.*;
 import peregrine.controller.*;
 
 /**
- * Facade which we pass to the API so that we can expose a read() method easily
- * without exposing any other internals.
+ * Find the end of a record in the input file.
  */
-public class InputFileReader {
-
-    private RandomAccessFile raf;
-
-    private long start;
-
-    private long end;
-    
-    public InputFileReader( RandomAccessFile raf , long start, long end ) {
-        this.raf = raf;
-        this.start = start;
-        this.end = end;
-    }
+public interface RecordFinder {
 
     /**
-     * Read a character from a position in the file so we can return the end
-     * point of a record.
+     * Find the end of a record.  Returns the point where the record ends.
      */
-    public char read( long pos ) throws IOException {
-
-        if ( pos <= start || pos > end ) {
-            throw new IOException( String.format( "Position %s not within interval [%s,)", pos, start, end ) );
-        }
-
-        raf.seek( pos );
-        return (char)raf.read();
-
-    }
+    public long findRecord( InputFileReader reader, long pos ) throws IOException;
     
 }
