@@ -27,6 +27,7 @@ import peregrine.util.*;
 import peregrine.util.netty.*;
 import peregrine.worker.*;
 import peregrine.os.*;
+import peregrine.split.*;
 
 import org.jboss.netty.buffer.*;
 
@@ -63,7 +64,7 @@ public abstract class BaseParser<T> {
 
         log.info( "Going to read: %s", path );
 
-        Splitter splitter = new Splitter( path );
+        InputSplitter splitter = new InputSplitter( path, new WikiRecordFinder() );
 
         splits = splitter.getInputSplits();
 

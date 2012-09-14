@@ -17,31 +17,45 @@ package peregrine.app.wikirank;
 
 import java.io.*;
 import java.util.*;
+import java.util.regex.*;
+import java.nio.*;
+import java.nio.channels.*;
 
 import peregrine.io.*;
 import peregrine.config.*;
 import peregrine.util.*;
+import peregrine.util.netty.*;
 import peregrine.worker.*;
-import peregrine.controller.*;
+import peregrine.os.*;
+import peregrine.split.*;
+
+import org.jboss.netty.buffer.*;
+
+import com.spinn3r.log5j.Logger;
 
 /**
- * A region of a file which has a deterministic size and ends on a record
- * boundary.  This way we can parse the file easily.  We can also still use a
- * ChannelBuffer/ByteBuffer as a backing since we can make it each one less than
- * 2GB but aggregate them on files <b>larger</b> than 2GB.
+ * Parse out the wikipedia sample data.
  */
-public class InputSplit {
+public class WikiRecordFinder implements RecordFinder {
 
-    public long start = 0;
-    public long end = 0;
+    @Override
+    public long findRecord( InputFileReader reader, long pos ) throws IOException {
 
-    public InputSplit( long start, long end ) {
-        this.start = start;
-        this.end = end;
+        while( true ) {
+
+            if ( reader.read(pos - 0) == '(' &&
+                 reader.read(pos - 1) == ',' &&
+                 reader.read(pos - 2) == ')' ) {
+                
+                return pos - 1;
+                
+            }
+
+            // go back one character now.
+            --pos;
+            
+        }
+
     }
 
-    public String toString() {
-        return String.format( "start=%,d , end=%,d" , start, end );
-    }
-    
 }
