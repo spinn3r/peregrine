@@ -25,7 +25,7 @@ import peregrine.util.*;
 /**
  * A message sent between two hosts.
  */
-public class Message extends StructMap {
+public class Message extends StructMap implements MessageSerializable {
 
     public Message() { }
 
@@ -85,4 +85,14 @@ public class Message extends StructMap {
 
     }
 
+    @Override
+    public Message toMessage() {
+        return this;
+    }
+
+    @Override
+    public void fromMessage( Message message ) {
+        init( message.toMap() );
+    }
+    
 }

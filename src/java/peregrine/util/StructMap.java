@@ -46,19 +46,18 @@ public class StructMap {
 
         Properties props = new Properties();
         props.load( is );
-        delegate = props;
-
-        init();
+        init( props );
 
     }
     
     public StructMap( Map delegate ) {
-        this.delegate = delegate;
-        init();
+        init( delegate );
     }
 
-    private void init() {
+    public void init( Map delegate ) {
 
+        this.delegate = delegate;
+        
         for( Object key : delegate.keySet() ) {
             keys.add( key.toString() );
         }
@@ -262,6 +261,11 @@ public class StructMap {
         return delegate.size();
     }
 
+    public Map toMap() {
+        //return a copy of the internal delegate.
+        return new HashMap( delegate );
+    }
+    
     /**
      * Return this struct as a dictionary.
      */

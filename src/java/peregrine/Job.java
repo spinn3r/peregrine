@@ -21,6 +21,7 @@ import peregrine.config.partitioner.*;
 import peregrine.io.*;
 import peregrine.rpc.*;
 import peregrine.sort.*;
+import peregrine.util.*;
 
 import com.spinn3r.log5j.Logger;
 
@@ -55,6 +56,8 @@ public class Job implements MessageSerializable {
 
     protected Class comparator = DefaultSortComparator.class; 
 
+    protected Message parameters = new Message();
+    
     /**
      * Get a unique identifier for this job.  Every job stats at 0 (zero) and is
      * every new job identifier is incremented by 1 (one).
@@ -180,6 +183,14 @@ public class Job implements MessageSerializable {
         this.maxChunks = maxChunks;
     }
 
+    public Message getParameters() {
+        return parameters;
+    }
+
+    public void setParameters( Message parameters ) {
+        this.parameters = parameters;
+    }
+    
     @Override
     public String toString() {
 
@@ -212,6 +223,7 @@ public class Job implements MessageSerializable {
         message.put( "partitioner",   partitioner );
         message.put( "maxChunks",     maxChunks );
         message.put( "comparator",    comparator );
+        message.put( "parameters",    parameters );
 
         return message;
         
@@ -232,6 +244,7 @@ public class Job implements MessageSerializable {
         partitioner   = message.getClass( "partitioner" );
         maxChunks     = message.getInt( "maxChunks" );
         comparator    = message.getClass( "comparator" );
+        parameters    = new Message( message.getString( "parameters" ) );
         
     }
     

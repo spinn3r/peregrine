@@ -52,20 +52,34 @@ public class Test {
 
     public static void main( String[] args ) throws Exception {
 
-        byte[] b0 = new byte[] { (byte)0x00 , (byte)0x00 , (byte)0x00 , (byte)0x00 , (byte)0x00 , (byte)0x01 , (byte)0x85 , (byte)0x84 , (byte)0x6d , (byte)0x40 , (byte)0x27 , (byte)0x64 , (byte)0xd5 , (byte)0x3c , (byte)0x61 , (byte)0xe2 };
+        Job job = new Job();
 
-        byte[] b1 = new byte[] { (byte)0x7f , (byte)0x7f , (byte)0x7f , (byte)0x7f , (byte)0x7f , (byte)0x7f , (byte)0x7f , (byte)0x7f , (byte)0x7f , (byte)0x7f , (byte)0x7f , (byte)0x7f , (byte)0x7f , (byte)0x7f , (byte)0x7f , (byte)0x7f };
+        job.getParameters().put( "foo", "bar" );
 
-        List<StructReader> list = new ArrayList();
-
-        list.add( StructReaders.wrap( b0 ) );
-        list.add( StructReaders.wrap( b1 ) );
-
-        Collections.sort( list, new StrictSortDescendingComparator() );
+        Message message = job.toMessage();
         
-        for( StructReader current : list ) {
-            System.out.printf( "%s\n", Hex.encode( current ) );
-        }
+        System.out.printf( "job: %s\n", message.toString() );
+
+        job = new Job();
+
+        job.fromMessage( message );
+
+        System.out.printf( "foo=%s\n", job.getParameters().getString( "foo" ) );
+
+        // byte[] b0 = new byte[] { (byte)0x00 , (byte)0x00 , (byte)0x00 , (byte)0x00 , (byte)0x00 , (byte)0x01 , (byte)0x85 , (byte)0x84 , (byte)0x6d , (byte)0x40 , (byte)0x27 , (byte)0x64 , (byte)0xd5 , (byte)0x3c , (byte)0x61 , (byte)0xe2 };
+
+        // byte[] b1 = new byte[] { (byte)0x7f , (byte)0x7f , (byte)0x7f , (byte)0x7f , (byte)0x7f , (byte)0x7f , (byte)0x7f , (byte)0x7f , (byte)0x7f , (byte)0x7f , (byte)0x7f , (byte)0x7f , (byte)0x7f , (byte)0x7f , (byte)0x7f , (byte)0x7f };
+
+        // List<StructReader> list = new ArrayList();
+
+        // list.add( StructReaders.wrap( b0 ) );
+        // list.add( StructReaders.wrap( b1 ) );
+
+        // Collections.sort( list, new StrictSortDescendingComparator() );
+        
+        // for( StructReader current : list ) {
+        //     System.out.printf( "%s\n", Hex.encode( current ) );
+        // }
         
     }
 
