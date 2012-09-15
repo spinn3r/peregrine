@@ -82,12 +82,12 @@ public class DefaultChannelUpstreamHandler extends SimpleChannelUpstreamHandler 
         
     }
 
-    protected void sendOK( ChannelHandlerContext ctx ) {
+    public void sendOK( ChannelHandlerContext ctx ) {
         HttpResponse response = new DefaultHttpResponse( HTTP_1_1, OK );
         ctx.getChannel().write(response).addListener(ChannelFutureListener.CLOSE);
     }
     
-    protected void sendError(ChannelHandlerContext ctx, HttpResponseStatus status) {
+    public void sendError(ChannelHandlerContext ctx, HttpResponseStatus status) {
 
         HttpResponse response = new DefaultHttpResponse(HTTP_1_1, status);
 

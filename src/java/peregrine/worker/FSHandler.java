@@ -117,7 +117,7 @@ public class FSHandler extends DefaultChannelUpstreamHandler {
             }
             
             if ( method == GET ) {
-                // TODO
+                upstream = new FSGetDirectHandler( daemon, this );
             }
 
             // this method needs pipelining... 
