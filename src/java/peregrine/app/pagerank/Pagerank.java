@@ -167,6 +167,12 @@ public class Pagerank {
                            new Output( "/pr/out/rank_vector",
                                        "broadcast:rank_sum" ) );
 
+        // now reduce the broadcast rank sum to an individual file for analysis
+        // and reading
+        controller.reduce( GlobalRankSumJob.Reduce.class,
+                           new Input( "shuffle:rank_sum" ),
+                           new Output( "/pr/out/rank_sum" ) );
+
         // ***
         // 
         // write out the new ranking vector
