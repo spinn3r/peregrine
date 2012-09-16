@@ -97,11 +97,9 @@ public class NodeMetadataJob {
 
             StructReader key = StructReaders.hashcode( "id" );
 
-            if ( nrNodes > 0 ) {
-                // *** broadcast nr_nodes.
-                nrNodesBroadcastOutput.emit( key, StructReaders.wrap( nrNodes ) );
-            }
-
+            // *** broadcast nr_nodes.
+            nrNodesBroadcastOutput.emit( key, StructReaders.wrap( nrNodes ) );
+            
             // *** broadcast nr dangling.
             nrDanglingBroadcastOutput.emit( key, StructReaders.wrap( nrDangling ) );
 
