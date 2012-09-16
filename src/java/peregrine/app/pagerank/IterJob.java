@@ -201,20 +201,15 @@ public class IterJob {
             
         }
 
-        /*
         @Override
-        public void onChunkEnd() {
+        public void close() throws IOException {
 
             // broadcast the rank_sum for this partition now.
-
-            rankSumBroadcastOutput.emit( StructReaders.wrap( 0L ),
-                                         StructReaders.wrap( rank_sum ) );
-
-            // reset it, we will sum this up later in the reduce stage.
-            rank_sum = 0.0;
+            StructReader key = StructReaders.hashcode( "id" );
+            
+            rankSumBroadcastOutput.emit( key, StructReaders.wrap( rank_sum ) );
             
         }
-        */
         
     }
 
