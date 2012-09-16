@@ -40,7 +40,7 @@ import com.spinn3r.log5j.Logger;
  * Run a reduce over the the given partition.  This handles intermerging, memory
  * allocation of sorting, etc.
  */
-public class ReduceRunner {
+public class ReduceRunner implements Closeable {
 
     private static final Logger log = Logger.getLogger();
 
@@ -54,6 +54,10 @@ public class ReduceRunner {
 
     private List<JobOutput> jobOutput = null;
     private Job job = null;
+
+    private PrefetchReader finalPrefetchReader = null;
+    
+    private ChunkMerger finalMerger = null;
 
     public ReduceRunner( Config config,
                          Task task,
@@ -153,6 +157,11 @@ public class ReduceRunner {
         }
 
     }
+
+    @Override
+    public void close() throws IOException {
+        new Closer( finalPrefetchReader, finalMerger ).close();
+    }
     
     /**
      * Do the final merge including writing to listener when we are finished.
@@ -160,27 +169,21 @@ public class ReduceRunner {
     public void finalMerge( List<SequenceReader> readers, int pass ) throws IOException {
 
         log.info( "Merging on final merge with %,d readers (strategy=finalMerge, pass=%,d)", readers.size(), pass );
-        
-        PrefetchReader prefetchReader = null;
 
-        ChunkMerger merger = null;
-        
         try {
             
             SystemProfiler profiler = config.getSystemProfiler();
 
-            prefetchReader = createPrefetchReader( readers );
+            finalPrefetchReader = createPrefetchReader( readers );
 
-            merger = new ChunkMerger( task, listener, partition, readers, jobOutput, job.getComparatorInstance() );
+            finalMerger = new ChunkMerger( task, listener, partition, readers, jobOutput, job.getComparatorInstance() );
         
-            merger.merge();
+            finalMerger.merge();
 
             log.info( "Merged with profiler rate: \n%s", profiler.rate() );
 
         } finally {
-
-            new Closer( prefetchReader, merger ).close();
-
+            //new Closer( finalPrefetchReader, finalMerger ).close();
         }
         
     }

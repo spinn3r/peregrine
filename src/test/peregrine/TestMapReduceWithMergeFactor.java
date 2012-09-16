@@ -24,6 +24,7 @@ import peregrine.io.*;
 import peregrine.io.partition.*;
 import peregrine.util.primitive.*;
 import peregrine.util.*;
+
 import com.spinn3r.log5j.*;
 
 public class TestMapReduceWithMergeFactor extends peregrine.BaseTestWithMultipleProcesses {

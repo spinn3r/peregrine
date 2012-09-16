@@ -15,11 +15,17 @@
 */
 package peregrine.io.driver.broadcast;
 
+import java.io.*;
+
 import peregrine.*;
 import peregrine.config.*;
 import peregrine.io.driver.shuffle.*;
 
+import com.spinn3r.log5j.*;
+
 public class BroadcastJobOutput extends ShuffleJobOutput {
+
+    private static final Logger log = Logger.getLogger();
 
     public BroadcastJobOutput( Config config, Job job, Partition partition ) {
         this( config, job, "default", partition );
@@ -45,6 +51,11 @@ public class BroadcastJobOutput extends ShuffleJobOutput {
     @Override
     public String toString() {
         return String.format( "%s:%s@%s", getClass().getName(), name, Integer.toHexString(hashCode()) );
+    }
+
+    @Override 
+    public void close() throws IOException {
+        super.close();
     }
     
 }

@@ -40,6 +40,8 @@ public class ReducerTask extends BaseTask implements Callable {
     private ShuffleInputReference shuffleInput;
 
     private AtomicInteger nrTuples = new AtomicInteger();
+
+    private ReduceRunner reduceRunner = null;
     
     public ReducerTask() {}
 
@@ -67,7 +69,7 @@ public class ReducerTask extends BaseTask implements Callable {
     	
     	SortListener listener = new ReducerTaskSortListener();
 
-        ReduceRunner reduceRunner = new ReduceRunner( config, this, partition, listener, shuffleInput, getJobOutput() );
+        reduceRunner = new ReduceRunner( config, this, partition, listener, shuffleInput, getJobOutput() );
 
         String shuffle_dir = config.getShuffleDir( shuffleInput.getName() );
 
@@ -97,10 +99,21 @@ public class ReducerTask extends BaseTask implements Callable {
 
     }
 
+    @Override
+    public void teardown() throws IOException {
+        reduceRunner.close();
+        super.teardown();
+    }
+
+    
+    /**
+     * Call the reduce() method when we have a final value on the merge.
+     */
     class ReducerTaskSortListener implements SortListener {
         
     	Reducer reducer = (Reducer)jobDelegate;
-    	
+
+        @Override
         public void onFinalValue( StructReader key, List<StructReader> values ) {
 
             try {
