@@ -38,6 +38,8 @@ public class CorpusExtractJob {
         @Override
         public void init( Job job, List<JobOutput> output ) {
 
+            super.init( job, output );
+            
             try {
             
                 String path = job.getParameters().getString( "path" );
@@ -73,8 +75,6 @@ public class CorpusExtractJob {
             
             StructReader value = StructReaders.hashcode( Strings.toArray( targets ) );
 
-            log.info( "Going to emit.." );
-            
             emit( key, value );
             
         }

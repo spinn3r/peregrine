@@ -63,11 +63,11 @@ public class Membership {
     }
 
     public List<Host> getHosts( Partition part ) {
-        return hostsByPartition.get( part );
+        return new ArrayList( hostsByPartition.get( part ) );
     }
 
     public List<Partition> getPartitions( Host host ) {
-        return partitionsByHost.get( host );
+        return new ArrayList( partitionsByHost.get( host ) );
     }
 
     /**
