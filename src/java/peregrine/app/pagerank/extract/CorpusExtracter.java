@@ -46,7 +46,9 @@ public class CorpusExtracter {
 
     }
 
-    
+    public CorpusExtracter( ChannelBuffer buff ) {
+        this.reader = new StreamReader( buff );
+    }
     
     public void exec() throws Exception {
 
@@ -83,8 +85,8 @@ public class CorpusExtracter {
             
         }
 
-        System.out.printf( "skipped: %,d\n", skipped );
-        System.out.printf( "indexed: %,d\n", indexed );
+        //System.out.printf( "skipped: %,d\n", skipped );
+        //System.out.printf( "indexed: %,d\n", indexed );
 
     }
 

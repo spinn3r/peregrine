@@ -109,6 +109,36 @@ public class InputSplitter {
         return splits;
     }
 
+    public Map<Partition,List<InputSplit>> getInputSplitsForPartitions( Config config ) {
+
+        Map<Partition,List<InputSplit>> result = new HashMap();
+
+        List<Partition> partitions = config.getMembership().getPartitions( config.getHost() );
+
+        int nr_splits_par_partition = splits.size() / partitions.size();
+
+        List<InputSplit> partitionSplits = null;
+        
+        while( splits.size() != 0 ) {
+
+            InputSplit split = splits.get( 0 );
+
+            if ( partitionSplits == null || partitionSplits.size() >= nr_splits_par_partition ) {
+                
+                Partition part = partitions.get( 0 );
+                partitionSplits = new ArrayList();
+                result.put( part, partitionSplits );
+                
+            }
+
+            partitionSplits.add( split );
+            
+        }
+        
+        return result;
+        
+    }
+    
     private void registerInputSplit( long start, long end ) throws IOException {
 
         long length = end - start;

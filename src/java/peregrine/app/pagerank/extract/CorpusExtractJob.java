@@ -22,20 +22,52 @@ import peregrine.*;
 import peregrine.util.*;
 import peregrine.util.primitive.IntBytes;
 import peregrine.io.*;
+import peregrine.split.*;
+
+import com.spinn3r.log5j.Logger;
 
 /**
  * A job which takes an input file, parses the splits, then emits them.
  */
 public class CorpusExtractJob {
 
+    private static final Logger log = Logger.getLogger();
+
     public static class Map extends Mapper {
 
         @Override
         public void init( Job job, List<JobOutput> output ) {
 
-            String path = job.getParameters().getString( "path" );
-
+            try {
             
+                String path = job.getParameters().getString( "path" );
+                
+                if ( path == null ) 
+                    throw new NullPointerException( "path" );
+                
+                InputSplitter splitter = new InputSplitter( path, new LineBasedRecordFinder() );
+                
+                List<InputSplit> splits = splitter.getInputSplits();
+
+                log.info( "Found %,d input splits", splits.size() );
+
+                int nr_partitions_on_host = config.getMembership().getPartitions( config.getHost() ).size();
+                
+                for( int i = 0; i < splits.size(); ++i ) {
+
+                    InputSplit split = splits.get( i );
+
+                    if ( ( i + 1 ) % nr_partitions_on_host == 0 ) {
+                        
+                        log.info( "Processing split: %s", split );
+                        
+                    }
+
+                }
+                
+            } catch ( IOException e ) {
+                throw new RuntimeException( e );
+            }
             
         }
 
