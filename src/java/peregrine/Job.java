@@ -187,8 +187,9 @@ public class Job implements MessageSerializable {
         return parameters;
     }
 
-    public void setParameters( Message parameters ) {
+    public Job setParameters( Message parameters ) {
         this.parameters = parameters;
+        return this;
     }
     
     @Override
