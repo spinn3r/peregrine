@@ -43,7 +43,7 @@ public class LineBasedRecordFinder implements RecordFinder {
 
         while( true ) {
 
-            if ( reader.read(pos) == '\n' )
+            if ( reader.read(pos) == '\n' ) {
                 return pos - 1;
             }
 
@@ -51,7 +51,7 @@ public class LineBasedRecordFinder implements RecordFinder {
             --pos;
             
         }
-
+        
     }
-
+    
 }

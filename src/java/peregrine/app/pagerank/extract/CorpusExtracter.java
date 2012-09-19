@@ -33,23 +33,23 @@ import org.jboss.netty.buffer.*;
  */
 public class CorpusExtracter {
 
-    private String path = null;
-
     private ParserListener listener = null;
+
+    private StreamReader reader = null;
     
-    public CorpusExtracter( String path, ParserListener listener ) {
-        this.path = path;
+    public CorpusExtracter( String path, ParserListener listener ) throws IOException {
         this.listener = listener;
+
+        MappedFileReader mappedFileReader = new MappedFileReader( path );
+
+        this.reader = new StreamReader( mappedFileReader.map() );
+
     }
 
     public void exec() throws Exception {
 
-        MappedFileReader mappedFileReader = new MappedFileReader( path );
-
         int skipped = 0;
         int indexed = 0;
-        
-        StreamReader reader = new StreamReader( mappedFileReader.map() );
 
         while( true ) {
 
