@@ -46,8 +46,9 @@ public class CorpusExtracter {
 
     }
 
-    public CorpusExtracter( ChannelBuffer buff ) {
+    public CorpusExtracter( ChannelBuffer buff, ParserListener listener ) {
         this.reader = new StreamReader( buff );
+        this.listener = listener;
     }
     
     public void exec() throws Exception {

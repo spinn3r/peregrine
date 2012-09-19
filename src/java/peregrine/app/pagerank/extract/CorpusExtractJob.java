@@ -33,7 +33,7 @@ public class CorpusExtractJob {
 
     private static final Logger log = Logger.getLogger();
 
-    public static class Map extends Mapper {
+    public static class Map extends Mapper implements ParserListener {
 
         @Override
         public void init( Job job, List<JobOutput> output ) {
@@ -53,14 +53,29 @@ public class CorpusExtractJob {
 
                 for( InputSplit split : splits ) {
                     log.info( "Processing split: %s", split );
+
+                    CorpusExtracter extracter = new CorpusExtracter( split.getChannelBuffer(), this );
+                    
                 }
                 
             } catch ( IOException e ) {
+                log.error( "Unable to run job: ", e );
                 throw new RuntimeException( e );
             }
             
         }
 
+        @Override
+        public void onEntry( String source, List<String> targets ) throws Exception {
+
+            StructReader key = StructReaders.hashcode( source );
+            
+            StructReader value = StructReaders.hashcode( Strings.toArray( targets ) );
+
+            emit( key, value );
+            
+        }
+        
         @Override
         public void map( StructReader key, StructReader value ) {
             //noop for now.

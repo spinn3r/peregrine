@@ -316,7 +316,8 @@ public class Controller {
     private void withScheduler( Job job, Scheduler scheduler ) 
     		throws Exception {
 
-        // add this to the list of jobs that have been submitted.
+        // add this to the list of jobs that have been submitted so we can keep
+        // track of what is happening with teh cluster state.
         jobs.add( job );
         
         String operation = scheduler.getOperation();

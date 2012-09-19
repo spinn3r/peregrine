@@ -539,10 +539,11 @@ public class Scheduler {
         while( true ) {
 
             // test if we're complete.
+
             if ( completed.size() == offlineWork.size() ) {
                 break;
             }
-
+            
             // Right now , if ANYTHING has failed, we can not continue.
             if ( failure.size() > 0 ) {
 
@@ -577,9 +578,9 @@ public class Scheduler {
 
             // TODO: make this a constant.
             Host availableHost = available.poll( 500, TimeUnit.MILLISECONDS );
-            
+
             if ( availableHost != null ) {
-                
+
                 log.info( "Scheduling work for execution on: %s", availableHost );
 
                 try {
