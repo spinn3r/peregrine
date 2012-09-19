@@ -99,12 +99,7 @@ public class InputSplitter {
         splits.add( split );
 
     }
-    
-    private char read( long pos ) throws IOException {
-        raf.seek( pos );
-        return (char)raf.read();
-    }
-    
+        
     public static void main( String[] args ) throws Exception {
 
         String path = args[0];
