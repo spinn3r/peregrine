@@ -119,19 +119,25 @@ public class InputSplitter {
 
         List<Partition> partitions = config.getMembership().getPartitions( config.getHost() );
 
+        for( Partition part : partitions ) {
+            result.put( part, new ArrayList() );
+        }
+
+        if ( partitions.size() == 0 )
+            throw new RuntimeException( "no partitions for host: " + config.getHost() );
+        
         int nr_splits_par_partition = splits.size() / partitions.size();
 
         List<InputSplit> partitionSplits = null;
         
         while( splits.size() != 0 ) {
 
-            InputSplit split = splits.get( 0 );
+            InputSplit split = splits.remove( 0 );
 
             if ( partitionSplits == null || partitionSplits.size() >= nr_splits_par_partition ) {
                 
-                Partition part = partitions.get( 0 );
-                partitionSplits = new ArrayList();
-                result.put( part, partitionSplits );
+                Partition part = partitions.remove( 0 );
+                partitionSplits = result.get( part );
                 
             }
 
@@ -147,7 +153,6 @@ public class InputSplitter {
         return getInputSplitsForPartitions( config ).get( partition );
     }
 
-    
     private void registerInputSplit( long start, long end ) throws IOException {
 
         long length = end - start;

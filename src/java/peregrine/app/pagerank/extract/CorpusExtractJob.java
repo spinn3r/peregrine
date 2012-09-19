@@ -52,13 +52,14 @@ public class CorpusExtractJob {
                 log.info( "Found %,d input splits", splits.size() );
 
                 for( InputSplit split : splits ) {
-                    log.info( "Processing split: %s", split );
 
+                    log.info( "Processing split: %s", split );
                     CorpusExtracter extracter = new CorpusExtracter( split.getChannelBuffer(), this );
+                    extracter.exec();
                     
                 }
                 
-            } catch ( IOException e ) {
+            } catch ( Exception e ) {
                 log.error( "Unable to run job: ", e );
                 throw new RuntimeException( e );
             }
@@ -72,6 +73,8 @@ public class CorpusExtractJob {
             
             StructReader value = StructReaders.hashcode( Strings.toArray( targets ) );
 
+            log.info( "Going to emit.." );
+            
             emit( key, value );
             
         }
