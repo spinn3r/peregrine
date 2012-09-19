@@ -24,6 +24,8 @@ import peregrine.util.*;
 import peregrine.worker.*;
 import peregrine.controller.*;
 
+import org.jboss.netty.buffer.*;
+
 /**
  * A region of a file which has a deterministic size and ends on a record
  * boundary.  This way we can parse the file easily.  We can also still use a
@@ -35,11 +37,18 @@ public class InputSplit {
     public long start = 0;
     public long end = 0;
 
-    public InputSplit( long start, long end ) {
+    private ChannelBuffer buff;
+    
+    public InputSplit( long start, long end, ChannelBuffer buff ) {
         this.start = start;
         this.end = end;
+        this.buff = buff;
     }
 
+    public ChannelBuffer getChannelBuffer() {
+        return buff;
+    }
+    
     public String toString() {
         return String.format( "start=%,d , end=%,d" , start, end );
     }

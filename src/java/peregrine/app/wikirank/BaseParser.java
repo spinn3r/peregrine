@@ -77,13 +77,10 @@ public abstract class BaseParser<T> {
         InputSplit split = splits.remove( 0 );
 
         log.info( "Working with split: %s", split );
-        
-        long length = split.end - split.start;
-        ByteBuffer buff = channel.map( FileChannel.MapMode.READ_ONLY, split.start , length );
 
-        ChannelBuffer channelBuffer = ChannelBuffers.wrappedBuffer( buff );
+        long length = split.end = split.start;
         
-        CharSequence sequence = new ChannelBufferCharSequence( channelBuffer, (int)length );
+        CharSequence sequence = new ChannelBufferCharSequence( split.getChannelBuffer(), (int)length );
 
         m = p.matcher( sequence );
 

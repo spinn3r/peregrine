@@ -16,14 +16,19 @@
 package peregrine.split;
 
 import java.io.*;
+import java.nio.*;
+import java.nio.channels.*;
 import java.util.*;
 
-import peregrine.io.*;
+import peregrine.app.wikirank.*;
 import peregrine.config.*;
+import peregrine.controller.*;
+import peregrine.io.*;
+import peregrine.io.util.*;
 import peregrine.util.*;
 import peregrine.worker.*;
-import peregrine.controller.*;
-import peregrine.app.wikirank.*;
+
+import org.jboss.netty.buffer.*;
 
 import com.spinn3r.log5j.Logger;
 
@@ -45,11 +50,15 @@ public class InputSplitter {
 
     private File file = null;
 
-    private RandomAccessFile raf = null;
-
     private RecordFinder finder = null;
     
     private List<InputSplit> splits = new ArrayList();
+
+    private RandomAccessFile raf = null;
+
+    private FileInputStream fis = null;
+
+    private FileChannel channel = null;
 
     public InputSplitter( String path, RecordFinder finder ) throws IOException {
         this( path, finder, SPLIT_SIZE );
@@ -57,43 +66,58 @@ public class InputSplitter {
 
     public InputSplitter( String path, RecordFinder finder, int split_size ) throws IOException {
 
-        this.file = new File( path );
-        this.finder = finder;
-        this.split_size = split_size;
-        this.raf = new RandomAccessFile( file, "r" );
+        try {
+            
+            this.file = new File( path );
+            this.finder = finder;
+            this.split_size = split_size;
 
-        long length = file.length();
-        long offset = 0;
+            this.raf = new RandomAccessFile( file, "r" );
+            this.fis = new FileInputStream( file );
+            this.channel = fis.getChannel();
 
-        while ( offset < length ) {
+            long length = file.length();
+            long offset = 0;
 
-            long end = offset + split_size;
+            while ( offset < length ) {
 
-            if ( end > length ) {
-                end = length - 1;
+                long end = offset + split_size;
+
+                if ( end > length ) {
+                    end = length - 1;
+                    registerInputSplit( offset, end );
+                    break;
+                }
+
+                InputFileReader current = new InputFileReader( raf, offset, end );
+
+                end = finder.findRecord( current, end );
+
                 registerInputSplit( offset, end );
-                break;
+
+                offset = end + 1;
+                
             }
 
-            InputFileReader current = new InputFileReader( raf, offset, end );
-
-            end = finder.findRecord( current, end );
-
-            registerInputSplit( offset, end );
-
-            offset = end + 1;
-            
+        } finally {
+            new Closer( raf, fis, channel ).close();
         }
-
+            
     }
 
     public List<InputSplit> getInputSplits() {
         return splits;
     }
-    
-    private void registerInputSplit( long start, long end ) {
 
-        InputSplit split = new InputSplit( start, end );
+    private void registerInputSplit( long start, long end ) throws IOException {
+
+        long length = end - start;
+
+        ByteBuffer buff = channel.map( FileChannel.MapMode.READ_ONLY, start , length );
+        
+        ChannelBuffer channelBuffer = ChannelBuffers.wrappedBuffer( buff );
+
+        InputSplit split = new InputSplit( start, end, channelBuffer );
         log.info( "Found split: %s", split );
         
         splits.add( split );
