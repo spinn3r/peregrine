@@ -46,23 +46,13 @@ public class CorpusExtractJob {
                     throw new NullPointerException( "path" );
                 
                 InputSplitter splitter = new InputSplitter( path, new LineBasedRecordFinder() );
-                
-                List<InputSplit> splits = splitter.getInputSplits();
+
+                List<InputSplit> splits = splitter.getInputSplitsForPartitions( config, getPartition() );
 
                 log.info( "Found %,d input splits", splits.size() );
 
-                int nr_partitions_on_host = config.getMembership().getPartitions( config.getHost() ).size();
-                
-                for( int i = 0; i < splits.size(); ++i ) {
-
-                    InputSplit split = splits.get( i );
-
-                    if ( ( i + 1 ) % nr_partitions_on_host == 0 ) {
-                        
-                        log.info( "Processing split: %s", split );
-                        
-                    }
-
+                for( InputSplit split : splits ) {
+                    log.info( "Processing split: %s", split );
                 }
                 
             } catch ( IOException e ) {

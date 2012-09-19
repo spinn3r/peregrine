@@ -109,6 +109,10 @@ public class InputSplitter {
         return splits;
     }
 
+    /**
+     * Take the InputSplits and evenly divide them across partitions which would
+     * process them...  
+     */
     public Map<Partition,List<InputSplit>> getInputSplitsForPartitions( Config config ) {
 
         Map<Partition,List<InputSplit>> result = new HashMap();
@@ -138,6 +142,11 @@ public class InputSplitter {
         return result;
         
     }
+
+    public List<InputSplit> getInputSplitsForPartitions( Config config, Partition partition ) {
+        return getInputSplitsForPartitions( config ).get( partition );
+    }
+
     
     private void registerInputSplit( long start, long end ) throws IOException {
 
