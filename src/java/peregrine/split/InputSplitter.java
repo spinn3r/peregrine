@@ -171,9 +171,13 @@ public class InputSplitter {
             InputSplit split = splits.remove( 0 );
 
             if ( partitionSplits == null || partitionSplits.size() >= nr_splits_par_partition ) {
+
+                if ( partitions.size() > 0 ) {
                 
-                Partition part = partitions.remove( 0 );
-                partitionSplits = result.get( part );
+                    Partition part = partitions.remove( 0 );
+                    partitionSplits = result.get( part );
+
+                }
                 
             }
 
