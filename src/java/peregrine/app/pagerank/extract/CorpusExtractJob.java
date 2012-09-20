@@ -60,6 +60,10 @@ public class CorpusExtractJob {
                 
                 if ( path == null ) 
                     throw new NullPointerException( "path" );
+
+                path = new File( config.getBasedir(), path ).getPath();
+
+                log.info( "Going to extract from path: %s", path );
                 
                 InputSplitter splitter = new InputSplitter( path, new LineBasedRecordFinder() );
 

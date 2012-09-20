@@ -44,7 +44,8 @@ public class InputSplitter {
 
     private static final Logger log = Logger.getLogger();
 
-    public static final int SPLIT_SIZE = 134217728; /* 2^27 ... 100MB splits */
+    //public static final int SPLIT_SIZE = 134217728; /* 2^27 ... 100MB splits */
+    public static final int SPLIT_SIZE = 5242880; /* 5MB splits */
     
     private int split_size = SPLIT_SIZE;
 
