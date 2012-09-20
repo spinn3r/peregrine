@@ -35,10 +35,19 @@ public class CorpusExtractJob {
 
     public static class Map extends Mapper implements ParserListener {
 
+        JobOutput nodeOutput = null;
+        JobOutput linkOutput = null;
+
+        // total number of nodes written.
+        private int written = 0;
+        
         @Override
         public void init( Job job, List<JobOutput> output ) {
 
             super.init( job, output );
+
+            nodeOutput = output.get( 0 );
+            linkOutput = output.get( 1 );
             
             try {
             
@@ -71,17 +80,39 @@ public class CorpusExtractJob {
         @Override
         public void onEntry( String source, List<String> targets ) throws Exception {
 
-            StructReader key = StructReaders.hashcode( source );
+            if ( targets.size() == 0 )
+                return;
             
-            StructReader value = StructReaders.hashcode( Strings.toArray( targets ) );
+            emitNode( source );
 
-            emit( key, value );
+            for( String target : targets ) {
+                emitNode( target );
+            }
+
+            emitLink( source, targets );
+            
+            ++written;
+
+        }
+
+        private void emitNode( String name ) throws Exception {
+
+            StructReader key = StructReaders.hashcode( name);
+            StructReader value = StructReaders.wrap( name );
+
+            nodeOutput.emit( key, value );
             
         }
-        
+
+        private void emitLink( String source, List<String> targets ) throws Exception {
+
+            linkOutput.emit( StructReaders.hashcode( source ), StructReaders.hashcode( Strings.toArray( targets ) ) );
+
+        }
+
         @Override
         public void map( StructReader key, StructReader value ) {
-            //noop for now.
+            //noop for now.  
         }
 
     }

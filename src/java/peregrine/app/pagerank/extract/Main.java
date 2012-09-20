@@ -46,7 +46,7 @@ public class Main {
             
             Job job = new Job().setDelegate( CorpusExtractJob.Map.class ) 
                 .setInput( new Input( "blackhole:" ) )
-                .setOutput( new Output( "shuffle:default" ) )
+                .setOutput( new Output( "shuffle:nodes", "shuffle:links" ) )
                 .setParameters( parameters )
                 ;
 
