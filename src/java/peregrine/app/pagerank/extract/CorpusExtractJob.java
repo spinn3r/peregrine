@@ -67,7 +67,7 @@ public class CorpusExtractJob {
 
                 log.info( "Found %,d input splits", splits.size() );
 
-                ChunkReference chunkRef = new ChunkReference();
+                ChunkReference chunkRef = new ChunkReference( getPartition() );
 
                 for( InputSplit split : splits ) {
 
