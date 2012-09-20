@@ -44,13 +44,10 @@ public class Main {
             Message parameters = new Message();
             parameters.put( "path", path );
             
-            Job job = new Job().setDelegate( CorpusExtractJob.Map.class ) 
-                .setInput( new Input( "blackhole:" ) )
-                .setOutput( new Output( "shuffle:nodes", "shuffle:links" ) )
-                .setParameters( parameters )
-                ;
-
-            controller.map( job );
+            controller.map( new Job().setDelegate( CorpusExtractJob.Map.class ) 
+                                     .setInput( new Input( "blackhole:" ) )
+                                     .setOutput( new Output( "shuffle:nodes", "shuffle:links" ) )
+                                     .setParameters( parameters ) );
            
             controller.reduce( UniqueNodeJob.Reduce.class,
                                new Input( "shuffle:nodes" ),

@@ -56,8 +56,6 @@ public class InputSplitter {
 
     private RandomAccessFile raf = null;
 
-    private FileInputStream fis = null;
-
     private FileChannel channel = null;
 
     public InputSplitter( String path, RecordFinder finder ) throws IOException {
@@ -66,43 +64,81 @@ public class InputSplitter {
 
     public InputSplitter( String path, RecordFinder finder, int split_size ) throws IOException {
 
-        try {
+        //TODO: if the input is a directory, process every file.
+
+        File[] files = getFiles( path );
+        
+        for( File file : files ) {
             
-            this.file = new File( path );
-            this.finder = finder;
-            this.split_size = split_size;
+            try {
 
-            this.raf = new RandomAccessFile( file, "r" );
-            this.fis = new FileInputStream( file );
-            this.channel = fis.getChannel();
+                this.finder = finder;
+                this.split_size = split_size;
 
-            long length = file.length();
-            long offset = 0;
+                RandomAccessFile raf = new RandomAccessFile( file, "r" );
+                FileChannel channel = raf.getChannel();
 
-            while ( offset < length ) {
+                long length = file.length();
+                long offset = 0;
 
-                long end = offset + split_size;
+                while ( offset < length ) {
 
-                if ( end > length ) {
-                    end = length - 1;
-                    registerInputSplit( offset, end );
-                    break;
+                    long end = offset + split_size;
+
+                    if ( end > length ) {
+                        end = length - 1;
+                        registerInputSplit( channel, offset, end );
+                        break;
+                    }
+
+                    InputFileReader current = new InputFileReader( raf, offset, end );
+
+                    end = finder.findRecord( current, end );
+
+                    registerInputSplit( channel, offset, end );
+
+                    offset = end + 1;
+                    
                 }
 
-                InputFileReader current = new InputFileReader( raf, offset, end );
-
-                end = finder.findRecord( current, end );
-
-                registerInputSplit( offset, end );
-
-                offset = end + 1;
-                
+            } finally {
+                new Closer( raf, channel ).close();
             }
 
-        } finally {
-            new Closer( raf, fis, channel ).close();
         }
             
+    }
+
+    /**
+     * If we are given a file, return it, if a directory, return the files in
+     * that directory.
+     */
+    private File[] getFiles( String path ) {
+        
+        File test = new File( path );
+        
+        if ( test.isDirectory() ) {
+            return test.listFiles();
+            
+        } else {
+            return new File[] { test };
+        }
+        
+    }
+    
+    private void registerInputSplit( FileChannel channel, long start, long end ) throws IOException {
+
+        long length = end - start;
+
+        ByteBuffer buff = channel.map( FileChannel.MapMode.READ_ONLY, start , length );
+        
+        ChannelBuffer channelBuffer = ChannelBuffers.wrappedBuffer( buff );
+
+        InputSplit split = new InputSplit( start, end, channelBuffer );
+        log.info( "Found split: %s", split );
+        
+        splits.add( split );
+
     }
 
     public List<InputSplit> getInputSplits() {
@@ -153,21 +189,6 @@ public class InputSplitter {
         return getInputSplitsForPartitions( config ).get( partition );
     }
 
-    private void registerInputSplit( long start, long end ) throws IOException {
-
-        long length = end - start;
-
-        ByteBuffer buff = channel.map( FileChannel.MapMode.READ_ONLY, start , length );
-        
-        ChannelBuffer channelBuffer = ChannelBuffers.wrappedBuffer( buff );
-
-        InputSplit split = new InputSplit( start, end, channelBuffer );
-        log.info( "Found split: %s", split );
-        
-        splits.add( split );
-
-    }
-        
     public static void main( String[] args ) throws Exception {
 
         String path = args[0];
