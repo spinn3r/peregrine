@@ -67,6 +67,9 @@ public class CorpusExtractJob {
                     log.info( "Processing split: %s", split );
                     CorpusExtracter extracter = new CorpusExtracter( split.getChannelBuffer(), this );
                     extracter.exec();
+
+                    //TODO: for now we are going to trigger a GC between input split parsing.  
+                    System.gc();
                     
                 }
                 
