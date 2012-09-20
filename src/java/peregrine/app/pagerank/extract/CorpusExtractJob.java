@@ -82,6 +82,8 @@ public class CorpusExtractJob {
 
                     split.close();
 
+                    log.info( "Closing split %s at chunkRef %s", split, chunkRef );
+                    
                     nodeOutputListener.onChunkEnd( chunkRef );
                     linkOutputListener.onChunkEnd( chunkRef );
 
