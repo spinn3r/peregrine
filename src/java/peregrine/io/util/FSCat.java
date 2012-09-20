@@ -228,6 +228,7 @@ public class FSCat {
                 continue;
             }
 
+            buff.append( String.format( "%s:", value.length() ) );
             buff.append( Base64.encode( value.toByteArray() ) );
 
         }
