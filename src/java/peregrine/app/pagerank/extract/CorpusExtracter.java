@@ -17,6 +17,7 @@ package peregrine.app.pagerank.extract;
 
 import java.io.*;
 import java.util.*;
+import java.util.regex.*;
 
 import peregrine.config.*;
 import peregrine.controller.*;
@@ -33,10 +34,12 @@ import org.jboss.netty.buffer.*;
  */
 public class CorpusExtracter {
 
+    private static Pattern pattern = Pattern.compile( "[^ ]+$" );
+
     private ParserListener listener = null;
 
     private StreamReader reader = null;
-    
+
     public CorpusExtracter( String path, ParserListener listener ) throws IOException {
         this.listener = listener;
 
@@ -63,14 +66,17 @@ public class CorpusExtracter {
             if ( line == null )
                 break;
 
-            //System.out.printf( "line: %s\n" , line );
-            
             String[] split;
 
+            Matcher matcher = pattern.matcher( line );
+
+            if ( matcher.find() ) {
+                line = matcher.group( 0 );
+            }
+            
             split = line.split( "=" );
 
             if ( split.length <= 1 ) {
-                //System.out.printf( "WARN: %s\n", line );
                 ++skipped;
                 continue;
             }
@@ -78,23 +84,25 @@ public class CorpusExtracter {
             String source  = split[0];
             List<String> targets = Strings.split( split[1], ":" );
 
-            //System.out.printf( "%s=%s\n", source, targets );
-
             listener.onEntry( source, targets );
             
             ++indexed;
             
         }
 
-        //System.out.printf( "skipped: %,d\n", skipped );
-        //System.out.printf( "indexed: %,d\n", indexed );
-
     }
 
     public static void main( String[] args ) throws Exception {
 
         String path = args[0];
-        //new CorpusExtracter( path ).exec();
+        new CorpusExtracter( path , new ParserListener() {
+
+                @Override
+                public void onEntry( String source, List<String> targets ) throws Exception {
+                    System.out.printf( "%s=%s\n", source, targets );
+                }
+
+            } ).exec();
         
     }
 

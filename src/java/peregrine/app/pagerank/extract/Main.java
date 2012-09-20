@@ -51,7 +51,15 @@ public class Main {
                 ;
 
             controller.map( job );
-            
+           
+            controller.reduce( UniqueNodeJob.Reduce.class,
+                               new Input( "shuffle:nodes" ),
+                               new Output( "/pr/nodes_by_hashcode" ) );
+
+            controller.reduce( MergeGraphJob.Reduce.class,
+                               new Input( "shuffle:links" ),
+                               new Output( "/pr/graph" ) );
+
         } finally {
             controller.shutdown();
         }

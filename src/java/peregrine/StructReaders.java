@@ -1,3 +1,4 @@
+
 /*
  * Copyright 2011 Kevin A. Burton
  * 
@@ -178,7 +179,6 @@ public class StructReaders {
         
     }
 
-    
     /**
      * Generate a StructReader for a list of hashcodes.
      */
@@ -220,5 +220,20 @@ public class StructReaders {
         return new StructReader( ChannelBuffers.wrappedBuffer( buffers ) );
         
     }
-    
+
+    public static StructReader join( Collection<StructReader> readers ) {
+
+        ChannelBuffer[] buffers = new ChannelBuffer[ readers.size() ];
+
+        int i = 0;
+
+        for( StructReader current : readers ) {
+            buffers[i] = current.buff;
+            ++i;
+        }
+
+        return new StructReader( ChannelBuffers.wrappedBuffer( buffers ) );
+        
+    }
+
 }
