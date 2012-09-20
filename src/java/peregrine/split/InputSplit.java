@@ -42,13 +42,22 @@ public class InputSplit implements Closeable {
 
     private ChannelBuffer buff;
 
-    private FileInputStream fis;
-    private FileChannel channel;
+    private File file;
     
-    public InputSplit( long start, long end, ChannelBuffer buff, FileInputStream fis, FileChannel channel ) {
+    private FileInputStream fis;
+
+    private FileChannel channel;
+
+    public InputSplit( long start,
+                       long end,
+                       ChannelBuffer buff,
+                       File file,
+                       FileInputStream fis,
+                       FileChannel channel ) {
         this.start = start;
         this.end = end;
         this.buff = buff;
+        this.file = file;
         this.fis = fis;
         this.channel = channel;
     }
@@ -58,7 +67,7 @@ public class InputSplit implements Closeable {
     }
     
     public String toString() {
-        return String.format( "start=%,d , end=%,d" , start, end );
+        return String.format( "%s, start=%,d , end=%,d" , file.getPath(), start, end );
     }
 
     @Override
