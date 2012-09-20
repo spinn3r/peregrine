@@ -44,9 +44,7 @@ public abstract class BaseMapper extends BaseJobDelegate {
      * an item we add to an accumulator.  Then we emit the value of the
      * accumulator, and reset on every chunk end.
      */
-    public void onChunkEnd() {
-
-    }
+    public void onChunkEnd() { }
 
 }
 

@@ -22,6 +22,7 @@ import peregrine.*;
 import peregrine.util.*;
 import peregrine.util.primitive.IntBytes;
 import peregrine.io.*;
+import peregrine.io.chunk.*;
 import peregrine.io.util.*;
 import peregrine.split.*;
 
@@ -49,7 +50,10 @@ public class CorpusExtractJob {
 
             nodeOutput = output.get( 0 );
             linkOutput = output.get( 1 );
-            
+
+            ChunkStreamListener nodeOutputListener = (ChunkStreamListener)nodeOutput;
+            ChunkStreamListener linkOutputListener = (ChunkStreamListener)linkOutput;
+
             try {
             
                 String path = job.getParameters().getString( "path" );
@@ -63,13 +67,23 @@ public class CorpusExtractJob {
 
                 log.info( "Found %,d input splits", splits.size() );
 
+                ChunkReference chunkRef = new ChunkReference();
+
                 for( InputSplit split : splits ) {
 
+                    nodeOutputListener.onChunk( chunkRef );
+                    linkOutputListener.onChunk( chunkRef );
+                    
                     log.info( "Processing split: %s", split );
                     CorpusExtracter extracter = new CorpusExtracter( split.getChannelBuffer(), this );
                     extracter.exec();
 
                     split.close();
+
+                    nodeOutputListener.onChunkEnd( chunkRef );
+                    linkOutputListener.onChunkEnd( chunkRef );
+
+                    chunkRef.incr();
                     
                 }
                 
@@ -83,7 +97,6 @@ public class CorpusExtractJob {
         @Override
         public void onEntry( String source, List<String> targets ) throws Exception {
 
-            /*
             if ( targets.size() == 0 )
                 return;
             
@@ -96,7 +109,6 @@ public class CorpusExtractJob {
             emitLink( source, targets );
             
             ++written;
-            */
             
         }
 
