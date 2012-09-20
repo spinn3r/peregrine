@@ -71,6 +71,8 @@ public class CorpusExtractJob {
 
                 for( InputSplit split : splits ) {
 
+                    chunkRef.incr();
+
                     nodeOutputListener.onChunk( chunkRef );
                     linkOutputListener.onChunk( chunkRef );
                     
@@ -83,8 +85,6 @@ public class CorpusExtractJob {
                     nodeOutputListener.onChunkEnd( chunkRef );
                     linkOutputListener.onChunkEnd( chunkRef );
 
-                    chunkRef.incr();
-                    
                 }
                 
             } catch ( Exception e ) {
