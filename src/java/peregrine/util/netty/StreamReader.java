@@ -34,6 +34,11 @@ import java.util.*;
  */
 public class StreamReader {
 
+    /**
+     * Maximum readLine length to prevent out of memory errors.
+     */
+    public static int MAX_LINE_LENGTH = 16384;
+
     private ChannelBuffer buff = null;
 
     private StreamReaderListener listener = null;
@@ -65,7 +70,7 @@ public class StreamReader {
         fireOnRead(4);
         return buff.readInt();
     }
-
+    
     /**
      * Read a single line of input from the stream.  When the stream is
      * exhausted we return null.
@@ -80,6 +85,10 @@ public class StreamReader {
         
         while( true ) {
 
+            if ( result.writerIndex() > MAX_LINE_LENGTH ) {
+                throw new RuntimeException( "Hit max line length: " + MAX_LINE_LENGTH );
+            }
+            
             // we have exhausted the buffer
             if ( buff.readerIndex() >= buff.writerIndex() ) {
 
