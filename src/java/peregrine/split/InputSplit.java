@@ -16,13 +16,16 @@
 package peregrine.split;
 
 import java.io.*;
+import java.nio.*;
+import java.nio.channels.*;
 import java.util.*;
 
-import peregrine.io.*;
 import peregrine.config.*;
+import peregrine.controller.*;
+import peregrine.io.*;
+import peregrine.io.util.*;
 import peregrine.util.*;
 import peregrine.worker.*;
-import peregrine.controller.*;
 
 import org.jboss.netty.buffer.*;
 
@@ -32,17 +35,22 @@ import org.jboss.netty.buffer.*;
  * ChannelBuffer/ByteBuffer as a backing since we can make it each one less than
  * 2GB but aggregate them on files <b>larger</b> than 2GB.
  */
-public class InputSplit {
+public class InputSplit implements Closeable {
 
     public long start = 0;
     public long end = 0;
 
     private ChannelBuffer buff;
+
+    private FileInputStream fis;
+    private FileChannel channel;
     
-    public InputSplit( long start, long end, ChannelBuffer buff ) {
+    public InputSplit( long start, long end, ChannelBuffer buff, FileInputStream fis, FileChannel channel ) {
         this.start = start;
         this.end = end;
         this.buff = buff;
+        this.fis = fis;
+        this.channel = channel;
     }
 
     public ChannelBuffer getChannelBuffer() {
@@ -51,6 +59,11 @@ public class InputSplit {
     
     public String toString() {
         return String.format( "start=%,d , end=%,d" , start, end );
+    }
+
+    @Override
+    public void close() throws IOException {
+        new Closer( fis, channel );
     }
     
 }

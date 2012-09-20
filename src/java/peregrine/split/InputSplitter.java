@@ -87,7 +87,7 @@ public class InputSplitter {
 
                     if ( end > length ) {
                         end = length - 1;
-                        registerInputSplit( channel, offset, end );
+                        registerInputSplit( file, offset, end );
                         break;
                     }
 
@@ -95,7 +95,7 @@ public class InputSplitter {
 
                     end = finder.findRecord( current, end );
 
-                    registerInputSplit( channel, offset, end );
+                    registerInputSplit( file, offset, end );
 
                     offset = end + 1;
                     
@@ -126,15 +126,18 @@ public class InputSplitter {
         
     }
     
-    private void registerInputSplit( FileChannel channel, long start, long end ) throws IOException {
+    private void registerInputSplit( File file, long start, long end ) throws IOException {
 
         long length = end - start;
+        
+        FileInputStream fis = new FileInputStream( file );
+        FileChannel channel = raf.getChannel();
 
         ByteBuffer buff = channel.map( FileChannel.MapMode.READ_ONLY, start , length );
         
         ChannelBuffer channelBuffer = ChannelBuffers.wrappedBuffer( buff );
 
-        InputSplit split = new InputSplit( start, end, channelBuffer );
+        InputSplit split = new InputSplit( start, end, channelBuffer, fis, channel );
         log.info( "Found split: %s", split );
         
         splits.add( split );

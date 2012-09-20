@@ -22,6 +22,7 @@ import peregrine.*;
 import peregrine.util.*;
 import peregrine.util.primitive.IntBytes;
 import peregrine.io.*;
+import peregrine.io.util.*;
 import peregrine.split.*;
 
 import com.spinn3r.log5j.Logger;
@@ -68,9 +69,8 @@ public class CorpusExtractJob {
                     CorpusExtracter extracter = new CorpusExtracter( split.getChannelBuffer(), this );
                     extracter.exec();
 
-                    nodeOutput.flush();
-                    linkOutput.flush();
-
+                    split.close();
+                    
                 }
                 
             } catch ( Exception e ) {
