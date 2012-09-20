@@ -61,6 +61,11 @@ public class InputSplitter {
 
         //TODO: if the input is a directory, process every file.
 
+        if ( ! new File( path ).exists() ) {
+            log.warn( "Path does not exist: %s" , path );
+            return;
+        }
+        
         File[] files = getFiles( path );
 
         for( File file : files ) {
