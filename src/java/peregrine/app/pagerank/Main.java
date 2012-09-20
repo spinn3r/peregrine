@@ -53,12 +53,6 @@ public class Main {
         
             builder.close();
 
-        } else if ( corpus != null ) {
-
-            // extract the corpus specified on the command line...
-            ExtractFromFlatFormat extracter = new ExtractFromFlatFormat( config, controller, corpus );
-            extracter.extract();
-            
         } else {
             System.out.printf( "Using existing graph.\n" );
         }
