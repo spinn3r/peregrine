@@ -48,15 +48,9 @@ public class InputSplitter {
     
     private int split_size = SPLIT_SIZE;
 
-    private File file = null;
-
     private RecordFinder finder = null;
     
     private List<InputSplit> splits = new ArrayList();
-
-    private RandomAccessFile raf = null;
-
-    private FileChannel channel = null;
 
     public InputSplitter( String path, RecordFinder finder ) throws IOException {
         this( path, finder, SPLIT_SIZE );
@@ -67,16 +61,17 @@ public class InputSplitter {
         //TODO: if the input is a directory, process every file.
 
         File[] files = getFiles( path );
-        
+
         for( File file : files ) {
-            
+
+            RandomAccessFile raf = null;
+        
             try {
 
                 this.finder = finder;
                 this.split_size = split_size;
 
-                RandomAccessFile raf = new RandomAccessFile( file, "r" );
-                FileChannel channel = raf.getChannel();
+                raf = new RandomAccessFile( file, "r" );
 
                 long length = file.length();
                 long offset = 0;
@@ -102,7 +97,7 @@ public class InputSplitter {
                 }
 
             } finally {
-                new Closer( raf, channel ).close();
+                new Closer( raf ).close();
             }
 
         }
@@ -131,7 +126,7 @@ public class InputSplitter {
         long length = end - start;
         
         FileInputStream fis = new FileInputStream( file );
-        FileChannel channel = raf.getChannel();
+        FileChannel channel = fis.getChannel();
 
         ByteBuffer buff = channel.map( FileChannel.MapMode.READ_ONLY, start , length );
         
