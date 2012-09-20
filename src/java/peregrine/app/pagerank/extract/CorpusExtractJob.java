@@ -76,13 +76,13 @@ public class CorpusExtractJob {
                     nodeOutputListener.onChunk( chunkRef );
                     linkOutputListener.onChunk( chunkRef );
                     
-                    log.info( "Processing split: %s", split );
+                    log.info( "Processing split: %s on %s", split, getPartition() );
                     CorpusExtracter extracter = new CorpusExtracter( split.getChannelBuffer(), this );
                     extracter.exec();
 
                     split.close();
 
-                    log.info( "Closing split %s at chunkRef %s", split, chunkRef );
+                    log.info( "Closing split %s at chunkRef %s on %s", split, chunkRef, getPartition() );
                     
                     nodeOutputListener.onChunkEnd( chunkRef );
                     linkOutputListener.onChunkEnd( chunkRef );
