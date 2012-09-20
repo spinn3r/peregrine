@@ -83,6 +83,7 @@ public class CorpusExtractJob {
         @Override
         public void onEntry( String source, List<String> targets ) throws Exception {
 
+            /*
             if ( targets.size() == 0 )
                 return;
             
@@ -95,7 +96,8 @@ public class CorpusExtractJob {
             emitLink( source, targets );
             
             ++written;
-
+            */
+            
         }
 
         private void emitNode( String name ) throws Exception {
