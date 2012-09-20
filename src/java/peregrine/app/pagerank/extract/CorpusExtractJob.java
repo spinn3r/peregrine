@@ -61,7 +61,7 @@ public class CorpusExtractJob {
                 if ( path == null ) 
                     throw new NullPointerException( "path" );
 
-                path = new File( config.getBasedir(), path ).getPath();
+                path = new File( config.getRoot(), path ).getPath();
 
                 log.info( "Going to extract from path: %s", path );
                 
