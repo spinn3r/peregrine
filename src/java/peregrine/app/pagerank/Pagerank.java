@@ -89,7 +89,7 @@ public class Pagerank {
         controller.map( NodeIndegreeJob.Map.class,
                         new Input( graph ),
                         new Output( "shuffle:default" ) );
-
+/*
         controller.reduce( NodeIndegreeJob.Reduce.class,
                            new Input( "shuffle:default" ),
                            new Output( "/pr/tmp/node_indegree" ) );
@@ -132,6 +132,8 @@ public class Pagerank {
                            new Input( "shuffle:nr_dangling" ),
                            new Output( "/pr/out/nr_dangling" ) );
 
+*/
+                           
     }
 
     /**
@@ -230,11 +232,14 @@ public class Pagerank {
 
             // ***** ITER stage... 
 
+/*
             for( int step = 0; step < iterations; ++step ) {
                 iter();
             }
 
             term();
+
+*/
             
             log.info( "Pagerank complete" );
 
