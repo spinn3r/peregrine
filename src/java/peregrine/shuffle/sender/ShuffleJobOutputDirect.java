@@ -64,8 +64,8 @@ public class ShuffleJobOutputDirect extends ShuffleJobOutputBase implements Clos
     @Override
     public void emit( StructReader key , StructReader value ) {
 
-        //FIXME: only do this 
-        if ( sender.length() > 1000000 ) {
+        //FIXME: this must be migrated to a conf directive. maxClientShuffleOutputBufferSize
+        if ( sender.length() + key.length() + value.length() > 1000000 ) {
             rollover();
         }
         

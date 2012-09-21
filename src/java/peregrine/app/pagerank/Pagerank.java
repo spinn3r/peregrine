@@ -229,14 +229,11 @@ public class Pagerank {
 
             // ***** ITER stage... 
 
-/*
             for( int step = 0; step < iterations; ++step ) {
                 iter();
             }
 
             term();
-
-*/
             
             log.info( "Pagerank complete" );
 
