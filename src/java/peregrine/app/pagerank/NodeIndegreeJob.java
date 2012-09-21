@@ -12,10 +12,12 @@ public class NodeIndegreeJob {
         public void map( StructReader key,
                          StructReader value) {
 
+            /*
             while( value.isReadable() ) {
                 StructReader target = value.readSlice( Hashcode.HASH_WIDTH );
                 emit( target, StructReaders.TRUE );
             }
+            */
             
         }
 
