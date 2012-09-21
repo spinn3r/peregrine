@@ -41,7 +41,7 @@ public class ShuffleJobOutput
 
     protected ShuffleJobOutputDelegate jobOutputDelegate;
 
-    protected ChunkStreamListener localPartitionReaderListener;
+    protected ChunkStreamListener chunkStreamListener;
 
     public Job job = null;
     
@@ -66,7 +66,7 @@ public class ShuffleJobOutput
         
         jobOutputDelegate = new ShuffleJobOutputDirect( this );
 
-        localPartitionReaderListener = (ChunkStreamListener) jobOutputDelegate;
+        chunkStreamListener = (ChunkStreamListener) jobOutputDelegate;
         
     }
 
@@ -112,12 +112,12 @@ public class ShuffleJobOutput
 
     @Override 
     public void onChunk( ChunkReference chunkRef ) {
-        localPartitionReaderListener.onChunk( chunkRef );
+        chunkStreamListener.onChunk( chunkRef );
     }
 
     @Override 
     public void onChunkEnd( ChunkReference chunkRef ) {
-        localPartitionReaderListener.onChunkEnd( chunkRef );
+        chunkStreamListener.onChunkEnd( chunkRef );
     }
 
     @Override

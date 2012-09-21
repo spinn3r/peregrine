@@ -42,8 +42,13 @@ public class ShuffleJobOutputDirect extends ShuffleJobOutputBase implements Clos
 
     private boolean closed = true;
 
+    /**
+     * The current chunk reference we are on.
+     */
+    private ChunkReference chunkRef = null;
+
     private ShuffleJobOutputDirect() {}
-    
+
     public ShuffleJobOutputDirect( ShuffleJobOutput parent ) {
         this.parent = parent;
         this.partitioner = parent.job.getPartitionerInstance();
@@ -51,14 +56,19 @@ public class ShuffleJobOutputDirect extends ShuffleJobOutputBase implements Clos
         // create a basic sender.  This is used for global sort shuffling.  In
         // normal shuffling this wouldn't be used.
 
-        ChunkReference chunkRef = new ChunkReference( parent.getPartition(), 0 );
+        this.chunkRef = new ChunkReference( parent.getPartition(), 0 );
         this.sender = new ShuffleSender( parent.config, parent.name, chunkRef );
         
     }
     
     @Override
     public void emit( StructReader key , StructReader value ) {
-            
+
+        //FIXME: only do this 
+        if ( sender.length() > 1000000 ) {
+            rollover();
+        }
+        
         Partition target = partitioner.partition( key, value );
 
         emit( target.getId(), key, value );
@@ -81,6 +91,10 @@ public class ShuffleJobOutputDirect extends ShuffleJobOutputBase implements Clos
 
     }
 
+    private void rollover() {
+        rollover( this.chunkRef );
+    }
+
     private void rollover( ChunkReference chunkRef ) {
         closeWithUncheckedException();
         sender = new ShuffleSender( parent.config, parent.name, chunkRef );
@@ -88,6 +102,7 @@ public class ShuffleJobOutputDirect extends ShuffleJobOutputBase implements Clos
     
     @Override 
     public void onChunk( ChunkReference chunkRef ) {
+        this.chunkRef = chunkRef;
         rollover( chunkRef );
     }
 

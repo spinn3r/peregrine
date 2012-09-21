@@ -14,7 +14,7 @@ public class NodeIndegreeJob {
 
             while( value.isReadable() ) {
                 StructReader target = value.readSlice( Hashcode.HASH_WIDTH );
-                //emit( target, StructReaders.TRUE );
+                emit( target, StructReaders.TRUE );
             }
             
         }
