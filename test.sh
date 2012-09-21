@@ -70,3 +70,7 @@ sudo killall -9 java ; rm -rf logs/* && ant jar compile.test && sudo ./bin/jexec
 
 ./bin/fscat --render=long /tmp/peregrine-fs-11113/localhost/11113/1/test/peregrine.globalsort.TestSortDescendingViaMapReduce/test1.out/chunk000000.dat  |head
 ./bin/fscat --render=long /tmp/peregrine-fs-11113/localhost/11113/1/test/peregrine.globalsort.TestSortDescendingViaMapReduce/test1.out/chunk000000.dat  |tail
+
+
+
+./bin/fscat --render=%10d,%10d,%10f,%20s /d0/peregrine-fs/util0029.wdc.sl.spinn3r.com/11112/0/pr/out/rank_metadata_by_rank/chunk000000.dat  |head
