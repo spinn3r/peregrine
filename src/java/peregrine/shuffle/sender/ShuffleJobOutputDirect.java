@@ -64,8 +64,9 @@ public class ShuffleJobOutputDirect extends ShuffleJobOutputBase implements Clos
     @Override
     public void emit( StructReader key , StructReader value ) {
 
-        //FIXME: this must be migrated to a conf directive. maxClientShuffleOutputBufferSize
-        if ( sender.length() + key.length() + value.length() > 1000000 ) {
+        // see if we have too much data in memory and if so we need to send this
+        // shuffle data now as we would run out of memory otherwise.
+        if ( sender.length() + key.length() + value.length() > parent.config.getMaxClientShuffleOutputBufferSize() ) {
             rollover();
         }
         

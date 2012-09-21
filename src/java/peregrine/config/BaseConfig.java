@@ -124,6 +124,8 @@ public class BaseConfig {
 
     protected long httpMaxChunkSize = -1;
 
+    protected long maxClientShuffleOutputBufferSize = -1;
+    
     public void init( StructMap struct ) {
 
         this.struct = struct;
@@ -155,6 +157,7 @@ public class BaseConfig {
         setTraceNetworkTraffic( struct.getBoolean( "traceNetworkTraffic" ) );
         setRequireFreeDiskSpaceSize( struct.getSize( "requireFreeDiskSpaceSize" ) );
         setHttpMaxChunkSize( struct.getSize( "httpMaxChunkSize" ) );
+        setMaxClientShuffleOutputBufferSize( struct.getSize( "maxClientShuffleOutputBufferSize" ) );
         
         if ( struct.containsKey( "host" ) )
             setHost( Host.parse( struct.getString( "host" ) ) );
@@ -404,6 +407,14 @@ public class BaseConfig {
         this.httpMaxChunkSize = httpMaxChunkSize;
     }
 
+    public long getMaxClientShuffleOutputBufferSize() {
+        return this.maxClientShuffleOutputBufferSize;
+    }
+
+    public void setMaxClientShuffleOutputBufferSize( long maxClientShuffleOutputBufferSize ) {
+        this.maxClientShuffleOutputBufferSize = maxClientShuffleOutputBufferSize;
+    }
+    
     static {
 
         try {
