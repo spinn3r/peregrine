@@ -22,6 +22,8 @@ import java.util.concurrent.*;
 import peregrine.rpc.*;
 
 /**
+ * Parameterized list that deserializes the given list of strings and makes them
+ * instances of the given Class which is a MessageSerializable.
  */
 public class StructList<T extends MessageSerializable> extends ArrayList<T> {
 
