@@ -60,14 +60,7 @@ public class Batch implements MessageSerializable {
     @Override
     public void fromMessage( Message message ) {
 
-        for( String current : message.getList( "job" ) ) {
-
-            Job job = new Job();
-            job.fromMessage( new Message( current ) );
-            
-            jobs.add( job );
-            
-        }
+        jobs = new StructList( message.getList( "job" ), Job.class );
 
     }
 

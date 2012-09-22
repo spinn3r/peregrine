@@ -23,13 +23,13 @@ import peregrine.rpc.*;
 
 /**
  */
-public class StructList<T> extends ArrayList<T> {
+public class StructList<T extends MessageSerializable> extends ArrayList<T> {
 
-    public StructList( StructMap map, String key, Class clazz ) {
+    public StructList( List<String> data, Class clazz ) {
 
         try {
 
-            for ( String str : map.getList( key ) ) {
+            for ( String str : data ) {
                 
                 MessageSerializable msg = (MessageSerializable)clazz.newInstance();
                 msg.fromMessage( new Message( str ) );
