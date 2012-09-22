@@ -58,8 +58,15 @@ public class Controller {
      */
     protected ExecutionRange executionRange = new ExecutionRange();
 
+    /**
+     * Keep track of completed items.  Note that unless this is cleared, if we
+     * keep running jobs we will run out of memory.
+     */
     protected Collection<Batch> completed = new ConcurrentLinkedQueue();
 
+    /**
+     * The currently executing batch.
+     */
     protected Batch executing = null;
     
     public Controller( Config config ) {

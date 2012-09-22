@@ -30,7 +30,6 @@ public class Status {
     public static void main( String[] args ) throws Exception {
 
         Config config = ConfigParser.parse( args );
-
         Client client = new Client( config );
         
         Message message = new Message();

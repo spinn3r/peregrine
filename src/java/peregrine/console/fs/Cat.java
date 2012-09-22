@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
 */
-package peregrine.io.util;
+package peregrine.console.fs;
 
 import peregrine.*;
 import peregrine.util.*;
 import peregrine.io.*;
 import peregrine.io.chunk.*;
+import peregrine.io.util.*;
 
 import java.io.*;
 import java.util.*;
@@ -33,7 +34,7 @@ import java.util.*;
  * This can be used for debug purposes so that one can understand what is stored
  * on the filesystem without having to write additional map reduce jobs.
  */
-public class FSCat {
+public class Cat {
 
     public static void help() {
 
