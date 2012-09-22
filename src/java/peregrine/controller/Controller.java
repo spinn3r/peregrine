@@ -58,7 +58,9 @@ public class Controller {
      */
     protected ExecutionRange executionRange = new ExecutionRange();
 
-    protected Collection<Job> jobs = new ConcurrentLinkedQueue();
+    protected Collection<Batch> completed = new ConcurrentLinkedQueue();
+
+    protected Batch executing = null;
     
     public Controller( Config config ) {
     	
@@ -113,8 +115,8 @@ public class Controller {
         return config;
     }
 
-    public Collection<Job> getJobs() {
-        return jobs;
+    public Collection<Batch> getCompleted() {
+        return completed;
     }
 
     public void map( Class mapper,
@@ -312,51 +314,67 @@ public class Controller {
         reduce( job );
 
     }
-    
+
     private void withScheduler( Job job, Scheduler scheduler ) 
+        throws Exception {
+
+        Batch batch = new Batch();
+        batch.add( job );
+        withScheduler( batch, scheduler );
+        
+    }
+    
+    private void withScheduler( Batch batch, Scheduler scheduler ) 
     		throws Exception {
 
-        // add this to the list of jobs that have been submitted so we can keep
-        // track of what is happening with teh cluster state.
-        jobs.add( job );
+        executing = batch;
         
-        String operation = scheduler.getOperation();
-        
-        String desc = String.format( "%s for delegate %s, named %s, with identifier %,d for input %s and output %s ",
-                                     operation,
-                                     job.getDelegate().getName(),
-                                     job.getName(),
-                                     job.getIdentifier(),
-                                     job.getInput(),
-                                     job.getOutput() );
+        for ( Job job : batch.getJobs() ) {
+            
+            // add this to the list of jobs that have been submitted so we can keep
+            // track of what is happening with teh cluster state.
+            String operation = scheduler.getOperation();
+            
+            String desc = String.format( "%s for delegate %s, named %s, with identifier %,d for input %s and output %s ",
+                                         operation,
+                                         job.getDelegate().getName(),
+                                         job.getName(),
+                                         job.getIdentifier(),
+                                         job.getInput(),
+                                         job.getOutput() );
 
-        if ( job.getIdentifier() < executionRange.start || job.getIdentifier() > executionRange.end ) {
-            log.info( "SKIP job due to execution range %s (%s)", executionRange, desc );
-            return;
+            if ( job.getIdentifier() < executionRange.start || job.getIdentifier() > executionRange.end ) {
+                log.info( "SKIP job due to execution range %s (%s)", executionRange, desc );
+                return;
+            }
+
+            log.info( "STARTING %s", desc );
+
+            long before = System.currentTimeMillis();
+            
+            daemon.setScheduler( scheduler );
+
+            scheduler.waitForCompletion();
+
+            daemon.setScheduler( null );
+
+            // shufflers can be flushed after any stage even reduce as nothing will
+            // happen other than a bit more latency.
+            flushAllShufflers();
+
+            // now reset the worker nodes between jobs.
+            reset();
+            
+            long after = System.currentTimeMillis();
+
+            long duration = after - before;
+            
+            log.info( "COMPLETED %s (duration %,d ms)", desc, duration );
+
         }
-
-        log.info( "STARTING %s", desc );
-
-        long before = System.currentTimeMillis();
         
-        daemon.setScheduler( scheduler );
-
-        scheduler.waitForCompletion();
-
-        daemon.setScheduler( null );
-
-        // shufflers can be flushed after any stage even reduce as nothing will
-        // happen other than a bit more latency.
-        flushAllShufflers();
-
-        // now reset the worker nodes between jobs.
-        reset();
-        
-        long after = System.currentTimeMillis();
-
-        long duration = after - before;
-        
-        log.info( "COMPLETED %s (duration %,d ms)", desc, duration );
+        executing = null;
+        completed.add( batch );
 
     }
     

@@ -158,7 +158,7 @@ public class ControllerRPCDelegate extends RPCDelegate<ControllerDaemon> {
         Controller controller = controllerDaemon.getController();
         
         response.put( "host", controller.getConfig().getHost() );
-        response.put( "jobs", controller.getJobs() );
+        response.put( "completed", controller.getCompleted() );
         
         return ChannelBuffers.wrappedBuffer( response.toString().getBytes() );
 

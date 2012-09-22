@@ -38,6 +38,10 @@ public class Batch implements MessageSerializable {
     public void add( Job job ) {
         jobs.add( job );
     }
+
+    public List<Job> getJobs() {
+        return jobs;
+    }
     
     /**
      * Convert this to an RPC message.
