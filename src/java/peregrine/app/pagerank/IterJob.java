@@ -91,7 +91,7 @@ public class IterJob {
                 dangling_rank_sum += rank;
 
             } else { 
-            
+
                 int outdegree = outbound.length() / Hashcode.HASH_WIDTH;
 
                 double grant = rank / (double)outdegree;

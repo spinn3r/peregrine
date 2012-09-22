@@ -139,9 +139,12 @@ public class Pagerank {
      */
     public void iter() throws Exception {
 
-        log.info( "Running init() stage (step=%s)", step );
+        log.info( "Running iter() stage (step=%s)", step );
 
         if ( step == 0 ) {
+
+            //FIXME: do this on init.... I can make the input broadcast: and the
+            //output the files I want to write.
 
             // init empty files which we can still join against.
 

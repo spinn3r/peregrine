@@ -41,7 +41,7 @@ public class Job implements MessageSerializable {
 	protected String handle = String.format( "%010d.%010d", timestamp, identifier );
 	protected String name = handle;
 	protected String description = "";
-	protected Class delegate = null; 
+	protected Class delegate = Mapper.class; 
 
     //TODO: a combiner does NOT make sense for a reduce job so move this to a
     //MapJob class (which we use with map and merge).
@@ -195,6 +195,7 @@ public class Job implements MessageSerializable {
     @Override
     public String toString() {
 
+        //TODO: include ALL fields.
         return String.format( "%s (%s) for input %s and output %s ",
                               getDelegate().getName(),
                               getName(),
