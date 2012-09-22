@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
 */
-package peregrine.controller;
+package peregrine.console.controller;
 
 import com.spinn3r.log5j.*;
 
@@ -21,6 +21,7 @@ import peregrine.config.*;
 import peregrine.controller.*;
 import peregrine.util.*;
 import peregrine.rpc.*;
+import peregrine.controller.rpcd.delegate.*;
 
 /**
  * Obtain and print the status of the controller.
@@ -37,7 +38,10 @@ public class Status {
         
         Message result = client.invoke( config.getController(), "controller", message );
 
-        System.out.printf( "response: %s\n", result );
+        ControllerStatusResponse response = new ControllerStatusResponse();
+        response.fromMessage( result );
+
+        System.out.printf( "Completed %,d batch jobs.\n" , response.getCompleted().size() );
 
     }
     

@@ -297,6 +297,14 @@ public class Scheduler {
     public String getOperation() {
         return operation;
     }
+
+    public SimpleBlockingQueue<Host> getAvailable() {
+        return available;
+    }
+    
+    public Job getJob() {
+        return job;
+    }
     
     protected void schedule( Host host ) throws Exception {
 
@@ -667,6 +675,8 @@ public class Scheduler {
                                     status.get( "online" ),
                                     status.get( "failure" ) ) );
 
+        buff.append( String.format( "\n  %s\n", createLegend() ) );
+        
         buff.setLength( buff.length() - 1 ); // trim the trailing \n
         
         return buff.toString();
@@ -683,11 +693,11 @@ public class Scheduler {
         long perc = (long)(100 * (completed.size() / (double)offlineWork.size()));
 
         result.put( "perc",         Long.toString( perc ) );
-        result.put( "operation",    operation );
-        result.put( "job",          job.toString() );
+        result.put( "operation",    getOperation() );
+        result.put( "job",          getJob().toString() );
                 
         result.put( "progress",     createProgressBitMap() );
-        result.put( "available",    available.toString() );
+        result.put( "available",    getAvailable().toString() );
         result.put( "spare",        createBitMap( spare ) );
         result.put( "online",       createBitMap( clusterState.getOnline() ) );
         result.put( "failure",      failure.toString() );
@@ -736,7 +746,7 @@ public class Scheduler {
                 continue;
             }
 
-            buff.append( "." );
+            buff.append( "P" );
 
             //if ( buff.length() % 80 == 0 )
             //    buff.append( "    \n" );
@@ -744,6 +754,12 @@ public class Scheduler {
         }
 
         return buff.toString();
+        
+    }
+
+    private String createLegend() {
+
+        return "Legend: S=scheduled, C=completed, P=pending";
         
     }
     
