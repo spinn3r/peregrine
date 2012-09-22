@@ -279,6 +279,17 @@ public class Controller {
 
     }
 
+    /**
+     * Touch / init a file so that it is empty and ready to be merged against.
+     */
+    public void touch( String output ) throws Exception {
+
+        map( Mapper.class,
+             new Input( "blackhole:" ),
+             new Output( output ) );
+                              
+    }
+    
     public void sort( String input, String output, Class comparator ) throws Exception {
 
         Job job = new Job();

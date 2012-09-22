@@ -89,6 +89,7 @@ public class Pagerank {
         controller.map( NodeIndegreeJob.Map.class,
                         new Input( graph ),
                         new Output( "shuffle:default" ) );
+        
         controller.reduce( NodeIndegreeJob.Reduce.class,
                            new Input( "shuffle:default" ),
                            new Output( "/pr/tmp/node_indegree" ) );
@@ -131,6 +132,18 @@ public class Pagerank {
                            new Input( "shuffle:nr_dangling" ),
                            new Output( "/pr/out/nr_dangling" ) );
 
+        //FIXME: do this on init.... I can make the input broadcast: and the
+        //output the files I want to write.
+
+        // init empty files which we can still join against.
+
+        // make sure these files exist.
+        controller.touch( "/pr/out/rank_vector" );
+        controller.touch( "/pr/out/teleportation_grant" );
+        
+        //new ExtractWriter( config, "/pr/out/rank_vector" ).close();
+        //new ExtractWriter( config, "/pr/out/teleportation_grant" ).close();
+
     }
 
     /**
@@ -139,18 +152,6 @@ public class Pagerank {
     public void iter() throws Exception {
 
         log.info( "Running iter() stage (step=%s)", step );
-
-        if ( step == 0 ) {
-
-            //FIXME: do this on init.... I can make the input broadcast: and the
-            //output the files I want to write.
-
-            // init empty files which we can still join against.
-
-            new ExtractWriter( config, "/pr/out/rank_vector" ).close();
-            new ExtractWriter( config, "/pr/out/teleportation_grant" ).close();
-
-        }
 
         controller.merge( IterJob.Map.class,
                           new Input( "/pr/graph_by_source" ,

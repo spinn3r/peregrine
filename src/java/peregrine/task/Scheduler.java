@@ -675,7 +675,7 @@ public class Scheduler {
                                     status.get( "online" ),
                                     status.get( "failure" ) ) );
 
-        buff.append( String.format( "\n  %s\n", createLegend() ) );
+        buff.append( String.format( "  %s\n", createLegend() ) );
         
         buff.setLength( buff.length() - 1 ); // trim the trailing \n
         
