@@ -74,5 +74,5 @@ public class InputSplit implements Closeable {
     public void close() throws IOException {
         new Closer( fis, channel );
     }
-    
+
 }

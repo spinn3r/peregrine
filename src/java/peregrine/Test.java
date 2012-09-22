@@ -54,17 +54,13 @@ public class Test {
 
         Job job = new Job();
 
-        job.getParameters().put( "foo", "bar" );
+        Batch batch = new Batch();
+        batch.add( job );
 
-        Message message = job.toMessage();
-        
-        System.out.printf( "job: %s\n", message.toString() );
+        Batch ser = new Batch();
+        ser.fromMessage( batch.toMessage() );
 
-        job = new Job();
-
-        job.fromMessage( message );
-
-        System.out.printf( "foo=%s\n", job.getParameters().getString( "foo" ) );
+        System.out.printf( "%s\n", ser.toString() );
 
         // byte[] b0 = new byte[] { (byte)0x00 , (byte)0x00 , (byte)0x00 , (byte)0x00 , (byte)0x00 , (byte)0x01 , (byte)0x85 , (byte)0x84 , (byte)0x6d , (byte)0x40 , (byte)0x27 , (byte)0x64 , (byte)0xd5 , (byte)0x3c , (byte)0x61 , (byte)0xe2 };
 
