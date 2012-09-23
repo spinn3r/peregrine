@@ -256,8 +256,6 @@ public class Controller {
 
     			@Override
                 public void invoke( Host host, Work work ) throws Exception {
-
-                    System.out.printf( "FIXME: operation: %s\n", job.getOperation() );
                     
                     Message message = createSchedulerMessage( "exec", job, work );
                     new Client( config ).invoke( host, job.getOperation(), message );
