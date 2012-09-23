@@ -245,7 +245,13 @@ public class Controller {
             }
 
         } finally {
-            
+
+            // TODO: we should swap in executing and the history in one atomic
+            // operation because technically it would be possible to do a read
+            // and see that there is NO currently executing job and it isn't in
+            // the history either.  We could do this with one ControllerState
+            // that could a message too.  We would have to copy the entire
+            // history each time but this is trivial and won't take very long.
             setExecuting( null );
             addHistory( batch );
 

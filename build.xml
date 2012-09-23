@@ -190,6 +190,7 @@
 
                     <include name="**/Test*.java"/>
 
+                    <exclude name="peregrine.TestChunkWriterCloseOnReferenceCount"/>
                     <exclude name="peregrine/io/driver/cassandra/TestCassandra.java"/>
                     <exclude name="peregrine/TestWorkerFailureDuringJob.java"/>
                     <exclude name="peregrine/TestWikirank.java"/>
