@@ -131,30 +131,31 @@ public class Controller {
 
     public void map( Class mapper,
                      String... paths ) throws Exception {
-        map( mapper, new Input( paths ) );
+
+        exec( new BatchHelper().map( mapper, paths ) );
+
     }
 
-    public void map( final Class mapper,
-                     final Input input ) throws Exception {
-        map( mapper, input, null );
+    public void map( Class mapper,
+                     Input input ) throws Exception {
+
+        exec( new BatchHelper().map( mapper, input ) );
+
     }
     
-    public void map( final Class delegate,
-    		 		 final Input input,
-    				 final Output output ) throws Exception {
+    public void map( Class delegate,
+    		 		 Input input,
+    				 Output output ) throws Exception {
 
-    	map( new Job().setDelegate( delegate ) 
-    			      .setInput( input )
-    			      .setOutput( output ) );
-    		
+        exec( new BatchHelper().map( delegate, input, output ) );
+
     }
     
     /**
      * Run map jobs on all chunks on the given path.
      */
-    public void map( final Job job ) throws Exception {
-        job.setOperation( JobOperation.MAP );
-        exec( job );
+    public void map( Job job ) throws Exception {
+        exec( new BatchHelper().map( job ) );
     }
     
     public void merge( Class mapper,
@@ -164,23 +165,21 @@ public class Controller {
 
     }
 
-    public  void merge( final Class mapper,
-                        final Input input ) throws Exception {
+    public  void merge( Class mapper,
+                        Input input ) throws Exception {
 
         merge( mapper, input, null );
 
     }
 
-    public void merge( final Class delegate,
-                       final Input input,
-                       final Output output ) throws Exception {
-    	
-    	merge( new Job().setDelegate( delegate )
-    			        .setInput( input )
-    			        .setOutput( output ) );
-        	
+    public void merge( Class delegate,
+                       Input input,
+                       Output output ) throws Exception {
+
+        exec( new BatchHelper().merge( delegate, input, output ) );
+
     }
-    
+
     /**
      * 
      * Conceptually, <a href='http://en.wikipedia.org/wiki/Join_(SQL)#Full_outer_join'>
@@ -191,96 +190,31 @@ public class Controller {
      * will be produced in the result set (containing fields populated from both
      * tables)
      */
-    public void merge( final Job job ) throws Exception {
-        job.setOperation( JobOperation.MERGE );
-        exec( job );
+    public void merge( Job job ) throws Exception {
+        exec( new BatchHelper().merge( job ) );
     }
   
-    public void reduce( final Class delegate,
-    				    final Input input,
-    				    final Output output ) 
-            		throws Exception {
+    public void reduce( Class delegate,
+    				    Input input,
+    				    Output output ) throws Exception {
 
-        Job job = new Job();
+        exec( new BatchHelper().reduce( delegate, input, output ) );
 
-        job.setDelegate( delegate )
-           .setInput( input )
-           .setOutput( output )
-           ;
-        
-    	reduce( job );    	
     }
 
-    /**
-     * Touch / init a file so that it is empty and ready to be merged against.
-     */
     public void touch( String output ) throws Exception {
-
-        // map-only job that reads from an empty blackhole: stream and writes
-        // nothing to the output file. 
-        
-        map( Mapper.class,
-             new Input( "blackhole:" ),
-             new Output( output ) );
-                              
+        exec( new BatchHelper().touch( output ) );
     }
     
     public void sort( String input, String output, Class comparator ) throws Exception {
-
         exec( new BatchHelper().sort( input, output, comparator ) );
-
-        /*
-        Job job = new Job();
-        job.setDelegate( ComputePartitionTableJob.Map.class );
-        job.setInput( new Input( input ) );
-        job.setOutput( new Output( "shuffle:default", "broadcast:partition_table" ) );
-        // the comparator is needed so that we can setup the partition table.
-        job.setComparator( comparator );
-        // this is a sample job so we don't need to read ALL the data.
-        job.setMaxChunks( 1 ); 
-
-        map( job );
-
-        // Step 2.  Reduce that partition table and broadcast it so everyone
-        // has the same values.
-        reduce( ComputePartitionTableJob.Reduce.class,
-                new Input( "shuffle:partition_table" ),
-                new Output( "/tmp/partition_table" ) );
-
-        // Step 3.  Map across all the data in the input file and send it to
-        // right partition which would need to hold this value.
-        
-        job = new Job();
-
-        job.setDelegate( GlobalSortJob.Map.class );
-        job.setInput( new Input( input, "broadcast:/tmp/partition_table" ) );
-        job.setOutput( new Output( "shuffle:default" ) );
-        job.setPartitioner( GlobalSortPartitioner.class );
-        job.setComparator( comparator );
-        
-        map( job );
-
-        job = new Job();
-        
-        job.setDelegate( GlobalSortJob.Reduce.class );
-        job.setInput( new Input( "shuffle:default" ) );
-        job.setOutput( new Output( output ) );
-        job.setComparator( comparator );
-        
-        reduce( job );
-        */
-        
     }
 
     /**
      * Perform a reduce over the previous shuffle data (or broadcast data).
      */
-    public void reduce( final Job job ) 
-        throws Exception {
-
-        job.setOperation( JobOperation.REDUCE );
-        exec( job );
-
+    public void reduce( Job job ) throws Exception {
+        exec( new BatchHelper().reduce( job ) );
     }
 
     /**
