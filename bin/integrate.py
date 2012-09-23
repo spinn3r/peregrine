@@ -90,7 +90,7 @@ class ReportSidebar:
         
         file.write( "</head>" )
         file.write( "<body>" )
-        file.write( "<table width='100%' cellspacing='0'>" )
+        file.write( "<table width='100%' cellspacing='0'>\n" )
 
         file.flush()
         file.close()
@@ -102,19 +102,19 @@ class ReportSidebar:
 
         file=open( "%s/left.html" % TEST_LOGS , "a" );
 
-        file.write( "<tr bgcolor='%s'>" % bgcolor )
-        file.write( "<td><a href='%s/test.log' target='right'>%s</a></td>" % (rev,rev) )
-        file.write( "<td>%s</td>" % log['branch'] )
-        file.write( "<td>%s</td>" % strftime(time) )
+        file.write( "<tr bgcolor='%s'>\n" % bgcolor )
+        file.write( "<td><a href='%s/test.log' target='right'>%s</a></td>\n" % (rev,rev) )
+        file.write( "<td>%s</td>\n" % log['branch'] )
+        file.write( "<td>%s</td>\n" % strftime(time) )
 
-        file.write( "<td align='right'><a href='https://bitbucket.org/burtonator/peregrine/changeset/%s' target='right'>CS</a></td>" % rev )
+        file.write( "<td align='right'><a href='https://bitbucket.org/burtonator/peregrine/changeset/%s' target='right'>CS</a></td>\n" % rev )
 
         if report != None:
-            file.write( "<td align='right'><a href='%s' target='right'>report</a></td>" % report )
+            file.write( "<td align='right'><a href='%s' target='right'>report</a></td>\n" % report )
         else:
-            file.write( "<td align='right'></td>" )
+            file.write( "<td align='right'></td>\n" )
 
-        file.write( "</tr>" )
+        file.write( "</tr>\n" )
         file.close()
 
     def close(self):
@@ -123,8 +123,10 @@ class ReportSidebar:
 
         now = datetime.datetime.now()
 
-        file.write( "</table>" )
-        file.write( "<br/><center><small>%s</small></center>" % (strftime(now)) )
+        file.write( "</table>\n" )
+        file.write( "<br/><center><small>%s</small></center>\n" % (strftime(now)) )
+        file.write( "</body>\n" )
+        file.write( "</html>\n" )
         file.flush()
 
         file.close()
