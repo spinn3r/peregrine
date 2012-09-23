@@ -60,6 +60,8 @@ public class Job implements MessageSerializable {
     protected Message parameters = new Message();
 
     protected String state = JobState.SUBMITTED;
+
+    protected String operation = JobOperation.MAP;
     
     /**
      * Get a unique identifier for this job.  Every job stats at 0 (zero) and is
@@ -204,7 +206,15 @@ public class Job implements MessageSerializable {
         return this;
     }
 
-    
+    public String getOperation() {
+        return operation;
+    }
+
+    public Job setOperation( String operation ) {
+        this.operation = operation;
+        return this;
+    }
+
     @Override
     public String toString() {
 
@@ -240,6 +250,7 @@ public class Job implements MessageSerializable {
         message.put( "comparator",    comparator );
         message.put( "parameters",    parameters );
         message.put( "state",         state );
+        message.put( "operation",     operation );
 
         return message;
         
@@ -262,6 +273,7 @@ public class Job implements MessageSerializable {
         comparator    = message.getClass( "comparator" );
         parameters    = new Message( message.getString( "parameters" ) );
         state         = message.getString( "state" );
+        operation     = message.getString( "operation" );
         
     }
     
