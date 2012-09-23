@@ -33,7 +33,11 @@ public class Batch implements MessageSerializable {
 
     private static final Logger log = Logger.getLogger();
 
-    private List<Job> jobs = new ArrayList();
+    protected String description = null;
+    
+    protected String name = null;
+
+    protected List<Job> jobs = new ArrayList();
 
     public void add( Job job ) {
         jobs.add( job );
@@ -42,7 +46,25 @@ public class Batch implements MessageSerializable {
     public List<Job> getJobs() {
         return jobs;
     }
-    
+
+    public String getName() { 
+        return this.name;
+    }
+
+    public Batch setName( String name ) { 
+        this.name = name;
+        return this;
+    }
+
+    public String getDescription() { 
+        return this.description;
+    }
+
+    public Batch setDescription( String description ) { 
+        this.description = description;
+        return this;
+    }
+
     /**
      * Convert this to an RPC message.
      */
@@ -51,7 +73,9 @@ public class Batch implements MessageSerializable {
 
         Message message = new Message();
 
-        message.put( "job", jobs );
+        message.put( "name",          name );
+        message.put( "description",   description );
+        message.put( "job",           jobs );
 
         return message;
         
@@ -60,7 +84,9 @@ public class Batch implements MessageSerializable {
     @Override
     public void fromMessage( Message message ) {
 
-        jobs = new StructList( message.getList( "job" ), Job.class );
+        name          = message.getString( "name" );
+        description   = message.getString( "description" );
+        jobs          = new StructList( message.getList( "job" ), Job.class );
 
     }
 
