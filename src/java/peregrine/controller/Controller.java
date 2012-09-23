@@ -153,19 +153,8 @@ public class Controller {
      * Run map jobs on all chunks on the given path.
      */
     public void map( final Job job ) throws Exception {
-    	
-    	withScheduler( job, new Scheduler( "map", job, config, clusterState ) {
-
-    			@Override
-                public void invoke( Host host, Work work ) throws Exception {
-
-                    Message message = createSchedulerMessage( "exec", job, work );
-                    new Client( config ).invoke( host, "map", message );
-                    
-                }
-                
-            } );
-
+        job.setOperation( JobOperation.MAP );
+        exec( job );
     }
     
     public void merge( Class mapper,
@@ -203,19 +192,8 @@ public class Controller {
      * tables)
      */
     public void merge( final Job job ) throws Exception {
-    	
-        withScheduler( job, new Scheduler( "merge", job, config, clusterState ) {
-
-                @Override
-                public void invoke( Host host, Work work ) throws Exception {
-
-                    Message message = createSchedulerMessage( "exec", job, work );
-                    new Client( config ).invoke( host, "merge", message );
-                    
-                }
-                
-            } );
-            
+        job.setOperation( JobOperation.MERGE );
+        exec( job );
     }
   
     public void reduce( final Class delegate,
@@ -231,53 +209,6 @@ public class Controller {
            ;
         
     	reduce( job );    	
-    }
-
-    /**
-     * Perform a reduce over the previous shuffle data (or broadcast data).
-     */
-    public void reduce( final Job job ) 
-        throws Exception {
-
-    	final Input input = job.getInput();
-    	
-        // we need to support reading input from the shuffler.  If the user
-        // doesn't specify input, use the default shuffler.
-
-        if ( input == null )
-            throw new Exception( "Input may not be null" );
-        
-        if ( input.getReferences().size() < 1 ) {
-            throw new IOException( "Reducer requires at least one shuffle input." );
-        }
-
-        // this will block for completion ... 
-        withScheduler( job, new Scheduler( "reduce", job, config, clusterState ) {
-
-                @Override
-                public void invoke( Host host, Work work ) throws Exception {
-
-                    Message message = createSchedulerMessage( "exec", job, work );
-                    new Client( config ).invoke( host, "reduce", message );
-                    
-                }
-                
-            } );
-
-        for( InputReference ref : input.getReferences() ) {
-
-            if ( ref instanceof ShuffleInputReference ) {
-
-                ShuffleInputReference shuffle = (ShuffleInputReference)ref;
-
-                log.info( "Going to purge %s for job %s", shuffle.getName(), job );
-                
-                purgeShuffleData( shuffle.getName() );
-
-            }
-            
-        }
-
     }
 
     /**
@@ -334,6 +265,64 @@ public class Controller {
         job.setComparator( comparator );
         
         reduce( job );
+
+    }
+
+    /**
+     * Perform a reduce over the previous shuffle data (or broadcast data).
+     */
+    public void reduce( final Job job ) 
+        throws Exception {
+
+        job.setOperation( JobOperation.REDUCE );
+
+    	final Input input = job.getInput();
+    	
+        // we need to support reading input from the shuffler.  If the user
+        // doesn't specify input, use the default shuffler.
+
+        if ( input == null )
+            throw new Exception( "Input may not be null" );
+        
+        if ( input.getReferences().size() < 1 ) {
+            throw new IOException( "Reducer requires at least one shuffle input." );
+        }
+
+        // this will block for completion ... 
+        exec( job );
+        
+        for( InputReference ref : input.getReferences() ) {
+
+            if ( ref instanceof ShuffleInputReference ) {
+
+                ShuffleInputReference shuffle = (ShuffleInputReference)ref;
+
+                log.info( "Going to purge %s for job %s", shuffle.getName(), job );
+                
+                purgeShuffleData( shuffle.getName() );
+
+            }
+            
+        }
+
+    }
+
+    /**
+     * Run map jobs on all chunks on the given path.
+     */
+    public void exec( final Job job ) throws Exception {
+    	
+    	withScheduler( job, new Scheduler( job.getOperation(), job, config, clusterState ) {
+
+    			@Override
+                public void invoke( Host host, Work work ) throws Exception {
+
+                    Message message = createSchedulerMessage( "exec", job, work );
+                    new Client( config ).invoke( host, job.getOperation(), message );
+                    
+                }
+                
+            } );
 
     }
 
