@@ -284,6 +284,9 @@ public class Controller {
      */
     public void touch( String output ) throws Exception {
 
+        // map-only job that reads from an empty blackhole: stream and writes
+        // nothing to the output file. 
+        
         map( Mapper.class,
              new Input( "blackhole:" ),
              new Output( output ) );
@@ -346,53 +349,68 @@ public class Controller {
     		throws Exception {
 
         executing = batch;
-        
-        for ( Job job : batch.getJobs() ) {
-            
-            // add this to the list of jobs that have been submitted so we can keep
-            // track of what is happening with teh cluster state.
-            String operation = scheduler.getOperation();
-            
-            String desc = String.format( "%s for delegate %s, named %s, with identifier %,d for input %s and output %s ",
-                                         operation,
-                                         job.getDelegate().getName(),
-                                         job.getName(),
-                                         job.getIdentifier(),
-                                         job.getInput(),
-                                         job.getOutput() );
 
-            if ( job.getIdentifier() < executionRange.start || job.getIdentifier() > executionRange.end ) {
-                log.info( "SKIP job due to execution range %s (%s)", executionRange, desc );
-                return;
+        try {
+            
+            for ( Job job : batch.getJobs() ) {
+
+                try {
+                    
+                    // add this to the list of jobs that have been submitted so we can keep
+                    // track of what is happening with teh cluster state.
+                    String operation = scheduler.getOperation();
+
+                    job.setState( JobState.EXECUTING );
+                    
+                    String desc = String.format( "%s for delegate %s, named %s, with identifier %,d for input %s and output %s ",
+                                                 operation,
+                                                 job.getDelegate().getName(),
+                                                 job.getName(),
+                                                 job.getIdentifier(),
+                                                 job.getInput(),
+                                                 job.getOutput() );
+
+                    if ( job.getIdentifier() < executionRange.start || job.getIdentifier() > executionRange.end ) {
+                        log.info( "SKIP job due to execution range %s (%s)", executionRange, desc );
+                        return;
+                    }
+
+                    log.info( "STARTING %s", desc );
+
+                    long before = System.currentTimeMillis();
+                    
+                    daemon.setScheduler( scheduler );
+
+                    scheduler.waitForCompletion();
+
+                    daemon.setScheduler( null );
+
+                    // shufflers can be flushed after any stage even reduce as nothing will
+                    // happen other than a bit more latency.
+                    flushAllShufflers();
+
+                    // now reset the worker nodes between jobs.
+                    reset();
+                    
+                    long after = System.currentTimeMillis();
+
+                    long duration = after - before;
+                    
+                    log.info( "COMPLETED %s (duration %,d ms)", desc, duration );
+
+                } catch ( Exception e ) {
+                    job.setState( JobState.FAILED );
+                    throw e;
+                }
+                    
             }
 
-            log.info( "STARTING %s", desc );
-
-            long before = System.currentTimeMillis();
+        } finally {
             
-            daemon.setScheduler( scheduler );
-
-            scheduler.waitForCompletion();
-
-            daemon.setScheduler( null );
-
-            // shufflers can be flushed after any stage even reduce as nothing will
-            // happen other than a bit more latency.
-            flushAllShufflers();
-
-            // now reset the worker nodes between jobs.
-            reset();
-            
-            long after = System.currentTimeMillis();
-
-            long duration = after - before;
-            
-            log.info( "COMPLETED %s (duration %,d ms)", desc, duration );
+            executing = null;
+            completed.add( batch );
 
         }
-        
-        executing = null;
-        completed.add( batch );
 
     }
     

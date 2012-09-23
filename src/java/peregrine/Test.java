@@ -16,6 +16,7 @@ import peregrine.worker.*;
 import peregrine.rpc.*;
 import peregrine.sort.*;
 import peregrine.controller.*;
+import peregrine.console.controller.*;
 
 import org.jboss.netty.buffer.*;
 
@@ -31,8 +32,16 @@ public class Test {
 
     public static void main( String[] args ) throws Exception {
 
-        System.out.printf( "%s\n", JobState.SUBMITTED );
-        System.out.printf( "%s\n", JobState.SUBMITTED.getClass().newInstance() );
+        Batch batch = new Batch();
+        batch.add( new Job() );
+        batch.add( new Job() );
+        
+        String result = Status.toStatus( batch );
+
+        System.out.printf( "%s\n", result );
+        
+        //System.out.printf( "%s\n", JobState.SUBMITTED );
+        //System.out.printf( "%s\n", JobState.SUBMITTED.getClass().newInstance() );
 
         // Job job = new Job();
 

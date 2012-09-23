@@ -132,17 +132,11 @@ public class Pagerank {
                            new Input( "shuffle:nr_dangling" ),
                            new Output( "/pr/out/nr_dangling" ) );
 
-        //FIXME: do this on init.... I can make the input broadcast: and the
-        //output the files I want to write.
-
         // init empty files which we can still join against.
 
         // make sure these files exist.
         controller.touch( "/pr/out/rank_vector" );
         controller.touch( "/pr/out/teleportation_grant" );
-        
-        //new ExtractWriter( config, "/pr/out/rank_vector" ).close();
-        //new ExtractWriter( config, "/pr/out/teleportation_grant" ).close();
 
     }
 
