@@ -72,6 +72,11 @@ public class Controller {
      */
     protected Batch executing = null;
 
+    /**
+     * Batch jobs that are pending execution.
+     */
+    protected ConcurrentLinkedQueue<Batch> pending = new ConcurrentLinkedQueue();
+
     public Controller() {}
     
     public Controller( Config config ) {
@@ -129,6 +134,10 @@ public class Controller {
 
     public Collection<Batch> getHistory() {
         return history;
+    }
+
+    public Queue<Batch> getPending() {
+        return pending;
     }
 
     public Batch getExecuting() {
@@ -257,6 +266,14 @@ public class Controller {
 
         }
 
+    }
+
+    /**
+     * Add a job to the pending queue for later execution.  If there are no jobs
+     * executing or in the queue the batch will be executed immediately.
+     */
+    public void submit( Batch batch ) throws Exception {
+        pending.add( batch );
     }
 
     /**

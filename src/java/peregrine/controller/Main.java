@@ -40,9 +40,20 @@ public class Main {
         init.controller();
         
         Controller controller = new Controller( config );
-        
-        Thread.sleep( Long.MAX_VALUE );
-        
+
+        while( true ) {
+
+            Batch batch = controller.getPending().poll();
+
+            // we have a job to execute ... go go go.
+            if ( batch != null ) {
+                controller.exec( batch );
+            }
+            
+            Thread.sleep( 100L );
+
+        }
+
     }
         
 }

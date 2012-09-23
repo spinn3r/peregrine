@@ -17,16 +17,16 @@ package peregrine.controller.rpcd.delegate;
 
 import java.util.*;
 
-import org.jboss.netty.buffer.*;
-import org.jboss.netty.channel.*;
-
-import peregrine.config.Host;
-import peregrine.config.Partition;
+import peregrine.*;
+import peregrine.config.*;
 import peregrine.controller.*;
 import peregrine.io.*;
 import peregrine.rpc.*;
 import peregrine.rpcd.delegate.*;
 import peregrine.task.*;
+
+import org.jboss.netty.buffer.*;
+import org.jboss.netty.channel.*;
 
 /**
  * Delegate for intercepting RPC messages.
@@ -153,6 +153,23 @@ public class ControllerRPCDelegate extends RPCDelegate<ControllerDaemon> {
 
         return ChannelBuffers.wrappedBuffer( response.toMessage().toString().getBytes() );
 
+    }
+
+    /**
+     */
+    @RPC
+    public ChannelBuffer submit( ControllerDaemon controllerDaemon, Channel channel, Message message )
+        throws Exception {
+        
+        // mark that a machine has failed to process some unit of work.
+        
+        Batch batch = new Batch();
+        batch.fromMessage( new Message( message.get( "batch" ) ) );
+
+        controllerDaemon.getController().submit( batch );
+        
+        return null;
+		
     }
 
 }
