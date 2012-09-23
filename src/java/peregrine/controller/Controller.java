@@ -227,6 +227,9 @@ public class Controller {
     
     public void sort( String input, String output, Class comparator ) throws Exception {
 
+        exec( new BatchHelper().sort( input, output, comparator ) );
+
+        /*
         Job job = new Job();
         job.setDelegate( ComputePartitionTableJob.Map.class );
         job.setInput( new Input( input ) );
@@ -265,7 +268,8 @@ public class Controller {
         job.setComparator( comparator );
         
         reduce( job );
-
+        */
+        
     }
 
     /**
@@ -276,6 +280,28 @@ public class Controller {
 
         job.setOperation( JobOperation.REDUCE );
         exec( job );
+
+    }
+
+    /**
+     * Execute a batch of jobs.
+     */
+    public void exec( Batch batch ) throws Exception {
+
+        executing = batch;
+
+        try {
+            
+            for ( Job job : batch.getJobs() ) {
+                exec( job );
+            }
+
+        } finally {
+            
+            executing = null;
+            addHistory( batch );
+
+        }
 
     }
 
@@ -297,6 +323,8 @@ public class Controller {
     			@Override
                 public void invoke( Host host, Work work ) throws Exception {
 
+                    System.out.printf( "FIXME: operation: %s\n", job.getOperation() );
+                    
                     Message message = createSchedulerMessage( "exec", job, work );
                     new Client( config ).invoke( host, job.getOperation(), message );
                     
@@ -323,25 +351,6 @@ public class Controller {
         
     }
 
-    public void exec( Batch batch ) throws Exception {
-
-        executing = batch;
-
-        try {
-            
-            for ( Job job : batch.getJobs() ) {
-                exec( job );
-            }
-
-        } finally {
-            
-            executing = null;
-            addHistory( batch );
-
-        }
-
-    }
-    
     private void withScheduler( Job job, Scheduler scheduler ) 
         throws Exception {
 

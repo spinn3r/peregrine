@@ -48,64 +48,56 @@ public class BatchHelper {
     
     public Batch map( Class mapper,
                       String... paths ) throws Exception {
-        map( mapper, new Input( paths ) );
-        return batch;
+        return map( mapper, new Input( paths ) );
     }
 
-    public Batch map( final Class mapper,
-                      final Input input ) throws Exception {
-        map( mapper, input, null );
-        return batch;
+    public Batch map( Class mapper,
+                      Input input ) throws Exception {
+        return map( mapper, input, null );
     }
     
-    public Batch map( final Class delegate,
-                      final Input input,
-                      final Output output ) throws Exception {
+    public Batch map( Class delegate,
+                      Input input,
+                      Output output ) throws Exception {
 
-    	batch.add(  new Job().setDelegate( delegate ) 
+    	return map( new Job().setDelegate( delegate ) 
                     .setInput( input )
                     .setOutput( output ) );
-        
-        return batch;
     		
     }
 
-    public Batch map( final Job job ) throws Exception {
-        job.setOperation( JobOperation.MAP );
-        batch.add( job );
+    public Batch map( Job job ) throws Exception {
+        batch.add( job.setOperation( JobOperation.MAP ) );
         return batch;
     }
 
     public Batch merge( Class mapper,
                        String... paths ) throws Exception {
 
-        merge( mapper, new Input( paths ) );
-        return batch;
+        return merge( mapper, new Input( paths ) );
         
     }
 
-    public Batch merge( final Class mapper,
-                        final Input input ) throws Exception {
+    public Batch merge( Class mapper,
+                        Input input ) throws Exception {
 
-        merge( mapper, input, null );
-        return batch;
+        return merge( mapper, input, null );
 
     }
 
-    public Batch merge( final Class delegate,
-                       final Input input,
-                       final Output output ) throws Exception {
+    public Batch merge( Class delegate,
+                        Input input,
+                        Output output ) throws Exception {
     	
-    	batch.add( new Job().setDelegate( delegate )
-                   .setInput( input )
-                   .setOutput( output ) );
+    	merge( new Job().setDelegate( delegate )
+               .setInput( input )
+               .setOutput( output ) );
         return batch;
         
     }
 
-    public Batch merge( final Job job ) throws Exception {
-        job.setOperation( JobOperation.MERGE );
-        batch.add( job );
+    public Batch merge( Job job ) throws Exception {
+        batch.add( job.setOperation( JobOperation.MERGE ) );
         return batch;
     }
 
@@ -113,22 +105,14 @@ public class BatchHelper {
                          final Input input,
                          final Output output )  throws Exception {
 
-        Job job = new Job();
+        return reduce( new Job().setDelegate( delegate )
+                                .setInput( input )
+                                .setOutput( output ) );
 
-        job.setDelegate( delegate )
-           .setInput( input )
-           .setOutput( output )
-           ;
-        
-    	batch.add( job );
-
-        return batch;
-        
     }
 
-    public Batch reduce( final Job job ) throws Exception {
-        job.setOperation( JobOperation.REDUCE );
-        batch.add( job );
+    public Batch reduce( Job job ) throws Exception {
+        batch.add( job.setOperation( JobOperation.REDUCE ) );
         return batch;
     }
 
@@ -140,11 +124,9 @@ public class BatchHelper {
         // map-only job that reads from an empty blackhole: stream and writes
         // nothing to the output file. 
         
-        map( Mapper.class,
-             new Input( "blackhole:" ),
-             new Output( output ) );
-
-        return batch;
+        return map( Mapper.class,
+                    new Input( "blackhole:" ),
+                    new Output( output ) );
         
     }
 
