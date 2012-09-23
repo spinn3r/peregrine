@@ -275,35 +275,7 @@ public class Controller {
         throws Exception {
 
         job.setOperation( JobOperation.REDUCE );
-
-    	final Input input = job.getInput();
-    	
-        // we need to support reading input from the shuffler.  If the user
-        // doesn't specify input, use the default shuffler.
-
-        if ( input == null )
-            throw new Exception( "Input may not be null" );
-        
-        if ( input.getReferences().size() < 1 ) {
-            throw new IOException( "Reducer requires at least one shuffle input." );
-        }
-
-        // this will block for completion ... 
         exec( job );
-        
-        for( InputReference ref : input.getReferences() ) {
-
-            if ( ref instanceof ShuffleInputReference ) {
-
-                ShuffleInputReference shuffle = (ShuffleInputReference)ref;
-
-                log.info( "Going to purge %s for job %s", shuffle.getName(), job );
-                
-                purgeShuffleData( shuffle.getName() );
-
-            }
-            
-        }
 
     }
 
@@ -311,7 +283,15 @@ public class Controller {
      * Run map jobs on all chunks on the given path.
      */
     public void exec( final Job job ) throws Exception {
-    	
+
+        if ( job.getOperation().equals( JobOperation.REDUCE ) ) {
+
+            if ( job.getInput() == null || job.getInput().getReferences().size() < 1 ) {
+                throw new IOException( "Reducer requires at least one shuffle input." );
+            }
+
+        }
+        
     	withScheduler( job, new Scheduler( job.getOperation(), job, config, clusterState ) {
 
     			@Override
@@ -324,75 +304,33 @@ public class Controller {
                 
             } );
 
-    }
+        if ( job.getOperation().equals( JobOperation.REDUCE ) ) {
 
-    private void withScheduler( Job job, Scheduler scheduler ) 
-        throws Exception {
+            for( InputReference ref : job.getInput().getReferences() ) {
 
-        Batch batch = new Batch();
-        batch.add( job );
-        withScheduler( batch, scheduler );
+                if ( ref instanceof ShuffleInputReference ) {
+
+                    ShuffleInputReference shuffle = (ShuffleInputReference)ref;
+
+                    log.info( "Going to purge %s for job %s", shuffle.getName(), job );
+                    purgeShuffleData( shuffle.getName() );
+
+                }
+                
+            }
+
+        }
         
     }
-    
-    private void withScheduler( Batch batch, Scheduler scheduler ) 
-    		throws Exception {
+
+    public void exec( Batch batch ) throws Exception {
 
         executing = batch;
 
         try {
             
             for ( Job job : batch.getJobs() ) {
-
-                try {
-                    
-                    // add this to the list of jobs that have been submitted so we can keep
-                    // track of what is happening with teh cluster state.
-                    String operation = scheduler.getOperation();
-
-                    job.setState( JobState.EXECUTING );
-                    
-                    String desc = String.format( "%s for delegate %s, named %s, with identifier %,d for input %s and output %s ",
-                                                 operation,
-                                                 job.getDelegate().getName(),
-                                                 job.getName(),
-                                                 job.getIdentifier(),
-                                                 job.getInput(),
-                                                 job.getOutput() );
-
-                    if ( job.getIdentifier() < executionRange.start || job.getIdentifier() > executionRange.end ) {
-                        log.info( "SKIP job due to execution range %s (%s)", executionRange, desc );
-                        return;
-                    }
-
-                    log.info( "STARTING %s", desc );
-
-                    long before = System.currentTimeMillis();
-                    
-                    daemon.setScheduler( scheduler );
-
-                    scheduler.waitForCompletion();
-
-                    daemon.setScheduler( null );
-
-                    // shufflers can be flushed after any stage even reduce as nothing will
-                    // happen other than a bit more latency.
-                    flushAllShufflers();
-
-                    // now reset the worker nodes between jobs.
-                    reset();
-                    
-                    long after = System.currentTimeMillis();
-
-                    long duration = after - before;
-                    
-                    log.info( "COMPLETED %s (duration %,d ms)", desc, duration );
-
-                } catch ( Exception e ) {
-                    job.setState( JobState.FAILED );
-                    throw e;
-                }
-                    
+                exec( job );
             }
 
         } finally {
@@ -400,6 +338,60 @@ public class Controller {
             executing = null;
             addHistory( batch );
 
+        }
+
+    }
+    
+    private void withScheduler( Job job, Scheduler scheduler ) 
+        throws Exception {
+
+        try {
+            
+            // add this to the list of jobs that have been submitted so we can keep
+            // track of what is happening with teh cluster state.
+            String operation = scheduler.getOperation();
+
+            job.setState( JobState.EXECUTING );
+            
+            String desc = String.format( "%s for delegate %s, named %s, with identifier %,d for input %s and output %s ",
+                                         operation,
+                                         job.getDelegate().getName(),
+                                         job.getName(),
+                                         job.getIdentifier(),
+                                         job.getInput(),
+                                         job.getOutput() );
+
+            if ( job.getIdentifier() < executionRange.start || job.getIdentifier() > executionRange.end ) {
+                log.info( "SKIP job due to execution range %s (%s)", executionRange, desc );
+                return;
+            }
+
+            log.info( "STARTING %s", desc );
+
+            long before = System.currentTimeMillis();
+            
+            daemon.setScheduler( scheduler );
+
+            scheduler.waitForCompletion();
+
+            daemon.setScheduler( null );
+
+            // shufflers can be flushed after any stage even reduce as nothing will
+            // happen other than a bit more latency.
+            flushAllShufflers();
+
+            // now reset the worker nodes between jobs.
+            reset();
+            
+            long after = System.currentTimeMillis();
+
+            long duration = after - before;
+            
+            log.info( "COMPLETED %s (duration %,d ms)", desc, duration );
+
+        } catch ( Exception e ) {
+            job.setState( JobState.FAILED );
+            throw e;
         }
 
     }

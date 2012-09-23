@@ -33,69 +33,85 @@ import com.spinn3r.log5j.*;
 public class BatchHelper {
 
     private Batch batch;
-    
+
+    public BatchHelper() {
+        this( new Batch() );
+    }
+
     public BatchHelper( Batch batch ) {
         this.batch = batch;
     }
 
-    public void map( Class mapper,
-                     String... paths ) throws Exception {
-        map( mapper, new Input( paths ) );
-    }
-
-    public void map( final Class mapper,
-                     final Input input ) throws Exception {
-        map( mapper, input, null );
+    public Batch getBatch() {
+        return batch;
     }
     
-    public void map( final Class delegate,
-    		 		 final Input input,
-    				 final Output output ) throws Exception {
+    public Batch map( Class mapper,
+                      String... paths ) throws Exception {
+        map( mapper, new Input( paths ) );
+        return batch;
+    }
+
+    public Batch map( final Class mapper,
+                      final Input input ) throws Exception {
+        map( mapper, input, null );
+        return batch;
+    }
+    
+    public Batch map( final Class delegate,
+                      final Input input,
+                      final Output output ) throws Exception {
 
     	batch.add(  new Job().setDelegate( delegate ) 
                     .setInput( input )
                     .setOutput( output ) );
+        
+        return batch;
     		
     }
 
-    public void map( final Job job ) throws Exception {
+    public Batch map( final Job job ) throws Exception {
         job.setOperation( JobOperation.MAP );
         batch.add( job );
+        return batch;
     }
 
-    public void merge( Class mapper,
+    public Batch merge( Class mapper,
                        String... paths ) throws Exception {
 
         merge( mapper, new Input( paths ) );
-
+        return batch;
+        
     }
 
-    public  void merge( final Class mapper,
+    public Batch merge( final Class mapper,
                         final Input input ) throws Exception {
 
         merge( mapper, input, null );
+        return batch;
 
     }
 
-    public void merge( final Class delegate,
+    public Batch merge( final Class delegate,
                        final Input input,
                        final Output output ) throws Exception {
     	
     	batch.add( new Job().setDelegate( delegate )
                    .setInput( input )
                    .setOutput( output ) );
+        return batch;
         
     }
 
-    public void merge( final Job job ) throws Exception {
+    public Batch merge( final Job job ) throws Exception {
         job.setOperation( JobOperation.MERGE );
         batch.add( job );
+        return batch;
     }
 
-    public void reduce( final Class delegate,
-    				    final Input input,
-    				    final Output output ) 
-            		throws Exception {
+    public Batch reduce( final Class delegate,
+                         final Input input,
+                         final Output output )  throws Exception {
 
         Job job = new Job();
 
@@ -105,17 +121,21 @@ public class BatchHelper {
            ;
         
     	batch.add( job );
+
+        return batch;
+        
     }
 
-    public void reduce( final Job job ) throws Exception {
+    public Batch reduce( final Job job ) throws Exception {
         job.setOperation( JobOperation.REDUCE );
         batch.add( job );
+        return batch;
     }
 
     /**
      * Touch / init a file so that it is empty and ready to be merged against.
      */
-    public void touch( String output ) throws Exception {
+    public Batch touch( String output ) throws Exception {
 
         // map-only job that reads from an empty blackhole: stream and writes
         // nothing to the output file. 
@@ -123,10 +143,12 @@ public class BatchHelper {
         map( Mapper.class,
              new Input( "blackhole:" ),
              new Output( output ) );
-                              
+
+        return batch;
+        
     }
 
-    public void sort( String input, String output, Class comparator ) throws Exception {
+    public Batch sort( String input, String output, Class comparator ) throws Exception {
 
         Job job = new Job();
         job.setDelegate( ComputePartitionTableJob.Map.class );
@@ -166,6 +188,8 @@ public class BatchHelper {
         job.setComparator( comparator );
         
         reduce( job );
+
+        return batch;
 
     }
 
