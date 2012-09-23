@@ -103,6 +103,8 @@ public class Status {
         ControllerStatusResponse response = new ControllerStatusResponse();
         response.fromMessage( result );
 
+        //TODO: include scheduler cluster state.
+        
         if ( response.getExecuting() != null ) {
 
             Batch batch = response.getExecuting();
@@ -121,8 +123,8 @@ public class Status {
             
             System.out.printf( "Currently executing batch %s: \n", batch.getName() );
 
-            System.out.printf( "  nr jobs:            %,d\n" ,   nr_jobs );
-            System.out.printf( "  nr complete jobs:   %,d\n" ,   nr_complete );
+            System.out.printf( "  nr jobs:            %,d\n" ,     nr_jobs );
+            System.out.printf( "  nr complete jobs:   %,d\n" ,     nr_complete );
             System.out.printf( "  perc complete:      %%%4.4f\n" , perc_complete );
             
             System.out.printf( "%s\n", toStatus( batch ) );
