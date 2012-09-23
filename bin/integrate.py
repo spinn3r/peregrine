@@ -55,7 +55,7 @@ TIMEOUT=45*60
 class ReportIndex:
 
     def __init__(self):
-        
+
         file=open( "%s/index.html" % TEST_LOGS , "w" );
 
         file.write( "<html>" )
@@ -75,7 +75,11 @@ class ReportSidebar:
 
     def __init__(self):
 
-        file=open( "%s/left.html" % TEST_LOGS , "w" );
+        path="%s/left.html" % TEST_LOGS
+
+        print "Going to write sidebar: %s" % path
+
+        file=open( path , "w" );
 
         file.write( "<html>" )
 
