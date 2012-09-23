@@ -89,7 +89,19 @@ public class StructMap {
     }
 
     public void put( String key, Object value ) {
+
+        if ( value == null )
+            return;
+
+        if ( value instanceof MessageSerializable ) {
+            
+            MessageSerializable ms = (MessageSerializable)value;
+            put( key, ms.toMessage().toString() );
+            return;
+        }
+
     	put( key, value.toString() );
+
     }
     
     public void put( String key, Throwable throwable ) {

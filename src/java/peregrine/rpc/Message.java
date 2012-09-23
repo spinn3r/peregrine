@@ -31,6 +31,8 @@ public class Message extends StructMap implements MessageSerializable {
 
     public Message( String data ) {
 
+        if ( data == null ) return;
+        
         Map<String,List<String>> decoded
             = new QueryStringDecoder( data ).getParameters();
 

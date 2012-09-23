@@ -33,11 +33,11 @@ public class ControllerStatusResponse implements MessageSerializable {
 
     protected List<Batch> history = new ArrayList();
 
+    protected Batch executing = null;
+    
     public ControllerStatusResponse() {}
 
     public ControllerStatusResponse( Controller controller ) {
-
-        //FIXME: include controller scheduler state
 
         /*
         if ( scheduler != null ) {
@@ -46,11 +46,16 @@ public class ControllerStatusResponse implements MessageSerializable {
         */
 
         this.history = new ArrayList( controller.getHistory() );
+        this.executing = controller.getExecuting();
         
     }
 
     public List<Batch> getHistory() {
         return history;
+    }
+
+    public Batch getExecuting() {
+        return executing;
     }
     
     /**
@@ -60,7 +65,8 @@ public class ControllerStatusResponse implements MessageSerializable {
 
         Message response = new Message();
 
-        response.put( "history",   history );
+        response.put( "executing",  executing );
+        response.put( "history",    history );
 
         return response;
         
@@ -68,7 +74,18 @@ public class ControllerStatusResponse implements MessageSerializable {
 
     public void fromMessage( Message message ) {
 
-        history = new StructList( message.getList( "history" ), Batch.class );
+        //TODO: this is ugly but I'm not sure of a way around this. We could use
+        //the null object pattern here with an empty Batch but that seems like a
+        //bad idea.
+        if ( message.getString( "executing" ) != null ) {
+
+            executing = new Batch();
+            Message msg = new Message( message.getString( "executing" ) );
+            executing.fromMessage( msg );
+            
+        }
+        
+        history    = new StructList( message.getList( "history" ), Batch.class );
         
     }
 

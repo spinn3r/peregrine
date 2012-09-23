@@ -71,6 +71,8 @@ public class Controller {
      * The currently executing batch.
      */
     protected Batch executing = null;
+
+    public Controller() {}
     
     public Controller( Config config ) {
     	
@@ -129,6 +131,14 @@ public class Controller {
         return history;
     }
 
+    public Batch getExecuting() {
+        return executing;
+    }
+
+    public void setExecuting( Batch executing ) {
+        this.executing = executing;
+    }
+    
     public void map( Class mapper,
                      String... paths ) throws Exception {
 
@@ -222,7 +232,11 @@ public class Controller {
      */
     public void exec( Batch batch ) throws Exception {
 
-        executing = batch;
+        if ( batch.getJobs().size() == 0 ) {
+            throw new Exception( "Batch has no jobs" );
+        }
+        
+        setExecuting( batch );
 
         try {
             
@@ -232,7 +246,7 @@ public class Controller {
 
         } finally {
             
-            executing = null;
+            setExecuting( null );
             addHistory( batch );
 
         }
@@ -327,7 +341,9 @@ public class Controller {
             long after = System.currentTimeMillis();
 
             long duration = after - before;
-            
+
+            job.setState( JobState.COMPLETED );
+
             log.info( "COMPLETED %s (duration %,d ms)", desc, duration );
 
         } catch ( Exception e ) {

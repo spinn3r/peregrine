@@ -34,9 +34,9 @@ public class Batch implements MessageSerializable {
 
     private static final Logger log = Logger.getLogger();
 
-    protected String description = null;
+    protected String description = "";
     
-    protected String name = null;
+    protected String name = "";
 
     protected List<Job> jobs = new ArrayList();
 
@@ -207,7 +207,7 @@ public class Batch implements MessageSerializable {
 
         message.put( "name",          name );
         message.put( "description",   description );
-        message.put( "job",           jobs );
+        message.put( "jobs",           jobs );
 
         return message;
         
@@ -218,13 +218,13 @@ public class Batch implements MessageSerializable {
 
         name          = message.getString( "name" );
         description   = message.getString( "description" );
-        jobs          = new StructList( message.getList( "job" ), Job.class );
+        jobs          = new StructList( message.getList( "jobs" ), Job.class );
 
     }
 
     @Override
     public String toString() {
-        return jobs.toString();
+        return String.format( "%s jobs=%s", getName(), jobs.toString() );
     }
     
 }

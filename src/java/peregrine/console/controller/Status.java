@@ -103,7 +103,33 @@ public class Status {
         ControllerStatusResponse response = new ControllerStatusResponse();
         response.fromMessage( result );
 
-        System.out.printf( "Executed %,d batch jobs.\n" , response.getHistory().size() );
+        if ( response.getExecuting() != null ) {
+
+            Batch batch = response.getExecuting();
+
+            int nr_jobs = batch.getJobs().size();
+            int nr_complete = 0;
+            
+            for( Job job : batch.getJobs() ) {
+                
+                if ( job.getState().equals( JobState.COMPLETED ) )
+                    ++nr_complete;
+                
+            }
+
+            double perc_complete = 100 * (nr_complete / (double)nr_jobs);
+            
+            System.out.printf( "Currently executing batch %s: \n", batch.getName() );
+
+            System.out.printf( "  nr jobs:            %,d\n" ,   nr_jobs );
+            System.out.printf( "  nr complete jobs:   %,d\n" ,   nr_complete );
+            System.out.printf( "  perc complete:      %%%4.4f\n" , perc_complete );
+            
+            System.out.printf( "%s\n", toStatus( batch ) );
+            
+        }
+
+        System.out.printf( "Executed %,d batch historical jobs.\n" , response.getHistory().size() );
 
     }
     
