@@ -103,7 +103,7 @@ public class Status {
         ControllerStatusResponse response = new ControllerStatusResponse();
         response.fromMessage( result );
 
-        System.out.printf( "Completed %,d batch jobs.\n" , response.getCompleted().size() );
+        System.out.printf( "Executed %,d batch jobs.\n" , response.getHistory().size() );
 
     }
     

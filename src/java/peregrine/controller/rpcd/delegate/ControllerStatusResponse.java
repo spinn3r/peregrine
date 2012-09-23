@@ -31,7 +31,7 @@ import peregrine.util.*;
  */
 public class ControllerStatusResponse implements MessageSerializable {
 
-    protected List<Batch> completed = new ArrayList();
+    protected List<Batch> history = new ArrayList();
 
     public ControllerStatusResponse() {}
 
@@ -45,12 +45,12 @@ public class ControllerStatusResponse implements MessageSerializable {
         }
         */
 
-        this.completed = new ArrayList( controller.getCompleted() );
+        this.history = new ArrayList( controller.getHistory() );
         
     }
 
-    public List<Batch> getCompleted() {
-        return completed;
+    public List<Batch> getHistory() {
+        return history;
     }
     
     /**
@@ -60,7 +60,7 @@ public class ControllerStatusResponse implements MessageSerializable {
 
         Message response = new Message();
 
-        response.put( "completed",   completed );
+        response.put( "history",   history );
 
         return response;
         
@@ -68,7 +68,7 @@ public class ControllerStatusResponse implements MessageSerializable {
 
     public void fromMessage( Message message ) {
 
-        completed = new StructList( message.getList( "batch" ), Batch.class );
+        history = new StructList( message.getList( "history" ), Batch.class );
         
     }
 

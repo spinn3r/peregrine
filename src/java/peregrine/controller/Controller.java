@@ -42,6 +42,8 @@ public class Controller {
 
     private static final Logger log = Logger.getLogger();
 
+    private static final int MAX_HISTORY = 200;
+    
     private Config config = null;
 
     private ControllerDaemon daemon = null;
@@ -59,10 +61,11 @@ public class Controller {
     protected ExecutionRange executionRange = new ExecutionRange();
 
     /**
-     * Keep track of completed items.  Note that unless this is cleared, if we
-     * keep running jobs we will run out of memory.
+     * Keep track of executed items.  Note that unless this is cleared, if we
+     * keep running jobs we will run out of memory.  We should probably have an
+     * internal upper bound on the max number of items.
      */
-    protected Collection<Batch> completed = new ConcurrentLinkedQueue();
+    protected ConcurrentLinkedQueue<Batch> history = new ConcurrentLinkedQueue();
 
     /**
      * The currently executing batch.
@@ -122,8 +125,8 @@ public class Controller {
         return config;
     }
 
-    public Collection<Batch> getCompleted() {
-        return completed;
+    public Collection<Batch> getHistory() {
+        return history;
     }
 
     public void map( Class mapper,
@@ -408,10 +411,19 @@ public class Controller {
         } finally {
             
             executing = null;
-            completed.add( batch );
+            addHistory( batch );
 
         }
 
+    }
+
+    private void addHistory( Batch batch ) {
+
+        if ( history.size() > MAX_HISTORY )
+            history.poll();
+
+        history.add( batch );
+        
     }
     
     // TODO this probably should not be public.
