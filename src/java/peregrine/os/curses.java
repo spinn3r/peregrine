@@ -23,25 +23,41 @@ import com.sun.jna.Pointer;
 
 public class curses {
 
-    public static void clear() {
-
-        Delegate.clear();
-        
-    }
-
-    static class Delegate {
+    public static native int erase();
+    public static native int clear();
+    public static native int initscr();
+    public static native int cbreak();
+    public static native int nocbreak();
+    public static native int echo();
+    public static native int noecho();
+    public static native int refresh();
+    public static native int mvaddstr(int y, int x, String str);
     
-        public static native void clear();
-        
-        static {
-            Native.register( "c" );
-        }
+    public static native int endwin();
 
+    static {
+        Native.register( "curses" );
     }
 
     public static void main( String[] args ) throws Exception {
 
+        initscr();
+        cbreak();
+        noecho();
+
         clear();
+        erase();
+
+        mvaddstr( 0, 2, "hello world" );
+        mvaddstr( 1, 2, "second column" );
+        
+        refresh();
+
+        Thread.sleep( 2000L );
+        
+        nocbreak();
+        echo();
+        endwin();
         
     }
                             
