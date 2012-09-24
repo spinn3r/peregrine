@@ -28,6 +28,7 @@ import peregrine.controller.rpcd.delegate.*;
 import peregrine.rpc.*;
 import peregrine.util.*;
 import peregrine.worker.*;
+import peregrine.os.*;
 
 /**
  * Obtain and print the status of the controller.
@@ -121,75 +122,134 @@ public class Status {
 
     public static void main( String[] args ) throws Exception {
 
+        // TODO:
+        //
+        //  q      should quit
+        //  space  should reload
+        // 
+
         new Initializer().logger( new File( "conf/log4j-silent.xml" ) );
-        
+
+        curses.init();
+
         Getopt getopt = new Getopt( args );
 
         int executing = getopt.getInt( "executing",  0 );
         int history   = getopt.getInt( "history",   -1 );
-        
+
         Config config = ConfigParser.parse( args );
 
-        Client client = new Client( config );
-        
-        Message message = new Message();
-        message.put( "action", "status" );
-        
-        Message result = client.invoke( config.getController(), "controller", message );
+        while( true ) {
 
-        ControllerStatusResponse response = new ControllerStatusResponse();
-        response.fromMessage( result );
+            curses.clear();
 
-        //TODO: include scheduler cluster state.
-        
-        if ( response.getExecuting() != null ) {
+            Exception cause = null;
 
-            Batch batch = response.getExecuting();
+            ControllerStatusResponse response = new ControllerStatusResponse();
 
-            int nr_jobs = batch.getJobs().size();
-            int nr_complete = 0;
+            try {
             
-            for( Job job : batch.getJobs() ) {
+                Client client = new Client( config );
                 
-                if ( job.getState().equals( JobState.COMPLETED ) )
-                    ++nr_complete;
+                Message message = new Message();
+                message.put( "action", "status" );
                 
+                Message result = client.invoke( config.getController(), "controller", message );
+                
+                response.fromMessage( result );
+
+            } catch ( Exception e ) {
+                cause = e;
             }
 
-            if ( executing >= 0 ) {
-            
-                double perc_complete = 100 * (nr_complete / (double)nr_jobs);
-                
-                System.out.printf( "Currently executing batch %s: \n", batch.getName() );
-                System.out.printf( "\n" );
-                
-                System.out.printf( "  nr jobs:            %,d\n" ,     nr_jobs );
-                System.out.printf( "  nr complete jobs:   %,d\n" ,     nr_complete );
-                System.out.printf( "  perc complete:      %%%4.4f\n" , perc_complete );
+            //TODO: include scheduler cluster state.
 
-            }
+            try {
 
-            if ( executing <= 1 ) {
+                String state = "ONLINE";
 
-                System.out.printf( "\n" );
+                if ( cause != null )
+                    state = "OFFLINE: " + cause.getMessage();
+
+                int y_pos = 0;
                 
-                for ( Job job : batch.getJobs() ) {
-                    System.out.printf( "  %s\n", toBrief( job ) );
+                curses.mvaddstr( y_pos++, 0, String.format( "%s", "Controller:" ) );
+                curses.mvaddstr( y_pos++, 2, String.format( "%-10s %s", "Host:", config.getController() ) );
+                curses.mvaddstr( y_pos++, 2, String.format( "%-10s %s", "State:", state ) );
+
+                curses.mvaddstr( y_pos++, 0, String.format( "%s %s",    "Last refresh:", new Date() ) );
+
+                if ( cause != null )
+                    continue;
+                
+                curses.mvaddstr( y_pos++, 0, String.format( "%-20s %s",   "Historical batches:", response.getHistory().size() ) );
+                
+                //System.out.printf( "Executed %,d batch historical jobs.\n" , response.getHistory().size() );
+
+                if ( response.getExecuting() != null ) {
+
+                    Batch batch = response.getExecuting();
+
+                    int nr_jobs = batch.getJobs().size();
+                    int nr_complete = 0;
+                    
+                    for( Job job : batch.getJobs() ) {
+                        
+                        if ( job.getState().equals( JobState.COMPLETED ) )
+                            ++nr_complete;
+                        
+                    }
+
+                    if ( executing >= 0 ) {
+
+                        ++y_pos;
+                        
+                        double perc_complete = 100 * (nr_complete / (double)nr_jobs);
+
+                        curses.mvaddstr( y_pos++, 0,
+                                         String.format( "Currently executing batch %s: ", batch.getName() ) );
+
+                        curses.mvaddstr( y_pos++, 2, String.format( "nr jobs:            %,d" ,     nr_jobs ) );
+                        curses.mvaddstr( y_pos++, 2, String.format( "nr complete jobs:   %,d" ,     nr_complete ) );
+                        curses.mvaddstr( y_pos++, 2, String.format( "perc complete:      %%%4.4f" , perc_complete ) );
+
+                    }
+
+                    if ( executing <= 1 ) {
+
+                        //System.out.printf( "\n" );
+
+                        ++y_pos;
+                        
+                        for ( Job job : batch.getJobs() ) {
+                            //System.out.printf( "  %s\n", toBrief( job ) );
+                            curses.mvaddstr( y_pos++, 2, String.format( "%s" , toBrief( job ) ) );
+
+                        }
+                        
+                    }
+
+                    if ( executing >= 2 ) {
+                        //System.out.printf( "\n" );
+
+                        //System.out.printf( "%s\n", toStatus( batch ) );
+                    }
+                    
                 }
+
+            } finally {
                 
-            }
+                curses.refresh();
+                
+                Thread.sleep( 1000L );
 
-            if ( executing >= 2 ) {
-                System.out.printf( "\n" );
-
-                System.out.printf( "%s\n", toStatus( batch ) );
             }
             
         }
 
-        System.out.printf( "Executed %,d batch historical jobs.\n" , response.getHistory().size() );
-
         //for ( List 
+        
+        //curses.term();
         
     }
     

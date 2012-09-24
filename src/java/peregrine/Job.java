@@ -62,7 +62,12 @@ public class Job implements MessageSerializable {
     protected String state = JobState.SUBMITTED;
 
     protected String operation = JobOperation.MAP;
-    
+
+    /**
+     * If this job failed this is the cause.
+     */
+    protected String cause = null;
+
     /**
      * Get a unique identifier for this job.  Every job stats at 0 (zero) and is
      * every new job identifier is incremented by 1 (one).
@@ -215,6 +220,19 @@ public class Job implements MessageSerializable {
         return this;
     }
 
+    public String getCause() {
+        return cause;
+    }
+
+    public Job setCause( String cause ) {
+        this.cause = cause;
+        return this;
+    }
+
+    public Job setCause( Throwable t ) {
+        return setCause( Strings.format( t ) );
+    }
+
     @Override
     public String toString() {
 
@@ -251,6 +269,7 @@ public class Job implements MessageSerializable {
         message.put( "parameters",    parameters );
         message.put( "state",         state );
         message.put( "operation",     operation );
+        message.put( "cause",         cause );
 
         return message;
         
@@ -274,6 +293,7 @@ public class Job implements MessageSerializable {
         parameters    = new Message( message.getString( "parameters" ) );
         state         = message.getString( "state" );
         operation     = message.getString( "operation" );
+        cause         = message.getString( "cause" );
         
     }
     

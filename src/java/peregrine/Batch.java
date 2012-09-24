@@ -207,7 +207,7 @@ public class Batch implements MessageSerializable {
 
         message.put( "name",          name );
         message.put( "description",   description );
-        message.put( "jobs",           jobs );
+        message.put( "jobs",          jobs );
 
         return message;
         

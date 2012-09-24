@@ -65,6 +65,10 @@ public class StructMap {
     }
     
     public void put( String key, String value ) {
+
+        if ( value == null )
+            return;
+        
         keys.add( key );
         delegate.put( key, value );
     }
@@ -105,14 +109,8 @@ public class StructMap {
     }
     
     public void put( String key, Throwable throwable ) {
-    	
-        // include the full stack trace 
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        throwable.printStackTrace( new PrintStream( out ) );
 
-        String stacktrace = new String( out.toByteArray() );
-    	
-        put( key, stacktrace );
+        put( key, Strings.format( throwable ) );
         
     }
     

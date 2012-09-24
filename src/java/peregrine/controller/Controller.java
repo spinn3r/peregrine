@@ -423,7 +423,11 @@ public class Controller {
             log.info( "COMPLETED %s (duration %,d ms)", desc, duration );
 
         } catch ( Exception e ) {
-            job.setState( JobState.FAILED );
+
+            job.setState( JobState.FAILED )
+               .setCause( e )
+               ;
+
             throw e;
         }
 

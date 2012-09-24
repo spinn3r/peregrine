@@ -88,6 +88,9 @@ public class ControllerRPCDelegate extends RPCDelegate<ControllerDaemon> {
     public ChannelBuffer progress( ControllerDaemon controllerDaemon, Channel channel, Message message )
         throws Exception {
 
+        //TODO: include the number of bytes processed which we can then show in
+        //status.
+        
         Host host          = Host.parse( message.get( "host" ) );
         Input input        = new Input( message.getList( "input" ) );
         Work work          = new Work( host, input, message.getList( "work" ) );

@@ -15,6 +15,7 @@
 */
 package peregrine.util;
 
+import java.io.*;
 import java.util.*;
 
 /**
@@ -72,6 +73,14 @@ public class Strings {
     public static List<String> split( String str , String sep ) {
         return Arrays.asList( str.split( sep ) );
     }
-    
-    
+
+    public static String format( Throwable t ) {
+
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        t.printStackTrace( new PrintStream( out ) );
+
+        return new String( out.toByteArray() );
+
+    }
+
 }
