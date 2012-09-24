@@ -125,8 +125,6 @@ public class Status {
         // TODO:
         //
         //  q      should quit
-        //  space  should reload
-        // 
 
         new Initializer().logger( new File( "conf/log4j-silent.xml" ) );
 
@@ -215,8 +213,11 @@ public class Status {
                         double perc_complete = 100 * (nr_complete / (double)nr_jobs);
 
                         curses.mvaddstr( y_pos++, 0,
-                                         String.format( "Currently executing batch %s: ", batch.getName() ) );
+                                         String.format( "Currently executing batch '%s' with %,d jobs:",
+                                                        batch.getName(), batch.getJobs().size() ) );
 
+                        //TODO: add the description for this batch.
+                        
                         curses.mvaddstr( y_pos++, 2, String.format( "nr jobs:            %,d" ,     nr_jobs ) );
                         curses.mvaddstr( y_pos++, 2, String.format( "nr complete jobs:   %,d" ,     nr_complete ) );
                         curses.mvaddstr( y_pos++, 2, String.format( "perc complete:      %%%4.4f" , perc_complete ) );

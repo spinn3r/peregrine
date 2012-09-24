@@ -242,14 +242,14 @@ public class Controller {
      */
     public void exec( Batch batch ) throws Exception {
 
-        if ( batch.getJobs().size() == 0 ) {
-            throw new Exception( "Batch has no jobs" );
-        }
-        
-        setExecuting( batch );
-
         try {
-            
+
+            setExecuting( batch );
+
+            if ( batch.getJobs().size() == 0 ) {
+                throw new Exception( "Batch has no jobs" );
+            }
+
             for ( Job job : batch.getJobs() ) {
                 exec( job );
             }
