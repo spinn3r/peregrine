@@ -58,7 +58,7 @@ public class Main {
         }
         
         new Pagerank( config, graph, nodes_by_hashcode, controller ).exec();
-        
+
     }
 
 }

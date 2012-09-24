@@ -28,6 +28,7 @@ import peregrine.io.driver.shuffle.*;
 import peregrine.rpc.*;
 import peregrine.sort.*;
 import peregrine.task.*;
+import peregrine.util.*;
 
 import com.spinn3r.log5j.*;
 
@@ -321,11 +322,32 @@ public class Controller {
     }
 
     /**
-     * Foreground batch submission handler that waits for batches to be added to
-     * the submission queue and then executes them.
+     * Foreground batch submission handler that waits for batch jobs to be added
+     * to the submission queue and then executes them.  This process ALL batch
+     * requests including current and future requests.
      */
     public void processBatchSubmissions() {
 
+        while( true ) {
+
+            if ( processCurrentBatchSubmissions() == false ) {
+
+                Threads.coma( 100L );
+
+            }
+
+        }
+
+    }
+
+    /**
+     * Process only currently submitted batch jobs.  Return true if at least one
+     * batch was executed and false if there were non executed.
+     */
+    public boolean processCurrentBatchSubmissions() {
+
+        boolean result = false;
+        
         while( true ) {
 
             try {
@@ -335,15 +357,19 @@ public class Controller {
                 // we have a job to execute ... go go go.
                 if ( batch != null ) {
                     exec( batch );
+                    result = true;
+                    continue;
                 }
-                
-                Thread.sleep( 100L );
 
+                break;
+                
             } catch ( Exception e ) {
                 log.error( "Unable to exec batch job: ", e );
             }
 
         }
+
+        return result;
 
     }
     

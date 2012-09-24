@@ -35,7 +35,9 @@ public final class Initializer {
     private static final Logger log = Logger.getLogger();
 
 	private Config config;
-	
+
+	public Initializer() {}
+
 	public Initializer( Config config ) {
 		this.config = config;
 	}
@@ -47,6 +49,10 @@ public final class Initializer {
         
         Files.initDataDir( config.getRoot(),    config.getUser() );
         Files.initDataDir( config.getBasedir(), config.getUser() );
+    }
+
+    public void logger( File file ) throws IOException {
+        DOMConfigurator.configure( file.getPath() );
     }
 
     public void logger( String suffix ) throws IOException {
@@ -62,8 +68,8 @@ public final class Initializer {
         }
             
         System.setProperty( "peregrine.log.suffix", suffix );
-        DOMConfigurator.configure( conf );
-
+        logger( new File( conf ) );
+        
     }
 
     public void pidfile() throws IOException {

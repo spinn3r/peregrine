@@ -15,6 +15,7 @@
 */
 package peregrine.console.controller;
 
+import java.io.*;
 import java.util.*;
 import java.lang.reflect.*;
 
@@ -26,6 +27,7 @@ import peregrine.controller.*;
 import peregrine.controller.rpcd.delegate.*;
 import peregrine.rpc.*;
 import peregrine.util.*;
+import peregrine.worker.*;
 
 /**
  * Obtain and print the status of the controller.
@@ -89,10 +91,45 @@ public class Status {
         }
             
     }
+
+    public static String toBrief( Job job ) {
+
+        return String.format( "%20s %15s %10s    %s",
+                              job.getName(),
+                              job.getState(),
+                              job.getOperation(),
+                              job.getDelegate().getName() );
+        
+    }
     
+    public static void help() {
+
+        System.out.printf( "Controller command line status interface.\n" );
+        System.out.printf( "\n" );
+        System.out.printf( "Shows information about the current controller status.\n" );
+        System.out.printf( "\n" );
+        System.out.printf( "--executing    Show currently executing batches.\n" );
+        System.out.printf( "--history      Show job history.\n" );
+        System.out.printf( "\n" );
+        System.out.printf( "Both arguments accept a level argument for the amount of detail to report.\n" );
+        System.out.printf( "\n" );
+        System.out.printf( "  0:  Just basic stats.\n" );
+        System.out.printf( "  1:  Brief report on each job.\n" );
+        System.out.printf( "  2:  Full report on each job.\n" );
+
+    }
+
     public static void main( String[] args ) throws Exception {
 
+        new Initializer().logger( new File( "conf/log4j-silent.xml" ) );
+        
+        Getopt getopt = new Getopt( args );
+
+        int executing = getopt.getInt( "executing",  0 );
+        int history   = getopt.getInt( "history",   -1 );
+        
         Config config = ConfigParser.parse( args );
+
         Client client = new Client( config );
         
         Message message = new Message();
@@ -119,20 +156,41 @@ public class Status {
                 
             }
 
-            double perc_complete = 100 * (nr_complete / (double)nr_jobs);
+            if ( executing >= 0 ) {
             
-            System.out.printf( "Currently executing batch %s: \n", batch.getName() );
+                double perc_complete = 100 * (nr_complete / (double)nr_jobs);
+                
+                System.out.printf( "Currently executing batch %s: \n", batch.getName() );
+                System.out.printf( "\n" );
+                
+                System.out.printf( "  nr jobs:            %,d\n" ,     nr_jobs );
+                System.out.printf( "  nr complete jobs:   %,d\n" ,     nr_complete );
+                System.out.printf( "  perc complete:      %%%4.4f\n" , perc_complete );
 
-            System.out.printf( "  nr jobs:            %,d\n" ,     nr_jobs );
-            System.out.printf( "  nr complete jobs:   %,d\n" ,     nr_complete );
-            System.out.printf( "  perc complete:      %%%4.4f\n" , perc_complete );
-            
-            System.out.printf( "%s\n", toStatus( batch ) );
+            }
+
+            if ( executing <= 1 ) {
+
+                System.out.printf( "\n" );
+                
+                for ( Job job : batch.getJobs() ) {
+                    System.out.printf( "  %s\n", toBrief( job ) );
+                }
+                
+            }
+
+            if ( executing >= 2 ) {
+                System.out.printf( "\n" );
+
+                System.out.printf( "%s\n", toStatus( batch ) );
+            }
             
         }
 
         System.out.printf( "Executed %,d batch historical jobs.\n" , response.getHistory().size() );
 
+        //for ( List 
+        
     }
     
 }
