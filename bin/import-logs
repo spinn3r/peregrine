@@ -1,0 +1,82 @@
+#!/usr/bin/python
+
+import sys
+import os
+import sha
+import random
+import shutil
+
+# log import script 
+
+SPOOL_DIRECTORIES = [ "/d0/peregrine-fs/util0029.wdc.sl.spinn3r.com/11112/spool", 
+                      "/d0/peregrine-fs/util0029.wdc.sl.spinn3r.com/11113/spool",
+                      "/d1/peregrine-fs/util0029.wdc.sl.spinn3r.com/11114/spool",
+                      "/d1/peregrine-fs/util0029.wdc.sl.spinn3r.com/11115/spool",
+                      "/d2/peregrine-fs/util0029.wdc.sl.spinn3r.com/11116/spool",
+                      "/d2/peregrine-fs/util0029.wdc.sl.spinn3r.com/11117/spool",
+                      "/d3/peregrine-fs/util0029.wdc.sl.spinn3r.com/11118/spool",
+                      "/d3/peregrine-fs/util0029.wdc.sl.spinn3r.com/11119/spool" ]
+
+def du(dir):
+
+    size=0
+    for name in os.listdir( dir ):
+        path="%s/%s" % (dir,name)
+        if ( os.path.exists( path ) and not os.path.isdir( path ) ):
+            size = size + os.path.getsize( path )
+
+    return size
+
+def get_spool_dir():
+    global SPOOL_DIRECTORIES
+
+    index=random.randint( 0, len( SPOOL_DIRECTORIES) - 1 )
+    return SPOOL_DIRECTORIES[index]
+
+def rename(path, new_path):
+    print "rename: %s -> %s" % (path,new_path)
+    os.rename( path, new_path )
+
+def move(path, new_path):
+    print "move: %s -> %s" % (path,new_path)
+    shutil.move( path, new_path )
+
+if len(sys.argv) != 3:
+    sys.stderr.write( "SYNTAX ERROR: import-logs source dest\n" )
+    sys.exit(1)
+
+source=sys.argv[1]
+dest=sys.argv[2]
+
+# make sure the spool directories exist.
+
+for dir in SPOOL_DIRECTORIES:
+    if not os.path.exists( dir ):
+        sys.stderr.write( "ERROR: %s does not exist.\n" % dir )
+        sys.exit(1)
+
+    print "%s OK" % dir
+
+#os.system( "rsync --remove-source-files --progress --whole-file %s %s" % (source, dest));
+
+# rename the file to a consistent filename by reading the first line.
+for name in os.listdir( dest ):
+
+    path="%s/%s" % (dest,name)
+    file = open( path, "r" )
+    first_line = file.readline()
+    md=sha.new( first_line )
+    hashcode=md.hexdigest()
+    new_path="%s/%s.log" % (dest,hashcode)
+    rename( path, new_path )
+
+# now move them to the target path
+for name in os.listdir( dest ):
+    path="%s/%s" % (dest,name)
+    new_dir=get_spool_dir()
+    new_path="%s/%s" % (new_dir,name)
+
+    move( path, new_path )
+
+for dir in SPOOL_DIRECTORIES:
+    print "du: %s = %s" % (dir,du(dir))
