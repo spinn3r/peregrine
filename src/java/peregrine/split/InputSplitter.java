@@ -70,6 +70,9 @@ public class InputSplitter {
 
         for( File file : files ) {
 
+            if ( file.isDirectory() )
+                continue;
+            
             RandomAccessFile raf = null;
         
             try {

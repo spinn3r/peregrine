@@ -57,7 +57,7 @@ for dir in SPOOL_DIRECTORIES:
 
     print "%s OK" % dir
 
-#os.system( "rsync --remove-source-files --progress --whole-file %s %s" % (source, dest));
+os.system( "rsync --remove-source-files --progress --whole-file %s %s" % (source, dest));
 
 # rename the file to a consistent filename by reading the first line.
 for name in os.listdir( dest ):
