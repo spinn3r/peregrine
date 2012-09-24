@@ -34,7 +34,7 @@ public class ControllerStatusResponse implements MessageSerializable {
     protected List<Batch> history = new ArrayList();
 
     protected Batch executing = null;
-    
+
     public ControllerStatusResponse() {}
 
     public ControllerStatusResponse( Controller controller ) {

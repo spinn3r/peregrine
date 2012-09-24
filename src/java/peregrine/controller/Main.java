@@ -26,7 +26,7 @@ import peregrine.worker.*;
 import com.spinn3r.log5j.Logger;
 
 /**
- * Command line main() class for the controller daemon.
+ * Command line main() class for the controller daemon and running batch jobs.
  */
 public class Main {
 	
@@ -41,18 +41,7 @@ public class Main {
         
         Controller controller = new Controller( config );
 
-        while( true ) {
-
-            Batch batch = controller.getPending().poll();
-
-            // we have a job to execute ... go go go.
-            if ( batch != null ) {
-                controller.exec( batch );
-            }
-            
-            Thread.sleep( 100L );
-
-        }
+        controller.processBatchSubmissions();
 
     }
         

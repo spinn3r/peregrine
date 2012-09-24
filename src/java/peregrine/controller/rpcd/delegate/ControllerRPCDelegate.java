@@ -156,12 +156,11 @@ public class ControllerRPCDelegate extends RPCDelegate<ControllerDaemon> {
     }
 
     /**
+     * Take a batch message and hand it to the controller.
      */
     @RPC
     public ChannelBuffer submit( ControllerDaemon controllerDaemon, Channel channel, Message message )
         throws Exception {
-        
-        // mark that a machine has failed to process some unit of work.
         
         Batch batch = new Batch();
         batch.fromMessage( new Message( message.get( "batch" ) ) );

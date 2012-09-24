@@ -132,12 +132,12 @@ public class Controller {
         return config;
     }
 
-    public Collection<Batch> getHistory() {
-        return history;
+    public List<Batch> getHistory() {
+        return new ArrayList( history );
     }
 
-    public Queue<Batch> getPending() {
-        return pending;
+    public List<Batch> getPending() {
+        return new ArrayList( pending );
     }
 
     public Batch getExecuting() {
@@ -320,6 +320,33 @@ public class Controller {
         
     }
 
+    /**
+     * Foreground batch submission handler that waits for batches to be added to
+     * the submission queue and then executes them.
+     */
+    public void processBatchSubmissions() {
+
+        while( true ) {
+
+            try {
+            
+                Batch batch = pending.poll();
+                
+                // we have a job to execute ... go go go.
+                if ( batch != null ) {
+                    exec( batch );
+                }
+                
+                Thread.sleep( 100L );
+
+            } catch ( Exception e ) {
+                log.error( "Unable to exec batch job: ", e );
+            }
+
+        }
+
+    }
+    
     private void withScheduler( Job job, Scheduler scheduler ) 
         throws Exception {
 
