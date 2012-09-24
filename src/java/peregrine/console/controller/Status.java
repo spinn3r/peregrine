@@ -132,6 +132,14 @@ public class Status {
 
         curses.init();
 
+        Runtime.getRuntime().addShutdownHook( new Thread() {
+
+                public void run() {
+                    curses.term();
+                }
+                
+            } );
+        
         Getopt getopt = new Getopt( args );
 
         int executing = getopt.getInt( "executing",  0 );
