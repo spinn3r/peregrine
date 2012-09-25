@@ -77,11 +77,10 @@ public class TestPagerankAccuracy extends peregrine.BaseTestWithMultipleProcesse
         try {
             
             pr = new Pagerank( config, graph, nodes_by_hashcode );
-
-            pr.exec();
+            //pr.exec();
             
         } finally {
-            pr.shutdown();
+            //pr.shutdown();
         }
 
         // now read all results from ALL partitions so that we can verify that

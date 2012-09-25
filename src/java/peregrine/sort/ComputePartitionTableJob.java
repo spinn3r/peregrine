@@ -115,6 +115,10 @@ public class ComputePartitionTableJob {
 
             log.info( "Sample size is: %,d items", sample.size() );
 
+            if ( sample.size() == 0 ) {
+                throw new IOException( "No samples" );
+            }
+            
             Collections.sort( sample, new StrictStructReaderComparator() );
 
             //now write out the partitions.
