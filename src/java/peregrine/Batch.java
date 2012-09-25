@@ -40,6 +40,8 @@ public class Batch implements MessageSerializable {
 
     protected List<Job> jobs = new ArrayList();
 
+    protected long identifier = -1;
+    
     public Batch map( Class mapper,
                       String... paths ) {
         return map( mapper, new Input( paths ) );
@@ -197,6 +199,15 @@ public class Batch implements MessageSerializable {
         return this;
     }
 
+    public long getIdentifier() {
+        return this.identifier;
+    }
+
+    public Batch setIdentifier( long identifier ) {
+        this.identifier = identifier;
+        return this;
+    }
+    
     public void assertExecutionViability() {
 
         if ( getJobs().size() == 0 ) {
@@ -215,6 +226,7 @@ public class Batch implements MessageSerializable {
 
         message.put( "name",          name );
         message.put( "description",   description );
+        message.put( "identifier",    identifier );
         message.put( "jobs",          jobs );
 
         return message;
@@ -226,6 +238,7 @@ public class Batch implements MessageSerializable {
 
         name          = message.getString( "name" );
         description   = message.getString( "description" );
+        identifier    = message.getLong( "identifier" );
         jobs          = new StructList( message.getList( "jobs" ), Job.class );
 
     }

@@ -175,5 +175,27 @@ public class ControllerRPCDelegate extends RPCDelegate<ControllerDaemon> {
 		
     }
 
+    /**
+     * Wait for a given batch job to complete and return successfuly once we
+     * have completed.
+     */
+    @RPC
+    public ChannelBuffer waitFor( ControllerDaemon controllerDaemon, Channel channel, Message message )
+        throws Exception {
+
+        List<Batch> history = controllerDaemon.getController().getHistory();
+
+        long identifier = message.getLong( "identifier" );
+        
+        if ( history.size() == 0 || history.get( 0 ).getIdentifier() > identifier ) {
+            throw new Exception( "Batch job not yet complete: " + identifier );
+        }
+
+        // try the batch and return it.
+        
+        return null;
+
+    }
+    
 }
 
