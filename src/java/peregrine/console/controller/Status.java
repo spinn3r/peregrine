@@ -265,6 +265,7 @@ public class Status {
 
                         //TODO: add the description for this batch.
                         
+                        curses.mvaddstr( y_pos++, 2, String.format( "identifier:           %s" ,      batch.getIdentifier() ) );
                         curses.mvaddstr( y_pos++, 2, String.format( "nr jobs:              %,d" ,     nr_jobs ) );
                         curses.mvaddstr( y_pos++, 2, String.format( "nr complete jobs:     %,d" ,     nr_complete ) );
                         curses.mvaddstr( y_pos++, 2, String.format( "batch perc complete:  %s" ,      progress( perc_complete, PROGRESS_WIDTH ) ) );

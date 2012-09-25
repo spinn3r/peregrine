@@ -37,7 +37,7 @@ public class NonceFactory {
 
     private static final Logger log = Logger.getLogger();
 
-    private static final int PADD = 1000000000;
+    private static final long PADD = 1000000000;
     
     private static AtomicInteger local = new AtomicInteger();
 

@@ -77,7 +77,11 @@ public class ControllerClient {
         
         Message result = client.invoke( config.getController(), "controller", message );
 
-        return result.getLong( "identifier" );
+        long identifier = result.getLong( "identifier" );
+
+        log.info( "Batch successfully submitted and now has identifier: %s", identifier );
+        
+        return identifier;
         
     }
     

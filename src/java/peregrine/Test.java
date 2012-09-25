@@ -66,18 +66,20 @@ public class Test {
 
     public static void main( String[] args ) throws Exception {
 
-        List<StructReader> list = new ArrayList();
-        List<Long> longs = new ArrayList();
+        System.out.printf( "%s\n", NonceFactory.newNonce() );
         
-        for ( long value = 0; value < 1024; ++value ) {
-            list.add( StructReaders.wrap( value ) );
-            longs.add( value );
-        }
+        // List<StructReader> list = new ArrayList();
+        // List<Long> longs = new ArrayList();
+        
+        // for ( long value = 0; value < 1024; ++value ) {
+        //     list.add( StructReaders.wrap( value ) );
+        //     longs.add( value );
+        // }
 
-        StructReader mean = mean( list );
+        // StructReader mean = mean( list );
 
-        System.out.printf( "%s\n", mean.readLong() );
-        System.out.printf( "%s\n", meanLongs( longs ) );
+        // System.out.printf( "%s\n", mean.readLong() );
+        // System.out.printf( "%s\n", meanLongs( longs ) );
         
         //System.out.printf( "%s\n", JobState.SUBMITTED );
         //System.out.printf( "%s\n", JobState.SUBMITTED.getClass().newInstance() );

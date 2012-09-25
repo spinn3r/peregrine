@@ -115,7 +115,14 @@ public class ComputePartitionTableJob {
             log.info( "Sample size is: %,d items", sample.size() );
 
             if ( sample.size() == 0 ) {
+
+                //FIXME: this is wrong.  It is totally reasonable to want to
+                //sort a file with no entries.  ALSO what if there are less
+                //samples than total numbers of partitions? In this situation
+                //just put everything on the first partition.
+                
                 throw new IOException( "No samples" );
+                
             }
             
             Collections.sort( sample, new StrictStructReaderComparator() );
