@@ -37,6 +37,7 @@ import peregrine.config.*;
 import com.spinn3r.log5j.*;
 
 /**
+ * Interface for various controller RPC calls.
  * 
  */
 public class ControllerClient {
