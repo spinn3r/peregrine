@@ -284,16 +284,19 @@ public class Controller {
      * Add a job to the pending queue for later execution.  If there are no jobs
      * executing or in the queue the batch will be executed immediately.
      */
-    public void submit( Batch batch ) throws Exception {
+    public Batch submit( Batch batch ) throws Exception {
 
         if ( pending.size() >= BATCH_MAX_PENDING) {
             throw new Exception( "Hit maximum submissions: " + BATCH_MAX_PENDING );
         }
 
         batch.assertExecutionViability();
-
+        batch.setIdentifier( NonceFactory.newNonce() );
+        
         pending.add( batch );
 
+        return batch;
+        
     }
 
     /**

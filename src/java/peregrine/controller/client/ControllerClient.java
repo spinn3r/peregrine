@@ -60,7 +60,10 @@ public class ControllerClient {
         
     }
 
-    public static void submit( Config config, Batch batch ) throws Exception {
+    /**
+     * Submit a job for execution and return the assigned identifier.
+     */
+    public static long submit( Config config, Batch batch ) throws Exception {
 
         log.info( "Going to submit batch: %s" , batch.getName() );
 
@@ -74,6 +77,8 @@ public class ControllerClient {
         
         Message result = client.invoke( config.getController(), "controller", message );
 
+        return result.getLong( "identifier" );
+        
     }
     
 }

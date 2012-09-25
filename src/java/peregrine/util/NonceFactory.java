@@ -39,9 +39,9 @@ public class NonceFactory {
 
     private static final int PADD = 1000000000;
     
-    private AtomicInteger local = new AtomicInteger();
+    private static AtomicInteger local = new AtomicInteger();
 
-    public long newNonce() {
+    public static long newNonce() {
 
         int g = (int)(System.currentTimeMillis() / 1000);
         int l = local.getAndIncrement();

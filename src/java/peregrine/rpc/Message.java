@@ -17,10 +17,12 @@ package peregrine.rpc;
 
 import java.io.*;
 import java.util.*;
-import org.jboss.netty.handler.codec.http.*;
 
 import peregrine.io.*;
 import peregrine.util.*;
+
+import org.jboss.netty.buffer.*;
+import org.jboss.netty.handler.codec.http.*;
 
 /**
  * A message sent between two hosts.
@@ -96,5 +98,8 @@ public class Message extends StructMap implements MessageSerializable {
     public void fromMessage( Message message ) {
         init( message.toMap() );
     }
-    
+
+    public ChannelBuffer toChannelBuffer() {
+        return ChannelBuffers.wrappedBuffer( toString().getBytes() );
+    }
 }

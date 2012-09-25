@@ -155,7 +155,7 @@ public class ControllerRPCDelegate extends RPCDelegate<ControllerDaemon> {
         ControllerStatusResponse response = new ControllerStatusResponse( controllerDaemon.getController(),
                                                                           controllerDaemon.getScheduler() );
 
-        return ChannelBuffers.wrappedBuffer( response.toMessage().toString().getBytes() );
+        return response.toMessage().toChannelBuffer();
 
     }
 
@@ -169,9 +169,15 @@ public class ControllerRPCDelegate extends RPCDelegate<ControllerDaemon> {
         Batch batch = new Batch();
         batch.fromMessage( new Message( message.get( "batch" ) ) );
 
-        controllerDaemon.getController().submit( batch );
+        // submit the batch for execution
+        batch = controllerDaemon.getController().submit( batch );
+
+        // the batch will now have an identifier and we should return it as part of the response
+
+        Message result = new Message();
+        result.put( "identifier", batch.getIdentifier() );
         
-        return null;
+        return result.toChannelBuffer();
 		
     }
 
