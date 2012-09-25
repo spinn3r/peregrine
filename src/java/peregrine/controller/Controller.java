@@ -43,8 +43,10 @@ public class Controller {
 
     private static final Logger log = Logger.getLogger();
 
-    private static final int MAX_HISTORY = 200;
-    
+    private static final int BATCH_MAX_HISTORY = 200;
+
+    private static final int BATCH_MAX_PENDING= 200;
+
     private Config config = null;
 
     private ControllerDaemon daemon = null;
@@ -257,9 +259,7 @@ public class Controller {
 
             setExecuting( batch );
 
-            if ( batch.getJobs().size() == 0 ) {
-                throw new Exception( "Batch has no jobs" );
-            }
+            batch.assertExecutionViability();
 
             for ( Job job : batch.getJobs() ) {
                 exec( job );
@@ -285,7 +285,15 @@ public class Controller {
      * executing or in the queue the batch will be executed immediately.
      */
     public void submit( Batch batch ) throws Exception {
+
+        if ( pending.size() >= BATCH_MAX_PENDING) {
+            throw new Exception( "Hit maximum submissions: " + BATCH_MAX_PENDING );
+        }
+
+        batch.assertExecutionViability();
+
         pending.add( batch );
+
     }
 
     /**
@@ -446,7 +454,7 @@ public class Controller {
 
     private void addHistory( Batch batch ) {
 
-        if ( history.size() > MAX_HISTORY )
+        if ( history.size() > BATCH_MAX_PENDING )
             history.poll();
 
         history.add( batch );

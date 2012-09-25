@@ -36,8 +36,6 @@ public class Main {
 
         String corpus = getopt.getString( "corpus" );
 
-        Controller controller = new Controller( config );
-        
         if ( "random".equals( corpus ) ) {
 
             //build a grandom graph
@@ -57,8 +55,10 @@ public class Main {
             System.out.printf( "Using existing graph.\n" );
         }
         
-        new Pagerank( config, graph, nodes_by_hashcode, controller ).exec();
+        Pagerank pr = new Pagerank( config, graph, nodes_by_hashcode, null );
 
+        ControllerClient.submit( config, pr );
+        
     }
 
 }

@@ -38,17 +38,25 @@ public class Job implements MessageSerializable {
     private static AtomicInteger nonce = new AtomicInteger();
 
     protected long timestamp = System.currentTimeMillis();
+
     protected int identifier = nonce.getAndIncrement();
+
 	protected String handle = String.format( "%010d.%010d", timestamp, identifier );
+
 	protected String name = handle;
+
 	protected String description = "";
+
 	protected Class delegate = Mapper.class; 
 
     //TODO: a combiner does NOT make sense for a reduce job so move this to a
     //MapJob class (which we use with map and merge).
 	protected Class combiner = null;
+
 	protected Input input = new Input();
+
 	protected Output output = new Output();
+
     protected Class partitioner = RangePartitioner.class;
 
     protected Partitioner partitionerInstance = null;

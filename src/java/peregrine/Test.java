@@ -64,12 +64,17 @@ public class Test {
     
     public static void main( String[] args ) throws Exception {
 
-        int width = 40;
-        
-        int perc = 99;
+        Batch batch = new Batch();
+        batch.add( new Job() );
+        batch.add( new Job() );
 
-        System.out.printf( "%s\n", progress( 10.0, 40 ) );
+
+        Batch result = new Batch();
+        result.fromMessage( batch.toMessage() );
+
+        System.out.printf( "%s\n", result.getJobs().size() );
         
+
         // Batch batch = new Batch();
         // batch.add( new Job() );
         // batch.add( new Job() );

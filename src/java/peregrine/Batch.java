@@ -41,18 +41,18 @@ public class Batch implements MessageSerializable {
     protected List<Job> jobs = new ArrayList();
 
     public Batch map( Class mapper,
-                      String... paths ) throws Exception {
+                      String... paths ) {
         return map( mapper, new Input( paths ) );
     }
 
     public Batch map( Class mapper,
-                      Input input ) throws Exception {
+                      Input input ) {
         return map( mapper, input, null );
     }
     
     public Batch map( Class delegate,
                       Input input,
-                      Output output ) throws Exception {
+                      Output output ) {
 
     	return map( new Job().setDelegate( delegate ) 
                     .setInput( input )
@@ -60,20 +60,20 @@ public class Batch implements MessageSerializable {
     		
     }
 
-    public Batch map( Job job ) throws Exception {
+    public Batch map( Job job ) {
         add( job.setOperation( JobOperation.MAP ) );
         return this;
     }
 
     public Batch merge( Class mapper,
-                       String... paths ) throws Exception {
+                       String... paths ) {
 
         return merge( mapper, new Input( paths ) );
         
     }
 
     public Batch merge( Class mapper,
-                        Input input ) throws Exception {
+                        Input input ) {
 
         return merge( mapper, input, null );
 
@@ -81,7 +81,7 @@ public class Batch implements MessageSerializable {
 
     public Batch merge( Class delegate,
                         Input input,
-                        Output output ) throws Exception {
+                        Output output ) {
     	
     	merge( new Job().setDelegate( delegate )
                .setInput( input )
@@ -90,14 +90,14 @@ public class Batch implements MessageSerializable {
         
     }
 
-    public Batch merge( Job job ) throws Exception {
+    public Batch merge( Job job ) {
         add( job.setOperation( JobOperation.MERGE ) );
         return this;
     }
 
     public Batch reduce( final Class delegate,
                          final Input input,
-                         final Output output )  throws Exception {
+                         final Output output )  {
 
         return reduce( new Job().setDelegate( delegate )
                                 .setInput( input )
@@ -105,7 +105,7 @@ public class Batch implements MessageSerializable {
 
     }
 
-    public Batch reduce( Job job ) throws Exception {
+    public Batch reduce( Job job ) {
         add( job.setOperation( JobOperation.REDUCE ) );
         return this;
     }
@@ -113,7 +113,7 @@ public class Batch implements MessageSerializable {
     /**
      * Touch / init a file so that it is empty and ready to be merged against.
      */
-    public Batch touch( String output ) throws Exception {
+    public Batch touch( String output ) {
 
         // map-only job that reads from an empty blackhole: stream and writes
         // nothing to the output file. 
@@ -124,7 +124,7 @@ public class Batch implements MessageSerializable {
         
     }
 
-    public Batch sort( String input, String output, Class comparator ) throws Exception {
+    public Batch sort( String input, String output, Class comparator ) {
 
         Job job = new Job();
         job.setDelegate( ComputePartitionTableJob.Map.class );
@@ -197,6 +197,14 @@ public class Batch implements MessageSerializable {
         return this;
     }
 
+    public void assertExecutionViability() {
+
+        if ( getJobs().size() == 0 ) {
+            throw new RuntimeException( "Batch has no jobs" );
+        }
+
+    }
+    
     /**
      * Convert this to an RPC message.
      */
