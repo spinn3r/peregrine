@@ -126,6 +126,12 @@ public class Status {
             
     }
 
+    public static String toBrief( Batch batch ) {
+
+        return String.format( "%20s %10s", batch.getName(), batch.getIdentifier() );
+        
+    }
+
     public static String toBrief( Job job ) {
 
         return String.format( "%20s %15s %10s    %s",
@@ -213,8 +219,8 @@ public class Status {
                 int y_pos = 0;
                 
                 curses.mvaddstr( y_pos++, 0, String.format( "%s", "Controller:" ) );
-                curses.mvaddstr( y_pos++, 2, String.format( "%-10s %s", "Host:", config.getController() ) );
-                curses.mvaddstr( y_pos++, 2, String.format( "%-10s %s", "State:", state ) );
+                curses.mvaddstr( y_pos++, 4, String.format( "%-10s %s", "Host:", config.getController() ) );
+                curses.mvaddstr( y_pos++, 4, String.format( "%-10s %s", "State:", state ) );
 
                 curses.mvaddstr( y_pos++, 0, String.format( "%s %s",    "Last refresh:", new Date() ) );
 
@@ -222,6 +228,12 @@ public class Status {
                     continue;
                 
                 curses.mvaddstr( y_pos++, 0, String.format( "%-20s %s",   "Historical batches:", response.getHistory().size() ) );
+
+                if ( response.getHistory().size() > 0 ) {
+
+                    curses.mvaddstr( y_pos++, 4, String.format( "%s %s",   "Last batch:", toBrief( response.getHistory().get( 0 ) ) ) );
+                    
+                }
                 
                 //System.out.printf( "Executed %,d batch historical jobs.\n" , response.getHistory().size() );
 
