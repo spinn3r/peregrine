@@ -30,15 +30,54 @@ public class Test {
 
     private static final Logger log = Logger.getLogger();
 
+    public static StructReader mean( List<StructReader> values ) {
+
+        byte[] result = new byte[ values.get( 0 ).length() ];
+
+        for( int i = 0; i < result.length; ++i ) {
+
+            int sum = 0;
+
+            for( StructReader current : values ) {
+                sum += (current.getByte( i ) & 0xFF);
+                //sum += current.getByte( i ) ;
+            }
+
+            result[i] = (byte)(sum / values.size());
+            sum = 0;
+            
+        }
+
+        return StructReaders.wrap( result );
+
+    }
+
+    public static long meanLongs( List<Long> values ) {
+
+        long sum = 0;
+
+        for ( long value : values ) {
+            sum += value;
+        }
+
+        return (long) sum / values.size();
+
+    }
+
     public static void main( String[] args ) throws Exception {
 
-        Batch batch = new Batch();
-        batch.add( new Job() );
-        batch.add( new Job() );
+        List<StructReader> list = new ArrayList();
+        List<Long> longs = new ArrayList();
         
-        String result = Status.toStatus( batch );
+        for ( long value = 0; value < 1024; ++value ) {
+            list.add( StructReaders.wrap( value ) );
+            longs.add( value );
+        }
 
-        System.out.printf( "%s\n", result );
+        StructReader mean = mean( list );
+
+        System.out.printf( "%s\n", mean.readLong() );
+        System.out.printf( "%s\n", meanLongs( longs ) );
         
         //System.out.printf( "%s\n", JobState.SUBMITTED );
         //System.out.printf( "%s\n", JobState.SUBMITTED.getClass().newInstance() );

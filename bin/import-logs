@@ -28,10 +28,18 @@ def du(dir):
     return size
 
 def get_spool_dir():
+    """Get the spool directory with the least disk usage"""
+    
     global SPOOL_DIRECTORIES
 
-    index=random.randint( 0, len( SPOOL_DIRECTORIES) - 1 )
-    return SPOOL_DIRECTORIES[index]
+    spool_sizes = {}
+
+    for dir in SPOOL_DIRECTORIES:
+        spool_sizes[ dir ] = du( dir )
+
+    sorted_spool_sizes=sorted(spool_sizes.iteritems(), key=lambda (k,v): (v,k))
+
+    print sorted_spool_sizes[0][0]
 
 def rename(path, new_path):
     print "rename: %s -> %s" % (path,new_path)
