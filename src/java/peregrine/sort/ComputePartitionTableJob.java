@@ -49,7 +49,6 @@ public class ComputePartitionTableJob {
      */
     public static final int KEY_LEN = 16;
 
-    public static final StructReader FIRST_BOUNDARY = createByteArray( 0,   KEY_LEN ); 
     public static final StructReader LAST_BOUNDARY  = createByteArray( 127, KEY_LEN );
 
     private static StructReader createByteArray( int val, int len ) {
@@ -179,6 +178,7 @@ public class ComputePartitionTableJob {
         public void reduce( StructReader key, List<StructReader> values ) {
 
             StructReader value = mean( values );
+            //StructReader value = median( values );
 
             log.info( "Going to use final broadcast partition boundary: %s", Hex.encode( value ) );
             boundaries.add( value );
@@ -189,6 +189,16 @@ public class ComputePartitionTableJob {
             
         }
 
+        private StructReader median( List<StructReader> values ) {
+
+            List<StructReader> sorted = new ArrayList( values );
+            
+            Collections.sort( sorted, new StrictStructReaderComparator() );
+            
+            return sorted.get( sorted.size() / 2 );
+            
+        }
+        
         private StructReader mean( List<StructReader> values ) {
 
             int sum = 0;

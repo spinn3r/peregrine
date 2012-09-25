@@ -26,91 +26,72 @@ import com.spinn3r.log5j.Logger;
 
 import java.nio.charset.Charset;
 
-import peregrine.controller.rpcd.delegate.*;
-
 public class Test {
 
     private static final Logger log = Logger.getLogger();
 
-    /**
-     * Draw a progress meter in ASCII with the given width and percentage
-     * filled.
-     */
-    public static String progress( double perc, int width ) {
+    public static StructReader mean( List<StructReader> values ) {
 
-        StringBuilder buff = new StringBuilder();
+        byte[] result = new byte[ values.get( 0 ).length() ];
 
-        buff.append( "[" );
-        
-        int cutoff = (int)(width * ( perc / (double)100 ));
-        
-        for( int i = 0; i < width; ++i ) {
+        for( int i = 0; i < result.length; ++i ) {
 
-            if ( i < cutoff ) {
-                buff.append( "*" );
-            } else {
-                buff.append( " " );
+            int sum = 0;
+
+            for( StructReader current : values ) {
+                sum += (current.getByte( i ) & 0xFF);
+                //sum += current.getByte( i ) ;
             }
+
+            result[i] = (byte)(sum / values.size());
+            sum = 0;
             
         }
 
-        buff.append( "]" );
+        return StructReaders.wrap( result );
 
-        buff.append( String.format( " %%%4.1f", perc ) );
-        
-        return buff.toString();
-        
     }
-    
+
+    public static long meanLongs( List<Long> values ) {
+
+        long sum = 0;
+
+        for ( long value : values ) {
+            sum += value;
+        }
+
+        return (long) sum / values.size();
+
+    }
+
     public static void main( String[] args ) throws Exception {
 
-        Batch batch = new Batch();
-        batch.add( new Job() );
-        batch.add( new Job() );
-
-
-        Batch result = new Batch();
-        result.fromMessage( batch.toMessage() );
-
-        System.out.printf( "%s\n", result.getJobs().size() );
+        List<StructReader> list = new ArrayList();
+        List<Long> longs = new ArrayList();
         
+        for ( long value = 0; value < 1024; ++value ) {
+            list.add( StructReaders.wrap( value ) );
+            longs.add( value );
+        }
 
-        // Batch batch = new Batch();
-        // batch.add( new Job() );
-        // batch.add( new Job() );
-        
-        // String result = Status.toStatus( batch );
+        StructReader mean = mean( list );
 
-        // System.out.printf( "%s\n", result );
+        System.out.printf( "%s\n", mean.readLong() );
+        System.out.printf( "%s\n", meanLongs( longs ) );
         
         //System.out.printf( "%s\n", JobState.SUBMITTED );
         //System.out.printf( "%s\n", JobState.SUBMITTED.getClass().newInstance() );
 
-        /*        
-        Job job = new Job();
+        // Job job = new Job();
 
-        Batch batch = new Batch();
-        batch.add( job );
-        batch.setName( "pagerank" );
+        // Batch batch = new Batch();
+        // batch.add( job );
 
-        System.out.printf( "FIXME3: %s\n", batch.toMessage().toString() );
-        
-        Controller controller = new Controller();
+        // Batch ser = new Batch();
+        // ser.fromMessage( batch.toMessage() );
 
-        controller.setExecuting( batch );
+        // System.out.printf( "%s\n", ser.toString() );
 
-        ControllerStatusResponse input  = new ControllerStatusResponse( controller );
-
-        ControllerStatusResponse output = new ControllerStatusResponse();
-
-        System.out.printf( "FIXME4: %s\n", input.getExecuting().getJobs() );
-        
-        output.fromMessage( input.toMessage() );
-        
-        System.out.printf( "FIXME5: %s\n", output.getExecuting().getJobs() );
-
-        */
-        
         // byte[] b0 = new byte[] { (byte)0x00 , (byte)0x00 , (byte)0x00 , (byte)0x00 , (byte)0x00 , (byte)0x01 , (byte)0x85 , (byte)0x84 , (byte)0x6d , (byte)0x40 , (byte)0x27 , (byte)0x64 , (byte)0xd5 , (byte)0x3c , (byte)0x61 , (byte)0xe2 };
 
         // byte[] b1 = new byte[] { (byte)0x7f , (byte)0x7f , (byte)0x7f , (byte)0x7f , (byte)0x7f , (byte)0x7f , (byte)0x7f , (byte)0x7f , (byte)0x7f , (byte)0x7f , (byte)0x7f , (byte)0x7f , (byte)0x7f , (byte)0x7f , (byte)0x7f , (byte)0x7f };

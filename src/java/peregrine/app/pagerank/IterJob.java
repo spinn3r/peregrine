@@ -80,6 +80,8 @@ public class IterJob {
                 // which we're going to join against.
 
                 rank = 1 / (double)nr_nodes;
+
+                // TODO: we can add support for custom teleportation here.
                 
             }
 
