@@ -23,6 +23,7 @@ import peregrine.config.*;
 import peregrine.controller.*;
 import peregrine.io.*;
 import peregrine.rpc.*;
+import peregrine.task.*;
 import peregrine.util.*;
 
 /**
@@ -35,18 +36,17 @@ public class ControllerStatusResponse implements MessageSerializable {
 
     protected Batch executing = null;
 
+    protected SchedulerStatusResponse schedulerStatusResponse = null;
+    
     public ControllerStatusResponse() {}
 
-    public ControllerStatusResponse( Controller controller ) {
-
-        /*
-        if ( scheduler != null ) {
-            response.put( "scheduler", scheduler.getStatusAsMap() );
-        }
-        */
+    public ControllerStatusResponse( Controller controller, Scheduler scheduler ) {
 
         this.history = new ArrayList( controller.getHistory() );
         this.executing = controller.getExecuting();
+
+        if ( scheduler != null )
+            schedulerStatusResponse = new SchedulerStatusResponse( scheduler );
         
     }
 
@@ -58,6 +58,10 @@ public class ControllerStatusResponse implements MessageSerializable {
         return executing;
     }
     
+    public SchedulerStatusResponse getSchedulerStatusResponse() {
+        return schedulerStatusResponse;
+    }
+    
     /**
      * Convert this to an RPC message.
      */
@@ -67,7 +71,8 @@ public class ControllerStatusResponse implements MessageSerializable {
 
         response.put( "executing",  executing );
         response.put( "history",    history );
-
+        response.put( "scheduler",  schedulerStatusResponse );
+        
         return response;
         
     }
@@ -77,14 +82,20 @@ public class ControllerStatusResponse implements MessageSerializable {
         //TODO: this is ugly but I'm not sure of a way around this. We could use
         //the null object pattern here with an empty Batch but that seems like a
         //bad idea.
-        if ( message.getString( "executing" ) != null ) {
+        
+        if ( message.containsKey( "executing" ) ) {
 
             executing = new Batch();
             Message msg = new Message( message.getString( "executing" ) );
             executing.fromMessage( msg );
             
         }
-        
+
+        if ( message.containsKey( "scheduler" ) ) {
+            schedulerStatusResponse = new SchedulerStatusResponse();
+            schedulerStatusResponse.fromMessage( new Message( message.getString( "scheduler" ) ) );
+        }
+
         history    = new StructList( message.getList( "history" ), Batch.class );
         
     }

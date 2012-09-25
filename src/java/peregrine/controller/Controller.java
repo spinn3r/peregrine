@@ -78,6 +78,8 @@ public class Controller {
      */
     protected ConcurrentLinkedQueue<Batch> pending = new ConcurrentLinkedQueue();
 
+    protected long started = -1;
+    
     public Controller() {}
     
     public Controller( Config config ) {
@@ -101,6 +103,8 @@ public class Controller {
 
         log.info( "Starting controller: %s", config.getController() );
 
+        this.started = System.currentTimeMillis();
+        
         this.clusterState = new ClusterState( config, this );
 
         this.daemon = new ControllerDaemon( this, config, clusterState );
@@ -147,6 +151,13 @@ public class Controller {
 
     public void setExecuting( Batch executing ) {
         this.executing = executing;
+    }
+
+    /**
+     * Return the time that the controller was started.
+     */
+    public long getStarted() {
+        return started;
     }
     
     public void map( Class mapper,

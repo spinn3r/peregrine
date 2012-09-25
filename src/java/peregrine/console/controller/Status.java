@@ -25,16 +25,19 @@ import peregrine.*;
 import peregrine.config.*;
 import peregrine.controller.*;
 import peregrine.controller.rpcd.delegate.*;
+import peregrine.io.*;
+import peregrine.os.*;
 import peregrine.rpc.*;
 import peregrine.util.*;
 import peregrine.worker.*;
-import peregrine.os.*;
 
 /**
  * Obtain and print the status of the controller.
  */
 public class Status {
 
+    public static final int PROGRESS_WIDTH = 40;
+    
     public static String toStatus( Batch batch ) {
 
         StringBuilder buff = new StringBuilder();
@@ -48,7 +51,37 @@ public class Status {
         return buff.toString();
         
     }
-    
+
+    /**
+     * Draw a progress meter in ASCII with the given width and percentage
+     * filled.
+     */
+    public static String progress( double perc, int width ) {
+
+        StringBuilder buff = new StringBuilder();
+
+        buff.append( "[" );
+        
+        int cutoff = (int)(width * ( perc / (double)100 ));
+        
+        for( int i = 0; i < width; ++i ) {
+
+            if ( i < cutoff ) {
+                buff.append( "*" );
+            } else {
+                buff.append( " " );
+            }
+            
+        }
+
+        buff.append( "]" );
+
+        buff.append( String.format( " %4.1f%%", perc ) );
+        
+        return buff.toString();
+        
+    }
+
     /**
      * Pretty print the given object so we can represent it on the console.
      */
@@ -218,9 +251,16 @@ public class Status {
 
                         //TODO: add the description for this batch.
                         
-                        curses.mvaddstr( y_pos++, 2, String.format( "nr jobs:            %,d" ,     nr_jobs ) );
-                        curses.mvaddstr( y_pos++, 2, String.format( "nr complete jobs:   %,d" ,     nr_complete ) );
-                        curses.mvaddstr( y_pos++, 2, String.format( "perc complete:      %%%4.4f" , perc_complete ) );
+                        curses.mvaddstr( y_pos++, 2, String.format( "nr jobs:              %,d" ,     nr_jobs ) );
+                        curses.mvaddstr( y_pos++, 2, String.format( "nr complete jobs:     %,d" ,     nr_complete ) );
+                        curses.mvaddstr( y_pos++, 2, String.format( "batch perc complete:  %s" ,      progress( perc_complete, PROGRESS_WIDTH ) ) );
+
+                        //add job perc complete which comes from the scheduler.
+
+                        if ( response.getSchedulerStatusResponse() != null ) {
+                            curses.mvaddstr( y_pos++, 2, String.format( "job perc complete:    %s" ,
+                                                                        progress( response.getSchedulerStatusResponse().getProgress(), PROGRESS_WIDTH ) ) );
+                        }
 
                     }
 
@@ -229,10 +269,37 @@ public class Status {
                         //System.out.printf( "\n" );
 
                         ++y_pos;
+
+                        Job executingJob = null;
                         
                         for ( Job job : batch.getJobs() ) {
-                            //System.out.printf( "  %s\n", toBrief( job ) );
+
+                            if ( job.getState().equals( JobState.EXECUTING ) )
+                                executingJob = job;
+                            
                             curses.mvaddstr( y_pos++, 2, String.format( "%s" , toBrief( job ) ) );
+
+                        }
+
+                        if ( executingJob != null ) {
+
+                            ++y_pos;
+
+                            curses.mvaddstr( y_pos++, 0, String.format( "Currently executing job '%s':", executingJob.getName() ) );
+                            curses.mvaddstr( y_pos++, 4, String.format( "Operation: %s", executingJob.getOperation() ) );
+                            curses.mvaddstr( y_pos++, 4, String.format( "Delegate:  %s", executingJob.getDelegate().getName() ) );
+
+                            curses.mvaddstr( y_pos++, 4, String.format( "Input:" ) );
+
+                            for( InputReference inputRef : executingJob.getInput().getReferences() ) {
+                                curses.mvaddstr( y_pos++, 8, String.format( "%s", inputRef ) );
+                            }
+
+                            curses.mvaddstr( y_pos++, 4, String.format( "Output:" ) );
+
+                            for( OutputReference outputRef : executingJob.getOutput().getReferences() ) {
+                                curses.mvaddstr( y_pos++, 8, String.format( "%s", outputRef ) );
+                            }
 
                         }
                         

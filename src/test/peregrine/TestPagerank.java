@@ -72,7 +72,7 @@ public class TestPagerank extends peregrine.BaseTestWithMultipleProcesses {
         */
         
         //setPropertyDefault( "peregrine.test.config", "2:1:4" ); 
-        setPropertyDefault( "peregrine.test.config", "1:1:1" ); 
+        setPropertyDefault( "peregrine.test.config", "1:1:4" ); 
         runTests();
 
     }

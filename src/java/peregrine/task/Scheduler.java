@@ -690,9 +690,7 @@ public class Scheduler {
 
         Map<String,String> result = new HashMap();
 
-        long perc = (long)(100 * (completed.size() / (double)offlineWork.size()));
-
-        result.put( "perc",         Long.toString( perc ) );
+        result.put( "perc",         Integer.toString( getProgress() ) );
         result.put( "operation",    getOperation() );
         result.put( "job",          getJob().toString() );
                 
@@ -704,6 +702,13 @@ public class Scheduler {
 
         return result;
         
+    }
+
+    public int getProgress() {
+
+        int progress = (int)(100 * (completed.size() / (double)offlineWork.size()));
+        return progress;
+
     }
     
     /**
