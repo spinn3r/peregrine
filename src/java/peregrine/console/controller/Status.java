@@ -249,6 +249,8 @@ public class Status {
                                          String.format( "Currently executing batch '%s' with %,d jobs:",
                                                         batch.getName(), batch.getJobs().size() ) );
 
+                        ++y_pos;
+
                         //TODO: add the description for this batch.
                         
                         curses.mvaddstr( y_pos++, 2, String.format( "nr jobs:              %,d" ,     nr_jobs ) );
@@ -286,6 +288,9 @@ public class Status {
                             ++y_pos;
 
                             curses.mvaddstr( y_pos++, 0, String.format( "Currently executing job '%s':", executingJob.getName() ) );
+
+                            ++y_pos;
+
                             curses.mvaddstr( y_pos++, 4, String.format( "Operation: %s", executingJob.getOperation() ) );
                             curses.mvaddstr( y_pos++, 4, String.format( "Delegate:  %s", executingJob.getDelegate().getName() ) );
 
