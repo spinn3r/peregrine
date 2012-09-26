@@ -35,7 +35,7 @@ public class Main {
 
         String path = getopt.getString( "path" );
 
-        Batch batch = new Batch();
+        Batch batch = new Batch( Main.class );
 
         Message parameters = new Message();
         parameters.put( "path", path );

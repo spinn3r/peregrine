@@ -83,4 +83,8 @@ public class Strings {
 
     }
 
+    public static boolean empty( String str ) {
+        return str == null || "".equals( str );
+    }
+    
 }

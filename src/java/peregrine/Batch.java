@@ -41,6 +41,16 @@ public class Batch implements MessageSerializable {
     protected List<Job> jobs = new ArrayList();
 
     protected long identifier = -1;
+
+    public Batch() {}
+
+    public Batch( Class clazz ) {
+        this( clazz.getName() );
+    }
+    
+    public Batch( String name ) {
+        this.name = name;
+    }
     
     public Batch map( Class mapper,
                       String... paths ) {
@@ -212,6 +222,10 @@ public class Batch implements MessageSerializable {
 
         if ( getJobs().size() == 0 ) {
             throw new RuntimeException( "Batch has no jobs" );
+        }
+
+        if ( Strings.empty( name ) ) {
+            throw new RuntimeException( "Batch has no name" );
         }
 
     }
