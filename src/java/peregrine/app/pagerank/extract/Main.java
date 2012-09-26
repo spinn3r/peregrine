@@ -53,7 +53,7 @@ public class Main {
                       new Input( "shuffle:links" ),
                       new Output( "/pr/graph" ) );
 
-        ControllerClient.submit( config, pr );
+        ControllerClient.submit( config, batch );
 
     }
 
