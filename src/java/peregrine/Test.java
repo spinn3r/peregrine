@@ -64,15 +64,20 @@ public class Test {
     
     public static void main( String[] args ) throws Exception {
 
-        Batch batch = new Batch();
-        batch.add( new Job() );
-        batch.add( new Job() );
+        List<String> foo = new ArrayList();
+        List bar = new ArrayList();
+
+        foo = bar;
+        
+        // Batch batch = new Batch();
+        // batch.add( new Job() );
+        // batch.add( new Job() );
 
 
-        Batch result = new Batch();
-        result.fromMessage( batch.toMessage() );
+        // Batch result = new Batch();
+        // result.fromMessage( batch.toMessage() );
 
-        System.out.printf( "%s\n", result.getJobs().size() );
+        // System.out.printf( "%s\n", result.getJobs().size() );
         
 
         // Batch batch = new Batch();
