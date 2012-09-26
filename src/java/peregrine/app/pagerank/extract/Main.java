@@ -29,7 +29,7 @@ public class Main {
     public static void main( String[] args ) throws Exception {
 
         Config config = ConfigParser.parse( args );
-        new Initializer( config ).controller();
+        new Initializer( config ).basic( Main.class );
 
         Getopt getopt = new Getopt( args );
 
