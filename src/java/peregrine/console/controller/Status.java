@@ -132,8 +132,10 @@ public class Status {
 
         for ( Job job : batch.getJobs() ) {
 
-            if ( ! job.getState().equals( state ) )
+            if ( ! job.getState().equals( state ) ) {
                 state = job.getState();
+                break;
+            }
             
         }
         
