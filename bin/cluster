@@ -8,6 +8,8 @@ OPEN_FILES=16384
 FLUSH_LOGS=true
 FLUSH_FS=false
 
+# FIXME: start the controller.
+
 ###
 # run the given command but print what we're about to run... 
 runcmd() {

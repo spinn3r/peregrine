@@ -197,13 +197,17 @@ public final class Initializer {
         basic( "controllerd" );
     }
 
+    public void basic( Class clazz ) throws Exception {
+        basic( clazz.getName() );
+    }
+
     /**
      * Perform basic init for all daemons.
      */
     public void basic( String name ) throws Exception {
         logger( String.format( "%s-%s", name, config.getHost() ) );
     }
-    
+
     /**
      * Perform all init steps required for the controller.
      */
