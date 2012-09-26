@@ -239,7 +239,7 @@ public class Batch implements MessageSerializable {
         name          = message.getString( "name" );
         description   = message.getString( "description" );
         identifier    = message.getLong( "identifier" );
-        jobs          = new StructList( message.getList( "jobs" ), Job.class );
+        jobs          = message.getList( "jobs", Job.class );
 
     }
 

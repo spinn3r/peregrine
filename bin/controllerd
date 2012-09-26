@@ -1,0 +1,41 @@
+#!/bin/sh
+
+main=peregrine.controller.Main
+
+start() {
+
+    ./bin/jexec $main
+
+}
+
+stop() {
+
+    pkill -9 -f $main
+
+}
+
+args=$@
+shift $(expr $# - 1)
+command=$1
+
+case $command in
+
+    start)
+        start
+        ;;
+
+    stop)
+        stop
+        ;;
+
+    restart)
+        stop
+        start
+        ;;
+
+    *)
+        echo "ERROR: unknown command: $command" 
+        exit 1
+        ;;
+
+esac

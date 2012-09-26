@@ -35,32 +35,26 @@ public class Main {
 
         String path = getopt.getString( "path" );
 
-        Controller controller = null;
+        Batch batch = new Batch();
 
-        try {
-
-            controller = new Controller( config );
-            
-            Message parameters = new Message();
-            parameters.put( "path", path );
-            
-            controller.map( new Job().setDelegate( CorpusExtractJob.Map.class ) 
-                                     .setInput( new Input( "blackhole:" ) )
-                                     .setOutput( new Output( "shuffle:nodes", "shuffle:links" ) )
-                                     .setParameters( parameters ) );
-           
-            controller.reduce( UniqueNodeJob.Reduce.class,
-                               new Input( "shuffle:nodes" ),
-                               new Output( "/pr/nodes_by_hashcode" ) );
-
-            controller.reduce( MergeGraphJob.Reduce.class,
-                               new Input( "shuffle:links" ),
-                               new Output( "/pr/graph" ) );
-
-        } finally {
-            controller.shutdown();
-        }
+        Message parameters = new Message();
+        parameters.put( "path", path );
         
+        batch.map( new Job().setDelegate( CorpusExtractJob.Map.class ) 
+                            .setInput( new Input( "blackhole:" ) )
+                            .setOutput( new Output( "shuffle:nodes", "shuffle:links" ) )
+                            .setParameters( parameters ) );
+       
+        batch.reduce( UniqueNodeJob.Reduce.class,
+                      new Input( "shuffle:nodes" ),
+                      new Output( "/pr/nodes_by_hashcode" ) );
+
+        batch.reduce( MergeGraphJob.Reduce.class,
+                      new Input( "shuffle:links" ),
+                      new Output( "/pr/graph" ) );
+
+        ControllerClient.submit( config, pr );
+
     }
 
 }

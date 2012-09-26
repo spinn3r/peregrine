@@ -222,6 +222,12 @@ public class StructMap {
         return result;
     }
 
+    public List getList( String prefix, Class clazz ) {
+
+        return new StructList( getList( prefix ), clazz );
+
+    }
+
     public String get( String key ) {
         return get( key, null );        
     }
