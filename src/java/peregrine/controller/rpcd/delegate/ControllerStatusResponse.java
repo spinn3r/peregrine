@@ -45,14 +45,12 @@ public class ControllerStatusResponse implements MessageSerializable {
     public ControllerStatusResponse( Controller controller, Scheduler scheduler ) {
 
         this.history = controller.getHistory();
-
         this.pending = controller.getPending();
-        
         this.executing = controller.getExecuting();
 
-        if ( scheduler != null )
+        if ( scheduler != null ) {
             schedulerStatusResponse = new SchedulerStatusResponse( scheduler );
-        
+        }
     }
 
     public List<Batch> getHistory() {

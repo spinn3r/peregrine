@@ -210,5 +210,12 @@ public final class Initializer {
     public void controller() throws Exception {
         basic( "controller" );
     }
-        
+
+    /**
+     * Perform all init steps required for the controller daemon.
+     */
+    public void controllerd() throws Exception {
+        basic( "controllerd" );
+    }
+
 }
