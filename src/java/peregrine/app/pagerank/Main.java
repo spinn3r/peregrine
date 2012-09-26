@@ -22,6 +22,9 @@ import peregrine.io.*;
 import peregrine.util.*;
 import peregrine.worker.*;
 
+/**
+ * Command line interface for submitting pagerank jobs to the controller.
+ */
 public class Main {
 
     public static void main( String[] args ) throws Exception {

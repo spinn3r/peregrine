@@ -28,6 +28,7 @@ import org.jboss.netty.handler.codec.http.*;
 import peregrine.util.*;
 import peregrine.rpc.*;
 import peregrine.rpcd.delegate.*;
+
 import com.spinn3r.log5j.*;
 
 /**
@@ -106,7 +107,7 @@ public abstract class BaseRPCHandler<T> extends SimpleChannelUpstreamHandler {
                 // don't log heartbeat messages as they are overly verbose.
                 
                 if ( ! "heartbeat".equals( message.getString( "action" ) ) ) {
-                    log.info( "Handling RPC call %s", rpc_call );
+                    //log.info( "Handling RPC call %s", rpc_call );
                 }
             	
                 executorService.submit( new AsyncMessageHandler( channel, message ) {

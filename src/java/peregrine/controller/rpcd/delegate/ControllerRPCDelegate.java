@@ -28,11 +28,15 @@ import peregrine.task.*;
 import org.jboss.netty.buffer.*;
 import org.jboss.netty.channel.*;
 
+import com.spinn3r.log5j.*;
+
 /**
  * Delegate for intercepting RPC messages.
  */
 public class ControllerRPCDelegate extends RPCDelegate<ControllerDaemon> {
 
+    private static final Logger log = Logger.getLogger();
+    
     /**
      * Allows a worker node to report that a partition is complete and its
      * mapper/reducers have executed correctly.
