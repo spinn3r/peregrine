@@ -128,7 +128,16 @@ public class Status {
 
     public static String toBrief( Batch batch ) {
 
-        return String.format( "%20s %10s", batch.getName(), batch.getIdentifier() );
+        String state = batch.getJobs().get( 0 ).getState();
+
+        for ( Job job : batch.getJobs() ) {
+
+            if ( ! job.getState().equals( state ) )
+                state = job.getState();
+            
+        }
+        
+        return String.format( "%20s %10s %10s", batch.getName(), batch.getIdentifier(), state );
         
     }
 
