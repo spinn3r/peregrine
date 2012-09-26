@@ -220,6 +220,8 @@ public class Status {
 
             //TODO: include scheduler cluster state.
 
+            int y_pos = 0;
+
             try {
 
                 String state = "ONLINE";
@@ -227,8 +229,6 @@ public class Status {
                 if ( cause != null )
                     state = "OFFLINE: " + cause.getMessage();
 
-                int y_pos = 0;
-                
                 curses.mvaddstr( y_pos++, 0, String.format( "%s", "Controller:" ) );
                 curses.mvaddstr( y_pos++, 4, String.format( "%-10s %s", "Host:", config.getController() ) );
                 curses.mvaddstr( y_pos++, 4, String.format( "%-10s %s", "State:", state ) );
@@ -345,7 +345,10 @@ public class Status {
                 }
 
             } finally {
-                
+
+                // write one more line so the cursur is in a sane place.
+                curses.mvaddstr( y_pos++, 0, "" );
+
                 curses.refresh();
                 
                 Thread.sleep( 1000L );

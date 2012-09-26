@@ -253,7 +253,7 @@ public class ShuffleInputChunkReader implements ChunkReader {
     
     @Override
     public String toString() {
-        return String.format( "%s:%s:%s" , getClass().getName(), path, partition );
+        return String.format( "%s" , path );
     }
 
     /**

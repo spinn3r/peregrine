@@ -34,6 +34,8 @@ public class ControllerStatusResponse implements MessageSerializable {
 
     protected List<Batch> history = new ArrayList();
 
+    protected List<Batch> pending = new ArrayList();
+
     protected Batch executing = null;
 
     protected SchedulerStatusResponse schedulerStatusResponse = null;
@@ -42,7 +44,10 @@ public class ControllerStatusResponse implements MessageSerializable {
 
     public ControllerStatusResponse( Controller controller, Scheduler scheduler ) {
 
-        this.history = new ArrayList( controller.getHistory() );
+        this.history = controller.getHistory();
+
+        this.pending = controller.getPending();
+        
         this.executing = controller.getExecuting();
 
         if ( scheduler != null )
@@ -71,6 +76,7 @@ public class ControllerStatusResponse implements MessageSerializable {
 
         response.put( "executing",  executing );
         response.put( "history",    history );
+        response.put( "pending",    pending );
         response.put( "scheduler",  schedulerStatusResponse );
         
         return response;
@@ -96,7 +102,8 @@ public class ControllerStatusResponse implements MessageSerializable {
             schedulerStatusResponse.fromMessage( new Message( message.getString( "scheduler" ) ) );
         }
 
-        history    = new StructList( message.getList( "history" ), Batch.class );
+        history    = message.getList( "history", Batch.class );
+        pending    = message.getList( "pending", Batch.class );
         
     }
 
