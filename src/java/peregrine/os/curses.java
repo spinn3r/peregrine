@@ -75,7 +75,7 @@ public class curses {
     }
     
     static {
-        Native.register( "curses" );
+        Native.register( "ncurses" );
     }
 
     public static void main( String[] args ) throws Exception {
