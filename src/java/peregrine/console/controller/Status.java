@@ -226,6 +226,8 @@ public class Status {
 
                 if ( cause != null )
                     continue;
+
+                ++y_pos;
                 
                 curses.mvaddstr( y_pos++, 0, String.format( "%-20s %s",   "Historical batches:", response.getHistory().size() ) );
 
