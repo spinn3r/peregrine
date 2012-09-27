@@ -435,11 +435,13 @@ public class Controller {
                                      job.getInput(),
                                      job.getOutput() );
 
+        /*
         if ( job.getIdentifier() < executionRange.start || job.getIdentifier() > executionRange.end ) {
             log.info( "SKIP job due to execution range %s (%s)", executionRange, desc );
             return;
         }
-
+        */
+        
         log.info( "STARTING %s", desc );
 
         long before = System.currentTimeMillis();
