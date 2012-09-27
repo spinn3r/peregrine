@@ -253,6 +253,8 @@ public class Status {
                     }
                     
                 }
+
+                curses.mvaddstr( y_pos++, 0, String.format( "%-20s %s",   "Pending batches:", response.getPending().size() ) );
                 
                 //System.out.printf( "Executed %,d batch historical jobs.\n" , response.getHistory().size() );
 

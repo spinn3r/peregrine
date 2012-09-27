@@ -57,6 +57,10 @@ public class ControllerStatusResponse implements MessageSerializable {
         return history;
     }
 
+    public List<Batch> getPending() {
+        return pending;
+    }
+
     public Batch getExecuting() {
         return executing;
     }
