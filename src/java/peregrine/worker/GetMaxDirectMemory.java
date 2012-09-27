@@ -40,7 +40,8 @@ public class GetMaxDirectMemory {
             // only one of these variables can be active at one time.
             Math.max( config.getShuffleBufferSize(), config.getSortBufferSize() );
 
-        maxDirectMemorySize *= 2;
+        //FIXME: testing if we have a memory leak
+        maxDirectMemorySize *= 3;
         
         System.out.printf( "%s\n", maxDirectMemorySize );
 
