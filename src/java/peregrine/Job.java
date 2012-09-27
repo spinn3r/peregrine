@@ -225,7 +225,7 @@ public class Job extends BaseJob<Job> {
     public void fromMessage( Message message ) {
 
         timestamp     = message.getLong( "timestamp" );
-        identifier    = message.getInt( "identifier" );
+        identifier    = message.getLong( "identifier" );
         name          = message.getString( "name" );
         description   = message.getString( "description" );
         delegate      = message.getClass( "delegate" );

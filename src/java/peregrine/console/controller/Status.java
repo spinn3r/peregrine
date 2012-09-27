@@ -242,6 +242,8 @@ public class Status {
                     // print the cause of the last failure.
                     if ( ! Strings.empty( last.getCause() ) ) {
 
+                        ++y_pos;
+                        
                         String[] frames = last.getCause().split( "\n" );
 
                         for( String frame : frames ) {
