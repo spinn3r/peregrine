@@ -242,7 +242,11 @@ public class Status {
                     // print the cause of the last failure.
                     if ( ! Strings.empty( last.getCause() ) ) {
 
-                        curses.mvaddstr( y_pos++, 0, last.getCause() );
+                        String[] frames = last.getCause().split( "\n" );
+
+                        for( String frame : frames ) {
+                            curses.mvaddstr( y_pos++, 4, frame );
+                        }
                         
                     }
                     
