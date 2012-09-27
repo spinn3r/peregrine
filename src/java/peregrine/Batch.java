@@ -42,6 +42,16 @@ public class Batch implements MessageSerializable {
 
     protected long identifier = -1;
 
+    /**
+     * The state of the most recent job that this batch is executing.
+     */
+    protected String state = JobState.SUBMITTED;
+
+    /**
+     * If a job has failed in this batch, this is cause for its failure.
+     */
+    protected String cause = null;
+    
     public Batch() {}
 
     public Batch( Class clazz ) {
@@ -209,6 +219,10 @@ public class Batch implements MessageSerializable {
         return this;
     }
 
+    /**
+     * A unique ID for this batch.  This ID is valid for the entire life of the
+     * controller and is globally unique.
+     */
     public long getIdentifier() {
         return this.identifier;
     }
@@ -217,7 +231,36 @@ public class Batch implements MessageSerializable {
         this.identifier = identifier;
         return this;
     }
-    
+
+    /**
+     * The given state of this batch from the job that was last executed.
+     */
+    public String getState() {
+        return this.state;
+    }
+
+    public Batch setState( String state ) {
+        this.state = state;
+        return this;
+    }
+
+    public String getCause() {
+        return this.cause;
+    }
+
+    public Batch setCause( String cause ) {
+        this.cause = cause;
+        return this;
+    }
+
+    public Batch setCause( Throwable t ) {
+        return setCause( Strings.format( t ) );
+    }
+
+    /**
+     * Make sure this batch job is viable for execution.  It should have at
+     * least 1 job, it should have a valid name.
+     */
     public void assertExecutionViability() {
 
         if ( getJobs().size() == 0 ) {
@@ -241,6 +284,8 @@ public class Batch implements MessageSerializable {
         message.put( "name",          name );
         message.put( "description",   description );
         message.put( "identifier",    identifier );
+        message.put( "state",         state );
+        message.put( "cause",         cause );
         message.put( "jobs",          jobs );
 
         return message;
@@ -253,6 +298,8 @@ public class Batch implements MessageSerializable {
         name          = message.getString( "name" );
         description   = message.getString( "description" );
         identifier    = message.getLong( "identifier" );
+        state         = message.getString( "state" );
+        cause         = message.getString( "cause" );
         jobs          = message.getList( "jobs", Job.class );
 
     }
