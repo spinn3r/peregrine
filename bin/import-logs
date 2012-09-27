@@ -39,7 +39,13 @@ def get_spool_dir():
 
     sorted_spool_sizes=sorted(spool_sizes.iteritems(), key=lambda (k,v): (v,k))
 
-    print sorted_spool_sizes[0][0]
+    #print sorted_spool_sizes
+
+    result=sorted_spool_sizes[0][0]
+
+    #print "result: %s" % result
+
+    return result
 
 def rename(path, new_path):
     print "rename: %s -> %s" % (path,new_path)
@@ -82,6 +88,7 @@ for name in os.listdir( dest ):
 for name in os.listdir( dest ):
     path="%s/%s" % (dest,name)
     new_dir=get_spool_dir()
+
     new_path="%s/%s" % (new_dir,name)
 
     move( path, new_path )

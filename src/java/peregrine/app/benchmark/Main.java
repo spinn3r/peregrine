@@ -116,30 +116,26 @@ public class Main {
         // start our job... 
         
         Config config = ConfigParser.parse( args );
-        new Initializer( config ).controller();
-        
+        new Initializer( config ).basic( Main.class );
+
         if ( "all".equals( stage ) || "extract".equals( stage ) )
             extract( config, max, width );
 
-        Controller controller = new Controller( config );
-
-        try {
-
-            if ( "all".equals( stage ) || "map".equals( stage ) ) {
-                controller.map( Benchmark.Map.class,
-                                new Input( IN ),
-                                new Output( "shuffle:default" ) );
-            }
-            
-            if ( "all".equals( stage ) || "reduce".equals( stage ) ) {
-                controller.reduce( Benchmark.Reduce.class,
-                                   new Input( "shuffle:default" ),
-                                   new Output( OUT ) );
-            }
-
-        } finally {
-            controller.shutdown();
+        Batch batch = new Batch( Main.class );
+        
+        if ( "all".equals( stage ) || "map".equals( stage ) ) {
+            batch.map( Benchmark.Map.class,
+                       new Input( IN ),
+                       new Output( "shuffle:default" ) );
         }
+        
+        if ( "all".equals( stage ) || "reduce".equals( stage ) ) {
+            batch.reduce( Benchmark.Reduce.class,
+                          new Input( "shuffle:default" ),
+                          new Output( OUT ) );
+        }
+
+        ControllerClient.submit( config, batch );
 
     }
 
