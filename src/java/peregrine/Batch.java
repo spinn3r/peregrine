@@ -36,8 +36,6 @@ public class Batch extends BaseJob<Batch> {
 
     protected List<Job> jobs = new ArrayList();
 
-    protected long identifier = -1;
-
     public Batch() {
         init( this );
     }
@@ -188,19 +186,6 @@ public class Batch extends BaseJob<Batch> {
 
     public List<Job> getJobs() {
         return jobs;
-    }
-
-    /**
-     * A unique ID for this batch.  This ID is valid for the entire life of the
-     * controller and is globally unique.
-     */
-    public long getIdentifier() {
-        return this.identifier;
-    }
-
-    public Batch setIdentifier( long identifier ) {
-        this.identifier = identifier;
-        return this;
     }
 
     /**

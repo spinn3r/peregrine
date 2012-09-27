@@ -32,6 +32,8 @@ import com.spinn3r.log5j.Logger;
  */
 public abstract class BaseJob<T> implements MessageSerializable {
 
+    protected long identifier = -1;
+
     protected String name = "";
 
     protected String description = "";
@@ -50,6 +52,19 @@ public abstract class BaseJob<T> implements MessageSerializable {
     
     protected void init( T instance ) {
         this.instance = instance;
+    }
+
+    /**
+     * A unique ID for this batch.  This ID is valid for the entire life of the
+     * controller and is globally unique.
+     */
+    public long getIdentifier() {
+        return this.identifier;
+    }
+
+    public T setIdentifier( long identifier ) {
+        this.identifier = identifier;
+        return instance;
     }
 
     /**

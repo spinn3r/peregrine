@@ -39,10 +39,6 @@ public class Job extends BaseJob<Job> {
 
     protected long timestamp = System.currentTimeMillis();
 
-    protected int identifier = nonce.getAndIncrement();
-
-	protected String handle = String.format( "%010d.%010d", timestamp, identifier );
-
 	protected Class delegate = Mapper.class; 
 
     //TODO: a combiner does NOT make sense for a reduce job so move this to a
@@ -72,23 +68,8 @@ public class Job extends BaseJob<Job> {
 
     public Job() {
         init( this );
-        setName( getHandle() );
-    }
-    
-    /**
-     * Get a unique identifier for this job.  Every job stats at 0 (zero) and is
-     * every new job identifier is incremented by 1 (one).
-     */
-    public int getIdentifier() {
-        return identifier;
-    }
-    
-    /**
-     * Get the unique job ID (nonce).  This is an opaque string used to identify
-     * the job.
-     */
-    public String getHandle() {
-        return handle;        
+        setIdentifier( NonceFactory.newNonce() );
+        setName( "" + getIdentifier() );
     }
 
 	public Class getDelegate() {
@@ -222,7 +203,6 @@ public class Job extends BaseJob<Job> {
         message.put( "class",         getClass().getName() );
         message.put( "timestamp",     timestamp );
         message.put( "identifier",    identifier );
-        message.put( "handle",        handle );
         message.put( "name",          name );
         message.put( "description",   description );
         message.put( "delegate",      delegate );
@@ -246,7 +226,6 @@ public class Job extends BaseJob<Job> {
 
         timestamp     = message.getLong( "timestamp" );
         identifier    = message.getInt( "identifier" );
-        handle        = message.getString( "handle" );
         name          = message.getString( "name" );
         description   = message.getString( "description" );
         delegate      = message.getClass( "delegate" );
