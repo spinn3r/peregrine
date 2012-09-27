@@ -70,6 +70,10 @@ public class Job extends BaseJob<Job> {
      */
     protected String cause = null;
 
+    public Job() {
+        init( this );
+    }
+    
     /**
      * Get a unique identifier for this job.  Every job stats at 0 (zero) and is
      * every new job identifier is incremented by 1 (one).
