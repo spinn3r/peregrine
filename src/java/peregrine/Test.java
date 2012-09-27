@@ -112,3 +112,26 @@ public class Test {
     }
 
 }
+
+class Foo extends BaseFoo<Foo> {
+
+    public Foo() {
+        init( this );
+    }
+    
+}
+
+class  BaseFoo<T> {
+
+    protected T instance;
+    
+    public void init( T instance ) {
+        this.instance = instance;
+    }
+
+    public T getFoo() {
+        return instance;
+                            
+    }
+    
+}

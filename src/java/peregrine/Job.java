@@ -31,7 +31,7 @@ import com.spinn3r.log5j.Logger;
  * All necessary metadata is included here and specified for an entire job.
  *
  */
-public class Job implements MessageSerializable {
+public class Job extends BaseJob<Job> {
 
     private static final Logger log = Logger.getLogger();
 
@@ -42,10 +42,6 @@ public class Job implements MessageSerializable {
     protected int identifier = nonce.getAndIncrement();
 
 	protected String handle = String.format( "%010d.%010d", timestamp, identifier );
-
-	protected String name = handle;
-
-	protected String description = "";
 
 	protected Class delegate = Mapper.class; 
 
@@ -66,8 +62,6 @@ public class Job implements MessageSerializable {
     protected Class comparator = DefaultSortComparator.class; 
 
     protected Message parameters = new Message();
-
-    protected String state = JobState.SUBMITTED;
 
     protected String operation = JobOperation.MAP;
 
@@ -92,25 +86,6 @@ public class Job implements MessageSerializable {
         return handle;        
     }
 
-    /**
-     * Get an optionally human readable name for this job.  Should be short and
-     * only one line of text.
-     */
-	public String getName() {
-		return name;
-	}
-    
-	public Job setName(String name) {
-		this.name = name;
-		return this;
-	}
-	public String getDescription() {
-		return description;
-	}
-	public Job setDescription(String description) {
-		this.description = description;
-		return this;
-	}
 	public Class getDelegate() {
 		return delegate;
 	}
@@ -210,15 +185,6 @@ public class Job implements MessageSerializable {
         return this;
     }
 
-    public String getState() {
-        return state;
-    }
-
-    public Job setState( String state ) {
-        this.state = state;
-        return this;
-    }
-
     public String getOperation() {
         return operation;
     }
@@ -226,19 +192,6 @@ public class Job implements MessageSerializable {
     public Job setOperation( String operation ) {
         this.operation = operation;
         return this;
-    }
-
-    public String getCause() {
-        return cause;
-    }
-
-    public Job setCause( String cause ) {
-        this.cause = cause;
-        return this;
-    }
-
-    public Job setCause( Throwable t ) {
-        return setCause( Strings.format( t ) );
     }
 
     @Override

@@ -30,29 +30,17 @@ import com.spinn3r.log5j.Logger;
  * A 'batch' of jobs sent to the controller at once.
  *
  */
-public class Batch implements MessageSerializable {
+public class Batch extends BaseJob<Batch> {
 
     private static final Logger log = Logger.getLogger();
-
-    protected String description = "";
-    
-    protected String name = "";
 
     protected List<Job> jobs = new ArrayList();
 
     protected long identifier = -1;
 
-    /**
-     * The state of the most recent job that this batch is executing.
-     */
-    protected String state = JobState.SUBMITTED;
-
-    /**
-     * If a job has failed in this batch, this is cause for its failure.
-     */
-    protected String cause = null;
-    
-    public Batch() {}
+    public Batch() {
+        init( this );
+    }
 
     public Batch( Class clazz ) {
         this( clazz.getName() );
@@ -60,6 +48,7 @@ public class Batch implements MessageSerializable {
     
     public Batch( String name ) {
         this.name = name;
+        init( this );
     }
     
     public Batch map( Class mapper,
@@ -201,24 +190,6 @@ public class Batch implements MessageSerializable {
         return jobs;
     }
 
-    public String getName() { 
-        return this.name;
-    }
-
-    public Batch setName( String name ) { 
-        this.name = name;
-        return this;
-    }
-
-    public String getDescription() { 
-        return this.description;
-    }
-
-    public Batch setDescription( String description ) { 
-        this.description = description;
-        return this;
-    }
-
     /**
      * A unique ID for this batch.  This ID is valid for the entire life of the
      * controller and is globally unique.
@@ -230,31 +201,6 @@ public class Batch implements MessageSerializable {
     public Batch setIdentifier( long identifier ) {
         this.identifier = identifier;
         return this;
-    }
-
-    /**
-     * The given state of this batch from the job that was last executed.
-     */
-    public String getState() {
-        return this.state;
-    }
-
-    public Batch setState( String state ) {
-        this.state = state;
-        return this;
-    }
-
-    public String getCause() {
-        return this.cause;
-    }
-
-    public Batch setCause( String cause ) {
-        this.cause = cause;
-        return this;
-    }
-
-    public Batch setCause( Throwable t ) {
-        return setCause( Strings.format( t ) );
     }
 
     /**
