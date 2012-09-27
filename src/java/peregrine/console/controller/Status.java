@@ -128,17 +128,7 @@ public class Status {
 
     public static String toBrief( Batch batch ) {
 
-        String state = batch.getJobs().get( 0 ).getState();
-
-        for ( Job job : batch.getJobs() ) {
-
-            if ( ! job.getState().equals( state ) ) {
-                state = job.getState();
-                break;
-            }
-            
-        }
-        
+        String state = batch.getState();
         return String.format( "%20s %10s %10s", batch.getName(), batch.getIdentifier(), state );
         
     }
@@ -244,7 +234,17 @@ public class Status {
 
                 if ( response.getHistory().size() > 0 ) {
 
-                    curses.mvaddstr( y_pos++, 4, String.format( "%s %s",   "Last batch:", toBrief( response.getHistory().get( 0 ) ) ) );
+                    // get the last batch that was completed.
+                    Batch last = response.getHistory().get( 0 );
+                    
+                    curses.mvaddstr( y_pos++, 4, String.format( "%s %s",   "Last batch:", toBrief( last ) ) );
+
+                    // print the cause of the last failure.
+                    if ( ! Strings.empty( last.getCause() ) ) {
+
+                        curses.mvaddstr( y_pos++, 0, last.getCause() );
+                        
+                    }
                     
                 }
                 
