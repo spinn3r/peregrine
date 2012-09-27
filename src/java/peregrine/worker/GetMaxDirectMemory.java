@@ -40,8 +40,10 @@ public class GetMaxDirectMemory {
             // only one of these variables can be active at one time.
             Math.max( config.getShuffleBufferSize(), config.getSortBufferSize() );
 
-        System.out.printf( "%s\n", maxDirectMemorySize );
+        maxDirectMemorySize *= 2;
         
+        System.out.printf( "%s\n", maxDirectMemorySize );
+
     }
     
 }
