@@ -33,7 +33,7 @@ public class MemoryAllocationTracker {
     /**
      * True when we should trace memory allocations.
      */
-    public static boolean TRACE = false;
+    public static boolean TRACE = true; //FIXME: turn this off before merging
     
     /**
      * The current amount of memory allocated.
