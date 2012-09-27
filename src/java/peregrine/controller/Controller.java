@@ -251,36 +251,6 @@ public class Controller {
     }
 
     /**
-     * Execute a batch of jobs.
-     */
-    public void exec( Batch batch ) throws Exception {
-
-        try {
-
-            setExecuting( batch );
-
-            batch.assertExecutionViability();
-
-            for ( Job job : batch.getJobs() ) {
-                exec( job );
-            }
-
-        } finally {
-
-            // TODO: we should swap in executing and the history in one atomic
-            // operation because technically it would be possible to do a read
-            // and see that there is NO currently executing job and it isn't in
-            // the history either.  We could do this with one ControllerState
-            // that could a message too.  We would have to copy the entire
-            // history each time but this is trivial and won't take very long.
-            setExecuting( null );
-            addHistory( batch );
-
-        }
-
-    }
-
-    /**
      * Add a job to the pending queue for later execution.  If there are no jobs
      * executing or in the queue the batch will be executed immediately.
      */
@@ -300,45 +270,100 @@ public class Controller {
     }
 
     /**
+     * Execute a batch of jobs.
+     */
+    public void exec( Batch batch ) throws Exception {
+
+        try {
+
+            batch.setState( JobState.EXECUTING );
+            setExecuting( batch );
+
+            batch.assertExecutionViability();
+
+            for ( Job job : batch.getJobs() ) {
+                exec( job );
+            }
+
+            batch.setState( JobState.COMPLETED );
+
+        } catch ( Exception e ) {
+
+            batch.setState( JobState.FAILED )
+                 .setCause( e )
+                ;
+            throw e;
+            
+        } finally {
+
+            // TODO: we should swap in executing and the history in one atomic
+            // operation because technically it would be possible to do a read
+            // and see that there is NO currently executing job and it isn't in
+            // the history either.  We could do this with one ControllerState
+            // that could a message too.  We would have to copy the entire
+            // history each time but this is trivial and won't take very long.
+            setExecuting( null );
+            addHistory( batch );
+
+        }
+
+    }
+
+    /**
      * Run map jobs on all chunks on the given path.
      */
     public void exec( final Job job ) throws Exception {
 
-        if ( job.getOperation().equals( JobOperation.REDUCE ) ) {
+        try {
 
-            if ( job.getInput() == null || job.getInput().getReferences().size() < 1 ) {
-                throw new IOException( "Reducer requires at least one shuffle input." );
+            job.setState( JobState.EXECUTING );
+
+            if ( job.getOperation().equals( JobOperation.REDUCE ) ) {
+
+                if ( job.getInput() == null || job.getInput().getReferences().size() < 1 ) {
+                    throw new IOException( "Reducer requires at least one shuffle input." );
+                }
+
             }
+            
+        	withScheduler( job, new Scheduler( job.getOperation(), job, config, clusterState ) {
 
-        }
-        
-    	withScheduler( job, new Scheduler( job.getOperation(), job, config, clusterState ) {
-
-    			@Override
-                public void invoke( Host host, Work work ) throws Exception {
+        			@Override
+                    public void invoke( Host host, Work work ) throws Exception {
+                        
+                        Message message = createSchedulerMessage( "exec", job, work );
+                        new Client( config ).invoke( host, job.getOperation(), message );
+                        
+                    }
                     
-                    Message message = createSchedulerMessage( "exec", job, work );
-                    new Client( config ).invoke( host, job.getOperation(), message );
+                } );
+
+            if ( job.getOperation().equals( JobOperation.REDUCE ) ) {
+
+                for( InputReference ref : job.getInput().getReferences() ) {
+
+                    if ( ref instanceof ShuffleInputReference ) {
+
+                        ShuffleInputReference shuffle = (ShuffleInputReference)ref;
+
+                        log.info( "Going to purge %s for job %s", shuffle.getName(), job );
+                        purgeShuffleData( shuffle.getName() );
+
+                    }
                     
                 }
-                
-            } );
 
-        if ( job.getOperation().equals( JobOperation.REDUCE ) ) {
-
-            for( InputReference ref : job.getInput().getReferences() ) {
-
-                if ( ref instanceof ShuffleInputReference ) {
-
-                    ShuffleInputReference shuffle = (ShuffleInputReference)ref;
-
-                    log.info( "Going to purge %s for job %s", shuffle.getName(), job );
-                    purgeShuffleData( shuffle.getName() );
-
-                }
-                
             }
 
+            job.setState( JobState.COMPLETED );
+
+        } catch ( Exception e ) {
+
+            job.setState( JobState.FAILED )
+               .setCause( e )
+               ;
+
+            throw e;
         }
         
     }
@@ -398,60 +423,45 @@ public class Controller {
     private void withScheduler( Job job, Scheduler scheduler ) 
         throws Exception {
 
-        try {
-            
-            // add this to the list of jobs that have been submitted so we can keep
-            // track of what is happening with teh cluster state.
-            String operation = scheduler.getOperation();
+        // add this to the list of jobs that have been submitted so we can keep
+        // track of what is happening with teh cluster state.
+        String operation = scheduler.getOperation();
 
-            job.setState( JobState.EXECUTING );
-            
-            String desc = String.format( "%s for delegate %s, named %s, with identifier %,d for input %s and output %s ",
-                                         operation,
-                                         job.getDelegate().getName(),
-                                         job.getName(),
-                                         job.getIdentifier(),
-                                         job.getInput(),
-                                         job.getOutput() );
+        String desc = String.format( "%s for delegate %s, named %s, with identifier %,d for input %s and output %s ",
+                                     operation,
+                                     job.getDelegate().getName(),
+                                     job.getName(),
+                                     job.getIdentifier(),
+                                     job.getInput(),
+                                     job.getOutput() );
 
-            if ( job.getIdentifier() < executionRange.start || job.getIdentifier() > executionRange.end ) {
-                log.info( "SKIP job due to execution range %s (%s)", executionRange, desc );
-                return;
-            }
-
-            log.info( "STARTING %s", desc );
-
-            long before = System.currentTimeMillis();
-            
-            daemon.setScheduler( scheduler );
-
-            scheduler.waitForCompletion();
-
-            daemon.setScheduler( null );
-
-            // shufflers can be flushed after any stage even reduce as nothing will
-            // happen other than a bit more latency.
-            flushAllShufflers();
-
-            // now reset the worker nodes between jobs.
-            reset();
-            
-            long after = System.currentTimeMillis();
-
-            long duration = after - before;
-
-            job.setState( JobState.COMPLETED );
-
-            log.info( "COMPLETED %s (duration %,d ms)", desc, duration );
-
-        } catch ( Exception e ) {
-
-            job.setState( JobState.FAILED )
-               .setCause( e )
-               ;
-
-            throw e;
+        if ( job.getIdentifier() < executionRange.start || job.getIdentifier() > executionRange.end ) {
+            log.info( "SKIP job due to execution range %s (%s)", executionRange, desc );
+            return;
         }
+
+        log.info( "STARTING %s", desc );
+
+        long before = System.currentTimeMillis();
+        
+        daemon.setScheduler( scheduler );
+
+        scheduler.waitForCompletion();
+
+        daemon.setScheduler( null );
+
+        // shufflers can be flushed after any stage even reduce as nothing will
+        // happen other than a bit more latency.
+        flushAllShufflers();
+
+        // now reset the worker nodes between jobs.
+        reset();
+        
+        long after = System.currentTimeMillis();
+
+        long duration = after - before;
+
+        log.info( "COMPLETED %s (duration %,d ms)", desc, duration );
 
     }
 
