@@ -72,6 +72,7 @@ public class Job extends BaseJob<Job> {
 
     public Job() {
         init( this );
+        setName( getHandle() );
     }
     
     /**
