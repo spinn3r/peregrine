@@ -225,6 +225,8 @@ public class Status {
                 curses.mvaddstr( y_pos++, 4, String.format( "%-20s %s", "Historical batches:", response.getHistory().size() ) );
                 curses.mvaddstr( y_pos++, 4, String.format( "%-20s %s", "Pending batches:", response.getPending().size() ) );
 
+                ++y_pos;
+
                 curses.mvaddstr( y_pos++, 0, String.format( "%s %s",    "Last refresh:", new Date() ) );
 
                 if ( cause != null )
@@ -232,12 +234,23 @@ public class Status {
 
                 ++y_pos;
 
+                // TODO compute some stats on the history ... # failed, #
+                // completed.  Failure rate.
+
+                // TODO: the table should have 3 options:
+                //
+                //  - (E) show what is currently executing 
+                //  - (P) show pending batches
+                //  - (H) show what is in history
+                //
+                //  - (X) they should ALL have the option to show extended metadata 
+
                 if ( response.getHistory().size() > 0 ) {
 
                     // get the last batch that was completed.
                     Batch last = response.getHistory().get( 0 );
                     
-                    curses.mvaddstr( y_pos++, 4, String.format( "%s %s",   "Last batch:", toBrief( last ) ) );
+                    curses.mvaddstr( y_pos++, 0, String.format( "%s %s",   "Last batch:", toBrief( last ) ) );
 
                     // print the cause of the last failure.
                     if ( ! Strings.empty( last.getCause() ) ) {
