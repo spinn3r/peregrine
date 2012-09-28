@@ -135,7 +135,9 @@ public class Main {
                           new Output( OUT ) );
         }
 
-        ControllerClient.submit( config, batch );
+        if ( batch.getJobs().size() > 0 ) {
+            ControllerClient.submit( config, batch );
+        }
 
     }
 

@@ -220,8 +220,10 @@ public class Status {
                     state = "OFFLINE: " + cause.getMessage();
 
                 curses.mvaddstr( y_pos++, 0, String.format( "%s", "Controller:" ) );
-                curses.mvaddstr( y_pos++, 4, String.format( "%-10s %s", "Host:", config.getController() ) );
-                curses.mvaddstr( y_pos++, 4, String.format( "%-10s %s", "State:", state ) );
+                curses.mvaddstr( y_pos++, 4, String.format( "%-20s %s", "Host:", config.getController() ) );
+                curses.mvaddstr( y_pos++, 4, String.format( "%-20s %s", "State:", state ) );
+                curses.mvaddstr( y_pos++, 4, String.format( "%-20s %s", "Historical batches:", response.getHistory().size() ) );
+                curses.mvaddstr( y_pos++, 4, String.format( "%-20s %s", "Pending batches:", response.getPending().size() ) );
 
                 curses.mvaddstr( y_pos++, 0, String.format( "%s %s",    "Last refresh:", new Date() ) );
 
@@ -229,8 +231,6 @@ public class Status {
                     continue;
 
                 ++y_pos;
-                
-                curses.mvaddstr( y_pos++, 0, String.format( "%-20s %s",   "Historical batches:", response.getHistory().size() ) );
 
                 if ( response.getHistory().size() > 0 ) {
 
@@ -254,8 +254,6 @@ public class Status {
                     
                 }
 
-                curses.mvaddstr( y_pos++, 0, String.format( "%-20s %s",   "Pending batches:", response.getPending().size() ) );
-                
                 //System.out.printf( "Executed %,d batch historical jobs.\n" , response.getHistory().size() );
 
                 if ( response.getExecuting() != null ) {
@@ -278,14 +276,13 @@ public class Status {
                         
                         double perc_complete = 100 * (nr_complete / (double)nr_jobs);
 
-                        curses.mvaddstr( y_pos++, 0,
-                                         String.format( "Currently executing batch '%s' with %,d jobs:",
-                                                        batch.getName(), batch.getJobs().size() ) );
+                        curses.mvaddstr( y_pos++, 0, "Currently executing batch:" );
 
                         ++y_pos;
 
                         //TODO: add the description for this batch.
                         
+                        curses.mvaddstr( y_pos++, 2, String.format( "name:                 %s" ,      batch.getName() ) );
                         curses.mvaddstr( y_pos++, 2, String.format( "identifier:           %s" ,      batch.getIdentifier() ) );
                         curses.mvaddstr( y_pos++, 2, String.format( "nr jobs:              %,d" ,     nr_jobs ) );
                         curses.mvaddstr( y_pos++, 2, String.format( "nr complete jobs:     %,d" ,     nr_complete ) );
