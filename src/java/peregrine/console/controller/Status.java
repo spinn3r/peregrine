@@ -135,7 +135,7 @@ public class Status {
 
     public static String toBrief( Job job ) {
 
-        return String.format( "%20s %15s %10s    %s",
+        return String.format( "%20s %15s %10s 10%s",
                               job.getName(),
                               job.getState(),
                               job.getOperation(),

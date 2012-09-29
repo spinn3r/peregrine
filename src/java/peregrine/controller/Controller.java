@@ -59,11 +59,6 @@ public class Controller {
     protected boolean shutdown = false;
 
     /**
-     * By default, specify which jobs we should execute.
-     */
-    protected ExecutionRange executionRange = new ExecutionRange();
-
-    /**
      * Keep track of executed items.  Note that unless this is cleared, if we
      * keep running jobs we will run out of memory.  We should probably have an
      * internal upper bound on the max number of items.
@@ -111,28 +106,6 @@ public class Controller {
 
         this.daemon = new ControllerDaemon( this, config, clusterState );
 
-    }
-
-    public void setExecutionRange( int start, int end ) {
-
-        this.executionRange = new ExecutionRange( start, end );
-
-        log.info( "Using execution range: %s", this.executionRange );
-        
-    }
-
-    public void setExecutionRange( String executionRange ) {
-
-        if ( executionRange == null || "".equals( executionRange ) )
-            return;
-
-        String[] split = executionRange.split( ":" );
-
-        int start = Integer.parseInt( split[0] );
-        int end   = Integer.parseInt( split[1] );
-        
-        setExecutionRange( start, end );
-        
     }
 
     public Config getConfig() {
@@ -281,8 +254,19 @@ public class Controller {
 
             batch.assertExecutionViability();
 
+            int id = -1;
             for ( Job job : batch.getJobs() ) {
+
+                ++id;
+
+                if ( id < batch.getStart() || id > batch.getEnd() ) {
+                    log.info( "SKIP job %s due to start/end range %s (%s)", id, batch.getStart(), batch.getEnd() );
+                    job.setState( JobState.SKIPPED );
+                    continue;
+                }
+
                 exec( job );
+                
             }
 
             batch.setState( JobState.COMPLETED );
@@ -435,13 +419,6 @@ public class Controller {
                                      job.getInput(),
                                      job.getOutput() );
 
-        /*
-        if ( job.getIdentifier() < executionRange.start || job.getIdentifier() > executionRange.end ) {
-            log.info( "SKIP job due to execution range %s (%s)", executionRange, desc );
-            return;
-        }
-        */
-        
         log.info( "STARTING %s", desc );
 
         long before = System.currentTimeMillis();
@@ -575,28 +552,4 @@ interface CallableFactory {
 
     public Callable newCallable( Partition part, Host host );
 
-}
-
-/**
- * Represents which jobs we should be executing.
- */
-class ExecutionRange {
-
-    protected int start;
-
-    protected int end;
-
-    public ExecutionRange() {
-        this( 0, Integer.MAX_VALUE );
-    }
-
-    public ExecutionRange( int start, int end ) {
-        this.start = start;
-        this.end   = end;
-    }
-
-    public String toString() {
-        return String.format( "%s:%s", start, end );
-    }
-    
 }

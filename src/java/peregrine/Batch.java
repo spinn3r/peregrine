@@ -36,6 +36,12 @@ public class Batch extends BaseJob<Batch> {
 
     protected List<Job> jobs = new ArrayList();
 
+    protected long identifier = -1;
+
+    protected int start = 0;
+
+    protected int end = Integer.MAX_VALUE;
+    
     public Batch() {
         init( this );
     }
@@ -188,6 +194,51 @@ public class Batch extends BaseJob<Batch> {
         return jobs;
     }
 
+    public String getName() { 
+        return this.name;
+    }
+
+    public Batch setName( String name ) { 
+        this.name = name;
+        return this;
+    }
+
+    public String getDescription() { 
+        return this.description;
+    }
+
+    public Batch setDescription( String description ) { 
+        this.description = description;
+        return this;
+    }
+
+    public long getIdentifier() {
+        return this.identifier;
+    }
+
+    public Batch setIdentifier( long identifier ) {
+        this.identifier = identifier;
+        return this;
+    }
+
+    public int getStart() {
+        return this.start;
+    }
+
+    public Batch setStart( int start ) {
+        this.start = start;
+        return this;
+    }
+
+    public int getEnd() {
+        return this.end;
+    }
+
+    public Batch setEnd( int end ) {
+        this.end = end;
+        return this;
+    }
+
     /**
      * Make sure this batch job is viable for execution.  It should have at
      * least 1 job, it should have a valid name.
@@ -203,6 +254,15 @@ public class Batch extends BaseJob<Batch> {
         }
 
     }
+
+    /**
+     * Command line apps should parse args from the command line.
+     */
+    public void init( String[] args ) {
+        Getopt getopt = new Getopt( args );
+        this.start = getopt.getInt( "batch.start" );
+        this.end   = getopt.getInt( "batch.end" );
+    }
     
     /**
      * Convert this to an RPC message.
@@ -215,6 +275,8 @@ public class Batch extends BaseJob<Batch> {
         message.put( "name",          name );
         message.put( "description",   description );
         message.put( "identifier",    identifier );
+        message.put( "start",         start );
+        message.put( "end",           end );
         message.put( "state",         state );
         message.put( "cause",         cause );
         message.put( "jobs",          jobs );
@@ -229,6 +291,8 @@ public class Batch extends BaseJob<Batch> {
         name          = message.getString( "name" );
         description   = message.getString( "description" );
         identifier    = message.getLong( "identifier" );
+        start         = message.getInt( "start" );
+        end           = message.getInt( "end" );
         state         = message.getString( "state" );
         cause         = message.getString( "cause" );
         jobs          = message.getList( "jobs", Job.class );
