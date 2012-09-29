@@ -59,7 +59,8 @@ public class Main {
         }
         
         Pagerank pr = new Pagerank( config, graph, nodes_by_hashcode, null );
-
+        pr.init( args );
+        
         ControllerClient.submit( config, pr );
         
     }

@@ -42,6 +42,10 @@ public class Batch implements MessageSerializable {
 
     protected long identifier = -1;
 
+    protected int start = 0;
+
+    protected int end = Integer.MAX_VALUE;
+    
     public Batch() {}
 
     public Batch( Class clazz ) {
@@ -217,7 +221,25 @@ public class Batch implements MessageSerializable {
         this.identifier = identifier;
         return this;
     }
-    
+
+    public int getStart() {
+        return this.start;
+    }
+
+    public Batch setStart( int start ) {
+        this.start = start;
+        return this;
+    }
+
+    public int getEnd() {
+        return this.end;
+    }
+
+    public Batch setEnd( int end ) {
+        this.end = end;
+        return this;
+    }
+
     public void assertExecutionViability() {
 
         if ( getJobs().size() == 0 ) {
@@ -228,6 +250,15 @@ public class Batch implements MessageSerializable {
             throw new RuntimeException( "Batch has no name" );
         }
 
+    }
+
+    /**
+     * Command line apps should parse args from the command line.
+     */
+    public void init( String[] args ) {
+        Getopt getopt = new Getopt( args );
+        this.start = getopt.getInt( "batch.start" );
+        this.end   = getopt.getInt( "batch.end" );
     }
     
     /**
@@ -241,6 +272,8 @@ public class Batch implements MessageSerializable {
         message.put( "name",          name );
         message.put( "description",   description );
         message.put( "identifier",    identifier );
+        message.put( "start",         start );
+        message.put( "end",           end );
         message.put( "jobs",          jobs );
 
         return message;
@@ -253,6 +286,8 @@ public class Batch implements MessageSerializable {
         name          = message.getString( "name" );
         description   = message.getString( "description" );
         identifier    = message.getLong( "identifier" );
+        start         = message.getInt( "start" );
+        end           = message.getInt( "end" );
         jobs          = message.getList( "jobs", Job.class );
 
     }

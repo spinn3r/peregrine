@@ -50,4 +50,9 @@ public class JobState {
      */
     public static String FAILED = "failed";
 
+    /**
+     * The job was skipped due to batch settings on start/end.
+     */
+    public static String SKIPPED = "skipped";
+
 }
