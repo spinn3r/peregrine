@@ -37,6 +37,16 @@ import peregrine.worker.*;
 public class Status {
 
     public static final int PROGRESS_WIDTH = 40;
+
+    protected Exception cause = null;
+    
+    protected ControllerStatusResponse response = new ControllerStatusResponse();
+
+    protected Config config = null;
+
+    protected int history = -1;
+
+    protected int executing = -1;
     
     public static String toStatus( Batch batch ) {
 
@@ -150,7 +160,8 @@ public class Status {
         System.out.printf( "Shows information about the current controller status.\n" );
         System.out.printf( "\n" );
         System.out.printf( "--executing    Show currently executing batches.\n" );
-        System.out.printf( "--history      Show job history.\n" );
+        System.out.printf( "--history      Show historical batches.\n" );
+        System.out.printf( "--pending      Show pending batches.\n" );
         System.out.printf( "\n" );
         System.out.printf( "Both arguments accept a level argument for the amount of detail to report.\n" );
         System.out.printf( "\n" );
@@ -160,38 +171,14 @@ public class Status {
 
     }
 
-    public static void main( String[] args ) throws Exception {
-
-        // TODO:
-        //
-        //  q      should quit
-
-        new Initializer().logger( new File( "conf/log4j-silent.xml" ) );
-
-        curses.init();
-
-        Runtime.getRuntime().addShutdownHook( new Thread() {
-
-                public void run() {
-                    curses.term();
-                }
-                
-            } );
-        
-        Getopt getopt = new Getopt( args );
-
-        int executing = getopt.getInt( "executing",  0 );
-        int history   = getopt.getInt( "history",   -1 );
-
-        Config config = ConfigParser.parse( args );
+    public void exec() {
 
         while( true ) {
 
             curses.clear();
 
-            Exception cause = null;
-
-            ControllerStatusResponse response = new ControllerStatusResponse();
+            cause = null;
+            response = new ControllerStatusResponse();
 
             try {
             
@@ -369,16 +356,42 @@ public class Status {
 
                 curses.refresh();
                 
-                Thread.sleep( 1000L );
+                Threads.coma( 1000L );
 
             }
             
         }
 
-        //for ( List 
+    }
+
+    public static void main( String[] args ) throws Exception {
+
+        // TODO:
+        //
+        //  q      should quit
+
+        new Initializer().logger( new File( "conf/log4j-silent.xml" ) );
+
+        curses.init();
+
+        Runtime.getRuntime().addShutdownHook( new Thread() {
+
+                public void run() {
+                    curses.term();
+                }
+                
+            } );
+
+        Getopt getopt = new Getopt( args );
+
+        Status status = new Status();
         
-        //curses.term();
-        
+        status.config    = ConfigParser.parse( args );
+        status.executing = getopt.getInt( "executing",  0 );
+        status.history   = getopt.getInt( "history",   -1 );
+
+        status.exec();
+
     }
     
 }
