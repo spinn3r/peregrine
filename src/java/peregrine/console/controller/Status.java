@@ -138,13 +138,13 @@ public class Status {
 
     public void doBatchOverviewHeaders() {
 
-        curses.mvaddstr( y_pos++, 4, String.format( "%-40s %-20s %-10s %-8s %-8s %-8s %s", "name", "identifier", "state", "nr jobs", "start", "end", "cause") );
-        curses.mvaddstr( y_pos++, 4, String.format( "%-40s %-20s %-10s %-8s %-8s %-8s %s", "----", "----------", "-----", "-------", "-----", "---", "-----" ) );
+        curses.mvaddstr( y_pos++, 4, String.format( "%-40s %-20s %-10s %-8s %-8s %-15s %s", "name", "identifier", "state", "nr jobs", "start", "end", "cause") );
+        curses.mvaddstr( y_pos++, 4, String.format( "%-40s %-20s %-10s %-8s %-8s %-15s %s", "----", "----------", "-----", "-------", "-----", "---", "-----" ) );
         
     }
     
     public void doBatchOverview( Batch batch ) {
-        curses.mvaddstr( y_pos++, 4, String.format( "%-40s %-20s %-10s %-8s %-8s %-8s %s",
+        curses.mvaddstr( y_pos++, 4, String.format( "%-40s %-20s %-10s %-8s %-8s %-15s %s",
                                                     batch.getName(), batch.getIdentifier(), batch.getState(),
                                                     batch.getJobs().size(), batch.getStart(), batch.getEnd(),
                                                     getFirstLine( batch.getCause(), "" ) ) );
@@ -425,7 +425,7 @@ public class Status {
 
                 // write one more line so the cursur is in a sane place.
                 ++y_pos;
-                curses.mvaddstr( y_pos++, 0, String.format( "Mode: %s (h=history, x=executing, a=automatic)", mode ) );
+                curses.mvaddstr( y_pos++, 0, String.format( "Mode: %s (h=history, x=executing, a=automatic q=quit)", mode ) );
                 curses.mvaddstr( y_pos++, 0, "" );
                 curses.refresh();
 
@@ -445,6 +445,9 @@ public class Status {
                         mode = Mode.HISTORY;
                         break;
 
+                    case '1':
+                        System.exit( 0 );
+                        
                     default:
                         break;
                         
