@@ -162,12 +162,45 @@ public class Status {
             doBatchOverview( batch );
         }
 
+        if ( response.getHistory().size() > 0 ) {
+
+            Batch last = response.getHistory().get( 0 );
+            
+            // print the cause of the last failure.
+            if ( ! Strings.empty( last.getCause() ) ) {
+                
+                ++y_pos;
+                
+                String[] frames = last.getCause().split( "\n" );
+                
+                for( String frame : frames ) {
+                    curses.mvaddstr( y_pos++, 4, frame );
+                }
+                
+            }
+
+        }
+
     }
 
+    private String getFirstLine( String data, String _default ) {
+
+        if ( Strings.empty( data ) )
+            return _default;
+        
+        String[] split = data.split( "\n" );
+
+        if ( split.length == 0 )
+            return _default;
+        
+        return split[0];
+        
+    }
+    
     public void doJobsHeaders() {
 
-        curses.mvaddstr( y_pos++, 4, String.format( "%-20s %-15s %-10s %s", "name", "state", "operation", "delegate" ) );
-        curses.mvaddstr( y_pos++, 4, String.format( "%-20s %-15s %-10s %s", "----", "-----", "---------", "--------" ) );
+        curses.mvaddstr( y_pos++, 4, String.format( "%-20s %-15s %-10s %-20s %s", "name", "state", "operation", "delegate", "cause" ) );
+        curses.mvaddstr( y_pos++, 4, String.format( "%-20s %-15s %-10s %-20s %s", "----", "-----", "---------", "--------", "-----" ) );
 
     }
     
@@ -175,11 +208,12 @@ public class Status {
 
         for ( Job job : batch.getJobs() ) {
 
-            String formatted = String.format( "%-20s %-15s %-10s %s",
+            String formatted = String.format( "%-20s %-15s %-10s %-20s %s",
                                               job.getName(),
                                               job.getState(),
                                               job.getOperation(),
-                                              job.getDelegate().getName() );
+                                              job.getDelegate().getName(),
+                                              getFirstLine( job.getCause(), "" ) );
 
             curses.mvaddstr( y_pos++, 4, String.format( "%s" , formatted ) );
 
@@ -261,7 +295,9 @@ public class Status {
             for( OutputReference outputRef : executingJob.getOutput().getReferences() ) {
                 curses.mvaddstr( y_pos++, 8, String.format( "%s", outputRef ) );
             }
-
+            
+            //TODO parameters, cause, comparator, maxChunks, partitioner, combiner, 
+            
         }
 
     }
@@ -318,22 +354,7 @@ public class Status {
         } else if ( response.getHistory().size() > 0 ) {
 
             doHistory();
-            
-            /*
-            // print the cause of the last failure.
-            if ( ! Strings.empty( last.getCause() ) ) {
 
-                ++y_pos;
-                
-                String[] frames = last.getCause().split( "\n" );
-
-                for( String frame : frames ) {
-                    curses.mvaddstr( y_pos++, 4, frame );
-                }
-                
-            }
-            */
-            
         }
 
     }

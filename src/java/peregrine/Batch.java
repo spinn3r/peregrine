@@ -284,15 +284,10 @@ public class Batch extends BaseJob<Batch> {
     @Override
     public Message toMessage() {
 
-        Message message = new Message();
+        Message message = super.toMessage();
 
-        message.put( "name",          name );
-        message.put( "description",   description );
-        message.put( "identifier",    identifier );
         message.put( "start",         start );
         message.put( "end",           end );
-        message.put( "state",         state );
-        message.put( "cause",         cause );
         message.put( "jobs",          jobs );
 
         return message;
@@ -302,13 +297,10 @@ public class Batch extends BaseJob<Batch> {
     @Override
     public void fromMessage( Message message ) {
 
-        name          = message.getString( "name" );
-        description   = message.getString( "description" );
-        identifier    = message.getLong( "identifier" );
+        super.fromMessage( message );
+        
         start         = message.getInt( "start" );
         end           = message.getInt( "end" );
-        state         = message.getString( "state" );
-        cause         = message.getString( "cause" );
         jobs          = message.getList( "jobs", Job.class );
 
     }

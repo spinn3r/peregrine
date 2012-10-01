@@ -49,7 +49,11 @@ public abstract class BaseJob<T> implements MessageSerializable {
     protected String cause = null;
 
     protected T instance = null;
+
+    protected long started = 0;
     
+    protected long duration = 0;
+
     protected void init( T instance ) {
         this.instance = instance;
     }
@@ -112,6 +116,60 @@ public abstract class BaseJob<T> implements MessageSerializable {
 
     public T setCause( Throwable t ) {
         return setCause( Strings.format( t ) );
+    }
+
+    /**
+     * The time in milliseconds that we were started.
+     */
+    public long getStarted() {
+        return this.started;
+    }
+
+    public T setStarted( long started ) {
+        this.started = started;
+        return instance;
+    }
+
+    /**
+     * The time in milliseconds that this was run for.
+     */
+    public long getDuration() {
+        return this.duration;
+    }
+
+    public T setDuration( long duration ) {
+        this.duration = duration;
+        return instance;
+    }
+
+    @Override
+    public Message toMessage() {
+
+        Message message = new Message();
+
+        message.put( "name",          name );
+        message.put( "description",   description );
+        message.put( "identifier",    identifier );
+        message.put( "state",         state );
+        message.put( "cause",         cause );
+        message.put( "started",       started );
+        message.put( "duration",      duration );
+
+        return message;
+        
+    }
+
+    @Override
+    public void fromMessage( Message message ) {
+
+        name          = message.getString( "name" );
+        description   = message.getString( "description" );
+        identifier    = message.getLong( "identifier" );
+        state         = message.getString( "state" );
+        cause         = message.getString( "cause" );
+        started       = message.getLong( "started" );
+        duration      = message.getLong( "duration" );
+        
     }
 
 }
