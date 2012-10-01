@@ -161,6 +161,7 @@ public class Status {
         
         doBatchOverviewHeaders();
 
+        // cap the number of entries here.  
         for( Batch batch : response.getHistory() ) {
             doBatchOverview( batch );
         }
