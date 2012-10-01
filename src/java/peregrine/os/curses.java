@@ -51,12 +51,15 @@ public class curses {
     public static native int start_color();
     public static native boolean has_colors();
     public static native int use_default_colors();
-
+    public static native int getch();
+    public static native int halfdelay(int tenths);
+    
     public static void init() {
 
         initscr();
         start_color();
-        cbreak();
+        //cbreak();
+        curses.halfdelay( 10 );
         noecho();
 
         clear();
@@ -80,43 +83,16 @@ public class curses {
 
     public static void main( String[] args ) throws Exception {
 
-        initscr();
-        start_color();
-        cbreak();
-        noecho();
-
-        use_default_colors();
+        init();
         
-        clear();
-        erase();
+        while( true ) {
 
-        if ( has_colors() ) {
-            attron( A_BOLD );
+            int ch = getch();
 
-            mvaddstr( 0, 2, "hello (r):" );
-            mvaddstr( 1, 2, "cat (r):" );
-
-        } else {
-            mvaddstr( 0, 2, "hello:" );
-            mvaddstr( 1, 2, "cat:" );
+            System.out.printf( "ch: %s\n", ch );
 
         }
 
-        if ( has_colors() ) {
-            attron( A_BOLD );
-        }
-
-        mvaddstr( 0, 20, "world" );
-        mvaddstr( 1, 20, "dog" );
-
-        refresh();
-
-        Thread.sleep( 2000L );
-        
-        nocbreak();
-        echo();
-        endwin();
-        
     }
                             
 }

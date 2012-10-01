@@ -44,9 +44,13 @@ public class Status {
 
     protected Config config = null;
 
+    protected int y_pos = 0;
+
     protected int history = -1;
 
     protected int executing = -1;
+
+    protected Mode mode = Mode.AUTO;
     
     public static String toStatus( Batch batch ) {
 
@@ -136,23 +140,149 @@ public class Status {
             
     }
 
-    public static String toBrief( Batch batch ) {
+    public void doBatchOverviewHeaders() {
 
-        String state = batch.getState();
-        return String.format( "%20s %10s %10s", batch.getName(), batch.getIdentifier(), state );
-        
-    }
-
-    public static String toBrief( Job job ) {
-
-        return String.format( "%20s %15s %10s 10%s",
-                              job.getName(),
-                              job.getState(),
-                              job.getOperation(),
-                              job.getDelegate().getName() );
+        curses.mvaddstr( y_pos++, 4, String.format( "%-40s %-20s %-10s %-8s %-8s %-8s", "name", "identifier", "state", "nr jobs", "start", "end") );
+        curses.mvaddstr( y_pos++, 4, String.format( "%-40s %-20s %-10s %-8s %-8s %-8s", "----", "----------", "-----", "-------", "-----", "---" ) );
         
     }
     
+    public void doBatchOverview( Batch batch ) {
+        curses.mvaddstr( y_pos++, 4, String.format( "%-40s %-20s %-10s %-8s %-8s %-8s",
+                                                    batch.getName(), batch.getIdentifier(), batch.getState(),
+                                                    batch.getJobs().size(), batch.getStart(), batch.getEnd() ) );
+    }
+
+    public void doHistory() {
+
+        curses.mvaddstr( y_pos++, 0, "History:" );
+
+        ++y_pos;
+        
+        doBatchOverviewHeaders();
+
+        for( Batch batch : response.getHistory() ) {
+            doBatchOverview( batch );
+        }
+
+    }
+
+    public void doJobsHeaders() {
+
+        curses.mvaddstr( y_pos++, 4, String.format( "%-20s %-15s %-10s %s", "name", "state", "operation", "delegate" ) );
+        curses.mvaddstr( y_pos++, 4, String.format( "%-20s %-15s %-10s %s", "----", "-----", "---------", "--------" ) );
+
+    }
+    
+    public void doJobs( Batch batch ) {
+
+        for ( Job job : batch.getJobs() ) {
+
+            String formatted = String.format( "%-20s %-15s %-10s %s",
+                                              job.getName(),
+                                              job.getState(),
+                                              job.getOperation(),
+                                              job.getDelegate().getName() );
+
+            curses.mvaddstr( y_pos++, 4, String.format( "%s" , formatted ) );
+
+        }
+
+    }
+
+    public void doExecuting() {
+
+        if ( response == null )
+            return;
+        
+        Batch batch = response.getExecuting();
+
+        if ( batch == null ) {
+            curses.mvaddstr( y_pos++, 0, "No executing batch jobs." );
+            return;
+        }
+        
+        if ( executing >= 0 ) {
+
+            int nr_jobs = batch.getJobs().size();
+            int nr_complete = 0;
+            
+            for( Job job : batch.getJobs() ) {
+                
+                if ( job.getState().equals( JobState.COMPLETED ) )
+                    ++nr_complete;
+                
+            }
+
+            double perc_complete = 100 * (nr_complete / (double)nr_jobs);
+
+            curses.mvaddstr( y_pos++, 0, "Currently executing batch:" );
+
+            ++y_pos;
+
+            //TODO: add the description for this batch.
+
+            doBatchOverviewHeaders();
+            doBatchOverview( batch );
+
+            ++y_pos;
+
+            curses.mvaddstr( y_pos++, 4, String.format( "nr complete jobs:     %,d" ,     nr_complete ) );
+            curses.mvaddstr( y_pos++, 4, String.format( "batch perc complete:  %s" ,      progress( perc_complete, PROGRESS_WIDTH ) ) );
+
+            //add job perc complete which comes from the scheduler.
+
+            if ( response.getSchedulerStatusResponse() != null ) {
+                curses.mvaddstr( y_pos++, 4, String.format( "job perc complete:    %s" ,
+                                                            progress( response.getSchedulerStatusResponse().getProgress(), PROGRESS_WIDTH ) ) );
+            }
+
+        }
+
+        if ( executing <= 1 ) {
+
+            ++y_pos;
+
+            Job executingJob = batch.getExecutingJob();
+
+            doJobsHeaders();
+            doJobs( batch );
+
+            if ( executingJob != null ) {
+
+                ++y_pos;
+
+                curses.mvaddstr( y_pos++, 0, String.format( "Currently executing job '%s':", executingJob.getName() ) );
+
+                ++y_pos;
+
+                curses.mvaddstr( y_pos++, 4, String.format( "Operation: %s", executingJob.getOperation() ) );
+                curses.mvaddstr( y_pos++, 4, String.format( "Delegate:  %s", executingJob.getDelegate().getName() ) );
+
+                curses.mvaddstr( y_pos++, 4, String.format( "Input:" ) );
+
+                for( InputReference inputRef : executingJob.getInput().getReferences() ) {
+                    curses.mvaddstr( y_pos++, 8, String.format( "%s", inputRef ) );
+                }
+
+                curses.mvaddstr( y_pos++, 4, String.format( "Output:" ) );
+
+                for( OutputReference outputRef : executingJob.getOutput().getReferences() ) {
+                    curses.mvaddstr( y_pos++, 8, String.format( "%s", outputRef ) );
+                }
+
+            }
+            
+        }
+
+        if ( executing >= 2 ) {
+            //System.out.printf( "\n" );
+
+            //System.out.printf( "%s\n", toStatus( batch ) );
+        }
+
+    }
+
     public static void help() {
 
         System.out.printf( "Controller command line status interface.\n" );
@@ -171,33 +301,77 @@ public class Status {
 
     }
 
+    /**
+     * Read the status messgae from the controller and update global variables.
+     */
+    private void readStatusFromController() {
+
+        cause = null;
+        response = new ControllerStatusResponse();
+
+        try {
+        
+            Client client = new Client( config );
+            
+            Message message = new Message();
+            message.put( "action", "status" );
+            
+            Message result = client.invoke( config.getController(), "controller", message );
+            
+            response.fromMessage( result );
+
+        } catch ( Exception e ) {
+            cause = e;
+        }
+
+    }
+
+    public void doModeAuto() {
+
+        if ( response.getExecuting() != null ) {
+
+            doExecuting();
+            
+        } else if ( response.getHistory().size() > 0 ) {
+
+            doHistory();
+            
+            /*
+            // print the cause of the last failure.
+            if ( ! Strings.empty( last.getCause() ) ) {
+
+                ++y_pos;
+                
+                String[] frames = last.getCause().split( "\n" );
+
+                for( String frame : frames ) {
+                    curses.mvaddstr( y_pos++, 4, frame );
+                }
+                
+            }
+            */
+            
+        }
+
+    }
+
+    public void doModeExecuting() {
+        doExecuting();
+    }
+
+    public void doModeHistory() {
+        doHistory();
+    }
+
     public void exec() {
 
         while( true ) {
 
             curses.clear();
 
-            cause = null;
-            response = new ControllerStatusResponse();
-
-            try {
+            readStatusFromController();
             
-                Client client = new Client( config );
-                
-                Message message = new Message();
-                message.put( "action", "status" );
-                
-                Message result = client.invoke( config.getController(), "controller", message );
-                
-                response.fromMessage( result );
-
-            } catch ( Exception e ) {
-                cause = e;
-            }
-
             //TODO: include scheduler cluster state.
-
-            int y_pos = 0;
 
             try {
 
@@ -220,7 +394,7 @@ public class Status {
                     continue;
 
                 ++y_pos;
-
+                
                 // TODO compute some stats on the history ... # failed, #
                 // completed.  Failure rate.
 
@@ -232,131 +406,42 @@ public class Status {
                 //
                 //  - (X) they should ALL have the option to show extended metadata 
 
-                if ( response.getHistory().size() > 0 ) {
-
-                    // get the last batch that was completed.
-                    Batch last = response.getHistory().get( 0 );
-                    
-                    curses.mvaddstr( y_pos++, 0, String.format( "%s %s",   "Last batch:", toBrief( last ) ) );
-
-                    // print the cause of the last failure.
-                    if ( ! Strings.empty( last.getCause() ) ) {
-
-                        ++y_pos;
-                        
-                        String[] frames = last.getCause().split( "\n" );
-
-                        for( String frame : frames ) {
-                            curses.mvaddstr( y_pos++, 4, frame );
-                        }
-                        
-                    }
-                    
-                }
-
-                //System.out.printf( "Executed %,d batch historical jobs.\n" , response.getHistory().size() );
-
-                if ( response.getExecuting() != null ) {
-
-                    Batch batch = response.getExecuting();
-
-                    int nr_jobs = batch.getJobs().size();
-                    int nr_complete = 0;
-                    
-                    for( Job job : batch.getJobs() ) {
-                        
-                        if ( job.getState().equals( JobState.COMPLETED ) )
-                            ++nr_complete;
-                        
-                    }
-
-                    if ( executing >= 0 ) {
-
-                        ++y_pos;
-                        
-                        double perc_complete = 100 * (nr_complete / (double)nr_jobs);
-
-                        curses.mvaddstr( y_pos++, 0, "Currently executing batch:" );
-
-                        ++y_pos;
-
-                        //TODO: add the description for this batch.
-                        
-                        curses.mvaddstr( y_pos++, 2, String.format( "name:                 %s" ,      batch.getName() ) );
-                        curses.mvaddstr( y_pos++, 2, String.format( "identifier:           %s" ,      batch.getIdentifier() ) );
-                        curses.mvaddstr( y_pos++, 2, String.format( "nr jobs:              %,d" ,     nr_jobs ) );
-                        curses.mvaddstr( y_pos++, 2, String.format( "nr complete jobs:     %,d" ,     nr_complete ) );
-                        curses.mvaddstr( y_pos++, 2, String.format( "batch perc complete:  %s" ,      progress( perc_complete, PROGRESS_WIDTH ) ) );
-
-                        //add job perc complete which comes from the scheduler.
-
-                        if ( response.getSchedulerStatusResponse() != null ) {
-                            curses.mvaddstr( y_pos++, 2, String.format( "job perc complete:    %s" ,
-                                                                        progress( response.getSchedulerStatusResponse().getProgress(), PROGRESS_WIDTH ) ) );
-                        }
-
-                    }
-
-                    if ( executing <= 1 ) {
-
-                        //System.out.printf( "\n" );
-
-                        ++y_pos;
-
-                        Job executingJob = null;
-                        
-                        for ( Job job : batch.getJobs() ) {
-
-                            if ( job.getState().equals( JobState.EXECUTING ) )
-                                executingJob = job;
-                            
-                            curses.mvaddstr( y_pos++, 2, String.format( "%s" , toBrief( job ) ) );
-
-                        }
-
-                        if ( executingJob != null ) {
-
-                            ++y_pos;
-
-                            curses.mvaddstr( y_pos++, 0, String.format( "Currently executing job '%s':", executingJob.getName() ) );
-
-                            ++y_pos;
-
-                            curses.mvaddstr( y_pos++, 4, String.format( "Operation: %s", executingJob.getOperation() ) );
-                            curses.mvaddstr( y_pos++, 4, String.format( "Delegate:  %s", executingJob.getDelegate().getName() ) );
-
-                            curses.mvaddstr( y_pos++, 4, String.format( "Input:" ) );
-
-                            for( InputReference inputRef : executingJob.getInput().getReferences() ) {
-                                curses.mvaddstr( y_pos++, 8, String.format( "%s", inputRef ) );
-                            }
-
-                            curses.mvaddstr( y_pos++, 4, String.format( "Output:" ) );
-
-                            for( OutputReference outputRef : executingJob.getOutput().getReferences() ) {
-                                curses.mvaddstr( y_pos++, 8, String.format( "%s", outputRef ) );
-                            }
-
-                        }
-                        
-                    }
-
-                    if ( executing >= 2 ) {
-                        //System.out.printf( "\n" );
-
-                        //System.out.printf( "%s\n", toStatus( batch ) );
-                    }
-                    
-                }
+                if ( mode.equals( Mode.AUTO ) ) {
+                    doModeAuto();
+                } else if ( mode.equals( Mode.HISTORY ) ) {
+                    doModeHistory();
+                } else if ( mode.equals( Mode.EXECUTING ) ) {
+                    doModeExecuting();
+                } 
 
             } finally {
 
                 // write one more line so the cursur is in a sane place.
+                ++y_pos;
+                curses.mvaddstr( y_pos++, 0, "Mode: " + mode );
                 curses.mvaddstr( y_pos++, 0, "" );
-
                 curses.refresh();
+
+                y_pos = 0;
                 
-                Threads.coma( 1000L );
+                switch( (char)curses.getch() ) {
+
+                    case 'a':
+                        mode = Mode.AUTO;
+                        break;
+
+                    case 'x':
+                        mode = Mode.EXECUTING;
+                        break;
+
+                    case 'h':
+                        mode = Mode.HISTORY;
+                        break;
+
+                    default:
+                        break;
+                        
+                }
 
             }
             
@@ -394,4 +479,8 @@ public class Status {
 
     }
     
+}
+
+enum Mode {
+    AUTO, EXECUTING, HISTORY;
 }

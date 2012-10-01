@@ -239,6 +239,19 @@ public class Batch extends BaseJob<Batch> {
         return this;
     }
 
+    public Job getExecutingJob() {
+
+        for ( Job job : getJobs() ) {
+
+            if ( job.getState().equals( JobState.EXECUTING ) )
+                return job;
+
+        }
+
+        return null;
+        
+    }
+
     /**
      * Make sure this batch job is viable for execution.  It should have at
      * least 1 job, it should have a valid name.
@@ -260,8 +273,9 @@ public class Batch extends BaseJob<Batch> {
      */
     public void init( String[] args ) {
         Getopt getopt = new Getopt( args );
-        this.start = getopt.getInt( "batch.start" );
-        this.end   = getopt.getInt( "batch.end" );
+
+        this.start = getopt.getInt( "batch.start", 0 );
+        this.end   = getopt.getInt( "batch.end",   Integer.MAX_VALUE );
     }
     
     /**
