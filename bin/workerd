@@ -72,6 +72,7 @@ start() {
 
     echo "Running with max JVM memory $MAX_MEMORY and max direct memory $MAX_DIRECT_MEMORY and writing output to '$OUTPUT'"
 
+    export PROFILER_ENABLED_OSX=true
     ./bin/jexec peregrine.worker.Main $args < /dev/null > $stdout 2> $stderr &
 
     pid=$!

@@ -47,6 +47,11 @@ public class Status {
     protected int y_pos = 0;
 
     protected Mode mode = Mode.AUTO;
+
+    /**
+     * True after quit is called so we don't double quit.
+     */
+    protected static boolean quit = false;
     
     public static String toStatus( Batch batch ) {
 
@@ -370,10 +375,23 @@ public class Status {
         doHistory();
     }
 
+    public static void quit() {
+
+        if ( quit )
+            return;
+        
+        curses.term();
+        quit=true;
+        
+    }
+    
     public void exec() {
 
         while( true ) {
 
+            if ( quit )
+                break;
+            
             curses.clear();
 
             readStatusFromController();
@@ -446,7 +464,9 @@ public class Status {
                         break;
 
                     case 'q':
+                        quit();
                         System.exit( 0 );
+                        break; /* not needed */
                         
                     default:
                         break;
@@ -472,7 +492,7 @@ public class Status {
         Runtime.getRuntime().addShutdownHook( new Thread() {
 
                 public void run() {
-                    curses.term();
+                    quit();
                 }
                 
             } );

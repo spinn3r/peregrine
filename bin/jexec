@@ -23,6 +23,7 @@ run() {
 : ${JAVA:="java"}
 : ${SILENT:="false"}
 : ${PROFILER_ENABLED:="false"}
+: ${PROFILER_ENABLED_OSX:="false"}
 : ${PROFILER_PATH:="/usr/local/jprofiler"}
 : ${PROFILER_OPTS:="-agentlib:jprofilerti=port=8849 -Xint -Xbootclasspath/a:$PROFILER_PATH/bin/agent.jar"}
 : ${JMX_PORT:=12112}
@@ -34,11 +35,24 @@ CLASSNAME=$(echo $CLASSNAME | sed 's/src\/test\///g' | sed 's/src\/java\///g' | 
 
 if [ "$PROFILER_ENABLED" = "true" ]; then
 
+    # -agentlib:jprofilerti=port=8849  -Xbootclasspath/a:/Applications/jprofiler5/bin/agent.jar
+
     echo "Running with profiler..."
 
     export JAVA_OPTS="$JAVA_OPTS $PROFILER_OPTS"
     export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$PROFILER_PATH/bin/linux-x64/"
     echo $LD_LIBRARY_PATH
+
+fi
+
+if [ "$PROFILER_ENABLED_OSX" = "true" ]; then
+
+    export PROFILER_OPTS="-agentlib:jprofilerti=port=8849 -Xintn  -Xbootclasspath/a:/Applications/jprofiler5/bin/agent.jar"
+    export DYLD_LIBRARY_PATH="$DYLD_LIBRARY_PATH:/Applications/jprofiler5/bin/macos"
+
+    echo "Running with OS X profiler..."
+
+    export JAVA_OPTS="$JAVA_OPTS $PROFILER_OPTS"
 
 fi
 
