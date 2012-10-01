@@ -39,7 +39,7 @@ public class Batch extends BaseJob<Batch> {
     protected int start = 0;
 
     protected int end = Integer.MAX_VALUE;
-    
+
     public Batch() {
         init( this );
     }

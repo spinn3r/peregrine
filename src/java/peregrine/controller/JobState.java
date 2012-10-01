@@ -55,4 +55,9 @@ public class JobState {
      */
     public static String SKIPPED = "skipped";
 
+    /**
+     * The job was killed.
+     */
+    public static String KILLED = "killed";
+
 }

@@ -53,7 +53,7 @@ public abstract class BaseJob<T> implements MessageSerializable {
     protected long started = 0;
     
     protected long duration = 0;
-
+    
     protected void init( T instance ) {
         this.instance = instance;
     }
