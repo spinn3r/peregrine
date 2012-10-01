@@ -36,8 +36,6 @@ public class Batch extends BaseJob<Batch> {
 
     protected List<Job> jobs = new ArrayList();
 
-    protected long identifier = -1;
-
     protected int start = 0;
 
     protected int end = Integer.MAX_VALUE;
@@ -209,15 +207,6 @@ public class Batch extends BaseJob<Batch> {
 
     public Batch setDescription( String description ) { 
         this.description = description;
-        return this;
-    }
-
-    public long getIdentifier() {
-        return this.identifier;
-    }
-
-    public Batch setIdentifier( long identifier ) {
-        this.identifier = identifier;
         return this;
     }
 
