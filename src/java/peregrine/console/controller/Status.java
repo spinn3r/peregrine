@@ -143,15 +143,16 @@ public class Status {
 
     public void doBatchOverviewHeaders() {
 
-        curses.mvaddstr( y_pos++, 4, String.format( "%-40s %-20s %-10s %-8s %-8s %-15s %s", "name", "identifier", "state", "nr jobs", "start", "end", "cause") );
-        curses.mvaddstr( y_pos++, 4, String.format( "%-40s %-20s %-10s %-8s %-8s %-15s %s", "----", "----------", "-----", "-------", "-----", "---", "-----" ) );
+        curses.mvaddstr( y_pos++, 4, String.format( "%-40s %-20s %-10s %-8s %-8s %-12s %-15s %s", "name", "identifier", "state", "nr jobs", "start", "end", "duration", "cause") );
+        curses.mvaddstr( y_pos++, 4, String.format( "%-40s %-20s %-10s %-8s %-8s %-12s %-15s %s", "----", "----------", "-----", "-------", "-----", "---", "--------", "-----" ) );
         
     }
     
     public void doBatchOverview( Batch batch ) {
-        curses.mvaddstr( y_pos++, 4, String.format( "%-40s %-20s %-10s %-8s %-8s %-15s %s",
+        curses.mvaddstr( y_pos++, 4, String.format( "%-40s %-20s %-10s %-8s %-8s %-12s %-15s %s",
                                                     batch.getName(), batch.getIdentifier(), batch.getState(),
                                                     batch.getJobs().size(), batch.getStart(), batch.getEnd(),
+                                                    getDuration( batch.getDuration() ),
                                                     getFirstLine( batch.getCause(), "" ) ) );
     }
 
