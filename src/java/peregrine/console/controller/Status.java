@@ -138,15 +138,16 @@ public class Status {
 
     public void doBatchOverviewHeaders() {
 
-        curses.mvaddstr( y_pos++, 4, String.format( "%-40s %-20s %-10s %-8s %-8s %-8s", "name", "identifier", "state", "nr jobs", "start", "end") );
-        curses.mvaddstr( y_pos++, 4, String.format( "%-40s %-20s %-10s %-8s %-8s %-8s", "----", "----------", "-----", "-------", "-----", "---" ) );
+        curses.mvaddstr( y_pos++, 4, String.format( "%-40s %-20s %-10s %-8s %-8s %-8s %s", "name", "identifier", "state", "nr jobs", "start", "end", "cause") );
+        curses.mvaddstr( y_pos++, 4, String.format( "%-40s %-20s %-10s %-8s %-8s %-8s %s", "----", "----------", "-----", "-------", "-----", "---", "-----" ) );
         
     }
     
     public void doBatchOverview( Batch batch ) {
-        curses.mvaddstr( y_pos++, 4, String.format( "%-40s %-20s %-10s %-8s %-8s %-8s",
+        curses.mvaddstr( y_pos++, 4, String.format( "%-40s %-20s %-10s %-8s %-8s %-8s %s",
                                                     batch.getName(), batch.getIdentifier(), batch.getState(),
-                                                    batch.getJobs().size(), batch.getStart(), batch.getEnd() ) );
+                                                    batch.getJobs().size(), batch.getStart(), batch.getEnd(),
+                                                    getFirstLine( batch.getCause(), "" ) ) );
     }
 
     public void doHistory() {
@@ -162,6 +163,7 @@ public class Status {
             doBatchOverview( batch );
         }
 
+        /*
         if ( response.getHistory().size() > 0 ) {
 
             Batch last = response.getHistory().get( 0 );
@@ -181,6 +183,8 @@ public class Status {
 
         }
 
+        */
+        
     }
 
     private String getFirstLine( String data, String _default ) {
@@ -199,8 +203,8 @@ public class Status {
     
     public void doJobsHeaders() {
 
-        curses.mvaddstr( y_pos++, 4, String.format( "%-20s %-15s %-10s %-20s %s", "name", "state", "operation", "delegate", "cause" ) );
-        curses.mvaddstr( y_pos++, 4, String.format( "%-20s %-15s %-10s %-20s %s", "----", "-----", "---------", "--------", "-----" ) );
+        curses.mvaddstr( y_pos++, 4, String.format( "%-20s %-15s %-10s %s", "name", "state", "operation", "delegate" ) );
+        curses.mvaddstr( y_pos++, 4, String.format( "%-20s %-15s %-10s %s", "----", "-----", "---------", "--------" ) );
 
     }
     
@@ -208,12 +212,11 @@ public class Status {
 
         for ( Job job : batch.getJobs() ) {
 
-            String formatted = String.format( "%-20s %-15s %-10s %-20s %s",
+            String formatted = String.format( "%-20s %-15s %-10s %s",
                                               job.getName(),
                                               job.getState(),
                                               job.getOperation(),
-                                              job.getDelegate().getName(),
-                                              getFirstLine( job.getCause(), "" ) );
+                                              job.getDelegate().getName() );
 
             curses.mvaddstr( y_pos++, 4, String.format( "%s" , formatted ) );
 
