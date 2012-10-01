@@ -188,7 +188,7 @@ public class Status {
         if ( Strings.empty( data ) )
             return _default;
         
-        String[] split = data.split( "\n" );
+        String[] split = data.trim().split( "\n" );
 
         if ( split.length == 0 )
             return _default;
