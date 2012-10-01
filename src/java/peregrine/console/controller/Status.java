@@ -445,7 +445,7 @@ public class Status {
                         mode = Mode.HISTORY;
                         break;
 
-                    case '1':
+                    case 'q':
                         System.exit( 0 );
                         
                     default:
