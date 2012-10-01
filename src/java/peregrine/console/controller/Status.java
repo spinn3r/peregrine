@@ -155,18 +155,34 @@ public class Status {
                                                     getFirstLine( batch.getCause(), "" ) ) );
     }
 
+    public void doBatches( List<Batch> batches ) {
+
+        doBatchOverviewHeaders();
+
+        // cap the number of entries here.  
+        for( Batch batch : batches ) {
+            doBatchOverview( batch );
+        }
+
+    }
+
+    public void doPending() {
+
+        curses.mvaddstr( y_pos++, 0, "Pending:" );
+
+        ++y_pos;
+
+        doBatches( response.getPending() );
+
+    }
+
     public void doHistory() {
 
         curses.mvaddstr( y_pos++, 0, "History:" );
 
         ++y_pos;
-        
-        doBatchOverviewHeaders();
 
-        // cap the number of entries here.  
-        for( Batch batch : response.getHistory() ) {
-            doBatchOverview( batch );
-        }
+        doBatches( response.getHistory() );
 
         /*
         if ( response.getHistory().size() > 0 ) {
@@ -371,6 +387,10 @@ public class Status {
         doExecuting();
     }
 
+    public void doModePending() {
+        doPending();
+    }
+
     public void doModeHistory() {
         doHistory();
     }
@@ -435,6 +455,8 @@ public class Status {
                     doModeAuto();
                 } else if ( mode.equals( Mode.HISTORY ) ) {
                     doModeHistory();
+                } else if ( mode.equals( Mode.PENDING ) ) {
+                    doModePending();
                 } else if ( mode.equals( Mode.EXECUTING ) ) {
                     doModeExecuting();
                 } 
@@ -443,7 +465,7 @@ public class Status {
 
                 // write one more line so the cursur is in a sane place.
                 ++y_pos;
-                curses.mvaddstr( y_pos++, 0, String.format( "Mode: %s (h=history, x=executing, a=automatic q=quit)", mode ) );
+                curses.mvaddstr( y_pos++, 0, String.format( "Mode: %s (h=history, x=executing, a=automatic, p=pending q=quit)", mode ) );
                 curses.mvaddstr( y_pos++, 0, "" );
                 curses.refresh();
 
@@ -461,6 +483,10 @@ public class Status {
 
                     case 'h':
                         mode = Mode.HISTORY;
+                        break;
+
+                    case 'p':
+                        mode = Mode.PENDING;
                         break;
 
                     case 'q':
@@ -510,5 +536,5 @@ public class Status {
 }
 
 enum Mode {
-    AUTO, EXECUTING, HISTORY;
+    AUTO, EXECUTING, HISTORY, PENDING;
 }

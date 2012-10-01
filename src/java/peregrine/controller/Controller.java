@@ -249,7 +249,10 @@ public class Controller {
 
         try {
 
-            batch.setState( JobState.EXECUTING );
+            batch.setState( JobState.EXECUTING )
+                 .setStarted( System.currentTimeMillis() )
+                ;
+            
             setExecuting( batch );
 
             batch.assertExecutionViability();
@@ -280,6 +283,8 @@ public class Controller {
             
         } finally {
 
+            batch.setDuration( System.currentTimeMillis() - batch.getStarted() );
+
             // TODO: we should swap in executing and the history in one atomic
             // operation because technically it would be possible to do a read
             // and see that there is NO currently executing job and it isn't in
@@ -301,7 +306,8 @@ public class Controller {
         try {
 
             job.setState( JobState.EXECUTING );
-
+            job.setStarted( System.currentTimeMillis() );
+            
             if ( job.getOperation().equals( JobOperation.REDUCE ) ) {
 
                 if ( job.getInput() == null || job.getInput().getReferences().size() < 1 ) {
@@ -348,6 +354,9 @@ public class Controller {
                ;
 
             throw e;
+            
+        } finally {
+            job.setDuration( System.currentTimeMillis() - job.getStarted() );
         }
         
     }
