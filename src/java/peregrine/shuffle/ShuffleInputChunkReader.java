@@ -73,8 +73,6 @@ public class ShuffleInputChunkReader implements ChunkReader {
     private int value_offset;
     private int value_length;
 
-    private VarintReader varintReader;
-
     private boolean closed = false;
 
     /**
@@ -138,12 +136,12 @@ public class ShuffleInputChunkReader implements ChunkReader {
 
             if ( pack != null && pack.data.readerIndex() < pack.data.capacity() - 1 ) {
                 
-                this.key_length     = varintReader.read();
+                this.key_length     = VarintReader.read( pack.data );
                 this.keyOffset      = pack.data.readerIndex();
 
                 pack.data.readerIndex( pack.data.readerIndex() + key_length );
                 
-                this.value_length   = varintReader.read();
+                this.value_length   = VarintReader.read( pack.data );
                 this.value_offset   = pack.data.readerIndex();
 
                 pack.data.readerIndex( pack.data.readerIndex() + value_length ); 
@@ -186,7 +184,6 @@ public class ShuffleInputChunkReader implements ChunkReader {
             
             pack = queue.take();
             
-            varintReader  = new VarintReader( pack.data );
             pack.data.readerIndex( 0 );
 
             packet_idx.next();

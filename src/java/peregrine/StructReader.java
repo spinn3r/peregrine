@@ -20,6 +20,7 @@ import java.nio.*;
 import org.jboss.netty.buffer.*;
 
 import peregrine.util.*;
+import peregrine.util.netty.*;
 import peregrine.util.primitive.*;
 import peregrine.os.*;
 
@@ -50,9 +51,7 @@ import peregrine.os.*;
  * @see StructWriter
  * @see StructReaders
  */
-public class StructReader {
-
-    private VarintReader varintReader;
+public class StructReader implements ByteReadable {
 
     protected ChannelBuffer buff;
     
@@ -70,11 +69,14 @@ public class StructReader {
     
     public StructReader( ChannelBuffer buff ) {
     	this.buff = buff;
-        this.varintReader = new VarintReader( buff );
+    }
+
+    @Override
+    public byte read() {
+        return buff.readByte();
     }
 
     public byte readByte() {
-
         return buff.readByte();
     }
 
@@ -85,7 +87,7 @@ public class StructReader {
 
     public int readVarint() {
 
-        return varintReader.read();
+        return VarintReader.read( this );
     }
 
     public int readInt() {

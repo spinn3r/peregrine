@@ -47,7 +47,11 @@ public class Batch extends BaseJob<Batch> {
     public Batch( Class clazz ) {
         this( clazz.getName() );
     }
-    
+
+    public Batch( Job job ) {
+        this( job.getName() );
+    }
+
     public Batch( String name ) {
         this.name = name;
         init( this );
@@ -74,7 +78,11 @@ public class Batch extends BaseJob<Batch> {
     }
 
     public Batch map( Job job ) {
+
+        useDefaultName( job );
+
         add( job.setOperation( JobOperation.MAP ) );
+
         return this;
     }
 
@@ -104,7 +112,11 @@ public class Batch extends BaseJob<Batch> {
     }
 
     public Batch merge( Job job ) {
+
+        useDefaultName( job );
+
         add( job.setOperation( JobOperation.MERGE ) );
+
         return this;
     }
 
@@ -119,7 +131,11 @@ public class Batch extends BaseJob<Batch> {
     }
 
     public Batch reduce( Job job ) {
+
+        useDefaultName( job );
+
         add( job.setOperation( JobOperation.REDUCE ) );
+
         return this;
     }
 
@@ -182,6 +198,13 @@ public class Batch extends BaseJob<Batch> {
 
     }
 
+    private void useDefaultName( Job job ) {
+
+        if ( Strings.empty( job.getName() ) )
+            job.setName( job.getDelegate().getName() );
+
+    }
+    
     // **** basic / primitive operations
     
     public void add( Job job ) {

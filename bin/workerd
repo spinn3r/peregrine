@@ -11,7 +11,7 @@ export YIELD_TO_EXISTING_DAEMON=true
 #
 # file: write to .err and .out files.
 
-export OUTPUT=none
+export OUTPUT=file
 export JMX_PORT_OFFSET=1000
 
 start() {
@@ -72,7 +72,7 @@ start() {
 
     echo "Running with max JVM memory $MAX_MEMORY and max direct memory $MAX_DIRECT_MEMORY and writing output to '$OUTPUT'"
 
-    export PROFILER_ENABLED_OSX=true
+    #export PROFILER_ENABLED_OSX=true
     ./bin/jexec peregrine.worker.Main $args < /dev/null > $stdout 2> $stderr &
 
     pid=$!

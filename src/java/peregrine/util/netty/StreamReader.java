@@ -32,7 +32,7 @@ import java.util.*;
  * This is primarily used by a DefaultChunkReader so that all operations that it
  * needs to function can be easily provided (AKA CRC32 and prefetch/mlock).
  */
-public class StreamReader {
+public class StreamReader implements ByteReadable {
 
     /**
      * Maximum readLine length to prevent out of memory errors.
@@ -58,6 +58,7 @@ public class StreamReader {
     /**
      * Read a single byte from the stream.
      */
+    @Override
     public byte read() {
         fireOnRead(1);
         return buff.readByte();

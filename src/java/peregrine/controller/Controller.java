@@ -138,14 +138,14 @@ public class Controller {
     public void map( Class mapper,
                      String... paths ) throws Exception {
 
-        exec( new Batch().map( mapper, paths ) );
+        exec( new Batch( mapper ).map( mapper, paths ) );
 
     }
 
     public void map( Class mapper,
                      Input input ) throws Exception {
 
-        exec( new Batch().map( mapper, input ) );
+        exec( new Batch( mapper ).map( mapper, input ) );
 
     }
     
@@ -153,7 +153,7 @@ public class Controller {
     		 		 Input input,
     				 Output output ) throws Exception {
 
-        exec( new Batch().map( delegate, input, output ) );
+        exec( new Batch( delegate ).map( delegate, input, output ) );
 
     }
     
@@ -161,7 +161,7 @@ public class Controller {
      * Run map jobs on all chunks on the given path.
      */
     public void map( Job job ) throws Exception {
-        exec( new Batch().map( job ) );
+        exec( new Batch( job ).map( job ) );
     }
     
     public void merge( Class mapper,
@@ -182,7 +182,7 @@ public class Controller {
                        Input input,
                        Output output ) throws Exception {
 
-        exec( new Batch().merge( delegate, input, output ) );
+        exec( new Batch( delegate ).merge( delegate, input, output ) );
 
     }
 
@@ -197,30 +197,30 @@ public class Controller {
      * tables)
      */
     public void merge( Job job ) throws Exception {
-        exec( new Batch().merge( job ) );
+        exec( new Batch( job ).merge( job ) );
     }
   
     public void reduce( Class delegate,
     				    Input input,
     				    Output output ) throws Exception {
 
-        exec( new Batch().reduce( delegate, input, output ) );
+        exec( new Batch(delegate ).reduce( delegate, input, output ) );
 
     }
 
     public void touch( String output ) throws Exception {
-        exec( new Batch().touch( output ) );
+        exec( new Batch( output ).touch( output ) );
     }
     
     public void sort( String input, String output, Class comparator ) throws Exception {
-        exec( new Batch().sort( input, output, comparator ) );
+        exec( new Batch( output ).sort( input, output, comparator ) );
     }
 
     /**
      * Perform a reduce over the previous shuffle data (or broadcast data).
      */
     public void reduce( Job job ) throws Exception {
-        exec( new Batch().reduce( job ) );
+        exec( new Batch( job ).reduce( job ) );
     }
 
     /**

@@ -48,8 +48,6 @@ public class DefaultChunkReader implements SequenceReader, ChunkReader, Closeabl
 
     private StreamReader reader = null;
 
-    private VarintReader varintReader;;
-
     /**
      * Length in bytes of the input.
      */
@@ -126,7 +124,6 @@ public class DefaultChunkReader implements SequenceReader, ChunkReader, Closeabl
 
     	this.buffer = buff;
         this.reader = reader;
-        this.varintReader = new VarintReader( reader );
         this.length = buff.writerIndex();
 
         if ( readSize ) {
@@ -230,7 +227,7 @@ public class DefaultChunkReader implements SequenceReader, ChunkReader, Closeabl
 
         try {
 
-            int len = varintReader.read();
+            int len = VarintReader.read( reader );
             
             return reader.read( len );
             
