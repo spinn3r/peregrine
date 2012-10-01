@@ -221,11 +221,20 @@ public class Status {
         return split[0];
         
     }
+
+    private String getDuration( long duration ) {
+
+        if ( duration <= 0 )
+            return "";
+
+        return new Duration( duration ).toString();
+        
+    }
     
     public void doJobsHeaders() {
 
-        curses.mvaddstr( y_pos++, 4, String.format( "%-20s %-15s %-10s %s", "name", "state", "operation", "delegate" ) );
-        curses.mvaddstr( y_pos++, 4, String.format( "%-20s %-15s %-10s %s", "----", "-----", "---------", "--------" ) );
+        curses.mvaddstr( y_pos++, 4, String.format( "%-20s %-15s %-10s %-12s %s", "name", "state", "operation", "duration", "delegate" ) );
+        curses.mvaddstr( y_pos++, 4, String.format( "%-20s %-15s %-10s %-12s %s", "----", "-----", "---------", "--------", "--------" ) );
 
     }
     
@@ -233,10 +242,11 @@ public class Status {
 
         for ( Job job : batch.getJobs() ) {
 
-            String formatted = String.format( "%-20s %-15s %-10s %s",
+            String formatted = String.format( "%-20s %-15s %-10s %-12s %s",
                                               job.getName(),
                                               job.getState(),
                                               job.getOperation(),
+                                              getDuration( job.getDuration() ),
                                               job.getDelegate().getName() );
 
             curses.mvaddstr( y_pos++, 4, String.format( "%s" , formatted ) );

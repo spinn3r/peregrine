@@ -198,13 +198,10 @@ public class Job extends BaseJob<Job> {
     @Override
     public Message toMessage() {
 
-        Message message = new Message();
+        Message message = super.toMessage();
 
         message.put( "class",         getClass().getName() );
         message.put( "timestamp",     timestamp );
-        message.put( "identifier",    identifier );
-        message.put( "name",          name );
-        message.put( "description",   description );
         message.put( "delegate",      delegate );
         message.put( "combiner",      combiner );
         message.put( "input",         input.getReferences() );
@@ -213,9 +210,7 @@ public class Job extends BaseJob<Job> {
         message.put( "maxChunks",     maxChunks );
         message.put( "comparator",    comparator );
         message.put( "parameters",    parameters );
-        message.put( "state",         state );
         message.put( "operation",     operation );
-        message.put( "cause",         cause );
 
         return message;
         
@@ -224,10 +219,9 @@ public class Job extends BaseJob<Job> {
     @Override
     public void fromMessage( Message message ) {
 
+        super.fromMessage( message );
+
         timestamp     = message.getLong( "timestamp" );
-        identifier    = message.getLong( "identifier" );
-        name          = message.getString( "name" );
-        description   = message.getString( "description" );
         delegate      = message.getClass( "delegate" );
         combiner      = message.getClass( "combiner" );
         input         = new Input( message.getList( "input" ) );
@@ -236,9 +230,7 @@ public class Job extends BaseJob<Job> {
         maxChunks     = message.getInt( "maxChunks" );
         comparator    = message.getClass( "comparator" );
         parameters    = new Message( message.getString( "parameters" ) );
-        state         = message.getString( "state" );
         operation     = message.getString( "operation" );
-        cause         = message.getString( "cause" );
         
     }
     
