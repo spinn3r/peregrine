@@ -15,6 +15,7 @@
 */
 package peregrine;
 
+import java.util.*;
 import java.util.concurrent.atomic.*;
 
 import peregrine.config.partitioner.*;
@@ -164,6 +165,16 @@ public class Job extends BaseJob<Job> {
 
     public Message getParameters() {
         return parameters;
+    }
+
+    public Job setParameters( String... args ) {
+        setParameters( new Message( args ) );
+        return this;
+    }
+    
+    public Job setParameters( Map parameters ) {
+        setParameters( new Message( parameters ) );
+        return this;
     }
 
     public Job setParameters( Message parameters ) {

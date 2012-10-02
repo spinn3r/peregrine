@@ -236,4 +236,16 @@ public class StructReaders {
         
     }
 
+    public static List<StructReader> split( StructReader reader, int length ) {
+
+        List<StructReader> result = new ArrayList( reader.length() / length );
+        
+        while ( reader.isReadable() ) {
+            result.add( reader.readSlice( length ) );
+        }
+
+        return result;
+        
+    }
+    
 }

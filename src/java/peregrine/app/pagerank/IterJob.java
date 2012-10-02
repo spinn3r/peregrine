@@ -56,7 +56,7 @@ public class IterJob {
             
             nr_nodes = nrNodesBroadcastInput.getValue().readInt();
 
-            System.out.printf( "Working with nr_nodes: %,d\n", nr_nodes );
+            log.info( "Working with nr_nodes: %,d", nr_nodes );
             
         }
 
@@ -98,6 +98,7 @@ public class IterJob {
 
                 double grant = rank / (double)outdegree;
 
+                // TODO: migrate this to split() 
                 while ( outbound.isReadable() ) {
 
                     StructReader target = outbound.readSlice( Hashcode.HASH_WIDTH );
