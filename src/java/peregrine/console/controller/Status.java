@@ -225,8 +225,11 @@ public class Status {
 
     private String getDuration( long started, long duration ) {
 
-        if ( duration <= 0 )
+        if ( duration == 0 && started != 0 )
             duration = System.currentTimeMillis() - started;
+        
+        if ( duration <= 0 )
+            return "";
 
         return new Duration( duration ).toString();
         
