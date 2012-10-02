@@ -50,11 +50,11 @@ public class FlowIterJob {
                 emit( target, StructReaders.wrap( true ) );
             }
 
-            @Override
-            public void close() throws IOException {
-                log.info( "Found %,d hits", hits );
-            }
+        }
 
+        @Override
+        public void close() throws IOException {
+            log.info( "Found %,d hits", hits );
         }
 
     }
