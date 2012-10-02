@@ -57,6 +57,7 @@ public class JobState {
 
     /**
      * The job was killed.
+     - 
      */
     public static String KILLED = "killed";
 
