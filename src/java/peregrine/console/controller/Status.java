@@ -152,7 +152,7 @@ public class Status {
         curses.mvaddstr( y_pos++, 4, String.format( "%-40s %-20s %-10s %-8s %-8s %-12s %-15s %s",
                                                     batch.getName(), batch.getIdentifier(), batch.getState(),
                                                     batch.getJobs().size(), batch.getStart(), batch.getEnd(),
-                                                    getDuration( batch.getDuration() ),
+                                                    getDuration( batch.getStarted(), batch.getDuration() ),
                                                     getFirstLine( batch.getCause(), "" ) ) );
     }
 
@@ -223,10 +223,10 @@ public class Status {
         
     }
 
-    private String getDuration( long duration ) {
+    private String getDuration( long started, long duration ) {
 
         if ( duration <= 0 )
-            return "";
+            duration = System.currentTimeMillis() - started;
 
         return new Duration( duration ).toString();
         
@@ -247,7 +247,7 @@ public class Status {
                                               job.getName(),
                                               job.getState(),
                                               job.getOperation(),
-                                              getDuration( job.getDuration() ),
+                                              getDuration( job.getStarted(), job.getDuration() ),
                                               job.getDelegate().getName() );
 
             curses.mvaddstr( y_pos++, 4, String.format( "%s" , formatted ) );
