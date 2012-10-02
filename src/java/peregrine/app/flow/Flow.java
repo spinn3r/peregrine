@@ -62,17 +62,27 @@ public class Flow extends Batch {
         Job job = new Job();
 
         map( new Job().setDelegate( FlowInitJob.Map.class )
-                      .setInput( new Input( graph ) )
+                      .setInput( graph )
                       .setOutput( new Output( "shuffle:default" ) )
                       .setParameters( "sources", sources ) ) ;
         
-        job = new Job();
-        job.setDelegate( FlowInitJob.Reduce.class );
-        
+        reduce( new Job().setDelegate( FlowInitJob.Reduce.class )
+                         .setInput( "shuffle:default" )
+                         .setOutput( "/flow/out" ) );
+
         for( int i = 0; i < iterations; ++i ) {
 
+            // now merge against the output and the graph
+            merge( new Job().setDelegate( FlowIterJob.Merge.class )
+                            .setInput( "/flow/out", graph )
+                            .setOutput( new Output( "shuffle:default" ) ) );
+
+            reduce( new Job().setDelegate( FlowIterJob.Reduce.class )
+                             .setInput( new Input(  "shuffle:default" ) )
+                             .setOutput( new Output( "/flow/out" ) ) );
+            
         }
-        
+
     }
 
 }

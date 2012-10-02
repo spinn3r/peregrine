@@ -90,6 +90,11 @@ public class Job extends BaseJob<Job> {
 	public Input getInput() {
 		return input;
 	}
+
+    public Job setInput( String... args ) {
+        return setInput( new Input( args ) );
+    }
+    
 	public Job setInput(Input input) {
 		this.input = input;
 		return this;
@@ -97,6 +102,11 @@ public class Job extends BaseJob<Job> {
 	public Output getOutput() {
 		return output;
 	}
+
+	public Job setOutput(String... args) {
+        return setOutput( new Output( args ) );
+    }
+        
 	public Job setOutput(Output output) {
 		this.output = output;
 		return this;
