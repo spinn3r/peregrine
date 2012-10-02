@@ -42,6 +42,8 @@ public class CorpusExtractJob {
 
         // total number of nodes written.
         private int written = 0;
+
+        private boolean caseInsensitive = false;
         
         @Override
         public void init( Job job, List<JobOutput> output ) {
@@ -51,6 +53,10 @@ public class CorpusExtractJob {
             nodeOutput = output.get( 0 );
             linkOutput = output.get( 1 );
 
+            caseInsensitive = "true".equals( job.getParameters().getString( "caseInsensitive" ) );
+
+            log.info( "Using case insensitive graph: %s", caseInsensitive );
+            
             ChunkStreamListener nodeOutputListener = (ChunkStreamListener)nodeOutput;
             ChunkStreamListener linkOutputListener = (ChunkStreamListener)linkOutput;
 
@@ -105,7 +111,21 @@ public class CorpusExtractJob {
 
             if ( targets.size() == 0 )
                 return;
-            
+
+            if ( caseInsensitive ) {
+
+                source = source.toLowerCase();
+
+                List<String> tmp = new ArrayList( targets.size() );
+
+                for( String target : targets ) {
+                    tmp.add( target.toLowerCase() );
+                }
+
+                targets = tmp;
+
+            }
+
             emitNode( source );
 
             for( String target : targets ) {
@@ -120,7 +140,7 @@ public class CorpusExtractJob {
 
         private void emitNode( String name ) throws Exception {
 
-            StructReader key = StructReaders.hashcode( name);
+            StructReader key = StructReaders.hashcode( name );
             StructReader value = StructReaders.wrap( name );
 
             nodeOutput.emit( key, value );

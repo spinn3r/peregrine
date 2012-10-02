@@ -32,6 +32,8 @@ public class FlowInitJob {
     public static class Map extends Mapper {
 
         Set<StructReader> nodes = new HashSet();
+
+        private int hits = 0;
         
         @Override
         public void init( Job job, List<JobOutput> output ) {
@@ -64,9 +66,16 @@ public class FlowInitJob {
             for( StructReader target : outbound ) {
                 emit( target, StructReaders.wrap( true ) );
             }
+
+            ++hits;
             
         }
 
+        @Override
+        public void close() throws IOException {
+            log.info( "Found %,d hits", hits );
+        }
+        
     }
 
     public static class Reduce extends Reducer {

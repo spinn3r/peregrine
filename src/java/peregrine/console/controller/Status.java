@@ -306,35 +306,43 @@ public class Status {
 
         ++y_pos;
 
-        Job executingJob = batch.getExecutingJob();
+        Job job = batch.getExecutingJob();
 
         doJobsHeaders();
         doJobs( batch );
 
-        if ( executingJob != null ) {
+        if ( job != null ) {
 
             ++y_pos;
 
-            curses.mvaddstr( y_pos++, 0, String.format( "Currently executing job '%s':", executingJob.getName() ) );
+            curses.mvaddstr( y_pos++, 0, String.format( "Currently executing job '%s':", job.getName() ) );
 
             ++y_pos;
 
-            curses.mvaddstr( y_pos++, 4, String.format( "Operation: %s", executingJob.getOperation() ) );
-            curses.mvaddstr( y_pos++, 4, String.format( "Delegate:  %s", executingJob.getDelegate().getName() ) );
+            curses.mvaddstr( y_pos++, 4, String.format( "Operation: %s", job.getOperation() ) );
+            curses.mvaddstr( y_pos++, 4, String.format( "Delegate:  %s", job.getDelegate().getName() ) );
 
             curses.mvaddstr( y_pos++, 4, String.format( "Input:" ) );
 
-            for( InputReference inputRef : executingJob.getInput().getReferences() ) {
+            for( InputReference inputRef : job.getInput().getReferences() ) {
                 curses.mvaddstr( y_pos++, 8, String.format( "%s", inputRef ) );
             }
 
             curses.mvaddstr( y_pos++, 4, String.format( "Output:" ) );
 
-            for( OutputReference outputRef : executingJob.getOutput().getReferences() ) {
+            for( OutputReference outputRef : job.getOutput().getReferences() ) {
                 curses.mvaddstr( y_pos++, 8, String.format( "%s", outputRef ) );
             }
+
+            curses.mvaddstr( y_pos++, 4, String.format( "Parameters:" ) );
+
+            for( String key : job.getParameters().getKeys() ) {
+
+                curses.mvaddstr( y_pos++, 8, String.format( "%10s = %s", key, job.getParameters().getString( key ) ) );
+
+            }
             
-            //TODO parameters, cause, comparator, maxChunks, partitioner, combiner, 
+            //TODO cause, comparator, maxChunks, partitioner, combiner, 
             
         }
 
