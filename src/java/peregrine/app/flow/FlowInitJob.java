@@ -38,13 +38,13 @@ public class FlowInitJob {
 
             super.init( job, output );
 
-            if ( ! job.getParameters().containsKey( "sources" ) ) {
+            String sources = job.getParameters().getString( "sources" );
+            
+            if ( sources == null ) {
                 throw new RuntimeException( "No sources specified" );
             }
 
-            String[] sources = job.getParameters().getString( "source" ).split( ":" );
-
-            for( String source : sources ) {
+            for( String source : sources.split( ":" ) ) {
                 nodes.add( StructReaders.hashcode( source ) );
             }
 
