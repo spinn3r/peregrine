@@ -18,7 +18,6 @@ package peregrine.app.flow;
 import java.io.*;
 
 import peregrine.*;
-import peregrine.config.Config;
 import peregrine.controller.*;
 import peregrine.io.*;
 
@@ -41,8 +40,6 @@ public class Flow extends Batch {
     
     private static final Logger log = Logger.getLogger();
 
-    private Config config;
-
     /**
      */
     private String graph = null;
@@ -52,9 +49,8 @@ public class Flow extends Batch {
      */
     private int iterations = 5;
 
-    public Flow( Config config, String input, String output, String sources, int iterations ) {
+    public Flow( String input, String output, String sources, int iterations ) {
 
-        this.config = config;
         this.iterations = iterations;
         
         setName( Flow.class.getName() );

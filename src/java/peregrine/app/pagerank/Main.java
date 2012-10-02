@@ -16,6 +16,7 @@
 package peregrine.app.pagerank;
 
 import peregrine.*;
+import peregrine.app.flow.*;
 import peregrine.app.pagerank.extract.*;
 import peregrine.config.*;
 import peregrine.controller.*;
@@ -68,6 +69,17 @@ public class Main {
         if ( getopt.containsKey( "flow" ) ) {
            
             getopt.require( "flow", "sources" );
+
+            String sources  = getopt.getString( "sources" );
+            int iterations = getopt.getInt( "iterations", 5 );
+
+            String output = "/pr/graph.flowed";
+            
+            Flow flow = new Flow( graph, output, sources, iterations );
+            batch.add( flow );
+
+            // we need to use the flowed graph as the input for pagerank now
+            graph = output;
             
         }
         

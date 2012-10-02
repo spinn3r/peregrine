@@ -42,7 +42,7 @@ public class Main {
 
         int iterations = getopt.getInt( "iterations", 5 );
 
-        Flow flow = new Flow( config, input, output, sources, iterations );
+        Flow flow = new Flow( input, output, sources, iterations );
         flow.init( args );
         
         ControllerClient.submit( config, flow );

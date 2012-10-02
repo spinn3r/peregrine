@@ -66,7 +66,26 @@ public class Test {
 
     public static void main( String[] args ) throws Exception {
 
-        System.out.printf( "%s\n", NonceFactory.newNonce() );
+        ChannelBuffer buff = ChannelBuffers.wrappedBuffer( new byte[128] );
+
+        buff.writerIndex( 0 );
+        
+        VarintWriter.write( buff, Integer.MAX_VALUE );
+
+        long before = System.currentTimeMillis();
+
+        int max = 10000000;
+        
+        for( int i = 0; i < max; ++i ) {
+            buff.readerIndex( 0 );
+            int result = VarintReader.read( buff );
+        }
+
+        long after = System.currentTimeMillis();
+
+        System.out.printf( "duration: %,d\n", (after-before) );
+        
+        //System.out.printf( "%s\n", NonceFactory.newNonce() );
         
         // List<StructReader> list = new ArrayList();
         // List<Long> longs = new ArrayList();
