@@ -52,7 +52,7 @@ public class Flow extends Batch {
      */
     private int iterations = 5;
 
-    public Flow( Config config, String graph, String sources, int iterations ) {
+    public Flow( Config config, String input, String output, String sources, int iterations ) {
 
         this.config = config;
         this.iterations = iterations;
@@ -62,24 +62,24 @@ public class Flow extends Batch {
         Job job = new Job();
 
         map( new Job().setDelegate( FlowInitJob.Map.class )
-                      .setInput( graph )
+                      .setInput( input )
                       .setOutput( new Output( "shuffle:default" ) )
                       .setParameters( "sources", sources ) ) ;
         
         reduce( new Job().setDelegate( FlowInitJob.Reduce.class )
                          .setInput( "shuffle:default" )
-                         .setOutput( "/flow/out" ) );
+                         .setOutput( output ) );
 
         for( int i = 0; i < iterations; ++i ) {
 
-            // now merge against the output and the graph
+            // now merge against the output and the input
             merge( new Job().setDelegate( FlowIterJob.Merge.class )
-                            .setInput( "/flow/out", graph )
+                            .setInput( output, input )
                             .setOutput( new Output( "shuffle:default" ) ) );
 
             reduce( new Job().setDelegate( FlowIterJob.Reduce.class )
                              .setInput( new Input(  "shuffle:default" ) )
-                             .setOutput( new Output( "/flow/out" ) ) );
+                             .setOutput( new Output( output ) ) );
             
         }
 
