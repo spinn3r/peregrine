@@ -31,6 +31,8 @@ public class FlowIterJob {
 
     public static class Merge extends Merger {
 
+        private int hits = 0;
+        
         @Override
         public void merge( StructReader key, List<StructReader> values ) {
 
@@ -39,13 +41,20 @@ public class FlowIterJob {
 
             if ( left == null || right == null )
                 return;
+
+            ++hits;
             
             List<StructReader> outbound = StructReaders.split( right, Hashcode.HASH_WIDTH );
 
             for( StructReader target : outbound ) {
                 emit( target, StructReaders.wrap( true ) );
             }
-            
+
+            @Override
+            public void close() throws IOException {
+                log.info( "Found %,d hits", hits );
+            }
+
         }
 
     }
