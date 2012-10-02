@@ -37,13 +37,11 @@ public class Main {
 
         Batch batch = new Batch( Main.class );
 
-        Message parameters = new Message();
-        parameters.put( "path", path );
-        
         batch.map( new Job().setDelegate( CorpusExtractJob.Map.class ) 
                             .setInput( new Input( "blackhole:" ) )
                             .setOutput( new Output( "shuffle:nodes", "shuffle:links" ) )
-                            .setParameters( parameters ) );
+                            .setParameters( "path", path,
+                                            "caseInsensitive", getopt.getString( "caseInsensitive" ) ) );
        
         batch.reduce( UniqueNodeJob.Reduce.class,
                       new Input( "shuffle:nodes" ),
