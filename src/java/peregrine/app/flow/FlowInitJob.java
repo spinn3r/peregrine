@@ -42,7 +42,7 @@ public class FlowInitJob {
 
             String sources = job.getParameters().getString( "sources" );
             
-            if ( sources == null ) {
+            if ( Strings.empty( sources ) ) {
                 throw new RuntimeException( "No sources specified" );
             }
 

@@ -66,24 +66,30 @@ public class Test {
 
     public static void main( String[] args ) throws Exception {
 
-        ChannelBuffer buff = ChannelBuffers.wrappedBuffer( new byte[128] );
+        Set<StructReader> set = new HashSet();
 
-        buff.writerIndex( 0 );
+        set.add( StructReaders.hashcode( "asdf" ) );
         
-        VarintWriter.write( buff, Integer.MAX_VALUE );
-
-        long before = System.currentTimeMillis();
-
-        int max = 10000000;
+        System.out.printf( "%s\n", set.contains( StructReaders.hashcode( "asdf" ) ) );
         
-        for( int i = 0; i < max; ++i ) {
-            buff.readerIndex( 0 );
-            int result = VarintReader.read( buff );
-        }
+        // ChannelBuffer buff = ChannelBuffers.wrappedBuffer( new byte[128] );
 
-        long after = System.currentTimeMillis();
+        // buff.writerIndex( 0 );
+        
+        // VarintWriter.write( buff, Integer.MAX_VALUE );
 
-        System.out.printf( "duration: %,d\n", (after-before) );
+        // long before = System.currentTimeMillis();
+
+        // int max = 10000000;
+        
+        // for( int i = 0; i < max; ++i ) {
+        //     buff.readerIndex( 0 );
+        //     int result = VarintReader.read( buff );
+        // }
+
+        // long after = System.currentTimeMillis();
+
+        // System.out.printf( "duration: %,d\n", (after-before) );
         
         //System.out.printf( "%s\n", NonceFactory.newNonce() );
         
