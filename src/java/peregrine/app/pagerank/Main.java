@@ -15,6 +15,7 @@
 */
 package peregrine.app.pagerank;
 
+import peregrine.*;
 import peregrine.app.pagerank.extract.*;
 import peregrine.config.*;
 import peregrine.controller.*;
@@ -57,11 +58,24 @@ public class Main {
         } else {
             System.out.printf( "Using existing graph.\n" );
         }
+
+        Batch batch = new Batch( Main.class );
+
+        // TODO: see if we first need to run extract ... 
+
+        // TODO: see if we first need to run flow to prune disconnected graphs.
+
+        if ( getopt.containsKey( "flow" ) ) {
+           
+            getopt.require( "flow", "sources" );
+            
+        }
         
-        Pagerank pr = new Pagerank( config, graph, nodes_by_hashcode, null );
-        pr.init( args );
+        batch.add( new Pagerank( config, graph, nodes_by_hashcode, null ) );
+
+        batch.init( args );
         
-        ControllerClient.submit( config, pr );
+        ControllerClient.submit( config, batch );
         
     }
 

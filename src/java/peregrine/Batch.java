@@ -211,6 +211,21 @@ public class Batch extends BaseJob<Batch> {
         jobs.add( job );
     }
 
+    /**
+     * Add all jobs in the given batches to the current batch.
+     */
+    public void add( Batch... batches ) {
+
+        for( Batch batch : batches ) {
+            
+            for ( Job job : batch.getJobs() ) {
+                add( job );
+            }
+
+        }
+        
+    }
+
     public List<Job> getJobs() {
         return jobs;
     }

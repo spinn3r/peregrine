@@ -34,15 +34,15 @@ public class Main {
 
         Getopt getopt = new Getopt( args );
 
+        getopt.require( "input", "output", "sources" );
+        
         String input   = getopt.getString( "input" );
         String output  = getopt.getString( "output" ); 
+        String sources = getopt.getString( "sources" );
+
         int iterations = getopt.getInt( "iterations", 5 );
 
-        if ( input == null || output == null ) {
-            throw new RuntimeException( "Input and output arguments required." );
-        }
-        
-        Flow flow = new Flow( config, input, output, source, iterations );
+        Flow flow = new Flow( config, input, output, sources, iterations );
         flow.init( args );
         
         ControllerClient.submit( config, flow );

@@ -131,6 +131,21 @@ public class Getopt {
     public boolean containsKey( String key ) {
         return params.containsKey( key );
     }
+
+    /**
+     * Require all the given keys to be specified.
+     */
+    public void require( String... keys ) {
+
+        for( String key : keys ) {
+
+            if ( ! containsKey( key ) ) {
+                throw new RuntimeException( String.format( "Key %s not specified", key ) );
+            }
+            
+        }
+        
+    }
     
     public Map<String,String> getParams() {
         return params;

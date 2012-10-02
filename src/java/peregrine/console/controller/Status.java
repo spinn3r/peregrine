@@ -340,24 +340,6 @@ public class Status {
 
     }
 
-    public static void help() {
-
-        System.out.printf( "Controller command line status interface.\n" );
-        System.out.printf( "\n" );
-        System.out.printf( "Shows information about the current controller status.\n" );
-        System.out.printf( "\n" );
-        System.out.printf( "--executing    Show currently executing batches.\n" );
-        System.out.printf( "--history      Show historical batches.\n" );
-        System.out.printf( "--pending      Show pending batches.\n" );
-        System.out.printf( "\n" );
-        System.out.printf( "Both arguments accept a level argument for the amount of detail to report.\n" );
-        System.out.printf( "\n" );
-        System.out.printf( "  0:  Just basic stats.\n" );
-        System.out.printf( "  1:  Brief report on each job.\n" );
-        System.out.printf( "  2:  Full report on each job.\n" );
-
-    }
-
     /**
      * Read the status messgae from the controller and update global variables.
      */
@@ -484,8 +466,13 @@ public class Status {
                 curses.refresh();
 
                 y_pos = 0;
+
+                char read = (char)curses.getch();
+
+                if ( read > -1 )
+                    read = Character.toLowerCase( read );
                 
-                switch( (char)curses.getch() ) {
+                switch( read ) {
 
                     case 'a':
                         mode = Mode.AUTO;
