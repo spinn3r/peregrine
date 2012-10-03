@@ -33,27 +33,18 @@ public class Main {
 
         Getopt getopt = new Getopt( args );
 
-        String path = getopt.getString( "path" );
-
-        Batch batch = new Batch( Main.class );
-
-        batch.map( new Job().setDelegate( CorpusExtractJob.Map.class ) 
-                            .setInput( new Input( "blackhole:" ) )
-                            .setOutput( new Output( "shuffle:nodes", "shuffle:links" ) )
-                            .setParameters( "path", path,
-                                            "caseInsensitive", getopt.getString( "caseInsensitive" ) ) );
-       
-        batch.reduce( UniqueNodeJob.Reduce.class,
-                      new Input( "shuffle:nodes" ),
-                      new Output( "/pr/nodes_by_hashcode" ) );
-
-        batch.reduce( MergeGraphJob.Reduce.class,
-                      new Input( "shuffle:links" ),
-                      new Output( "/pr/graph" ) );
-
-        batch.init( args );
+        getopt.require( "path" );
         
-        ControllerClient.submit( config, batch );
+        String path               = getopt.getString( "path" );
+        String graph              = getopt.getString( "graph", "/pr/graph" );
+        String nodes_by_hashcode  = getopt.getString( "nodes_by_hashcode", "/pr/nodes_by_hashcode" );
+        boolean caseInsensitive   = getopt.getBoolean( "caseInsensitive" );
+
+        Extract extract = new Extract( path, graph, nodes_by_hashcode, caseInsensitive );
+
+        extract.init( args );
+        
+        ControllerClient.submit( config, extract );
 
     }
 

@@ -37,7 +37,7 @@ public class Main {
         Getopt getopt = new Getopt( args );
 
         String graph               = getopt.getString( "graph", "/pr/graph" );
-        String nodes_by_hashcode   = getopt.getString( "nodes_by_hashcode", "/pr/nodes_by_hashcode";
+        String nodes_by_hashcode   = getopt.getString( "nodes_by_hashcode", "/pr/nodes_by_hashcode" );
         String corpus              = getopt.getString( "corpus" );
 
         if ( "random".equals( corpus ) ) {
@@ -62,8 +62,12 @@ public class Main {
         Batch batch = new Batch( Main.class );
 
         // TODO: see if we first need to run extract ... 
+        
+        if ( getopt.getBoolean( "extract" ) ) {
 
-        // TODO: see if we first need to run flow to prune disconnected graphs.
+        }
+                                                       
+        // see if we first need to run flow to prune disconnected graphs.
 
         if ( getopt.containsKey( "flow" ) ) {
            

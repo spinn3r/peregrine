@@ -177,7 +177,7 @@ public class Job extends BaseJob<Job> {
         return parameters;
     }
 
-    public Job setParameters( String... args ) {
+    public Job setParameters( Object... args ) {
         setParameters( new Message( args ) );
         return this;
     }

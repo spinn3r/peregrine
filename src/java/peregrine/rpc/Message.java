@@ -44,9 +44,9 @@ public class Message extends StructMap implements MessageSerializable {
 
     }
 
-    public Message( String... args ) {
+    public Message( Object... args ) {
         for( int i = 0; i < args.length; ++i ) {
-            put( args[i], args[i + 1] );
+            put( args[i].toString(), args[i + 1].toString() );
             ++i;
         }
     }
