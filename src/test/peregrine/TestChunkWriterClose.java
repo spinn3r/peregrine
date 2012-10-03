@@ -54,28 +54,32 @@ public class TestChunkWriterClose extends peregrine.BaseTest {
 
         reader.close();
 
-        int count = 0;
+        // NOTE: I had to back out this code becuase there was a performance
+        // regression when constantly checking if the underlying map was open.
+        // If we get segfaults again we can re-enable this.
         
-        try {
+        // int count = 0;
         
-            for( int i = 0; i < keys.size(); ++i ) {
+        // try {
+        
+        //     for( int i = 0; i < keys.size(); ++i ) {
 
-                StructReader key = keys.get( i ) ;
-                StructReader value = values.get( i ) ;
+        //         StructReader key = keys.get( i ) ;
+        //         StructReader value = values.get( i ) ;
 
-                byte[] hashcode = key.readHashcode();
-                int v = value.readInt();
+        //         byte[] hashcode = key.readHashcode();
+        //         int v = value.readInt();
 
-                ++count;
+        //         ++count;
                 
-            }
+        //     }
 
-        } catch ( Exception e ) {
-            // this is correct behavior.
-        }
+        // } catch ( Exception e ) {
+        //     // this is correct behavior.
+        // }
 
-        if ( count > 0 )
-            throw new Exception( "Test failed.  count=" + count );
+        // if ( count > 0 )
+        //     throw new Exception( "Test failed.  count=" + count );
         
     }
 

@@ -84,13 +84,45 @@ public class curses {
     public static void main( String[] args ) throws Exception {
 
         init();
+
+        int x_pos = 0;
+        int y_pos = 0;
+
+        int x_delta = 1;
+        int y_delta = 1;
+
+        int i = 0;
         
         while( true ) {
 
-            int ch = getch();
+            ++i;
+            
+            clear();
+            erase();
 
-            System.out.printf( "ch: %s\n", ch );
+            refresh();
 
+            curses.mvaddstr( y_pos, x_pos, "*" );
+
+            refresh();
+
+            x_pos += x_delta;
+            y_pos += y_delta;
+
+            if ( x_pos <= 0 )
+                x_delta = 1;
+
+            if ( x_pos >= 40 )
+                x_delta = -1;
+
+            if ( y_pos <= 0 )
+                y_delta = 1;
+
+            if ( y_pos >= 40 )
+                y_delta = -1;
+
+            Thread.sleep( 100 );
+            
         }
 
     }
