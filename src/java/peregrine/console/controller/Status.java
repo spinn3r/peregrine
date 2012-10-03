@@ -337,9 +337,7 @@ public class Status {
             curses.mvaddstr( y_pos++, 4, String.format( "Parameters:" ) );
 
             for( String key : job.getParameters().getKeys() ) {
-
-                curses.mvaddstr( y_pos++, 8, String.format( "%10s = %s", key, job.getParameters().getString( key ) ) );
-
+                curses.mvaddstr( y_pos++, 8, String.format( "%-20s = %s", key, job.getParameters().getString( key ) ) );
             }
             
             //TODO cause, comparator, maxChunks, partitioner, combiner, 
