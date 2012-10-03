@@ -221,16 +221,16 @@ public class ReduceRunner implements Closeable {
             PrefetchReader prefetchReader = null;
 
             ChunkMerger merger = null;
-            
+
+            final DefaultPartitionWriter writer = newInterChunkWriter( path );
+
             try { 
 
                 SystemProfiler profiler = config.getSystemProfiler();
 
                 prefetchReader = createPrefetchReader( work );
 
-                merger = new ChunkMerger( task, null, partition, work, jobOutput, job.getComparatorInstance() );
-
-                final DefaultPartitionWriter writer = newInterChunkWriter( path );
+                merger = new ChunkMerger( task, null, partition, work, null, job.getComparatorInstance() );
 
                 // when the cache is exhausted we first have to flush it to disk.
                 prefetchReader.setListener( new PrefetchReaderListener() {
@@ -259,7 +259,7 @@ public class ReduceRunner implements Closeable {
                 log.info( "Merged with profiler rate: \n%s", profiler.rate() );
 
             } finally {
-                new Closer( prefetchReader, merger ).close();
+                new Closer( prefetchReader, merger, writer ).close();
             }
 
             // we should only do this AFTER we have closed out the merger and prefetchReader

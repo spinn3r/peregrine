@@ -157,7 +157,7 @@ public class ChunkMerger implements Closeable {
                 if ( entry == null )
                     break;
 
-                task.assertActiveJob();
+                task.assertActiveJob(); 
                 
                 sortResult.accept( new SortEntry( entry.key, StructReaders.unwrap( entry.value ) ) );
 
@@ -177,7 +177,8 @@ public class ChunkMerger implements Closeable {
 
             log.info( "Merged %,d entries for %s" , entries, partition );
 
-            new Flusher( output ).flush();
+            if( output != null )
+                new Flusher( output ).flush();
 
         } catch ( Throwable t ) {
             throw new IOException( "Unable to merge chunks: " + input, t );
@@ -186,7 +187,12 @@ public class ChunkMerger implements Closeable {
     }
 
     public void close() throws IOException {
-        new Closer( output ).close();
+
+        //TODO: these should use one closer.
+        if ( output != null ) {
+            new Closer( output ).close();
+        }
+
         new Closer( input ).close();
     }
 

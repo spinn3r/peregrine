@@ -420,7 +420,7 @@ public class Controller {
         // track of what is happening with teh cluster state.
         String operation = scheduler.getOperation();
 
-        String desc = String.format( "%s for delegate %s, named %s, with identifier %,d for input %s and output %s ",
+        String desc = String.format( "%s for delegate %s, named %s, with identifier %s for input %s and output %s ",
                                      operation,
                                      job.getDelegate().getName(),
                                      job.getName(),

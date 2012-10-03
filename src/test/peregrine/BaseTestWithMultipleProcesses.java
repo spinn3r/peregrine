@@ -57,6 +57,11 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
 
     protected List<Config> configs = new ArrayList();
 
+    /**
+     * Specify extra arguments to worker daemons.
+     */
+    protected List<String> extraWorkerArguments = new ArrayList();
+    
     private boolean readConfig() {
 
         String conf = System.getProperty( "peregrine.test.config", "1:1:1" );
@@ -82,7 +87,8 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
         return true;
         
     }
-    
+
+    @Override
     public void setUp() {
 
         System.out.printf( "setUp()\n" );
@@ -262,7 +268,7 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
 
     public List<String> getArguments( int port ) {
 
-        List<String> list = new ArrayList();
+        List<String> list = new ArrayList( extraWorkerArguments );
 
         String basedir = getBasedir( port );
 

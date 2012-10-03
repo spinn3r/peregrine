@@ -20,11 +20,15 @@ import java.io.*;
 import peregrine.*;
 import peregrine.io.*;
 
+import com.spinn3r.log5j.Logger;
+
 /**
  * JobOutput for writing directly to a partition on the FS either in a reduce or
  * map-only or merge-only job.
  */
 public class PartitionWriterJobOutput implements JobOutput {
+
+    private static final Logger log = Logger.getLogger();
 
     protected PartitionWriter writer;
     
@@ -44,7 +48,6 @@ public class PartitionWriterJobOutput implements JobOutput {
         }
         
     }
-
 
     @Override
     public void flush() throws IOException {
