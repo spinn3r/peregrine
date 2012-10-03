@@ -1,0 +1,12 @@
+#!/bin/sh
+
+# There will always be a workerd on port 11112 
+# 
+
+pid=$(pgrep -f '^java.*peregrine.worker.Main' | head -1)
+
+echo "Monitoring pid: $pid"
+
+ps $pid
+
+jstat -gcutil $pid 1000
