@@ -20,6 +20,10 @@ import java.io.*;
 import peregrine.*;
 import peregrine.io.*;
 
+/**
+ * JobOutput for writing directly to a partition on the FS either in a reduce or
+ * map-only or merge-only job.
+ */
 public class PartitionWriterJobOutput implements JobOutput {
 
     protected PartitionWriter writer;

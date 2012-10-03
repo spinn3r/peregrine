@@ -51,7 +51,7 @@ public class FileMapper extends IdempotentCloser implements Closeable {
      */
     public FileMapper( File file, FileDescriptor descriptor, long offset, long length ) throws IOException {
 
-    	log.info( "mapping %s with length %,d", file, length );
+    	log.debug( "mapping %s with length %,d", file, length );
 
         this.file = file;
     	this.descriptor = descriptor;
@@ -64,7 +64,7 @@ public class FileMapper extends IdempotentCloser implements Closeable {
 
         if ( lock ) {
             flags  = mman.MAP_SHARED | mman.MAP_LOCKED;
-            log.info( "mapping(+lock) %s with length %,d", file, length );
+            log.debug( "mapping(+lock) %s with length %,d", file, length );
         }
 
         pa = mman.mmap( length, prot, flags, fd, offset );
@@ -102,7 +102,7 @@ public class FileMapper extends IdempotentCloser implements Closeable {
     protected void doClose() throws IOException {
 
         if ( lock ) {
-            log.info( "munlocking %s to pa %s with length %,d", file, pa, length );
+            log.debug( "munlocking %s to pa %s with length %,d", file, pa, length );
             mman.munlock( pa, length );
         }
             
