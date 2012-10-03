@@ -96,7 +96,7 @@ public class ChunkSorter extends BaseChunkSorter {
             
             lookup = new KeyLookup( reader );
 
-            log.info( "Key lookup for %s has %,d entries." , partition, lookup.size() );
+            log.debug( "Key lookup for %s has %,d entries." , partition, lookup.size() );
 
             try {
                 sorted = sort( lookup );
@@ -125,7 +125,7 @@ public class ChunkSorter extends BaseChunkSorter {
 
             }
 
-            log.info( "Sort output file %s has %,d entries. (memory %s)", output, sorted.size(), DirectMemoryAllocationTracker.getInstance() );
+            log.debug( "Sort output file %s has %,d entries. (memory %s)", output, sorted.size(), DirectMemoryAllocationTracker.getInstance() );
 
         } catch ( Throwable t ) {
 

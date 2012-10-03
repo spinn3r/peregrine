@@ -316,7 +316,7 @@ public class ShuffleInputChunkReader implements ChunkReader {
             // get the top priority replicas to reduce over.
             List<Replica> replicas = config.getMembership().getReplicasByPriority( config.getHost() );
 
-            log.info( "Working with replicas %s for blocking queue on host %s", replicas, config.getHost() );
+            log.debug( "Working with replicas %s for blocking queue on host %s", replicas, config.getHost() );
             
             List<Partition> partitions = new ArrayList();
             
@@ -352,7 +352,7 @@ public class ShuffleInputChunkReader implements ChunkReader {
 
                 try {
                     
-                    log.info( "Reading from %s ...", path );
+                    log.debug( "Reading from %s ...", path );
 
                     int count = 0;
 
@@ -383,7 +383,7 @@ public class ShuffleInputChunkReader implements ChunkReader {
                         closedPartitonQueue.take();
                     }
 
-                    log.info( "Reading from %s ...done (read %,d packets as %s)", path, count, packetsReadPerPartition );
+                    log.debug( "Reading from %s ...done (read %,d packets as %s)", path, count, packetsReadPerPartition );
 
                 } finally {
                     
@@ -416,7 +416,7 @@ public class ShuffleInputChunkReader implements ChunkReader {
                 
             } finally {
 
-                log.info( "Leaving thread for %s", path );
+                log.debug( "Leaving thread for %s", path );
 
                 // remove thyself so that next time around there isn't a reference
                 // to this path and a new reader will be created.
