@@ -259,18 +259,11 @@ public class Status {
 
     }
 
-    public void doExecuting() {
-
-        if ( response == null )
-            return;
+    /**
+     * Show full detail on a specific batch job.
+     */
+    public void doBatch( Batch batch ) {
         
-        Batch batch = response.getExecuting();
-
-        if ( batch == null ) {
-            curses.mvaddstr( y_pos++, 0, "No executing batch jobs." );
-            return;
-        }
-
         int nr_jobs = batch.getJobs().size();
         int nr_complete = 0;
         
@@ -345,6 +338,22 @@ public class Status {
         }
 
     }
+    
+    public void doExecuting() {
+
+        if ( response == null )
+            return;
+        
+        Batch batch = response.getExecuting();
+
+        if ( batch == null ) {
+            curses.mvaddstr( y_pos++, 0, "No executing batch jobs." );
+            return;
+        }
+
+        doBatch( batch );
+
+    }
 
     /**
      * Read the status messgae from the controller and update global variables.
@@ -371,7 +380,7 @@ public class Status {
 
     }
 
-    public void doModeAuto() {
+    public void doAuto() {
 
         if ( response.getExecuting() != null ) {
 
@@ -385,18 +394,25 @@ public class Status {
 
     }
 
-    public void doModeExecuting() {
-        doExecuting();
-    }
+    /**
+     * Display the last executing job.
+     */
+    public void doLast() {
 
-    public void doModePending() {
-        doPending();
-    }
+        if ( response == null )
+            return;
 
-    public void doModeHistory() {
-        doHistory();
-    }
+        if ( response.getHistory().size() == 0 ) {
+            curses.mvaddstr( y_pos++, 0, "No historical batch jobs." );
+            return;
+        }
+        
+        Batch batch = response.getHistory().get( 0 );
 
+        doBatch( batch );
+
+    }
+    
     public static void quit() {
 
         if ( quit )
@@ -404,6 +420,12 @@ public class Status {
         
         curses.term();
         quit=true;
+        
+    }
+
+    public String getModeline() {
+
+        return String.format( "Mode: %s (h=history, x=executing, a=automatic, p=pending, l=last q=quit)", mode );
         
     }
     
@@ -453,21 +475,29 @@ public class Status {
                 //
                 //  - (X) they should ALL have the option to show extended metadata 
 
-                if ( mode.equals( Mode.AUTO ) ) {
-                    doModeAuto();
-                } else if ( mode.equals( Mode.HISTORY ) ) {
-                    doModeHistory();
-                } else if ( mode.equals( Mode.PENDING ) ) {
-                    doModePending();
-                } else if ( mode.equals( Mode.EXECUTING ) ) {
-                    doModeExecuting();
-                } 
+                switch( mode ) {
+                    case AUTO:
+                        doAuto();
+                        break;
+                    case HISTORY:
+                        doHistory();
+                        break;
+                    case PENDING:
+                        doPending();
+                        break;
+                    case EXECUTING:
+                        doExecuting();
+                        break;
+                    case LAST:
+                        doLast();
+                        break;
+                }
 
             } finally {
 
                 // write one more line so the cursur is in a sane place.
                 ++y_pos;
-                curses.mvaddstr( y_pos++, 0, String.format( "Mode: %s (h=history, x=executing, a=automatic, p=pending q=quit)", mode ) );
+                curses.mvaddstr( y_pos++, 0, getModeline() );
                 curses.mvaddstr( y_pos++, 0, "" );
                 curses.refresh();
 
@@ -494,6 +524,10 @@ public class Status {
 
                     case 'p':
                         mode = Mode.PENDING;
+                        break;
+
+                    case 'l':
+                        mode = Mode.LAST;
                         break;
 
                     case 'q':
@@ -543,5 +577,5 @@ public class Status {
 }
 
 enum Mode {
-    AUTO, EXECUTING, HISTORY, PENDING;
+    AUTO, EXECUTING, HISTORY, PENDING, LAST;
 }

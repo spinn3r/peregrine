@@ -62,7 +62,7 @@ public class HttpResponseLoggingChannelHandler extends SimpleChannelHandler {
             HttpResponse response = (HttpResponse) e.getMessage();
 
             if ( requiresLogging( response ) ) {
-                log.info( "%s %s %s %s", request.getMethod(), request.getUri(), request.getProtocolVersion(), response.getStatus() );
+                log.debug( "%s %s %s %s", request.getMethod(), request.getUri(), request.getProtocolVersion(), response.getStatus() );
             }
 
         }

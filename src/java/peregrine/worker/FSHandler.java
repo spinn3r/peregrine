@@ -81,7 +81,7 @@ public class FSHandler extends DefaultChannelUpstreamHandler {
             HttpMethod method = request.getMethod();
 
             // log EVERY request no matter the source.
-            log.info( "%s: %s", method, request.getUri() );
+            log.debug( "%s: %s", method, request.getUri() );
 
             path = request.getUri();
 
@@ -160,7 +160,7 @@ public class FSHandler extends DefaultChannelUpstreamHandler {
                 if ( "".equals( x_pipeline ) )
                     return;
 
-                log.info( "%s=%s", X_PIPELINE_HEADER, x_pipeline );
+                log.debug( "%s=%s", X_PIPELINE_HEADER, x_pipeline );
 
                 String[] hosts = x_pipeline.split( " " );
 
@@ -181,8 +181,8 @@ public class FSHandler extends DefaultChannelUpstreamHandler {
                     request.setHeader( X_PIPELINE_HEADER, x_pipeline );
 
                 uri = new URI( String.format( "http://%s%s", host, uri.getPath() ) );
-
-                log.info( "Going to pipeline requests to: %s ", uri );
+                
+                log.debug( "Going to pipeline requests to: %s ", uri );
                 
                 remote = new HttpClient( config, request, uri ) {
 

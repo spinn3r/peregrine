@@ -142,7 +142,7 @@ public class InputSplitter {
         ChannelBuffer channelBuffer = ChannelBuffers.wrappedBuffer( buff );
 
         InputSplit split = new InputSplit( start, end, channelBuffer, file, fis, channel );
-        log.info( "Found split: %s", split );
+        //log.info( "Found split: %s", split );
         
         splits.add( split );
 

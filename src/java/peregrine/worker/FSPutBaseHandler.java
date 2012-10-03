@@ -83,8 +83,8 @@ public class FSPutBaseHandler extends ErrorLoggingChannelUpstreamHandler {
                 if ( chunks > 0 )
                     mean_chunk_size = (int)(written / chunks);
 
-                log.info( "Wrote %,d bytes in %,d chunks (mean chunk size = %,d bytes) in %,d ms to %s",
-                          written, chunks, mean_chunk_size, duration, path );
+                log.debug( "Wrote %,d bytes in %,d chunks (mean chunk size = %,d bytes) in %,d ms to %s",
+                           written, chunks, mean_chunk_size, duration, path );
 
             }
 
