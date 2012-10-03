@@ -36,10 +36,9 @@ public class Main {
 
         Getopt getopt = new Getopt( args );
 
-        String graph = "/pr/graph";
-        String nodes_by_hashcode = "/pr/nodes_by_hashcode";
-
-        String corpus = getopt.getString( "corpus" );
+        String graph               = getopt.getString( "graph", "/pr/graph" );
+        String nodes_by_hashcode   = getopt.getString( "nodes_by_hashcode", "/pr/nodes_by_hashcode";
+        String corpus              = getopt.getString( "corpus" );
 
         if ( "random".equals( corpus ) ) {
 
