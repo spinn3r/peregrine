@@ -140,9 +140,9 @@ public class Batch extends BaseJob<Batch> {
     }
 
     /**
-     * Touch / init a file so that it is empty and ready to be merged against.
+     * Truncate / init a file so that it is empty and ready to be merged against.
      */
-    public Batch touch( String output ) {
+    public Batch truncate( String output ) {
 
         // map-only job that reads from an empty blackhole: stream and writes
         // nothing to the output file. 

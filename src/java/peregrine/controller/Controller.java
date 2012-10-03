@@ -208,8 +208,8 @@ public class Controller {
 
     }
 
-    public void touch( String output ) throws Exception {
-        exec( new Batch( output ).touch( output ) );
+    public void truncate( String output ) throws Exception {
+        exec( new Batch( output ).truncate( output ) );
     }
     
     public void sort( String input, String output, Class comparator ) throws Exception {

@@ -142,8 +142,8 @@ public class Pagerank extends Batch {
         // init empty files which we can still join against.
 
         // make sure these files exist.
-        touch( "/pr/out/rank_vector" );
-        touch( "/pr/out/teleportation_grant" );
+        truncate( "/pr/out/rank_vector" );
+        truncate( "/pr/out/teleportation_grant" );
 
     }
 
