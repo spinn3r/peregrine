@@ -8,6 +8,8 @@ start() {
     stderr="/dev/null"
 
     ./bin/jexec $main < /dev/null > $stdout 2> $stderr &
+    
+    echo "started"
 
 }
 

@@ -63,10 +63,25 @@ export CLASSPATH=target/compile:lib/*:lib/optional/cassandra/*:lib/build/*
 # NOTE: we include -XX:MaxDirectMemorySize and -DMaxDirectMemorySize here so
 # that we can read the max direct memory as a java system property.
 
+JVM_ARGS=""
+
+###
+# Use the JVM ParallelGC and not CMS 
+# 
+JVM_ARGS="$JVM_ARGS -XX:+UseParallelGC"
+
+# http://javarevisited.blogspot.com/2012/06/what-is-xxusecompressedoops-in-64-bit.html
+#
+# Enable use of 32 bit ordinary object pointers as almost ALL of our JVMs we use
+# will be less than 32GB for a long time to come.
+
+JVM_ARGS="$JVM_ARGS -XX:+UseCompressedOops"
+
 run $JAVA \
   -XX:MaxDirectMemorySize=$MAX_DIRECT_MEMORY \
   -Xms$MAX_MEMORY \
   -Xmx$MAX_MEMORY \
+  $JVM_ARGS \
   -DMaxDirectMemorySize=$MAX_DIRECT_MEMORY \
   $JAVA_OPTS \
   $CLASSNAME "$@"
