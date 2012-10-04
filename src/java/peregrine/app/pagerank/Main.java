@@ -73,12 +73,12 @@ public class Main {
            
             getopt.require( "flow", "sources" );
 
-            String sources  = getopt.getString( "sources" );
-            int iterations = getopt.getInt( "iterations", 5 );
-
-            String output = "/pr/graph.flowed";
+            String sources           = getopt.getString( "sources" );
+            int iterations           = getopt.getInt( "iterations", 5 );
+            boolean caseInsensitive  = getopt.getBoolean( "caseInsensitive" );
+            String output            = getopt.getString( "output", "/pr/graph.flowed" );
             
-            Flow flow = new Flow( graph, output, sources, iterations );
+            Flow flow = new Flow( graph, output, sources, iterations, caseInsensitive );
             batch.add( flow );
 
             // we need to use the flowed graph as the input for pagerank now

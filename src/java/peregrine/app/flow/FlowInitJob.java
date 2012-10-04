@@ -40,6 +40,10 @@ public class FlowInitJob {
 
             super.init( job, output );
 
+            boolean caseInsensitive = job.getParameters().getBoolean( "caseInsensitive" );
+
+            log.info( "Working with caseInsensitive graph: %s", caseInsensitive );
+            
             String sources = job.getParameters().getString( "sources" );
             
             if ( Strings.empty( sources ) ) {
@@ -47,6 +51,10 @@ public class FlowInitJob {
             }
 
             for( String source : sources.split( ":" ) ) {
+
+                if ( caseInsensitive )
+                    source = source.toLowerCase();
+                
                 nodes.add( StructReaders.hashcode( source ) );
             }
 

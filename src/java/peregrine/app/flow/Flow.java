@@ -49,7 +49,7 @@ public class Flow extends Batch {
      */
     private int iterations = 5;
 
-    public Flow( String input, String output, String sources, int iterations ) {
+    public Flow( String input, String output, String sources, int iterations, boolean caseInsensitive ) {
 
         this.iterations = iterations;
         
@@ -60,7 +60,8 @@ public class Flow extends Batch {
         map( new Job().setDelegate( FlowInitJob.Map.class )
                       .setInput( input )
                       .setOutput( new Output( "shuffle:default" ) )
-                      .setParameters( "sources", sources ) ) ;
+                      .setParameters( "sources", sources,
+                                      "caseInsensitive", caseInsensitive ) ) ;
         
         reduce( new Job().setDelegate( FlowInitJob.Reduce.class )
                          .setInput( "shuffle:default" )

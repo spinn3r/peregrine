@@ -36,13 +36,13 @@ public class Main {
 
         getopt.require( "input", "output", "sources" );
         
-        String input   = getopt.getString( "input" );
-        String output  = getopt.getString( "output" ); 
-        String sources = getopt.getString( "sources" );
-
-        int iterations = getopt.getInt( "iterations", 5 );
-
-        Flow flow = new Flow( input, output, sources, iterations );
+        String input             = getopt.getString( "input" );
+        String output            = getopt.getString( "output" ); 
+        String sources           = getopt.getString( "sources" );
+        int iterations           = getopt.getInt( "iterations", 5 );
+        boolean caseInsensitive  = getopt.getBoolean( "caseInsensitive" );
+        
+        Flow flow = new Flow( input, output, sources, iterations, caseInsensitive );
         flow.init( args );
         
         ControllerClient.submit( config, flow );
