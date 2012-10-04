@@ -52,20 +52,6 @@ public class Main {
      * True after quit is called so we don't double quit.
      */
     protected static boolean quit = false;
-    
-    public static String toStatus( Batch batch ) {
-
-        StringBuilder buff = new StringBuilder();
-        
-        for ( Job job : batch.getJobs() ) {
-
-            buff.append( toStatus( job ) );
-
-        }
-
-        return buff.toString();
-        
-    }
 
     /**
      * Draw a progress meter in ASCII with the given width and percentage
@@ -95,50 +81,6 @@ public class Main {
         
         return buff.toString();
         
-    }
-
-    /**
-     * Pretty print the given object so we can represent it on the console.
-     */
-    public static String toStatus( Object obj ) {
-
-        StringBuilder buff = new StringBuilder();
-
-        try {
-
-            buff.append( String.format( "%s:\n", obj.getClass().getSimpleName() ) );
-            
-            Field[] fields = obj.getClass().getDeclaredFields();
-
-            for( Field f : fields ) {
-
-                if ( Modifier.isStatic( f.getModifiers() ) )
-                    continue;
-
-                f.setAccessible( true );
-                Object value = f.get( obj );
-
-                if ( value != null ) {
-                    
-                    if ( f.getType().equals( Class.class ) ) {
-                        value = ((Class)value).getName();
-                    }
-
-                }
-
-                buff.append( "    " );
-                buff.append( f.getName() );
-                buff.append( "=" );
-                buff.append( value );
-                buff.append( "\n" );
-            }
-
-            return buff.toString();
-
-        } catch ( Exception e ) {
-            throw new RuntimeException( e );
-        }
-            
     }
 
     public void doBatchOverviewHeaders() {
@@ -259,11 +201,46 @@ public class Main {
 
     }
 
-    /**
-     * Show full detail on a specific batch job.
-     */
-    public void doBatch( Batch batch ) {
+    public void formatJobsHeaders( Formatter fmt ) {
+
+        fmt.printf( 4, "%-20s %-15s %-10s %-12s %s", "name", "state", "operation", "duration", "delegate" );
+        fmt.printf( 4, "%-20s %-15s %-10s %-12s %s", "----", "-----", "---------", "--------", "--------" );
+
+    }
+    
+    public void formatJobs( Batch batch, Formatter fmt ) {
+
+        for ( Job job : batch.getJobs() ) {
+
+            fmt.printf( 4, "%-20s %-15s %-10s %-12s %s",
+                           job.getName(),
+                           job.getState(),
+                           job.getOperation(),
+                           getDuration( job.getStarted(), job.getDuration() ),
+                           job.getDelegate().getName() );
+
+        }
+
+    }
+
+    public void formatBatchOverviewHeaders( Formatter fmt ) {
+
+        fmt.printf( 4, "%-40s %-20s %-10s %-8s %-8s %-12s %-15s %s", "name", "identifier", "state", "nr jobs", "start", "end", "duration", "cause" );
+        fmt.printf( 4, "%-40s %-20s %-10s %-8s %-8s %-12s %-15s %s", "----", "----------", "-----", "-------", "-----", "---", "--------", "-----" );
         
+    }
+    
+    public void formatBatchOverview( Batch batch, Formatter fmt  ) {
+
+        fmt.printf( 4, "%-40s %-20s %-10s %-8s %-8s %-12s %-15s %s",
+                       batch.getName(), batch.getIdentifier(), batch.getState(),
+                       batch.getJobs().size(), batch.getStart(), batch.getEnd(),
+                       getDuration( batch.getStarted(), batch.getDuration() ),
+                       getFirstLine( batch.getCause(), "" ) );
+}
+
+    public void formatBatch( Batch batch, Formatter fmt ) {
+
         int nr_jobs = batch.getJobs().size();
         int nr_complete = 0;
         
@@ -276,69 +253,88 @@ public class Main {
 
         double perc_complete = 100 * (nr_complete / (double)nr_jobs);
 
-        curses.mvaddstr( y_pos++, 0, "Currently executing batch:" );
+        fmt.printf( "Currently executing batch:" );
+        
+        fmt.newline();
 
-        ++y_pos;
+        formatBatchOverviewHeaders( fmt );
+        formatBatchOverview( batch, fmt );
 
-        //TODO: add the description for this batch.
+        fmt.newline();
 
-        doBatchOverviewHeaders();
-        doBatchOverview( batch );
-
-        ++y_pos;
-
-        curses.mvaddstr( y_pos++, 4, String.format( "nr complete jobs:     %,d" ,     nr_complete ) );
-        curses.mvaddstr( y_pos++, 4, String.format( "batch perc complete:  %s" ,      progress( perc_complete, PROGRESS_WIDTH ) ) );
+        fmt.printf( 4, "nr complete jobs:     %,d" , nr_complete );
+        fmt.printf( 4, "batch perc complete:  %s" ,  progress( perc_complete, PROGRESS_WIDTH ) );
 
         //add job perc complete which comes from the scheduler.
 
         if ( response.getSchedulerStatusResponse() != null ) {
-            curses.mvaddstr( y_pos++, 4, String.format( "job perc complete:    %s" ,
-                                                        progress( response.getSchedulerStatusResponse().getProgress(), PROGRESS_WIDTH ) ) );
+            fmt.printf( 4, "job perc complete:    %s" , progress( response.getSchedulerStatusResponse().getProgress(), PROGRESS_WIDTH ) );
         }
 
-        ++y_pos;
+        fmt.newline();
+
+        formatJobsHeaders( fmt );
+        formatJobs( batch, fmt );
+
+        fmt.newline();
 
         Job job = batch.getExecutingJob();
 
-        doJobsHeaders();
-        doJobs( batch );
-
         if ( job != null ) {
 
-            ++y_pos;
+            fmt.printf( "Currently executing job '%s':", job.getName() );
 
-            curses.mvaddstr( y_pos++, 0, String.format( "Currently executing job '%s':", job.getName() ) );
-
-            ++y_pos;
-
-            curses.mvaddstr( y_pos++, 4, String.format( "Operation: %s", job.getOperation() ) );
-            curses.mvaddstr( y_pos++, 4, String.format( "Delegate:  %s", job.getDelegate().getName() ) );
+            fmt.printf( 4, "Operation: %s", job.getOperation() );
+            fmt.printf( 4, "Delegate:  %s", job.getDelegate().getName() );
 
             if ( job.getCombiner() != null ) {
-                curses.mvaddstr( y_pos++, 4, String.format( "Combiner:  %s", job.getCombiner().getName() ) );
+                fmt.printf( 4, "Combiner:  %s", job.getCombiner().getName() );
             }
             
-            curses.mvaddstr( y_pos++, 4, String.format( "Input:" ) );
+            fmt.printf( 4, "Input:" );
 
             for( InputReference inputRef : job.getInput().getReferences() ) {
-                curses.mvaddstr( y_pos++, 8, String.format( "%s", inputRef ) );
+                fmt.printf( 8, "%s", inputRef );
             }
 
-            curses.mvaddstr( y_pos++, 4, String.format( "Output:" ) );
+            fmt.printf( 4, "Output:" );
 
             for( OutputReference outputRef : job.getOutput().getReferences() ) {
-                curses.mvaddstr( y_pos++, 8, String.format( "%s", outputRef ) );
+                fmt.printf( 8, "%s", outputRef );
             }
 
-            curses.mvaddstr( y_pos++, 4, String.format( "Parameters:" ) );
+            fmt.printf( 4, "Parameters:" );
 
             for( String key : job.getParameters().getKeys() ) {
-                curses.mvaddstr( y_pos++, 8, String.format( "%-20s = %s", key, job.getParameters().getString( key ) ) );
+                fmt.printf( 8, "%-20s = %s", key, job.getParameters().getString( key ) );
             }
             
             //TODO cause, comparator, maxChunks, partitioner, combiner, 
             
+        }
+
+    }
+    
+    /**
+     * Show full detail on a specific batch job.
+     */
+    public void doBatch( Batch batch ) {
+
+        Formatter fmt = new Formatter();
+
+        formatBatch( batch, fmt );
+        
+        display( fmt.toString() );
+
+    }
+
+    /**
+     * Display a string on the screen.
+     */
+    private void display( String message ) {
+
+        for ( String line : message.split( "\n" ) ) {
+            curses.mvaddstr( y_pos++, 0, line );
         }
 
     }
@@ -384,6 +380,26 @@ public class Main {
 
     }
 
+    private Batch findBatch( long identifier ) {
+
+        List<Batch> list = new ArrayList();
+        list.addAll( response.getHistory() );
+        list.addAll( response.getPending() );
+
+        if ( response.getExecuting() != null )
+            list.add( response.getExecuting() );
+        
+        for( Batch batch : list ) {
+
+            if ( batch.getIdentifier() == identifier )
+                return batch;
+            
+        }
+
+        return null;
+        
+    }
+    
     public void doAuto() {
 
         if ( response.getExecuting() != null ) {
@@ -560,6 +576,32 @@ public class Main {
 
         new Initializer().logger( new File( "conf/log4j-silent.xml" ) );
 
+        Getopt getopt = new Getopt( args );
+
+        Main swoop = new Main();
+        swoop.config = ConfigParser.parse( args );
+
+        if ( getopt.containsKey( "batch" ) ) {
+
+            swoop.readStatusFromController();
+            long identifier = getopt.getLong( "batch" );
+
+            Batch batch = swoop.findBatch( identifier );
+
+            if ( batch != null ) {
+
+                Formatter fmt = new Formatter();
+                swoop.formatBatch( batch , fmt );
+                System.out.printf( "%s\n", fmt.toString() );
+                
+            } else {
+                System.out.printf( "Batch %s not found.\n", identifier );
+            }
+
+            return;
+            
+        }
+
         curses.init();
 
         Runtime.getRuntime().addShutdownHook( new Thread() {
@@ -570,13 +612,36 @@ public class Main {
                 
             } );
 
-        Getopt getopt = new Getopt( args );
-
-        Main swoop = new Main();
-        swoop.config = ConfigParser.parse( args );
-
         swoop.exec();
 
+    }
+    
+}
+
+/**
+ * Provide the ability to format messages for display.
+ */
+class Formatter {
+
+    private StringBuilder buff = new StringBuilder();
+
+    public void printf( String fmt, Object... args ) {
+        buff.append( String.format( fmt, args ) );
+        buff.append( "\n" );
+    }
+
+    public void printf( int padd, String fmt, Object... args ) {
+        buff.append( String.format(  "%" + padd + "s", "" ) );
+        printf( fmt, args );
+    }
+
+    public void newline() {
+        buff.append( "\n" );
+    }
+    
+    @Override
+    public String toString() {
+        return buff.toString();
     }
     
 }
