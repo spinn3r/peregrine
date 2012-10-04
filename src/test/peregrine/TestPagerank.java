@@ -51,9 +51,9 @@ public class TestPagerank extends peregrine.BaseTestWithMultipleProcesses {
 
             controller = new Controller( config );
             
-            Pagerank pr = new Pagerank( config, graph, nodes_by_hashcode, controller );
+            Pagerank pr = new Pagerank( config, graph, nodes_by_hashcode );
 
-            pr.exec( false );
+            controller.exec( pr );
 
         } finally {
             if ( controller != null ) 

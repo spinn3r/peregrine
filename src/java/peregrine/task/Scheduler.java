@@ -589,7 +589,7 @@ public class Scheduler {
 
             if ( availableHost != null ) {
 
-                log.info( "Scheduling work for execution on: %s", availableHost );
+                log.debug( "Scheduling work for execution on: %s", availableHost );
 
                 try {
                     schedule( availableHost );
@@ -603,7 +603,8 @@ public class Scheduler {
             String status = status();
             
             if ( changedMessage.hasChanged( status ) ) {
-                log.info( "%s", status );
+                // all/most of this information is now present in status console app
+                log.debug( "%s", status );
             }
 
             changedMessage.update( status );

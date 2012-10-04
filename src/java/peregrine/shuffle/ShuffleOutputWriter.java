@@ -113,7 +113,7 @@ public class ShuffleOutputWriter implements Closeable {
 
         List<Partition> partitions = config.getMembership().getPartitions( config.getHost() );
 
-        log.info( "Going to write shuffle for %s to %s", partitions , path );
+        log.debug( "Going to write shuffle for %s to %s", partitions , path );
         
         if ( partitions == null || partitions.size() == 0 )
             throw new IOException( "No partitions defined for: " + config.getHost() );
@@ -166,7 +166,7 @@ public class ShuffleOutputWriter implements Closeable {
 
             Map<Integer,ShuffleOutputPartition> lookup = buildLookup();
 
-            log.info( "Going write output buffer with %,d entries.", lookup.size() );
+            log.debug( "Going write output buffer with %,d entries.", lookup.size() );
 
             File file = new File( path );
             

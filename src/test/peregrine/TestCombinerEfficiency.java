@@ -220,7 +220,7 @@ public class TestCombinerEfficiency extends peregrine.BaseTestWithMultipleConfig
             
             work.add( shuffleInputChunkReader );
 
-            ChunkSorter sorter = new ChunkSorter( config , partition, new DefaultSortComparator() );
+            ChunkSorter sorter = new ChunkSorter( config , partition, new Job(), new DefaultSortComparator() );
 
             SequenceReader sorted = sorter.sort( work, sorted_chunk, jobOutput );
 

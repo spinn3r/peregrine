@@ -86,7 +86,7 @@ public class Main {
             
         }
         
-        batch.add( new Pagerank( config, graph, nodes_by_hashcode, null ) );
+        batch.add( new Pagerank( config, graph, nodes_by_hashcode ) );
 
         batch.init( args );
         

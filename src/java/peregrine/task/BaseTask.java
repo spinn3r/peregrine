@@ -172,7 +172,7 @@ public abstract class BaseTask implements Task {
        
         for( JobOutput current : jobOutput ) {
 
-            log.info( "Job output: %s" , current );
+            log.debug( "Job output: %s" , current );
             
             if ( current instanceof ShuffleJobOutput ) {
                 shuffleJobOutput.add( (ShuffleJobOutput)current );
@@ -192,7 +192,7 @@ public abstract class BaseTask implements Task {
         
         try {
 
-            log.info( "Running %s on %s", delegate, partition );
+            log.debug( "Running %s on %s", delegate, partition );
             
             setup();
             jobDelegate.setBroadcastInput( getBroadcastInput() );
@@ -257,11 +257,11 @@ public abstract class BaseTask implements Task {
         //talking to a remote host.
 
         for( JobOutput current : jobOutput ) {
-            log.info( "Closing job output: %s" , current );
+            log.debug( "Closing job output: %s" , current );
             current.close();
         }
 
-        log.info( "Closing job output...done" );
+        log.debug( "Closing job output...done" );
 
     }
 

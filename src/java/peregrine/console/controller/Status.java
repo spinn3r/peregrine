@@ -410,8 +410,10 @@ public class Status {
             curses.mvaddstr( y_pos++, 0, "No historical batch jobs." );
             return;
         }
+
+        List<Batch> hist = response.getHistory();
         
-        Batch batch = response.getHistory().get( 0 );
+        Batch batch = hist.get( hist.size() - 1 );
 
         doBatch( batch );
 

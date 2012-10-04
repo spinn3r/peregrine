@@ -190,12 +190,7 @@ public class IterJob {
                 node_rank_sum += value.readDouble();
             }
 
-            String node = Base64.encode( key.toByteArray() );
-
             double rank = (DAMPENING * node_rank_sum) + teleport_grant;
-
-            //System.out.printf( "TRACE node_rank_sum for %s: %s\n", node, node_rank_sum );
-            //System.out.printf( "TRACE rank for %s: %s\n", node, rank );
 
             emit( key, StructReaders.wrap( rank ) );
 

@@ -60,7 +60,7 @@ public class RemotePartitionWriterDelegate extends BasePartitionWriterDelegate {
             
             int deleted = readHeader( map, "X-deleted" );
             
-            log.info( "Deleted %,d chunks on host: %s", deleted, host );
+            log.debug( "Deleted %,d chunks on host: %s", deleted, host );
 
         } catch ( RemoteRequestException e ) {
 
@@ -89,7 +89,7 @@ public class RemotePartitionWriterDelegate extends BasePartitionWriterDelegate {
         //good idea and will just lead to problems.  I just need to extend netty
         //so that I can perform synchronous HTTP requests.  
 
-        log.info( "%s: %s", url, method );
+        log.debug( "%s: %s", url, method );
 
         HttpURLConnection httpCon = (HttpURLConnection) url.openConnection();
         httpCon.setRequestMethod( method );
@@ -137,7 +137,7 @@ public class RemotePartitionWriterDelegate extends BasePartitionWriterDelegate {
                                               host.getPort() ,
                                               chunk_path ) );
 
-            log.info( "Creating new chunk writer: %s" , uri );
+            log.debug( "Creating new chunk writer: %s" , uri );
 
             return new HttpClient( config, uri );
             

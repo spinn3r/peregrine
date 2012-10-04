@@ -51,22 +51,15 @@ public class Pagerank extends Batch {
      */
     private int iterations = 5;
 
-    private Controller controller = null;
-
     /**
      */
     private int step = 0;
-    
-    public Pagerank( Config config, String graph, String nodes_by_hashcode ) {
-        this( config, graph, nodes_by_hashcode, new Controller( config ) );
-    }
 
-    public Pagerank( Config config, String graph, String nodes_by_hashcode, Controller controller ) {
+    public Pagerank( Config config, String graph, String nodes_by_hashcode ) {
 
         this.config = config;
         this.graph = graph;
         this.nodes_by_hashcode = nodes_by_hashcode;
-        this.controller = controller;
 
         setName( Pagerank.class.getName() );
         setDescription( getName() );
@@ -97,9 +90,10 @@ public class Pagerank extends Batch {
              new Input( graph ),
              new Output( "shuffle:default" ) );
         
-        reduce( NodeIndegreeJob.Reduce.class,
-                new Input( "shuffle:default" ),
-                new Output( "/pr/tmp/node_indegree" ) );
+        reduce( new Job().setDelegate( NodeIndegreeJob.Reduce.class )
+                         .setCombiner( NodeIndegreeJob.Combine.class )
+                         .setInput( "shuffle:default" )
+                         .setOutput( "/pr/tmp/node_indegree" ) );
 
         // ***
         //
@@ -226,40 +220,6 @@ public class Pagerank extends Batch {
 
     }
     
-    /**
-     * Run a full pagerank computation including init, iter, and shutdown.
-     */
-    public void exec() throws Exception {
-        exec( true );
-    }
-
-    /**
-     * Run a full pagerank computation including init, iter, and shutdown.
-     */
-    public void exec( boolean autoShutdown ) throws Exception {
-
-        try {
-
-            controller.exec( this );
-            
-        } finally {
-
-            if ( autoShutdown )
-                shutdown();
-            
-        }
-            
-    }
-
-    /**
-     * Shutdown the controller and release all resources.  Note that this must
-     * be done in a finally block so that we don't leave the cluster in an
-     * inconsistent state.
-     */
-    public void shutdown() {
-        controller.shutdown();
-    }
-
     public int getIterations() { 
         return this.iterations;
     }

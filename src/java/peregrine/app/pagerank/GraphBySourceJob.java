@@ -28,7 +28,7 @@ public class GraphBySourceJob {
         @Override
         public void reduce( StructReader key, List<StructReader> values ) {
 
-            emit( key, StructReaders.wrap( values, false ) );
+            emit( key, StructReaders.join( values ) );
             
         }
 

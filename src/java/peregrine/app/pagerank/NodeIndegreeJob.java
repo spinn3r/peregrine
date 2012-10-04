@@ -14,23 +14,36 @@ public class NodeIndegreeJob {
 
             while( value.isReadable() ) {
                 StructReader target = value.readSlice( Hashcode.HASH_WIDTH );
-                emit( target, StructReaders.TRUE );
+                emit( target, StructReaders.wrap( true ) );
             }
             
         }
 
     }
 
+    public static class Combine extends Reducer {
+
+        @Override
+        public void reduce( StructReader key, List<StructReader> values ) {
+
+            emit( key, StructReaders.wrap( values.size() ) );
+
+        }
+        
+    }
+
     public static class Reduce extends Reducer {
 
         @Override
         public void reduce( StructReader key, List<StructReader> values ) {
-            
-            int indegree = values.size();
 
-            emit( key, new StructWriter()
-            		       .writeInt( indegree )
-            		       .toStructReader() );
+            int sum = 0;
+            
+            for ( StructReader value : values ) {
+                sum += value.readInt();
+            }
+            
+            emit( key, StructReaders.wrap( sum ) );
             
         }
         
