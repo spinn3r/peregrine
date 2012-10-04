@@ -207,21 +207,6 @@ public class Main {
         fmt.printf( 4, "%-20s %-15s %-10s %-12s %s", "----", "-----", "---------", "--------", "--------" );
 
     }
-    
-    public void formatJobs( Batch batch, Formatter fmt ) {
-
-        for ( Job job : batch.getJobs() ) {
-
-            fmt.printf( 4, "%-20s %-15s %-10s %-12s %s",
-                           job.getName(),
-                           job.getState(),
-                           job.getOperation(),
-                           getDuration( job.getStarted(), job.getDuration() ),
-                           job.getDelegate().getName() );
-
-        }
-
-    }
 
     public void formatBatchOverviewHeaders( Formatter fmt ) {
 
@@ -237,9 +222,53 @@ public class Main {
                        batch.getJobs().size(), batch.getStart(), batch.getEnd(),
                        getDuration( batch.getStarted(), batch.getDuration() ),
                        getFirstLine( batch.getCause(), "" ) );
-}
+    }
+
+    private void formatJob( Job job, Formatter fmt ) {
+
+        fmt.printf( 4, "%-20s %-15s %-10s %-12s %s",
+                       job.getName(),
+                       job.getState(),
+                       job.getOperation(),
+                       getDuration( job.getStarted(), job.getDuration() ),
+                       job.getDelegate().getName() );
+
+    }
+    
+    private void formatJobExtended( Job job, Formatter fmt ) {
+
+        fmt.printf( 8, "Operation: %s", job.getOperation() );
+        fmt.printf( 8, "Delegate:  %s", job.getDelegate().getName() );
+
+        if ( job.getCombiner() != null ) {
+            fmt.printf( 8, "Combiner:  %s", job.getCombiner().getName() );
+        }
+        
+        fmt.printf( 8, "Input:" );
+
+        for( InputReference inputRef : job.getInput().getReferences() ) {
+            fmt.printf( 12, "%s", inputRef );
+        }
+
+        fmt.printf( 8, "Output:" );
+
+        for( OutputReference outputRef : job.getOutput().getReferences() ) {
+            fmt.printf( 12, "%s", outputRef );
+        }
+
+        fmt.printf( 8, "Parameters:" );
+
+        for( String key : job.getParameters().getKeys() ) {
+            fmt.printf( 12, "%-20s = %s", key, job.getParameters().getString( key ) );
+        }
+
+    }
 
     public void formatBatch( Batch batch, Formatter fmt ) {
+        formatBatch( batch, false, fmt );
+    }
+        
+    public void formatBatch( Batch batch, boolean extended, Formatter fmt ) {
 
         int nr_jobs = batch.getJobs().size();
         int nr_complete = 0;
@@ -274,43 +303,30 @@ public class Main {
         fmt.newline();
 
         formatJobsHeaders( fmt );
-        formatJobs( batch, fmt );
+
+        for ( Job job : batch.getJobs() ) {
+
+            formatJob( job, fmt );
+
+            if ( extended ) {
+                formatJobExtended( job, fmt );
+            } 
+
+        }
 
         fmt.newline();
 
         Job job = batch.getExecutingJob();
 
-        if ( job != null ) {
+        if ( job != null && extended == false ) {
 
+            //TODO cause, comparator, maxChunks, partitioner, combiner, 
             fmt.printf( "Currently executing job '%s':", job.getName() );
 
-            fmt.printf( 4, "Operation: %s", job.getOperation() );
-            fmt.printf( 4, "Delegate:  %s", job.getDelegate().getName() );
-
-            if ( job.getCombiner() != null ) {
-                fmt.printf( 4, "Combiner:  %s", job.getCombiner().getName() );
-            }
+            fmt.newline();
             
-            fmt.printf( 4, "Input:" );
+            formatJobExtended( job, fmt );
 
-            for( InputReference inputRef : job.getInput().getReferences() ) {
-                fmt.printf( 8, "%s", inputRef );
-            }
-
-            fmt.printf( 4, "Output:" );
-
-            for( OutputReference outputRef : job.getOutput().getReferences() ) {
-                fmt.printf( 8, "%s", outputRef );
-            }
-
-            fmt.printf( 4, "Parameters:" );
-
-            for( String key : job.getParameters().getKeys() ) {
-                fmt.printf( 8, "%-20s = %s", key, job.getParameters().getString( key ) );
-            }
-            
-            //TODO cause, comparator, maxChunks, partitioner, combiner, 
-            
         }
 
     }
@@ -591,7 +607,7 @@ public class Main {
             if ( batch != null ) {
 
                 Formatter fmt = new Formatter();
-                swoop.formatBatch( batch , fmt );
+                swoop.formatBatch( batch , true, fmt );
                 System.out.printf( "%s\n", fmt.toString() );
                 
             } else {
