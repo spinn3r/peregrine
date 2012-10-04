@@ -315,6 +315,10 @@ public class Status {
             curses.mvaddstr( y_pos++, 4, String.format( "Operation: %s", job.getOperation() ) );
             curses.mvaddstr( y_pos++, 4, String.format( "Delegate:  %s", job.getDelegate().getName() ) );
 
+            if ( job.getCombiner() != null ) {
+                curses.mvaddstr( y_pos++, 4, String.format( "Combiner:  %s", job.getCombiner().getName() ) );
+            }
+            
             curses.mvaddstr( y_pos++, 4, String.format( "Input:" ) );
 
             for( InputReference inputRef : job.getInput().getReferences() ) {
