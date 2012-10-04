@@ -39,6 +39,7 @@ public class Main {
         String graph               = getopt.getString( "graph", "/pr/graph" );
         String nodes_by_hashcode   = getopt.getString( "nodes_by_hashcode", "/pr/nodes_by_hashcode" );
         String corpus              = getopt.getString( "corpus" );
+        boolean sortedGraph        = getopt.getBoolean( "sortedGraph" );
 
         if ( "random".equals( corpus ) ) {
 
@@ -86,7 +87,7 @@ public class Main {
             
         }
         
-        batch.add( new Pagerank( config, graph, nodes_by_hashcode ) );
+        batch.add( new Pagerank( config, graph, nodes_by_hashcode, sortedGraph ) );
 
         batch.init( args );
         

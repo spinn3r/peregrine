@@ -55,7 +55,17 @@ public class Pagerank extends Batch {
      */
     private int step = 0;
 
+    /**
+     */
+    private boolean sortedGraph = false;
+
+    private String graph_by_source = "/pr/graph_by_source";
+    
     public Pagerank( Config config, String graph, String nodes_by_hashcode ) {
+        this( config, graph, nodes_by_hashcode, false );
+    }
+    
+    public Pagerank( Config config, String graph, String nodes_by_hashcode, boolean sortedGraph ) {
 
         this.config = config;
         this.graph = graph;
@@ -103,27 +113,32 @@ public class Pagerank extends Batch {
         // to the filesystem.
         // 
 
-        map( Mapper.class,
-             new Input( graph ),
-             new Output( "shuffle:default" ) );
+        if ( sortedGraph == false ) {
         
-        reduce( GraphBySourceJob.Reduce.class,
-                new Input( "shuffle:default" ),
-                new Output( "/pr/graph_by_source" ) );
-        
+            map( Mapper.class,
+                 new Input( graph ),
+                 new Output( "shuffle:default" ) );
+            
+            reduce( GraphBySourceJob.Reduce.class,
+                    new Input( "shuffle:default" ),
+                    new Output( graph_by_source ) );
+
+        } else {
+            graph_by_source = graph;
+        }
+            
         // ***
         //
         // now create node metadata...  This will write the dangling vector,
         // the nonlinked vector and node_metadata which are all invariant.
 
-        merge( NodeMetadataJob.Map.class,
-               new Input( "/pr/tmp/node_indegree",
-                          "/pr/graph_by_source" ),
-               new Output( "/pr/out/node_metadata" ,
-                           "/pr/out/dangling" ,
-                           "/pr/out/nonlinked" ,
-                           "broadcast:nr_nodes" ,
-                           "broadcast:nr_dangling" ) );
+        merge( new Job().setDelegate( NodeMetadataJob.Map.class )
+                        .setInput( "/pr/tmp/node_indegree", graph_by_source )
+                        .setOutput( "/pr/out/node_metadata" ,
+                                    "/pr/out/dangling" ,
+                                    "/pr/out/nonlinked" ,
+                                    "broadcast:nr_nodes" ,
+                                    "broadcast:nr_dangling" ) );
         
         reduce( NodeMetadataJob.Reduce.class,
                 new Input( "shuffle:nr_nodes" ),
@@ -147,10 +162,10 @@ public class Pagerank extends Batch {
     private void iter() {
 
         merge( IterJob.Map.class,
-               new Input( "/pr/graph_by_source" ,
+               new Input( graph_by_source ,
                           "/pr/out/rank_vector" ,
                           "/pr/out/dangling" ,
-                                     "/pr/out/nonlinked" ,
+                          "/pr/out/nonlinked" ,
                           "broadcast:/pr/out/nr_nodes" ) ,
                new Output( "shuffle:default",
                            "broadcast:dangling_rank_sum" ) );
