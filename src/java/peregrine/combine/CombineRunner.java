@@ -44,7 +44,7 @@ public class CombineRunner {
 
         SortComparator comparator = new DefaultSortComparator();
         
-        ChunkSorter sorter = new ChunkSorter( config, partition, comparator );
+        ChunkSorter sorter = new ChunkSorter( config, partition, null, comparator );
 
         List<ChunkReader> input = new ArrayList();
         input.add( reader );

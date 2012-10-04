@@ -81,9 +81,9 @@ public class ByteBufferCloser extends IdempotentCloser {
         
         sun.misc.Cleaner cl = ((sun.nio.ch.DirectBuffer)buff).cleaner();
 
-        if (cl != null) {
+        if ( cl != null ) {
             cl.clean();
-        }
+        } 
         
     }
 

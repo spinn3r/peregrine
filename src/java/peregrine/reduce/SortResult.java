@@ -87,8 +87,9 @@ public class SortResult implements Closeable {
             listener.onFinalValue( entry.key , entry.getValues() );
         }
 
-        if ( writer != null )
+        if ( writer != null ) {
             writer.write( entry.key, StructReaders.wrap( entry.getValues() ) );
+        }
 
     }
     

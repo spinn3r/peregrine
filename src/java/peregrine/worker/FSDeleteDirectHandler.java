@@ -72,7 +72,7 @@ public class FSDeleteDirectHandler extends ErrorLoggingChannelUpstreamHandler {
                 
                 List<File> files = LocalPartition.getChunkFiles( handler.path );
 
-                log.info( "Found %,d potential files to delete." );
+                log.info( "Found %,d potential files to delete.", files.size() );
                 
                 for( File file : files ) {
 

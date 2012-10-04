@@ -33,15 +33,16 @@ public class Extract extends Batch {
 
         super( Extract.class );
         
-        map( new Job().setDelegate( CorpusExtractJob.Map.class ) 
+        map( new Job().setDelegate( CorpusExtractJob.Map.class )
                       .setInput( new Input( "blackhole:" ) )
                       .setOutput( new Output( "shuffle:nodes", "shuffle:links" ) )
                       .setParameters( "path", path,
                                       "caseInsensitive", caseInsensitive ) );
        
-        reduce( UniqueNodeJob.Reduce.class,
-                new Input( "shuffle:nodes" ),
-                new Output( nodes_by_hashcode ) );
+        reduce( new Job().setDelegate( UniqueNodeJob.Reduce.class )
+                         .setCombiner( UniqueNodeJob.Reduce.class )
+                         .setInput( "shuffle:nodes" )
+                         .setOutput( nodes_by_hashcode ) );
 
         reduce( MergeGraphJob.Reduce.class,
                 new Input( "shuffle:links" ),

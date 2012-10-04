@@ -50,15 +50,19 @@ public class ChunkSorter extends BaseChunkSorter {
     private int id = 0;
 
     private Config config;
-        
+
+    private Job job = null;
+    
     public ChunkSorter( Config config,
                         Partition partition,
+                        Job job,
                         SortComparator comparator ) {
 
         super( comparator );
 
     	this.config = config;
 		this.partition = partition;
+        this.job = job;
 
     }
 
@@ -77,11 +81,12 @@ public class ChunkSorter extends BaseChunkSorter {
                                 SortListener sortListener )
         throws IOException {
 
-        CompositeChunkReader reader  = null;
-        ChunkWriter writer           = null;
-        SortResult sortResult        = null;
-        KeyLookup lookup             = null;
-        KeyLookup sorted             = null;
+        CompositeChunkReader reader    = null;
+        DefaultChunkWriter writer      = null;
+        DefaultChunkWriter sortWriter  = null;
+        SortResult sortResult          = null;
+        KeyLookup lookup               = null;
+        KeyLookup sorted               = null;
         
         try {
 
@@ -105,10 +110,41 @@ public class ChunkSorter extends BaseChunkSorter {
             
             //write this into the final ChunkWriter now.
 
-            if ( output != null )
+            if ( output != null ) {
                 writer = new DefaultChunkWriter( config, output );
+                sortWriter = writer;
+            }
 
-            sortResult = new SortResult( writer, sortListener );
+            // setup a combiner here... instantiate the Combiner and call
+            //
+            // init( Job, List<JobOutput> )
+            //
+            // and we don't need to pass the writer as we can just emit() from
+            // the combiner.
+
+            if ( job.getCombiner() != null ) {
+
+                final Reducer reducer = newCombiner( writer );
+
+                sortListener = new SortListener() {
+
+                        public void onFinalValue( StructReader key, List<StructReader> values ) {
+                            reducer.reduce( key, values );
+                        }
+
+                    };
+
+                // set the sort writer to null so that SortResult doesn't have a
+                // writer which means that it functions just to call
+                // onFinalValue.  TODO: in the future it might be nice to make
+                // SortResult ONLY work via this method so that the code is
+                // easier to maintain.
+                
+                sortWriter = null;
+                
+            }
+            
+            sortResult = new SortResult( sortWriter, sortListener );
 
             KeyLookupReader keyLookupReader = new KeyLookupReader( sorted );
 
@@ -160,4 +196,25 @@ public class ChunkSorter extends BaseChunkSorter {
 
     }
 
+    /**
+     * Create a combiner instance and return it as a Reducer (they use the same
+     * interface).
+     */
+    public Reducer newCombiner( DefaultChunkWriter writer ) {
+
+        try {
+            List<JobOutput> jobOutput = new ArrayList();
+            jobOutput.add( writer );
+            
+            Reducer result = (Reducer)job.getCombiner().newInstance();
+            result.init( job, jobOutput );
+
+            return result;
+            
+        } catch ( Exception e ) {
+            throw new RuntimeException( e );
+        }
+        
+    }
+    
 }

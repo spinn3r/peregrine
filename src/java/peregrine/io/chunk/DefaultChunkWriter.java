@@ -18,20 +18,22 @@ package peregrine.io.chunk;
 import java.io.*;
 import java.nio.channels.*;
 
+import org.jboss.netty.buffer.*;
+
 import peregrine.*;
+import peregrine.config.*;
+import peregrine.http.*;
+import peregrine.io.*;
 import peregrine.os.*;
 import peregrine.util.*;
 import peregrine.util.netty.*;
 import peregrine.util.primitive.*;
-import peregrine.config.*;
-import peregrine.http.*;
-import org.jboss.netty.buffer.*;
 
 /**
  * Write key/value pairs to a given file on disk and include any additional
  * metadata (size, etc).
  */
-public class DefaultChunkWriter implements ChunkWriter {
+public class DefaultChunkWriter implements ChunkWriter, JobOutput {
 
     public static int BUFFER_SIZE = 16384;
     
@@ -57,6 +59,17 @@ public class DefaultChunkWriter implements ChunkWriter {
 
     private void init( ChannelBufferWritable writer ) {
         this.writer = new BufferedChannelBufferWritable( writer, BUFFER_SIZE );
+    }
+
+    @Override /* JobOutput */
+    public void emit( StructReader key, StructReader value ) {
+
+        try {
+            write( key, value );
+        } catch ( IOException e ) {
+            throw new RuntimeException( e ) ;
+        }
+
     }
     
     @Override

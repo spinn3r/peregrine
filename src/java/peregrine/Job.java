@@ -42,8 +42,6 @@ public class Job extends BaseJob<Job> {
 
 	protected Class delegate = Mapper.class; 
 
-    //TODO: a combiner does NOT make sense for a reduce job so move this to a
-    //MapJob class (which we use with map and merge).
 	protected Class combiner = null;
 
 	protected Input input = new Input();

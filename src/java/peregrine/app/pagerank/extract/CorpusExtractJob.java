@@ -112,6 +112,12 @@ public class CorpusExtractJob {
             if ( targets.size() == 0 )
                 return;
 
+            if ( Strings.empty( source ) ) {
+                return;
+            }
+
+            targets = cleanup( targets );
+
             if ( caseInsensitive ) {
 
                 source = source.toLowerCase();
@@ -138,6 +144,24 @@ public class CorpusExtractJob {
             
         }
 
+        private List<String> cleanup( List<String> targets ) {
+
+            // remove empty target URLs
+            List<String> tmp = new ArrayList( targets.size() );
+
+            for( String target : targets ) {
+
+                if ( Strings.empty( target ) )
+                    continue;
+                    
+                tmp.add( target );
+                
+            }
+
+            return tmp;
+
+        }
+        
         private void emitNode( String name ) throws Exception {
 
             StructReader key = StructReaders.hashcode( name );

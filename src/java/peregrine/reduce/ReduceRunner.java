@@ -44,6 +44,13 @@ public class ReduceRunner implements Closeable {
 
     private static final Logger log = Logger.getLogger();
 
+    /**
+     * This is needed I *think* because we are not closing direct buffers. I
+     * can back this out later once I track down exactly why we are running out
+     * of memory here.
+     */
+    public static final boolean TRIGGER_GC_AFTER_SORT = true; // FIXME: set to false in 1.0
+    
     private List<File> input = new ArrayList();
 
     private SortListener listener = null;
@@ -418,14 +425,13 @@ public class ReduceRunner implements Closeable {
             log.info( "Writing temporary sort file %s", path );
             log.info( "Going to sort %,d files requiring %,d bytes of memory", work.size(), workCapacity );
 
-            ChunkSorter sorter = new ChunkSorter( config , partition, job.getComparatorInstance() );
+            ChunkSorter sorter = new ChunkSorter( config , partition, job, job.getComparatorInstance() );
 
             SequenceReader result = sorter.sort( work, out, jobOutput );
 
-            System.gc(); //FIXME: this is needed I *think* because we are not
-                         //closing direct buffers. I can back this out later
-                         //once I track down exactly why we are running out of
-                         //memory here.
+            if ( TRIGGER_GC_AFTER_SORT ) {
+                System.gc(); 
+            }
             
             if ( result != null )
                 sorted.add( result );
