@@ -399,7 +399,8 @@ public class ReduceRunner implements Closeable {
                 }
 
         		workCapacity += header.length;
-                workCapacity += KeyLookup.computeCapacity( header.count ) * 2.5;
+                workCapacity += KeyLookup.computeCapacity( header.count ) * 2.5; //FIXME: we added this 2.5 multipler with no justification
+                                                                                 //and it shouldn't be there I think.
 
         		if ( workCapacity > config.getSortBufferSize() ) {
         			pendingIterator = pending.iterator();
@@ -418,7 +419,7 @@ public class ReduceRunner implements Closeable {
             log.info( "Going to sort %,d files requiring %,d bytes of memory", work.size(), workCapacity );
 
             ChunkSorter sorter = new ChunkSorter( config , partition, job.getComparatorInstance() );
-            
+
             SequenceReader result = sorter.sort( work, out, jobOutput );
             
             if ( result != null )

@@ -111,7 +111,7 @@ public class ShuffleSender implements Flushable, Closeable {
     @Override
     public void close() throws IOException {
 
-        log.info( "Closing after %,d emits", count );
+        log.debug( "Closing after %,d emits", count );
         
         // flush the pending IO first 
         flush();

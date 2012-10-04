@@ -32,7 +32,12 @@ import com.spinn3r.log5j.Logger;
 
 /**
  * Reads packets from a shuffle (usually in 16k blocks) and then splits these
- * packets into key/value pairs and implements 
+ * packets into key/value pairs and implements the ChunkReader interface so that
+ * we can read from the data as it is loaded.
+ *
+ * <p> This system uses a background thread to prefetch all the primary replica
+ * packets for use by external readers.  This is done so that we don't have to
+ * have two threads each reading from the same file.
  * 
  */
 public class ShuffleInputChunkReader implements ChunkReader {
@@ -243,7 +248,7 @@ public class ShuffleInputChunkReader implements ChunkReader {
         if ( closed )
             return;
         
-        prefetcher.closedPartitonQueue.put( partition );
+        prefetcher.closedPartitionQueue.put( partition );
 
         closed = true;
     }
@@ -302,7 +307,7 @@ public class ShuffleInputChunkReader implements ChunkReader {
         /**
          * Used so that readers can signal when they are complete.
          */
-        protected SimpleBlockingQueue<Partition> closedPartitonQueue = new SimpleBlockingQueue();
+        protected SimpleBlockingQueue<Partition> closedPartitionQueue = new SimpleBlockingQueue();
 
         protected ExecutorService executor =
             Executors.newCachedThreadPool( threadFactory );
@@ -380,7 +385,7 @@ public class ShuffleInputChunkReader implements ChunkReader {
 
                     // not only finished pulling out all packets but actually close()d 
                     for( int i = 0; i < lookup.keySet().size(); ++i ) {
-                        closedPartitonQueue.take();
+                        closedPartitionQueue.take();
                     }
 
                     log.debug( "Reading from %s ...done (read %,d packets as %s)", path, count, packetsReadPerPartition );

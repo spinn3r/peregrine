@@ -39,7 +39,6 @@ import com.spinn3r.log5j.Logger;
 
 /**
  * Sort the given chunk readers based on the key.
- * 
  */
 public class ChunkSorter extends BaseChunkSorter {
 
