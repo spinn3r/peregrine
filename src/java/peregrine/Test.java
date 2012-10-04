@@ -16,7 +16,6 @@ import peregrine.worker.*;
 import peregrine.rpc.*;
 import peregrine.sort.*;
 import peregrine.controller.*;
-import peregrine.console.controller.*;
 
 import org.jboss.netty.buffer.*;
 
