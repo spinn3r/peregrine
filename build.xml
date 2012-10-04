@@ -282,6 +282,7 @@
 
                 <fileset dir="src/test">
 
+                  <include name="peregrine/TestCombinerWithinReduce.java"/>
                   <include name="peregrine/TestMapReduceWithMergeFactor.java"/>
                   <include name="peregrine/TestBroadcastMapReduce.java"/>
                   <include name="peregrine/TestDataImbalance.java"/>

@@ -129,7 +129,9 @@ public class ChunkSorter extends BaseChunkSorter {
                 sortListener = new SortListener() {
 
                         public void onFinalValue( StructReader key, List<StructReader> values ) {
+
                             reducer.reduce( key, values );
+
                         }
 
                     };
