@@ -3,6 +3,10 @@
 # There will always be a workerd on port 11112 
 # 
 
+# implement --all support which writes all workerd jstat information to a file... 
+
+# if [ "$1" =
+
 pid=$(pgrep -f '^java.*peregrine.worker.Main' | head -1)
 
 ps $pid
