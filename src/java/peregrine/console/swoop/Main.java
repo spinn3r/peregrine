@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
 */
-package peregrine.console.controller;
+package peregrine.console.swoop;
 
 import java.io.*;
 import java.util.*;
@@ -34,7 +34,7 @@ import peregrine.worker.*;
 /**
  * Obtain and print the status of the controller.
  */
-public class Status {
+public class Main {
 
     public static final int PROGRESS_WIDTH = 40;
 
@@ -572,11 +572,10 @@ public class Status {
 
         Getopt getopt = new Getopt( args );
 
-        Status status = new Status();
-        
-        status.config    = ConfigParser.parse( args );
+        Main swoop = new Main();
+        swoop.config = ConfigParser.parse( args );
 
-        status.exec();
+        swoop.exec();
 
     }
     

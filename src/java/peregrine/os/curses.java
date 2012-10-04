@@ -83,45 +83,15 @@ public class curses {
 
     public static void main( String[] args ) throws Exception {
 
-        init();
+        //init();
+        initscr();
+        start_color();
 
-        int x_pos = 0;
-        int y_pos = 0;
-
-        int x_delta = 1;
-        int y_delta = 1;
-
-        int i = 0;
+        for( int i = 0; i < 200; ++i ) {
         
-        while( true ) {
-
-            ++i;
-            
-            clear();
-            erase();
+            curses.mvaddstr( i, 0, "" +i );
 
             refresh();
-
-            curses.mvaddstr( y_pos, x_pos, "*" );
-
-            refresh();
-
-            x_pos += x_delta;
-            y_pos += y_delta;
-
-            if ( x_pos <= 0 )
-                x_delta = 1;
-
-            if ( x_pos >= 40 )
-                x_delta = -1;
-
-            if ( y_pos <= 0 )
-                y_delta = 1;
-
-            if ( y_pos >= 40 )
-                y_delta = -1;
-
-            Thread.sleep( 100 );
             
         }
 
