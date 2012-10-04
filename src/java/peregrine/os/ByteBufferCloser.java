@@ -37,16 +37,40 @@ public class ByteBufferCloser extends IdempotentCloser {
 
     private ByteBuffer buff = null;
 
-    public ByteBufferCloser( ChannelBuffer _buff ) {
+    public ByteBufferCloser( ChannelBuffer channelBuffer ) {
 
-        if ( _buff instanceof CloseableByteBufferBackedChannelBuffer )
-            _buff = ((CloseableByteBufferBackedChannelBuffer)_buff).getDelegate();
-        
-        if ( _buff instanceof ByteBufferBackedChannelBuffer )
-            this.buff = _buff.toByteBuffer();
+        init( channelBuffer );
 
     }
 
+    private void init( ChannelBuffer channelBuffer ) {
+
+        if ( channelBuffer instanceof CloseableByteBufferBackedChannelBuffer ) {
+            init( ((CloseableByteBufferBackedChannelBuffer)channelBuffer).getDelegate() );
+            return;
+        }
+
+        if ( channelBuffer instanceof TruncatedChannelBuffer ) {
+            init( ((TruncatedChannelBuffer)channelBuffer).unwrap() );
+            return;
+        }
+            
+        if ( channelBuffer instanceof ByteBufferBackedChannelBuffer ) {
+            this.buff = channelBuffer.toByteBuffer();
+            return;
+        }
+
+        if ( channelBuffer instanceof HeapChannelBuffer ) {
+            // this is allocated on the heap and we don't need to handle it..
+            return;
+        }
+        
+        if( this.buff == null ) {
+            throw new RuntimeException( "Unknown ChannelBuffer type: " + channelBuffer.getClass().getName() );
+        }
+
+    }
+    
     public ByteBufferCloser( ByteBuffer buff ) {
         this.buff = buff;
     }
@@ -54,7 +78,7 @@ public class ByteBufferCloser extends IdempotentCloser {
     @Override
     protected void doClose() throws IOException {
 
-        if ( buff == null )
+        if( buff == null )
             return;
         
         sun.misc.Cleaner cl = ((sun.nio.ch.DirectBuffer)buff).cleaner();
