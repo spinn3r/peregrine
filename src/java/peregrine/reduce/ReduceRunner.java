@@ -421,6 +421,11 @@ public class ReduceRunner implements Closeable {
             ChunkSorter sorter = new ChunkSorter( config , partition, job.getComparatorInstance() );
 
             SequenceReader result = sorter.sort( work, out, jobOutput );
+
+            System.gc(); //FIXME: this is needed I *think* because we are not
+                         //closing direct buffers. I can back this out later
+                         //once I track down exactly why we are running out of
+                         //memory here.
             
             if ( result != null )
                 sorted.add( result );

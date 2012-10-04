@@ -38,9 +38,7 @@ public class ByteBufferCloser extends IdempotentCloser {
     private ByteBuffer buff = null;
 
     public ByteBufferCloser( ChannelBuffer channelBuffer ) {
-
         init( channelBuffer );
-
     }
 
     private void init( ChannelBuffer channelBuffer ) {
