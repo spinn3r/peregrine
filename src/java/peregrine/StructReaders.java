@@ -104,8 +104,6 @@ public class StructReaders {
      */
     public static StructReader wrap( StructReader... readers ) {
 
-        // 
-        
         // TODO: I'm not sure it just wouldn't be faster to just copy the bytes.
         
         ChannelBuffer[] buffers = new ChannelBuffer[ readers.length * 2 ];

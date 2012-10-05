@@ -25,7 +25,7 @@ import peregrine.io.*;
 
 import com.spinn3r.log5j.Logger;
 
-public class MergeGraphJob {
+public class UniqueOutboundLinksJob {
 
     private static final Logger log = Logger.getLogger();
 

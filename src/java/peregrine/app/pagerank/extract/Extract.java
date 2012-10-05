@@ -44,9 +44,9 @@ public class Extract extends Batch {
                          .setInput( "shuffle:nodes" )
                          .setOutput( nodes_by_hashcode ) );
 
-        reduce( MergeGraphJob.Reduce.class,
-                new Input( "shuffle:links" ),
-                new Output( graph ) );
+        reduce( new Job().setDelegate( UniqueOutboundLinksJob.Reduce.class )
+                         .setInput( "shuffle:links" )
+                         .setOutput( graph ) );
 
     }
 
