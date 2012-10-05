@@ -34,7 +34,7 @@ public class StructReaders {
 
     public static StructReader wrap( double value ) {
 
-        return new StructWriter()
+        return new StructWriter(8)
             .writeDouble( value )
             .toStructReader()
             ;
@@ -43,7 +43,7 @@ public class StructReaders {
 
     public static StructReader wrap( int value ) {
 
-        return new StructWriter()
+        return new StructWriter(4)
             .writeInt( value )
             .toStructReader()
             ;
@@ -52,7 +52,7 @@ public class StructReaders {
 
     public static StructReader wrap( long value ) {
 
-        return new StructWriter()
+        return new StructWriter(8)
             .writeLong( value )
             .toStructReader()
             ;
@@ -61,7 +61,7 @@ public class StructReaders {
 
     public static StructReader wrap( boolean value ) {
 
-        return new StructWriter()
+        return new StructWriter(1)
             .writeBoolean( value )
             .toStructReader()
             ;

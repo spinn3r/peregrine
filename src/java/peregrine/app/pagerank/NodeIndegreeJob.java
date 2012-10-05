@@ -15,7 +15,7 @@ public class NodeIndegreeJob {
             List<StructReader> targets = StructReaders.split( value, Hashcode.HASH_WIDTH );
             
             for( StructReader target : targets ) {
-                emit( target, StructReaders.wrap( true ) );
+                emit( target, StructReaders.TRUE );
             }
             
         }
