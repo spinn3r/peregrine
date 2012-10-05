@@ -172,15 +172,14 @@ public class Pagerank extends Batch {
                new Output( "shuffle:default",
                            "broadcast:dangling_rank_sum" ) );
 
-        //FIXME: this needs a combiner
-        
-        reduce( IterJob.Reduce.class,
-                new Input( "shuffle:default",
-                           "broadcast:/pr/out/nr_nodes",
-                           "broadcast:/pr/out/nr_dangling",
-                           "broadcast:/pr/out/teleport_grant" ),
-                new Output( "/pr/out/rank_vector",
-                            "broadcast:rank_sum" ) );
+        reduce( new Job().setDelegate( IterJob.Reduce.class )
+                         .setCombiner( IterJob.Combine.class )
+                         .setInput( "shuffle:default",
+                                    "broadcast:/pr/out/nr_nodes",
+                                    "broadcast:/pr/out/nr_dangling",
+                                    "broadcast:/pr/out/teleport_grant" )
+                         .setOutput( "/pr/out/rank_vector",
+                                     "broadcast:rank_sum" ) );
         
         // now reduce the broadcast rank sum to an individual file for analysis
         // and reading

@@ -129,6 +129,24 @@ public class IterJob {
 
     }
 
+    public static class Combine extends Reducer {
+
+        @Override
+        public void reduce( StructReader key, List<StructReader> values ) {
+
+            double node_rank_sum = 0.0;
+            
+            // sum up the values... 
+            for ( StructReader value : values ) {
+                node_rank_sum += value.readDouble();
+            }
+            
+            emit( key, StructReaders.wrap( node_rank_sum ) );
+            
+        }
+
+    }
+    
     public static class Reduce extends Reducer {
 
         /**
@@ -141,7 +159,7 @@ public class IterJob {
         protected int nr_dangling = 0;
 
         // the rank sum for this partition.
-        protected double rank_sum = 0.0;
+        protected double partition_rank_sum = 0.0;
 
         protected JobOutput rankSumBroadcastOutput = null;
 
@@ -195,7 +213,7 @@ public class IterJob {
             emit( key, StructReaders.wrap( rank ) );
 
             // keep track of the global rank sum.
-            rank_sum += rank;
+            partition_rank_sum += rank;
             
         }
 
@@ -205,7 +223,7 @@ public class IterJob {
             // broadcast the rank_sum for this partition now.
             StructReader key = StructReaders.hashcode( "id" );
             
-            rankSumBroadcastOutput.emit( key, StructReaders.wrap( rank_sum ) );
+            rankSumBroadcastOutput.emit( key, StructReaders.wrap( partition_rank_sum ) );
             
         }
         
