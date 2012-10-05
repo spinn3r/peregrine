@@ -234,7 +234,10 @@ class CombinerJobOutput implements JobOutput {
 
             // NOTE: that the merger expects to read a varint on the number of
             // items stored here so we need to 'wrap' it even though it's a
-            // single value.
+            // single value.  This is a slight overhead but we should probably
+            // ignore it.  Most combiner use will probably take N input items
+            // and map to 1 output item.  In this case we don't care if there is
+            // a 1 byte varint overhead.
             
             writer.write( key, StructReaders.wrap( value ) );
 
