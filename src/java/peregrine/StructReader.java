@@ -139,7 +139,12 @@ public class StructReader implements ByteReadable {
      * Read a new struct from the current struct from the given lenght bytes.
      */
     public StructReader readStruct( int length ) {
+
+        if ( length <= 0 )
+            throw new IllegalArgumentException( "length may not be < 0: " + length );
+
         return new StructReader( buff.readSlice( length ) );
+
     }
     
     /**

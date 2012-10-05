@@ -33,7 +33,7 @@ import peregrine.util.primitive.*;
  * Write key/value pairs to a given file on disk and include any additional
  * metadata (size, etc).
  */
-public class DefaultChunkWriter implements ChunkWriter, JobOutput {
+public class DefaultChunkWriter implements ChunkWriter {
 
     public static int BUFFER_SIZE = 16384;
     
@@ -61,17 +61,6 @@ public class DefaultChunkWriter implements ChunkWriter, JobOutput {
         this.writer = new BufferedChannelBufferWritable( writer, BUFFER_SIZE );
     }
 
-    @Override /* JobOutput */
-    public void emit( StructReader key, StructReader value ) {
-
-        try {
-            write( key, value );
-        } catch ( IOException e ) {
-            throw new RuntimeException( e ) ;
-        }
-
-    }
-    
     @Override
     public void write( StructReader key, StructReader value )
         throws IOException {

@@ -158,7 +158,7 @@ public class ChunkMerger implements Closeable {
                     break;
 
                 task.assertActiveJob(); 
-                
+
                 sortResult.accept( new SortEntry( entry.key, StructReaders.unwrap( entry.value ) ) );
 
                 ++entries;

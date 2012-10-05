@@ -129,9 +129,7 @@ public class ChunkSorter extends BaseChunkSorter {
                 sortListener = new SortListener() {
 
                         public void onFinalValue( StructReader key, List<StructReader> values ) {
-
                             reducer.reduce( key, values );
-
                         }
 
                     };
@@ -206,7 +204,7 @@ public class ChunkSorter extends BaseChunkSorter {
 
         try {
             List<JobOutput> jobOutput = new ArrayList();
-            jobOutput.add( writer );
+            jobOutput.add( new CombinerJobOutput( writer ) );
             
             Reducer result = (Reducer)job.getCombiner().newInstance();
             result.init( job, jobOutput );
@@ -218,5 +216,42 @@ public class ChunkSorter extends BaseChunkSorter {
         }
         
     }
+
+}
+
+class CombinerJobOutput implements JobOutput {
+
+    private DefaultChunkWriter writer;
     
+    public CombinerJobOutput( DefaultChunkWriter writer ) {
+        this.writer = writer;
+    }
+
+    @Override 
+    public void emit( StructReader key, StructReader value ) {
+
+        try {
+
+            // NOTE: that the merger expects to read a varint on the number of
+            // items stored here so we need to 'wrap' it even though it's a
+            // single value.
+            
+            writer.write( key, StructReaders.wrap( value ) );
+
+        } catch ( IOException e ) {
+            throw new RuntimeException( e ) ;
+        }
+
+    }
+
+    @Override
+    public void close() throws IOException {
+        writer.close();
+    }
+
+    @Override
+    public void flush() throws IOException {
+        writer.flush();
+    }
+
 }

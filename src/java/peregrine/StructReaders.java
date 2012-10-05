@@ -102,6 +102,34 @@ public class StructReaders {
      * each StructReader in this list prefixed with a varint so we can unpack it
      * with {@link StructReader#readSlice()}.
      */
+    public static StructReader wrap( StructReader... readers ) {
+
+        // 
+        
+        // TODO: I'm not sure it just wouldn't be faster to just copy the bytes.
+        
+        ChannelBuffer[] buffers = new ChannelBuffer[ readers.length * 2 ];
+
+        int idx = 0;
+        
+        for( StructReader current : readers ) {
+
+            buffers[ idx++ ] = varint( current.length() ).getChannelBuffer();
+            buffers[ idx++ ] = current.getChannelBuffer();
+            
+        }
+
+        ChannelBuffer composite = ChannelBuffers.wrappedBuffer( buffers );
+        
+        return new StructReader( composite );
+
+    }
+
+    /**
+     * Wrap a list of StructReader so that we can have a new struct which has
+     * each StructReader in this list prefixed with a varint so we can unpack it
+     * with {@link StructReader#readSlice()}.
+     */
     public static StructReader wrap( List<StructReader> list, boolean useLengthPrefix ) {
 
         // TODO: I'm not sure it just wouldn't be faster to just copy the bytes.
@@ -136,7 +164,7 @@ public class StructReaders {
         
         while( reader.isReadable() ) {
 
-            int len = reader.readVarint();
+            int len = reader.readVarint();            
             result.add( reader.readSlice( len ) );
             
         }
