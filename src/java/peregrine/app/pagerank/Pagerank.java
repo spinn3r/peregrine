@@ -99,12 +99,21 @@ public class Pagerank extends Batch {
         map( NodeIndegreeJob.Map.class,
              new Input( graph ),
              new Output( "shuffle:default" ) );
-        
+
+        /*
+
+        //FIXME: we need to use the combiner here but we run out of memory.
+          
         reduce( new Job().setDelegate( NodeIndegreeJob.Reduce.class )
                          .setCombiner( NodeIndegreeJob.Combine.class )
                          .setInput( "shuffle:default" )
                          .setOutput( "/pr/tmp/node_indegree" ) );
+        */
 
+        reduce( new Job().setDelegate( NodeIndegreeJob.Combine.class )
+                         .setInput( "shuffle:default" )
+                         .setOutput( "/pr/tmp/node_indegree" ) );
+        
         // ***
         //
         // sort the graph by source since we aren't certain to have have the
@@ -153,7 +162,7 @@ public class Pagerank extends Batch {
         // make sure these files exist.
         truncate( "/pr/out/rank_vector" );
         truncate( "/pr/out/teleportation_grant" );
-
+        
     }
 
     /**
@@ -170,6 +179,8 @@ public class Pagerank extends Batch {
                new Output( "shuffle:default",
                            "broadcast:dangling_rank_sum" ) );
 
+        //FIXME: this needs a combiner
+        
         reduce( IterJob.Reduce.class,
                 new Input( "shuffle:default",
                            "broadcast:/pr/out/nr_nodes",
@@ -232,7 +243,7 @@ public class Pagerank extends Batch {
         }
 
         term();
-
+        
     }
     
     public int getIterations() { 

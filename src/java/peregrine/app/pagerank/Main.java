@@ -56,6 +56,9 @@ public class Main {
         
             builder.close();
 
+            // no matter what hte user says the graph is not sorted.
+            sortedGraph = false;
+            
         } else {
             System.out.printf( "Using existing graph.\n" );
         }

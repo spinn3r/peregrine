@@ -21,12 +21,16 @@ import peregrine.*;
 import peregrine.util.*;
 import peregrine.io.chunk.*;
 
+import com.spinn3r.log5j.Logger;
+
 /**
  * Take the result of a sort request, and potentially merge values and when that 
  * value is complete emit and write it to disk.
  *
  */
 public class SortResult implements Closeable {
+
+    private static final Logger log = Logger.getLogger();
 
     public int idx = 0;
 
@@ -58,8 +62,10 @@ public class SortResult implements Closeable {
             last = entry;
 
         } else {
+
             // merge the values together ... 
             last.addValues( entry.getValues() );
+
         }
         
     }
