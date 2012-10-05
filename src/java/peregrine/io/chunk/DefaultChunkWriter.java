@@ -47,8 +47,6 @@ public class DefaultChunkWriter implements ChunkWriter {
 
     private boolean shutdown = false;
 
-    private Throwable closedCause = null;
-    
     public DefaultChunkWriter( ChannelBufferWritable writer ) throws IOException {
         init( writer );
     }
@@ -66,7 +64,7 @@ public class DefaultChunkWriter implements ChunkWriter {
         throws IOException {
 
         if ( closed )
-            throw new IOException( "closed", closedCause );
+            throw new IOException( "closed" );
 
         length += write( writer, key, value );
         
@@ -139,7 +137,6 @@ public class DefaultChunkWriter implements ChunkWriter {
 
         writer.close();
 
-        closedCause = new Exception( "FIXME" );
         closed = true;
 
     }

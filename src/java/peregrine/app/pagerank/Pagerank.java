@@ -100,8 +100,6 @@ public class Pagerank extends Batch {
              new Input( graph ),
              new Output( "shuffle:default" ) );
 
-        //FIXME: we need to use the combiner here but we run out of memory.
-          
         reduce( new Job().setDelegate( NodeIndegreeJob.Reduce.class )
                          .setCombiner( NodeIndegreeJob.Combine.class )
                          .setInput( "shuffle:default" )
