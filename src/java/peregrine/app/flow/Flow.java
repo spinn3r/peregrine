@@ -64,6 +64,7 @@ public class Flow extends Batch {
                                       "caseInsensitive", caseInsensitive ) ) ;
         
         reduce( new Job().setDelegate( FlowInitJob.Reduce.class )
+                         .setCombiner( FlowInitJob.Reduce.class )
                          .setInput( "shuffle:default" )
                          .setOutput( output ) );
 
@@ -75,6 +76,7 @@ public class Flow extends Batch {
                             .setOutput( new Output( "shuffle:default" ) ) );
 
             reduce( new Job().setDelegate( FlowIterJob.Reduce.class )
+                             .setCombiner( FlowIterJob.Reduce.class )
                              .setInput( new Input(  "shuffle:default" ) )
                              .setOutput( new Output( output ) ) );
             

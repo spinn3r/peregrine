@@ -155,6 +155,8 @@ public class Main {
 
         if ( Strings.empty( data ) )
             return _default;
+
+        data = data.trim();
         
         String[] split = data.trim().split( "\n" );
 
