@@ -476,8 +476,12 @@
 
     </target>
 
-    <target name="coverage" depends="clean, with.clover, jar, test, clover.html">
+    <target name="coverage"  
+            depends="clean, with.clover, jar, test, clover.html">
+    </target>
 
+    <target name="coverage-basic" 
+            depends="clean, with.clover, jar, test-basic, clover.html">
     </target>
 
     <target name="site.update">
@@ -553,5 +557,4 @@
     </target>
 
 </project>
-
 

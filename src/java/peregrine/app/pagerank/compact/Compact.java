@@ -24,6 +24,8 @@ import peregrine.io.*;
 import com.spinn3r.log5j.Logger;
 
 /**
+ * Build a 'compaction' of two graphs by merging the data from both imput files
+ * and merging the records together.
  */
 public class Compact extends Batch {
     
