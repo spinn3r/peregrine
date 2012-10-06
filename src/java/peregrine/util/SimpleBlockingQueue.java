@@ -26,14 +26,21 @@ public class SimpleBlockingQueue<T> {
 
     BlockingQueue<T> delegate = null;
 
+    private long timeout = -1;
+    
     public SimpleBlockingQueue() {
         delegate = new LinkedBlockingQueue();
     }
 
     public SimpleBlockingQueue( int capacity ) {
-        delegate = new LinkedBlockingQueue( capacity );
+        this( capacity, -1 );
     }
-    
+
+    public SimpleBlockingQueue( int capacity, long timeout ) {
+        delegate = new LinkedBlockingQueue( capacity );
+        this.timeout = timeout;
+    }
+
     public T peek() {
         return delegate.peek();
     }
@@ -59,11 +66,19 @@ public class SimpleBlockingQueue<T> {
     }
 
     public void put( T value ) {
+
         try {
-            delegate.put( value );
+
+            if ( timeout <= 0 ) {
+                delegate.put( value );
+            } else if ( delegate.offer( value, timeout, TimeUnit.MILLISECONDS ) == false ) {
+                throw new RuntimeException( "Timeout: " + timeout );
+            }
+
         } catch ( InterruptedException e ) {
             throw new RuntimeException( e );
         }
+
     }
 
     public Iterator<T> iterator() {

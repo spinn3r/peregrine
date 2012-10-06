@@ -80,7 +80,7 @@ public class HttpClient implements ChannelBufferWritable {
     /**
      * Stores writes waiting to be sent over the wire.
      */
-    protected SimpleBlockingQueue<ChannelBuffer> queue = new SimpleBlockingQueue( QUEUE_CAPACITY );
+    protected SimpleBlockingQueue<ChannelBuffer> queue = new SimpleBlockingQueue( QUEUE_CAPACITY, WRITE_TIMEOUT );
 
     /**
      * Stores the result of this IO operation.  Boolean.TRUE if it was success
