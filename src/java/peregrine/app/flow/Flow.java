@@ -86,7 +86,7 @@ public class Flow extends Batch {
 
         merge( new Job().setDelegate( FlowTermJob.Merge.class )
                         .setInput( tmp, input )
-                        .setOutput( output );
+                        .setOutput( output ) );
         
         // now terminate the job by writing out the actual link data.
         truncate( tmp ); 
