@@ -167,8 +167,9 @@ public class Job extends BaseJob<Job> {
         return this.maxChunks;
     }
 
-    public void setMaxChunks( int maxChunks ) { 
+    public Job setMaxChunks( int maxChunks ) { 
         this.maxChunks = maxChunks;
+        return this;
     }
 
     public Message getParameters() {

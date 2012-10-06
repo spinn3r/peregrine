@@ -24,10 +24,11 @@ import peregrine.config.*;
 import peregrine.controller.*;
 import peregrine.io.*;
 import peregrine.io.partition.*;
-import peregrine.util.primitive.*;
-import peregrine.util.*;
+import peregrine.io.util.*;
 import peregrine.reduce.*;
 import peregrine.sort.*;
+import peregrine.util.*;
+import peregrine.util.primitive.*;
 
 import com.spinn3r.log5j.*;
 
@@ -40,11 +41,19 @@ public class TestSortViaMapReduce extends peregrine.BaseTestWithMultipleProcesse
     @Override
     public void doTest() throws Exception {
 
-        doTest( ComputePartitionTableJob.MAX_SAMPLE_SIZE * 2 );
+        int max = ComputePartitionTableJob.MAX_SAMPLE_SIZE * 2;
+        
+        doTest( max, 1 );
+        doTest( max, 2 );
+        doTest( max, 10 );
+        doTest( max, 100 );
+        doTest( max, 1000 );
+        doTest( max, 10000 );
+        doTest( max, max );
         
     }
 
-    private void doTest( int max ) throws Exception {
+    private void doTest( int max, int range ) throws Exception {
 
         log.info( "Testing with %,d records." , max );
 
@@ -54,12 +63,6 @@ public class TestSortViaMapReduce extends peregrine.BaseTestWithMultipleProcesse
 
         ExtractWriter writer = new ExtractWriter( config, path );
 
-        //int range = max;
-
-        //int range = 100000;
-
-        int range = max;
-        
         Random r = new Random();
         
         for( long i = 0; i < max; ++i ) {
@@ -85,12 +88,89 @@ public class TestSortViaMapReduce extends peregrine.BaseTestWithMultipleProcesse
         } finally {
             controller.shutdown();
         }
+        
+        // ********** local work which reads directly from the filesystem to
+        // ********** make sure we have correct results
 
+        // now test the distribution of the keys... 
+
+        // map from partition to disk usage in bytes
+        Map<Partition,Long> usage = new HashMap();
+        
+        for ( Config c : configs ) {
+
+            System.out.printf( "host: %s\n", c.getHost() );
+
+            // /tmp/peregrine-fs-11112/localhost/11112/0/
+
+            List<Partition> partitions = c.getMembership().getPartitions( c.getHost() );
+
+            for( Partition part : partitions ) {
+
+                int port = c.getHost().getPort();
+                
+                String dir = String.format( "/tmp/peregrine-fs-%s/localhost/%s/%s/%s", port, port, part.getId(), output );
+
+                File file = new File( dir );
+
+                if( ! file.exists() )
+                    continue;
+
+                long du = Files.usage( file );
+
+                System.out.printf( "%s=%s\n", file.getPath(), du );
+
+                usage.put( part, du );
+                
+            }
+
+        }
+
+        double total = 0;
+
+        for( long val : usage.values() ) {
+            total += val;
+        }
+
+        Map<Partition,Integer> perc = new HashMap();
+
+        for( Partition part : usage.keySet() ) {
+
+            long du = usage.get( part );
+
+            int p = (int)((du / total) * 100);
+
+            perc.put( part , p );
+            
+        }
+
+        System.out.printf( "perc: %s\n", perc );
+
+        int last = -1;
+        
+        for( Partition part : perc.keySet() ) {
+
+            if ( last != -1 ) {
+
+                int delta = perc.get( part ) - last;
+
+                if ( delta > 2 ) {
+                    throw new RuntimeException( "invalid partition layout: " + perc );
+                }
+                
+            }
+
+            last = perc.get( part );
+            
+        }
+        
     }
 
     public static void main( String[] args ) throws Exception {
 
-        System.setProperty( "peregrine.test.config", "4:1:1" ); // 3sec
+        //System.setProperty( "peregrine.test.config", "8:1:1" ); // 3sec
+        //System.setProperty( "peregrine.test.config", "2:1:4" ); // 3sec
+        System.setProperty( "peregrine.test.config", "2:1:1" ); // 3sec
         runTests();
         
     }

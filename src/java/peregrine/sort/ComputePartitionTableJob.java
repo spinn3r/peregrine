@@ -15,6 +15,7 @@
  */
 package peregrine.sort;
 
+import java.math.*;
 import java.util.*;
 import java.io.*;
 
@@ -70,13 +71,21 @@ public class ComputePartitionTableJob {
          */
         List<StructReader> sample = new ArrayList();
 
-        private JobOutput partitionTable = null;
-
+        private SortComparator comparator = null;
+        
         @Override
         public void init( Job job, List<JobOutput> output ) {
 
             super.init( job, output );
-            partitionTable = output.get(1);
+
+            try {
+
+                Class clazz = job.getParameters().getClass( "sortComparator" );
+                comparator = (SortComparator)clazz.newInstance();
+                
+            } catch ( Exception e ) {
+                throw new RuntimeException( e );
+            }
             
         }
 
@@ -122,8 +131,8 @@ public class ComputePartitionTableJob {
                 log.warn( "No samples for job." );
                 
             }
-            
-            Collections.sort( sample, new StrictStructReaderComparator() );
+
+            Collections.sort( sample, comparator );
 
             //now write out the partitions.
 
@@ -142,7 +151,10 @@ public class ComputePartitionTableJob {
             for( ; partition_id < nr_partitions - 1; ++partition_id ) {
 
                 offset += width;
-                partitionBoundaries.add( sample.get( offset - 1 ) );
+
+                StructReader sr = sample.get( offset - 1 );
+                
+                partitionBoundaries.add( sr );
 
             }
 
@@ -150,7 +162,7 @@ public class ComputePartitionTableJob {
 
             //sort the partitions so that the sort order (asc/desc) of the query
             //is taken into consideration.
-            Collections.sort( partitionBoundaries, job.getComparatorInstance() );
+            Collections.sort( partitionBoundaries, comparator );
 
             partition_id = 0;
 
@@ -165,9 +177,8 @@ public class ComputePartitionTableJob {
         @Override
         public void emit( StructReader key, StructReader value ) {
 
-            log.info( "Going to emit partition table entry: %s=%s" , key.slice().readLong(), Hex.encode( value ) );
-            
-            partitionTable.emit( key, value );
+            log.info( "Going to emit partition table entry: %s=%s (%s)" , key.slice().readLong(), Hex.encode( value ), value.toInteger() );
+            super.emit( key, value );
             
         }
         
@@ -183,7 +194,6 @@ public class ComputePartitionTableJob {
         public void reduce( StructReader key, List<StructReader> values ) {
 
             StructReader value = mean( values );
-            //StructReader value = median( values );
 
             log.info( "Going to use final broadcast partition boundary: %s", Hex.encode( value ) );
             boundaries.add( value );
@@ -191,16 +201,6 @@ public class ComputePartitionTableJob {
             if ( boundaries.size() == getConfig().getMembership().size() ) {
                 emit( key, StructReaders.wrap( boundaries ) );
             }
-            
-        }
-
-        private StructReader median( List<StructReader> values ) {
-
-            List<StructReader> sorted = new ArrayList( values );
-            
-            Collections.sort( sorted, new StrictStructReaderComparator() );
-            
-            return sorted.get( sorted.size() / 2 );
             
         }
         

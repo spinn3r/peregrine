@@ -6,6 +6,7 @@ import java.util.concurrent.*;
 import java.nio.*;
 import java.nio.channels.*;
 import java.lang.reflect.*;
+import java.math.*;
 
 import peregrine.os.*;
 import peregrine.util.*;
@@ -65,11 +66,15 @@ public class Test {
 
     public static void main( String[] args ) throws Exception {
 
-        Set<StructReader> set = new HashSet();
+        BigInteger bi = new BigInteger( LongBytes.toByteArray( Long.MAX_VALUE ) );
 
-        set.add( StructReaders.hashcode( "asdf" ) );
+        System.out.printf( "bi: %s\n", bi );
         
-        System.out.printf( "%s\n", set.contains( StructReaders.hashcode( "asdf" ) ) );
+        // Set<StructReader> set = new HashSet();
+
+        // set.add( StructReaders.hashcode( "asdf" ) );
+        
+        // System.out.printf( "%s\n", set.contains( StructReaders.hashcode( "asdf" ) ) );
         
         // ChannelBuffer buff = ChannelBuffers.wrappedBuffer( new byte[128] );
 

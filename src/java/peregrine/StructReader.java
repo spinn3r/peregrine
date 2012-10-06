@@ -15,6 +15,7 @@
 */
 package peregrine;
 
+import java.math.*;
 import java.nio.*;
 
 import org.jboss.netty.buffer.*;
@@ -230,8 +231,9 @@ public class StructReader implements ByteReadable {
      * Reset for reading again.  This positions the pointer at the beginning of
      * the struct.
      */
-    public void reset() {
+    public StructReader reset() {
         buff.readerIndex( 0 );
+        return this;
     }
 
     /**
@@ -264,6 +266,13 @@ public class StructReader implements ByteReadable {
         return buff.readerIndex() < buff.writerIndex();
     }
 
+    /**
+     * Convert this to an big integer in string format.
+     */
+    public String toInteger() {
+        return new BigInteger( toByteArray() ).toString();
+    }
+    
     @Override
     public String toString() {
         return Hex.encode( this );

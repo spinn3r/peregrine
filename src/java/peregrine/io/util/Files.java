@@ -16,6 +16,7 @@
 package peregrine.io.util;
 
 import java.io.*;
+import java.util.concurrent.atomic.*;
 import java.lang.reflect.*;
 
 import peregrine.os.*;
@@ -320,6 +321,28 @@ public class Files {
 
     }
 
+    /**
+     * Compute the usage, in bytes, of the given directory.
+     */
+    public static long usage( File file ) throws IOException {
+
+        if ( file.isDirectory() == false )
+            return file.length();
+
+        final AtomicLong result = new AtomicLong();
+        
+        new Recursively<IOException>( file ) {
+
+            public void handle( File current ) throws IOException {
+                result.getAndAdd( current.length() );
+            }
+            
+        };
+
+        return result.get();
+        
+    }
+    
 }
 
 /**

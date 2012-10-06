@@ -156,17 +156,17 @@ public class Batch extends BaseJob<Batch> {
 
     public Batch sort( String input, String output, Class comparator ) {
 
-        Job job = new Job();
-        job.setDelegate( ComputePartitionTableJob.Map.class );
-        job.setInput( new Input( input ) );
-        job.setOutput( new Output( "shuffle:default", "broadcast:partition_table" ) );
-        // the comparator is needed so that we can setup the partition table.
-        job.setComparator( comparator );
-        // this is a sample job so we don't need to read ALL the data.
-        job.setMaxChunks( 1 ); 
-
-        map( job );
-
+        map( new Job().setDelegate( ComputePartitionTableJob.Map.class )
+                      .setInput( input )
+                      .setOutput( "broadcast:partition_table" )
+                      // this is only a sample job so we only need to read 1 chunk
+                      .setMaxChunks( 1 )
+                      // note that we can't use the normal job.setComparator
+                      // here because this would mean we would use a custom
+                      // partition layout when doing an emit and that is exactly
+                      // what we want to avoid during the reduce.
+                      .setParameters( "sortComparator", comparator.getName() ) );
+             
         // Step 2.  Reduce that partition table and broadcast it so everyone
         // has the same values.
         reduce( ComputePartitionTableJob.Reduce.class,
@@ -176,7 +176,7 @@ public class Batch extends BaseJob<Batch> {
         // Step 3.  Map across all the data in the input file and send it to
         // right partition which would need to hold this value.
         
-        job = new Job();
+        Job job = new Job();
 
         job.setDelegate( GlobalSortJob.Map.class );
         job.setInput( new Input( input, "broadcast:/tmp/partition_table" ) );
