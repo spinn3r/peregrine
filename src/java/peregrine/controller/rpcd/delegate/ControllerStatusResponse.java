@@ -31,6 +31,8 @@ import peregrine.util.*;
  * Send the response to a 'status' request as a Message.
  */
 public class ControllerStatusResponse implements MessageSerializable {
+    
+    protected long started = -1;
 
     protected List<Batch> history = new ArrayList();
 
@@ -47,7 +49,8 @@ public class ControllerStatusResponse implements MessageSerializable {
         this.history = controller.getHistory();
         this.pending = controller.getPending();
         this.executing = controller.getExecuting();
-
+        this.started = controller.getStarted();
+        
         if ( scheduler != null ) {
             schedulerStatusResponse = new SchedulerStatusResponse( scheduler );
         }
@@ -64,7 +67,15 @@ public class ControllerStatusResponse implements MessageSerializable {
     public Batch getExecuting() {
         return executing;
     }
-    
+
+    public long getStarted() { 
+        return this.started;
+    }
+
+    public void setStarted( long started ) { 
+        this.started = started;
+    }
+
     public SchedulerStatusResponse getSchedulerStatusResponse() {
         return schedulerStatusResponse;
     }
@@ -80,6 +91,7 @@ public class ControllerStatusResponse implements MessageSerializable {
         response.put( "history",    history );
         response.put( "pending",    pending );
         response.put( "scheduler",  schedulerStatusResponse );
+        response.put( "started",    started );
         
         return response;
         
@@ -106,6 +118,7 @@ public class ControllerStatusResponse implements MessageSerializable {
 
         history    = message.getList( "history", Batch.class );
         pending    = message.getList( "pending", Batch.class );
+        started    = message.getLong( "started" );
         
     }
 
