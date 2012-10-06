@@ -22,7 +22,7 @@ runcmd() {
 get_controller() {
     result=$(cat conf/peregrine.conf | grep "controller=" |grep -Eo "[^=]+$" | grep -Eo "^[^:]+")
 
-    if ( "$result" = "" ]; then
+    if [ "$result" = "" ]; then
 
         echo "Unable to determine controller." 
         exit 1
