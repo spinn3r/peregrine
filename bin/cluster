@@ -90,9 +90,9 @@ start() {
     # start the controller
     controller=$(get_controller)
 
-    echo "Starting controller..."
+    echo "Starting controller: $controller"
 
-    runcmd ssh root@$hostname "cd $DIR && ./bin/controllerd start" 
+    runcmd ssh root@$controller "cd $DIR && ./bin/controllerd start" 
 
 }
 
@@ -107,9 +107,9 @@ stop() {
     # stop the controller
     controller=$(get_controller)
 
-    echo "Stopping controller..."
+    echo "Stopping controller: $controller"
 
-    runcmd ssh root@$hostname "cd $DIR && ./bin/controllerd stop" 
+    runcmd ssh root@$controller "cd $DIR && ./bin/controllerd stop" 
 
 }
 
