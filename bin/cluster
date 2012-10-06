@@ -20,7 +20,17 @@ runcmd() {
 }
 
 get_controller() {
-    cat conf/peregrine.conf | grep "controller=" |grep -Eo "[^=]+$" | grep -Eo "^[^:]+"
+    result=$(cat conf/peregrine.conf | grep "controller=" |grep -Eo "[^=]+$" | grep -Eo "^[^:]+")
+
+    if ( "$result" = "" ]; then
+
+        echo "Unable to determine controller." 
+        exit 1
+
+    fi
+
+    echo $result
+
 }
 
 get_unique_hosts() {
