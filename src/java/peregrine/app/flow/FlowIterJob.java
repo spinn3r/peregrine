@@ -51,7 +51,7 @@ public class FlowIterJob {
             }
 
         }
-
+        
         @Override
         public void close() throws IOException {
             log.info( "Found %,d hits", hits );

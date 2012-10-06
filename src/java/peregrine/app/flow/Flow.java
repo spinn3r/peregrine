@@ -55,33 +55,42 @@ public class Flow extends Batch {
         
         setName( Flow.class.getName() );
 
+        String tmp = "/flow/connected.tmp";
+        
         Job job = new Job();
 
         map( new Job().setDelegate( FlowInitJob.Map.class )
                       .setInput( input )
-                      .setOutput( new Output( "shuffle:default" ) )
+                      .setOutput( "shuffle:default" )
                       .setParameters( "sources", sources,
                                       "caseInsensitive", caseInsensitive ) ) ;
         
         reduce( new Job().setDelegate( FlowInitJob.Reduce.class )
                          .setCombiner( FlowInitJob.Reduce.class )
                          .setInput( "shuffle:default" )
-                         .setOutput( output ) );
+                         .setOutput( tmp ) );
 
         for( int i = 0; i < iterations; ++i ) {
 
             // now merge against the output and the input
             merge( new Job().setDelegate( FlowIterJob.Merge.class )
-                            .setInput( output, input )
-                            .setOutput( new Output( "shuffle:default" ) ) );
+                            .setInput( tmp, input )
+                            .setOutput( "shuffle:default" ) );
 
             reduce( new Job().setDelegate( FlowIterJob.Reduce.class )
                              .setCombiner( FlowIterJob.Reduce.class )
-                             .setInput( new Input(  "shuffle:default" ) )
-                             .setOutput( new Output( output ) ) );
+                             .setInput( "shuffle:default" )
+                             .setOutput( tmp ) );
             
         }
 
+        merge( new Job().setDelegate( FlowTermJob.Merge.class )
+                        .setInput( tmp, input )
+                        .setOutput( output );
+        
+        // now terminate the job by writing out the actual link data.
+        truncate( tmp ); 
+        
     }
 
 }
