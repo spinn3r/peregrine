@@ -8,8 +8,6 @@ OPEN_FILES=16384
 FLUSH_LOGS=true
 FLUSH_FS=false
 
-# FIXME: start the controller.
-
 ###
 # run the given command but print what we're about to run... 
 runcmd() {
@@ -31,8 +29,6 @@ get_unique_hosts() {
 }
 
 flush_logs() {
-
-    # FIXME: stop the controller
 
     for host in `get_unique_hosts`; do
         runcmd ssh root@$host "find $DIR/logs/ -name '*.log*' -exec rm '{}' ';' " 
@@ -81,7 +77,12 @@ start() {
 
     done
 
-    # FIXME start the controller
+    # start the controller
+    controller=$(get_controller)
+
+    echo "Starting controller..."
+
+    runcmd ssh root@$hostname "cd $DIR && ./bin/controllerd start" 
 
 }
 
@@ -92,6 +93,13 @@ stop() {
     for host in `get_unique_hosts`; do
         runcmd ssh root@$host "pgrep -f peregrine.worker.Main | xargs kill"
     done
+
+    # stop the controller
+    controller=$(get_controller)
+
+    echo "Stopping controller..."
+
+    runcmd ssh root@$hostname "cd $DIR && ./bin/controllerd stop" 
 
 }
 

@@ -142,14 +142,15 @@ public class Batch extends BaseJob<Batch> {
     /**
      * Truncate / init a file so that it is empty and ready to be merged against.
      */
-    public Batch truncate( String output ) {
+    public Batch truncate( String path ) {
 
         // map-only job that reads from an empty blackhole: stream and writes
         // nothing to the output file. 
         
-        return map( Mapper.class,
-                    new Input( "blackhole:" ),
-                    new Output( output ) );
+        return map( new Job().setDelegate( Mapper.class )
+                             .setInput( "blackhole:" )
+                             .setOutput( path )
+                             .setDescription( "Truncate: " + path ) );
         
     }
 
