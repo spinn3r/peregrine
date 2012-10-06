@@ -490,17 +490,18 @@ public class Main {
                     state = "OFFLINE: " + cause.getMessage();
 
                 curses.mvaddstr( y_pos++, 0, String.format( "%s", "Controller:" ) );
+                curses.mvaddstr( y_pos++, 4, String.format( "%-20s %s", "Last refresh:", new Date() ) );
                 curses.mvaddstr( y_pos++, 4, String.format( "%-20s %s", "Host:", config.getController() ) );
                 curses.mvaddstr( y_pos++, 4, String.format( "%-20s %s", "State:", state ) );
-                curses.mvaddstr( y_pos++, 4, String.format( "%-20s %s", "Historical batches:", response.getHistory().size() ) );
-                curses.mvaddstr( y_pos++, 4, String.format( "%-20s %s", "Pending batches:", response.getPending().size() ) );
-
-                ++y_pos;
-
-                curses.mvaddstr( y_pos++, 0, String.format( "%s %s",    "Last refresh:", new Date() ) );
 
                 if ( cause != null )
                     continue;
+
+                long now = System.currentTimeMillis();
+
+                curses.mvaddstr( y_pos++, 4, String.format( "%-20s %s", "Historical batches:", response.getHistory().size() ) );
+                curses.mvaddstr( y_pos++, 4, String.format( "%-20s %s", "Pending batches:", response.getPending().size() ) );
+                curses.mvaddstr( y_pos++, 4, String.format( "%-20s %s", "Uptime:", getDuration( now, now - response.getStarted() ) ) );
 
                 ++y_pos;
                 
