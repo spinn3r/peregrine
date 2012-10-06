@@ -116,12 +116,10 @@ public class ComputePartitionTableJob {
 
             if ( sample.size() == 0 ) {
 
-                //FIXME: this is wrong.  It is totally reasonable to want to
-                //sort a file with no entries.  ALSO what if there are less
-                //samples than total numbers of partitions? In this situation
-                //just put everything on the first partition.
+                // It is totally reasonable to want to sort a file with no
+                // entries.
                 
-                throw new IOException( "No samples" );
+                log.warn( "No samples for job." );
                 
             }
             

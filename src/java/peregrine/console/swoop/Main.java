@@ -499,9 +499,9 @@ public class Main {
 
                 long now = System.currentTimeMillis();
 
+                curses.mvaddstr( y_pos++, 4, String.format( "%-20s %s", "Uptime:", getDuration( now, now - response.getStarted() ) ) );
                 curses.mvaddstr( y_pos++, 4, String.format( "%-20s %s", "Historical batches:", response.getHistory().size() ) );
                 curses.mvaddstr( y_pos++, 4, String.format( "%-20s %s", "Pending batches:", response.getPending().size() ) );
-                curses.mvaddstr( y_pos++, 4, String.format( "%-20s %s", "Uptime:", getDuration( now, now - response.getStarted() ) ) );
 
                 ++y_pos;
                 
