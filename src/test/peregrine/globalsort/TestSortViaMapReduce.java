@@ -38,40 +38,84 @@ public class TestSortViaMapReduce extends peregrine.BaseTestWithMultipleProcesse
 
     private static String MODE = "all";
 
+    /**
+     * The values created by each test so that we can test them locally after we
+     * emit them.
+     */
+    private static List<StructReader> values = null;
+
     @Override
     public void doTest() throws Exception {
 
-        int max = ComputePartitionTableJob.MAX_SAMPLE_SIZE * 2;
+        Config config = getConfig();
+
+        int nr_partitions = config.getMembership().size();
         
-        doTest( max, 1 );
+        int max = ComputePartitionTableJob.MAX_SAMPLE_SIZE * 2 * nr_partitions;
+
         doTest( max, 2 );
+
+/*
+        doTest( max, 1 );
         doTest( max, 10 );
         doTest( max, 100 );
         doTest( max, 1000 );
         doTest( max, 10000 );
         doTest( max, max );
+*/
         
     }
 
+    /**
+     * Given our real world partition layout, sort them and compute the ideal
+     * partitions so that we can see how close our samples come.
+     */
+    private void computeIdealPartitions() throws Exception {
+
+        Config config = getConfig();
+
+        JobSortComparator comparator = new JobSortComparator();
+        
+        //Collections.sort( values, comparator );
+
+        //ComputePartitionTableJob.dump( "Ideal partition values: " , values );
+        
+        List<StructReader> boundaries = ComputePartitionTableJob.computePartitionBoundaries( config, new Partition(666), comparator, values );
+
+        long partition_id = 0;
+        
+        for( StructReader sr : boundaries ) {
+            System.out.printf( "FIXME: Ideal partition %s (%s) for partition_id=%s\n", sr.toInteger(), sr.toString(), partition_id );
+            ++partition_id;
+        }
+
+    }
+    
     private void doTest( int max, int range ) throws Exception {
 
         log.info( "Testing with %,d records." , max );
 
         Config config = getConfig();
 
+        values = new ArrayList();
+        
         String path = String.format( "/test/%s/test1.in", getClass().getName() );
 
         ExtractWriter writer = new ExtractWriter( config, path );
 
         Random r = new Random();
+
+        JobSortComparator comparator = new JobSortComparator();
         
         for( long i = 0; i < max; ++i ) {
 
             StructReader key = StructReaders.hashcode( i );
-            //StructReader value = StructReaders.wrap( (long)r.nextInt( range ) );
-            StructReader value = StructReaders.wrap( 0L );
+            StructReader value = StructReaders.wrap( (long)r.nextInt( range ) );
+            //StructReader value = StructReaders.wrap( 0L );
             
             writer.write( key, value );
+
+            values.add( comparator.getSortKey( key, value ) );
             
         }
 
@@ -83,6 +127,19 @@ public class TestSortViaMapReduce extends peregrine.BaseTestWithMultipleProcesse
 
         try {
 
+            // technically, we can't just use the input data which is written
+            // via the ExtractWriter because the keys won't be written in the
+            // same order as a fully random mapper.  We have to map it like it
+            // would be in production.
+
+            controller.map( new Job().setDelegate( Mapper.class )
+                                     .setInput( path )
+                                     .setOutput( "shuffle:default" ) );
+
+            controller.reduce( new Job().setDelegate( Reducer.class )
+                                        .setInput( "shuffle:default" )
+                                        .setOutput( path ) );
+            
             controller.sort( path, output, JobSortComparator.class );
             
         } finally {
@@ -126,6 +183,8 @@ public class TestSortViaMapReduce extends peregrine.BaseTestWithMultipleProcesse
 
         }
 
+        computeIdealPartitions();
+        
         double total = 0;
 
         for( long val : usage.values() ) {
@@ -155,7 +214,7 @@ public class TestSortViaMapReduce extends peregrine.BaseTestWithMultipleProcesse
                 int delta = perc.get( part ) - last;
 
                 if ( delta > 2 ) {
-                    throw new RuntimeException( "invalid partition layout: " + perc );
+                    throw new RuntimeException( String.format( "invalid partition layout with max=%s and range=%s : %s", max, range, perc ) );
                 }
                 
             }
@@ -170,9 +229,9 @@ public class TestSortViaMapReduce extends peregrine.BaseTestWithMultipleProcesse
 
         //System.setProperty( "peregrine.test.config", "8:1:1" ); // 3sec
         //System.setProperty( "peregrine.test.config", "2:1:4" ); // 3sec
-        System.setProperty( "peregrine.test.config", "2:1:1" ); // 3sec
+        System.setProperty( "peregrine.test.config", "4:1:1" ); // 3sec
         runTests();
-        
+
     }
 
 }

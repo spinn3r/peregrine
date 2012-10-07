@@ -64,11 +64,38 @@ public class Test {
 
     }
 
+    static class JobSortComparator extends StrictSortComparator {
+
+        @Override
+        public StructReader getSortKey( StructReader key, StructReader value ) {
+            // read the first 8 bytes which is the long representation
+            // of what we should sort be sorting by.
+            return StructReaders.join( value.slice( 0, 8 ), key.slice() );
+        }
+
+    }
+
     public static void main( String[] args ) throws Exception {
 
-        BigInteger bi = new BigInteger( LongBytes.toByteArray( Long.MAX_VALUE ) );
+        new Initializer().logger( "test" );
 
-        System.out.printf( "bi: %s\n", bi );
+        List<StructReader> list = new ArrayList();
+
+        /*
+        list.add( new StructReader( new byte[] { (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0xfc, (byte)0x4e, (byte)0x10, (byte)0x2b, (byte)0x3d, (byte)0x9b, (byte)0x73, (byte)0xcb } ) );
+        list.add( new StructReader( new byte[] { (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x05, (byte)0x24, (byte)0xdf, (byte)0x25, (byte)0x5a, (byte)0x48, (byte)0x25, (byte)0x4e } ) );
+        list.add( new StructReader( new byte[] { (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x0d, (byte)0xb4, (byte)0x7f, (byte)0x39, (byte)0x52, (byte)0x8b, (byte)0xa1, (byte)0x95 } ) );
+        */
+
+        list.add( new StructReader( new byte[] { (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x01, (byte)0xc3, (byte)0xf5, (byte)0xf1, (byte)0x70, (byte)0x34, (byte)0x34, (byte)0x2c, (byte)0x2e } ) );
+        list.add( new StructReader( new byte[] { (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x05, (byte)0x24, (byte)0xdf, (byte)0x25, (byte)0x5a, (byte)0x48, (byte)0x25, (byte)0x4e } ) );
+
+        ComputePartitionTableJob.dump( "FIXME: before: ", list );
+
+        //Collections.sort( list, new JobSortComparator() );
+        Collections.sort( list, new StrictStructReaderComparator() );
+        
+        ComputePartitionTableJob.dump( "FIXME: after: ", list );
         
         // Set<StructReader> set = new HashSet();
 

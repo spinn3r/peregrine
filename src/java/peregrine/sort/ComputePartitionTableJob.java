@@ -34,24 +34,34 @@ public class ComputePartitionTableJob {
 
     private static final Logger log = Logger.getLogger();
 
-    public static final int MAX_SAMPLE_SIZE = 100000;
+    /**
+     * The maximum number of keys to read into memory to compute the sample.
+     */
+    public static final int MAX_SAMPLE_SIZE = 100; //FIXME set back to 100k
 
     /**
+     * <p>
      * The key length for partition boundaries.  Eight (8) bites for the first
      * component and 8 bytes for the second component.
      *
+     * <p>
      * The first component is the value we are sorting by.  Eight bytes give us
      * enough room for doubles/longs.
      *
+     * <p>
      * The second component is an 8 byte value for the hashcode for that item.
      * This way we have enough bytes to split data even when the sorting column
      * is the same for 2^64 items.
      * 
+     * <p>In the future we should consider a way to have custom width sort keys.
      */
     public static final int KEY_LEN = 16;
 
     public static final StructReader LAST_BOUNDARY  = createByteArray( 127, KEY_LEN );
-
+    
+    /**
+     * Create a byte array of the given values.
+     */
     private static StructReader createByteArray( int val, int len ) {
 
         byte[] data = new byte[ len ];
@@ -63,13 +73,99 @@ public class ComputePartitionTableJob {
         return StructReaders.wrap( data );
         
     }
-    
+
+    public static List<StructReader> computePartitionBoundaries( Config config,
+                                                                 Partition part,
+                                                                 SortComparator comparator,
+                                                                 List<StructReader> sample ) {
+
+        log.info( "Sample size is: %,d items", sample.size() );
+
+        List<StructReader> result = new ArrayList();
+
+        if ( sample.size() == 0 ) {
+
+            // It is totally reasonable to want to sort a file with no
+            // entries.
+            
+            log.warn( "No samples for job." );
+
+            return result;
+            
+        }
+
+        //Collections.sort( sample, comparator );
+        Collections.sort( sample, new StrictStructReaderComparator() );
+        
+        log( "samples for: " + part, sample );
+        
+        //now write out the partitions.
+
+        int nr_partitions = config.getMembership().size();
+
+        int width = sample.size() / nr_partitions;
+
+        int offset = 0;
+
+        log.info( "Going to split across %,d partitions" , nr_partitions );
+
+        long partition_id = 0;
+
+        for( ; partition_id < nr_partitions - 1; ++partition_id ) {
+
+            offset += width - 1;
+
+            StructReader sr = sample.get( offset );
+
+            log.info( "FIXME: Took sample %s on partition %s at offset=%s with sample size=%s\n", sr.toInteger(), part, offset, sample.size() );
+            
+            result.add( sr );
+
+        }
+
+        result.add( LAST_BOUNDARY );
+
+        return result;
+
+    }
+
+    public static String format( StructReader sr ) {
+        return String.format( "%s=%s", sr.toInteger(), sr.toString() );
+    }
+
+    public static void log( String description, List<StructReader> list ) {
+
+        StringBuilder buff = new StringBuilder();
+
+        buff.append( "\n" );
+
+        int i = 0;
+        for( StructReader sr : list ) {
+            buff.append( String.format( "FIXME: dump: %04d/%04d=%s: %s\n" , i+1, list.size(), description, format( sr ) ) );
+            ++i;
+        }
+
+        log.info( "%s", buff.toString() );
+        
+    }
+
+    public static void dump( String description, List<StructReader> list ) {
+
+        for( StructReader sr : list ) {
+            System.out.printf( "FIXME: dump: %s: %s\n" , description, format( sr ) );
+        }
+
+    }
+
     public static class Map extends Mapper {
 
+        private static final Logger log = Logger.getLogger();
+
         /**
-         * The sample data 
+         * The sample data.  We sort this list and then take samples at
+         * partition boundaries.
          */
-        List<StructReader> sample = new ArrayList();
+        private List<StructReader> sample = new ArrayList();
 
         private SortComparator comparator = null;
         
@@ -78,6 +174,8 @@ public class ComputePartitionTableJob {
 
             super.init( job, output );
 
+            log.info( "FIXME last boundary: %s" , LAST_BOUNDARY.toInteger() );
+            
             try {
 
                 Class clazz = job.getParameters().getClass( "sortComparator" );
@@ -95,8 +193,10 @@ public class ComputePartitionTableJob {
 
             key   = StructReaders.wrap( key.toByteArray() );
             value = StructReaders.wrap( value.toByteArray() );
+
+            StructReader sortKey = comparator.getSortKey( key , value );
             
-            addSample( StructReaders.join( value, key ) );
+            addSample( sortKey );
 
         }
 
@@ -106,7 +206,7 @@ public class ComputePartitionTableJob {
         public void addSample( StructReader sr ) {
 
             // we are done sampling.
-            if ( sample.size() > MAX_SAMPLE_SIZE )
+            if ( sample.size() >= MAX_SAMPLE_SIZE )
                 return;
 
             sample.add( sr );
@@ -119,55 +219,16 @@ public class ComputePartitionTableJob {
             //at this point we should have all the samples, sort then and then
             //determine partition boundaries.
 
-            //write out all the key values now.
-
-            log.info( "Sample size is: %,d items", sample.size() );
-
-            if ( sample.size() == 0 ) {
-
-                // It is totally reasonable to want to sort a file with no
-                // entries.
-                
-                log.warn( "No samples for job." );
-                
-            }
-
-            Collections.sort( sample, comparator );
-
-            //now write out the partitions.
-
-            int nr_partitions = getConfig().getMembership().size();
-
-            int width = sample.size() / nr_partitions;
-
-            int offset = 0;
-
-            log.info( "Going to split across %,d partitions" , nr_partitions );
-
-            List<StructReader> partitionBoundaries = new ArrayList();
+            List<StructReader> boundaries = computePartitionBoundaries( config, getPartition(), comparator, sample );
             
             long partition_id = 0;
 
-            for( ; partition_id < nr_partitions - 1; ++partition_id ) {
-
-                offset += width;
-
-                StructReader sr = sample.get( offset - 1 );
+            for( StructReader boundary : boundaries ) {
                 
-                partitionBoundaries.add( sr );
-
-            }
-
-            partitionBoundaries.add( LAST_BOUNDARY );
-
-            //sort the partitions so that the sort order (asc/desc) of the query
-            //is taken into consideration.
-            Collections.sort( partitionBoundaries, comparator );
-
-            partition_id = 0;
-
-            for( StructReader boundary : partitionBoundaries ) {
                 StructReader key = StructReaders.wrap( partition_id );
+
+                log.info( "FIXME: Using boundary %s for partition: %s" , boundary.toInteger(), partition_id );
+                
                 emit( key, boundary );
                 ++partition_id;
             }
@@ -195,12 +256,34 @@ public class ComputePartitionTableJob {
 
             StructReader value = mean( values );
 
+            //log.info( "FIXME: using values: %s with result %s on partition %s", format( values ), value.toInteger(), key.slice().readLong() );
+
+            log.info( "%s", format( String.format( "FIXME: mean result=%s %s", format( value ), partition ), values ) );
+
             log.info( "Going to use final broadcast partition boundary: %s", Hex.encode( value ) );
             boundaries.add( value );
 
             if ( boundaries.size() == getConfig().getMembership().size() ) {
                 emit( key, StructReaders.wrap( boundaries ) );
             }
+            
+        }
+
+        private String format( StructReader sr ) {
+            return String.format( "%s(%s)", sr.toInteger(), sr.toString() );
+        }
+
+        private String format( String desc, List<StructReader> list ) {
+
+            StringBuilder buff = new StringBuilder();
+
+            buff.append( "\n" );
+            
+            for( StructReader sr : list ) {
+                buff.append( String.format( "%s: %s\n", desc, format( sr ) ) );
+            }
+
+            return buff.toString();
             
         }
         
