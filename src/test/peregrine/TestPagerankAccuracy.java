@@ -77,6 +77,8 @@ public class TestPagerankAccuracy extends peregrine.BaseTestWithMultipleProcesse
         try {
             
             pr = new Pagerank( config, graph, nodes_by_hashcode );
+            pr.prepare();
+            
             //pr.exec();
             
         } finally {

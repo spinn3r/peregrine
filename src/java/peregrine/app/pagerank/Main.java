@@ -91,8 +91,16 @@ public class Main {
             graph = output;
             
         }
+
+        Pagerank pr = new Pagerank( config, graph, nodes_by_hashcode, iterations, sortedGraph );
+
+        if ( getopt.getBoolean( "sort-only" ) ) {
+            pr.sort();
+        } else {
+            pr.prepare();
+        }
         
-        batch.add( new Pagerank( config, graph, nodes_by_hashcode, iterations, sortedGraph ) );
+        batch.add( pr );
 
         batch.init( args );
         

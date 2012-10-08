@@ -81,14 +81,12 @@ public class Pagerank extends Batch {
         setName( Pagerank.class.getName() );
         setDescription( getName() );
 
-        prepare();
-                    
     }
 
     /**
      * Init PR ... setup all our vectors, node metadata table, etc.
      */
-    private void init() {
+    protected void init() {
 
         // ***** INIT stage... 
 
@@ -166,7 +164,7 @@ public class Pagerank extends Batch {
     /**
      * Run one pagerank step.
      */
-    private void iter() {
+    protected void iter() {
 
         merge( IterJob.Map.class,
                new Input( graph_by_source ,
@@ -210,12 +208,24 @@ public class Pagerank extends Batch {
         
     }
 
-    private void term() {
+    /**
+     * Finalize PR.
+     */
+    protected void term() {
 
         // merge the rank vector, node metadata (indegree, outdegree) as well as name of the node, title, and description.
         merge( MergeNodeAndRankMetaJob.Merge.class,
                new Input( "/pr/out/node_metadata", "/pr/out/rank_vector", nodes_by_hashcode ),
                new Output( "/pr/out/rank_metadata" ) );
+
+        sort();
+        
+    }
+
+    /**
+     * Sort the resulting output files.
+     */
+    protected void sort() {
         
         sort( "/pr/out/rank_metadata",
               "/pr/out/rank_metadata_by_rank",
@@ -227,7 +237,10 @@ public class Pagerank extends Batch {
 
     }
 
-    private void prepare() {
+    /**
+     * Build the batch from all existing configuration variables.
+     */
+    public Pagerank prepare() {
 
         init();
 
@@ -241,6 +254,8 @@ public class Pagerank extends Batch {
 
         term();
 
+        return this;
+        
     }
     
     public int getIterations() { 

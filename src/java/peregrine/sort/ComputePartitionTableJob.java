@@ -37,6 +37,10 @@ public class ComputePartitionTableJob {
 
     /**
      * The maximum number of keys to read into memory to compute the sample.
+     * 
+     * <p> TODO: Technically this should be a function of the number of
+     * partitions because our accuracy will fail with the total number of
+     * partitions we have.
      */
     public static final int MAX_SAMPLE_SIZE = 100000; 
 
@@ -138,7 +142,7 @@ public class ComputePartitionTableJob {
         return result;
         
     }
-    
+
     protected static SortComparator getSortComparator( Job job ) {
 
         try {
@@ -278,6 +282,9 @@ public class ComputePartitionTableJob {
             // advantage to this approach is that we can re-use a lot of
             // existing code.
 
+            // TODO: consider ALWAYS making synthetic partitions when we have
+            // less than MAX_SAMPLE_SIZE ... this sample size should be our
+            // target so that we have fined grained partitioning of the data.
             if ( set.size() < (nr_partitions * 100) ) {
 
                 log.info( "Creating synthetic sample data due to small sample set: %s", set.size() );
@@ -347,6 +354,10 @@ public class ComputePartitionTableJob {
 
         private StructReader median( List<StructReader> values ) {
 
+            //TODO: technically the median DOES NOT change based on the
+            //comparator so we don't really need this as a function of the job
+            //and this just adds more code.
+            
             Collections.sort( values, comparator );
             return values.get( values.size() / 2 );
             

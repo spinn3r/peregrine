@@ -52,6 +52,7 @@ public class TestPagerank extends peregrine.BaseTestWithMultipleProcesses {
             controller = new Controller( config );
             
             Pagerank pr = new Pagerank( config, graph, nodes_by_hashcode );
+            pr.prepare();
 
             controller.exec( pr );
 

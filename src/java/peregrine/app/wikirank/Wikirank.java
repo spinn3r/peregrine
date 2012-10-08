@@ -104,6 +104,7 @@ public class Wikirank {
         // the graph is written, now launch a job to finish it up.
 
         Pagerank pr = new Pagerank( config, "/wikirank/graph", "/wikirank/nodes_by_hashcode" );
+        pr.prepare();
         controller.exec( pr );
         
     }
