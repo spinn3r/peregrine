@@ -50,6 +50,9 @@ public class TestSortViaMapReduce extends peregrine.BaseTestWithMultipleProcesse
         
         int max = ComputePartitionTableJob.MAX_SAMPLE_SIZE * 2 * nr_partitions;
 
+        // test sorting empty files.
+        doTest( 0, 2 );
+
         doTest( max, 2 );
         doTest( max, 1 );
         doTest( max, 10 );
@@ -186,6 +189,8 @@ public class TestSortViaMapReduce extends peregrine.BaseTestWithMultipleProcesse
             last = perc.get( part );
             
         }
+
+        // now make sure we actually have records in the right order.
         
     }
 

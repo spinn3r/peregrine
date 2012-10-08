@@ -243,7 +243,23 @@ public class ComputePartitionTableJob {
         @Override
         public void close() throws IOException {
 
+            long nr_partitions = config.getMembership().size();
+
             Collections.sort( sample, comparator );
+
+            if ( sample.size() == 0  ) {
+                log.warn( "No values to sort." );
+
+                // write all data to the last boundary position.  It doesn't
+                // matter where we write these since there are no records being
+                // written.
+                for( long i = 0; i < nr_partitions; ++i ) {
+                    StructReader key = StructReaders.wrap( i );
+                    emit( key, LAST_BOUNDARY );
+                }
+
+                return;
+            }
 
             //TODO: migrate this to HashSet for slightly better memory usage but
             //we have to have StructReader implement Comparable first.
@@ -261,8 +277,6 @@ public class ComputePartitionTableJob {
             // space but we can just create synthetic keys anyway.  The
             // advantage to this approach is that we can re-use a lot of
             // existing code.
-
-            int nr_partitions = config.getMembership().size();
 
             if ( set.size() < nr_partitions * 100 ) {
 
