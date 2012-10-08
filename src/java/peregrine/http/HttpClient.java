@@ -73,7 +73,7 @@ public class HttpClient implements ChannelBufferWritable {
     /**
      * The write timeout for requests.
      */
-    public static final int WRITE_TIMEOUT = 60000;
+    public static final int WRITE_TIMEOUT = 300000;
     
     protected int channelState = PENDING;
 
