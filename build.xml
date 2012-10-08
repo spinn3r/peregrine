@@ -188,6 +188,9 @@
 
                 <fileset dir="src/test">
 
+                  <include name="peregrine/TestNothing.java"/>
+
+                  <!--
                     <include name="**/Test*.java"/>
 
                     <exclude name="peregrine.TestChunkWriterCloseOnReferenceCount"/>
@@ -195,6 +198,8 @@
                     <exclude name="peregrine/TestWorkerFailureDuringJob.java"/>
                     <exclude name="peregrine/TestWikirank.java"/>
   
+                    -->
+
                 </fileset>
 
             </batchtest>

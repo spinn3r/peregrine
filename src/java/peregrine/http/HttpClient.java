@@ -71,7 +71,11 @@ public class HttpClient implements ChannelBufferWritable {
     public static int QUEUE_CAPACITY = 10;
 
     /**
-     * The write timeout for requests.
+     * The write timeout for requests.  Due to GC pause and so forth when using
+     * the ParallelGC this should probably be larger as we HAVE seen write
+     * timeouts when setting it to 60 seconds.  
+     *
+     * <p>TODO: this should be a configuration directive.
      */
     public static final int WRITE_TIMEOUT = 300000;
     
