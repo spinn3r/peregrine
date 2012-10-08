@@ -82,10 +82,6 @@ public class TestSortViaMapReduce extends peregrine.BaseTestWithMultipleProcesse
         // // FIXME: for now sort it twice so we can sample it...
         Collections.sort( values, comparator );
 
-        ComputePartitionTableJob.log( "FIXME: head of actual values: " , values.subList( 0, 200 ) );
-
-        ComputePartitionTableJob.log( "FIXME: summarization of ALL values ", ComputePartitionTableJob.summarize( values, 80 ) );
-
         List<StructReader> boundaries = ComputePartitionTableJob.computePartitionBoundaries( config, new Partition( 666 ), comparator, values );
 
         int partition_id = 0;
