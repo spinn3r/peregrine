@@ -201,10 +201,12 @@ public class ComputePartitionTableJob {
             // NOTE: we have to call toByteArray here because we are keeping
             // these values around for a long time and the maps might not be
             // valid when we try to read them later.
-            
-            //key   = StructReaders.wrap( clearKeyData( key.toByteArray() ) );
 
+            // NOTE: by default only the value matters because we don't have a
+            // full range of key data since we only read one chunk to sample.
+            
             key   = StructReaders.wrap( new byte[8] );
+            
             value = StructReaders.wrap( value.toByteArray() );
 
             addSample( key, value );
@@ -220,9 +222,7 @@ public class ComputePartitionTableJob {
             if ( sample.size() >= MAX_SAMPLE_SIZE )
                 return;
 
-            StructReader sortKey = comparator.getSortKey( key , value );
-
-            sample.add( sortKey );
+            sample.add( comparator.getSortKey( key , value ) );
 
         }
 

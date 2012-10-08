@@ -48,7 +48,7 @@ public class GlobalSortPartitioner extends BasePartitioner {
         
         log.info( "Working with %,d partition entries", partitionTableEntries.size() );
         
-        TreeMap<StructReader,Partition> partitionTable = new TreeMap( job.getComparatorInstance() );
+        TreeMap<StructReader,Partition> partitionTable = new TreeMap( new StrictStructReaderComparator() );
         
         int partition_id = 0;
         
@@ -74,6 +74,10 @@ public class GlobalSortPartitioner extends BasePartitioner {
         // always be a key with a higher value. 
         Partition result = partitionTable.ceilingEntry( ptr ).getValue();
 
+        if ( result == null ) {
+            throw new RuntimeException( "No result found for ptr: " + ptr );
+        }
+        
         return result;
         
 	}
