@@ -50,11 +50,11 @@ public class TestSortViaMapReduce extends peregrine.BaseTestWithMultipleProcesse
         
         int max = ComputePartitionTableJob.MAX_SAMPLE_SIZE * 2 * nr_partitions;
 
-        //doTest( max, 2 );
-        //doTest( max, 1 );
-        //doTest( max, 10 );
-        //doTest( max, max );
-        //doTest( max, 10000 );
+        doTest( max, 2 );
+        doTest( max, 1 );
+        doTest( max, 10 );
+        doTest( max, max );
+        doTest( max, 10000 );
 
         doTest( max, 1000 );
 
