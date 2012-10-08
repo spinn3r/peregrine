@@ -39,6 +39,7 @@ public class Main {
         String graph               = getopt.getString( "graph", "/pr/graph" );
         String nodes_by_hashcode   = getopt.getString( "nodes_by_hashcode", "/pr/nodes_by_hashcode" );
         String corpus              = getopt.getString( "corpus" );
+        int iterations             = getopt.getInt( "iterations", Pagerank.DEFAULT_ITERATIONS );
         boolean sortedGraph        = getopt.getBoolean( "sortedGraph" );
 
         if ( "random".equals( corpus ) ) {
@@ -77,12 +78,13 @@ public class Main {
            
             getopt.require( "flow", "sources" );
 
-            String sources           = getopt.getString( "sources" );
-            int iterations           = getopt.getInt( "iterations", 5 );
-            boolean caseInsensitive  = getopt.getBoolean( "caseInsensitive" );
-            String output            = getopt.getString( "output", "/pr/graph.flowed" );
+            String output = getopt.getString( "flow.output", "/pr/graph.flowed" );
             
-            Flow flow = new Flow( graph, output, sources, iterations, caseInsensitive );
+            Flow flow = new Flow( graph,
+                                  output,
+                                  getopt.getString( "flow.sources" ),
+                                  getopt.getInt( "flow.iterations", 5 ),
+                                  getopt.getBoolean( "flow.caseInsensitive" ) );
             batch.add( flow );
 
             // we need to use the flowed graph as the input for pagerank now
@@ -90,7 +92,7 @@ public class Main {
             
         }
         
-        batch.add( new Pagerank( config, graph, nodes_by_hashcode, sortedGraph ) );
+        batch.add( new Pagerank( config, graph, nodes_by_hashcode, iterations, sortedGraph ) );
 
         batch.init( args );
         

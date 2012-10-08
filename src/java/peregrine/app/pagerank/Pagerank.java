@@ -36,6 +36,8 @@ public class Pagerank extends Batch {
     
     private static final Logger log = Logger.getLogger();
 
+    public static final int DEFAULT_ITERATIONS = 5;
+    
     private Config config;
 
     /**
@@ -49,7 +51,7 @@ public class Pagerank extends Batch {
     /**
      * The number of iterations we should perform.
      */
-    private int iterations = 5;
+    private int iterations = DEFAULT_ITERATIONS;
 
     /**
      */
@@ -62,14 +64,19 @@ public class Pagerank extends Batch {
     private String graph_by_source = "/pr/graph_by_source";
     
     public Pagerank( Config config, String graph, String nodes_by_hashcode ) {
-        this( config, graph, nodes_by_hashcode, false );
+        this( config, graph, nodes_by_hashcode, DEFAULT_ITERATIONS, false );
     }
     
-    public Pagerank( Config config, String graph, String nodes_by_hashcode, boolean sortedGraph ) {
+    public Pagerank( Config config,
+                     String graph,
+                     String nodes_by_hashcode,
+                     int iterations,
+                     boolean sortedGraph ) {
 
         this.config = config;
         this.graph = graph;
         this.nodes_by_hashcode = nodes_by_hashcode;
+        this.iterations = iterations;
 
         setName( Pagerank.class.getName() );
         setDescription( getName() );

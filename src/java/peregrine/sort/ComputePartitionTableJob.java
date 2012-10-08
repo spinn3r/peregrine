@@ -287,7 +287,7 @@ public class ComputePartitionTableJob {
 
             }
 
-            log.info( "Working with %,d samples. " , samples.size() );
+            log.info( "Working with %,d samples. " , sample.size() );
 
             //at this point we should have all the samples, sort then and then
             //determine partition boundaries.
