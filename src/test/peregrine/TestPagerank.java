@@ -84,7 +84,7 @@ public class TestPagerank extends peregrine.BaseTestWithMultipleProcesses {
         */
         
         System.setProperty( "peregrine.test.factor", "10" ); 
-        System.setProperty( "peregrine.test.config", "2:1:4" ); 
+        System.setProperty( "peregrine.test.config", "2:1:8" ); 
         runTests();
 
     }

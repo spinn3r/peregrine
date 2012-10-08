@@ -278,7 +278,7 @@ public class ComputePartitionTableJob {
             // advantage to this approach is that we can re-use a lot of
             // existing code.
 
-            if ( set.size() < nr_partitions * 100 ) {
+            if ( set.size() < (nr_partitions * 100) ) {
 
                 log.info( "Creating synthetic sample data due to small sample set: %s", set.size() );
                 
@@ -286,6 +286,8 @@ public class ComputePartitionTableJob {
                 Collections.sort( sample, comparator );
 
             }
+
+            log.info( "Working with %,d samples. " , samples.size() );
 
             //at this point we should have all the samples, sort then and then
             //determine partition boundaries.
