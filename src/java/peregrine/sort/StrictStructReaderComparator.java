@@ -35,10 +35,6 @@ public class StrictStructReaderComparator implements Comparator<StructReader> {
     @Override
     public int compare( StructReader sr0, StructReader sr1 ) {
 
-        return sr0.toString().compareTo( sr1.toString() );
-        
-
-/*        
         int diff = 0;
 
         //TODO: right now we assume that the both StructReaders are of equal
@@ -60,8 +56,6 @@ public class StrictStructReaderComparator implements Comparator<StructReader> {
         }
 
         return 0; // no difference
-        
-*/
         
     }
     

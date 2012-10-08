@@ -180,6 +180,10 @@ public class StructReaders {
         
     }
 
+    public static StructReader hashcode( int value ) {
+        return hashcode( (long)value );
+    }
+
     public static StructReader hashcode( byte[] value ) {
 
         return new StructWriter()
@@ -220,10 +224,6 @@ public class StructReaders {
 
         return writer.toStructReader();
 
-    }
-    
-    public static StructReader hashcode( int value ) {
-        return hashcode( (long)value );
     }
 
     public static StructReader varint( int value ) {

@@ -37,7 +37,7 @@ public class ComputePartitionTableJob {
     /**
      * The maximum number of keys to read into memory to compute the sample.
      */
-    public static final int MAX_SAMPLE_SIZE = 100; //FIXME set back to 100k
+    public static final int MAX_SAMPLE_SIZE = 100000; //FIXME set back to 100k
 
     /**
      * <p>
@@ -94,10 +94,21 @@ public class ComputePartitionTableJob {
             
         }
 
-        //Collections.sort( sample, comparator );
-        Collections.sort( sample, new StrictStructReaderComparator() );
+        //FIXME refactor this to use summarize for code sharing.
         
-        log( "samples for: " + part, sample );
+        Collections.sort( sample, comparator );
+
+        // now down sample the sample set so that we can grok what is happening
+        // by looking at a smaller number of items.  In practice the partition
+        // boundaries won't be off significantly using this technique.
+        sample = summarize( sample, 80 ); 
+
+        // FIXME: we should just call summarize( again but this time with
+        // nr_partitions - 1 instead of the following code  (since it is irrelavant)
+        
+        //Collections.sort( sample, new StrictStructReaderComparator() );
+        
+        //log( "samples for: " + part, sample );
         
         //now write out the partitions.
 
@@ -105,6 +116,8 @@ public class ComputePartitionTableJob {
 
         int width = sample.size() / nr_partitions;
 
+        log.info( "FIXME: width: %s for sample size: %s", width, sample.size() );
+        
         int offset = 0;
 
         log.info( "Going to split across %,d partitions" , nr_partitions );
@@ -113,11 +126,11 @@ public class ComputePartitionTableJob {
 
         for( ; partition_id < nr_partitions - 1; ++partition_id ) {
 
-            offset += width - 1;
+            offset += width;
 
-            StructReader sr = sample.get( offset );
+            StructReader sr = sample.get( offset - 1 );
 
-            log.info( "FIXME: Took sample %s on partition %s at offset=%s with sample size=%s\n", sr.toInteger(), part, offset, sample.size() );
+            log.info( "FIXME: Took sample %22s on partition %s at offset=%s with sample size=%s\n", sr.toInteger(), part, offset, sample.size() );
             
             result.add( sr );
 
@@ -129,8 +142,32 @@ public class ComputePartitionTableJob {
 
     }
 
+    /**
+     * Summarize the given list by taking a reading every list.size() / count
+     * items and return the result.  
+     */
+    public static List<StructReader> summarize( List<StructReader> list, int count ) {
+
+        int width = list.size() / count;
+
+        int offset = 0;
+
+        List<StructReader> result = new ArrayList();
+        
+        for( int i = 0; i < count; ++i ) {
+
+            offset += width;
+            
+            result.add( list.get( offset - 1) );
+            
+        }
+
+        return result;
+        
+    }
+    
     public static String format( StructReader sr ) {
-        return String.format( "%s=%s", sr.toInteger(), sr.toString() );
+        return String.format( "%22s=%s", sr.toInteger(), sr.toString() );
     }
 
     public static void log( String description, List<StructReader> list ) {
@@ -157,6 +194,19 @@ public class ComputePartitionTableJob {
 
     }
 
+    protected static SortComparator getSortComparator( Job job ) {
+
+        try {
+
+            Class clazz = job.getParameters().getClass( "sortComparator" );
+            return (SortComparator)clazz.newInstance();
+
+        } catch ( Exception e ) {
+            throw new RuntimeException( e );
+        }
+
+    }
+    
     public static class Map extends Mapper {
 
         private static final Logger log = Logger.getLogger();
@@ -173,48 +223,100 @@ public class ComputePartitionTableJob {
         public void init( Job job, List<JobOutput> output ) {
 
             super.init( job, output );
+            comparator = getSortComparator( job );
 
-            log.info( "FIXME last boundary: %s" , LAST_BOUNDARY.toInteger() );
-            
-            try {
-
-                Class clazz = job.getParameters().getClass( "sortComparator" );
-                comparator = (SortComparator)clazz.newInstance();
-                
-            } catch ( Exception e ) {
-                throw new RuntimeException( e );
-            }
-            
         }
 
         @Override
         public void map( StructReader key,
                          StructReader value ) {
 
-            key   = StructReaders.wrap( key.toByteArray() );
+            // NOTE: we have to call toByteArray here because we are keeping
+            // these values around for a long time and the maps might not be
+            // valid when we try to read them later.
+            
+            //key   = StructReaders.wrap( clearKeyData( key.toByteArray() ) );
+
+            key   = StructReaders.wrap( new byte[8] );
             value = StructReaders.wrap( value.toByteArray() );
 
-            StructReader sortKey = comparator.getSortKey( key , value );
-            
-            addSample( sortKey );
+            addSample( key, value );
 
         }
 
         /**
          * Add a sample to the 
          */
-        public void addSample( StructReader sr ) {
+        protected void addSample( StructReader key, StructReader value ) {
 
             // we are done sampling.
             if ( sample.size() >= MAX_SAMPLE_SIZE )
                 return;
 
-            sample.add( sr );
+            StructReader sortKey = comparator.getSortKey( key , value );
 
+            sample.add( sortKey );
+
+        }
+
+        private List<StructReader> createSyntheticSampleData( Collection<StructReader> input ) {
+
+            List<StructReader> result = new ArrayList();
+
+            for ( StructReader sr : input ) {
+
+                for ( int i = 0; i <= 255; ++i ) {
+
+                    for ( int j = 0; j <= 255; ++j ) {
+                        
+                        log.info( "FIXME size of createSyntheticSampleData: %s", result.size() );
+                        byte[] data = sr.toByteArray();
+                        data[8] = (byte)i;
+                        data[9] = (byte)j;
+                        result.add( new StructReader( data ) );
+
+                    }
+                    
+                }
+
+            }
+
+            return result;
+            
         }
         
         @Override
         public void close() throws IOException {
+
+            Collections.sort( sample, comparator );
+
+            //TODO: migrate this to HashSet for slightly better memory usage but
+            //we have to have StructReader implement Comparable first.
+
+            Set<StructReader> set = new TreeSet();
+
+            for ( StructReader sr : sample ) {
+                set.add( sr );
+            }
+
+            // If we have too few samples we have to create synthetic data and
+            // then generate new samples and then use the remaining eight(8)
+            // bytes to distribute values among the cluster.  The problem is
+            // that since we only read one chunk we're not getting the full key
+            // space but we can just create synthetic keys anyway.  The
+            // advantage to this approach is that we can re-use a lot of
+            // existing code.
+
+            log.info( "FIXME: we have %,d unique samples.\n", set.size() );
+
+            int nr_partitions = config.getMembership().size();
+
+            if ( set.size() < nr_partitions * 2 ) {
+                sample = createSyntheticSampleData( set );
+                Collections.sort( sample, comparator );
+            }
+            
+            log( "FIXME: summarization on " + getPartition(), summarize( sample, 80 ) );
 
             //at this point we should have all the samples, sort then and then
             //determine partition boundaries.
@@ -227,7 +329,7 @@ public class ComputePartitionTableJob {
                 
                 StructReader key = StructReaders.wrap( partition_id );
 
-                log.info( "FIXME: Using boundary %s for partition: %s" , boundary.toInteger(), partition_id );
+                log.info( "FIXME: Using boundary %22s for partition: %s" , boundary.toInteger(), partition_id );
                 
                 emit( key, boundary );
                 ++partition_id;
@@ -238,7 +340,7 @@ public class ComputePartitionTableJob {
         @Override
         public void emit( StructReader key, StructReader value ) {
 
-            log.info( "Going to emit partition table entry: %s=%s (%s)" , key.slice().readLong(), Hex.encode( value ), value.toInteger() );
+            log.info( "Going to emit partition table entry: %s=%22s (%s)" , key.slice().readLong(), Hex.encode( value ), value.toInteger() );
             super.emit( key, value );
             
         }
@@ -251,11 +353,23 @@ public class ComputePartitionTableJob {
 
         private List<StructReader> boundaries = new ArrayList();
 
+        private SortComparator comparator = null;
+        
+        @Override
+        public void init( Job job, List<JobOutput> output ) {
+
+            super.init( job, output );
+            comparator = getSortComparator( job );
+
+        }
+
         @Override
         public void reduce( StructReader key, List<StructReader> values ) {
 
-            StructReader value = mean( values );
-
+            //StructReader value = mean( values );
+            //StructReader value = min( values );
+            StructReader value = median( values );
+            
             //log.info( "FIXME: using values: %s with result %s on partition %s", format( values ), value.toInteger(), key.slice().readLong() );
 
             log.info( "%s", format( String.format( "FIXME: mean result=%s %s", format( value ), partition ), values ) );
@@ -270,7 +384,7 @@ public class ComputePartitionTableJob {
         }
 
         private String format( StructReader sr ) {
-            return String.format( "%s(%s)", sr.toInteger(), sr.toString() );
+            return String.format( "%22s(%s)", sr.toInteger(), sr.toString() );
         }
 
         private String format( String desc, List<StructReader> list ) {
@@ -286,7 +400,22 @@ public class ComputePartitionTableJob {
             return buff.toString();
             
         }
-        
+
+        private StructReader min( List<StructReader> values ) {
+
+            Collections.sort( values, new StrictStructReaderComparator() );
+            return values.get( 0 );
+            
+        }
+
+        private StructReader median( List<StructReader> values ) {
+
+            Collections.sort( values, comparator );
+
+            return values.get( values.size() / 2 );
+            
+        }
+
         private StructReader mean( List<StructReader> values ) {
 
             int sum = 0;

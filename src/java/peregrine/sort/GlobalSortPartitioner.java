@@ -48,7 +48,7 @@ public class GlobalSortPartitioner extends BasePartitioner {
         
         log.info( "Working with %,d partition entries", partitionTableEntries.size() );
         
-        TreeMap<StructReader,Partition> partitionTable = new TreeMap( new StrictStructReaderComparator() );
+        TreeMap<StructReader,Partition> partitionTable = new TreeMap( job.getComparatorInstance() );
         
         int partition_id = 0;
         
@@ -69,14 +69,10 @@ public class GlobalSortPartitioner extends BasePartitioner {
 
         // use the sort key of the sort comparator specified. 
         StructReader ptr = job.getComparatorInstance().getSortKey( key, value );
-        
-        StructReader boundaryKey = partitionTable.ceilingKey( ptr );
 
-        if ( boundaryKey == null ) {
-            throw new RuntimeException( String.format( "No found key for %s in table %s", Hex.encode( ptr ), partitionTable ) );
-        }
-        
-        Partition result = partitionTable.get( boundaryKey );
+        // NOTE: the way we build the partition table means that there will
+        // always be a key with a higher value. 
+        Partition result = partitionTable.ceilingEntry( ptr ).getValue();
 
         return result;
         
