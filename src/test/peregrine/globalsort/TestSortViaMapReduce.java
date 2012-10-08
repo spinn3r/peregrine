@@ -68,8 +68,6 @@ public class TestSortViaMapReduce extends peregrine.BaseTestWithMultipleProcesse
 
         Config config = getConfig();
 
-        values = new ArrayList();
-        
         String path = String.format( "/test/%s/test1.in", getClass().getName() );
 
         ExtractWriter writer = new ExtractWriter( config, path );
