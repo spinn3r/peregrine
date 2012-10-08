@@ -18,8 +18,8 @@ run() {
 }
 
 ## set default variables.
-: ${MAX_MEMORY:="512M"}
-: ${MAX_DIRECT_MEMORY:="512M"}
+: ${MAX_MEMORY:="128M"}
+: ${MAX_DIRECT_MEMORY:="128M"}
 : ${JAVA:="java"}
 : ${SILENT:="false"}
 : ${PROFILER_ENABLED:="false"}

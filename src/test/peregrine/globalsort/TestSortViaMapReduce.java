@@ -59,10 +59,13 @@ public class TestSortViaMapReduce extends peregrine.BaseTestWithMultipleProcesse
         //doTest( max, 2 );
         //doTest( max, 1 );
         //doTest( max, 10 );
-         doTest( max, 100 );
-        // doTest( max, 1000 );
-        // doTest( max, 10000 );
-        // doTest( max, max );
+        //doTest( max, max );
+        //doTest( max, 10000 );
+
+        doTest( max, 1000 );
+
+        
+        //doTest( max, 100 );
         
     }
 
