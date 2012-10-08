@@ -95,41 +95,19 @@ public class ComputePartitionTableJob {
             
         }
 
-        //FIXME refactor this to use summarize for code sharing.
-        
         Collections.sort( sample, comparator );
 
         // now down sample the sample set so that we can grok what is happening
         // by looking at a smaller number of items.  In practice the partition
         // boundaries won't be off significantly using this technique.
-        sample = summarize( sample, 80 ); 
-
-        // FIXME: we should just call summarize( again but this time with
-        // nr_partitions - 1 instead of the following code  (since it is irrelavant)
-        
-        //Collections.sort( sample, new StrictStructReaderComparator() );
-        
-        //log( "samples for: " + part, sample );
-        
-        //now write out the partitions.
+        //
+        // sample = summarize( sample, 80 ); 
 
         int nr_partitions = config.getMembership().size();
 
-        int width = sample.size() / nr_partitions;
+        result = summarize( sample, nr_partitions );
 
-        int offset = 0;
-
-        log.info( "Going to split across %,d partitions" , nr_partitions );
-
-        long partition_id = 0;
-
-        for( ; partition_id < nr_partitions - 1; ++partition_id ) {
-
-            offset += width;
-            StructReader sr = sample.get( offset - 1 );
-            result.add( sr );
-
-        }
+        result.remove( result.size() - 1 );
 
         result.add( LAST_BOUNDARY );
 
@@ -354,7 +332,6 @@ public class ComputePartitionTableJob {
         private StructReader median( List<StructReader> values ) {
 
             Collections.sort( values, comparator );
-
             return values.get( values.size() / 2 );
             
         }
