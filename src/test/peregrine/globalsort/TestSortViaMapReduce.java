@@ -41,12 +41,6 @@ public class TestSortViaMapReduce extends peregrine.BaseTestWithMultipleProcesse
     
     private static String MODE = "all";
 
-    /**
-     * The values created by each test so that we can test them locally after we
-     * emit them.
-     */
-    private static List<StructReader> values = null;
-
     @Override
     public void doTest() throws Exception {
 
@@ -64,86 +58,12 @@ public class TestSortViaMapReduce extends peregrine.BaseTestWithMultipleProcesse
 
         doTest( max, 1000 );
 
-        
         //doTest( max, 100 );
         
     }
 
-    /**
-     * Given our real world partition layout, sort them and compute the ideal
-     * partitions so that we can see how close our samples come.
-     */
-    private void computeIdealPartitions() throws Exception {
-
-        Config config = getConfig();
-
-        JobSortComparator comparator = new JobSortComparator();
-
-        // // FIXME: for now sort it twice so we can sample it...
-        Collections.sort( values, comparator );
-
-        List<StructReader> boundaries = ComputePartitionTableJob.computePartitionBoundaries( config, new Partition( 666 ), comparator, values );
-
-        int partition_id = 0;
-        for( StructReader sr : boundaries ) {
-            System.out.printf( "FIXME: Ideal partition %s (%s) for partition_id=%s\n", sr.toInteger(), sr.toString(), partition_id++ );
-        }
-        
-        System.out.printf( "ideal hits: %s\n" , computePartitionHits( boundaries, values ) );
-        
-    }
-
-    private void computeActualPartitions() throws Exception {
-
-        // read the actual partition information we wrote on isk.
-        File file = new File( "/tmp/peregrine-fs-11112/localhost/11112/0/tmp/partition_table/chunk000000.dat" );
-
-        DefaultChunkReader reader = new DefaultChunkReader( file );
-
-        reader.next();
-
-        List<StructReader> boundaries = StructReaders.unwrap( reader.value() );
-
-        int partition_id = 0;
-        for( StructReader sr : boundaries ) {
-            System.out.printf( "FIXME: Actual partition %s (%s) for partition_id=%s\n", sr.toInteger(), sr.toString(), partition_id++ );
-        }
-
-        System.out.printf( "actual partitioned data: %s\n", computePartitionHits( boundaries, values ) );
-        
-    }
-
-    private static Map<Partition,Integer> computePartitionHits( List<StructReader> boundaries, List<StructReader> values ) {
-
-        JobSortComparator comparator = new JobSortComparator();
-
-        TreeMap<StructReader,Partition> partitionTable = new TreeMap( comparator );
-        Map<Partition,Integer> hits = new HashMap();
-
-        int partition_id = 0;
-        for( StructReader sr : boundaries ) {
-
-            Partition part = new Partition( partition_id++ );
-            
-            partitionTable.put( sr, part );
-            hits.put( part, 0 );
-        }
-
-        for ( StructReader ptr : values ) {
-
-            Partition target = partitionTable.ceilingEntry( ptr ).getValue();
-            hits.put( target, hits.get( target ) + 1 );
-
-        }
-
-        return hits;
-        
-    }
-    
     private void doTest( int max, int range ) throws Exception {
 
-        System.out.printf( "FIXME: max=%s\n", max );
-        
         log.info( "Testing with %,d records." , max );
 
         Config config = getConfig();
@@ -162,12 +82,9 @@ public class TestSortViaMapReduce extends peregrine.BaseTestWithMultipleProcesse
 
             StructReader key = StructReaders.hashcode( i );
             StructReader value = StructReaders.wrap( (long)r.nextInt( range ) );
-            //StructReader value = StructReaders.wrap( 0L );
             
             writer.write( key, value );
 
-            //values.add( comparator.getSortKey( key, value ) );
-            
         }
 
         writer.close();
@@ -180,8 +97,8 @@ public class TestSortViaMapReduce extends peregrine.BaseTestWithMultipleProcesse
 
             // technically, we can't just use the input data which is written
             // via the ExtractWriter because the keys won't be written in the
-            // same order as a fully random mapper.  We have to map it like it
-            // would be in production.
+            // same order as a mapper since the keys are ordered on disk.  We
+            // have to map it like it would be in production.
 
             controller.map( new Job().setDelegate( Mapper.class )
                                      .setInput( path )
@@ -234,9 +151,6 @@ public class TestSortViaMapReduce extends peregrine.BaseTestWithMultipleProcesse
 
         }
 
-        //computeIdealPartitions();
-        computeActualPartitions();
-        
         double total = 0;
 
         for( long val : usage.values() ) {
