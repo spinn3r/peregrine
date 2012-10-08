@@ -37,7 +37,7 @@ public class FastStructReaderComparator implements Comparator<StructReader> {
 
         int diff = 0;
 
-        //TODO: right now we assume that the 
+        //TODO: right now we assume that the lengths are the same.
         int len = sr0.length();
 
         //TODO is it faster to make these byte arrays in one method call or call
@@ -51,7 +51,7 @@ public class FastStructReaderComparator implements Comparator<StructReader> {
             
         }
 
-        return diff;
+        return 0; /* there is no difference */
 
     }
 

@@ -23,6 +23,7 @@ import peregrine.*;
 import peregrine.config.*;
 import peregrine.controller.*;
 import peregrine.io.*;
+import peregrine.io.chunk.*;
 import peregrine.io.partition.*;
 import peregrine.io.util.*;
 import peregrine.reduce.*;
@@ -36,20 +37,31 @@ public class TestSortViaMapReduce extends peregrine.BaseTestWithMultipleProcesse
 
     private static final Logger log = Logger.getLogger();
 
+    public static final int MAX_DELTA_PERC = 5;
+    
     private static String MODE = "all";
 
     @Override
     public void doTest() throws Exception {
 
-        int max = ComputePartitionTableJob.MAX_SAMPLE_SIZE * 2;
+        Config config = getConfig();
+
+        int nr_partitions = config.getMembership().size();
         
-        doTest( max, 1 );
+        int max = ComputePartitionTableJob.MAX_SAMPLE_SIZE * 2 * nr_partitions;
+
+        // test sorting empty files.
+        doTest( 0, 2 );
+
         doTest( max, 2 );
+        doTest( max, 1 );
         doTest( max, 10 );
-        doTest( max, 100 );
-        doTest( max, 1000 );
-        doTest( max, 10000 );
         doTest( max, max );
+        doTest( max, 10000 );
+
+        doTest( max, 1000 );
+
+        //doTest( max, 100 );
         
     }
 
@@ -64,15 +76,16 @@ public class TestSortViaMapReduce extends peregrine.BaseTestWithMultipleProcesse
         ExtractWriter writer = new ExtractWriter( config, path );
 
         Random r = new Random();
+
+        JobSortComparator comparator = new JobSortComparator();
         
         for( long i = 0; i < max; ++i ) {
 
             StructReader key = StructReaders.hashcode( i );
-            //StructReader value = StructReaders.wrap( (long)r.nextInt( range ) );
-            StructReader value = StructReaders.wrap( 0L );
+            StructReader value = StructReaders.wrap( (long)r.nextInt( range ) );
             
             writer.write( key, value );
-            
+
         }
 
         writer.close();
@@ -83,6 +96,19 @@ public class TestSortViaMapReduce extends peregrine.BaseTestWithMultipleProcesse
 
         try {
 
+            // technically, we can't just use the input data which is written
+            // via the ExtractWriter because the keys won't be written in the
+            // same order as a mapper since the keys are ordered on disk.  We
+            // have to map it like it would be in production.
+
+            controller.map( new Job().setDelegate( Mapper.class )
+                                     .setInput( path )
+                                     .setOutput( "shuffle:default" ) );
+
+            controller.reduce( new Job().setDelegate( Reducer.class )
+                                        .setInput( "shuffle:default" )
+                                        .setOutput( path ) );
+            
             controller.sort( path, output, JobSortComparator.class );
             
         } finally {
@@ -154,8 +180,8 @@ public class TestSortViaMapReduce extends peregrine.BaseTestWithMultipleProcesse
 
                 int delta = perc.get( part ) - last;
 
-                if ( delta > 2 ) {
-                    throw new RuntimeException( "invalid partition layout: " + perc );
+                if ( delta > MAX_DELTA_PERC ) {
+                    throw new RuntimeException( String.format( "invalid partition layout with max=%s and range=%s : %s", max, range, perc ) );
                 }
                 
             }
@@ -163,6 +189,8 @@ public class TestSortViaMapReduce extends peregrine.BaseTestWithMultipleProcesse
             last = perc.get( part );
             
         }
+
+        // now make sure we actually have records in the right order.
         
     }
 
@@ -170,9 +198,9 @@ public class TestSortViaMapReduce extends peregrine.BaseTestWithMultipleProcesse
 
         //System.setProperty( "peregrine.test.config", "8:1:1" ); // 3sec
         //System.setProperty( "peregrine.test.config", "2:1:4" ); // 3sec
-        System.setProperty( "peregrine.test.config", "2:1:1" ); // 3sec
+        System.setProperty( "peregrine.test.config", "4:1:1" ); // 3sec
         runTests();
-        
+
     }
 
 }

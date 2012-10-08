@@ -24,6 +24,7 @@ import peregrine.util.*;
 import peregrine.util.netty.*;
 import peregrine.util.primitive.*;
 import peregrine.os.*;
+import peregrine.sort.*;
 
 /**
  * API for dealing with complex data structures as high level types.  All main
@@ -52,9 +53,11 @@ import peregrine.os.*;
  * @see StructWriter
  * @see StructReaders
  */
-public class StructReader implements ByteReadable {
+public class StructReader implements ByteReadable, Comparable<StructReader> {
 
     protected ChannelBuffer buff;
+
+    protected static FastStructReaderComparator comparator = new FastStructReaderComparator();
     
     public StructReader( byte[] data ) {
         this( ChannelBuffers.wrappedBuffer( data ) );
@@ -297,5 +300,10 @@ public class StructReader implements ByteReadable {
         return buff.equals( reader.buff );
     }
     
+
+    @Override
+    public int compareTo( StructReader reader ) {
+        return comparator.compare( this, reader );
+    }
 }
 

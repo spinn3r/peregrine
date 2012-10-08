@@ -55,8 +55,8 @@ public class StrictStructReaderComparator implements Comparator<StructReader> {
             
         }
 
-        return diff;
-
+        return 0; // no difference
+        
     }
     
 }

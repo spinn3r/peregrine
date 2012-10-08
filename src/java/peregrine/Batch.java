@@ -169,9 +169,10 @@ public class Batch extends BaseJob<Batch> {
              
         // Step 2.  Reduce that partition table and broadcast it so everyone
         // has the same values.
-        reduce( ComputePartitionTableJob.Reduce.class,
-                new Input( "shuffle:partition_table" ),
-                new Output( "/tmp/partition_table" ) );
+        reduce( new Job().setDelegate( ComputePartitionTableJob.Reduce.class )
+                         .setInput( "shuffle:partition_table" )
+                         .setOutput( "/tmp/partition_table" )
+                         .setParameters( "sortComparator", comparator.getName() ) );
 
         // Step 3.  Map across all the data in the input file and send it to
         // right partition which would need to hold this value.
