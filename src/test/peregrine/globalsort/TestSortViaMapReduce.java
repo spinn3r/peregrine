@@ -56,14 +56,13 @@ public class TestSortViaMapReduce extends peregrine.BaseTestWithMultipleProcesse
         
         int max = ComputePartitionTableJob.MAX_SAMPLE_SIZE * 2 * nr_partitions;
 
-        doTest( max, 2 );
-
-        doTest( max, 1 );
-        doTest( max, 10 );
-        doTest( max, 100 );
-        doTest( max, 1000 );
-        doTest( max, 10000 );
-        doTest( max, max );
+        //doTest( max, 2 );
+        //doTest( max, 1 );
+        //doTest( max, 10 );
+         doTest( max, 100 );
+        // doTest( max, 1000 );
+        // doTest( max, 10000 );
+        // doTest( max, max );
         
     }
 
@@ -77,11 +76,13 @@ public class TestSortViaMapReduce extends peregrine.BaseTestWithMultipleProcesse
 
         JobSortComparator comparator = new JobSortComparator();
 
-        // FIXME: for now sort it twice so we can sample it...
+        // // FIXME: for now sort it twice so we can sample it...
         Collections.sort( values, comparator );
 
         ComputePartitionTableJob.log( "FIXME: head of actual values: " , values.subList( 0, 200 ) );
-        
+
+        ComputePartitionTableJob.log( "FIXME: summarization of ALL values ", ComputePartitionTableJob.summarize( values, 80 ) );
+
         List<StructReader> boundaries = ComputePartitionTableJob.computePartitionBoundaries( config, new Partition( 666 ), comparator, values );
 
         int partition_id = 0;
@@ -166,7 +167,7 @@ public class TestSortViaMapReduce extends peregrine.BaseTestWithMultipleProcesse
             
             writer.write( key, value );
 
-            values.add( comparator.getSortKey( key, value ) );
+            //values.add( comparator.getSortKey( key, value ) );
             
         }
 
@@ -234,7 +235,7 @@ public class TestSortViaMapReduce extends peregrine.BaseTestWithMultipleProcesse
 
         }
 
-        computeIdealPartitions();
+        //computeIdealPartitions();
         computeActualPartitions();
         
         double total = 0;

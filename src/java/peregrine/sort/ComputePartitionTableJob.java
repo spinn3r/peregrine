@@ -24,6 +24,7 @@ import peregrine.util.*;
 import peregrine.reduce.*;
 import peregrine.config.*;
 import peregrine.io.*;
+import peregrine.util.primitive.*;
 
 import com.spinn3r.log5j.*;
 
@@ -263,6 +264,8 @@ public class ComputePartitionTableJob {
 
             List<StructReader> result = new ArrayList();
 
+            log.info( "FIXME: going to create %,d synthetic sample points" , input.size() * 65536 );
+
             for ( StructReader sr : input ) {
 
                 for ( int i = 0; i <= 255; ++i ) {
@@ -284,7 +287,47 @@ public class ComputePartitionTableJob {
             return result;
             
         }
-        
+
+        /**
+         * From the given input, create synthetic data so that we `target`
+         * results.
+         */
+        private List<StructReader> createSyntheticSampleData2( Collection<StructReader> input, int target ) {
+
+            List<StructReader> result = new ArrayList();
+
+            log.info( "FIXME: going to create %,d synthetic sample points" , input.size() * 65536 );
+
+            int per_input_target = target / input.size();
+            int max_range = 65536;
+            
+            for ( StructReader sr : input ) {
+
+                double width = max_range / (double)per_input_target;
+                double offset = 0.0;
+                
+                for( int i = 0; i < per_input_target; ++i ) {
+
+                    byte[] data = sr.toByteArray();
+                    byte[] suffix = IntBytes.toByteArray( (int)offset );
+
+                    data[8] = suffix[2];
+                    data[9] = suffix[3];
+
+                    offset += width;
+
+                    log.info( "FIXME: offset is now: %s", offset );
+                    
+                    result.add( new StructReader( data ) );
+                        
+                }
+
+            }
+
+            return result;
+            
+        }
+
         @Override
         public void close() throws IOException {
 
@@ -311,8 +354,10 @@ public class ComputePartitionTableJob {
 
             int nr_partitions = config.getMembership().size();
 
-            if ( set.size() < nr_partitions * 2 ) {
-                sample = createSyntheticSampleData( set );
+            if ( set.size() < nr_partitions * 100 ) {
+
+                sample = createSyntheticSampleData2( set, MAX_SAMPLE_SIZE );
+                log.info( "FIXME: created %,d synthetic sample data points", sample.size() );
                 Collections.sort( sample, comparator );
             }
             
