@@ -104,21 +104,34 @@ public class ComputePartitionTableJob {
         // now down sample the sample set so that we can grok what is happening
         // by looking at a smaller number of items.  In practice the partition
         // boundaries won't be off significantly using this technique.
-        //
-        // sample = summarize( sample, 80 ); 
 
+        for( StructReader current : summarize( sample, 80 ) ) {
+            log.info( "Sample dataset summary on %s %s", part, format( current ) );
+        }
+        
         int nr_partitions = config.getMembership().size();
 
         result = summarize( sample, nr_partitions );
 
+        // we have to remove the last partition as it is pointless essentially.
+
         result.remove( result.size() - 1 );
 
+        // add the max partition boundary.
         result.add( LAST_BOUNDARY );
+
+        for( StructReader current : result ) {
+            log.info( "Resulting partition table %s %s", part, format( current ) );
+        }
 
         return result;
 
     }
 
+    public static String format( StructReader sr ) {
+        return String.format( "%22s(%s)", sr.toInteger(), sr.toString() );
+    }
+    
     /**
      * Summarize the given list by taking a reading every list.size() / count
      * items and return the result.  

@@ -25,6 +25,8 @@ public class RankMetadataByRankSortComparator extends StrictSortDescendingCompar
 
         StructReader prefix = value.slice( offset, DoubleBytes.LENGTH );
 
+        //TODO: make this a range betwen 0 and 2^64 as an experiment.  We may
+        //consider just using the float representation if it works correctly.
         prefix = StructReaders.wrap( prefix.readDouble() * Long.MAX_VALUE );
         
         return StructReaders.join( prefix, key.slice() );
