@@ -277,7 +277,8 @@ public class ComputePartitionTableJob {
 
             Collections.sort( train, comparator );
 
-            if ( train.size() == 0  ) {
+            if ( train.size() <= NO_DATA_THRESHOLD  ) {
+
                 log.warn( "No values to sort." );
 
                 // write all data to the last boundary position.  It doesn't

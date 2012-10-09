@@ -84,6 +84,14 @@ public class TestPagerankAccuracy extends peregrine.BaseTestWithMultipleProcesse
 
             controller = new Controller( config );
 
+            controller.map( new Job().setDelegate( Mapper.class )
+                                     .setInput( graph )
+                                     .setOutput( "shuffle:default" ) );
+
+            controller.reduce( new Job().setDelegate( Reducer.class )
+                                        .setInput( "shuffle:default" )
+                                        .setOutput( graph ) );
+            
             pr = new Pagerank( config, graph, nodes_by_hashcode );
             pr.prepare();
             
@@ -105,6 +113,8 @@ public class TestPagerankAccuracy extends peregrine.BaseTestWithMultipleProcesse
             rank_vector.put( Base16.encode( pair.key.toByteArray() ), pair.value.readDouble() );
         }
 
+        System.out.printf( "rank_vector: %s\n", rank_vector );
+        
         /*
         assertEquals( rank_vector.get( "98f13708210194c4" ), 0.26666666666666666 );
         assertEquals( rank_vector.get( "c4ca4238a0b92382" ), 0.16666666666666666 );
@@ -128,7 +138,7 @@ public class TestPagerankAccuracy extends peregrine.BaseTestWithMultipleProcesse
         //System.setProperty( "peregrine.test.config", "2:1:3" ); 
         //System.setProperty( "peregrine.test.config", "2:1:3" ); 
 
-        System.setProperty( "peregrine.test.config", "1:1:2" ); 
+        System.setProperty( "peregrine.test.config", "1:1:1" ); 
         runTests();
         
     }
