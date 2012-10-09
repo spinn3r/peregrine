@@ -74,18 +74,22 @@ public class GlobalSortPartitioner extends BasePartitioner {
 	public Partition partition( StructReader key, StructReader value ) {
 
         // use the sort key of the sort comparator specified. 
-        StructReader ptr = getComparator().getSortKey( key, value );
+        return partition( job.getComparatorInstance().getSortKey( key, value ) );
+
+	}
+
+	public Partition partition( StructReader sortKey ) {
 
         // NOTE: the way we build the partition table means that there will
         // always be a key with a higher value. 
-        Partition result = partitionTable.ceilingEntry( ptr ).getValue();
+        Partition result = partitionTable.ceilingEntry( sortKey ).getValue();
 
         if ( result == null ) {
-            throw new RuntimeException( "No result found for ptr: " + ptr );
+            throw new RuntimeException( "No result found for sortKey: " + sortKey );
         }
         
         return result;
-        
-	}
-    
+
+    }
+
 }

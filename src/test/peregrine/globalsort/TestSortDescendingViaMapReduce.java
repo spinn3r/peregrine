@@ -40,7 +40,7 @@ public class TestSortDescendingViaMapReduce extends peregrine.BaseTestWithMultip
     @Override
     public void doTest() throws Exception {
 
-        doTest( ComputePartitionTableJob.MAX_SAMPLE_SIZE * 2 );
+        doTest( ComputePartitionTableJob.MAX_TRAIN_SIZE * 2 );
         
     }
 

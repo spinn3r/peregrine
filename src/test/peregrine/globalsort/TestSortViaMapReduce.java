@@ -48,7 +48,7 @@ public class TestSortViaMapReduce extends peregrine.BaseTestWithMultipleProcesse
 
         int nr_partitions = config.getMembership().size();
         
-        int max = ComputePartitionTableJob.MAX_SAMPLE_SIZE * 2 * nr_partitions;
+        int max = ComputePartitionTableJob.MAX_TRAIN_SIZE * 2 * nr_partitions;
 
         // test sorting empty files.
         doTest( 0, 2 );

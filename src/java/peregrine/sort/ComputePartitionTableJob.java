@@ -253,7 +253,7 @@ public class ComputePartitionTableJob {
          * From the given input, create synthetic data so that we `target`
          * results.
          */
-        private List<StructReader> createSyntheticTrainData( Collection<StructReader> input, int target ) {
+        private List<StructReader> createSyntheticTrainingData( Collection<StructReader> input, int target ) {
 
             List<StructReader> result = new ArrayList();
 
@@ -330,7 +330,7 @@ public class ComputePartitionTableJob {
 
                 log.info( "Creating synthetic training data due to small training set size: %s", set.size() );
                 
-                train = createSyntheticTrainData( set, MAX_TRAIN_SIZE );
+                train = createSyntheticTrainingData( set, MAX_TRAIN_SIZE );
                 Collections.sort( train, comparator );
 
             }
@@ -358,7 +358,6 @@ public class ComputePartitionTableJob {
 
             GlobalSortPartitioner partitioner = new GlobalSortPartitioner();
             partitioner.init( job, boundaries );
-            partitioner.setComparator( comparator );
 
             int nr_partitions = config.getMembership().size();
 
@@ -370,14 +369,7 @@ public class ComputePartitionTableJob {
 
             for( StructReader b : boundaries ) {
 
-                // this is a composite SortKey so we have to read the key as the
-                // last 8 bytes and the value as the first 8 bytes.
-
-                StructReader key = b.slice( 8, 8 );
-                StructReader value = b.slice( 0, 8 );
-                
-                Partition part = partitioner.partition( key, value );
-
+                Partition part = partitioner.partition( b );
                 hits.put( part, hits.get( part ) + 1 );
                 
             }
