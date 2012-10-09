@@ -184,7 +184,7 @@ public final class Initializer {
         setuid();
         basic( "workerd" );
         pidfile();
- 
+
     }
 
     /**

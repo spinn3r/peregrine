@@ -49,7 +49,7 @@ public class ComputePartitionTableJob {
      * partitions because our accuracy will fail with the total number of
      * partitions we have.
      */
-    public static final int MAX_TRAIN_SIZE = 200000; 
+    public static final int MAX_TRAIN_SIZE = 500000; 
 
     /**
      * <p>
@@ -184,12 +184,12 @@ public class ComputePartitionTableJob {
          * The training data.  We sort this list and then take trains at
          * partition boundaries.
          */
-        private List<StructReader> train = new ArrayList();
+        private List<StructReader> train = new ArrayList( MAX_TRAIN_SIZE );
 
         /**
          * The testing data for verifying the training data.
          */
-        private List<StructReader> test = new ArrayList();
+        private List<StructReader> test  = new ArrayList( MAX_TRAIN_SIZE );
 
         private SortComparator comparator = null;
 
