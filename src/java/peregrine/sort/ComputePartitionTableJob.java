@@ -36,13 +36,14 @@ public class ComputePartitionTableJob {
     private static final Logger log = Logger.getLogger();
 
     /**
-     * The maximum number of keys to read into memory to compute the sample.
+     * The maximum number of keys to read into memory to compute the training
+     * set..
      * 
      * <p> TODO: Technically this should be a function of the number of
      * partitions because our accuracy will fail with the total number of
      * partitions we have.
      */
-    public static final int MAX_SAMPLE_SIZE = 100000; 
+    public static final int MAX_TRAIN_SIZE = 100000; 
 
     /**
      * <p>
@@ -82,36 +83,36 @@ public class ComputePartitionTableJob {
     public static List<StructReader> computePartitionBoundaries( Config config,
                                                                  Partition part,
                                                                  SortComparator comparator,
-                                                                 List<StructReader> sample ) {
+                                                                 List<StructReader> train ) {
 
-        log.info( "Sample size is: %,d items", sample.size() );
+        log.info( "Training set size is: %,d items", train.size() );
 
         List<StructReader> result = new ArrayList();
 
-        if ( sample.size() == 0 ) {
+        if ( train.size() == 0 ) {
 
             // It is totally reasonable to want to sort a file with no
             // entries.
             
-            log.warn( "No samples for job." );
+            log.warn( "No training data for job." );
 
             return result;
             
         }
 
-        Collections.sort( sample, comparator );
+        Collections.sort( train, comparator );
 
-        // now down sample the sample set so that we can grok what is happening
-        // by looking at a smaller number of items.  In practice the partition
-        // boundaries won't be off significantly using this technique.
+        // now down sample the training set so that we can grok what is
+        // happening by looking at a smaller number of items.  In practice the
+        // partition boundaries won't be off significantly using this technique.
 
-        for( StructReader current : summarize( sample, 80 ) ) {
-            log.info( "Sample dataset summary on %s %s", part, format( current ) );
+        for( StructReader current : summarize( train, 80 ) ) {
+            log.info( "Training dataset summary on %s %s", part, format( current ) );
         }
         
         int nr_partitions = config.getMembership().size();
 
-        result = summarize( sample, nr_partitions );
+        result = summarize( train, nr_partitions );
 
         // we have to remove the last partition as it is pointless essentially.
 
@@ -174,10 +175,15 @@ public class ComputePartitionTableJob {
         private static final Logger log = Logger.getLogger();
 
         /**
-         * The sample data.  We sort this list and then take samples at
+         * The training data.  We sort this list and then take trains at
          * partition boundaries.
          */
-        private List<StructReader> sample = new ArrayList();
+        private List<StructReader> train = new ArrayList();
+
+        /**
+         * The testing data for verifying the training data.
+         */
+        private List<StructReader> test = new ArrayList();
 
         private SortComparator comparator = null;
         
@@ -198,34 +204,56 @@ public class ComputePartitionTableJob {
             // valid when we try to read them later.
 
             // NOTE: by default only the value matters because we don't have a
-            // full range of key data since we only read one chunk to sample.
+            // full range of key data since we only read one chunk to train.
             
             key   = StructReaders.wrap( new byte[8] );
-            
             value = StructReaders.wrap( value.toByteArray() );
 
-            addSample( key, value );
+            // first try to enter it as a training point.
+            if ( addTrain( key, value ) == false ) {
+
+                // if that fails we should keep it as a testing point.
+                addTest( key, value );
+                
+            }
 
         }
 
         /**
-         * Add a sample to the 
+         * Add a data point to the training set. 
          */
-        protected void addSample( StructReader key, StructReader value ) {
+        protected boolean addTrain( StructReader key, StructReader value ) {
 
             // we are done sampling.
-            if ( sample.size() >= MAX_SAMPLE_SIZE )
-                return;
+            if ( train.size() >= MAX_TRAIN_SIZE )
+                return false;
 
-            sample.add( comparator.getSortKey( key , value ) );
+            train.add( comparator.getSortKey( key , value ) );
 
+            return true;
+            
+        }
+
+        /**
+         * Add a data point to the testing set. 
+         */
+        protected boolean addTest( StructReader key, StructReader value ) {
+
+            // we are done sampling.
+            if ( test.size() >= MAX_TRAIN_SIZE )
+                return false;
+
+            test.add( comparator.getSortKey( key , value ) );
+
+            return true;
+            
         }
 
         /**
          * From the given input, create synthetic data so that we `target`
          * results.
          */
-        private List<StructReader> createSyntheticSampleData( Collection<StructReader> input, int target ) {
+        private List<StructReader> createSyntheticTrainData( Collection<StructReader> input, int target ) {
 
             List<StructReader> result = new ArrayList();
 
@@ -262,9 +290,9 @@ public class ComputePartitionTableJob {
 
             long nr_partitions = config.getMembership().size();
 
-            Collections.sort( sample, comparator );
+            Collections.sort( train, comparator );
 
-            if ( sample.size() == 0  ) {
+            if ( train.size() == 0  ) {
                 log.warn( "No values to sort." );
 
                 // write all data to the last boundary position.  It doesn't
@@ -283,41 +311,42 @@ public class ComputePartitionTableJob {
 
             Set<StructReader> set = new TreeSet();
 
-            for ( StructReader sr : sample ) {
+            for ( StructReader sr : train ) {
                 set.add( sr );
             }
 
-            // If we have too few samples we have to create synthetic data and
-            // then generate new samples and then use the remaining eight(8)
-            // bytes to distribute values among the cluster.  The problem is
-            // that since we only read one chunk we're not getting the full key
-            // space but we can just create synthetic keys anyway.  The
-            // advantage to this approach is that we can re-use a lot of
-            // existing code.
+            // If we have too few training data points we have to create
+            // synthetic data and then generate new training data and then use
+            // the remaining eight(8) bytes to distribute values among the
+            // cluster.  The problem is that since we only read one chunk we're
+            // not getting the full key space but we can just create synthetic
+            // keys anyway.  The advantage to this approach is that we can
+            // re-use a lot of existing code.
 
             // ALWAYS making synthetic partitions when we have less than
-            // MAX_SAMPLE_SIZE ... this sample size should be our target so that
+            // MAX_TRAIN_SIZE ... this train size should be our target so that
             // we have fined grained partitioning of the data.
-            if ( set.size() < MAX_SAMPLE_SIZE ) {
+            if ( set.size() < MAX_TRAIN_SIZE ) {
 
-                log.info( "Creating synthetic sample data due to small sample set: %s", set.size() );
+                log.info( "Creating synthetic training data due to small training set size: %s", set.size() );
                 
-                sample = createSyntheticSampleData( set, MAX_SAMPLE_SIZE );
-                Collections.sort( sample, comparator );
+                train = createSyntheticTrainData( set, MAX_TRAIN_SIZE );
+                Collections.sort( train, comparator );
 
             }
 
-            log.info( "Working with %,d samples. " , sample.size() );
+            log.info( "Working with %,d training set entries. " , train.size() );
 
-            //at this point we should have all the samples, sort then and then
+            //at this point we should have all the trains, sort then and then
             //determine partition boundaries.
 
-            List<StructReader> boundaries = computePartitionBoundaries( config, getPartition(), comparator, sample );
+            List<StructReader> boundaries = computePartitionBoundaries( config, getPartition(), comparator, train );
+
+            test( boundaries );
             
             long partition_id = 0;
 
             for( StructReader boundary : boundaries ) {
-                
                 StructReader key = StructReaders.wrap( partition_id );
                 emit( key, boundary );
                 ++partition_id;
@@ -325,6 +354,41 @@ public class ComputePartitionTableJob {
             
         }
 
+        public void test( List<StructReader> boundaries ) {
+
+            GlobalSortPartitioner partitioner = new GlobalSortPartitioner();
+            partitioner.init( job, boundaries );
+            partitioner.setComparator( comparator );
+
+            int nr_partitions = config.getMembership().size();
+
+            java.util.Map<Partition, Integer> hits = new TreeMap();
+            
+            for( int i = 0; i < nr_partitions; ++i ) {
+                hits.put( new Partition( i ), 0 );
+            }
+
+            for( StructReader b : boundaries ) {
+
+                // this is a composite SortKey so we have to read the key as the
+                // last 8 bytes and the value as the first 8 bytes.
+
+                StructReader key = b.slice( 8, 8 );
+                StructReader value = b.slice( 0, 8 );
+                
+                Partition part = partitioner.partition( key, value );
+
+                hits.put( part, hits.get( part ) + 1 );
+                
+            }
+
+            //TODO: analyze the hits and throw an Exception if they don't look
+            //good.
+            
+            log.info( "Test results: %s", hits );
+            
+        }
+        
         @Override
         public void emit( StructReader key, StructReader value ) {
 

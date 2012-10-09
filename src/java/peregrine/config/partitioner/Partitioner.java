@@ -17,6 +17,7 @@ package peregrine.config.partitioner;
 
 import peregrine.*;
 import peregrine.config.*;
+import peregrine.sort.*;
 
 /**
  * Interface for handling partitioning keys.  Takes a given key and routes it to
@@ -40,5 +41,11 @@ public interface Partitioner {
      * Route the given key to a given partition.
      */
 	public Partition partition( StructReader key, StructReader value );
-	
+
+    public void setComparator( SortComparator comparator );
+
+    public SortComparator getComparator();
+
+    
+    
 }

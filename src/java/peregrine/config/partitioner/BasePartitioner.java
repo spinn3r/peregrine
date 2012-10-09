@@ -17,8 +17,11 @@ package peregrine.config.partitioner;
 
 import peregrine.*;
 import peregrine.config.*;
+import peregrine.sort.*;
 
 public abstract class BasePartitioner implements Partitioner {
+    
+    private SortComparator comparator = null;
 
 	protected int nr_partitions;
 
@@ -34,16 +37,23 @@ public abstract class BasePartitioner implements Partitioner {
         
     }
 
-
     @Override
     public void init( Job job ) {
         this.job = job;
+        this.comparator = job.getComparatorInstance();
     }
-
 
 	@Override
 	public String toString() {
 		return getClass().getSimpleName();
 	}
-		
+
+    public void setComparator( SortComparator comparator ) { 
+        this.comparator = comparator;
+    }
+
+    public SortComparator getComparator() { 
+        return this.comparator;
+    }
+
 }

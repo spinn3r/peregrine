@@ -34,15 +34,17 @@ public class GlobalSortPartitioner extends BasePartitioner {
 
     private TreeMap<StructReader,Partition> partitionTable = null;
 
-    public void init( TreeMap<StructReader,Partition> partitionTable ) {
-        this.partitionTable = partitionTable;
-    }
-
     public void init( Job job, BroadcastInput partitionTableBroadcastInput ) {
 
         List<StructReader> partitionTableEntries
             = StructReaders.unwrap( partitionTableBroadcastInput.getValue() );
-        
+
+        init( job, partitionTableEntries );
+
+    }
+
+    public void init( Job job, List<StructReader> partitionTableEntries ) {
+
         if ( partitionTableEntries.size() == 0 )
             throw new RuntimeException( "No partition table entries" );
         
@@ -63,12 +65,16 @@ public class GlobalSortPartitioner extends BasePartitioner {
         init( partitionTable );
 
     }
-    
+
+    public void init( TreeMap<StructReader,Partition> partitionTable ) {
+        this.partitionTable = partitionTable;
+    }
+
 	@Override
 	public Partition partition( StructReader key, StructReader value ) {
 
         // use the sort key of the sort comparator specified. 
-        StructReader ptr = job.getComparatorInstance().getSortKey( key, value );
+        StructReader ptr = getComparator().getSortKey( key, value );
 
         // NOTE: the way we build the partition table means that there will
         // always be a key with a higher value. 
