@@ -36,6 +36,12 @@ public class ComputePartitionTableJob {
     private static final Logger log = Logger.getLogger();
 
     /**
+     * The maximum percentage to tolerate in key distribution.  If we have a
+     * percentage gap greater than this we abort.
+     */
+    public static final int MAX_DISTRIBUTION_PERC_DELTA = 10;
+    
+    /**
      * The maximum number of keys to read into memory to compute the training
      * set..
      * 
@@ -186,6 +192,13 @@ public class ComputePartitionTableJob {
         private List<StructReader> test = new ArrayList();
 
         private SortComparator comparator = null;
+
+        private Random rand = new Random();
+        
+        /**
+         * The ID of the current record we are processing.
+         */
+        private int id = 0;
         
         @Override
         public void init( Job job, List<JobOutput> output ) {
@@ -203,18 +216,21 @@ public class ComputePartitionTableJob {
             // these values around for a long time and the maps might not be
             // valid when we try to read them later.
 
-            // NOTE: by default only the value matters because we don't have a
-            // full range of key data since we only read one chunk to train.
-            
-            key   = StructReaders.wrap( new byte[8] );
+            // NOTE: We must use a random key here because we don't have a full
+            // range of key data in this sample since we only read one chunk to
+            // train and the keys are sorted.  If we didn't use a random value
+            // we would have just a subset of the keys and our distribution
+            // wouldn't be perfect for data sets with a non-linear distribution
+            // of values (IE where everything is zero and key value range
+            // becomes important).
+
+            key   = StructReaders.wrap( rand.nextLong() );
             value = StructReaders.wrap( value.toByteArray() );
 
-            // first try to enter it as a training point.
-            if ( addTrain( key, value ) == false ) {
-
-                // if that fails we should keep it as a testing point.
+            if ( ++id % 2 == 0 ) {
+                addTrain( key, value );
+            } else {
                 addTest( key, value );
-                
             }
 
         }
@@ -222,67 +238,30 @@ public class ComputePartitionTableJob {
         /**
          * Add a data point to the training set. 
          */
-        protected boolean addTrain( StructReader key, StructReader value ) {
-
-            // we are done sampling.
-            if ( train.size() >= MAX_TRAIN_SIZE )
-                return false;
-
-            train.add( comparator.getSortKey( key , value ) );
-
-            return true;
-            
+        protected void addTrain( StructReader key, StructReader value ) {
+            addPoint( key, value, train );
         }
 
         /**
          * Add a data point to the testing set. 
          */
-        protected boolean addTest( StructReader key, StructReader value ) {
-
-            // we are done sampling.
-            if ( test.size() >= MAX_TRAIN_SIZE )
-                return false;
-
-            test.add( comparator.getSortKey( key , value ) );
-
-            return true;
-            
+        protected void addTest( StructReader key, StructReader value ) {
+            addPoint( key, value, test );
         }
 
         /**
-         * From the given input, create synthetic data so that we `target`
-         * results.
+         * Add a sort key data point to the given list.
          */
-        private List<StructReader> createSyntheticTrainingData( Collection<StructReader> input, int target ) {
+        protected void addPoint( StructReader key,
+                                 StructReader value,
+                                 List<StructReader> list ) {
 
-            List<StructReader> result = new ArrayList();
+            // we are done sampling.
+            if ( list.size() > MAX_TRAIN_SIZE )
+                return;
 
-            int per_input_target = target / input.size();
-            int max_range = 65536;
-            
-            for ( StructReader sr : input ) {
+            list.add( comparator.getSortKey( key , value ) );
 
-                double width = max_range / (double)per_input_target;
-                double offset = 0.0;
-                
-                for( int i = 0; i < per_input_target; ++i ) {
-
-                    byte[] data = sr.toByteArray();
-                    byte[] suffix = IntBytes.toByteArray( (int)offset );
-
-                    data[8] = suffix[2];
-                    data[9] = suffix[3];
-
-                    offset += width;
-                    
-                    result.add( new StructReader( data ) );
-                        
-                }
-
-            }
-
-            return result;
-            
         }
 
         @Override
@@ -306,15 +285,6 @@ public class ComputePartitionTableJob {
                 return;
             }
 
-            //TODO: migrate this to HashSet for slightly better memory usage but
-            //we have to have StructReader implement Comparable first.
-
-            Set<StructReader> set = new TreeSet();
-
-            for ( StructReader sr : train ) {
-                set.add( sr );
-            }
-
             // If we have too few training data points we have to create
             // synthetic data and then generate new training data and then use
             // the remaining eight(8) bytes to distribute values among the
@@ -326,13 +296,9 @@ public class ComputePartitionTableJob {
             // ALWAYS making synthetic partitions when we have less than
             // MAX_TRAIN_SIZE ... this train size should be our target so that
             // we have fined grained partitioning of the data.
-            if ( set.size() < MAX_TRAIN_SIZE ) {
-
-                log.info( "Creating synthetic training data due to small training set size: %s", set.size() );
-                
-                train = createSyntheticTrainingData( set, MAX_TRAIN_SIZE );
-                Collections.sort( train, comparator );
-
+            
+            if ( train.size() < MAX_TRAIN_SIZE ) {
+                log.warn( "Training data set it small so distribution may be slightly skewed: %s", train.size() );
             }
 
             log.info( "Working with %,d training set entries. " , train.size() );
@@ -342,7 +308,15 @@ public class ComputePartitionTableJob {
 
             List<StructReader> boundaries = computePartitionBoundaries( config, getPartition(), comparator, train );
 
-            test( boundaries );
+            //Test if we have >= MAX_TRAIN_SIZE records in the test data as
+            //there isn't enough values for a skew to even matter and our test()
+            //algorithm will probably be incorrect.
+            
+            if ( test.size() >= MAX_TRAIN_SIZE ) {
+                test( boundaries );
+            } else {
+                log.warn( "Testing data size is small. Skipping test since it would be inaccurate." );
+            }
             
             long partition_id = 0;
 
@@ -354,7 +328,7 @@ public class ComputePartitionTableJob {
             
         }
 
-        public void test( List<StructReader> boundaries ) {
+        private void test( List<StructReader> boundaries ) {
 
             GlobalSortPartitioner partitioner = new GlobalSortPartitioner();
             partitioner.init( job, boundaries );
@@ -367,17 +341,56 @@ public class ComputePartitionTableJob {
                 hits.put( new Partition( i ), 0 );
             }
 
-            for( StructReader b : boundaries ) {
+            // now partition around all the testing points.
+            for( StructReader sr : test ) {
 
-                Partition part = partitioner.partition( b );
+                Partition part = partitioner.partition( sr );
                 hits.put( part, hits.get( part ) + 1 );
                 
             }
 
-            //TODO: analyze the hits and throw an Exception if they don't look
-            //good.
+            //analyze the hits and throw an Exception if they don't look good.
+            assertDistribution( toPerc( hits ) );
+
+            log.info( "Test results for %,d testing points and %,d training points: %s", test.size(), train.size(), hits );
             
-            log.info( "Test results: %s", hits );
+        }
+
+        private void assertDistribution( java.util.Map<Partition, Integer> perc ) {
+
+            int last = -1;
+
+            for( int p : perc.values() ) {
+
+                if ( last > -1 && Math.abs( last - p ) > MAX_DISTRIBUTION_PERC_DELTA  ) {
+                    throw new RuntimeException( "Key distribution is skewed: " + perc );
+                }
+
+                last = p;
+                
+            }
+            
+        }
+
+        private java.util.Map<Partition, Integer> toPerc( java.util.Map<Partition, Integer> data ) {
+
+            int sum = 0;
+
+            for( int val : data.values() ) {
+                sum += val;
+            }
+
+            java.util.Map<Partition, Integer> result = new HashMap();
+
+            for( Partition part : data.keySet() ) {
+
+                int perc = (int)(100 * (data.get( part ) / (double)sum));
+                
+                result.put( part , perc );
+                
+            }
+
+            return result;
             
         }
         
