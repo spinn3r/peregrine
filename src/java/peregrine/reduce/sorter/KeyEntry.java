@@ -49,9 +49,11 @@ public class KeyEntry implements KeyValuePair {
 
 	}
 
-	public KeyEntry( int bi, int offset, ChannelBuffer backing, DefaultChunkReader reader ) {
+	public KeyEntry( byte bi, int offset, ChannelBuffer backing, DefaultChunkReader reader ) {
 
-        this( bi, offset, backing );
+        this.bufferIndex = bi;
+        this.offset = offset;
+        this.backing = backing;
         this.reader = reader;
         readKey();
         
