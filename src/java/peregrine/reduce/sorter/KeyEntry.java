@@ -42,6 +42,10 @@ public class KeyEntry implements KeyValuePair {
 		this.bufferIndex = bufferIndex;
 		this.offset = offset;
         this.backing = backing;
+
+        if ( bufferIndex < 0 )
+            throw new RuntimeException( "Invalid buffer index: " + bufferIndex );
+        
 	}
 
 	public KeyEntry( byte bufferIndex, int offset, ChannelBuffer backing, DefaultChunkReader reader ) {
