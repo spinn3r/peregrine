@@ -21,6 +21,7 @@ import peregrine.io.*;
 import peregrine.config.*;
 import peregrine.app.pagerank.*;
 import peregrine.util.*;
+import peregrine.controller.*;
 
 /**
  * Tests the mathematical accuracy of our pagerank implementation.
@@ -60,7 +61,9 @@ public class TestPagerankAccuracy extends peregrine.BaseTestWithMultipleProcesse
         String graph = "/pr/graph";
         String nodes_by_hashcode = "/pr/nodes_by_hashcode";
 
-        GraphBuilder builder = new GraphBuilder( config, graph, nodes_by_hashcode );
+        ExtractWriter writer = new ExtractWriter( config, graph );
+        
+        //GraphBuilder builder = new GraphBuilder( config, graph, nodes_by_hashcode );
 
         /*
         builder.addRecord( "c9f0f895fb98ab91", "c4ca4238a0b92382", "c81e728d9d4c2f63" );
@@ -69,20 +72,26 @@ public class TestPagerankAccuracy extends peregrine.BaseTestWithMultipleProcesse
         builder.addRecord( "e4da3b7fbbce2345", "98f13708210194c4", "67c6a1e7ce56d3d6" );
         builder.addRecord( "67c6a1e7ce56d3d6", "98f13708210194c4" );
         */
-        
-        builder.close();
+
+        writer.write( StructReaders.hashcode( "A" ), StructReaders.hashcode( "B", "C", "D" ) );
+        writer.close();
         
         Pagerank pr = null;
 
+        Controller controller = null;
+        
         try {
-            
+
+            controller = new Controller( config );
+
             pr = new Pagerank( config, graph, nodes_by_hashcode );
             pr.prepare();
             
-            //pr.exec();
+            controller.exec( pr );
             
         } finally {
-            //pr.shutdown();
+            if ( controller != null ) 
+                controller.shutdown();
         }
 
         // now read all results from ALL partitions so that we can verify that
@@ -93,8 +102,7 @@ public class TestPagerankAccuracy extends peregrine.BaseTestWithMultipleProcesse
         List<StructPair> data = read( "/pr/out/rank_vector" );
 
         for( StructPair pair : data ) {
-            rank_vector.put( Base16.encode( pair.key.toByteArray() ),
-                             pair.value.readDouble() );
+            rank_vector.put( Base16.encode( pair.key.toByteArray() ), pair.value.readDouble() );
         }
 
         /*

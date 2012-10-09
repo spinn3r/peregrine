@@ -149,9 +149,5 @@ public class GraphBuilder {
         nodes.add( source );
         
     }
-
-    private void writeNode( long id ) throws IOException {
-
-    }
     
 }

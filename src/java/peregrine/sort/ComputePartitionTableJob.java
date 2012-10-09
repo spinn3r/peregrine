@@ -52,6 +52,12 @@ public class ComputePartitionTableJob {
     public static final int MAX_TRAIN_SIZE = 100000; 
 
     /**
+     * The point at which we essentially consider that we have no data and don't
+     * even bother computing the partition table.
+     */
+    public static final int NO_DATA_THRESHOLD = 1000;
+    
+    /**
      * <p>
      * The key length for partition boundaries.  Eight (8) bites for the first
      * component and 8 bytes for the second component.
@@ -95,7 +101,7 @@ public class ComputePartitionTableJob {
 
         List<StructReader> result = new ArrayList();
 
-        if ( train.size() == 0 ) {
+        if ( train.size() <= NO_DATA_THRESHOLD ) {
 
             // It is totally reasonable to want to sort a file with no
             // entries.
