@@ -188,10 +188,10 @@ public class KeyLookup extends IdempotentCloser {
 
         lookup.readerIndex( index * KEY_SIZE );
 
-        byte bufferIndex           = lookup.readByte();
+        int bufferIndex            = lookup.readByte() & 0xFF;
         int offset                 = lookup.readInt();
-    	ChannelBuffer backing      = buffers[ (byte)bufferIndex ];
-        DefaultChunkReader reader  = defaultChunkReaders[ (byte)bufferIndex ];
+    	ChannelBuffer backing      = buffers[ bufferIndex ];
+        DefaultChunkReader reader  = defaultChunkReaders[ bufferIndex ];
 
         KeyEntry result = new KeyEntry( bufferIndex, offset, backing, reader );
         
