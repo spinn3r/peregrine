@@ -295,10 +295,10 @@ public class ComputePartitionTableJob {
             // advantage to this approach is that we can re-use a lot of
             // existing code.
 
-            // TODO: consider ALWAYS making synthetic partitions when we have
-            // less than MAX_SAMPLE_SIZE ... this sample size should be our
-            // target so that we have fined grained partitioning of the data.
-            if ( set.size() < (nr_partitions * 100) ) {
+            // ALWAYS making synthetic partitions when we have less than
+            // MAX_SAMPLE_SIZE ... this sample size should be our target so that
+            // we have fined grained partitioning of the data.
+            if ( set.size() < MAX_SAMPLE_SIZE ) {
 
                 log.info( "Creating synthetic sample data due to small sample set: %s", set.size() );
                 
