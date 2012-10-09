@@ -68,6 +68,9 @@ public class HttpClient implements ChannelBufferWritable {
      */
     public static long tag = 0;
     
+    /**
+     * Maximum number of writes to keep in the queue.
+     */
     public static int QUEUE_CAPACITY = 10;
 
     /**
@@ -564,7 +567,7 @@ public class HttpClient implements ChannelBufferWritable {
 
     }
 
-    // FIXME: move these into an event listener... 
+    // TODO: move these into an event listener... 
 
     /**
      * Called when the capacity for the underlying queue changes so that we can

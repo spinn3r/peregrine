@@ -25,6 +25,8 @@ public class RankMetadataByRankSortComparator extends StrictSortDescendingCompar
 
         StructReader prefix = value.slice( offset, DoubleBytes.LENGTH );
 
+        prefix = StructReaders.wrap( prefix.readDouble() * Long.MAX_VALUE );
+        
         return StructReaders.join( prefix, key.slice() );
 
     }
