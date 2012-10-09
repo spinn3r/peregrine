@@ -49,7 +49,7 @@ public class ComputePartitionTableJob {
      * partitions because our accuracy will fail with the total number of
      * partitions we have.
      */
-    public static final int MAX_TRAIN_SIZE = 100000; 
+    public static final int MAX_TRAIN_SIZE = 200000; 
 
     /**
      * <p>
@@ -352,7 +352,8 @@ public class ComputePartitionTableJob {
             //analyze the hits and throw an Exception if they don't look good.
             assertDistribution( toPerc( hits ) );
 
-            log.info( "Test results for %,d testing points and %,d training points: %s", test.size(), train.size(), hits );
+            log.info( "Test results for %,d testing points and %,d training points: %s",
+                      test.size(), train.size(), hits );
             
         }
 
