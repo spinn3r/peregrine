@@ -77,6 +77,16 @@ public class Test {
 
     public static void main( String[] args ) throws Exception {
 
+        for( int i = 0; i < 256; ++i ) {
+
+            byte b = (byte)i;
+
+            int j = (int)b & 0xFF;
+            
+            System.out.printf( "%s\n", j );
+            
+        }
+        
         // new Initializer().logger( "test" );
 
         // List<StructReader> list = new ArrayList();

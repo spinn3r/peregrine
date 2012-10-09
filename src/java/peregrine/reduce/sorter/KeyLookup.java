@@ -175,7 +175,7 @@ public class KeyLookup extends IdempotentCloser {
         
         lookup.writerIndex( index * KEY_SIZE );
         
-        lookup.writeByte( entry.bufferIndex );
+        lookup.writeByte( entry.bufferIndex() );
         lookup.writeInt( entry.offset );
         
     }

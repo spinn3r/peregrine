@@ -24,7 +24,7 @@ import peregrine.io.chunk.*;
 
 public class KeyEntry implements KeyValuePair {
 
-	protected byte bufferIndex;
+	private byte bufferIndex;
 
 	protected int offset;
 
@@ -38,19 +38,20 @@ public class KeyEntry implements KeyValuePair {
 
     protected StructReader value = null;
 
-	public KeyEntry( byte bufferIndex, int offset, ChannelBuffer backing ) {
-		this.bufferIndex = bufferIndex;
+	public KeyEntry( int bi, int offset, ChannelBuffer backing ) {
+
+        if ( bi < 0 || bi > 256 )
+            throw new RuntimeException( "Invalid buffer index: " + bi );
+
+		this.bufferIndex = (byte)bi;
 		this.offset = offset;
         this.backing = backing;
 
-        if ( bufferIndex < 0 )
-            throw new RuntimeException( "Invalid buffer index: " + bufferIndex );
-        
 	}
 
-	public KeyEntry( byte bufferIndex, int offset, ChannelBuffer backing, DefaultChunkReader reader ) {
+	public KeyEntry( int bi, int offset, ChannelBuffer backing, DefaultChunkReader reader ) {
 
-        this( bufferIndex, offset, backing );
+        this( bi, offset, backing );
         this.reader = reader;
         readKey();
         
@@ -79,6 +80,10 @@ public class KeyEntry implements KeyValuePair {
 
         this.value = reader.readEntry();
 
+    }
+
+    public int bufferIndex() {
+        return (int)bufferIndex & 0xFF;
     }
     
     public StructReader getKey() { 
