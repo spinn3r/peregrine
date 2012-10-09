@@ -49,7 +49,7 @@ public class ComputePartitionTableJob {
      * partitions because our accuracy will fail with the total number of
      * partitions we have.
      */
-    public static final int MAX_TRAIN_SIZE = 500000; 
+    public static final int MAX_TRAIN_SIZE = 100000; 
 
     /**
      * <p>
