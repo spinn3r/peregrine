@@ -290,6 +290,7 @@ public class ComputePartitionTableJob {
                 }
 
                 return;
+
             }
 
             // If we have too few training data points we have to create

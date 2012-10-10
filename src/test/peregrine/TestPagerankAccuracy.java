@@ -73,7 +73,11 @@ public class TestPagerankAccuracy extends peregrine.BaseTestWithMultipleProcesse
         builder.addRecord( "67c6a1e7ce56d3d6", "98f13708210194c4" );
         */
 
-        writer.write( StructReaders.hashcode( "A" ), StructReaders.hashcode( "B", "C", "D" ) );
+        writer.write( StructReaders.hashcode( 1 ), StructReaders.hashcode( 2, 3 ) );
+        writer.write( StructReaders.hashcode( 3 ), StructReaders.hashcode( 1, 2, 5 ) );
+        writer.write( StructReaders.hashcode( 4 ), StructReaders.hashcode( 5, 6 ) );
+        writer.write( StructReaders.hashcode( 5 ), StructReaders.hashcode( 4, 6 ) );
+        writer.write( StructReaders.hashcode( 6 ), StructReaders.hashcode( 4 ) );
         writer.close();
         
         Pagerank pr = null;
@@ -105,15 +109,30 @@ public class TestPagerankAccuracy extends peregrine.BaseTestWithMultipleProcesse
         // now read all results from ALL partitions so that we can verify that
         // we have accurate values.
 
-        Map<String,Double> rank_vector = new HashMap();
+        Map<StructReader,Double> rank_vector = new HashMap();
         
         List<StructPair> data = read( "/pr/out/rank_vector" );
 
         for( StructPair pair : data ) {
-            rank_vector.put( Base16.encode( pair.key.toByteArray() ), pair.value.readDouble() );
+            rank_vector.put( pair.key, pair.value.readDouble() );
         }
 
-        System.out.printf( "rank_vector: %s\n", rank_vector );
+        // print the keys in the rank vector now...
+
+        for( long i = 1; i <= 6; ++i ) {
+            System.out.printf( "%10s=%2.10f\n", i, rank_vector.get( StructReaders.hashcode( i ) ) );
+        }
+        
+        //System.out.printf( "rank_vector: %s\n", rank_vector );
+
+        // addEdge( lr, "5", "4" );
+        // addEdge( lr, "5", "6" );
+        // addEdge( lr, "6", "4" );
+
+        // lr.exec();
+
+        // //0.037212       0.053957       0.041506       0.375081       0.205998       0.286246 
+
         
         /*
         assertEquals( rank_vector.get( "98f13708210194c4" ), 0.26666666666666666 );
