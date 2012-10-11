@@ -192,7 +192,7 @@ public class IterJob {
                 double teleport_grant_sum = nr_dangling * ( 1 / (double)nr_nodes );
                 teleport_grant = (1.0 - ( DAMPENING * ( 1.0 - teleport_grant_sum ) ) ) / (double)nr_nodes;
 
-                log.info( "Using default teleport_grant: %s ": teleport_grant );
+                log.info( "Using default teleport_grant: %s ", teleport_grant );
                 
             } 
 
