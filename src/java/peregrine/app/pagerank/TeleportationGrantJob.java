@@ -19,7 +19,11 @@ import java.util.*;
 import peregrine.*;
 import peregrine.io.*;
 
+import com.spinn3r.log5j.Logger;
+
 public class TeleportationGrantJob {
+
+    private static final Logger log = Logger.getLogger();
 
     public static class Reduce extends Reducer {
 
@@ -36,7 +40,7 @@ public class TeleportationGrantJob {
                 .readVarint()
                 ;
 
-            System.out.printf( "Working with nr_nodes: %,d\n", nr_nodes );
+            log.info( "Working with nr_nodes: %,d", nr_nodes );
             
         }
 

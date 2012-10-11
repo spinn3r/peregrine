@@ -86,7 +86,7 @@ public class Pagerank extends Batch {
     /**
      * Init PR ... setup all our vectors, node metadata table, etc.
      */
-    protected void init() {
+    public void init() {
 
         // ***** INIT stage... 
 
@@ -164,7 +164,7 @@ public class Pagerank extends Batch {
     /**
      * Run one pagerank step.
      */
-    protected void iter() {
+    public void iter() {
 
         merge( IterJob.Map.class,
                new Input( graph_by_source ,
@@ -176,6 +176,7 @@ public class Pagerank extends Batch {
                            "broadcast:dangling_rank_sum" ) );
 
         /*
+          //FIXME put the combiner back in... 
         reduce( new Job().setDelegate( IterJob.Reduce.class )
                          .setCombiner( IterJob.Combine.class )
                          .setInput( "shuffle:default",
@@ -221,7 +222,7 @@ public class Pagerank extends Batch {
     /**
      * Finalize PR.
      */
-    protected void term() {
+    public void term() {
 
         // merge the rank vector, node metadata (indegree, outdegree) as well as name of the node, title, and description.
         merge( MergeNodeAndRankMetaJob.Merge.class,
@@ -235,7 +236,7 @@ public class Pagerank extends Batch {
     /**
      * Sort the resulting output files.
      */
-    protected void sort() {
+    public void sort() {
         
         sort( "/pr/out/rank_metadata",
               "/pr/out/rank_metadata_by_rank",

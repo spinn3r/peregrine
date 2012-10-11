@@ -97,8 +97,18 @@ public class TestPagerankAccuracy extends peregrine.BaseTestWithMultipleProcesse
                                         .setOutput( graph ) );
             
             pr = new Pagerank( config, graph, nodes_by_hashcode );
-            pr.prepare();
-            
+            //pr.prepare();
+
+            pr.init();
+            pr.iter();   // 1 OK.. the computed teleport_grat at this iteration is correct since it is virtual
+            pr.iter();   // 2 OK... the loaded one is right at this level too!
+            pr.iter();   // 3 FIXME: seems to be 0.4.1667 from the last iter... which is wrong.. I thik.
+            pr.iter();   // 4 FIXME: seems to be the same ... 0.4.1667... so it isn't being updated... I think.
+
+            for ( Job job : pr.getJobs() ) {
+                System.out.printf( "    %s\n", job );
+            }
+
             controller.exec( pr );
             
         } finally {
@@ -109,12 +119,18 @@ public class TestPagerankAccuracy extends peregrine.BaseTestWithMultipleProcesse
         // now read all results from ALL partitions so that we can verify that
         // we have accurate values.
 
-        Map<StructReader,Double> rank_vector = new HashMap();
-        
-        List<StructPair> data = read( "/pr/out/rank_vector" );
+        List<StructPair> rank_vector_data           = read( "/pr/out/rank_vector" );
+        List<StructPair> teleportation_grant_data   = read( "/pr/out/teleportation_grant" );
 
-        for( StructPair pair : data ) {
+        Map<StructReader,Double> rank_vector = new HashMap();
+        Map<StructReader,Double> teleportation_grant = new HashMap();
+
+        for( StructPair pair : rank_vector_data ) {
             rank_vector.put( pair.key, pair.value.readDouble() );
+        }
+
+        for( StructPair pair : teleportation_grant_data ) {
+            teleportation_grant.put( pair.key, pair.value.readDouble() );
         }
 
         // print the keys in the rank vector now...
@@ -122,6 +138,8 @@ public class TestPagerankAccuracy extends peregrine.BaseTestWithMultipleProcesse
         for( long i = 1; i <= 6; ++i ) {
             System.out.printf( "%10s=%2.10f\n", i, rank_vector.get( StructReaders.hashcode( i ) ) );
         }
+
+        System.out.printf( "teleportation_grant: %s\n", teleportation_grant );
         
         //System.out.printf( "rank_vector: %s\n", rank_vector );
 
@@ -133,7 +151,6 @@ public class TestPagerankAccuracy extends peregrine.BaseTestWithMultipleProcesse
 
         // //0.037212       0.053957       0.041506       0.375081       0.205998       0.286246 
 
-        
         /*
         assertEquals( rank_vector.get( "98f13708210194c4" ), 0.26666666666666666 );
         assertEquals( rank_vector.get( "c4ca4238a0b92382" ), 0.16666666666666666 );

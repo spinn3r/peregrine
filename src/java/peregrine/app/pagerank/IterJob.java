@@ -120,7 +120,7 @@ public class IterJob {
         @Override
         public void close() throws IOException {
 
-            StructReader key = StructReaders.hashcode( "id" );
+            StructReader key   = StructReaders.hashcode( "id" );
             StructReader value = StructReaders.wrap( dangling_rank_sum );
 
             danglingRankSumBroadcast.emit( key, value );
@@ -187,13 +187,15 @@ public class IterJob {
             
             if ( teleport_grant == -1 ) {
 
-                // for iter 0 teleport_grant is computed easily.
+                // for iter 0 teleport_grant is computed easily 
 
                 double teleport_grant_sum = nr_dangling * ( 1 / (double)nr_nodes );
                 teleport_grant = (1.0 - ( DAMPENING * ( 1.0 - teleport_grant_sum ) ) ) / (double)nr_nodes;
 
             } 
 
+            log.info( "FIXME teleport_grant: %15f", teleport_grant );
+            
             //System.out.printf( "TRACE: Using teleport_grant: %f\n", teleport_grant );
             
         }
