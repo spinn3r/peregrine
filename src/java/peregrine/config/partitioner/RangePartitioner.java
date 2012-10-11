@@ -32,6 +32,10 @@ public class RangePartitioner extends BasePartitioner {
 
 		super.init( config );
 
+        //TODO: migrate this to BigInteger so that I can support weights in
+        //partitions so that we can easily split ranges.  We can then use
+        //TreeMap.ceilingEntry to route within the partition space.
+        
     	this.range = WIDTH / (double)nr_partitions;	
 
     }
@@ -44,8 +48,8 @@ public class RangePartitioner extends BasePartitioner {
 		// the domain of the route function...  basically the key space as an
 		// integer so that we can place partitions within that space.
 
-        int val = ((((int) bytes[7]) & 0xFF)     ) +
-                    ((((int) bytes[6]) & 0xFF) << 8)
+        int val = ((((int) bytes[7]) & 0xFF) << 0) +
+                  ((((int) bytes[6]) & 0xFF) << 8)
             ;
 
 		int part = (int)(val / range);

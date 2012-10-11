@@ -37,10 +37,12 @@ public class TeleportationGrantJob {
             BroadcastInput nrNodesBroadcastInput = getBroadcastInput().get( 0 );
             
             nr_nodes = nrNodesBroadcastInput.getValue()
-                .readVarint()
+                .readInt()
                 ;
 
-            log.info( "Working with nr_nodes: %,d", nr_nodes );
+            if ( nr_nodes < 0 ) {
+                throw new RuntimeException( "Invalid node count: " + nr_nodes );
+            }
             
         }
 
@@ -56,8 +58,13 @@ public class TeleportationGrantJob {
 
             double result = (1.0 - (IterJob.DAMPENING * (1.0 - sum))) / (double)nr_nodes;
 
-            emit( key, StructReaders.wrap( result ) );
+            if ( result < 0 )
+                throw new RuntimeException( "Invalid teleportation_grant: " + result );
             
+            log.info( "New computed teleportation_grant is : %s", result );
+            
+            emit( key, StructReaders.wrap( result ) );
+
         }
 
     }

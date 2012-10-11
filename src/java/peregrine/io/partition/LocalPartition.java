@@ -23,10 +23,14 @@ import peregrine.config.Partition;
 import peregrine.io.chunk.*;
 import peregrine.os.*;
 
+import com.spinn3r.log5j.Logger;
+
 /**
  * Write to a logical partition which is a stream of chunk files.... 
  */
 public class LocalPartition {
+
+    private static final Logger log = Logger.getLogger();
 
     public static String getFilenameForChunkID( int local_chunk_id ) {
         return String.format( "chunk%06d.dat" , local_chunk_id );

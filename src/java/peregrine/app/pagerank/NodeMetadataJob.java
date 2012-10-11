@@ -23,7 +23,11 @@ import peregrine.util.*;
 import peregrine.util.primitive.IntBytes;
 import peregrine.io.*;
 
+import com.spinn3r.log5j.Logger;
+
 public class NodeMetadataJob {
+
+    private static final Logger log = Logger.getLogger();
 
     public static class Map extends Merger {
 
@@ -96,7 +100,7 @@ public class NodeMetadataJob {
         public void close() throws IOException {
 
             StructReader key = StructReaders.hashcode( "id" );
-
+            
             // *** broadcast nr_nodes.
             nrNodesBroadcastOutput.emit( key, StructReaders.wrap( nrNodes ) );
             

@@ -192,11 +192,11 @@ public class IterJob {
                 double teleport_grant_sum = nr_dangling * ( 1 / (double)nr_nodes );
                 teleport_grant = (1.0 - ( DAMPENING * ( 1.0 - teleport_grant_sum ) ) ) / (double)nr_nodes;
 
+                log.info( "Using default teleport_grant: %s ": teleport_grant );
+                
             } 
 
-            log.info( "FIXME teleport_grant: %15f", teleport_grant );
-            
-            //System.out.printf( "TRACE: Using teleport_grant: %f\n", teleport_grant );
+            log.info( "Using teleport_grant: %15f", teleport_grant );
             
         }
         

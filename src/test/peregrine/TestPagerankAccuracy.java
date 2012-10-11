@@ -97,13 +97,8 @@ public class TestPagerankAccuracy extends peregrine.BaseTestWithMultipleProcesse
                                         .setOutput( graph ) );
             
             pr = new Pagerank( config, graph, nodes_by_hashcode );
-            //pr.prepare();
-
-            pr.init();
-            pr.iter();   // 1 OK.. the computed teleport_grat at this iteration is correct since it is virtual
-            pr.iter();   // 2 OK... the loaded one is right at this level too!
-            pr.iter();   // 3 FIXME: seems to be 0.4.1667 from the last iter... which is wrong.. I thik.
-            pr.iter();   // 4 FIXME: seems to be the same ... 0.4.1667... so it isn't being updated... I think.
+            pr.setIterations( 10 );
+            pr.prepare();
 
             for ( Job job : pr.getJobs() ) {
                 System.out.printf( "    %s\n", job );

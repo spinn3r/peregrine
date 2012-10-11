@@ -40,7 +40,7 @@ public class PartitionWriterJobOutput implements JobOutput {
     public void emit( StructReader key , StructReader value ) {
 
         try {
-
+            
             writer.write( key, value );
             
         } catch ( IOException e ) {
