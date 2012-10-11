@@ -82,7 +82,7 @@ public class Cat {
                 
                 System.out.printf( "%s = %s\n", Base64.encode( key.toByteArray() ), format( render, value ) );
 
-                if ( limit != -1 && id++ >= limit )
+                if ( limit != -1 && ++id >= limit )
                     break;
                 
             }
