@@ -62,7 +62,7 @@ public class Cat {
         }
         
         String render  = getopt.getString( "render" , "base64" );
-        int limit      = getopt.getInt( "limit" );
+        int limit      = getopt.getInt( "limit", -1 );
         
         String path = getopt.getValues().get( 0 );
 
