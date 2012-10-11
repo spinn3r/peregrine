@@ -56,6 +56,13 @@ public class ChunkReference {
         ++local;
     }
 
+    /**
+     * Get the local chunk reference ID.
+     */
+    public int getLocal() {
+        return local;
+    }
+    
     public String toString() {
         return String.format( "%06d", local );
     }
