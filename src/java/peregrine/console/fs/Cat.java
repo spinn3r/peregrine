@@ -43,8 +43,8 @@ public class Cat {
         System.err.printf( "\n" );
         System.out.printf( "  --render   Render the value(s) in the following format.\n" );
         System.out.printf( "             Multiple columns are separated by a comma (,)\n" );
-        System.out.printf( "\n" );
-        System.out.printf( " * Render column formatting:\n" );
+        System.err.printf( "\n" );
+        System.out.printf( "  --limit    Limit results to the first N entries.\n" );        
         System.out.printf( "\n" );
         System.out.printf( "The --render option supports a comma separated list\n" );
         System.out.printf( "of values to print from the byte stream.\n" );
@@ -61,8 +61,9 @@ public class Cat {
             System.exit( 1 );
         }
         
-        String render = getopt.getString( "render" , "base64" );
-
+        String render  = getopt.getString( "render" , "base64" );
+        int limit      = getopt.getInt( "limit" );
+        
         String path = getopt.getValues().get( 0 );
 
         SequenceReader reader = null;
@@ -70,7 +71,8 @@ public class Cat {
         try {
             
             reader = new DefaultChunkReader( new File( path ) );
-            
+
+            int id = 0;
             while ( reader.hasNext() ) {
                 
                 reader.next();
@@ -79,6 +81,9 @@ public class Cat {
                 StructReader value = reader.value();
                 
                 System.out.printf( "%s = %s\n", Base64.encode( key.toByteArray() ), format( render, value ) );
+
+                if ( limit != -1 && id++ >= limit )
+                    break;
                 
             }
 
