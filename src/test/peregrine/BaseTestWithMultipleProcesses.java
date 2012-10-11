@@ -415,7 +415,7 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
     public abstract void doTest() throws Exception;
 
     /**
-     * Read all key/value pairs on the given path on all partitions.  
+     * Read all key/value pairs on the given path on all partitions... 
      */
     public List<StructPair> read( String path ) throws IOException {
 
@@ -424,8 +424,15 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
         List<StructPair> result = new ArrayList();
         
         Membership membership = config.getMembership();
+
+        // we have to go through the earlier partitions first followed by later
+        // partitions because when we are testing sorted output it is important
+        // to get the right order.
         
-        for( Partition part : membership.getPartitions() ) {
+        List<Partition> partitions = new ArrayList( membership.getPartitions() );
+        Collections.sort( partitions );
+        
+        for( Partition part : partitions ) {
 
             Host host = membership.getHosts( part ).get( 0 );
 
@@ -528,13 +535,6 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
             };
             
         }
-        
-    }
-
-    class StructPair {
-
-        StructReader key;
-        StructReader value;
         
     }
 

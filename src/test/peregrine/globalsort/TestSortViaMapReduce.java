@@ -44,28 +44,33 @@ public class TestSortViaMapReduce extends peregrine.BaseTestWithMultipleProcesse
     @Override
     public void doTest() throws Exception {
 
-        Config config = getConfig();
-
-        int nr_partitions = config.getMembership().size();
-        
-        int max = ComputePartitionTableJob.MAX_TRAIN_SIZE * 2 * nr_partitions;
-
-        // test sorting empty files.
-        doTest( 0, 2 );
-
-        doTest( max, 2 );
-        doTest( max, 1 );
-        doTest( max, 10 );
-        doTest( max, max );
-        doTest( max, 10000 );
-
-        doTest( max, 1000 );
-
-        //doTest( max, 100 );
+        doTest( new JobSortComparator() );
+        doTest( new JobSortDescendingComparator() );
         
     }
 
-    private void doTest( int max, int range ) throws Exception {
+    public void doTest( SortComparator comparator ) throws Exception {
+
+        Config config = getConfig();
+
+        int nr_partitions = config.getMembership().size();
+
+        ComputePartitionTableJob.MAX_TRAIN_SIZE=10000;
+        ComputePartitionTableJob.NO_DATA_THRESHOLD=1000;
+
+        int max = ComputePartitionTableJob.MAX_TRAIN_SIZE * 2 * nr_partitions;
+
+        doTest( 0, 2, comparator );
+        doTest( max, 2, comparator );
+        doTest( max, 1, comparator );
+        doTest( max, 10, comparator );
+        doTest( max, max, comparator );
+        doTest( max, 10000, comparator );
+        doTest( max, 1000, comparator );
+
+    }
+    
+    private void doTest( int max, int range, SortComparator comparator ) throws Exception {
 
         log.info( "Testing with %,d records." , max );
 
@@ -76,8 +81,6 @@ public class TestSortViaMapReduce extends peregrine.BaseTestWithMultipleProcesse
         ExtractWriter writer = new ExtractWriter( config, path );
 
         Random r = new Random();
-
-        JobSortComparator comparator = new JobSortComparator();
         
         for( long i = 0; i < max; ++i ) {
 
@@ -109,7 +112,7 @@ public class TestSortViaMapReduce extends peregrine.BaseTestWithMultipleProcesse
                                         .setInput( "shuffle:default" )
                                         .setOutput( path ) );
             
-            controller.sort( path, output, JobSortComparator.class );
+            controller.sort( path, output, comparator.getClass() );
             
         } finally {
             controller.shutdown();
@@ -191,7 +194,25 @@ public class TestSortViaMapReduce extends peregrine.BaseTestWithMultipleProcesse
         }
 
         // now make sure we actually have records in the right order.
+
+        List<StructPair> list = read( output );
+
+        StructPair lastPair = null;
         
+        for ( StructPair pair : list ) {
+
+            long value = pair.value.readLong();
+
+            if ( lastPair != null && comparator.compare( lastPair , pair ) > 0 ) {
+                throw new RuntimeException( "wrong order!" );
+            }
+            
+            //System.out.printf( "%s\n", value );
+
+            lastPair = pair;
+            
+        }
+
     }
 
     public static void main( String[] args ) throws Exception {

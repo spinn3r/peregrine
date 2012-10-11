@@ -39,7 +39,7 @@ public class ComputePartitionTableJob {
      * The maximum percentage to tolerate in key distribution.  If we have a
      * percentage gap greater than this we abort.
      */
-    public static final int MAX_DISTRIBUTION_PERC_DELTA = 10;
+    public static int MAX_DISTRIBUTION_PERC_DELTA = 10;
     
     /**
      * The maximum number of keys to read into memory to compute the training
@@ -49,13 +49,13 @@ public class ComputePartitionTableJob {
      * partitions because our accuracy will fail with the total number of
      * partitions we have.
      */
-    public static final int MAX_TRAIN_SIZE = 100000; 
+    public static int MAX_TRAIN_SIZE = 100000; 
 
     /**
      * The point at which we essentially consider that we have no data and don't
      * even bother computing the partition table.
      */
-    public static final int NO_DATA_THRESHOLD = 1000;
+    public static int NO_DATA_THRESHOLD = 1000;
     
     /**
      * <p>
