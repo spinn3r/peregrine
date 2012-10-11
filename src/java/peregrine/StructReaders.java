@@ -1,3 +1,4 @@
+
 /*
  * Copyright 2011 Kevin A. Burton
  * 
@@ -33,7 +34,7 @@ public class StructReaders {
 
     public static StructReader wrap( double value ) {
 
-        return new StructWriter()
+        return new StructWriter(8)
             .writeDouble( value )
             .toStructReader()
             ;
@@ -42,7 +43,7 @@ public class StructReaders {
 
     public static StructReader wrap( int value ) {
 
-        return new StructWriter()
+        return new StructWriter(4)
             .writeInt( value )
             .toStructReader()
             ;
@@ -51,7 +52,7 @@ public class StructReaders {
 
     public static StructReader wrap( long value ) {
 
-        return new StructWriter()
+        return new StructWriter(8)
             .writeLong( value )
             .toStructReader()
             ;
@@ -60,7 +61,7 @@ public class StructReaders {
 
     public static StructReader wrap( boolean value ) {
 
-        return new StructWriter()
+        return new StructWriter(1)
             .writeBoolean( value )
             .toStructReader()
             ;
@@ -94,6 +95,32 @@ public class StructReaders {
 
     public static StructReader wrap( List<StructReader> list ) {
         return wrap( list, true );
+    }
+
+    /**
+     * Wrap a list of StructReader so that we can have a new struct which has
+     * each StructReader in this list prefixed with a varint so we can unpack it
+     * with {@link StructReader#readSlice()}.
+     */
+    public static StructReader wrap( StructReader... readers ) {
+
+        // TODO: I'm not sure it just wouldn't be faster to just copy the bytes.
+        
+        ChannelBuffer[] buffers = new ChannelBuffer[ readers.length * 2 ];
+
+        int idx = 0;
+        
+        for( StructReader current : readers ) {
+
+            buffers[ idx++ ] = varint( current.length() ).getChannelBuffer();
+            buffers[ idx++ ] = current.getChannelBuffer();
+            
+        }
+
+        ChannelBuffer composite = ChannelBuffers.wrappedBuffer( buffers );
+        
+        return new StructReader( composite );
+
     }
 
     /**
@@ -135,7 +162,7 @@ public class StructReaders {
         
         while( reader.isReadable() ) {
 
-            int len = reader.readVarint();
+            int len = reader.readVarint();            
             result.add( reader.readSlice( len ) );
             
         }
@@ -144,15 +171,6 @@ public class StructReaders {
         
     }
     
-    public static StructReader hashcode( String value ) {
-
-        return new StructWriter()
-            .writeHashcode( value )
-            .toStructReader()
-            ;
-        
-    }
-
     public static StructReader hashcode( long value ) {
 
         return new StructWriter()
@@ -171,6 +189,36 @@ public class StructReaders {
         
     }
 
+    public static StructReader hashcode( int... values ) {
+
+        StructWriter writer = new StructWriter( values.length * Hashcode.HASH_WIDTH );
+
+        for( long current : values ) {
+            writer.writeHashcode( current );
+        }
+
+        return writer.toStructReader();
+
+    }
+
+    // TODO: make all methods use this form so that we can easily make lists of
+    // types which are fixed width.  
+
+    /**
+     * Generate a StructReader for a list of hashcodes.
+     */
+    public static StructReader hashcode( String... values ) {
+
+        StructWriter writer = new StructWriter( values.length * Hashcode.HASH_WIDTH );
+
+        for( String current : values ) {
+            writer.writeHashcode( current );
+        }
+
+        return writer.toStructReader();
+
+    }
+
     /**
      * Generate a StructReader that writes the given list of primitives to a set
      * of hashcodes.
@@ -187,10 +235,6 @@ public class StructReaders {
         
     }
 
-    public static StructReader hashcode( int value ) {
-        return hashcode( (long)value );
-    }
-
     public static StructReader varint( int value ) {
 
         return new StructWriter()
@@ -200,4 +244,43 @@ public class StructReaders {
         
     }
 
+    public static StructReader join( StructReader... readers ) {
+
+        ChannelBuffer[] buffers = new ChannelBuffer[ readers.length ];
+
+        for( int i = 0; i < readers.length; ++i ) {
+            buffers[i] = readers[i].buff;
+        }
+
+        return new StructReader( ChannelBuffers.wrappedBuffer( buffers ) );
+        
+    }
+
+    public static StructReader join( Collection<StructReader> readers ) {
+
+        ChannelBuffer[] buffers = new ChannelBuffer[ readers.size() ];
+
+        int i = 0;
+
+        for( StructReader current : readers ) {
+            buffers[i] = current.buff;
+            ++i;
+        }
+
+        return new StructReader( ChannelBuffers.wrappedBuffer( buffers ) );
+        
+    }
+
+    public static List<StructReader> split( StructReader reader, int length ) {
+
+        List<StructReader> result = new ArrayList( reader.length() / length );
+        
+        while ( reader.isReadable() ) {
+            result.add( reader.readSlice( length ) );
+        }
+
+        return result;
+        
+    }
+    
 }

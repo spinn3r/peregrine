@@ -72,6 +72,8 @@ public class ControllerHandler extends DefaultChannelUpstreamHandler {
         	
             if ( method == POST ) {
                 handler = new ControllerRPCHandler( config, controllerDaemon, request.getUri() );
+            } else {
+                sendError( ctx , NOT_FOUND );
             }
 
         }

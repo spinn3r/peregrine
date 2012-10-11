@@ -24,58 +24,91 @@ import peregrine.io.*;
 
 import com.spinn3r.log5j.Logger;
 
-public class Pagerank {
+/**
+ * <p> Pagerank implementation which uses Peregrine as a backend for fast
+ * computation.
+ *
+ * <p>
+ * Our pagerank implementation takes an input file and writes resulting files to
+ * /pr/out/ for external analysis and use within external systems.
+ */
+public class Pagerank extends Batch {
     
     private static final Logger log = Logger.getLogger();
 
+    public static final int DEFAULT_ITERATIONS = 5;
+    
     private Config config;
 
-    private String path = null;
+    /**
+     */
+    private String graph = null;
+
+    /**
+     */
+    private String nodes_by_hashcode = null;
     
     /**
      * The number of iterations we should perform.
      */
-    private int iterations = 5;
-
-    private Controller controller = null;
+    private int iterations = DEFAULT_ITERATIONS;
 
     /**
      */
     private int step = 0;
-    
-    public Pagerank( Config config, String path ) {
-        this( config, path, new Controller( config ) );
-    }
 
-    public Pagerank( Config config, String path, Controller controller ) {
+    /**
+     */
+    private boolean sortedGraph = false;
+
+    private String graph_by_source = "/pr/graph_by_source";
+    
+    public Pagerank( Config config, String graph, String nodes_by_hashcode ) {
+        this( config, graph, nodes_by_hashcode, DEFAULT_ITERATIONS, false );
+    }
+    
+    public Pagerank( Config config,
+                     String graph,
+                     String nodes_by_hashcode,
+                     int iterations,
+                     boolean sortedGraph ) {
+
         this.config = config;
-        this.path = path;
-        this.controller = controller;
+        this.graph = graph;
+        this.nodes_by_hashcode = nodes_by_hashcode;
+        this.iterations = iterations;
+
+        setName( Pagerank.class.getName() );
+        setDescription( getName() );
+
     }
 
     /**
      * Init PR ... setup all our vectors, node metadata table, etc.
      */
-    public void init() throws Exception {
+    public void init() {
 
         // ***** INIT stage... 
 
+        log.info( "Running init() stage." );
+        
         // TODO: We can elide this and the next step by reading the input
         // once and writing two two destinations.  this would read from
-        // 'path' and then wrote to node_indegree and graph_by_source at the
+        // 'graph' and then wrote to node_indegree and graph_by_source at the
         // same time.
 
         // ***
         //
         // compute the node_indegree 
 
-        controller.map( NodeIndegreeJob.Map.class,
-                        new Input( path ),
-                        new Output( "shuffle:default" ) );
+        map( NodeIndegreeJob.Map.class,
+             new Input( graph ),
+             new Output( "shuffle:default" ) );
 
-        controller.reduce( NodeIndegreeJob.Reduce.class,
-                           new Input( "shuffle:default" ),
-                           new Output( "/pr/tmp/node_indegree" ) );
+        reduce( new Job().setDelegate( NodeIndegreeJob.Reduce.class )
+                         .setCombiner( NodeIndegreeJob.Combine.class )
+                         .setInput( "shuffle:default" )
+                         .setOutput( "/pr/tmp/node_indegree" ) );
 
         // ***
         //
@@ -85,68 +118,79 @@ public class Pagerank {
         // to the filesystem.
         // 
 
-        controller.map( Mapper.class,
-                        new Input( path ),
-                        new Output( "shuffle:default" ) );
+        if ( sortedGraph == false ) {
         
-        controller.reduce( GraphBySourceJob.Reduce.class,
-                           new Input( "shuffle:default" ),
-                           new Output( "/pr/graph_by_source" ) );
-        
+            map( Mapper.class,
+                 new Input( graph ),
+                 new Output( "shuffle:default" ) );
+            
+            reduce( GraphBySourceJob.Reduce.class,
+                    new Input( "shuffle:default" ),
+                    new Output( graph_by_source ) );
+
+        } else {
+            graph_by_source = graph;
+        }
+            
         // ***
         //
         // now create node metadata...  This will write the dangling vector,
         // the nonlinked vector and node_metadata which are all invariant.
 
-        controller.merge( NodeMetadataJob.Map.class,
-                          new Input( "/pr/tmp/node_indegree",
-                                     "/pr/graph_by_source" ),
-                          new Output( "/pr/out/node_metadata" ,
-                                      "/pr/out/dangling" ,
-                                      "/pr/out/nonlinked" ,
-                                      "broadcast:nr_nodes" ,
-                                      "broadcast:nr_dangling" ) );
+        merge( new Job().setDelegate( NodeMetadataJob.Map.class )
+                        .setInput( "/pr/tmp/node_indegree", graph_by_source )
+                        .setOutput( "/pr/out/node_metadata" ,
+                                    "/pr/out/dangling" ,
+                                    "/pr/out/nonlinked" ,
+                                    "broadcast:nr_nodes" ,
+                                    "broadcast:nr_dangling" ) );
+        
+        reduce( NodeMetadataJob.Reduce.class,
+                new Input( "shuffle:nr_nodes" ),
+                new Output( "/pr/out/nr_nodes" ) );
 
-        controller.reduce( NodeMetadataJob.Reduce.class,
-                           new Input( "shuffle:nr_nodes" ),
-                           new Output( "/pr/out/nr_nodes" ) );
+        reduce( NodeMetadataJob.Reduce.class,
+                new Input( "shuffle:nr_dangling" ),
+                new Output( "/pr/out/nr_dangling" ) );
+        
+        // init empty files which we can still join against.
 
-        controller.reduce( NodeMetadataJob.Reduce.class,
-                           new Input( "shuffle:nr_dangling" ),
-                           new Output( "/pr/out/nr_dangling" ) );
+        // make sure these files exist.
+        truncate( "/pr/out/rank_vector" );
+        truncate( "/pr/out/teleportation_grant" );
 
     }
 
     /**
      * Run one pagerank step.
      */
-    public void iter() throws Exception {
+    public void iter() {
 
-        if ( step == 0 ) {
+        // TODO: migrate these to the new syntax of new Job() 
+        
+        merge( IterJob.Map.class,
+               new Input( graph_by_source ,
+                          "/pr/out/rank_vector" ,
+                          "/pr/out/dangling" ,
+                          "/pr/out/nonlinked" ,
+                          "broadcast:/pr/out/nr_nodes" ) ,
+               new Output( "shuffle:default", "broadcast:dangling_rank_sum" ) );
 
-            // init empty files which we can still join against.
+        reduce( new Job().setDelegate( IterJob.Reduce.class )
+                         .setCombiner( IterJob.Combine.class )
+                         .setInput( "shuffle:default",
+                                    "broadcast:/pr/out/nr_nodes",
+                                    "broadcast:/pr/out/nr_dangling",
+                                    "broadcast:/pr/out/teleportation_grant" )
+                         .setOutput( "/pr/out/rank_vector",
+                                     "broadcast:rank_sum" ) );
 
-            new ExtractWriter( config, "/pr/out/rank_vector" ).close();
-            new ExtractWriter( config, "/pr/out/teleportation_grant" ).close();
-
-        }
-
-        controller.merge( IterJob.Map.class,
-                          new Input( "/pr/graph_by_source" ,
-                                     "/pr/out/rank_vector" ,
-                                     "/pr/out/dangling" ,
-                                     "/pr/out/nonlinked" ,
-                                     "broadcast:/pr/out/nr_nodes" ) ,
-                          new Output( "shuffle:default",
-                                      "broadcast:dangling_rank_sum" ) );
-
-        controller.reduce( IterJob.Reduce.class,
-                           new Input( "shuffle:default",
-                                      "broadcast:/pr/out/nr_nodes",
-                                      "broadcast:/pr/out/nr_dangling",
-                                      "broadcast:/pr/out/teleport_grant" ),
-                           new Output( "/pr/out/rank_vector" ) );
-
+        // now reduce the broadcast rank sum to an individual file for analysis
+        // and reading
+        reduce( GlobalRankSumJob.Reduce.class,
+                new Input( "shuffle:rank_sum" ),
+                new Output( "/pr/out/rank_sum" ) );
+        
         // ***
         // 
         // write out the new ranking vector
@@ -154,11 +198,11 @@ public class Pagerank {
 
             // now compute the dangling rank sum for the next iteration
 
-            controller.reduce( TeleportationGrantJob.Reduce.class, 
-                               new Input( "shuffle:dangling_rank_sum",
-                                          "broadcast:/pr/out/nr_nodes" ),
-                               new Output( "/pr/out/teleportation_grant" ) );
-
+            reduce( TeleportationGrantJob.Reduce.class, 
+                    new Input( "shuffle:dangling_rank_sum",
+                               "broadcast:/pr/out/nr_nodes" ),
+                    new Output( "/pr/out/teleportation_grant" ) );
+            
         }
 
         ++step;
@@ -166,49 +210,55 @@ public class Pagerank {
     }
 
     /**
-     * Run a full pagerank computation including init, iter, and shutdown.
+     * Finalize PR.
      */
-    public void exec() throws Exception {
-        exec( true );
+    public void term() {
+
+        // merge the rank vector, node metadata (indegree, outdegree) as well as name of the node, title, and description.
+        merge( MergeNodeAndRankMetaJob.Merge.class,
+               new Input( "/pr/out/node_metadata", "/pr/out/rank_vector", nodes_by_hashcode ),
+               new Output( "/pr/out/rank_metadata" ) );
+
+        sort();
+        
     }
 
     /**
-     * Run a full pagerank computation including init, iter, and shutdown.
+     * Sort the resulting output files.
      */
-    public void exec( boolean autoShutdown ) throws Exception {
+    public void sort() {
+        
+        sort( "/pr/out/rank_metadata",
+              "/pr/out/rank_metadata_by_rank",
+              RankMetadataByRankSortComparator.class );
+        
+        sort( "/pr/out/rank_metadata",
+              "/pr/out/rank_metadata_by_indegree",
+              RankMetadataByIndegreeComparator.class );
 
-        try {
+    }
 
-            init();
-            
-            // init the empty rank_vector table ... we need to merge against it.
+    /**
+     * Build the batch from all existing configuration variables.
+     */
+    public Pagerank prepare() {
 
-            // ***** ITER stage... 
+        init();
 
-            for( int step = 0; step < iterations; ++step ) {
-                iter();
-            }
+        // init the empty rank_vector table ... we need to merge against it.
 
-            log.info( "Pagerank complete" );
-            
-        } finally {
+        // ***** ITER stage... 
 
-            if ( autoShutdown )
-                shutdown();
-            
+        for( int step = 0; step < iterations; ++step ) {
+            iter();
         }
-            
-    }
 
-    /**
-     * Shutdown the controller and release all resources.  Note that this must
-     * be done in a finally block so that we don't leave the cluster in an
-     * inconsistent state.
-     */
-    public void shutdown() {
-        controller.shutdown();
-    }
+        term();
 
+        return this;
+        
+    }
+    
     public int getIterations() { 
         return this.iterations;
     }

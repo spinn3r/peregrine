@@ -17,33 +17,56 @@ package peregrine.rpc;
 
 import java.io.*;
 import java.net.*;
+
+import org.jboss.netty.buffer.*;
 import org.jboss.netty.handler.codec.http.*;
 
-import peregrine.config.Host;
+import peregrine.config.*;
 import peregrine.http.*;
 
 import com.spinn3r.log5j.*;
 
 /**
- * 
+ * Basic RPC client for sending messages to peregrine workers.
  * 
  */
 public class Client {
 
     private static final Logger log = Logger.getLogger();
 
-    private boolean silent = false;
-    
-    public Client() {}
+    private boolean trace = false;
 
-    public Client( boolean silent ) {
-        this.silent = silent;
+    private Config config = null;
+    
+    public Client( Config config ) {
+        this.config = config;
     }
 
-    public void invoke( Host host, String service, Message message ) throws IOException {
-        invokeAsync( host, service, message ).close();
+    public Client( Config config , boolean trace ) {
+        this.config= config;
+        this.trace = trace;
     }
-    
+
+    /**
+     * Invoke an RPC method and block.  Return a {@link Message} object which
+     * represents the result and is parsed.
+     */
+    public Message invoke( Host host, String service, Message message ) throws IOException {
+
+        HttpClient client = invokeAsync( host, service, message );
+        client.close();
+
+        ChannelBuffer content = client.getResult();
+        
+        int len = content.writerIndex();
+
+        byte[] data = new byte[ len ];
+        content.readBytes( data );
+        
+        return new Message( new String( data ) );
+        
+    }
+
     public HttpClient invokeAsync( Host host, String service, Message message ) throws IOException {
 
         try {
@@ -55,10 +78,11 @@ public class Client {
             
             URI uri = new URI( String.format( "http://%s:%s/%s/RPC", host.getName(), host.getPort(), service ) );
 
-            if( ! silent )
+            if( trace ) {
                 log.info( "Sending RPC %s %s ..." , data, uri );
+            }
             
-            HttpClient client = new HttpClient( uri );
+            HttpClient client = new HttpClient( config, uri );
 
             client.setMethod( HttpMethod.POST );
             client.write( data.getBytes() );

@@ -34,7 +34,12 @@ public class ChunkReference {
     public ChunkReference( Partition partition ) {
         this.partition = partition;
     }
-    
+
+    public ChunkReference( Partition partition, int local ) {
+        this.partition = partition;
+        this.local = local;
+    }
+
     /**
      * Used when generating chunk references for tasks.
      */

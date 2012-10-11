@@ -34,37 +34,42 @@ public class ShuffleJobOutput
     private static final Logger log = Logger.getLogger();
 
     public Config config;
+
     public String name;
+
     protected Partition partition;
 
     protected ShuffleJobOutputDelegate jobOutputDelegate;
 
-    protected ChunkStreamListener localPartitionReaderListener;
+    protected ChunkStreamListener chunkStreamListener;
 
+    public Job job = null;
+    
     private long started = System.currentTimeMillis();
 
     private int emits = 0;
     
-    public ShuffleJobOutput( Config config, Partition partition ) {
-        this( config, "default", partition );
+    public ShuffleJobOutput( Config config, Job job, Partition partition ) {
+        this( config, job, "default", partition );
     }
 
-    public ShuffleJobOutput( Config config, ShuffleOutputReference outputReference, Partition partition ) {
-    	this(config, outputReference.getName(), partition );
+    public ShuffleJobOutput( Config config, Job job, ShuffleOutputReference outputReference, Partition partition ) {
+    	this(config, job, outputReference.getName(), partition );
     }
     
-    public ShuffleJobOutput( Config config, String name, Partition partition ) {
+    public ShuffleJobOutput( Config config, Job job, String name, Partition partition ) {
     	
         this.config = config;
+        this.job = job;
         this.name = name;
         this.partition = partition;
         
         jobOutputDelegate = new ShuffleJobOutputDirect( this );
 
-        localPartitionReaderListener = (ChunkStreamListener) jobOutputDelegate;
+        chunkStreamListener = (ChunkStreamListener) jobOutputDelegate;
         
     }
-    
+
     @Override
     public void emit( StructReader key , StructReader value ) {
 
@@ -96,9 +101,9 @@ public class ShuffleJobOutput
 
         long throughput = -1;
 
-        try {
-            throughput = (long)((length() / (double)duration) * 1000);
-        } catch ( Throwable t ) { }
+        if ( duration > 0 ) {
+            throughput = (long)(( length() / (double)duration) * 1000 );
+        }
 
         log.info( "Shuffled %,d entries (%,d bytes) from %s in %s %,d ms with throughput %,d b/s",
                   emits, length(), partition, this, duration, throughput );
@@ -107,12 +112,12 @@ public class ShuffleJobOutput
 
     @Override 
     public void onChunk( ChunkReference chunkRef ) {
-        localPartitionReaderListener.onChunk( chunkRef );
+        chunkStreamListener.onChunk( chunkRef );
     }
 
     @Override 
     public void onChunkEnd( ChunkReference chunkRef ) {
-        localPartitionReaderListener.onChunkEnd( chunkRef );
+        chunkStreamListener.onChunkEnd( chunkRef );
     }
 
     @Override
@@ -122,6 +127,10 @@ public class ShuffleJobOutput
 
     public long length() {
         return jobOutputDelegate.length();
+    }
+
+    public Partition getPartition() {
+        return partition;
     }
     
 }

@@ -20,6 +20,7 @@ import java.util.concurrent.*;
 
 import peregrine.*;
 import peregrine.config.*;
+import peregrine.config.partitioner.*;
 import peregrine.io.*;
 import peregrine.io.partition.*;
 import peregrine.shuffle.sender.*;
@@ -36,30 +37,63 @@ public class ShuffleJobOutputDirect extends ShuffleJobOutputBase implements Clos
     private ShuffleJobOutput parent;
 
     private ShuffleSender sender = null;
-    
+
+    private Partitioner partitioner = null;
+
+    private boolean closed = true;
+
+    /**
+     * The current chunk reference we are on.
+     */
+    private ChunkReference chunkRef = null;
+
+    private ShuffleJobOutputDirect() {}
+
     public ShuffleJobOutputDirect( ShuffleJobOutput parent ) {
         this.parent = parent;
+        this.partitioner = parent.job.getPartitionerInstance();
+
+        // create a basic sender.  This is used for global sort shuffling.  In
+        // normal shuffling this wouldn't be used.
+
+        this.chunkRef = new ChunkReference( parent.getPartition(), 0 );
+        this.sender = new ShuffleSender( parent.config, parent.name, chunkRef );
+        
     }
     
     @Override
     public void emit( StructReader key , StructReader value ) {
-            
-        Partition target = parent.config.partition( key );
+
+        // see if we have too much data in memory and if so we need to send this
+        // shuffle data now as we would run out of memory otherwise.
+        if ( sender.length() + key.length() + value.length() > parent.config.getMaxClientShuffleOutputBufferSize() ) {
+            rollover();
+        }
         
+        Partition target = partitioner.partition( key, value );
+
         emit( target.getId(), key, value );
                     
     }
 
     @Override
-    public void emit( int to_partition, StructReader key , StructReader value ) {
+    public void emit( int targetPartition, StructReader key , StructReader value ) {
 
         try {
-            sender.emit( to_partition, key, value );
+
+            //assertOpen();
+
+            sender.emit( targetPartition, key, value );
+            
         } catch ( ShuffleFailedException e ) {
             // this should cause the job to (correctly) fail
             throw new RuntimeException( e );
         }
 
+    }
+
+    private void rollover() {
+        rollover( this.chunkRef );
     }
 
     private void rollover( ChunkReference chunkRef ) {
@@ -69,6 +103,7 @@ public class ShuffleJobOutputDirect extends ShuffleJobOutputBase implements Clos
     
     @Override 
     public void onChunk( ChunkReference chunkRef ) {
+        this.chunkRef = chunkRef;
         rollover( chunkRef );
     }
 
@@ -89,15 +124,24 @@ public class ShuffleJobOutputDirect extends ShuffleJobOutputBase implements Clos
 
     @Override 
     public void close() throws IOException {
-
+        
         if ( sender != null ) {
             sender.close();
             length += sender.length();
             sender = null;
         }
-            
+
+        closed = true;
+        
     }
 
+    private void assertOpen() throws RuntimeException {
+
+        if ( closed )
+            throw new RuntimeException( "closed" );
+        
+    }
+    
     private void closeWithUncheckedException() {
 
         try {

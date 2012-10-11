@@ -25,28 +25,26 @@ public class GenericMessageDigest {
 
     private static Charset UTF8 = Charset.forName( "UTF-8" );
 
-    private ThreadLocal local = null;
+    private ThreadLocalMessageDigest local = null;
 
     public GenericMessageDigest( String name ) {
         this.local = new ThreadLocalMessageDigest( name );
     }
     
     public byte[] encode( final String content ) {
-
-        return encode( content.getBytes( UTF8 ) );
-
+       return encode( content.getBytes( UTF8 ) );
     }
     
     public byte[] encode( final byte[] bytes ) {
 
-        MessageDigest md = (MessageDigest)local.get();        
+        MessageDigest md = local.get();        
         md.reset();
         return md.digest( bytes );
 
     }
 
     public MessageDigest getMessageDigest() {
-        return (MessageDigest)local.get();
+        return local.get();
     }
         
 }

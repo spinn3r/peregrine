@@ -70,6 +70,8 @@ public class TestCassandra extends peregrine.BaseTestWithTwoDaemons {
         assertTrue( workMap.size() > 0 );
 
         int count = 0;
+
+        Job job = new Job();
         
         for ( Host host : workMap.keySet() ) {
 
@@ -79,7 +81,7 @@ public class TestCassandra extends peregrine.BaseTestWithTwoDaemons {
 
                 for( WorkReference workRef : work.getReferences() ) {
 
-                    JobInput input = driver.getJobInput( config, ref, workRef );
+                    JobInput input = driver.getJobInput( config, job, ref, workRef );
 
                     while( input.hasNext() ) {
 
@@ -125,6 +127,8 @@ public class TestCassandra extends peregrine.BaseTestWithTwoDaemons {
             assertTrue( workMap.size() > 0 );
 
             int count = 0;
+
+            Job job = new Job();
             
             for ( Host host : workMap.keySet() ) {
 
@@ -142,7 +146,7 @@ public class TestCassandra extends peregrine.BaseTestWithTwoDaemons {
 
                         StructReader value = structSequenceWriter.toStructReader();
 
-                        JobOutput output = driver.getJobOutput( config, outputRef, workRef );
+                        JobOutput output = driver.getJobOutput( config, job, outputRef, workRef );
 
                         output.emit( key, value );
                         

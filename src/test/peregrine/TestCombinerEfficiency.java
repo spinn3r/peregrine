@@ -24,8 +24,10 @@ import peregrine.controller.*;
 import peregrine.io.*;
 import peregrine.io.chunk.*;
 import peregrine.io.driver.shuffle.*;
+import peregrine.reduce.*;
 import peregrine.reduce.merger.*;
 import peregrine.reduce.sorter.*;
+import peregrine.sort.*;
 import peregrine.shuffle.*;
 import peregrine.task.*;
 import peregrine.util.*;
@@ -69,15 +71,14 @@ public class TestCombinerEfficiency extends peregrine.BaseTestWithMultipleConfig
         
         if ( PREP ) {
             
-            String path = "/pr/test.graph";
+            String graph = "/pr/graph";
+            String nodes_by_hashcode = "/pr/nodes_by_hashcode";
 
-            ExtractWriter writer = new ExtractWriter( config, path );
-
-            GraphBuilder builder = new GraphBuilder( writer );
+            GraphBuilder builder = new GraphBuilder( config, graph, nodes_by_hashcode );
             
             builder.buildRandomGraph( nr_nodes , max_edges_per_node );
             
-            writer.close();
+            builder.close();
 
             Controller controller = new Controller( config );
 
@@ -89,7 +90,7 @@ public class TestCombinerEfficiency extends peregrine.BaseTestWithMultipleConfig
                 // same time.
                 
                 controller.map( NodeIndegreeJob.Map.class,
-                                new Input( path ),
+                                new Input( graph ),
                                 new Output( "shuffle:default" ) );
 
                 controller.flushAllShufflers();
@@ -219,7 +220,7 @@ public class TestCombinerEfficiency extends peregrine.BaseTestWithMultipleConfig
             
             work.add( shuffleInputChunkReader );
 
-            ChunkSorter sorter = new ChunkSorter( config , partition );
+            ChunkSorter sorter = new ChunkSorter( config , partition, new Job(), new DefaultSortComparator() );
 
             SequenceReader sorted = sorter.sort( work, sorted_chunk, jobOutput );
 
@@ -235,7 +236,12 @@ public class TestCombinerEfficiency extends peregrine.BaseTestWithMultipleConfig
 
         ReducerTask task = new ReducerTask();
         
-        ChunkMerger merger = new ChunkMerger( task, null, partition, mergeInput, jobOutput );
+        ChunkMerger merger = new ChunkMerger( task,
+                                              null,
+                                              partition,
+                                              mergeInput,
+                                              jobOutput,
+                                              new DefaultSortComparator() );
         merger.merge( writer );
 
         writer.close();

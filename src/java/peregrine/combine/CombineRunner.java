@@ -26,10 +26,11 @@ import peregrine.io.*;
 import peregrine.io.chunk.*;
 import peregrine.util.*;
 import peregrine.util.primitive.*;
+import peregrine.sort.*;
 
 /**
  * Run a combine on the given ChunkReader and use the given combiner to
- * merge/compress/collapse the results before we send them over the wire. 
+ * merge/compress/collapse the results before we send them over the wire.
  */
 public class CombineRunner {
 
@@ -41,7 +42,9 @@ public class CombineRunner {
                          ChunkReader reader,
                          final Combiner combiner ) throws IOException {
 
-        ChunkSorter sorter = new ChunkSorter( config, partition );
+        SortComparator comparator = new DefaultSortComparator();
+        
+        ChunkSorter sorter = new ChunkSorter( config, partition, null, comparator );
 
         List<ChunkReader> input = new ArrayList();
         input.add( reader );

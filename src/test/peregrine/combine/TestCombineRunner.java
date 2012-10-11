@@ -30,6 +30,8 @@ public class TestCombineRunner extends peregrine.BaseTestWithMultipleProcesses {
     @Override
     public void doTest() throws Exception {
 
+        /*
+        
         int max = 1000 * getFactor();
         
         CombineRunner runner = new CombineRunner();
@@ -81,6 +83,7 @@ public class TestCombineRunner extends peregrine.BaseTestWithMultipleProcesses {
         CombineRunner combineRunner = new CombineRunner();
 
         combineRunner.combine( config, partition, reader, combiner );
+        */
         
     }
 

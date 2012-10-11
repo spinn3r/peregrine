@@ -19,24 +19,30 @@ import java.util.*;
 import peregrine.*;
 import peregrine.io.*;
 
+import com.spinn3r.log5j.Logger;
+
 public class TeleportationGrantJob {
+
+    private static final Logger log = Logger.getLogger();
 
     public static class Reduce extends Reducer {
 
         int nr_nodes;
 
         @Override
-        public void init( List<JobOutput> output ) {
+        public void init( Job job, List<JobOutput> output ) {
 
-            super.init( output );
+            super.init( job, output );
 
             BroadcastInput nrNodesBroadcastInput = getBroadcastInput().get( 0 );
             
             nr_nodes = nrNodesBroadcastInput.getValue()
-                .readVarint()
+                .readInt()
                 ;
 
-            System.out.printf( "Working with nr_nodes: %,d\n", nr_nodes );
+            if ( nr_nodes < 0 ) {
+                throw new RuntimeException( "Invalid node count: " + nr_nodes );
+            }
             
         }
 
@@ -52,8 +58,13 @@ public class TeleportationGrantJob {
 
             double result = (1.0 - (IterJob.DAMPENING * (1.0 - sum))) / (double)nr_nodes;
 
-            emit( key, StructReaders.wrap( result ) );
+            if ( result < 0 )
+                throw new RuntimeException( "Invalid teleportation_grant: " + result );
             
+            log.info( "New computed teleportation_grant is : %s", result );
+            
+            emit( key, StructReaders.wrap( result ) );
+
         }
 
     }

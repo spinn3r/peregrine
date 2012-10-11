@@ -17,6 +17,7 @@ package peregrine.reduce.sorter;
 
 import java.io.*;
 
+import peregrine.*;
 import peregrine.io.chunk.*;
 import peregrine.shuffle.*;
 import peregrine.util.*;
@@ -79,7 +80,11 @@ public class KeyLookup extends IdempotentCloser {
      */
     protected ChannelBuffer[] buffers;
 
+    protected DefaultChunkReader[] defaultChunkReaders;
+
     protected IdempotentCloser closer = null;
+
+    protected int capacity = 0;
     
     private KeyLookup( ChannelBuffer lookup,
                        IdempotentCloser closer,
@@ -90,11 +95,18 @@ public class KeyLookup extends IdempotentCloser {
 
             //request that we allocate directly...
 
-            int capacity = size * KEY_SIZE;
+            this.capacity = size * KEY_SIZE;
             
-            log.info( "Allocating buffer of %,d capacity with %,d size.", capacity, size );
+            try {
+                
+                lookup = ChannelBuffers.directBuffer( capacity );
 
-            lookup = ChannelBuffers.directBuffer( capacity );
+                DirectMemoryAllocationTracker.getInstance().incr( capacity );
+
+            } catch ( OutOfMemoryError e ) {
+                DirectMemoryAllocationTracker.getInstance().fail( capacity, e );
+                throw e;
+            }
 
             closer = new ByteBufferCloser( lookup );
             
@@ -106,6 +118,12 @@ public class KeyLookup extends IdempotentCloser {
         this.end = size - 1;
         this.size = size;
         this.buffers = buffers;
+        
+        this.defaultChunkReaders = new DefaultChunkReader[ buffers.length ];
+        
+        for( int i = 0; i < this.defaultChunkReaders.length; ++i ) {
+            this.defaultChunkReaders[i] = new DefaultChunkReader( this.buffers[ i ], false );
+        }
         
     }
     	
@@ -130,9 +148,9 @@ public class KeyLookup extends IdempotentCloser {
 
             ChunkReader delegate = reader.getChunkReader();
            
-            KeyEntry entry = new KeyEntry( (byte)reader.index(), delegate.keyOffset() );
-            
-            entry.backing = reader.getBuffer();
+            KeyEntry entry = new KeyEntry( reader.bufferIndex(),
+                                           delegate.keyOffset(),
+                                           reader.getBuffer() );
             
             set( entry );
 
@@ -156,20 +174,27 @@ public class KeyLookup extends IdempotentCloser {
     public void set( KeyEntry entry ) {
         
         lookup.writerIndex( index * KEY_SIZE );
-        lookup.writeByte( entry.buffer );
+        
+        lookup.writeByte( entry.bufferIndex() );
         lookup.writeInt( entry.offset );
         
     }
 
+    /**
+     * Get the current entry in the lookup when advancing with next() and
+     * hasNext().
+     */
     public KeyEntry get() {
-    	
-    	KeyEntry result = new KeyEntry();
-    	
-        lookup.readerIndex( index * KEY_SIZE );
-        result.buffer  = lookup.readByte();
-        result.offset  = lookup.readInt();
-    	result.backing = buffers[(int)result.buffer];
 
+        lookup.readerIndex( index * KEY_SIZE );
+
+        int bufferIndex            = lookup.readByte() & 0xFF;
+        int offset                 = lookup.readInt();
+    	ChannelBuffer backing      = buffers[ bufferIndex ];
+        DefaultChunkReader reader  = defaultChunkReaders[ bufferIndex ];
+
+        KeyEntry result = new KeyEntry( bufferIndex, offset, backing, reader );
+        
     	return result;
         
     }
@@ -180,10 +205,6 @@ public class KeyLookup extends IdempotentCloser {
     
     public void reset() {
         this.index = start - 1;
-    }
-
-    public byte[] key() {
-        return get().read();
     }
     
     // zero copy slice implementation.
@@ -219,14 +240,20 @@ public class KeyLookup extends IdempotentCloser {
 
         while( copy.hasNext() ) {
             copy.next();
-            System.out.printf( "\t\t%s\n", Hex.encode( copy.key() ) );
+            //System.out.printf( "\t\t%s\n", Hex.encode( copy.key() ) );
         }
 
     }
 
     @Override
     public void doClose() throws IOException {
+
         closer.close();
+
+        if ( capacity > 0 ) {
+            DirectMemoryAllocationTracker.getInstance().decr( capacity );
+        }
+        
     }
     
     /**

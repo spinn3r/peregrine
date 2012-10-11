@@ -57,42 +57,52 @@ public class FSPutShuffleHandler extends FSPutBaseHandler {
         this.from_chunk     = Integer.parseInt( m.group( 4 ) );
 
         this.shuffleReceiver = handler.daemon.shuffleReceiverFactory.getInstance( this.name );
+
+        this.path = shuffleReceiver.toString();
         
     }
 
     @Override
     public void messageReceived( ChannelHandlerContext ctx, MessageEvent e ) throws Exception {
 
-        super.messageReceived( ctx, e );
+        try {
 
-        Object message = e.getMessage();
+            super.messageReceived( ctx, e );
 
-        if ( message instanceof HttpChunk ) {
+            Object message = e.getMessage();
 
-            HttpChunk chunk = (HttpChunk)message;
+            if ( message instanceof HttpChunk ) {
 
-            if ( ! chunk.isLast() ) {
+                HttpChunk chunk = (HttpChunk)message;
 
-                ChannelBuffer content = chunk.getContent();
+                if ( ! chunk.isLast() ) {
 
-                // the split pointer of before and after the suffix.
-                int suffix_idx = content.writerIndex() - IntBytes.LENGTH;
-                
-                // get the last 4 bytes to parse the count.
-                int count = content.getInt( suffix_idx );
+                    ChannelBuffer content = chunk.getContent();
 
-                // now slice the data sans suffix.
-                ChannelBuffer data = content.slice( 0, suffix_idx );
-                
-                shuffleReceiver.accept( from_partition, from_chunk, to_partition, count, data );
-                
-            } else {
-                
-                HttpResponse response = new DefaultHttpResponse( HTTP_1_1, OK );
-                ctx.getChannel().write(response).addListener(ChannelFutureListener.CLOSE);
-                
+                    // the split pointer of before and after the suffix.
+                    int suffix_idx = content.writerIndex() - IntBytes.LENGTH;
+                    
+                    // get the last 4 bytes to parse the count.
+                    int count = content.getInt( suffix_idx );
+
+                    // now slice the data sans suffix.
+                    ChannelBuffer data = content.slice( 0, suffix_idx );
+                    
+                    shuffleReceiver.accept( from_partition, from_chunk, to_partition, count, data );
+                    
+                } else {
+
+                    HttpResponse response = new DefaultHttpResponse( HTTP_1_1, OK );
+                    ctx.getChannel().write(response).addListener(ChannelFutureListener.CLOSE);
+                    
+                }
+
             }
 
+        } catch ( Exception exc ) {
+            // catch all exceptions and then bubble them up.
+            log.error( "Caught exception: ", exc );
+            throw exc;
         }
             
     }

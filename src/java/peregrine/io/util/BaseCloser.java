@@ -103,7 +103,7 @@ public abstract class BaseCloser<T> extends IdempotentFunction<Object,GroupIOExc
                 if ( exc == null ) {
                     exc = new GroupIOException( t );
                 } else { 
-                    exc.addSuppressed( t );
+                    exc.addRepressed( t );
                 }
                 
             }

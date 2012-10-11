@@ -87,6 +87,9 @@ public class ShuffleOutputWriter implements Closeable {
         if ( closed )
             throw new IOException( "writer is closed" );
 
+        if ( count < 0 )
+            throw new IOException( "invalid count: " + count );
+        
         ShufflePacket pack = new ShufflePacket( from_partition, from_chunk, to_partition, -1, count, data );
         
         this.length.getAndAdd( data.capacity() );
@@ -110,7 +113,7 @@ public class ShuffleOutputWriter implements Closeable {
 
         List<Partition> partitions = config.getMembership().getPartitions( config.getHost() );
 
-        log.info( "Going to write shuffle for %s to %s", partitions , path );
+        log.debug( "Going to write shuffle for %s to %s", partitions , path );
         
         if ( partitions == null || partitions.size() == 0 )
             throw new IOException( "No partitions defined for: " + config.getHost() );
@@ -139,7 +142,7 @@ public class ShuffleOutputWriter implements Closeable {
                 throw new IOException( "No locally defined partition for: " + current.to_partition );
 
             if ( current.count < 0 )
-                throw new IOException( "count < 0" );
+                throw new IOException( "count < 0: " + current.count );
 
             shuffleOutputPartition.count += current.count;
             
@@ -163,7 +166,7 @@ public class ShuffleOutputWriter implements Closeable {
 
             Map<Integer,ShuffleOutputPartition> lookup = buildLookup();
 
-            log.info( "Going write output buffer with %,d entries.", lookup.size() );
+            log.debug( "Going write output buffer with %,d entries.", lookup.size() );
 
             File file = new File( path );
             

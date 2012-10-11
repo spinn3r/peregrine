@@ -36,6 +36,12 @@ public interface JobInput extends SequenceReader {
     public void addListener( ChunkStreamListener listener );
 
     public void addListeners( List<ChunkStreamListener> listeners );
+
+    /**
+     * Return the size (number of records as key/value pairs) that this JobInput
+     * contains. 
+     */
+    public int size();
     
 }
 

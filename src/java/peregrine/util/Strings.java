@@ -15,6 +15,7 @@
 */
 package peregrine.util;
 
+import java.io.*;
 import java.util.*;
 
 /**
@@ -34,6 +35,18 @@ public class Strings {
 
     }
 
+    public static List<String> toList( String[] array ) {
+
+        List<String> result = new ArrayList( array.length );
+
+        for ( String current : array ) {
+            result.add( current );
+        }
+
+        return result;
+
+    }
+    
     /**
      * Join the given strings , adding a separator between them.
      */
@@ -52,6 +65,26 @@ public class Strings {
 
         return buff.toString();
         
+    }
+
+    /**
+     * Split a string and return the result as a list.
+     */
+    public static List<String> split( String str , String sep ) {
+        return Arrays.asList( str.split( sep ) );
+    }
+
+    public static String format( Throwable t ) {
+
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        t.printStackTrace( new PrintStream( out ) );
+
+        return new String( out.toByteArray() );
+
+    }
+
+    public static boolean empty( String str ) {
+        return str == null || "".equals( str );
     }
     
 }

@@ -27,32 +27,65 @@ public abstract class IdempotentFunction<T,E extends Exception> {
 
     private T result = null;
 
-    private E cause = null;
+    private E failure = null;
+
+    private boolean traceExec = false;
+
+    protected Exception caller = null;
+    
+    public IdempotentFunction() { }
+
+    public IdempotentFunction( boolean traceExec ) {
+        this.traceExec = traceExec;
+    }
+
+    protected final T getResult() throws E {
+        
+        if ( failure != null )
+            throw (E)failure;
+        
+        return result;
+        
+    }
     
     protected final T exec() throws E {
 
         if ( executed ) {
-
-            if ( cause != null )
-                throw cause;
-            
-            return result;
-
+            return getResult();
         }
 
         synchronized( this ) {
 
             if ( executed ) {
-                return result;
+                return getResult();
             }
 
             try {
+
+                if ( traceExec )
+                    caller = new Exception( "TRACE" );
+
                 result = invoke();
                 return result;
 
             } catch ( Exception e ) {
-                cause = (E)e;
-                throw cause;
+                
+                failure = (E)e;
+
+                if ( traceExec ) {
+
+                    Throwable root = failure;
+
+                    while( root.getCause() != null ) {
+                        root = root.getCause();
+                    }
+
+                    root.initCause( caller );
+                    
+                }
+                
+                throw failure;
+                
             } finally {
                 executed = true;
             }
@@ -71,6 +104,6 @@ public abstract class IdempotentFunction<T,E extends Exception> {
      * instead have call exec().
      */
     protected abstract T invoke() throws E;
-    
+
 }
 

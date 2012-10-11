@@ -15,6 +15,7 @@
 */
 package peregrine.task;
 
+import java.io.*;
 import java.util.*;
 
 import peregrine.*;
@@ -23,16 +24,19 @@ import peregrine.config.*;
 
 public abstract class BaseJobDelegate implements JobDelegate {
     
-    private Config config = null;
+    protected Config config = null;
     
-    private Partition partition = null;
+    protected Partition partition = null;
 
     protected JobOutput stdout = null;
 
+    protected Job job = null;
+    
     private List<BroadcastInput> broadcastInput = new ArrayList();
     
     @Override
-    public void init( List<JobOutput> output ) {
+    public void init( Job job, List<JobOutput> output ) {
+        this.job = job;
         this.stdout = output.get(0);
     }
 
@@ -47,7 +51,9 @@ public abstract class BaseJobDelegate implements JobDelegate {
     }
     
     @Override
-    public void cleanup() {}
+    public void close() throws IOException {
+        //noop
+    }
         
     public List<BroadcastInput> getBroadcastInput() { 
         return this.broadcastInput;

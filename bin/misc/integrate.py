@@ -24,7 +24,7 @@ import sys
 import time
 import traceback
 
-VERSION="1.0.3"
+VERSION="1.0.9"
 
 LIMIT=50
 
@@ -33,12 +33,12 @@ BRANCH="default"
 SCRATCH="/tmp/integration/peregrine"
 TEST_LOGS="/var/lib/integration/peregrine"
 
-TEST_COMMAND="pkill -9 -u nobody java 2> /dev/null ; hg cat -r default build.xml > build.xml && export HOSTNAME=localhost && export ANT_OPTS=-Xmx512M && time ant clean test"
+TEST_COMMAND="pkill -9 -u nobody java 2> /dev/null ; hg cat -r default build.xml > build.xml && export HOSTNAME=localhost && export ANT_OPTS=-Xmx512M && ant clean jar compile.test jar && time ant test"
 #TEST_COMMAND="false"
 
 REPO="https://burtonator:redapplekittycat@bitbucket.org/burtonator/peregrine"
 
-DAEMON_SLEEP_INTERVAL=120
+DAEMON_SLEEP_INTERVAL=240
 
 IGNORE_BRANCHES={}
 
@@ -50,7 +50,7 @@ IGNORE_CHANGESETS['1852']=1
 
 ##
 # Timeout for build commands (in seconds)
-TIMEOUT=45*60
+TIMEOUT=120*60
 
 class ReportIndex:
 
@@ -58,13 +58,13 @@ class ReportIndex:
 
         file=open( "%s/index.html" % TEST_LOGS , "w" );
 
-        file.write( "<html>" )
-        file.write( "<head><title>Integration report</title></head>" )
-        file.write( "<frameset cols='30%,70%' title=''>" )
-        file.write( "<frame src='left.html' name='left' title='all tests'>" )
-        file.write( "<frame src='' name='right' title=''>" )
-        file.write( "</frameset>" )
-        file.write( "</html>" )
+        file.write( "<html>\n" )
+        file.write( "<head><title>Integration report</title></head>\n" )
+        file.write( "<frameset cols='500,100%' title=''>\n" )
+        file.write( "<frame src='left.html' name='left' title='all tests'>\n" )
+        file.write( "<frame src='' name='right' title=''>\n" )
+        file.write( "</frameset>\n" )
+        file.write( "</html>\n" )
 
         file.close()
         
@@ -81,21 +81,22 @@ class ReportSidebar:
 
         file=open( path , "w" );
 
-        file.write( "<html>" )
+        file.write( "<html>\n" )
 
-        file.write( "<head>" )
-        file.write( "<style>" )
-        file.write( "* { font-family: sans-serif; font-size: 12px; }" )
-        file.write( "</style>" )
+        file.write( "<head>\n" )
+        file.write( "<style>\n" )
+        file.write( "* { font-family: sans-serif; font-size: 12px; }\n" )
+        file.write( "</style>\n" )
         
-        file.write( "</head>" )
-        file.write( "<body>" )
+        file.write( "</head>\n" )
+        file.write( "<body>\n" )
+
         file.write( "<table width='100%' cellspacing='0'>\n" )
 
         file.flush()
         file.close()
 
-    def link( self, bgcolor, rev, report, log ):
+    def link( self, bgcolor, rev, report, log, coverage ):
         """Write a link to the given URL."""
 
         time = datetime.datetime.fromtimestamp( float( log['date'] ) )
@@ -103,14 +104,19 @@ class ReportSidebar:
         file=open( "%s/left.html" % TEST_LOGS , "a" );
 
         file.write( "<tr bgcolor='%s'>\n" % bgcolor )
-        file.write( "<td><a href='%s/test.log' target='right'>%s</a></td>\n" % (rev,rev) )
-        file.write( "<td>%s</td>\n" % log['branch'] )
-        file.write( "<td>%s</td>\n" % strftime(time) )
+        file.write( "<td nowrap><a href='%s/test.log' target='right'>%s</a></td>\n" % (rev,rev) )
+        file.write( "<td nowrap>%s</td>\n" % log['branch'] )
+        file.write( "<td nowrap>%s</td>\n" % strftime(time) )
 
         file.write( "<td align='right'><a href='https://bitbucket.org/burtonator/peregrine/changeset/%s' target='right'>CS</a></td>\n" % rev )
 
         if report != None:
             file.write( "<td align='right'><a href='%s' target='right'>report</a></td>\n" % report )
+        else:
+            file.write( "<td align='right'></td>\n" )
+
+        if coverage != None:
+            file.write( "<td align='right'><a href='%s' target='right'>coverage</a></td>\n" % coverage )
         else:
             file.write( "<td align='right'></td>\n" )
 
@@ -127,6 +133,7 @@ class ReportSidebar:
         file.write( "<br/><center><small>%s</small></center>\n" % (strftime(now)) )
         file.write( "</body>\n" )
         file.write( "</html>\n" )
+
         file.flush()
 
         file.close()
@@ -244,7 +251,7 @@ def get_change_index():
 def get_change_index_flat():
     """Get the full HG log output."""
 
-    return parse_hg_log_flat(get_hg_log())
+    return parse_hg_log_flat(get_hg_log()) 
 
 def get_hg_log():
     """Get the output of 'hg log'""" 
@@ -368,6 +375,17 @@ def test(branch,rev):
         shutil.copytree( "target/test-reports", dest )
     else:
         print "WARN: target/test-reports directory does not exist." 
+
+    #FIXME: make this a function with the above... 
+    if os.path.exists( "%s/target/coverage" % SCRATCH):
+
+        dest = "%s/%s" % (changedir, "coverage")
+
+        print "Copying coverage to %s" % dest
+        
+        shutil.copytree( "target/coverage", dest )
+    else:
+        print "WARN: target/coverage directory does not exist." 
 
     exit_result=open( "%s/exit.result" % (changedir), "w" )
     exit_result.write( str( result ) )
@@ -514,7 +532,8 @@ def index():
 
             path = "%s/%s" % (TEST_LOGS, rev)
             report = None
-
+            coverage = None
+            
             if os.path.isdir( path ):
 
                 changedir=get_changedir(rev)
@@ -533,14 +552,16 @@ def index():
                         bgcolor="red"
 
                     # see if the test report exists.
-
                     if ( os.path.exists( "%s/test-reports" % changedir ) ):
                         report="%s/%s" % ( rev, "test-reports" )
 
-                    sidebar.link( bgcolor, rev, report, change )
+                    if ( os.path.exists( "%s/coverage" % changedir ) ):
+                        coverage="%s/%s" % ( rev, "coverage" )
+
+                    sidebar.link( bgcolor, rev, report, change, coverage )
 
             else:
-                sidebar.link( "gray", rev, report, change )
+                sidebar.link( "gray", rev, report, change, coverage )
 
     finally:
         

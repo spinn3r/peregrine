@@ -21,7 +21,7 @@ import peregrine.*;
 import peregrine.io.*;
 import peregrine.io.chunk.*;
 
-public class MergeQueueEntry {
+public class MergeQueueEntry implements KeyValuePair {
     
 	public byte[] keyAsByteArray;
     
@@ -63,6 +63,14 @@ public class MergeQueueEntry {
 
     public void setValue( StructReader value ) {
         this.value = value;
+    }
+
+    public StructReader getKey() {
+        return key;
+    }
+
+    public StructReader getValue() {
+        return value;
     }
 
     public MergeQueueEntry copy() {

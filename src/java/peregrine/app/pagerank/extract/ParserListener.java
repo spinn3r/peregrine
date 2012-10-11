@@ -13,29 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
 */
-package peregrine.app.wikirank;
+package peregrine.app.pagerank.extract;
 
 import java.io.*;
 import java.util.*;
 
-import peregrine.io.*;
 import peregrine.config.*;
-import peregrine.util.*;
-import peregrine.worker.*;
 import peregrine.controller.*;
+import peregrine.io.*;
+import peregrine.os.*;
+import peregrine.util.*;
+import peregrine.util.netty.*;
+import peregrine.worker.*;
 
-public class InputSplit {
+import org.jboss.netty.buffer.*;
 
-    public long start = 0;
-    public long end = 0;
+/**
+ * Callback used when we are parsing streams of wikipedia dumps.
+ */
+public interface ParserListener {
 
-    public InputSplit( long start, long end ) {
-        this.start = start;
-        this.end = end;
-    }
-
-    public String toString() {
-        return String.format( "start=%,d , end=%,d" , start, end );
-    }
+    public void onEntry( String source, List<String> targets ) throws Exception;
     
 }

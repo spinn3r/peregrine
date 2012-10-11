@@ -52,11 +52,15 @@ public class TestShufflePerformance extends BaseTestWithMultipleProcesses {
 
         Controller controller = new Controller( config );
 
+        Job job = new Job();
+
+        job.getPartitionerInstance().init( config );
+
         try {
 
             long before = System.currentTimeMillis();
             
-            ShuffleJobOutput output = new ShuffleJobOutput( config, new Partition( 0 ) );
+            ShuffleJobOutput output = new ShuffleJobOutput( config, job, new Partition( 0 ) );
 
             ChunkReference chunkRef = new ChunkReference( new Partition( 0 ) );
             chunkRef.local = 0;

@@ -32,7 +32,12 @@ import java.util.*;
  * This is primarily used by a DefaultChunkReader so that all operations that it
  * needs to function can be easily provided (AKA CRC32 and prefetch/mlock).
  */
-public class StreamReader {
+public class StreamReader implements ByteReadable {
+
+    /**
+     * Maximum readLine length to prevent out of memory errors.
+     */
+    public static int MAX_LINE_LENGTH = 16384;
 
     private ChannelBuffer buff = null;
 
@@ -53,28 +58,81 @@ public class StreamReader {
     /**
      * Read a single byte from the stream.
      */
+    @Override
     public byte read() {
         fireOnRead(1);
         return buff.readByte();
     }
 
+    /**
+     * Read a fixed width 4 byte int.
+     */
     public int readInt() {
         fireOnRead(4);
         return buff.readInt();
     }
+    
+    /**
+     * Read a single line of input from the stream.  When the stream is
+     * exhausted we return null.
+     */
+    public ChannelBuffer readLine() {
+
+        // TODO: this is not super efficient in terms of memory
+        // allocation/deallocation but it forces us to remain a sequential
+        // reader which us required with the StreamReader.
+        
+        SlabDynamicChannelBuffer result = new SlabDynamicChannelBuffer( 1024, 1024 );
+        
+        while( true ) {
+
+            if ( result.writerIndex() > MAX_LINE_LENGTH ) {
+                throw new RuntimeException( "Hit max line length: " + MAX_LINE_LENGTH );
+            }
+            
+            // we have exhausted the buffer
+            if ( buff.readerIndex() >= buff.writerIndex() ) {
+
+                // if we NOT read any data, return null
+                if ( result.writerIndex() == 0 ) {
+                    return null;
+                }
+
+                break;
+                
+            }
+            
+            byte b = read();
+
+            // break when we have read a full line.
+            if ( b == '\n' )
+                break;
+
+            // skip DOS style EOL
+            if ( b == '\r' )
+                continue;
+
+            result.writeByte( b );
+            
+        }
+
+        return result;
+
+    }
 
     /**
-     * Read a slice from this stream reader, as a COPY, not this copies data
-     * into the heap.
+     * Call readLine but return the result as a String.
      */
-    public ChannelBuffer readSlice( int length ) {
+    public String readLineAsString() {
 
-        fireOnRead( length );
+        ChannelBuffer line = readLine();
 
-        byte[] result = new byte[ length ];
-        buff.readBytes( result);
+        if ( line == null )
+            return null;
 
-        return ChannelBuffers.wrappedBuffer( result );
+        byte[] data = new byte[ line.writerIndex() ];
+        line.readBytes( data );
+        return new String( data );
 
     }
     
@@ -91,6 +149,21 @@ public class StreamReader {
 
     public void setListener( StreamReaderListener listener ) { 
         this.listener = listener;
+    }
+
+    /**
+     * Read a slice from this stream reader, as a COPY, note this copies data
+     * into the heap.
+     */
+    private ChannelBuffer readSlice( int length ) {
+
+        fireOnRead( length );
+
+        byte[] result = new byte[ length ];
+        buff.readBytes( result);
+
+        return ChannelBuffers.wrappedBuffer( result );
+
     }
 
     /** 

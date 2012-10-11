@@ -15,6 +15,7 @@
 */
 package peregrine.task;
 
+import java.io.*;
 import java.util.*;
 
 import peregrine.*;
@@ -26,14 +27,14 @@ import peregrine.config.*;
  * running their job.  emit, setup, teardown, etc.
  * 
  */
-public interface JobDelegate {
+public interface JobDelegate extends Closeable {
 
     public void setBroadcastInput( List<BroadcastInput> broadcastInput );
 	
     /**
      * Init this job with the output it is supposed to handle.
      */
-    public void init( List<JobOutput> output );
+    public void init( Job job, List<JobOutput> output );
     
     /**
      * Emit a key / value pair from the job.
@@ -43,7 +44,7 @@ public interface JobDelegate {
     /**
      * Cleanup after this job.  Close all output, etc.
      */
-    public void cleanup();
+    public void close() throws IOException;
 
     /**
      * Get the partition that a job is executing over.  This is mostly used for

@@ -41,9 +41,11 @@ public class MapperTask extends BaseMapperTask {
 
         // note a map job with ZERO input files is acceptable.  This would be
         // used for some generator that just emits values on init.
-        
+
         if ( getInput().getReferences().size() != 1 ) {
-            throw new Exception( "Map jobs must have exactly one input." );
+            //TODO: not true if one of them is broadcast input or if we are just
+            //running extract.
+            log.warn( "Map jobs should have input." );
         }
 
         jobInput = getJobInput();
@@ -52,16 +54,23 @@ public class MapperTask extends BaseMapperTask {
             return;
         
         SequenceReader reader = jobInput.get( 0 );
-
+        
         int count = 0;
+
+        Mapper mapper = (Mapper)jobDelegate;
+        
+        Closer closer = new Closer( reader );
 
         try {
 
-            Mapper mapper = (Mapper)jobDelegate;
-            
             while( reader.hasNext() ) {
 
-                assertAlive();
+                //TODO: this comparison over maxChunks is going to waste a bit
+                //of CPU so it would be nice to have a way to disable it.
+                if ( mapperChunkStreamListener.lastChunk > job.getMaxChunks() )
+                    break;
+                
+                assertActiveJob();
                 
             	reader.next();
             	
@@ -72,7 +81,7 @@ public class MapperTask extends BaseMapperTask {
             }
 
         } finally {
-            reader.close();
+            closer.close();
         }
             
         log.info( "Mapped %,d entries on %s on host %s from %s", count, partition, config.getHost(), reader );

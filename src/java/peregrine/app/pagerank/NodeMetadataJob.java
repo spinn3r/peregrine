@@ -15,13 +15,19 @@
 */
 package peregrine.app.pagerank;
 
+import java.io.*;
 import java.util.*;
+
 import peregrine.*;
 import peregrine.util.*;
 import peregrine.util.primitive.IntBytes;
 import peregrine.io.*;
 
+import com.spinn3r.log5j.Logger;
+
 public class NodeMetadataJob {
+
+    private static final Logger log = Logger.getLogger();
 
     public static class Map extends Merger {
 
@@ -36,7 +42,7 @@ public class NodeMetadataJob {
         int nrDangling = 0;
         
         @Override
-        public void init( List<JobOutput> output ) {
+        public void init( Job job, List<JobOutput> output ) {
             nodeMetadataOutput           = output.get(0);
             danglingOutput               = output.get(1);
             nonlinkedOutput              = output.get(2);
@@ -91,15 +97,13 @@ public class NodeMetadataJob {
         }
 
         @Override
-        public void cleanup() {
+        public void close() throws IOException {
 
             StructReader key = StructReaders.hashcode( "id" );
-
-            if ( nrNodes > 0 ) {
-                // *** broadcast nr_nodes.
-                nrNodesBroadcastOutput.emit( key, StructReaders.wrap( nrNodes ) );
-            }
-
+            
+            // *** broadcast nr_nodes.
+            nrNodesBroadcastOutput.emit( key, StructReaders.wrap( nrNodes ) );
+            
             // *** broadcast nr dangling.
             nrDanglingBroadcastOutput.emit( key, StructReaders.wrap( nrDangling ) );
 

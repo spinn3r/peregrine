@@ -32,10 +32,17 @@ import com.spinn3r.log5j.Logger;
 
 /**
  * Reads packets from a shuffle (usually in 16k blocks) and then splits these
- * packets into key/value pairs and implements 
+ * packets into key/value pairs and implements the ChunkReader interface so that
+ * we can read from the data as it is loaded.
+ *
+ * <p> This system uses a background thread to prefetch all the primary replica
+ * packets for use by external readers.  This is done so that we don't have to
+ * have two threads each reading from the same file.
  * 
  */
 public class ShuffleInputChunkReader implements ChunkReader {
+
+    private static final Logger log = Logger.getLogger();
 
     public static int QUEUE_CAPACITY = 100;
 
@@ -70,8 +77,6 @@ public class ShuffleInputChunkReader implements ChunkReader {
 
     private int value_offset;
     private int value_length;
-
-    private VarintReader varintReader;
 
     private boolean closed = false;
 
@@ -136,12 +141,12 @@ public class ShuffleInputChunkReader implements ChunkReader {
 
             if ( pack != null && pack.data.readerIndex() < pack.data.capacity() - 1 ) {
                 
-                this.key_length     = varintReader.read();
+                this.key_length     = VarintReader.read( pack.data );
                 this.keyOffset      = pack.data.readerIndex();
 
                 pack.data.readerIndex( pack.data.readerIndex() + key_length );
                 
-                this.value_length   = varintReader.read();
+                this.value_length   = VarintReader.read( pack.data );
                 this.value_offset   = pack.data.readerIndex();
 
                 pack.data.readerIndex( pack.data.readerIndex() + value_length ); 
@@ -184,7 +189,6 @@ public class ShuffleInputChunkReader implements ChunkReader {
             
             pack = queue.take();
             
-            varintReader  = new VarintReader( pack.data );
             pack.data.readerIndex( 0 );
 
             packet_idx.next();
@@ -244,14 +248,14 @@ public class ShuffleInputChunkReader implements ChunkReader {
         if ( closed )
             return;
         
-        prefetcher.closedPartitonQueue.put( partition );
+        prefetcher.closedPartitionQueue.put( partition );
 
         closed = true;
     }
     
     @Override
     public String toString() {
-        return String.format( "%s:%s:%s" , getClass().getName(), path, partition );
+        return String.format( "%s" , path );
     }
 
     /**
@@ -303,7 +307,7 @@ public class ShuffleInputChunkReader implements ChunkReader {
         /**
          * Used so that readers can signal when they are complete.
          */
-        protected SimpleBlockingQueue<Partition> closedPartitonQueue = new SimpleBlockingQueue();
+        protected SimpleBlockingQueue<Partition> closedPartitionQueue = new SimpleBlockingQueue();
 
         protected ExecutorService executor =
             Executors.newCachedThreadPool( threadFactory );
@@ -317,7 +321,7 @@ public class ShuffleInputChunkReader implements ChunkReader {
             // get the top priority replicas to reduce over.
             List<Replica> replicas = config.getMembership().getReplicasByPriority( config.getHost() );
 
-            log.info( "Working with replicas %s for blocking queue on host %s", replicas, config.getHost() );
+            log.debug( "Working with replicas %s for blocking queue on host %s", replicas, config.getHost() );
             
             List<Partition> partitions = new ArrayList();
             
@@ -353,7 +357,7 @@ public class ShuffleInputChunkReader implements ChunkReader {
 
                 try {
                     
-                    log.info( "Reading from %s ...", path );
+                    log.debug( "Reading from %s ...", path );
 
                     int count = 0;
 
@@ -381,10 +385,10 @@ public class ShuffleInputChunkReader implements ChunkReader {
 
                     // not only finished pulling out all packets but actually close()d 
                     for( int i = 0; i < lookup.keySet().size(); ++i ) {
-                        closedPartitonQueue.take();
+                        closedPartitionQueue.take();
                     }
 
-                    log.info( "Reading from %s ...done (read %,d packets as %s)", path, count, packetsReadPerPartition );
+                    log.debug( "Reading from %s ...done (read %,d packets as %s)", path, count, packetsReadPerPartition );
 
                 } finally {
                     
@@ -417,7 +421,7 @@ public class ShuffleInputChunkReader implements ChunkReader {
                 
             } finally {
 
-                log.info( "Leaving thread for %s", path );
+                log.debug( "Leaving thread for %s", path );
 
                 // remove thyself so that next time around there isn't a reference
                 // to this path and a new reader will be created.

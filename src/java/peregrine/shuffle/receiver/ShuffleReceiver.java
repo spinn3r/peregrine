@@ -75,7 +75,7 @@ public class ShuffleReceiver {
                 if ( needsRollover() ) {
 
                     if ( writer != null ) {
-                        log.info( "Rolling over %s " , writer );
+                        log.debug( "Rolling over %s " , writer );
                     }
 
                     ShuffleOutputWriter last = writer;
@@ -125,7 +125,7 @@ public class ShuffleReceiver {
 
     public void close() throws IOException {
 
-        log.info( "Closing shuffler: %s", name );
+        log.debug( "Closing shuffler: %s", name );
         
         try {
             
@@ -138,7 +138,7 @@ public class ShuffleReceiver {
             if ( accepted == 0 )
                 log.warn( "Accepted no output for %s ", name );
             else 
-                log.info( "Accepted %,d entries for %s ", accepted, name );
+                log.debug( "Accepted %,d entries for %s ", accepted, name );
 
             executors.shutdown();
             
@@ -150,4 +150,8 @@ public class ShuffleReceiver {
         
     }
 
+    public String toString() {
+        return String.format( "shuffle:%s" , name );
+    }
+    
 }

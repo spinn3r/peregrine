@@ -36,15 +36,14 @@ public class TestPagerank extends peregrine.BaseTestWithMultipleProcesses {
 
         // only 0 and 1 should be dangling.
 
-        String path = "/pr/test.graph";
+        String graph = "/pr/graph";
+        String nodes_by_hashcode = "/pr/nodes_by_hashcode";
 
-        ExtractWriter writer = new ExtractWriter( config, path );
-
-        GraphBuilder builder = new GraphBuilder( writer );
+        GraphBuilder builder = new GraphBuilder( config, graph, nodes_by_hashcode );
         
         builder.buildRandomGraph( nr_nodes , max_edges_per_node );
 
-        writer.close();
+        builder.close();
 
         Controller controller = null;
         
@@ -52,9 +51,10 @@ public class TestPagerank extends peregrine.BaseTestWithMultipleProcesses {
 
             controller = new Controller( config );
             
-            Pagerank pr = new Pagerank( config, path, controller );
+            Pagerank pr = new Pagerank( config, graph, nodes_by_hashcode );
+            pr.prepare();
 
-            pr.exec( false );
+            controller.exec( pr );
 
         } finally {
             if ( controller != null ) 
@@ -65,12 +65,27 @@ public class TestPagerank extends peregrine.BaseTestWithMultipleProcesses {
 
     public static void main( String[] args ) throws Exception {
 
+        /*
         BaseTestWithMultipleProcesses.BASEDIR_MAP.put( 11112 , "/d0" );
         BaseTestWithMultipleProcesses.BASEDIR_MAP.put( 11113 , "/d1" );
         BaseTestWithMultipleProcesses.BASEDIR_MAP.put( 11114 , "/d2" );
         BaseTestWithMultipleProcesses.BASEDIR_MAP.put( 11115 , "/d3" );
+        */
         
-        setPropertyDefault( "peregrine.test.config", "2:1:4" ); 
+        //setPropertyDefault( "peregrine.test.config", "2:1:4" ); 
+
+        /*
+        setPropertyDefault( "peregrine.test.factor", "10" ); 
+        setPropertyDefault( "peregrine.test.config", "4:1:1" ); 
+        */
+
+        /*
+        System.setProperty( "peregrine.test.factor", "10" ); 
+        System.setProperty( "peregrine.test.config", "1:1:4" ); 
+        */
+        
+        System.setProperty( "peregrine.test.factor", "4" ); 
+        System.setProperty( "peregrine.test.config", "2:1:1" ); 
         runTests();
 
     }

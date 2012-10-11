@@ -21,6 +21,7 @@ import java.util.*;
 import peregrine.io.*;
 import peregrine.io.chunk.*;
 import peregrine.reduce.*;
+import peregrine.sort.*;
 
 public class MergerPriorityQueue {
 
@@ -28,10 +29,13 @@ public class MergerPriorityQueue {
 
     protected int key_offset = 0;
 
-    protected ChunkMergeComparator comparator = new ChunkMergeComparator();
+    protected ChunkMergeComparator comparator = null;
     
-    public MergerPriorityQueue( List<SequenceReader> readers ) throws IOException {
+    public MergerPriorityQueue( List<SequenceReader> readers,
+                                SortComparator sortComparator ) throws IOException {
 
+        this.comparator = new ChunkMergeComparator( sortComparator );
+        
         if ( readers.size() == 0 )
             throw new IllegalArgumentException( "readers" );
     	

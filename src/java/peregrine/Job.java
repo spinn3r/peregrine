@@ -15,53 +15,62 @@
 */
 package peregrine;
 
-import peregrine.io.*;
+import java.util.*;
 import java.util.concurrent.atomic.*;
+
+import peregrine.config.partitioner.*;
+import peregrine.io.*;
+import peregrine.rpc.*;
+import peregrine.sort.*;
+import peregrine.util.*;
+import peregrine.controller.*;
+
+import com.spinn3r.log5j.Logger;
 
 /**
  * Represents a job (map, merge, or, reduce) which much be run by Peregrine.
  * All necessary metadata is included here and specified for an entire job.
  *
  */
-public class Job {
+public class Job extends BaseJob<Job> {
 
-    public static AtomicInteger nonce = new AtomicInteger();
+    private static final Logger log = Logger.getLogger();
+
+    private static AtomicInteger nonce = new AtomicInteger();
 
     protected long timestamp = System.currentTimeMillis();
-	protected String id = String.format( "%010d.%010d", timestamp, nonce.getAndIncrement() );
-	protected String name = id;
-	protected String description = null;
-	protected Class delegate = null; 
+
+	protected Class delegate = Mapper.class; 
+
 	protected Class combiner = null;
-	protected Input input = null;
-	protected Output output = null;
+
+	protected Input input = new Input();
+
+	protected Output output = new Output();
+
+    protected Class partitioner = RangePartitioner.class;
+
+    protected Partitioner partitionerInstance = null;
+
+    protected int maxChunks = Integer.MAX_VALUE;
+
+    protected Class comparator = DefaultSortComparator.class; 
+
+    protected Message parameters = new Message();
+
+    protected String operation = JobOperation.MAP;
 
     /**
-     * Get the unique job ID (nonce). 
+     * If this job failed this is the cause.
      */
-    public String getId() {
-        return id;        
+    protected String cause = null;
+
+    public Job() {
+        init( this );
+        setIdentifier( NonceFactory.newNonce() );
+        setName( "" + getIdentifier() );
     }
 
-    /**
-     * Get an optionally human readable name for this job.  Should be short and
-     * only one line of text.
-     */
-	public String getName() {
-		return name;
-	}
-    
-	public Job setName(String name) {
-		this.name = name;
-		return this;
-	}
-	public String getDescription() {
-		return description;
-	}
-	public Job setDescription(String description) {
-		this.description = description;
-		return this;
-	}
 	public Class getDelegate() {
 		return delegate;
 	}
@@ -79,6 +88,11 @@ public class Job {
 	public Input getInput() {
 		return input;
 	}
+
+    public Job setInput( String... args ) {
+        return setInput( new Input( args ) );
+    }
+    
 	public Job setInput(Input input) {
 		this.input = input;
 		return this;
@@ -86,6 +100,11 @@ public class Job {
 	public Output getOutput() {
 		return output;
 	}
+
+	public Job setOutput(String... args) {
+        return setOutput( new Output( args ) );
+    }
+        
 	public Job setOutput(Output output) {
 		this.output = output;
 		return this;
@@ -98,15 +117,141 @@ public class Job {
         return timestamp;
     }
 
+    public Class getPartitioner() { 
+        return this.partitioner;
+    }
+
+    public void setPartitioner( Class partitioner ) { 
+        this.partitioner = partitioner;
+    }
+
+    public Partitioner getPartitionerInstance() {
+
+        // we do not need the double check idiom here because this isn't
+        // multithreaded code.
+        
+        if ( partitionerInstance == null ) {
+        
+            try {
+                partitionerInstance = (Partitioner)getPartitioner().newInstance();
+            } catch ( Throwable t ) {
+                throw new RuntimeException( t );
+            }
+
+        }
+
+        return partitionerInstance;
+        
+    }
+
+	public Class getComparator() {
+		return comparator;
+	}
+
+	public Job setComparator(Class comparator) {
+		this.comparator = comparator;
+		return this;
+	}
+
+    public SortComparator getComparatorInstance() {
+
+        try {
+            return (SortComparator)getComparator().newInstance();
+        } catch ( Throwable t ) {
+            throw new RuntimeException( t );
+        }
+        
+    }
+
+    public int getMaxChunks() { 
+        return this.maxChunks;
+    }
+
+    public Job setMaxChunks( int maxChunks ) { 
+        this.maxChunks = maxChunks;
+        return this;
+    }
+
+    public Message getParameters() {
+        return parameters;
+    }
+
+    public Job setParameters( Object... args ) {
+        setParameters( new Message( args ) );
+        return this;
+    }
+    
+    public Job setParameters( Map parameters ) {
+        setParameters( new Message( parameters ) );
+        return this;
+    }
+
+    public Job setParameters( Message parameters ) {
+        this.parameters = parameters;
+        return this;
+    }
+
+    public String getOperation() {
+        return operation;
+    }
+
+    public Job setOperation( String operation ) {
+        this.operation = operation;
+        return this;
+    }
+
     @Override
     public String toString() {
 
+        //TODO: include ALL fields.
         return String.format( "%s (%s) for input %s and output %s ",
                               getDelegate().getName(),
                               getName(),
                               getInput(),
                               getOutput() );
 
+    }
+
+    /**
+     * Convert this to an RPC message.
+     */
+    @Override
+    public Message toMessage() {
+
+        Message message = super.toMessage();
+
+        message.put( "class",         getClass().getName() );
+        message.put( "timestamp",     timestamp );
+        message.put( "delegate",      delegate );
+        message.put( "combiner",      combiner );
+        message.put( "input",         input.getReferences() );
+        message.put( "output",        output.getReferences() );
+        message.put( "partitioner",   partitioner );
+        message.put( "maxChunks",     maxChunks );
+        message.put( "comparator",    comparator );
+        message.put( "parameters",    parameters );
+        message.put( "operation",     operation );
+
+        return message;
+        
+    }
+
+    @Override
+    public void fromMessage( Message message ) {
+
+        super.fromMessage( message );
+
+        timestamp     = message.getLong( "timestamp" );
+        delegate      = message.getClass( "delegate" );
+        combiner      = message.getClass( "combiner" );
+        input         = new Input( message.getList( "input" ) );
+        output        = new Output( message.getList( "output" ) );
+        partitioner   = message.getClass( "partitioner" );
+        maxChunks     = message.getInt( "maxChunks" );
+        comparator    = message.getClass( "comparator" );
+        parameters    = new Message( message.getString( "parameters" ) );
+        operation     = message.getString( "operation" );
+        
     }
     
 }

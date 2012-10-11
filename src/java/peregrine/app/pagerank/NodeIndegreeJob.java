@@ -12,8 +12,9 @@ public class NodeIndegreeJob {
         public void map( StructReader key,
                          StructReader value) {
 
-            while( value.isReadable() ) {
-                StructReader target = value.readSlice( Hashcode.HASH_WIDTH );
+            List<StructReader> targets = StructReaders.split( value, Hashcode.HASH_WIDTH );
+            
+            for( StructReader target : targets ) {
                 emit( target, StructReaders.TRUE );
             }
             
@@ -21,16 +22,29 @@ public class NodeIndegreeJob {
 
     }
 
+    public static class Combine extends Reducer {
+
+        @Override
+        public void reduce( StructReader key, List<StructReader> values ) {
+
+            emit( key, StructReaders.wrap( values.size() ) );
+
+        }
+        
+    }
+
     public static class Reduce extends Reducer {
 
         @Override
         public void reduce( StructReader key, List<StructReader> values ) {
-            
-            int indegree = values.size();
 
-            emit( key, new StructWriter()
-            		       .writeInt( indegree )
-            		       .toStructReader() );
+            int sum = 0;
+            
+            for ( StructReader value : values ) {
+                sum += value.readInt();
+            }
+            
+            emit( key, StructReaders.wrap( sum ) );
             
         }
         

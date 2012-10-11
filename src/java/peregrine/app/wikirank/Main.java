@@ -38,6 +38,12 @@ public class Main {
         String nodes_path = getopt.getString( "nodes_path" );
         String links_path = getopt.getString( "links_path" );
 
+        // get the format of the file we want to run wikipedia pagerank over.
+        // This can be 'dump' which is a native wikipedia dump or 'corpus' which
+        // is a hand rolled corpus of "name=node0,node1" format...
+        
+        String format     = getopt.getString( "format", "dump" );
+        
         String stage = getopt.getString( "stage", "run" );
 
         Controller controller = null;
@@ -47,7 +53,7 @@ public class Main {
         try {
 
             controller = new Controller( config );
-            
+
             Wikirank wikirank = new Wikirank( config, controller, nodes_path, links_path );
             
             // extract , transform, load

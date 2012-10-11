@@ -119,6 +119,7 @@ public class WaitForDaemon {
         try {
             waitForDaemon( pid, port );
         } catch ( Exception e ) {
+            System.out.printf( "Failed to startup daemon: %s\n", e.getMessage() );
             e.printStackTrace();
             System.exit( 1 );
         }

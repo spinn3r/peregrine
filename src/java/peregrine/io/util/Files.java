@@ -16,29 +16,36 @@
 package peregrine.io.util;
 
 import java.io.*;
+import java.util.concurrent.atomic.*;
 import java.lang.reflect.*;
 
 import peregrine.os.*;
+
+import com.spinn3r.log5j.*;
 
 /**
  * Handles a facade on top of various bulk filesystem manipulation primitives.
  */
 public class Files {
 
+    private static final Logger log = Logger.getLogger();
+
     /**
      * @see #remove(File)
      */
-    public static void remove( String path ) {
+    public static void remove( String path ) throws IOException {
         remove( new File( path ) );
     }
 
     /**
      * Recursive removal of the given file and any children.
      */
-    public static void remove( File file ) {
-
-        if ( ! file.exists() )
+    public static void remove( File file ) throws IOException {
+        
+        if ( ! file.exists() ) {
+            // the file is already deleted.  We don't need to do anything.
             return;
+        }
 
         //TODO: migrate to using Recursively
 
@@ -62,14 +69,14 @@ public class Files {
 
     }
 
-    private static void remove0( File file ) {
+    private static void remove0( File file ) throws IOException {
 
         if ( ! file.delete() )
-            throw new RuntimeException( "Unable to delete: " + file.getPath() );
+            throw new IOException( "Unable to delete: " + file.getPath() );
 
     }
 
-    public static void purge( String path ) {
+    public static void purge( String path ) throws IOException {
         purge( new File( path ) );
     }
 
@@ -77,7 +84,7 @@ public class Files {
      * Purge all files in the given directory but keep the given directory
      * itself.
      */
-    public static void purge( File file ) {
+    public static void purge( File file ) throws IOException {
 
         //TODO: migrate to using Recursively
 
@@ -96,7 +103,7 @@ public class Files {
     /**
      * Remove all files in the given directory but keep the parent directory.
      */
-    public static void removeChildren( File file ) {
+    public static void removeChildren( File file ) throws IOException {
 
         if ( ! file.exists() )
             return;
@@ -157,7 +164,8 @@ public class Files {
 
             File test = new File( file.getPath() );
 
-            // TODO: technically we also have to look at the permissions.
+            // TODO: technically we also have to look at the permissions and
+            // chown them
             
             if ( test.isDirectory() )
                 return;
@@ -221,20 +229,44 @@ public class Files {
         }
 
     }
-    
+
     /**
      * Make a given directory readable and writable and optionally recurse all
      * children.
      */
-    public static void setReadableAndWritable( final String path,
-                                               final boolean ownerOnly,
-                                               final boolean recursive ) throws IOException {
+    public static void setReadable( final String path,
+                                    final boolean ownerOnly,
+                                    final boolean recursive ) throws IOException {
 
         File file = new File( path );
 
         if ( file.setReadable( true, ownerOnly ) == false ) {
             throw new IOException( "Unable to make readable: " + path );
         }
+
+        if ( recursive ) {
+
+            new Recursively<IOException>( file ) {
+
+                public void handle( File current ) throws IOException {
+                    setReadable( current.getPath() , ownerOnly, recursive );
+                }
+                
+            };
+
+        }
+
+    }
+
+    /**
+     * Make a given directory writable and optionally recurse all
+     * children.
+     */
+    public static void setWritable( final String path,
+                                    final boolean ownerOnly,
+                                    final boolean recursive ) throws IOException {
+
+        File file = new File( path );
 
         if ( file.setWritable( true, ownerOnly ) == false ) {
             throw new IOException( "Unable to make writable: " + path );
@@ -245,13 +277,26 @@ public class Files {
             new Recursively<IOException>( file ) {
 
                 public void handle( File current ) throws IOException {
-                    setReadableAndWritable( current.getPath() , ownerOnly, recursive );
+                    setWritable( current.getPath() , ownerOnly, recursive );
                 }
                 
             };
 
         }
 
+    }
+
+    /**
+     * Make a given directory readable and writable and optionally recurse all
+     * children.
+     */
+    public static void setReadableAndWritable( final String path,
+                                               final boolean ownerOnly,
+                                               final boolean recursive ) throws IOException {
+
+        setReadable( path, ownerOnly, recursive );
+        setWritable( path, ownerOnly, recursive );
+        
     }
     
     /**
@@ -276,6 +321,28 @@ public class Files {
 
     }
 
+    /**
+     * Compute the usage, in bytes, of the given directory.
+     */
+    public static long usage( File file ) throws IOException {
+
+        if ( file.isDirectory() == false )
+            return file.length();
+
+        final AtomicLong result = new AtomicLong();
+        
+        new Recursively<IOException>( file ) {
+
+            public void handle( File current ) throws IOException {
+                result.getAndAdd( current.length() );
+            }
+            
+        };
+
+        return result.get();
+        
+    }
+    
 }
 
 /**

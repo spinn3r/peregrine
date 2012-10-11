@@ -1,7 +1,7 @@
 #!/bin/sh
 
 BRANCH=burton-bench
-DIR=/root/peregrine
+DIR=/usr/local/peregrine
 LOGDIR=/var/log
 MAX_MEMORY=256M
 OPEN_FILES=16384
@@ -20,7 +20,17 @@ runcmd() {
 }
 
 get_controller() {
-    cat conf/peregrine.conf | grep "controller=" |grep -Eo "[^=]+$" | grep -Eo "^[^:]+"
+    result=$(cat conf/peregrine.conf | grep "controller=" |grep -Eo "[^=]+$" | grep -Eo "^[^:]+")
+
+    if [ "$result" = "" ]; then
+
+        echo "Unable to determine controller." 
+        exit 1
+
+    fi
+
+    echo $result
+
 }
 
 get_unique_hosts() {
@@ -31,9 +41,9 @@ get_unique_hosts() {
 flush_logs() {
 
     for host in `get_unique_hosts`; do
-        runcmd ssh root@$host "find $DIR/logs/ -name '*.log' -exec rm '{}' ';' " 
-        runcmd ssh root@$host "find $DIR/logs/ -name '*.out' -exec rm '{}' ';' " 
-        runcmd ssh root@$host "find $DIR/logs/ -name '*.err' -exec rm '{}' ';' " 
+        runcmd ssh root@$host "find $DIR/logs/ -name '*.log*' -exec rm '{}' ';' " 
+        runcmd ssh root@$host "find $DIR/logs/ -name '*.out*' -exec rm '{}' ';' " 
+        runcmd ssh root@$host "find $DIR/logs/ -name '*.err*' -exec rm '{}' ';' " 
     done
 
 }
@@ -77,6 +87,13 @@ start() {
 
     done
 
+    # start the controller
+    controller=$(get_controller)
+
+    echo "Starting controller: $controller"
+
+    runcmd ssh root@$controller "cd $DIR && ./bin/controllerd start" 
+
 }
 
 stop() {
@@ -86,6 +103,13 @@ stop() {
     for host in `get_unique_hosts`; do
         runcmd ssh root@$host "pgrep -f peregrine.worker.Main | xargs kill"
     done
+
+    # stop the controller
+    controller=$(get_controller)
+
+    echo "Stopping controller: $controller"
+
+    runcmd ssh root@$controller "cd $DIR && ./bin/controllerd stop" 
 
 }
 

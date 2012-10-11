@@ -9,6 +9,7 @@ or if you want to use a FAST mirror you can use:
 
 wget http://dumps.wikimedia.your.org/enwiki/20120502/enwiki-20120502-page.sql.gz
 wget http://dumps.wikimedia.your.org/enwiki/20120502/enwiki-20120502-pagelinks.sql.gz
+gzip -d enwiki-*.gz
 
 The files uncompressed are 27GB so we do NOT include them in the distribution.
 You will have to download them yourself.
@@ -36,3 +37,5 @@ dd if=enwiki-20120502-pagelinks.sql of=enwiki-20120502-pagelinks-sample.sql coun
 # 48
 
 2410 - 48
+
+

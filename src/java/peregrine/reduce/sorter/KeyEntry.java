@@ -17,29 +17,43 @@ package peregrine.reduce.sorter;
 
 import org.jboss.netty.buffer.*;
 
+import peregrine.*;
+import peregrine.util.netty.*;
 import peregrine.util.primitive.*;
+import peregrine.io.chunk.*;
 
-public class KeyEntry {
+public class KeyEntry implements KeyValuePair {
 
-	public byte buffer;
-	public int offset;
-	
-	public ChannelBuffer backing; 
-	
-	public KeyEntry() {
-		
-	}
-	
-	public KeyEntry( byte buffer, int offset ) {
-		this.buffer = buffer;
+	private byte bufferIndex;
+
+	protected int offset;
+
+    protected ChannelBuffer backing = null; 
+
+    protected DefaultChunkReader reader = null;
+    
+    protected int valueOffset = -1;
+
+    protected StructReader key = null;
+
+    protected StructReader value = null;
+
+	public KeyEntry( int bi, int offset, ChannelBuffer backing ) {
+
+        if ( bi < 0 || bi > 256 )
+            throw new RuntimeException( "Invalid buffer index: " + bi );
+
+		this.bufferIndex = (byte)bi;
 		this.offset = offset;
+        this.backing = backing;
+
 	}
-	
-    public byte[] read() {
-        byte[] data = new byte[LongBytes.LENGTH];
-        backing.getBytes( offset, data );
-        return data;
-    }
+
+	public KeyEntry( int bi, int offset, ChannelBuffer backing, DefaultChunkReader reader ) {
+        this( bi, offset, backing );
+        this.reader = reader;
+        readKey();
+	}
 
     /**
      * Read a byte from the entry at the given position within the key. 
@@ -48,5 +62,41 @@ public class KeyEntry {
     public byte read( int pos ) {    	
         return backing.getByte( offset + pos );
     }
+
+    public void readKey() {
+
+        backing.readerIndex( offset - 1 );
+
+        this.key = reader.readEntry();
+        this.valueOffset = backing.readerIndex() + 1;
+        
+    }
+
+    public void readValue() {
+
+        backing.readerIndex( valueOffset - 1 );
+
+        this.value = reader.readEntry();
+
+    }
+
+    public int bufferIndex() {
+        return (int)bufferIndex & 0xFF;
+    }
     
+    public StructReader getKey() { 
+        return this.key;
+    }
+
+    public StructReader getValue() { 
+
+        if ( value == null ) {
+            readValue();
+        }
+            
+        return this.value;
+
+    }
+
 }
+

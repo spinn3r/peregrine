@@ -35,21 +35,41 @@ public final class Initializer {
     private static final Logger log = Logger.getLogger();
 
 	private Config config;
-	
+
+	public Initializer() {}
+
 	public Initializer( Config config ) {
 		this.config = config;
 	}
 
-    public void datadir() throws IOException {
+    public void permissions() throws IOException {
+        
+        Files.setReadable( "conf/", false, true );
+        Files.setReadableAndWritable( "logs/", false, true );
+        
         Files.initDataDir( config.getRoot(),    config.getUser() );
         Files.initDataDir( config.getBasedir(), config.getUser() );
     }
-    
-    public void logger( String suffix ) {
 
+    public void logger( File file ) throws IOException {
+        DOMConfigurator.configure( file.getPath() );
+    }
+
+    public void logger( String suffix ) throws IOException {
+
+        String conf = "conf/log4j.xml";
+
+        if ( new File( conf ).canRead() == false ) {
+            throw new IOException( "Unable to read: " + conf );
+        }
+
+        if ( new File( "logs" ).canWrite() == false ) {
+            throw new IOException( "Unable to write to log directory" );
+        }
+            
         System.setProperty( "peregrine.log.suffix", suffix );
-        DOMConfigurator.configure( "conf/log4j.xml" );
-
+        logger( new File( conf ) );
+        
     }
 
     public void pidfile() throws IOException {
@@ -120,6 +140,27 @@ public final class Initializer {
 
     }
 
+    public void requireFreeDiskSpace() throws IOException {
+
+        // we only perform this on Linux because statfs on OS X and other
+        // platforms have more struct fields.
+        if ( ! Platform.isLinux() )
+            return;
+
+        if ( config.getRequireFreeDiskSpaceSize() == -1 )
+            return;
+
+        vfs.StatfsStruct struct = new vfs.StatfsStruct();
+        vfs.statfs( config.getBasedir(), struct );
+
+        long free_disk_space = struct.f_bsize * struct.f_bfree;
+
+        if ( free_disk_space < config.getRequireFreeDiskSpaceSize() ) {
+            throw new IOException( String.format( "Disk space too low: %s", free_disk_space ) );
+        }
+        
+    }
+    
     public void assertRoot() throws Exception {
 
         int uid = unistd.getuid();
@@ -134,24 +175,44 @@ public final class Initializer {
     /**
      * Perform all init steps required for the worker daemon.
      */
-    public void worker() throws Exception {
+    public void workerd() throws Exception {
 
         assertRoot();
-        logger( String.format( "workerd-%s",  config.getHost() ) );
-        datadir();
+        permissions();
+        requireFreeDiskSpace();
         limitMemoryUsage();
         setuid();
+        basic( "workerd" );
         pidfile();
- 
+
     }
 
     /**
-     * Perform all init steps required for the worker daemon.
+     * Perform all init steps required for the controller.
+     */
+    public void controllerd() throws Exception {
+        assertRoot();
+        limitMemoryUsage();
+        setuid();
+        basic( "controllerd" );
+    }
+
+    public void basic( Class clazz ) throws Exception {
+        basic( clazz.getName() );
+    }
+
+    /**
+     * Perform basic init for all daemons.
+     */
+    public void basic( String name ) throws Exception {
+        logger( String.format( "%s-%s", name, config.getHost() ) );
+    }
+
+    /**
+     * Perform all init steps required for the controller.
      */
     public void controller() throws Exception {
-
-        logger( String.format( "controller-%s",  config.getHost() ) );
-
+        basic( "controller" );
     }
-        
+
 }

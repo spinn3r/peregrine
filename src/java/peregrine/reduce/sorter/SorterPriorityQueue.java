@@ -18,6 +18,8 @@ package peregrine.reduce.sorter;
 import java.io.*;
 import java.util.*;
 import peregrine.util.primitive.LongBytes;
+import peregrine.reduce.*;
+import peregrine.sort.*;
 
 import org.jboss.netty.buffer.*;
 
@@ -29,11 +31,13 @@ public class SorterPriorityQueue {
 
     protected SortQueueEntry result = new SortQueueEntry();
 
-    protected SortMergeComparator comparator = new SortMergeComparator();
+    protected SortMergeComparator comparator;
     
-    public SorterPriorityQueue( List<KeyLookup> lookups ) throws IOException {
+    public SorterPriorityQueue( List<KeyLookup> lookups,
+                                SortComparator sortComparator ) throws IOException {
 
-        this.queue = new PriorityQueue( lookups.size(), comparator );
+        this.comparator = new SortMergeComparator( sortComparator );
+        this.queue = new PriorityQueue( lookups.size(), this.comparator );
         
         for( KeyLookup lookup : lookups ) {
 
@@ -43,7 +47,6 @@ public class SorterPriorityQueue {
             lookup.next();
             SortQueueEntry entry = new SortQueueEntry();
             entry.lookup = lookup;
-            entry.queue  = this;
 
             queue.add( entry );
             
@@ -84,40 +87,4 @@ public class SorterPriorityQueue {
 
 }
 
-class SortMergeComparator implements Comparator<SortQueueEntry> {
-
-    public int compare( SortQueueEntry e0, SortQueueEntry e1 ) {
-                
-        KeyEntry entry0 = e0.lookup.get();
-        KeyEntry entry1 = e1.lookup.get();
-        
-        int diff = 0;
-
-        for( int offset = 0; offset < LongBytes.LENGTH; ++offset ) {
-
-            diff = entry0.read( offset ) - entry1.read( offset );
-
-            if ( diff != 0 )
-                return diff;
-            
-        }
-
-        return diff;
-
-    }
-
-}
-
-class SortQueueEntry {
-
-    protected SorterPriorityQueue queue = null;
-
-    protected KeyLookup lookup = null;
-
-    /**
-     * Used to store the offset pointer.
-     */
-    protected KeyEntry entry = null;
-    
-}
 

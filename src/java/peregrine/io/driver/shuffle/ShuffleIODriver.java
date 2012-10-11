@@ -39,7 +39,7 @@ public class ShuffleIODriver extends BaseIODriver implements IODriver {
 	}
 
 	@Override
-	public JobInput getJobInput( Config config, InputReference inputReference, WorkReference work ) throws IOException {		
+	public JobInput getJobInput( Config config, Job job, InputReference inputReference, WorkReference work ) throws IOException {		
 	    throw new IOException( "not implemented" );
 	}
 
@@ -53,9 +53,9 @@ public class ShuffleIODriver extends BaseIODriver implements IODriver {
     }
     
 	@Override
-	public JobOutput getJobOutput( Config config, OutputReference outputReference, WorkReference work  ) throws IOException {
+	public JobOutput getJobOutput( Config config, Job job, OutputReference outputReference, WorkReference work  ) throws IOException {
 		PartitionWorkReference partitionWork = (PartitionWorkReference)work;
-        return new ShuffleJobOutput( config, (ShuffleOutputReference)outputReference, partitionWork.getPartition() );
+        return new ShuffleJobOutput( config, job, (ShuffleOutputReference)outputReference, partitionWork.getPartition() );
 	}
 
 	@Override

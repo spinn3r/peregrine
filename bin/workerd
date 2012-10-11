@@ -3,10 +3,21 @@
 # When true, always allow the existing daemon to work.
 export YIELD_TO_EXISTING_DAEMON=true
 
+# Determine how to handle stdout and stderr from the worker daemon.  
+#
+# none: (default) we write to /dev/null.
+# 
+# standard: write to standard out and standard err
+#
+# file: write to .err and .out files.
+
+export OUTPUT=none
+export JMX_PORT_OFFSET=1000
+
 start() {
 
     # first check if we are already running ...
-    ./bin/jexec peregrine.worker.WaitForDaemon 2> /dev/null $args 
+    ./bin/jexec peregrine.worker.WaitForDaemon 2> /dev/null > /dev/null $args 
     result=$?
 
     # yup... we're up and running, so stop and return.
@@ -15,8 +26,11 @@ start() {
         exit 0
     fi
 
-
     export MAX_MEMORY=$(./bin/jexec peregrine.worker.GetConfig $args --getString=maxMemory 2> /dev/null)
+
+    port=$(./bin/jexec peregrine.worker.GetConfig $args --getString=port 2> /dev/null)
+    export JMX_PORT=$(expr $port + $JMX_PORT_OFFSET)
+    
 
     # Get the max direct memory we will use.  This can't use GetConfig because
     # there may be multiple variables involved.
@@ -32,11 +46,33 @@ start() {
     # no, we weren't running, so go ahead and startup.
     host=$(./bin/jexec peregrine.worker.GetConfig $args --getString=host 2> /dev/null)
 
-    stderr="logs/peregrine-workerd-$host.err"
-    stdout="logs/peregrine-workerd-$host.out"
-    
-    echo "Running with max JVM memory $MAX_MEMORY and max direct memory $MAX_DIRECT_MEMORY"
+    case $OUTPUT in
 
+        none)
+            stderr="/dev/null"
+            stdout="/dev/null"
+            ;;
+
+        standard)
+            stderr="/dev/stderr"
+            stdout="/dev/stdout"
+            ;;
+
+        file)
+            stderr="logs/peregrine-workerd-$host.err"
+            stdout="logs/peregrine-workerd-$host.out"
+            ;;
+
+        *)
+            echo "UNKNOWN output option: $OUTPUT" > /dev/stderr
+            exit 1
+            ;;
+
+    esac
+
+    echo "Running with max JVM memory $MAX_MEMORY and max direct memory $MAX_DIRECT_MEMORY and writing output to '$OUTPUT'"
+
+    #export PROFILER_ENABLED_OSX=true
     ./bin/jexec peregrine.worker.Main $args < /dev/null > $stdout 2> $stderr &
 
     pid=$!

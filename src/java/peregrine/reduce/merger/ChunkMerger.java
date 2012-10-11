@@ -25,6 +25,7 @@ import peregrine.io.chunk.*;
 import peregrine.io.util.*;
 import peregrine.reduce.*;
 import peregrine.task.*;
+import peregrine.sort.*;
 
 import com.spinn3r.log5j.Logger;
 
@@ -101,6 +102,8 @@ public class ChunkMerger implements Closeable {
     private Task task = null;
 
     private List<SequenceReader> input;
+
+    private SortComparator sortComparator = null;
     
     public ChunkMerger() {
     }
@@ -109,13 +112,15 @@ public class ChunkMerger implements Closeable {
                         SortListener listener,
                         Partition partition,
                         List<SequenceReader> input,
-                        List<JobOutput> output ) {
+                        List<JobOutput> output,
+                        SortComparator sortComparator ) {
 
         this.task = task;
         this.listener = listener;
         this.partition = partition;
         this.input = input;
         this.output = output;
+        this.sortComparator = sortComparator;
         
     }
 
@@ -141,7 +146,7 @@ public class ChunkMerger implements Closeable {
 
             log.info( "Merging %,d readers." , input.size() );
             
-            MergerPriorityQueue queue = new MergerPriorityQueue( input );
+            MergerPriorityQueue queue = new MergerPriorityQueue( input, sortComparator );
                             
             SortResult sortResult = new SortResult( writer, listener );
 
@@ -152,8 +157,8 @@ public class ChunkMerger implements Closeable {
                 if ( entry == null )
                     break;
 
-                task.assertAlive();
-                
+                task.assertActiveJob(); 
+
                 sortResult.accept( new SortEntry( entry.key, StructReaders.unwrap( entry.value ) ) );
 
                 ++entries;
@@ -172,7 +177,8 @@ public class ChunkMerger implements Closeable {
 
             log.info( "Merged %,d entries for %s" , entries, partition );
 
-            new Flusher( output ).flush();
+            if( output != null )
+                new Flusher( output ).flush();
 
         } catch ( Throwable t ) {
             throw new IOException( "Unable to merge chunks: " + input, t );
@@ -181,7 +187,12 @@ public class ChunkMerger implements Closeable {
     }
 
     public void close() throws IOException {
-        new Closer( output ).close();
+
+        //TODO: these should use one closer.
+        if ( output != null ) {
+            new Closer( output ).close();
+        }
+
         new Closer( input ).close();
     }
 

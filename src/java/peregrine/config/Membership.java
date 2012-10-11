@@ -63,11 +63,11 @@ public class Membership {
     }
 
     public List<Host> getHosts( Partition part ) {
-        return hostsByPartition.get( part );
+        return new ArrayList( hostsByPartition.get( part ) );
     }
 
     public List<Partition> getPartitions( Host host ) {
-        return partitionsByHost.get( host );
+        return new ArrayList( partitionsByHost.get( host ) );
     }
 
     /**
@@ -205,7 +205,7 @@ public class Membership {
 			message.put( "failed",     failed );
 			message.put( "cause",      cause );
 
-			new Client().invoke( config.getController(), "controller", message );
+			new Client( config ).invoke( config.getController(), "controller", message );
 
             log.info( "Sent gossip that %s failed: %s", failed, cause.getMessage() );
 
@@ -245,7 +245,7 @@ public class Membership {
             
             try {           
                 
-                new Client( true ).invoke( controller, "controller", message );
+                new Client( config, false ).invoke( controller, "controller", message );
                 
                 return true;
 

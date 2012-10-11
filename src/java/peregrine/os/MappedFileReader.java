@@ -34,7 +34,8 @@ import com.spinn3r.log5j.Logger;
 
 /**
  * Facade around a MappedByteBuffer but we also support mlock on the mapped
- * pages, and closing all dependent resources.
+ * pages, and closing all dependent resources in the foreground via close()
+ * without having to wait for the GC.
  *
  */
 public class MappedFileReader extends BaseMappedFile implements Closeable {
@@ -57,20 +58,20 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
     
     protected MappedByteBufferCloser mappedByteBufferCloser = null;
 
-    public MappedFileReader( Config config, String path ) throws IOException {
-        this( config, new File( path ) );
-    }
-    
     public MappedFileReader( Config config, File file ) throws IOException {
         init( config, file );
     }
 
-    public MappedFileReader( String path ) throws IOException {
-        this( new File( path ) );
+    public MappedFileReader( File file ) throws IOException {
+        this( null, file );
     }
 
-    public MappedFileReader( File file ) throws IOException {
-        init( null, file );
+    public MappedFileReader( Config config, String path ) throws IOException {
+        this( config, new File( path ) );
+    }
+
+    public MappedFileReader( String path ) throws IOException {
+        this( new File( path ) );
     }
 
     private void init( Config config, File file ) throws IOException {
@@ -120,18 +121,24 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
             // files , one per 2GB region and then use a composite channel
             // buffer
             
-            if ( map == null ) {
+            if ( this.map == null ) {
 
                 fileMapper = new FileMapper( file, in.getFD(), offset, length );
                 fileMapper.setLock( autoLock );
                 new NativeMapStrategy().map();
 
-                this.map = new CloseableByteBufferBackedChannelBuffer( new ByteBufferBackedChannelBuffer( byteBuffer ), this );
+                //NOTE: see CloseableByteBufferBackedChannelBuffer as ideally we
+                //would wrap ALL byte buffers with this class but it imposes a
+                //performance overhead in practice.
+
+                //this.map = new CloseableByteBufferBackedChannelBuffer( new ByteBufferBackedChannelBuffer( byteBuffer ), this );
+                
+                this.map = new ByteBufferBackedChannelBuffer( byteBuffer );
 
             }
 
             if ( reader == null ) {
-                reader = new StreamReader( map );
+                reader = new StreamReader( this.map );
             }
             
             return map;
@@ -173,11 +180,13 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
     }
 
     @Override
-    public void close() throws IOException {
+    protected void doClose() throws IOException {
 
         if ( closer.isClosed() )
             return;
 
+        log.debug( "Closing %s" , file.getPath() );
+        
         if ( mappedByteBufferCloser != null )
             closer.add( mappedByteBufferCloser );
         
@@ -239,7 +248,21 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
         class BackgroundCloser implements Runnable {
             
             public void run() {
-                
+
+                // try {
+
+                //     // close if done in the background... allows us to have the
+                //     // GC release mmap resources if we want.  It doesn't matter
+                //     // if this happens twice because this is an IdempotentCloser
+                    
+                //     close();
+                    
+                // } catch ( IOException e ) {
+                //     RuntimeException rte = new RuntimeException( "Unable to close: " );
+                //     rte.initCause( e );
+                //     throw rte;
+                // }
+
             }
             
         }

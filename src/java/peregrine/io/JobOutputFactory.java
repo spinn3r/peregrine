@@ -18,6 +18,7 @@ package peregrine.io;
 import java.io.*;
 import java.util.*;
 
+import peregrine.*;
 import peregrine.config.*;
 import peregrine.io.driver.*;
 import peregrine.io.driver.blackhole.*;
@@ -35,6 +36,7 @@ import peregrine.task.*;
 public class JobOutputFactory {
 
     public static List<JobOutput> getJobOutput( Config config,
+                                                Job job,
                                                 Partition partition,
                                                 Output output ) throws IOException {
 
@@ -46,7 +48,7 @@ public class JobOutputFactory {
             
             // see if it is registered as a driver.
             if ( driver != null ) {
-                result.add( driver.getJobOutput( config, ref, new PartitionWorkReference( partition ) ) );
+                result.add( driver.getJobOutput( config, job, ref, new PartitionWorkReference( partition ) ) );
                 continue;
             }
 

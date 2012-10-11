@@ -129,7 +129,7 @@ public class LinuxSystemProfiler extends BaseSystemProfiler {
                 disk = resolveMountPoint( disk );
 
                 if( disk != null ) {
-                    log.info( "Mount point resolved to: %s" , disk );
+                    log.debug( "Mount point resolved to: %s" , disk );
                 } else {
                     log.warn( "Mount point NOT resolved" );
                 }

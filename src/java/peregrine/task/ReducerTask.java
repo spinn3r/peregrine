@@ -30,6 +30,9 @@ import peregrine.sysstat.*;
 
 import com.spinn3r.log5j.Logger;
 
+/**
+ * Task and actual code used for running a reduce on shuffled data.
+ */
 public class ReducerTask extends BaseTask implements Callable {
 
     private static final Logger log = Logger.getLogger();
@@ -37,6 +40,8 @@ public class ReducerTask extends BaseTask implements Callable {
     private ShuffleInputReference shuffleInput;
 
     private AtomicInteger nrTuples = new AtomicInteger();
+
+    private ReduceRunner reduceRunner = null;
     
     public ReducerTask() {}
 
@@ -63,8 +68,8 @@ public class ReducerTask extends BaseTask implements Callable {
     protected void doCall() throws Exception {
     	
     	SortListener listener = new ReducerTaskSortListener();
-        
-        ReduceRunner reduceRunner = new ReduceRunner( config, this, partition, listener, shuffleInput, getJobOutput() );
+
+        reduceRunner = new ReduceRunner( config, this, partition, listener, shuffleInput, getJobOutput() );
 
         String shuffle_dir = config.getShuffleDir( shuffleInput.getName() );
 
@@ -73,13 +78,14 @@ public class ReducerTask extends BaseTask implements Callable {
         File shuffle_dir_file = new File( shuffle_dir );
 
         if ( ! shuffle_dir_file.exists() ) {
-            throw new IOException( String.format( "Shuffle output for %s does not exist at %s",
+            throw new IOException( String.format( "Shuffle dir for %s does not exist at %s",
                                                   shuffleInput.getName(), shuffle_dir ) );
         }
 
         File[] shuffles = shuffle_dir_file.listFiles();
 
-        //TODO: we should probably make sure these look like shuffle files.
+        //TODO: we should probably make sure these look like shuffle files with
+        //the right extension, etc.
         for( File shuffle : shuffles ) {
         	reduceRunner.add( shuffle );
         }
@@ -93,10 +99,21 @@ public class ReducerTask extends BaseTask implements Callable {
 
     }
 
+    @Override
+    public void teardown() throws IOException {
+        reduceRunner.close();
+        super.teardown();
+    }
+
+    
+    /**
+     * Call the reduce() method when we have a final value on the merge.
+     */
     class ReducerTaskSortListener implements SortListener {
         
     	Reducer reducer = (Reducer)jobDelegate;
-    	
+
+        @Override
         public void onFinalValue( StructReader key, List<StructReader> values ) {
 
             try {

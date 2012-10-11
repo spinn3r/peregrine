@@ -17,17 +17,24 @@ package peregrine.rpc;
 
 import java.io.*;
 import java.util.*;
-import org.jboss.netty.handler.codec.http.*;
 
 import peregrine.io.*;
 import peregrine.util.*;
 
-public class Message extends StructMap {
+import org.jboss.netty.buffer.*;
+import org.jboss.netty.handler.codec.http.*;
+
+/**
+ * A message sent between two hosts.
+ */
+public class Message extends StructMap implements MessageSerializable {
 
     public Message() { }
 
     public Message( String data ) {
 
+        if ( data == null ) return;
+        
         Map<String,List<String>> decoded
             = new QueryStringDecoder( data ).getParameters();
 
@@ -37,6 +44,13 @@ public class Message extends StructMap {
 
     }
 
+    public Message( Object... args ) {
+        for( int i = 0; i < args.length; ++i ) {
+            put( args[i].toString(), args[i + 1].toString() );
+            ++i;
+        }
+    }
+    
     public Message( Map map ) {
         super( map );
     }
@@ -82,4 +96,17 @@ public class Message extends StructMap {
 
     }
 
+    @Override
+    public Message toMessage() {
+        return this;
+    }
+
+    @Override
+    public void fromMessage( Message message ) {
+        init( message.toMap() );
+    }
+
+    public ChannelBuffer toChannelBuffer() {
+        return ChannelBuffers.wrappedBuffer( toString().getBytes() );
+    }
 }

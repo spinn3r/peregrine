@@ -86,15 +86,15 @@ public class Hex {
         
         StringBuffer result = new StringBuffer();
 
-        int nr_blocks = (int)Math.ceil( buff.capacity() / (double)width );
+        int nr_blocks = (int)Math.ceil( buff.writerIndex() / (double)width );
 
         for( int i = 0; i < nr_blocks; ++i ) {
 
             int start = i * width;
             int end = start + width;
 
-            if ( end >= buff.capacity() )
-                end = buff.capacity();
+            if ( end >= buff.writerIndex() )
+                end = buff.writerIndex();
 
             int len = end - start;
 
@@ -119,7 +119,7 @@ public class Hex {
                 result.append( ' ' );
             }
             
-            for( int j = 0; j < slice.capacity(); ++j ) {
+            for( int j = 0; j < slice.writerIndex(); ++j ) {
 
                 byte b = slice.getByte( j );
                 

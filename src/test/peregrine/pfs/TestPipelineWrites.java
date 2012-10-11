@@ -59,7 +59,7 @@ public class TestPipelineWrites extends peregrine.BaseTest {
 
         URI uri = new URI( "http://localhost:11112/test-write-hash" );
 
-        HttpClient client = new HttpClient( uri );
+        HttpClient client = new HttpClient( config, uri );
 
         client.setHeader( "X-pipeline", "localhost:11113" );
         

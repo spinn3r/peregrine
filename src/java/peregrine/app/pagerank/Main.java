@@ -15,36 +15,96 @@
 */
 package peregrine.app.pagerank;
 
-import peregrine.io.*;
+import peregrine.*;
+import peregrine.app.flow.*;
+import peregrine.app.pagerank.extract.*;
 import peregrine.config.*;
+import peregrine.controller.*;
+import peregrine.io.*;
 import peregrine.util.*;
 import peregrine.worker.*;
 
+/**
+ * Command line interface for submitting pagerank jobs to the controller.
+ */
 public class Main {
 
     public static void main( String[] args ) throws Exception {
 
-        Getopt getopt = new Getopt( args );
-        
-        int nr_nodes = getopt.getInt( "nr_nodes", 500 );
-        int max_edges_per_node = getopt.getInt( "max_edges_per_node", 500 );
-        
-        System.out.printf( "Running with nr_nodes: %,d , max_edges_per_node: %,d\n", nr_nodes, max_edges_per_node );
-        
         Config config = ConfigParser.parse( args );
-        new Initializer( config ).controller();
+        new Initializer( config ).basic( Main.class );
 
-        String path = "/pr/test.graph";
-        
-        ExtractWriter writer = new ExtractWriter( config, path );
+        Getopt getopt = new Getopt( args );
 
-        GraphBuilder builder = new GraphBuilder( writer );
-        
-        builder.buildRandomGraph( nr_nodes , max_edges_per_node );
-        
-        writer.close();
+        String graph               = getopt.getString( "graph", "/pr/graph" );
+        String nodes_by_hashcode   = getopt.getString( "nodes_by_hashcode", "/pr/nodes_by_hashcode" );
+        String corpus              = getopt.getString( "corpus" );
+        int iterations             = getopt.getInt( "iterations", Pagerank.DEFAULT_ITERATIONS );
+        boolean sortedGraph        = getopt.getBoolean( "sortedGraph" );
 
-        new Pagerank( config, path ).exec();
+        if ( "random".equals( corpus ) ) {
+
+            //build a grandom graph
+            
+            int nr_nodes = getopt.getInt( "nr_nodes", 500 );
+            int max_edges_per_node = getopt.getInt( "max_edges_per_node", 500 );
+            
+            System.out.printf( "Running with nr_nodes: %,d , max_edges_per_node: %,d\n", nr_nodes, max_edges_per_node );
+            
+            GraphBuilder builder = new GraphBuilder( config, graph, nodes_by_hashcode );
+            
+            builder.buildRandomGraph( nr_nodes , max_edges_per_node );
+        
+            builder.close();
+
+            // no matter what hte user says the graph is not sorted.
+            sortedGraph = false;
+            
+        } else {
+            System.out.printf( "Using existing graph.\n" );
+        }
+
+        Batch batch = new Batch( Main.class );
+
+        // TODO: see if we first need to run extract ... 
+        
+        if ( getopt.getBoolean( "extract" ) ) {
+
+        }
+                                                       
+        // see if we first need to run flow to prune disconnected graphs.
+
+        if ( getopt.containsKey( "flow" ) ) {
+           
+            getopt.require( "flow", "sources" );
+
+            String output = getopt.getString( "flow.output", "/pr/graph.flowed" );
+            
+            Flow flow = new Flow( graph,
+                                  output,
+                                  getopt.getString( "flow.sources" ),
+                                  getopt.getInt( "flow.iterations", 5 ),
+                                  getopt.getBoolean( "flow.caseInsensitive" ) );
+            batch.add( flow );
+
+            // we need to use the flowed graph as the input for pagerank now
+            graph = output;
+            
+        }
+
+        Pagerank pr = new Pagerank( config, graph, nodes_by_hashcode, iterations, sortedGraph );
+
+        if ( getopt.getBoolean( "sort-only" ) ) {
+            pr.sort();
+        } else {
+            pr.prepare();
+        }
+        
+        batch.add( pr );
+
+        batch.init( args );
+        
+        ControllerClient.submit( config, batch );
         
     }
 

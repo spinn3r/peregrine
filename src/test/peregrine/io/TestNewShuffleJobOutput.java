@@ -28,8 +28,12 @@ public class TestNewShuffleJobOutput extends peregrine.BaseTestWithTwoDaemons {
     private void doTestIter( int max_emits ) throws Exception {
 
         Partition part = new Partition( 0 );
+
+        Job job = new Job();
+
+        job.getPartitionerInstance().init( config );
         
-        ShuffleJobOutput output = new ShuffleJobOutput( config, part );
+        ShuffleJobOutput output = new ShuffleJobOutput( config, job, part );
 
         ChunkReference chunkRef = new ChunkReference( part );
         chunkRef.local = 0;
@@ -79,6 +83,7 @@ public class TestNewShuffleJobOutput extends peregrine.BaseTestWithTwoDaemons {
     }
 
     public static void main( String[] args ) throws Exception {
+        System.setProperty( "peregrine.test.config", "1:1:2" ); 
         runTests();
     }
 

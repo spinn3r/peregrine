@@ -18,6 +18,7 @@ package peregrine;
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.atomic.*;
+
 import peregrine.config.*;
 import peregrine.controller.*;
 import peregrine.io.*;
@@ -67,7 +68,7 @@ public class TestMapReduce extends peregrine.BaseTestWithMultipleProcesses {
         }
 
         @Override
-        public void cleanup() {
+        public void close() throws IOException {
 
             if ( count.get() == 0 )
                throw new RuntimeException( "count is zero" );

@@ -34,7 +34,12 @@ import org.apache.cassandra.utils.*;
 import org.apache.cassandra.db.*;
 
 import org.apache.hadoop.conf.*;
-import org.apache.hadoop.mapreduce.*;
+
+import org.apache.hadoop.mapreduce.JobContext;
+import org.apache.hadoop.mapreduce.JobID;
+import org.apache.hadoop.mapreduce.InputSplit;
+import org.apache.hadoop.mapreduce.TaskAttemptContext;
+import org.apache.hadoop.mapreduce.TaskAttemptID;
 
 /**
  * IO driver for working with Cassandra.  Supports both input and output for map
@@ -90,6 +95,7 @@ public class CassandraIODriver extends BaseIODriver implements IODriver {
 
 	@Override
 	public JobInput getJobInput( Config config,
+                                 Job job, 
                                  InputReference inputReference,
                                  WorkReference workReference ) throws IOException {
 
@@ -106,6 +112,7 @@ public class CassandraIODriver extends BaseIODriver implements IODriver {
 
 	@Override
 	public JobOutput getJobOutput( Config config,
+                                   Job job, 
                                    OutputReference outputReference,
                                    WorkReference work ) throws IOException {
 

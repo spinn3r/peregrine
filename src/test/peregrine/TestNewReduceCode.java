@@ -15,6 +15,7 @@
 */
 package peregrine;
 
+import java.io.*;
 import java.util.*;
 
 import peregrine.controller.*;
@@ -65,7 +66,7 @@ public class TestNewReduceCode extends peregrine.BaseTestWithMultipleProcesses {
         }
 
         @Override
-        public void cleanup() {
+        public void close() throws IOException {
 
             if ( count == 0 )
                 throw new RuntimeException( "no results reduced.... " );
@@ -132,10 +133,10 @@ public class TestNewReduceCode extends peregrine.BaseTestWithMultipleProcesses {
         }
 
     }
-
+    
     public static void main( String[] args ) throws Exception {
-        System.setProperty( "peregrine.test.factor", "10" ); // 1m
-        System.setProperty( "peregrine.test.config", "01:01:1" ); // takes 3 seconds
+        //System.setProperty( "peregrine.test.factor", "10" ); // 1m
+        System.setProperty( "peregrine.test.config", "1:01:4" ); // takes 3 seconds
         runTests();
     }
 

@@ -58,10 +58,10 @@ public class ShuffleSender implements Flushable, Closeable {
 
     }
 
-    public void emit( int to_partition, StructReader key, StructReader value ) throws ShuffleFailedException {
+    public void emit( int targetPartition, StructReader key, StructReader value ) throws ShuffleFailedException {
 
-        ShuffleOutputTarget client = partitionOutput.get( to_partition );
-        
+        ShuffleOutputTarget client = partitionOutput.get( targetPartition );
+
         try {
         
             length += DefaultChunkWriter.write( client, key, value );
@@ -71,12 +71,17 @@ public class ShuffleSender implements Flushable, Closeable {
 
         } catch ( Exception e ) {
 
-            config.getMembership().sendGossipToController( client.getHost(), e );
+            try {
 
-            // TODO: I think we have to block here until the controller tells us
-            // what to do (in normal situations write to a new host).
-            
-            throw new ShuffleFailedException( String.format( "Unable to write to %s: %s" , client, e.getMessage() ) , e );
+                config.getMembership().sendGossipToController( client.getHost(), e );
+
+                // TODO: I think we have to block here until the controller tells us
+                // what to do (in normal situations write to a new host).
+
+            } finally {
+                throw new ShuffleFailedException( String.format( "Unable to write to %s: %s on partition %s" ,
+                                                                 client, e.getMessage(), targetPartition ) , e );
+            }
 
         }
 
@@ -106,6 +111,8 @@ public class ShuffleSender implements Flushable, Closeable {
     @Override
     public void close() throws IOException {
 
+        log.debug( "Closing after %,d emits", count );
+        
         // flush the pending IO first 
         flush();
         
@@ -146,10 +153,10 @@ public class ShuffleSender implements Flushable, Closeable {
                                              chunkRef.partition.getId(),
                                              chunkRef.local );
 
-                HttpClient client = new HttpClient( hosts, path );
+                HttpClient client = new HttpClient( config, hosts, path );
 
                 ShuffleOutputTarget target
-                    = new ShuffleOutputTarget( hosts.get( 0 ), client, MAX_CHUNK_SIZE - IntBytes.LENGTH  );
+                    = new ShuffleOutputTarget( hosts.get( 0 ), client, (int)config.getHttpMaxChunkSize() - IntBytes.LENGTH );
 
                 result.put( part.getId(), target );
                 
@@ -179,7 +186,7 @@ public class ShuffleSender implements Flushable, Closeable {
         protected int count = 0;
         
         public ShuffleOutputTarget( Host host, HttpClient client, int capacity ) {
-            super( client, capacity - HttpClient.CHUNK_OVERHEAD );
+            super( client, capacity - HttpClient.CHUNK_OVERHEAD  );
             this.host = host;
             this.client = client;            
         }
@@ -204,6 +211,10 @@ public class ShuffleSender implements Flushable, Closeable {
 
         public HttpClient getClient() {
             return client;
+        }
+
+        public String toString() {
+            return String.format( "%s", host );
         }
         
     }

@@ -23,15 +23,18 @@ import com.spinn3r.log5j.*;
 
 public class HexPipelineEncoder implements ChannelUpstreamHandler, ChannelDownstreamHandler {
 
-    private static final Logger log = Logger.getLogger();
+    private Logger log = null;
 
     /**
-     * When true dump all packets sent over the wire to stdout for debug
-     * purposes.
+     * 
+     * 
+     *
      */
-    public static boolean ENABLED = false;
-    
-    public void handleUpstream( ChannelHandlerContext ctx, ChannelEvent evt) throws Exception {
+    public HexPipelineEncoder( Logger log ) {
+        this.log = log;
+    }
+
+    public void handleUpstream(ChannelHandlerContext ctx, ChannelEvent evt) throws Exception {
 
         try {
 
@@ -57,17 +60,17 @@ public class HexPipelineEncoder implements ChannelUpstreamHandler, ChannelDownst
 
     private void handleEvent( ChannelEvent evt ) throws Exception {
 
-        if ( ! ENABLED ) return;
-
         if ( evt instanceof MessageEvent ) {
             
             MessageEvent e = (MessageEvent) evt;
 
             if ( e.getMessage() instanceof ChannelBuffer ) {
                 ChannelBuffer buff = (ChannelBuffer) e.getMessage();
-                log.info( "\n%s\n", Hex.pretty( buff ) );
+                log.info( "\n%s", Hex.pretty( buff ) );
             }
-            
+
+        } else {
+            //log.warn( "NOT logging: %s", evt.getClass().getName() );
         }
 
     }

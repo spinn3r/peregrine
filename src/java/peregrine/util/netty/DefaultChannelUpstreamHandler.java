@@ -69,22 +69,25 @@ public class DefaultChannelUpstreamHandler extends SimpleChannelUpstreamHandler 
         }
 
         if (cause instanceof TooLongFrameException) {
+            log.error( "Sending BAD_REQUEST" );
             sendError(ctx, BAD_REQUEST);
             return;
         }
 
         if (ch.isConnected()) {
+            log.error( "Sending INTERNAL_SERVER_ERROR" );
             sendError(ctx, INTERNAL_SERVER_ERROR);
+            return;
         }
         
     }
 
-    protected void sendOK( ChannelHandlerContext ctx ) {
+    public void sendOK( ChannelHandlerContext ctx ) {
         HttpResponse response = new DefaultHttpResponse( HTTP_1_1, OK );
         ctx.getChannel().write(response).addListener(ChannelFutureListener.CLOSE);
     }
     
-    protected void sendError(ChannelHandlerContext ctx, HttpResponseStatus status) {
+    public void sendError(ChannelHandlerContext ctx, HttpResponseStatus status) {
 
         HttpResponse response = new DefaultHttpResponse(HTTP_1_1, status);
 

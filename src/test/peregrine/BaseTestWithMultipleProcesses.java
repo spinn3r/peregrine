@@ -24,6 +24,9 @@ import peregrine.util.*;
 import peregrine.io.util.*;
 import peregrine.io.chunk.*;
 import peregrine.io.partition.*;
+import peregrine.os.*;
+import peregrine.os.proc.*;
+import peregrine.rpc.*;
 
 import com.spinn3r.log5j.Logger;
 
@@ -54,17 +57,18 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
 
     protected List<Config> configs = new ArrayList();
 
-    public void setUp() {
-
-        System.out.printf( "setUp()\n" );
-        
-        super.setUp();
+    /**
+     * Specify extra arguments to worker daemons.
+     */
+    protected List<String> extraWorkerArguments = new ArrayList();
+    
+    private boolean readConfig() {
 
         String conf = System.getProperty( "peregrine.test.config", "1:1:1" );
 
         if ( conf == null || conf.equals( "" ) ) {
             log.warn( "NOT RUNNING %s: peregrine.test.config not defined", getClass().getName() );
-            return;
+            return false;
         }
 
         conf = conf.trim();
@@ -77,10 +81,33 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
 
         if ( concurrency == 0 || replicas == 0 ) {
             log.error( "Concurrency was zero" );
-            return;
+            return false;
         }
 
-        log.info( "Working with concurrency=%s, replicas=%s, hosts=%s (%s)" , concurrency, replicas, hosts, conf );
+        return true;
+        
+    }
+
+    @Override
+    public void setUp() {
+
+        System.out.printf( "setUp()\n" );
+
+        super.setUp();
+
+        try {
+            killAllDaemons();
+        } catch ( Exception e ) {
+            RuntimeException rte = new RuntimeException( "Unable to kill daemons: " );
+            rte.initCause( e );
+            throw rte;
+        }
+        
+        if ( readConfig() == false ) {
+            return;
+        }
+        
+        log.info( "Working with concurrency=%s, replicas=%s, hosts=%s" , concurrency, replicas, hosts );
 
         //Write out a new peregrine.hosts file.
 
@@ -90,7 +117,7 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
 
             for( int i = 0; i < hosts; ++i ) {
 
-                int port = 11112 + i;
+                int port = Host.DEFAULT_PORT + i;
                 fos.write( String.format( "localhost:%s\n", port ).getBytes() );
                 
             }
@@ -106,7 +133,7 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
             // startup new daemons no different port and in different
             // directories.
 
-            int port = 11112 + i;
+            int port = Host.DEFAULT_PORT + i;
             String basedir = getBasedir( port );
 
             Host host = new Host( "localhost", port );
@@ -122,15 +149,15 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
             configsByHost.put( host, config );
             configs.add( config );
 
-            // use the files in the current basedir to see if an existing daemon
-            // is running on this port and if so shut it down.
-
-            stopDaemon( port );
-            
             //clean up the previous basedir
 
             System.out.printf( "Removing files in %s\n", basedir );
-            Files.purge( basedir );
+
+            try {
+                Files.purge( basedir );
+            } catch ( IOException e ) {
+                throw new RuntimeException( e );
+            }
 
             List<String> workerd_args = getArguments( port );
 
@@ -143,31 +170,12 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
 
             pb.environment().put( "MAX_MEMORY",        MAX_MEMORY );
             pb.environment().put( "MAX_DIRECT_MEMORY", MAX_MEMORY );
+            pb.environment().put( "OUTPUT",            "standard" );
 
             try {
 
-                Pidfile pidfile = new Pidfile( config );
-                
-                //First make sure it's not already running by verifying that the
-                //pid does not exist.
-                try {
-
-                    WaitForDaemon.waitForDaemon( pidfile.read(), port );
-
-                    //TODO first shut it down now.
-                    throw new Exception( "Daemon is already running: " + port );
-                    
-                } catch ( Exception e ) {
-                    
-                    // this is acceptable here because we want to first make
-                    // sure this daemon is not running.
-
-                    pidfile.delete();
-                    
-                }
-
                 System.out.printf( "Starting proc: %s\n", cmdline );
-                
+
                 Process proc = pb.start();
 
                 // wait for the pid file to be created OR the process exits.
@@ -189,6 +197,43 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
         
     }
 
+    private void killAllDaemons() throws Exception {
+
+        ProcessList ps = new ProcessList();
+
+        for( ProcessListEntry proc : ps.getProcesses() ) {
+
+            List<String> arguments = proc.getArguments();
+
+            if ( arguments.size() <= 1 )
+                continue;
+
+            if ( ! "java".equals( arguments.get( 0 ) ) ) {
+                continue;
+            }
+
+            boolean isDaemon = false;
+
+            for( String arg : arguments ) {
+                if ( peregrine.worker.Main.class.getName().equals( arg ) ) {
+                    isDaemon = true;
+                    break;
+                }
+            }
+
+            if ( isDaemon ) {
+                
+                int pid = proc.getId();
+                
+                System.out.printf( "Sending SIGTERM to %s\n", proc  );
+                signal.kill( pid, signal.SIGTERM );
+                
+            }
+            
+        }
+
+    }
+
     /**
      * Wait for the proc to startup and for the pid file to be written.
      */
@@ -196,6 +241,8 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
                                            Process proc,
                                            int port ) throws Exception {
 
+        System.out.printf( "Waiting for startup: " );
+        
         long started = System.currentTimeMillis();
         
         while( true ) {
@@ -203,12 +250,15 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
             int pid = new Pidfile( config ).read();
             
             if ( pid > -1 ) {
+                System.out.printf( "done\n" );
                 return pid;
             }
 
             if ( System.currentTimeMillis() - started > 60000 ) {
                 throw new RuntimeException( "timeout while starting proc" );
             }
+
+            System.out.printf( "." );
             
             Thread.sleep( 1000L );
             
@@ -218,7 +268,7 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
 
     public List<String> getArguments( int port ) {
 
-        List<String> list = new ArrayList();
+        List<String> list = new ArrayList( extraWorkerArguments );
 
         String basedir = getBasedir( port );
 
@@ -257,45 +307,10 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
 
         System.out.printf( "tearDown()\n" );
 
-        // for each proc, get the config, read the pid, then send kill, then
-        // kill -9 if it won't shut down.
-
-        if ( KILL_WORKERS_ON_TEARDOWN ) {
-        
-            for( int port : processes.keySet() ) {
-
-                try {
-
-                    System.out.printf( "Destroying proc on port: %s\n", port );
-        
-                    stopDaemon( port );
-
-                } catch ( Exception e ) {
-                    throw new RuntimeException( e );
-                }
-                    
-            }
-
-        }
-            
         super.tearDown();
         
     }
 
-    private void stopDaemon( int port ) {
-
-        try {
-        
-            Config config = getConfig( port );
-            
-            peregrine.worker.Main.stop( config );
-
-        } catch ( Exception e ) {
-            throw new RuntimeException( e );
-        }
-
-    }
-    
     /**
      * Get the amount of work relative to the base test that we should be
      * working with.
@@ -328,10 +343,71 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
             
         } finally {
 
+            try {
+                killAllDaemons();
+            } catch ( Exception e ) {
+                log.error( "Unable to kill daemons: ", e );
+            }
+
+            try {
+                readWorkerOutput();
+            } catch ( Exception e ) {
+                log.error( "Unable to read worker output: ", e );
+            }
+
         }
 
     }
 
+    private void readWorkerOutput() throws IOException {
+
+        for( int i = 0; i < hosts; ++i ) {
+
+            // startup new daemons no different port and in different
+            // directories.
+
+            int port = Host.DEFAULT_PORT + i;
+
+            //include( new File( String.format( "logs/peregrine-workerd-localhost:%s.log", port ) ) );
+            //include( new File( String.format( "logs/peregrine-workerd-localhost:%s.err", port ) ) );
+            
+        }
+            
+    }
+
+    private void include( File file ) throws IOException {
+
+        if ( file.exists() ) {
+            System.out.printf( "================================= %s\n", file.getPath() );
+        } else {
+            return;
+        }
+
+        byte[] data = new byte[4096];
+
+        FileInputStream fis = null;
+
+        try {
+
+            fis = new FileInputStream( file );
+
+            while( true ) {
+
+                int read = fis.read( data );
+
+                System.out.write( data, 0, read );
+                
+                if ( read != data.length )
+                    break;
+                
+            }
+            
+        } finally {
+            new Closer( fis ).close();
+        }
+
+    }
+    
     /**
      * The actual test we want to run.  Implement this method and put your test
      * logic here.

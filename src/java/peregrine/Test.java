@@ -6,12 +6,17 @@ import java.util.concurrent.*;
 import java.nio.*;
 import java.nio.channels.*;
 import java.lang.reflect.*;
+import java.math.*;
 
 import peregrine.os.*;
 import peregrine.util.*;
+import peregrine.util.primitive.*;
 import peregrine.app.pagerank.*;
 import peregrine.config.*;
 import peregrine.worker.*;
+import peregrine.rpc.*;
+import peregrine.sort.*;
+import peregrine.controller.*;
 
 import org.jboss.netty.buffer.*;
 
@@ -19,387 +24,175 @@ import com.sun.jna.Pointer;
 
 import com.spinn3r.log5j.Logger;
 
-import org.apache.cassandra.thrift.*;
-import org.apache.cassandra.hadoop.*;
-import org.apache.cassandra.thrift.*;
-import org.apache.cassandra.utils.*;
-import org.apache.cassandra.db.*;
-
 import java.nio.charset.Charset;
-
-// needed so that we can configure the InputFormat for Cassandra
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.mapreduce.*;
 
 public class Test {
 
     private static final Logger log = Logger.getLogger();
 
-    protected static int MAX = 1000000;
-    
-    protected SimpleQueue<Integer> queue = null;
+    public static StructReader mean( List<StructReader> values ) {
 
-    public static void testlock1() throws Exception {
+        byte[] result = new byte[ values.get( 0 ).length() ];
 
-        Config config = new Config();
+        for( int i = 0; i < result.length; ++i ) {
 
-        new Initializer( config ).worker();
+            int sum = 0;
 
-        System.out.printf( "testlock1 of a large file NOT in page cache on the first mlock.\n" );
+            for( StructReader current : values ) {
+                sum += (current.getByte( i ) & 0xFF);
+                //sum += current.getByte( i ) ;
+            }
 
-        File file = new File( "test.dat" );
-        fcntl.posix_fadvise( file, 0L, file.length(), fcntl.POSIX_FADV_DONTNEED );
-        
-        MappedFileReader reader = new MappedFileReader( config, file );
-        reader.setAutoLock( true );
+            result[i] = (byte)(sum / values.size());
+            sum = 0;
+            
+        }
 
-        reader.map();
+        return StructReaders.wrap( result );
+
+    }
+
+    public static long meanLongs( List<Long> values ) {
+
+        long sum = 0;
+
+        for ( long value : values ) {
+            sum += value;
+        }
+
+        return (long) sum / values.size();
+
+    }
+
+    static class JobSortComparator extends StrictSortComparator {
+
+        @Override
+        public StructReader getSortKey( StructReader key, StructReader value ) {
+            // read the first 8 bytes which is the long representation
+            // of what we should sort be sorting by.
+            return StructReaders.join( value.slice( 0, 8 ), key.slice() );
+        }
 
     }
 
     public static void main( String[] args ) throws Exception {
 
-        Properties props = new Properties();
-        props.load( new FileInputStream( "test.properties" ) );
 
-        System.out.printf( "%s\n" , props );
+        //Default
         
         
-    }
-
-    public static void main_segfault( String[] args ) throws Exception {
-
-        File file = new File( "test.segfault" );
         
-        FileOutputStream fos = new FileOutputStream( file );
-        fos.write( "hello world".getBytes() );
-        fos.close();
+        // new Initializer().logger( "test" );
 
-        MappedFileReader reader = new MappedFileReader( file );
+        // List<StructReader> list = new ArrayList();
+
+        // /*
+        // list.add( new StructReader( new byte[] { (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0xfc, (byte)0x4e, (byte)0x10, (byte)0x2b, (byte)0x3d, (byte)0x9b, (byte)0x73, (byte)0xcb } ) );
+        // list.add( new StructReader( new byte[] { (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x05, (byte)0x24, (byte)0xdf, (byte)0x25, (byte)0x5a, (byte)0x48, (byte)0x25, (byte)0x4e } ) );
+        // list.add( new StructReader( new byte[] { (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x0d, (byte)0xb4, (byte)0x7f, (byte)0x39, (byte)0x52, (byte)0x8b, (byte)0xa1, (byte)0x95 } ) );
+        // */
+
+        // list.add( new StructReader( new byte[] { (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x01, (byte)0xc3, (byte)0xf5, (byte)0xf1, (byte)0x70, (byte)0x34, (byte)0x34, (byte)0x2c, (byte)0x2e } ) );
+        // list.add( new StructReader( new byte[] { (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x05, (byte)0x24, (byte)0xdf, (byte)0x25, (byte)0x5a, (byte)0x48, (byte)0x25, (byte)0x4e } ) );
+
+        // ComputePartitionTableJob.dump( "FIXME: before: ", list );
+
+        // //Collections.sort( list, new JobSortComparator() );
+        // Collections.sort( list, new StrictStructReaderComparator() );
         
-        ChannelBuffer buff = reader.map();
-
-        Charset UTF8 = Charset.forName( "UTF-8" );
-
-        String content;
+        // ComputePartitionTableJob.dump( "FIXME: after: ", list );
         
-        content = new String( buff.slice( 0, (int)file.length() ).toString( UTF8 ) );
+        // Set<StructReader> set = new HashSet();
+
+        // set.add( StructReaders.hashcode( "asdf" ) );
         
-        System.out.printf( "content: %s\n", content );
-
-        reader.close();
-
-        //This should cause us to segfault now... 
+        // System.out.printf( "%s\n", set.contains( StructReaders.hashcode( "asdf" ) ) );
         
-        content = new String( buff.slice( 0, (int)file.length() ).toString( UTF8 ) );
+        // ChannelBuffer buff = ChannelBuffers.wrappedBuffer( new byte[128] );
+
+        // buff.writerIndex( 0 );
         
-        System.out.printf( "content: %s\n", content );
+        // VarintWriter.write( buff, Integer.MAX_VALUE );
 
-    }
-    
-    public static void main5( String[] args ) throws Exception {
+        // long before = System.currentTimeMillis();
 
-        Config config = new Config();
-
-        config.setUser( "nobody" );
-
-        Initializer init = new Initializer( config );
-
-        init.setuid();
-
-    }
-
-    public static void main3( String[] args ) throws Exception {
-
-        FileInputStream fis = new FileInputStream( "test.dat" );
-
-        sun.nio.ch.FileChannelImpl channel = (sun.nio.ch.FileChannelImpl)fis.getChannel();
-
-        System.out.printf( "FIXME: %s\n", channel.getClass().getName() );
-
-        for( Method m : channel.getClass().getDeclaredMethods() ) {
-            System.out.printf( "method: %s\n", m );
-            
-        }
+        // int max = 10000000;
         
-    }
+        // for( int i = 0; i < max; ++i ) {
+        //     buff.readerIndex( 0 );
+        //     int result = VarintReader.read( buff );
+        // }
+
+        // long after = System.currentTimeMillis();
+
+        // System.out.printf( "duration: %,d\n", (after-before) );
         
-    public static void main2( String[] args ) throws Exception {
-
-        if ( args[0].equals( "--anonymous" ) ) {
-
-            System.out.printf( "testing anon map\n" );
-
-            int capacity = 500000000;
-
-            ByteBuffer buff = ByteBuffer.allocateDirect( capacity );
-
-            //touch every page.
-            for( int i = 0; i < capacity; ++i ) {
-                buff.put( (byte) 0 );
-            }
-            
-        } else if ( args[0].equals( "--mmap" ) ) {
-
-            System.out.printf( "testing mmap\n" );
-
-            MappedFileReader reader = new MappedFileReader( null, "test.dat" );
-            reader.setAutoLock( true );
-
-            reader.map();
-            //reader.load();
-
-        } else if ( args[0].equals( "--mmap-nolock" ) ) {
-
-            System.out.printf( "testing mmap without lock\n" );
-
-            MappedFileReader reader = new MappedFileReader( null, "test.dat" );
-            reader.setAutoLock( false );
-
-            reader.map();
-            //reader.load();
-
-        } else if ( args[0].equals( "--mmap-multi" ) ) {
-
-            System.out.printf( "RLIMIT_MEMLOCK: %s\n",
-                               resource.getrlimit( resource.RLIMIT.MEMLOCK ) );
-
-            long limit = 51200000L;
-
-            System.out.printf( "limit: %,d\n", limit );
-            
-            resource.setrlimit( resource.RLIMIT.MEMLOCK,
-                                new resource.RlimitStruct( limit ) );
-
-            System.out.printf( "RLIMIT_MEMLOCK: %s\n", resource.getrlimit( resource.RLIMIT.MEMLOCK ) );
-            
-            int max = 10;
-
-            if ( args.length >= 2 ) {
-                max = Integer.parseInt( args[1] );
-            }
-            
-            System.out.printf( "testing mmap multiple times: %,d\n", max );
-
-            for( int i = 0; i < max; ++i ) {
-
-                System.out.printf( "." );
-
-                // dd if=/dev/zero of=test.dat count=1000000
-
-                MappedFileReader reader = new MappedFileReader( null, "test.dat" );
-                reader.setAutoLock( true );
-                
-                reader.map();
-                //reader.load();
-                
-            }
-                
-        } else {
-
-            System.out.printf( "no test\n" );
-            
-        }
-
-        System.out.printf( "\n" );
-        System.out.printf( "sleeping...\n" );
+        //System.out.printf( "%s\n", NonceFactory.newNonce() );
         
-        Thread.sleep( Long.MAX_VALUE );
-
-        /*
-        Test t = new Test();
-
-        t.test0();
-        t.test0();
-        t.test0();
-
-        t.test1();
-        t.test1();
-        t.test1();
-
-        int hosts = 9;
+        // List<StructReader> list = new ArrayList();
+        // List<Long> longs = new ArrayList();
         
-        Config config = new Config( "localhost", 11112 );
+        // for ( long value = 0; value < 1024; ++value ) {
+        //     list.add( StructReaders.wrap( value ) );
+        //     longs.add( value );
+        // }
+
+        // StructReader mean = mean( list );
+
+        // System.out.printf( "%s\n", mean.readLong() );
+        // System.out.printf( "%s\n", meanLongs( longs ) );
         
-        //config.setController( controller );
-        config.setConcurrency( 2 );
-        config.setReplicas( 2 );
+        //System.out.printf( "%s\n", JobState.SUBMITTED );
+        //System.out.printf( "%s\n", JobState.SUBMITTED.getClass().newInstance() );
 
-        for( int i = 0; i < hosts; ++i ) {
-            config.getHosts().add( new Host( "localhost", Host.DEFAULT_PORT + i ) );
-        }
+        // Job job = new Job();
+
+        // Batch batch = new Batch();
+        // batch.add( job );
+
+        // Batch ser = new Batch();
+        // ser.fromMessage( batch.toMessage() );
+
+        // System.out.printf( "%s\n", ser.toString() );
+
+        // byte[] b0 = new byte[] { (byte)0x00 , (byte)0x00 , (byte)0x00 , (byte)0x00 , (byte)0x00 , (byte)0x01 , (byte)0x85 , (byte)0x84 , (byte)0x6d , (byte)0x40 , (byte)0x27 , (byte)0x64 , (byte)0xd5 , (byte)0x3c , (byte)0x61 , (byte)0xe2 };
+
+        // byte[] b1 = new byte[] { (byte)0x7f , (byte)0x7f , (byte)0x7f , (byte)0x7f , (byte)0x7f , (byte)0x7f , (byte)0x7f , (byte)0x7f , (byte)0x7f , (byte)0x7f , (byte)0x7f , (byte)0x7f , (byte)0x7f , (byte)0x7f , (byte)0x7f , (byte)0x7f };
+
+        // List<StructReader> list = new ArrayList();
+
+        // list.add( StructReaders.wrap( b0 ) );
+        // list.add( StructReaders.wrap( b1 ) );
+
+        // Collections.sort( list, new StrictSortDescendingComparator() );
         
-        config.init();
-        */
-
-    }
-
-    public void test0() {
-
-        System.out.printf( "test0\n" );
-        queue = new FastQueue();
-        test();
+        // for( StructReader current : list ) {
+        //     System.out.printf( "%s\n", Hex.encode( current ) );
+        // }
         
     }
 
-    public void test1() {
+}
 
-        System.out.printf( "test1\n" );
-        queue = new SlowQueue();
-        test();
-        
-    }
+class Foo extends BaseFoo<Foo> {
 
-    public void test() {
-
-        System.gc();
-
-        long before = System.currentTimeMillis();
-
-        WriterThread wt = new WriterThread();
-        wt.start();
-        wt.waitFor();
-
-        ReaderThread rt = new ReaderThread();
-        rt.start();
-        rt.waitFor();
-
-        long after = System.currentTimeMillis();
-
-        System.out.printf( "duration: %,d ms\n", (after-before) );
-        
-    }
-
-    class WriterThread extends WaitableThread {
-
-        public void run() {
-            
-            for( int i = 0; i < MAX; ++i ) {
-                queue.write( i );
-            }
-
-            complete();
-            
-        }
-        
-    }
-
-    class ReaderThread extends WaitableThread {
-
-        public void run() {
-
-            for( int i = 0; i < MAX; ++i ) {
-                queue.read();
-            }
-
-            complete();
-
-        }
-
-    }
-
-    class WaitableThread extends Thread {
-
-        BlockingQueue<Boolean> result = new ArrayBlockingQueue( 1 );
-
-        public void waitFor() {
-
-            try {
-                result.take();
-            } catch ( Exception e ) {
-                throw new RuntimeException( e );
-            }
-
-        }
-
-        public void complete() {
-
-            try {
-                result.put( true );
-            } catch ( Exception e ) {
-                throw new RuntimeException( e );
-            }
-
-        }
-        
-    }
-
-    class FastQueue<T> implements SimpleQueue<T> {
-
-        int CAPACITY = 100000;
-
-        BlockingQueue<T> writeQueue = new ArrayBlockingQueue( CAPACITY );
-
-        BlockingQueue<T> readQueue  = new ArrayBlockingQueue( CAPACITY );
-
-        public void write( T val ) {
-
-            try {
-                writeQueue.put( val );
-            } catch ( Exception e ) {
-                throw new RuntimeException( e );
-            }
-            
-        }
-
-        public T read() {
-
-            try {
-
-                T result = null;
-                
-                if ( readQueue.size() == 0 ) {
-                    writeQueue.drainTo( readQueue );
-                }
-
-                if ( readQueue.size() > 0 ) {
-                    return readQueue.take();
-                } 
-
-                return writeQueue.take();
-
-            } catch ( Exception e ) {
-                throw new RuntimeException( e );
-            }
-
-        }
-
-    }
-
-    class SlowQueue<T> implements SimpleQueue<T> {
-
-        int CAPACITY = 100000;
-        
-        BlockingQueue<T> writeQueue = new ArrayBlockingQueue( CAPACITY );
-
-        public void write( T val ) {
-
-            try {
-                writeQueue.put( val );
-            } catch ( Exception e ) {
-                throw new RuntimeException( e );
-            }
-            
-        }
-
-        public T read() {
-
-            try {
-                return writeQueue.take();
-            } catch ( Exception e ) {
-                throw new RuntimeException( e );
-            }
-
-        }
-
-    }
-
-    interface SimpleQueue<T> {
-
-        public void write( T val );
-        public T read();
-        
+    public Foo() {
+        init( this );
     }
     
 }
 
+class  BaseFoo<T> {
+
+    protected T instance;
+    
+    public void init( T instance ) {
+        this.instance = instance;
+    }
+
+    public T getFoo() {
+        return instance;
+                            
+    }
+    
+}

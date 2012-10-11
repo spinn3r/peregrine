@@ -29,34 +29,36 @@ public class RangePartitioner extends BasePartitioner {
 	
 	@Override
     public void init( Config config ) {
+
 		super.init( config );
-        init();
-    }
 
-	@Override
-    public void init( int nr_partitions ) {
-        super.init( nr_partitions );
-        init();
-    }
-
-    public void init() {
+        //TODO: migrate this to BigInteger so that I can support weights in
+        //partitions so that we can easily split ranges.  We can then use
+        //TreeMap.ceilingEntry to route within the partition space.
+        
     	this.range = WIDTH / (double)nr_partitions;	
+
     }
-    
+
 	@Override
-	public Partition partition( StructReader key ) {
+	public Partition partition( StructReader key, StructReader value ) {
 		
 		byte[] bytes = key.toByteArray();
 		
 		// the domain of the route function...  basically the key space as an
 		// integer so that we can place partitions within that space.
 
-        int value = ((((int) bytes[7]) & 0xFF)     ) +
-                    ((((int) bytes[6]) & 0xFF) << 8)
+        int val = ((((int) bytes[7]) & 0xFF) << 0) +
+                  ((((int) bytes[6]) & 0xFF) << 8)
             ;
 
-		int part = (int)(value / range);
-			
+		int part = (int)(val / range);
+
+        //TODO: technically we should require this but it will slow down mapping.
+        //if ( part > nr_partitions )
+        //    throw new RuntimeException( String.format( "Unable to correctly route to partition. %s vs %s",
+        //                                               part, nr_partitions ) );
+        
 		return new Partition( part );
 		
 	}

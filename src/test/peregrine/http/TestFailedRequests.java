@@ -19,6 +19,7 @@ import java.io.*;
 import java.net.*;
 
 import peregrine.http.*;
+import peregrine.config.*;
 
 public class TestFailedRequests extends peregrine.BaseTest {
 
@@ -29,7 +30,7 @@ public class TestFailedRequests extends peregrine.BaseTest {
         for ( int i = 0; i < 500; ++i ) {
 
             try {
-                HttpClient client = new HttpClient( link );
+                HttpClient client = new HttpClient( new Config(), link );
                 client.write( "hello world".getBytes() );
                 client.close();
             } catch ( IOException e ) {

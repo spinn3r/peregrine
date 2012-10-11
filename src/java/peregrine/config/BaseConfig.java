@@ -118,6 +118,14 @@ public class BaseConfig {
 
     protected boolean enableFailureDuringMemLockError = false;
 
+    protected boolean traceNetworkTraffic = false;
+
+    protected long requireFreeDiskSpaceSize = -1;
+
+    protected long httpMaxChunkSize = -1;
+
+    protected long maxClientShuffleOutputBufferSize = -1;
+    
     public void init( StructMap struct ) {
 
         this.struct = struct;
@@ -146,6 +154,10 @@ public class BaseConfig {
         setShuffleMapLockEnabled( struct.getBoolean( "shuffleMapLockEnabled" ) );
         setUser( struct.getString( "user" ) );
         setEnableFailureDuringMemLockError( struct.getBoolean( "enableFailureDuringMemLockError" ) );
+        setTraceNetworkTraffic( struct.getBoolean( "traceNetworkTraffic" ) );
+        setRequireFreeDiskSpaceSize( struct.getSize( "requireFreeDiskSpaceSize" ) );
+        setHttpMaxChunkSize( struct.getSize( "httpMaxChunkSize" ) );
+        setMaxClientShuffleOutputBufferSize( struct.getSize( "maxClientShuffleOutputBufferSize" ) );
         
         if ( struct.containsKey( "host" ) )
             setHost( Host.parse( struct.getString( "host" ) ) );
@@ -371,6 +383,38 @@ public class BaseConfig {
         this.enableFailureDuringMemLockError = enableFailureDuringMemLockError;
     }
 
+    public boolean getTraceNetworkTraffic() { 
+        return this.traceNetworkTraffic;
+    }
+
+    public void setTraceNetworkTraffic( boolean traceNetworkTraffic ) { 
+        this.traceNetworkTraffic = traceNetworkTraffic;
+    }
+
+    public long getRequireFreeDiskSpaceSize() { 
+        return this.requireFreeDiskSpaceSize;
+    }
+
+    public void setRequireFreeDiskSpaceSize( long requireFreeDiskSpaceSize ) { 
+        this.requireFreeDiskSpaceSize = requireFreeDiskSpaceSize;
+    }
+
+    public long getHttpMaxChunkSize() { 
+        return this.httpMaxChunkSize;
+    }
+
+    public void setHttpMaxChunkSize( long httpMaxChunkSize ) { 
+        this.httpMaxChunkSize = httpMaxChunkSize;
+    }
+
+    public long getMaxClientShuffleOutputBufferSize() {
+        return this.maxClientShuffleOutputBufferSize;
+    }
+
+    public void setMaxClientShuffleOutputBufferSize( long maxClientShuffleOutputBufferSize ) {
+        this.maxClientShuffleOutputBufferSize = maxClientShuffleOutputBufferSize;
+    }
+    
     static {
 
         try {

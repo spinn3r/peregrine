@@ -42,7 +42,7 @@ public class TestRemoteChunkWriterClient extends peregrine.BaseTestWithMultipleP
 
         URI uri = new URI( "http://localhost:11112/test-write-hash" );
 
-        HttpClient client = new HttpClient( uri );
+        HttpClient client = new HttpClient( config, uri );
 
         int block = 16384;
         

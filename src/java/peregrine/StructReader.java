@@ -15,13 +15,16 @@
 */
 package peregrine;
 
+import java.math.*;
 import java.nio.*;
 
 import org.jboss.netty.buffer.*;
 
 import peregrine.util.*;
+import peregrine.util.netty.*;
 import peregrine.util.primitive.*;
 import peregrine.os.*;
+import peregrine.sort.*;
 
 /**
  * API for dealing with complex data structures as high level types.  All main
@@ -45,14 +48,16 @@ import peregrine.os.*;
  * string
  * hashcode
  * 
+ * </pre>
+ * 
  * @see StructWriter
  * @see StructReaders
  */
-public class StructReader {
-
-    private VarintReader varintReader;
+public class StructReader implements ByteReadable, Comparable<StructReader> {
 
     protected ChannelBuffer buff;
+
+    protected static FastStructReaderComparator comparator = new FastStructReaderComparator();
     
     public StructReader( byte[] data ) {
         this( ChannelBuffers.wrappedBuffer( data ) );
@@ -68,11 +73,14 @@ public class StructReader {
     
     public StructReader( ChannelBuffer buff ) {
     	this.buff = buff;
-        this.varintReader = new VarintReader( buff );
+    }
+
+    @Override
+    public byte read() {
+        return buff.readByte();
     }
 
     public byte readByte() {
-
         return buff.readByte();
     }
 
@@ -83,7 +91,7 @@ public class StructReader {
 
     public int readVarint() {
 
-        return varintReader.read();
+        return VarintReader.read( this );
     }
 
     public int readInt() {
@@ -135,7 +143,12 @@ public class StructReader {
      * Read a new struct from the current struct from the given lenght bytes.
      */
     public StructReader readStruct( int length ) {
+
+        if ( length <= 0 )
+            throw new IllegalArgumentException( "length may not be < 0: " + length );
+
         return new StructReader( buff.readSlice( length ) );
+
     }
     
     /**
@@ -221,10 +234,27 @@ public class StructReader {
      * Reset for reading again.  This positions the pointer at the beginning of
      * the struct.
      */
-    public void reset() {
+    public StructReader reset() {
         buff.readerIndex( 0 );
+        return this;
     }
 
+    /**
+     * Get a byte at an absolute position.  This is used so that we can do
+     * sorting based on values or keys and an arbitrary comparator.
+     */
+    public byte getByte( int index ) {
+        return buff.getByte( index );
+    }
+
+    public StructReader slice() {
+        return new StructReader( buff.slice() );
+    }
+
+    public StructReader slice( int index, int length ) {
+        return new StructReader( buff.slice( index, length ) );
+    }
+    
     /**
      * <p>
      * Return true if the struct is currently readable and there is data ready
@@ -239,5 +269,41 @@ public class StructReader {
         return buff.readerIndex() < buff.writerIndex();
     }
 
+    /**
+     * Convert this to an big integer in string format.
+     */
+    public String toInteger() {
+        return new BigInteger( toByteArray() ).toString();
+    }
+    
+    @Override
+    public String toString() {
+        return Hex.encode( this );
+    }
+
+    @Override
+    public int hashCode() {
+        return buff.hashCode();
+    }
+    
+    @Override
+    public boolean equals( Object obj ) {
+
+        if ( ! ( obj instanceof StructReader ) )
+            return false;
+
+        return equals( (StructReader) obj );
+        
+    }
+    
+    public boolean equals( StructReader reader ) {
+        return buff.equals( reader.buff );
+    }
+    
+
+    @Override
+    public int compareTo( StructReader reader ) {
+        return comparator.compare( this, reader );
+    }
 }
 

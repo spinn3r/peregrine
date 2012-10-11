@@ -82,29 +82,35 @@ public class BufferedChannelBufferWritable implements ChannelBufferWritable {
      */
     public void flush( boolean flushDelegate ) throws IOException {
 
-        if ( writeLength == 0 )
-            return;
+        try {
+            
+            if ( writeLength == 0 )
+                return;
 
-        if ( closed )
-            return;
+            if ( closed )
+                return;
 
-        if ( buffers.size() == 0 ) {
-            return;
+            if ( buffers.size() == 0 ) {
+                return;
+            }
+
+            preFlush();
+
+            ChannelBuffer writeBuffer = getChannelBuffer();
+
+            delegate.write( writeBuffer );
+            
+            buffers = new ArrayList();
+            writeLength = 0;
+
+            // flush the underlying delegate too
+            if ( flushDelegate ) 
+                delegate.flush();
+
+        } catch ( Exception e ) {
+            throw new IOException( "Unable to write to: " + delegate, e );
         }
-
-        preFlush();
-
-        ChannelBuffer writeBuffer = getChannelBuffer();
-
-        delegate.write( writeBuffer );
-        
-        buffers = new ArrayList();
-        writeLength = 0;
-
-        // flush the underlying delegate too
-        if ( flushDelegate ) 
-            delegate.flush();
-        
+            
     }
 
     @Override

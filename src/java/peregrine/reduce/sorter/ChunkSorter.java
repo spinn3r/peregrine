@@ -31,6 +31,7 @@ import peregrine.shuffle.*;
 import peregrine.util.*;
 import peregrine.util.netty.*;
 import peregrine.os.*;
+import peregrine.sort.*;
 
 import org.jboss.netty.buffer.*;
 
@@ -38,7 +39,6 @@ import com.spinn3r.log5j.Logger;
 
 /**
  * Sort the given chunk readers based on the key.
- * 
  */
 public class ChunkSorter extends BaseChunkSorter {
 
@@ -50,15 +50,20 @@ public class ChunkSorter extends BaseChunkSorter {
     private int id = 0;
 
     private Config config;
-    
-    public ChunkSorter() {}
+
+    private Job job = null;
     
     public ChunkSorter( Config config,
-                        Partition partition ) {
+                        Partition partition,
+                        Job job,
+                        SortComparator comparator ) {
+
+        super( comparator );
 
     	this.config = config;
 		this.partition = partition;
-        
+        this.job = job;
+
     }
 
     public SequenceReader sort( List<ChunkReader> input,
@@ -76,14 +81,16 @@ public class ChunkSorter extends BaseChunkSorter {
                                 SortListener sortListener )
         throws IOException {
 
-        CompositeChunkReader reader  = null;
-        ChunkWriter writer           = null;
-        SortResult sortResult        = null;
-        KeyLookup lookup             = null;
+        CompositeChunkReader reader    = null;
+        DefaultChunkWriter writer      = null;
+        DefaultChunkWriter sortWriter  = null;
+        SortResult sortResult          = null;
+        KeyLookup lookup               = null;
+        KeyLookup sorted               = null;
         
         try {
 
-            log.info( "Going to sort: %s", input );
+            log.info( "Going to sort: %s (memory %s)", input, DirectMemoryAllocationTracker.getInstance() );
 
             // TODO: do this async so that we can read from disk and compute at
             // the same time... we need a background thread to trigger the
@@ -93,18 +100,53 @@ public class ChunkSorter extends BaseChunkSorter {
             
             lookup = new KeyLookup( reader );
 
-            log.info( "Key lookup for %s has %,d entries." , partition, lookup.size() );
+            log.debug( "Key lookup for %s has %,d entries." , partition, lookup.size() );
 
-            lookup = sort( lookup );
+            try {
+                sorted = sort( lookup );
+            } finally {
+                lookup.close();
+            }
             
             //write this into the final ChunkWriter now.
 
-            if ( output != null )
+            if ( output != null ) {
                 writer = new DefaultChunkWriter( config, output );
+                sortWriter = writer;
+            }
 
-            sortResult = new SortResult( writer, sortListener );
+            // setup a combiner here... instantiate the Combiner and call
+            //
+            // init( Job, List<JobOutput> )
+            //
+            // and we don't need to pass the writer as we can just emit() from
+            // the combiner.
 
-            KeyLookupReader keyLookupReader = new KeyLookupReader( lookup );
+            if ( job.getCombiner() != null ) {
+
+                final Reducer reducer = newCombiner( writer );
+
+                sortListener = new SortListener() {
+
+                        public void onFinalValue( StructReader key, List<StructReader> values ) {
+                            reducer.reduce( key, values );
+                        }
+
+                    };
+
+                // set the sort writer to null so that SortResult doesn't have a
+                // writer which means that it functions just to call
+                // onFinalValue.  TODO: in the future it might be nice to make
+                // SortResult ONLY work via this method so that the code is
+                // easier to maintain.
+                
+                sortWriter = null;
+                
+            }
+            
+            sortResult = new SortResult( sortWriter, sortListener );
+
+            KeyLookupReader keyLookupReader = new KeyLookupReader( sorted );
 
             while( keyLookupReader.hasNext() ) {
 
@@ -118,7 +160,7 @@ public class ChunkSorter extends BaseChunkSorter {
 
             }
 
-            log.info( "Sort output file %s has %,d entries.", output, lookup.size() );
+            log.debug( "Sort output file %s has %,d entries. (memory %s)", output, sorted.size(), DirectMemoryAllocationTracker.getInstance() );
 
         } catch ( Throwable t ) {
 
@@ -130,6 +172,7 @@ public class ChunkSorter extends BaseChunkSorter {
             
         } finally {
 
+            //TODO: these need to be the same flusher.
             new Flusher( jobOutput ).flush();
 
             new Flusher( writer ).flush();
@@ -137,7 +180,7 @@ public class ChunkSorter extends BaseChunkSorter {
             // NOTE: it is important that the writer be closed before the reader
             // because if not then the writer will attempt to read values from 
             // closed reader.
-            new Closer( sortResult, writer, reader ).close();
+            new Closer( sortResult, writer, reader, sorted ).close();
 
         }
 
@@ -151,6 +194,67 @@ public class ChunkSorter extends BaseChunkSorter {
 
         return result;
 
+    }
+
+    /**
+     * Create a combiner instance and return it as a Reducer (they use the same
+     * interface).
+     */
+    public Reducer newCombiner( DefaultChunkWriter writer ) {
+
+        try {
+            List<JobOutput> jobOutput = new ArrayList();
+            jobOutput.add( new CombinerJobOutput( writer ) );
+            
+            Reducer result = (Reducer)job.getCombiner().newInstance();
+            result.init( job, jobOutput );
+
+            return result;
+            
+        } catch ( Exception e ) {
+            throw new RuntimeException( e );
+        }
+        
+    }
+
+}
+
+class CombinerJobOutput implements JobOutput {
+
+    private DefaultChunkWriter writer;
+    
+    public CombinerJobOutput( DefaultChunkWriter writer ) {
+        this.writer = writer;
+    }
+
+    @Override 
+    public void emit( StructReader key, StructReader value ) {
+
+        try {
+
+            // NOTE: that the merger expects to read a varint on the number of
+            // items stored here so we need to 'wrap' it even though it's a
+            // single value.  This is a slight overhead but we should probably
+            // ignore it.  Most combiner use will probably take N input items
+            // and map to 1 output item.  In this case we don't care if there is
+            // a 1 byte varint overhead.
+            
+            writer.write( key, StructReaders.wrap( value ) );
+
+        } catch ( IOException e ) {
+            throw new RuntimeException( e ) ;
+        }
+
+    }
+
+    @Override
+    public void close() throws IOException {
+        writer.close();
+    }
+
+    @Override
+    public void flush() throws IOException {
+        writer.flush();
     }
 
 }

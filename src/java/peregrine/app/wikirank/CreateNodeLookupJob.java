@@ -39,7 +39,7 @@ public class CreateNodeLookupJob {
         JobOutput nodesByHashcodeOutput         = null;
         
         @Override
-        public void init( List<JobOutput> output ) {
+        public void init( Job job, List<JobOutput> output ) {
             nodesByPrimaryKeyOutput           = output.get(0);
             nodesByHashcodeOutput             = output.get(1);
         }

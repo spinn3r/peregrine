@@ -18,12 +18,13 @@ package peregrine.worker;
 import org.jboss.netty.buffer.*;
 import org.jboss.netty.channel.*;
 import org.jboss.netty.handler.codec.http.*;
+
 import com.spinn3r.log5j.*;
 
 /**
  * Base handler for dealing with logging throughput and other issues with PUT.
  */
-public class FSPutBaseHandler extends SimpleChannelUpstreamHandler {
+public class FSPutBaseHandler extends ErrorLoggingChannelUpstreamHandler {
 
     protected static final Logger log = Logger.getLogger();
 
@@ -43,13 +44,16 @@ public class FSPutBaseHandler extends SimpleChannelUpstreamHandler {
     protected long chunks = 0;
 
     protected FSHandler handler;
+
+    protected String path = null;
     
     public FSPutBaseHandler( FSHandler handler ) {
 
         this.handler = handler;
-
+        this.path = handler.path;
+        
         started = System.currentTimeMillis();
-
+        
     }
 
     @Override
@@ -64,14 +68,13 @@ public class FSPutBaseHandler extends SimpleChannelUpstreamHandler {
             if ( ! chunk.isLast() ) {
 
                 ChannelBuffer content = chunk.getContent();
-
                 written += content.writerIndex();
                 chunks = chunks + 1;
 
             } else {
 
-                // log that this was written successfully including the NR of
-                // bytes.
+                // log that this was written successfully including the number
+                // of bytes.
 
                 long duration = System.currentTimeMillis() - started;
 
@@ -79,9 +82,9 @@ public class FSPutBaseHandler extends SimpleChannelUpstreamHandler {
 
                 if ( chunks > 0 )
                     mean_chunk_size = (int)(written / chunks);
-                
-                log.info( "Wrote %,d bytes in %,d chunks (mean chunk size = %,d bytes) in %,d ms to %s",
-                          written, chunks, mean_chunk_size, duration, handler.path );
+
+                log.debug( "Wrote %,d bytes in %,d chunks (mean chunk size = %,d bytes) in %,d ms to %s",
+                           written, chunks, mean_chunk_size, duration, path );
 
             }
 

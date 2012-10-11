@@ -41,7 +41,7 @@ public final class BroadcastInput {
         LocalPartitionReader reader = new LocalPartitionReader( config, part, path );
 
         if ( reader.hasNext() == false ) {
-            log.warn( "No broadcast values found at: " + reader );
+            log.warn( "No broadcast values found at: " + path );
             return;
         }
 

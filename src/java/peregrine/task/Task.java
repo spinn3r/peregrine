@@ -43,10 +43,10 @@ public interface Task extends Callable {
     public boolean isKilled();
     
     /**
-     * Assert that we are alive and have not been marked killed by the
-     * controller.
+     * Assert that the controller has an active job and have not been marked
+     * killed by the controller due to failure.
      */
-    public void assertAlive() throws IOException;
+    public void assertActiveJob() throws IOException;
 
     public void setInput( Input input );
     
@@ -54,6 +54,8 @@ public interface Task extends Callable {
 
     public void init( Config config, Work work, Class delegate ) throws IOException;
 
-    public void setJobId( String job_id );
+    public void setJob( Job job );
 
+    public Job getJob();
+    
 }

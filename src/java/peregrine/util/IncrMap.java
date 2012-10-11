@@ -73,5 +73,10 @@ public class IncrMap<T> {
     public int size() {
         return map.size();
     }
+
+    @Override
+    public String toString() {
+        return map.toString();
+    }
     
 }

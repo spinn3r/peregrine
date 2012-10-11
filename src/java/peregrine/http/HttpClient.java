@@ -26,7 +26,7 @@ import org.jboss.netty.channel.*;
 import org.jboss.netty.channel.socket.nio.*;
 import org.jboss.netty.handler.codec.http.*;
 
-import peregrine.config.Host;
+import peregrine.config.*;
 import peregrine.util.*;
 import peregrine.util.netty.*;
 import peregrine.worker.*;
@@ -68,19 +68,26 @@ public class HttpClient implements ChannelBufferWritable {
      */
     public static long tag = 0;
     
+    /**
+     * Maximum number of writes to keep in the queue.
+     */
     public static int QUEUE_CAPACITY = 10;
 
     /**
-     * The write timeout for requests.
+     * The write timeout for requests.  Due to GC pause and so forth when using
+     * the ParallelGC this should probably be larger as we HAVE seen write
+     * timeouts when setting it to 60 seconds.  
+     *
+     * <p>TODO: this should be a configuration directive.
      */
-    public static final int WRITE_TIMEOUT = 60000;
+    public static final int WRITE_TIMEOUT = 300000;
     
     protected int channelState = PENDING;
 
     /**
      * Stores writes waiting to be sent over the wire.
      */
-    protected SimpleBlockingQueue<ChannelBuffer> queue = new SimpleBlockingQueue( QUEUE_CAPACITY );
+    protected SimpleBlockingQueue<ChannelBuffer> queue = new SimpleBlockingQueue( QUEUE_CAPACITY, WRITE_TIMEOUT );
 
     /**
      * Stores the result of this IO operation.  Boolean.TRUE if it was success
@@ -137,11 +144,18 @@ public class HttpClient implements ChannelBufferWritable {
      * The default method to use (normally HTTP PUT).
      */
     protected HttpMethod method = HttpMethod.PUT;
+
+    protected HttpResponse response = null;
+
+    protected ChannelBuffer content = null;
+
+    protected Config config = null;
     
-    public HttpClient( List<Host> hosts, String path ) throws IOException {
+    public HttpClient( Config config, List<Host> hosts, String path ) throws IOException {
 
         try {
-            
+
+            this.config = config;
             this.uri = new URI( String.format( "http://%s%s", hosts.get(0), path ) );
 
             init();
@@ -164,9 +178,10 @@ public class HttpClient implements ChannelBufferWritable {
         
     }
 
-    public HttpClient( String uri ) throws IOException {
+    public HttpClient( Config config, String uri ) throws IOException {
 
         try {
+            this.config = config;
             this.uri = new URI( uri );
         } catch ( URISyntaxException e ) {
             throw new IOException( e );
@@ -174,11 +189,13 @@ public class HttpClient implements ChannelBufferWritable {
 
     }
 
-    public HttpClient( URI uri ) throws IOException {
+    public HttpClient( Config config, URI uri ) throws IOException {
+        this.config = config;
         this.uri = uri;
     }
     
-    public HttpClient( HttpRequest request, URI uri ) throws IOException {
+    public HttpClient( Config config, HttpRequest request, URI uri ) throws IOException {
+        this.config = config;
         this.request = request;
         this.uri = uri;
     }
@@ -215,7 +232,7 @@ public class HttpClient implements ChannelBufferWritable {
         ClientBootstrap bootstrap = BootstrapFactory.newClientBootstrap( socketChannelFactory );
 
         // Set up the event pipeline factory.
-        bootstrap.setPipelineFactory( new HttpClientPipelineFactory( this ) );
+        bootstrap.setPipelineFactory( new HttpClientPipelineFactory( config, this ) );
 
         // Start the connection attempt... where is the connect timeout set?
         ChannelFuture connectFuture = bootstrap.connect( new InetSocketAddress( host, port ) );
@@ -244,6 +261,13 @@ public class HttpClient implements ChannelBufferWritable {
     public void setHeader( String name, String value ) {
         requireInit();
         request.setHeader( name , value );
+    }
+
+    /**
+     * Return the HTTP response.
+     */
+    public HttpResponse getResponse() {
+        return response;
     }
     
     public void write( byte[] data ) throws IOException {
@@ -316,15 +340,15 @@ public class HttpClient implements ChannelBufferWritable {
      * @return True on success, null on pending.
      * @throws IOException on failure
      */
-    public Boolean getResult() throws IOException {
+    public ChannelBuffer getResult() throws IOException {
 
         Object peek = result.peek();
 
         return handleResult( peek );
 
     }
-
-    private Boolean handleResult( Object peek ) throws IOException {
+    
+    private ChannelBuffer handleResult( Object peek ) throws IOException {
 
         if ( peek instanceof IOException )
             throw (IOException) peek;
@@ -332,13 +356,21 @@ public class HttpClient implements ChannelBufferWritable {
         if ( peek instanceof Throwable )
             throw new IOException( (Throwable)peek );
 
-        if ( peek instanceof Boolean )
-            return (Boolean)peek;
+        if ( peek instanceof Boolean ) {
+
+            boolean result = ((Boolean)peek).booleanValue();
+
+            if ( result )
+                return content;
+            else
+                throw new IOException( "false" );
+
+        }
 
         if ( peek != null )
             throw new IllegalArgumentException( "unknown value: " + peek );
         
-        return null;
+        return content;
 
     }
 
@@ -535,7 +567,7 @@ public class HttpClient implements ChannelBufferWritable {
 
     }
 
-    // FIXME: move these into an event listener... 
+    // TODO: move these into an event listener... 
 
     /**
      * Called when the capacity for the underlying queue changes so that we can

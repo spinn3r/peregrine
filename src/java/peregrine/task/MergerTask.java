@@ -16,14 +16,16 @@
 package peregrine.task;
 
 import java.util.*;
+
 import peregrine.*;
-import peregrine.map.*;
-import peregrine.merge.*;
 import peregrine.io.*;
 import peregrine.io.chunk.*;
 import peregrine.io.partition.*;
-import peregrine.sysstat.*;
+import peregrine.io.util.*;
+import peregrine.map.*;
+import peregrine.merge.*;
 import peregrine.os.*;
+import peregrine.sysstat.*;
 
 import com.spinn3r.log5j.*;
 
@@ -35,16 +37,15 @@ public class MergerTask extends BaseMapperTask {
 
         log.info( "Running merge jobs on host: %s ...", host );
 
-        listeners.add( new MergerLocalPartitionListener() );
-
         jobInput = getJobInput();
 
         MergeRunner mergeRunner = new MergeRunner( jobInput );
 
-        try { 
+        Merger merger = (Merger)jobDelegate;
+        Closer closer = new Closer( mergeRunner );
         
-            Merger merger = (Merger)jobDelegate;
-            
+        try { 
+
             while( true ) {
 
                 MergedValue joined = mergeRunner.next();
@@ -52,7 +53,7 @@ public class MergerTask extends BaseMapperTask {
                 if ( joined == null )
                     break;
 
-                assertAlive();
+                assertActiveJob();
                 
                 merger.merge( joined.key, joined.values );
                 
@@ -61,27 +62,10 @@ public class MergerTask extends BaseMapperTask {
             log.info( "Running merge jobs on host: %s ... done", host );
 
         } finally {
-            mergeRunner.close();
+            closer.close();
         }
             
     }
-
-    /**
-     * Used so that we can keep track of progress as we execute jobs. Multiple
-     * chunks will be used to we need to keep track of which ones we're running
-     * over.
-     */
-    class MergerLocalPartitionListener implements ChunkStreamListener {
-
-    	@Override
-    	public void onChunk( ChunkReference ref ) {
-    	    log.info( "Merging chunk: %s" , ref );
-    	}
-
-        @Override
-        public void onChunkEnd( ChunkReference ref ) {}
-
-   } 
     
 }
 

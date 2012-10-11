@@ -22,8 +22,10 @@ import peregrine.config.Config;
 import peregrine.config.Partition;
 import peregrine.io.*;
 import peregrine.io.driver.shuffle.*;
-import peregrine.util.*;
 import peregrine.io.util.*;
+import peregrine.reduce.*;
+import peregrine.sort.*;
+import peregrine.util.*;
 
 import org.jboss.netty.buffer.*;
 
@@ -32,6 +34,12 @@ import org.jboss.netty.buffer.*;
  * 
  */
 public class BaseChunkSorter {
+
+    private SortComparator comparator;
+
+    public BaseChunkSorter( SortComparator comparator ) {
+        this.comparator = comparator;
+    }
 
     public KeyLookup sort( KeyLookup input ) 
         throws IOException {
@@ -66,9 +74,7 @@ public class BaseChunkSorter {
             // just write the results to disk.  Writing to memory and THEN writing
             // to disk would just waste CPU time.
 
-            KeyLookup merged = merge( left, right, depth );
-
-            return merged;
+            return merge( left, right, depth );
             
         } finally {
 
@@ -79,9 +85,9 @@ public class BaseChunkSorter {
         
     }
 
-    protected KeyLookup merge( KeyLookup left,
-                               KeyLookup right,
-                               int depth )
+    private KeyLookup merge( KeyLookup left,
+                             KeyLookup right,
+                             int depth )
         throws IOException {
         
         KeyLookup result = new KeyLookup( left.size() + right.size(), left.buffers );
@@ -91,7 +97,7 @@ public class BaseChunkSorter {
         list.add( left );
         list.add( right );
 
-        SorterPriorityQueue queue = new SorterPriorityQueue( list );
+        SorterPriorityQueue queue = new SorterPriorityQueue( list, comparator );
 
         while( true ) {
             

@@ -15,7 +15,9 @@
 */
 package peregrine.app.pagerank;
 
+import java.io.*;
 import java.util.*;
+
 import peregrine.*;
 import peregrine.util.*;
 import peregrine.util.primitive.*;
@@ -44,9 +46,9 @@ public class IterJob {
         private JobOutput danglingRankSumBroadcast = null;
 
         @Override
-        public void init( List<JobOutput> output ) {
+        public void init( Job job, List<JobOutput> output ) {
 
-            super.init( output );
+            super.init( job, output );
             
             danglingRankSumBroadcast = output.get(1);
             
@@ -54,7 +56,7 @@ public class IterJob {
             
             nr_nodes = nrNodesBroadcastInput.getValue().readInt();
 
-            System.out.printf( "Working with nr_nodes: %,d\n", nr_nodes );
+            log.info( "Working with nr_nodes: %,d", nr_nodes );
             
         }
 
@@ -78,6 +80,8 @@ public class IterJob {
                 // which we're going to join against.
 
                 rank = 1 / (double)nr_nodes;
+
+                // TODO: we can add support for custom teleportation here.
                 
             }
 
@@ -89,11 +93,12 @@ public class IterJob {
                 dangling_rank_sum += rank;
 
             } else { 
-            
+
                 int outdegree = outbound.length() / Hashcode.HASH_WIDTH;
 
                 double grant = rank / (double)outdegree;
 
+                // TODO: migrate this to split() 
                 while ( outbound.isReadable() ) {
 
                     StructReader target = outbound.readSlice( Hashcode.HASH_WIDTH );
@@ -113,9 +118,9 @@ public class IterJob {
         }
 
         @Override
-        public void cleanup() {
+        public void close() throws IOException {
 
-            StructReader key = StructReaders.hashcode( "id" );
+            StructReader key   = StructReaders.hashcode( "id" );
             StructReader value = StructReaders.wrap( dangling_rank_sum );
 
             danglingRankSumBroadcast.emit( key, value );
@@ -124,6 +129,24 @@ public class IterJob {
 
     }
 
+    public static class Combine extends Reducer {
+
+        @Override
+        public void reduce( StructReader key, List<StructReader> values ) {
+
+            double node_rank_sum = 0.0;
+            
+            // sum up the values... 
+            for ( StructReader value : values ) {
+                node_rank_sum += value.readDouble();
+            }
+            
+            emit( key, StructReaders.wrap( node_rank_sum ) );
+            
+        }
+
+    }
+    
     public static class Reduce extends Reducer {
 
         /**
@@ -134,12 +157,19 @@ public class IterJob {
         protected int nr_nodes;
 
         protected int nr_dangling = 0;
-        
-        @Override
-        public void init( List<JobOutput> output ) {
 
-            super.init( output );
-            
+        // the rank sum for this partition.
+        protected double partition_rank_sum = 0.0;
+
+        protected JobOutput rankSumBroadcastOutput = null;
+
+        @Override
+        public void init( Job job, List<JobOutput> output ) {
+
+            super.init( job, output );
+
+            rankSumBroadcastOutput = output.get(1);
+
             nr_nodes = getBroadcastInput()
                            .get( 0 )
                            .getValue()
@@ -157,38 +187,48 @@ public class IterJob {
             
             if ( teleport_grant == -1 ) {
 
-                // for iter 0 teleport_grant is computed easily.
+                // for iter 0 teleport_grant is computed easily 
 
                 double teleport_grant_sum = nr_dangling * ( 1 / (double)nr_nodes );
                 teleport_grant = (1.0 - ( DAMPENING * ( 1.0 - teleport_grant_sum ) ) ) / (double)nr_nodes;
 
+                log.info( "Using default teleport_grant: %s ", teleport_grant );
+                
             } 
 
-            //System.out.printf( "TRACE: Using teleport_grant: %f\n", teleport_grant );
+            log.info( "Using teleport_grant: %15f", teleport_grant );
             
         }
         
         @Override
         public void reduce( StructReader key, List<StructReader> values ) {
 
-            double rank_sum = 0.0;
+            double node_rank_sum = 0.0;
             
             // sum up the values... 
             for ( StructReader value : values ) {
-                rank_sum += value.readDouble();
+                node_rank_sum += value.readDouble();
             }
 
-            String node = Base64.encode( key.toByteArray() );
-
-            double rank = (DAMPENING * rank_sum) + teleport_grant;
-
-            //System.out.printf( "TRACE rank_sum for %s: %s\n", node, rank_sum );
-            //System.out.printf( "TRACE rank for %s: %s\n", node, rank );
+            double rank = (DAMPENING * node_rank_sum) + teleport_grant;
 
             emit( key, StructReaders.wrap( rank ) );
+
+            // keep track of the global rank sum.
+            partition_rank_sum += rank;
             
         }
 
+        @Override
+        public void close() throws IOException {
+
+            // broadcast the rank_sum for this partition now.
+            StructReader key = StructReaders.hashcode( "id" );
+            
+            rankSumBroadcastOutput.emit( key, StructReaders.wrap( partition_rank_sum ) );
+            
+        }
+        
     }
 
 }

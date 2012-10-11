@@ -26,13 +26,15 @@ import org.jboss.netty.channel.*;
 import org.jboss.netty.handler.codec.http.*;
 
 import peregrine.io.partition.*;
+import peregrine.io.util.*;
 import peregrine.util.*;
 
 import com.spinn3r.log5j.Logger;
 
 /**
+ * Handles HTTP DELETE of files in PFS.
  */
-public class FSDeleteDirectHandler extends SimpleChannelUpstreamHandler {
+public class FSDeleteDirectHandler extends ErrorLoggingChannelUpstreamHandler {
 
     protected static final Logger log = Logger.getLogger();
 
@@ -70,23 +72,21 @@ public class FSDeleteDirectHandler extends SimpleChannelUpstreamHandler {
                 
                 List<File> files = LocalPartition.getChunkFiles( handler.path );
 
-                log.info( "Found %,d potential files to delete." );
+                log.info( "Found %,d potential files to delete.", files.size() );
                 
                 for( File file : files ) {
 
-                    log.info( "Deleting %s", file.getPath() );
+                    try {
+                        log.info( "Deleting %s", file.getPath() );
+                        Files.remove( file );
+                    } catch ( IOException e ) {
 
-                    // TODO: use the new JDK 1.7 API so we can get the reason why the
-                    // delete failed ... However, at the time this code was being
-                    // written the delete() method did not exist in the Javadoc for 1.7
-                    // so we can revisit it later once this problem has been sorted out.
-                    
-                    if ( ! file.delete() ) {
-
+                        log.error( "Failed to delete: %s (Sending INTERNAL_SERVER_ERROR)", e, file.getPath() );
+                        
                         HttpResponse response = new DefaultHttpResponse( HTTP_1_1, INTERNAL_SERVER_ERROR );
                         channel.write(response).addListener(ChannelFutureListener.CLOSE);
                         return null;
-                        
+
                     }
 
                     ++deleted;

@@ -16,6 +16,7 @@
 package peregrine.app.wikirank;
 
 import java.io.*;
+import java.util.*;
 
 import peregrine.*;
 import peregrine.config.Config;
@@ -70,16 +71,16 @@ public class Wikirank {
 
         controller.map( CreateNodeLookupJob.Map.class,
                         new Input( "/wikirank/nodes" ),
-                        new Output( "shuffle:nodesByPrimaryKey",
-                                    "shuffle:nodesByHashcode" ) );
+                        new Output( "shuffle:nodes_by_primary_Key",
+                                    "shuffle:nodes_by_hashcode" ) );
 
         controller.reduce( Reducer.class,
-                           new Input( "shuffle:nodesByPrimaryKey" ),
-                           new Output( "/wikirank/nodesByPrimaryKey" ) );
+                           new Input( "shuffle:nodes_by_primary_Key" ),
+                           new Output( "/wikirank/nodes_by_primary_Key" ) );
 
         controller.reduce( Reducer.class,
-                           new Input( "shuffle:nodesByHashcode" ),
-                           new Output( "/wikirank/nodesByHashcode" ) );
+                           new Input( "shuffle:nodes_by_hashcode" ),
+                           new Output( "/wikirank/nodes_by_hashcode" ) );
                            
         controller.map( FlattenLinksJob.Map.class,
                         new Input( "/wikirank/links" ),
@@ -92,7 +93,7 @@ public class Wikirank {
         // this joins the node table AND the links table and then writes a
         // raw hashcode graph for use with pagerank.
         controller.merge( MergePagesAndLinksJob.Merge.class,
-                          new Input( "/wikirank/nodesByPrimaryKey",
+                          new Input( "/wikirank/nodes_by_primary_Key",
                                      "/wikirank/links.flattened" ),
                           new Output( "/wikirank/graph" ) );
 
@@ -102,23 +103,13 @@ public class Wikirank {
 
         // the graph is written, now launch a job to finish it up.
 
-        Pagerank pr = new Pagerank( config, "/wikirank/graph", controller );
-        pr.exec( false );
-
+        Pagerank pr = new Pagerank( config, "/wikirank/graph", "/wikirank/nodes_by_hashcode" );
+        pr.prepare();
+        controller.exec( pr );
+        
     }
     
     public void load() throws Exception {
-
-        //now join against nodesByPrimaryKey and and rank graph so that we can
-        //have rank per node
-
-        // merge /pr/out/rank_vector and nodesByPrimaryKey and node_metadata
-
-        controller.merge( MergeNodeAndRankMetaJob.Merge.class,
-                          new Input( "/pr/out/node_metadata",
-                                     "/pr/out/rank_vector",
-                                     "/wikirank/nodesByHashcode" ),
-                          new Output( "/wikirank/rank_metadata" ) );
 
     }
     
@@ -208,4 +199,3 @@ public class Wikirank {
     }
 
 }
-

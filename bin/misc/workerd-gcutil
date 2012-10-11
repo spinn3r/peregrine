@@ -1,0 +1,31 @@
+#!/bin/sh
+
+# There will always be a workerd on port 11112 
+# 
+
+# implement --all support which writes all workerd jstat information to a file... 
+
+if [ "$1" = "--all" ]; then
+
+    for pid in `pgrep -f '^java.*peregrine.worker.Main'`; do
+
+        #echo $pid
+        proc=`cat /proc/$pid/cmdline`
+        host=$(echo $proc | grep -Eo 'host=[^-]+')
+        port=$(echo $host | grep -Eo '[0-9]+$')
+
+        echo $port
+
+        jstat -gcutil $pid 5000 > workerd-jstat-$port.log &
+
+    done
+
+else
+
+    pid=$(pgrep -f '^java.*peregrine.worker.Main' | head -1)
+
+    ps $pid
+
+    jstat -gcutil $pid 1000
+
+fi

@@ -32,13 +32,11 @@ public class KeyLookupReader {
 
         ChannelBuffer backing = current.backing;
         
-        VarintReader varintReader = new VarintReader( backing );
-        
         int start = current.offset - 1;
         backing.readerIndex( start );
 
-        key   = new StructReader( backing.readSlice( varintReader.read() ) );
-        value = new StructReader( backing.readSlice( varintReader.read() ) );
+        key   = new StructReader( backing.readSlice( VarintReader.read( backing ) ) );
+        value = new StructReader( backing.readSlice( VarintReader.read( backing ) ) );
 		
 	}
 	

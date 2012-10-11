@@ -25,7 +25,9 @@ import java.nio.channels.*;
 import peregrine.os.*;
 
 /**
- * Wrap a channel buffer so that we can close it and reads will fail.
+ * Wrap a channel buffer so that we can close it and reads will fail.  Note that
+ * this imposes a slight performance penalty which we may want to disable at
+ * runtime.
  */
 public class CloseableByteBufferBackedChannelBuffer extends AbstractChannelBuffer {
 
@@ -48,8 +50,16 @@ public class CloseableByteBufferBackedChannelBuffer extends AbstractChannelBuffe
     
     private void requireOpen() {
 
-        if ( reader.isClosed() )
-            throw new RuntimeException( "closed" );
+        if ( reader.isClosed() ) {
+
+            RuntimeException rte = new RuntimeException( "closed" );
+
+            if ( reader.getCloser() != null ) {
+                rte.initCause( reader.getCloser() );
+            }
+            
+            throw rte;
+        }
         
     }
 

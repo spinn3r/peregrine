@@ -24,13 +24,19 @@ import java.net.*;
 import java.security.*;
 
 /**
+ * <p>
  * Simple getopt implementation which doesn't have many features but works for
  * 80% of common usage and doesn't require an external library.
  *
+ * <p>
+ * 
+ * 
  */
 public class Getopt {
 
+    // TODO refactor this to use StructMap as the backend.
     private Map<String,String> params = new HashMap();
+    
     private List<String> values = new ArrayList();
     
     /**
@@ -51,8 +57,10 @@ public class Getopt {
 
             String key = split[0];
 
-            if ( key.startsWith( "--" ) )
+            //strip the -- prefix
+            if ( key.startsWith( "--" ) ) {
                 key = key.substring( 2, key.length() );
+            }
 
             if ( split.length != 2 ) {
                 // make this a boolean
@@ -122,6 +130,21 @@ public class Getopt {
 
     public boolean containsKey( String key ) {
         return params.containsKey( key );
+    }
+
+    /**
+     * Require all the given keys to be specified.
+     */
+    public void require( String... keys ) {
+
+        for( String key : keys ) {
+
+            if ( ! containsKey( key ) ) {
+                throw new RuntimeException( String.format( "Key %s not specified", key ) );
+            }
+            
+        }
+        
     }
     
     public Map<String,String> getParams() {

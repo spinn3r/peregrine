@@ -44,9 +44,7 @@ public class StructSequenceWriter implements SequenceWriter {
     }
 
     @Override
-    public void close() throws IOException {
-
-    }
+    public void close() throws IOException {}
 
     public StructReader toStructReader() {
 

@@ -23,9 +23,10 @@ import peregrine.*;
 import peregrine.config.*;
 import peregrine.io.*;
 import peregrine.io.chunk.*;
+import peregrine.io.util.*;
+import peregrine.os.*;
 import peregrine.rpc.*;
 import peregrine.task.*;
-import peregrine.os.*;
 
 /**
  * Read data from a partition from local storage.
@@ -45,6 +46,8 @@ public class LocalPartitionReader extends BaseJobInput implements SequenceReader
     private Partition partition;
     
     private ChunkReference chunkRef;
+
+    private int size = -1;
     
     public LocalPartitionReader( Config config,
                                  Partition partition,
@@ -78,6 +81,12 @@ public class LocalPartitionReader extends BaseJobInput implements SequenceReader
         this.chunkRef = new ChunkReference( partition, path );
 
         addListeners( listeners );
+
+        // update the size by looking at all the chunks and returning the number
+        // of key/value pairs they contain.
+        for( ChunkReader reader : chunkReaders ) {
+            size += reader.size();
+        }
         
     }
 
@@ -98,9 +107,6 @@ public class LocalPartitionReader extends BaseJobInput implements SequenceReader
             if ( iterator.hasNext() ) {
 
                 chunkRef.incr();
-
-                if ( chunkReader != null )
-                    chunkReader.close();
                 
                 chunkReader = iterator.next();
 
@@ -136,11 +142,14 @@ public class LocalPartitionReader extends BaseJobInput implements SequenceReader
     @Override
     public void close() throws IOException {
 
+        //TODO: migrate to using IdempotentCloser ...
+        
         if ( chunkReader != null ) {
             fireOnChunkEnd( chunkRef );
-            chunkReader.close();
         }
 
+        new Closer( chunkReaders ).close();
+        
     }
 
     @Override
@@ -162,4 +171,9 @@ public class LocalPartitionReader extends BaseJobInput implements SequenceReader
 
     }
 
+    @Override
+    public int size() {
+        return size;
+    }
+    
 }

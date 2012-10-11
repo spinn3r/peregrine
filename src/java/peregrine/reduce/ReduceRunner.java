@@ -18,7 +18,9 @@ package peregrine.reduce;
 import java.io.*;
 import java.util.*;
 
+import peregrine.*;
 import peregrine.config.*;
+import peregrine.config.partitioner.*;
 import peregrine.io.*;
 import peregrine.io.chunk.*;
 import peregrine.io.driver.shuffle.*;
@@ -38,10 +40,17 @@ import com.spinn3r.log5j.Logger;
  * Run a reduce over the the given partition.  This handles intermerging, memory
  * allocation of sorting, etc.
  */
-public class ReduceRunner {
+public class ReduceRunner implements Closeable {
 
     private static final Logger log = Logger.getLogger();
 
+    /**
+     * This is needed I *think* because we are not closing direct buffers. I
+     * can back this out later once I track down exactly why we are running out
+     * of memory here.
+     */
+    public static final boolean TRIGGER_GC_AFTER_SORT = true; // FIXME: set to false in 1.0
+    
     private List<File> input = new ArrayList();
 
     private SortListener listener = null;
@@ -51,6 +60,11 @@ public class ReduceRunner {
     private ShuffleInputReference shuffleInput;
 
     private List<JobOutput> jobOutput = null;
+    private Job job = null;
+
+    private PrefetchReader finalPrefetchReader = null;
+    
+    private ChunkMerger finalMerger = null;
 
     public ReduceRunner( Config config,
                          Task task,
@@ -65,6 +79,7 @@ public class ReduceRunner {
         this.listener = listener;
         this.shuffleInput = shuffleInput;
         this.jobOutput = jobOutput;
+        this.job = task.getJob();
 
     }
 
@@ -88,7 +103,7 @@ public class ReduceRunner {
         // on the first pass we're going to sort and use shuffle input...
 
         List<SequenceReader> readers = sort( input, sort_dir );
-
+        
         while( true ) {
 
             log.info( "Working with %,d readers now." , readers.size() );
@@ -120,7 +135,7 @@ public class ReduceRunner {
     /**
      * Purge shuffle data for a given pass.
      */
-    private void purge( int pass ) {
+    private void purge( int pass ) throws IOException {
 
         String dir = getTargetDir( pass );
 
@@ -149,6 +164,11 @@ public class ReduceRunner {
         }
 
     }
+
+    @Override
+    public void close() throws IOException {
+        new Closer( finalPrefetchReader, finalMerger ).close();
+    }
     
     /**
      * Do the final merge including writing to listener when we are finished.
@@ -156,27 +176,21 @@ public class ReduceRunner {
     public void finalMerge( List<SequenceReader> readers, int pass ) throws IOException {
 
         log.info( "Merging on final merge with %,d readers (strategy=finalMerge, pass=%,d)", readers.size(), pass );
-        
-        PrefetchReader prefetchReader = null;
 
-        ChunkMerger merger = null;
-        
         try {
             
             SystemProfiler profiler = config.getSystemProfiler();
 
-            prefetchReader = createPrefetchReader( readers );
+            finalPrefetchReader = createPrefetchReader( readers );
 
-            merger = new ChunkMerger( task, listener, partition, readers, jobOutput );
+            finalMerger = new ChunkMerger( task, listener, partition, readers, jobOutput, job.getComparatorInstance() );
         
-            merger.merge();
+            finalMerger.merge();
 
             log.info( "Merged with profiler rate: \n%s", profiler.rate() );
 
         } finally {
-
-            new Closer( prefetchReader, merger ).close();
-
+            //new Closer( finalPrefetchReader, finalMerger ).close();
         }
         
     }
@@ -214,16 +228,16 @@ public class ReduceRunner {
             PrefetchReader prefetchReader = null;
 
             ChunkMerger merger = null;
-            
+
+            final DefaultPartitionWriter writer = newInterChunkWriter( path );
+
             try { 
 
                 SystemProfiler profiler = config.getSystemProfiler();
 
                 prefetchReader = createPrefetchReader( work );
 
-                merger = new ChunkMerger( task, null, partition, work, jobOutput );
-
-                final DefaultPartitionWriter writer = newInterChunkWriter( path );
+                merger = new ChunkMerger( task, null, partition, work, null, job.getComparatorInstance() );
 
                 // when the cache is exhausted we first have to flush it to disk.
                 prefetchReader.setListener( new PrefetchReaderListener() {
@@ -252,7 +266,7 @@ public class ReduceRunner {
                 log.info( "Merged with profiler rate: \n%s", profiler.rate() );
 
             } finally {
-                new Closer( prefetchReader, merger ).close();
+                new Closer( prefetchReader, merger, writer ).close();
             }
 
             // we should only do this AFTER we have closed out the merger and prefetchReader
@@ -358,6 +372,12 @@ public class ReduceRunner {
         pending.addAll( input );
 
         Iterator<File> pendingIterator = pending.iterator();
+
+        Map<File,Integer> counts = new HashMap();
+
+        // TODO: to make this code more readable, first sort these into sort
+        // units of work and then process those units of work. Right now we
+        // build the units of work in this function and it's confusing.
         
         while( pendingIterator.hasNext() ) {
         	
@@ -370,7 +390,7 @@ public class ReduceRunner {
             //amount of data IN this partition and not the ENTIRE file size.
         	while( pendingIterator.hasNext() ) {
         		
-        		task.assertAlive();
+        		task.assertActiveJob();
         		
         		File current = pendingIterator.next();
                 String path = current.getPath();                
@@ -383,12 +403,20 @@ public class ReduceRunner {
                     reader = new ShuffleInputReader( config, path, partition );
                     header = reader.getHeader( partition );
 
+                    counts.put( current , header.count );
+                    
                 } finally {
                     new Closer( reader ).close();
                 }
 
         		workCapacity += header.length;
-                workCapacity += KeyLookup.computeCapacity( header.count ) * 2;
+                workCapacity += KeyLookup.computeCapacity( header.count ) * 2.5; // FIXME: we added this 2.5 multipler with no justification
+                                                                                 // and it shouldn't be there I think.  Actually I think the
+                                                                                 // justification at the time was that we were running out
+                                                                                 // of memory but now I think the System.gc at the bottom
+                                                                                 // is temporarily fixing this.  The real multipler should
+                                                                                 // be 2x as I need effectively TWO copies of the data, the
+                                                                                 // one I am reading from and the won I am writing to.
 
         		if ( workCapacity > config.getSortBufferSize() ) {
         			pendingIterator = pending.iterator();
@@ -405,10 +433,14 @@ public class ReduceRunner {
             
             log.info( "Writing temporary sort file %s", path );
             log.info( "Going to sort %,d files requiring %,d bytes of memory", work.size(), workCapacity );
-            
-            ChunkSorter sorter = new ChunkSorter( config , partition );
-            
+
+            ChunkSorter sorter = new ChunkSorter( config , partition, job, job.getComparatorInstance() );
+
             SequenceReader result = sorter.sort( work, out, jobOutput );
+
+            if ( TRIGGER_GC_AFTER_SORT ) {
+                System.gc(); 
+            }
             
             if ( result != null )
                 sorted.add( result );
@@ -421,58 +453,6 @@ public class ReduceRunner {
 
         return sorted;
 
-    }
-
-    /**
-     * Sort a given set of input files and write the results to the output
-     * directory and return a List of SequenceReaders we can then merge.
-     */
-    public List<SequenceReader> sort2( List<File> input, String target_dir ) throws IOException {
-
-        SystemProfiler profiler = config.getSystemProfiler();
-
-        List<SequenceReader> sorted = new ArrayList();
-
-        int id = 0;
-
-        // make the parent dir for holding sort files.
-        Files.mkdirs( target_dir );
-        
-        log.info( "Going to sort() %,d files for %s", input.size(), partition );
-
-        // the total number of items we need to sort.
-        int total = 0;
-
-        List<ChunkReader> readers = new ArrayList();
-        
-        for ( File current : input ) {
-
-            String path = current.getPath();                
-            
-            ShuffleInputReader reader = null;
-            ShuffleHeader header = null;
-
-            try {
-
-                reader = new ShuffleInputReader( config, path, partition );
-                header = reader.getHeader( partition );
-                total += header.count;
-
-            } finally {
-                new Closer( reader ).close();
-            }
-
-            readers.add( new ShuffleInputChunkReader( config, partition, path ) );
-
-        }
-
-        CompositeChunkReader composite = new CompositeChunkReader( config, readers );
-
-        // the blocks of items we should be sorting.
-        List<ChunkReader> blocks = new ArrayList();
-        
-        return null;
-        
     }
 
 }

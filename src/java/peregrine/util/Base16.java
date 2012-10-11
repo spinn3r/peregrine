@@ -24,16 +24,12 @@ public class Base16 {
         new org.apache.commons.codec.binary.Hex();
     
     /**
-     * @param bytes
-     * @return String
      */
     public static String encode( final byte[] bytes ) {
         return new String( codec.encode( bytes ) );
     }
 
     /**
-     * @param bytes
-     * @return String
      */
     public static byte[] decode( byte[] bytes ) {
 
@@ -46,8 +42,6 @@ public class Base16 {
     }
 
     /**
-     * @param bytes
-     * @return String
      */
     public static byte[] decode( String data ) {
         return decode( data.getBytes() );

@@ -75,17 +75,17 @@ public abstract class BaseTask implements Task {
      */
     protected long started = -1;
 
-    /**
-     * The job ID we are working with.
-     */
-    protected String job_id = null;
+    protected Job job = null;
     
     public void init( Config config, Work work, Class delegate ) throws IOException {
-    	this.config      = config;
+
+        this.config      = config;
         this.host        = config.getHost();
         this.work        = work;
         this.delegate    = delegate;
         this.started     = System.currentTimeMillis();
+
+        job.getPartitionerInstance().init( config );
 
         for ( WorkReference current : work.getReferences() ) {
             
@@ -100,7 +100,15 @@ public abstract class BaseTask implements Task {
     public List<BroadcastInput> getBroadcastInput() { 
         return this.broadcastInput;
     }
-    
+
+    public Job getJob() {
+        return this.job;
+    }
+
+    public void setJob( Job job ) {
+        this.job = job;
+    }
+
     public Input getInput() { 
         return this.input;
     }
@@ -160,11 +168,11 @@ public abstract class BaseTask implements Task {
             throw new Exception( "No output specified. " );
         }
     	
-        this.jobOutput = JobOutputFactory.getJobOutput( config, partition, output );
+        this.jobOutput = JobOutputFactory.getJobOutput( config, job, partition, output );
        
         for( JobOutput current : jobOutput ) {
 
-            log.info( "Job output: %s" , current );
+            log.debug( "Job output: %s" , current );
             
             if ( current instanceof ShuffleJobOutput ) {
                 shuffleJobOutput.add( (ShuffleJobOutput)current );
@@ -184,14 +192,15 @@ public abstract class BaseTask implements Task {
         
         try {
 
-            log.info( "Running %s on %s", delegate, partition );
+            log.debug( "Running %s on %s", delegate, partition );
             
             setup();
             jobDelegate.setBroadcastInput( getBroadcastInput() );
             jobDelegate.setPartition( partition );
             jobDelegate.setConfig( config );
-            jobDelegate.init( getJobOutput() );
-
+            jobDelegate.init( job, getJobOutput() );
+            job.getPartitionerInstance().init( job );
+            
             try {
                 doCall();
             } catch ( Throwable t ) {
@@ -199,7 +208,7 @@ public abstract class BaseTask implements Task {
             }
 
             try {
-            	jobDelegate.cleanup();
+            	jobDelegate.close();
             } catch ( Throwable t ) {
                 handleFailure( log, t );
             }
@@ -248,11 +257,11 @@ public abstract class BaseTask implements Task {
         //talking to a remote host.
 
         for( JobOutput current : jobOutput ) {
-            log.info( "Closing job output: %s" , current );
+            log.debug( "Closing job output: %s" , current );
             current.close();
         }
 
-        log.info( "Closing job output...done" );
+        log.debug( "Closing job output...done" );
 
     }
 
@@ -306,24 +315,15 @@ public abstract class BaseTask implements Task {
         return killed;
     }
 
-    /**
-     * Assert that we are alive and have not been marked killed by the
-     * controller.
-     */
     @Override
-    public void assertAlive() throws IOException {
+    public void assertActiveJob() throws IOException {
 
         if ( killed ) {
-            throw new IOException( "This task was killed for partition: %s" + partition );
+            throw new IOException( "Job was killed for partition: " + partition );
         }
 
     }
 
-    @Override
-    public void setJobId( String job_id ) {
-        this.job_id = job_id;
-    }
-    
     /**
      * Mark the partition for this task complete.  
      */
@@ -331,9 +331,9 @@ public abstract class BaseTask implements Task {
 
         Message message = new Message();
 
-        message.put( "action" ,   "complete" );
-        message.put( "job_id" ,   job_id );
-        message.put( "killed" ,   killed );
+        message.put( "action" ,      "complete" );
+        message.put( "job"     ,     job.getIdentifier() );
+        message.put( "killed" ,      killed );
 
         sendMessageToController( message );
 
@@ -347,7 +347,7 @@ public abstract class BaseTask implements Task {
         Message message = new Message();
         
         message.put( "action"      , "failed" );
-        message.put( "job_id"      , job_id );
+        message.put( "job"         , job.getIdentifier() );
         message.put( "stacktrace"  , cause );
         
         sendMessageToController( message );
@@ -367,10 +367,10 @@ public abstract class BaseTask implements Task {
 
         Message message = new Message();
         
-        message.put( "action"  , "progress" );
-        message.put( "job_id"  , job_id );
-        message.put( "nonce"   , nonce );
-        message.put( "pointer" , pointer );
+        message.put( "action"  ,    "progress" );
+        message.put( "job"     ,    job.getIdentifier() );
+        message.put( "nonce"   ,    nonce );
+        message.put( "pointer" ,    pointer );
 
         sendMessageToController( message );
 
@@ -382,12 +382,12 @@ public abstract class BaseTask implements Task {
         
             log.info( "Sending %s message to controller%s", message.get( "action" ), message );
             
-            message.put( "host"      , config.getHost().toString() );
-            message.put( "job_id"    , job_id );
-            message.put( "input"     , input.getReferences() );
-            message.put( "work"      , work.getReferences() );
+            message.put( "host"      ,    config.getHost().toString() );
+            message.put( "job"       ,    job.getIdentifier() );
+            message.put( "input"     ,    input.getReferences() );
+            message.put( "work"      ,    work.getReferences() );
             
-            new Client().invoke( config.getController(), "controller", message );
+            new Client( config ).invoke( config.getController(), "controller", message );
 
         } catch ( IOException e ) {
             throw new IOException( "Unable to send message to controller: " + config.getController(), e );

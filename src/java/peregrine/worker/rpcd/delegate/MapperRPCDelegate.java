@@ -18,19 +18,21 @@ package peregrine.worker.rpcd.delegate;
 import java.util.*;
 import java.util.concurrent.*;
 
+import org.jboss.netty.buffer.*;
 import org.jboss.netty.channel.*;
 
+import peregrine.*;
 import peregrine.config.*;
 import peregrine.util.*;
 import peregrine.worker.*;
-
-import com.spinn3r.log5j.*;
 
 import peregrine.rpc.*;
 import peregrine.rpcd.delegate.*;
 
 import peregrine.io.*;
 import peregrine.task.*;
+
+import com.spinn3r.log5j.*;
 
 /**
  */
@@ -42,23 +44,26 @@ public class MapperRPCDelegate extends BaseTaskRPCDelegate {
      * Execute a job on a given partition.
      */
     @RPC
-    public void exec( FSDaemon daemon, Channel channel, Message message )
+    public ChannelBuffer exec( FSDaemon daemon, Channel channel, Message message )
         throws Exception {
 
-        log.info( "Going to map from action: %s", message );
+        log.info( "Going to exec with action: %s", message );
+
+        Job job = (Job)message.getClass( "class" ).newInstance();
+        job.fromMessage( message );
 
         Input input            = readInput( message );
         Output output          = readOutput( message );
         Work work              = readWork( daemon, input, message );
-        Class delegate         = Class.forName( message.get( "delegate" ) );
+        Class delegate         = message.getClass( "delegate" );
 
         log.info( "Running %s with input %s and output %s and work %s", delegate.getName(), input, output, work );
 
         Task task = newTask();
 
+        task.setJob( job );
         task.setInput( input );
         task.setOutput( output );
-        task.setJobId( message.getString( "job_id" ) );
         
         task.init( daemon.getConfig(), work, delegate );
 
@@ -66,7 +71,7 @@ public class MapperRPCDelegate extends BaseTaskRPCDelegate {
 
         trackTask( work, task );
 
-        return;
+        return null;
 
     }
 

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package peregrine.app.wikirank;
+package peregrine.app.pagerank;
 
 import java.util.*;
 import peregrine.*;
@@ -66,7 +66,7 @@ public class MergeNodeAndRankMetaJob {
             //StructWriters for variable length aggregate fields.  Either that
             //or back them with a dynamic channel buffer.
             
-            StructWriter writer = new StructWriter( 256 );
+            StructWriter writer = new StructWriter( 4096 );
             
             writer.writeInt( indegree );
             writer.writeInt( outdegree );

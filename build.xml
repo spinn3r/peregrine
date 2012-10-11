@@ -188,6 +188,9 @@
 
                 <fileset dir="src/test">
 
+                  <include name="peregrine/TestNothing.java"/>
+
+                  <!--
                     <include name="**/Test*.java"/>
 
                     <exclude name="peregrine/TestChunkWriterCloseOnReferenceCount.java"/>
@@ -195,6 +198,8 @@
                     <exclude name="peregrine/TestWorkerFailureDuringJob.java"/>
                     <exclude name="peregrine/TestWikirank.java"/>
   
+                    -->
+
                 </fileset>
 
             </batchtest>
@@ -282,6 +287,8 @@
 
                 <fileset dir="src/test">
 
+                  <include name="peregrine/globalsort/TestSortViaMapReduce.java"/>
+                  <include name="peregrine/TestCombinerWithinReduce.java"/>
                   <include name="peregrine/TestMapReduceWithMergeFactor.java"/>
                   <include name="peregrine/TestBroadcastMapReduce.java"/>
                   <include name="peregrine/TestDataImbalance.java"/>
@@ -475,8 +482,12 @@
 
     </target>
 
-    <target name="coverage" depends="clean, with.clover, jar, test, clover.html">
+    <target name="coverage"  
+            depends="clean, with.clover, jar, test, clover.html">
+    </target>
 
+    <target name="coverage-basic" 
+            depends="clean, with.clover, jar, test-basic, clover.html">
     </target>
 
     <target name="site.update">
@@ -552,5 +563,4 @@
     </target>
 
 </project>
-
 

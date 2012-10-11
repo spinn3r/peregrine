@@ -18,14 +18,20 @@ package peregrine.util;
 import java.util.*;
 import java.util.regex.*;
 
-import peregrine.util.netty.*;
+import peregrine.util.netty.FileCharSequence;
 
 /**
- * A Tracepoint is basically a stacktrace which we manually emit to the log
- * along with a hashcode for debug purposes to trace every unique invocation of
- * a method.
+ * <p>
+ * A Tracepoint is a stacktrace which we manually emit to the a log file along
+ * with a hashcode for debug purposes.  This allows us to trace every unique
+ * invocation of a method (or every unique exception).
+ *
+ * <p>
+ * This can be valuable for tracking down resource leaks in your application by
+ * emitting a trace everytime something is allocated.
  * 
- * This can be value for tracking down bleeding resources.
+ * <p> A tracepoint also has an optional set of arguments which are NOT included
+ * for computing the hashcode (and only logging).  
  */
 public class Tracepoint {
 
@@ -33,9 +39,24 @@ public class Tracepoint {
 
     public Tracepoint( Object... args ) {
 
-        StackTraceElement[] frames = Thread.currentThread().getStackTrace();
+        init( Thread.currentThread().getStackTrace(), null, args );
 
-        for( int i = 2; i < frames.length; ++i ) {
+    }
+
+    public Tracepoint( Throwable t , Object... args ) {
+
+        init( t.getStackTrace(), t, args );
+    }
+    
+    private void init( StackTraceElement[] frames, Throwable throwable, Object... args ) {
+
+        int offset = 2;
+
+        if ( throwable != null ) {
+            offset = 0;
+        }
+
+        for( int i = offset; i < frames.length; ++i ) {
 
             StackTraceElement frame = frames[i];
 
@@ -51,24 +72,46 @@ public class Tracepoint {
 
         String tp = Base64.encode( Hashcode.getHashcode( stacktrace ) );
         
-        buff.append( String.format( "Tracepoint: %s (", tp ) );
+        buff.append( String.format( "Tracepoint: %s", tp ) );
+
+        if ( args.length != 0 )
+            buff.append( " (" );
 
         for( int i = 0; i < args.length; i=i + 2 ) {
-            buff.append( String.format( "%s = %s, ", args[i], args[i + 1] ) );
+
+            if ( i != 0 )
+                buff.append( ", " );
+            
+            buff.append( String.format( "%s = %s", args[i], args[i + 1] ) );
         }
 
-        buff.append( ")\n" );
+        if ( args.length != 0 )
+            buff.append( ")" );
 
+        buff.append( "\n" );
+
+        if ( throwable != null ) {
+            
+            if ( throwable.getMessage() != null ) {
+                buff.append( String.format( "%s:%s\n", throwable.getClass().getName(), throwable.getMessage() ) );
+            } else {
+                buff.append( String.format( "%s\n", throwable.getClass().getName() ) );
+            }
+
+        }
+        
         buff.append( stacktrace );
 
-        //buff.append( String.format( "END Tracepoint: %s\n", tp ) );
-        
     }
-
+    
     public String toString() {
         return buff.toString();
     }
 
+    /**
+     * Parse out a log file, given on the command line, and return all
+     * tracepoints.
+     */
     public static void main( String[] args ) throws Exception {
 
         String path = args[0];

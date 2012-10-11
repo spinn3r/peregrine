@@ -33,9 +33,9 @@ public class TestBroadcastMapReduce extends peregrine.BaseTestWithMultipleProces
         private JobOutput countBroadcast = null;
         
         @Override
-        public void init( List<JobOutput> output ) {
+        public void init( Job job, List<JobOutput> output ) {
 
-            super.init( output );
+            super.init( job, output );
             countBroadcast = output.get(1);
             
         }
@@ -47,7 +47,7 @@ public class TestBroadcastMapReduce extends peregrine.BaseTestWithMultipleProces
         }
 
         @Override
-        public void cleanup() {
+        public void close() throws IOException {
             
             if ( count == 0 ) {
                 throw new RuntimeException( "no results" );
@@ -174,7 +174,7 @@ public class TestBroadcastMapReduce extends peregrine.BaseTestWithMultipleProces
 
     public static void main( String[] args ) throws Exception {
 
-        System.setProperty( "peregrine.test.config", "1:1:1" ); 
+        System.setProperty( "peregrine.test.config", "1:1:2" ); 
 
         //System.setProperty( "peregrine.test.config", "4:1:16" ); 
         //System.setProperty( "peregrine.test.config", "01:01:1" ); 

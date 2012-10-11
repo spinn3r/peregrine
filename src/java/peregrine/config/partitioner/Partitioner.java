@@ -31,11 +31,14 @@ public interface Partitioner {
 	 */
 	public void init( Config config );
 
-	public void init( int nr_partitions );
+	/**
+	 * Init the partitioner with the current job.
+	 */
+	public void init( Job job );
 
     /**
      * Route the given key to a given partition.
      */
-	public Partition partition( StructReader key );
-	
+	public Partition partition( StructReader key, StructReader value );
+
 }

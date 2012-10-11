@@ -34,11 +34,16 @@ public class GetMaxDirectMemory {
 
         Config config = ConfigParser.parse( args );
 
-        // only one of these variables can be active at one time.
-        long maxDirectMemorySize = config.getConcurrency() * Math.max( config.getShuffleBufferSize(), config.getSortBufferSize() );
+        long maxDirectMemorySize =
+            //the concurrency essentially 
+            config.getConcurrency() *
+            // only one of these variables can be active at one time.
+            Math.max( config.getShuffleBufferSize(), config.getSortBufferSize() );
 
-        System.out.printf( "%s\n", maxDirectMemorySize );
+        maxDirectMemorySize *= 2;  //FIXME: testing if we have a memory leak
         
+        System.out.printf( "%s\n", maxDirectMemorySize );
+
     }
     
 }

@@ -99,7 +99,7 @@ public class MappedFileWriter extends BaseMappedFile implements Closeable, Chann
     }
 
     @Override
-    public void close() throws IOException {
+    protected void doClose() throws IOException {
 
         if ( closer.isClosed() )
             return;

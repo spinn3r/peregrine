@@ -15,29 +15,33 @@
 */
 package peregrine.config.partitioner;
 
+import peregrine.*;
 import peregrine.config.*;
 
 public abstract class BasePartitioner implements Partitioner {
-
+    
 	protected int nr_partitions;
 
+    protected Job job = null;
+    
 	@Override
     public void init( Config config ) {
-    	init( config.getMembership().size() );
 
+    	this.nr_partitions = config.getMembership().size();
+
+        if ( this.nr_partitions <= 0 )
+            throw new RuntimeException( "Invalid partition count: " + this.nr_partitions );
+        
     }
 
-    /**
-     * Used to make it easier to create directly from various basic
-     * configurations.
-     */
-    public void init( int nr_partitions ) {
-        this.nr_partitions = nr_partitions;
+    @Override
+    public void init( Job job ) {
+        this.job = job;
     }
 
 	@Override
 	public String toString() {
 		return getClass().getSimpleName();
 	}
-		
+
 }

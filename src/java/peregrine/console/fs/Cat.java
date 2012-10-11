@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
 */
-package peregrine.io.util;
+package peregrine.console.fs;
 
 import peregrine.*;
 import peregrine.util.*;
 import peregrine.io.*;
 import peregrine.io.chunk.*;
+import peregrine.io.util.*;
 
 import java.io.*;
 import java.util.*;
@@ -33,17 +34,36 @@ import java.util.*;
  * This can be used for debug purposes so that one can understand what is stored
  * on the filesystem without having to write additional map reduce jobs.
  */
-public class FSCat {
+public class Cat {
 
+    public static void help() {
+
+        System.out.printf( "Usage: fscat [OPTION] [FILE]\n" );
+        System.err.printf( "Simple Peregrine filesystem 'cat' command \n" );
+        System.err.printf( "\n" );
+        System.out.printf( "  --render   Render the value(s) in the following format.\n" );
+        System.out.printf( "             Multiple columns are separated by a comma (,)\n" );
+        System.out.printf( "\n" );
+        System.out.printf( " * Render column formatting:\n" );
+        System.out.printf( "\n" );
+        System.out.printf( "The --render option supports a comma separated list\n" );
+        System.out.printf( "of values to print from the byte stream.\n" );
+        System.out.printf( "\n" );
+        
+    }
+    
     public static void main( String[] args ) throws Exception {
 
-        String path = args[0];
+        Getopt getopt = new Getopt( args );
 
-        String render = "base64";
-
-        if ( args.length == 2 ) {
-            render = args[1];
+        if ( getopt.getBoolean( "help" ) ) {
+            help();
+            System.exit( 1 );
         }
+        
+        String render = getopt.getString( "render" , "base64" );
+
+        String path = getopt.getValues().get( 0 );
 
         SequenceReader reader = null;
 
@@ -68,7 +88,7 @@ public class FSCat {
 
     }
 
-    /**
+    /*
 
        TODO:
 
@@ -107,7 +127,22 @@ public class FSCat {
         for ( String r : render.split( "," ) ) {
 
             if ( buff.length() > 0 )
-                buff.append( ", " );
+                buff.append( " " );
+
+            if ( r.matches( "(?i)%.*d" ) ) {
+                buff.append( String.format( r, value.readInt() ) );
+                continue;
+            }
+
+            if ( r.matches( "(?i)%.*f" ) ) {
+                buff.append( String.format( r, value.readDouble() ) );
+                continue;
+            }
+
+            if ( r.matches( "(?i)%.*s" ) ) {
+                buff.append( String.format( r, value.readString() ) );
+                continue;
+            }
 
             //TODO we could use reflection here.  Java really needs syntactic
             //sugar for reflection.
@@ -194,6 +229,7 @@ public class FSCat {
                 continue;
             }
 
+            buff.append( String.format( "%s:", value.length() ) );
             buff.append( Base64.encode( value.toByteArray() ) );
 
         }
