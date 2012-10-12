@@ -39,9 +39,11 @@ public class Main {
         String graph              = getopt.getString( "graph", "/pr/graph" );
         String nodes_by_hashcode  = getopt.getString( "nodes_by_hashcode", "/pr/nodes_by_hashcode" );
         boolean caseInsensitive   = getopt.getBoolean( "caseInsensitive" );
+        int maxChunks             = getopt.getInt( "maxChunks", Integer.MAX_VALUE );
 
         Extract extract = new Extract( path, graph, nodes_by_hashcode, caseInsensitive );
-
+        extract.setMaxChunks( maxChunks );
+        extract.prepare();
         extract.init( args );
         
         ControllerClient.submit( config, extract );

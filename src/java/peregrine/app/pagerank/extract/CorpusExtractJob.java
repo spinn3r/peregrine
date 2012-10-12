@@ -83,6 +83,9 @@ public class CorpusExtractJob {
 
                     chunkRef.incr();
 
+                    if ( chunkRef.getLocal() > job.getMaxChunks() )
+                        break;
+                    
                     nodeOutputListener.onChunk( chunkRef );
                     linkOutputListener.onChunk( chunkRef );
                     

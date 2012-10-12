@@ -26,16 +26,32 @@ import com.spinn3r.log5j.Logger;
 /**
  */
 public class Extract extends Batch {
-    
+
     private static final Logger log = Logger.getLogger();
+
+    private String path;
+    private String graph;
+    private String nodes_by_hashcode;
+    private boolean caseInsensitive;
+    private int maxChunks = Integer.MAX_VALUE;
 
     public Extract( String path, String graph, String nodes_by_hashcode, boolean caseInsensitive ) {
 
         super( Extract.class );
-        
+
+        this.path = path;
+        this.graph = graph;
+        this.nodes_by_hashcode = nodes_by_hashcode;
+        this.caseInsensitive = caseInsensitive;
+
+    }
+
+    public void prepare() {
+
         map( new Job().setDelegate( CorpusExtractJob.Map.class )
                       .setInput( new Input( "blackhole:" ) )
                       .setOutput( new Output( "shuffle:nodes", "shuffle:links" ) )
+                      .setMaxChunks( maxChunks )
                       .setParameters( "path", path,
                                       "caseInsensitive", caseInsensitive ) );
        
@@ -48,6 +64,14 @@ public class Extract extends Batch {
                          .setInput( "shuffle:links" )
                          .setOutput( graph ) );
 
+    }
+
+    public int getMaxChunks() { 
+        return this.maxChunks;
+    }
+
+    public void setMaxChunks( int maxChunks ) { 
+        this.maxChunks = maxChunks;
     }
 
 }

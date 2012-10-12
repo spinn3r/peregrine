@@ -49,6 +49,9 @@ public class GlobalSortPartitioner extends BasePartitioner {
             throw new RuntimeException( "No partition table entries" );
         
         log.info( "Working with %,d partition entries", partitionTableEntries.size() );
+
+        // the partitons need to be sorted by the comparator.
+        Collections.sort( partitionTableEntries, job.getComparatorInstance() );
         
         TreeMap<StructReader,Partition> partitionTable = new TreeMap( new StrictStructReaderComparator() );
         
