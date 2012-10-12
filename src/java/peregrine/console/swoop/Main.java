@@ -239,8 +239,9 @@ public class Main {
     
     private void formatJobExtended( Job job, Formatter fmt ) {
 
-        fmt.printf( 8, "Operation: %s", job.getOperation() );
-        fmt.printf( 8, "Delegate:  %s", job.getDelegate().getName() );
+        fmt.printf( 8, "Operation:   %s", job.getOperation() );
+        fmt.printf( 8, "Delegate:    %s", job.getDelegate().getName() );
+        fmt.printf( 8, "Max chunks:  %s", job.getMaxChunks() );
 
         if ( job.getCombiner() != null ) {
             fmt.printf( 8, "Combiner:  %s", job.getCombiner().getName() );
