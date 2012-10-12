@@ -85,10 +85,15 @@ public class RemotePartitionWriterDelegate extends BasePartitionWriterDelegate {
                                           partition.getId(),
                                           path ) );
 
-        //FIXME: we should ALWAYS use netty as using TWO HTTP libraries is NOT a
-        //good idea and will just lead to problems.  I just need to extend netty
-        //so that I can perform synchronous HTTP requests.  
+        // TODO
+        //
+        // https://bitbucket.org/burtonator/peregrine/issue/178/do-not-use-javaneturl-instead-of-netty
 
+        // We are using java.net.URL to execute DELETE and a few other requests.
+        // we should ALWAYS use netty as using TWO HTTP libraries is NOT a good
+        // idea and will just lead to problems. I just need to extend netty so
+        // that I can perform synchronous HTTP requests.
+        
         log.debug( "%s: %s", url, method );
 
         HttpURLConnection httpCon = (HttpURLConnection) url.openConnection();

@@ -36,10 +36,12 @@ import com.spinn3r.log5j.*;
  */
 public class MultiChannelBufferWritable implements ChannelBufferWritable {
 
-	// FIXME: I can dump the ENTIRE multi output stream if I also dump the 
-	// entire local output writer work and ALWAYS use pipeline writes which will
-	// both simplify the code and make it more maintainable.
-	
+	// https://bitbucket.org/burtonator/peregrine/issue/176/no-local-writer-or-multi-channel-writer
+    //
+    // I can dump the ENTIRE multi output stream if I also dump the entire local
+    // output writer work and ALWAYS use pipeline writes which will both
+    // simplify the code and make it more maintainable.
+
     private static final Logger log = Logger.getLogger();
 
     protected Map<Host,ChannelBufferWritable> delegates;

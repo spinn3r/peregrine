@@ -67,8 +67,14 @@ public class DefaultPartitionWriter implements PartitionWriter, ChunkWriter {
                                    String path,
                                    boolean append ) throws IOException {
 
-        // TODO/FIXME: we need make sure we first contact the closest host first by route.
-
+        // TODO:
+        //
+        // https://bitbucket.org/burtonator/peregrine/issue/177/defaultpartitionwriter-doesnt-order-hosts
+        //
+        // Right now we just get ALL hosts with no special priority or ordering for throughput.
+        //
+        // We need make sure we first contact the closest host first by route.
+        
         this( config, partition, path, append, config.getMembership().getHosts( partition ) );
         
     }
