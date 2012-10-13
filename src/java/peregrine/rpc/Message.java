@@ -95,7 +95,11 @@ public class Message extends StructMap implements MessageSerializable {
         return buff.toString().substring( 0, buff.length() - 1 ) ;
 
     }
-
+    
+    public Message getMessage( String key ) {
+        return new Message( getString( key ) );
+    }
+    
     @Override
     public Message toMessage() {
         return this;

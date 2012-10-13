@@ -26,6 +26,7 @@ import peregrine.reduce.*;
 import peregrine.reduce.sorter.*;
 import peregrine.shuffle.sender.*;
 import peregrine.util.*;
+import peregrine.task.*;
 import peregrine.util.primitive.*;
 
 /**
@@ -74,7 +75,7 @@ public class TestFullShufflePath extends peregrine.BaseTestWithMultipleDaemons {
 
         try {
 
-            ShuffleJobOutput output = new ShuffleJobOutput( config, job, new Partition( 0 ) );
+            ShuffleJobOutput output = new ShuffleJobOutput( config, job, new Partition( 0 ), new Reporter() );
 
             for( int i = 0; i < iterations; ++i ) {
 

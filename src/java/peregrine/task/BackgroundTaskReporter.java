@@ -47,6 +47,11 @@ public class BackgroundTaskReporter implements Callable<Boolean> {
 
         while( true ) {
 
+            //TODO: this must be sent BEFORE we check the task status because
+            //that way if we are 100% complete we send the last progress
+            
+            //task.sendProgressToController();
+            
             if ( task.status != TaskStatus.UNKNOWN )
                 return true;
 

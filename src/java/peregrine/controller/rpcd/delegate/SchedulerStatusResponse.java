@@ -33,7 +33,7 @@ import peregrine.util.*;
 public class SchedulerStatusResponse implements MessageSerializable {
     
     private int progress;
-
+    
     public SchedulerStatusResponse() {}
 
     public SchedulerStatusResponse( Scheduler scheduler ) {
@@ -43,7 +43,7 @@ public class SchedulerStatusResponse implements MessageSerializable {
     public int getProgress() {
         return progress;
     }
-    
+
     /**
      * Convert this to an RPC message.
      */
@@ -58,6 +58,7 @@ public class SchedulerStatusResponse implements MessageSerializable {
 
     public void fromMessage( Message message ) {
         this.progress = message.getInt( "progress" );
+            
     }
 
 }

@@ -33,7 +33,7 @@ public class TestNewShuffleJobOutput extends peregrine.BaseTestWithTwoDaemons {
 
         job.getPartitionerInstance().init( config );
         
-        ShuffleJobOutput output = new ShuffleJobOutput( config, job, part );
+        ShuffleJobOutput output = new ShuffleJobOutput( config, job, part, new Reporter() );
 
         ChunkReference chunkRef = new ChunkReference( part );
         chunkRef.local = 0;

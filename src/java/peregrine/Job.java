@@ -24,6 +24,7 @@ import peregrine.rpc.*;
 import peregrine.sort.*;
 import peregrine.util.*;
 import peregrine.controller.*;
+import peregrine.task.*;
 
 import com.spinn3r.log5j.Logger;
 
@@ -64,6 +65,8 @@ public class Job extends BaseJob<Job> {
      * If this job failed this is the cause.
      */
     protected String cause = null;
+
+    protected Reporter report = new Reporter();
 
     public Job() {
         init( this );
@@ -200,6 +203,15 @@ public class Job extends BaseJob<Job> {
         return this;
     }
 
+    public Reporter getReport() { 
+        return this.report;
+    }
+
+    public Job setReport( Reporter report ) { 
+        this.report = report;
+        return this;
+    }
+
     @Override
     public String toString() {
 
@@ -231,6 +243,7 @@ public class Job extends BaseJob<Job> {
         message.put( "comparator",    comparator );
         message.put( "parameters",    parameters );
         message.put( "operation",     operation );
+        message.put( "report",        report.toMessage() );
 
         return message;
         
@@ -251,6 +264,9 @@ public class Job extends BaseJob<Job> {
         comparator    = message.getClass( "comparator" );
         parameters    = new Message( message.getString( "parameters" ) );
         operation     = message.getString( "operation" );
+
+        this.report = new Reporter();
+        this.report.fromMessage( message.getMessage( "report" ) );
         
     }
     

@@ -97,8 +97,8 @@ public class ControllerRPCDelegate extends RPCDelegate<ControllerDaemon> {
         Work work          = new Work( host, input, message.getList( "work" ) );
 
         Reporter reporter  = new Reporter();
-        reporter.fromMessage( message.get( "report" ) );
-        
+        reporter.fromMessage( message.getMessage( "report" ) );
+
         Scheduler scheduler = controllerDaemon.getScheduler();
 
         if ( scheduler != null )

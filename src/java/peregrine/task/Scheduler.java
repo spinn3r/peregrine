@@ -456,6 +456,22 @@ public class Scheduler {
     public void updateReport( Reporter reporter ) {
         reports.put( reporter.getPartition(), reporter );
     }
+
+    /**
+     * Get a report representing the GLOBAL state of all reports acros all
+     * partitions reporting.
+     */
+    public Reporter getReport() {
+
+        Reporter result = new Reporter();
+
+        for( Reporter current : reports.values() ) {
+            result = result.plus( current );
+        }
+
+        return result;
+        
+    }
     
     /**
      * Mark a job as complete.  The RPC service calls this method when we are
@@ -561,6 +577,8 @@ public class Scheduler {
 
             // test if we're complete.
 
+            job.setReport( getReport() );
+            
             if ( completed.size() == offlineWork.size() ) {
                 break;
             }

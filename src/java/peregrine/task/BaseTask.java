@@ -369,7 +369,8 @@ public abstract class BaseTask implements Task {
         message.put( "job"     ,    job.getIdentifier() );
         message.put( "nonce"   ,    nonce );
         message.put( "pointer" ,    pointer );
-
+        message.put( "report"  ,    reporter.toMessage() );
+        
         sendMessageToController( message );
 
     }

@@ -178,37 +178,6 @@ public class Main {
         return new Duration( duration ).toString();
         
     }
-    
-    public void doJobsHeaders() {
-
-        curses.mvaddstr( y_pos++, 4, String.format( "%-20s %-15s %-10s %-12s %s", "name", "state", "operation", "duration", "delegate" ) );
-        curses.mvaddstr( y_pos++, 4, String.format( "%-20s %-15s %-10s %-12s %s", "----", "-----", "---------", "--------", "--------" ) );
-
-    }
-    
-    public void doJobs( Batch batch ) {
-
-        for ( Job job : batch.getJobs() ) {
-
-            String formatted = String.format( "%-20s %-15s %-10s %-12s %s",
-                                              job.getName(),
-                                              job.getState(),
-                                              job.getOperation(),
-                                              getDuration( job.getStarted(), job.getDuration() ),
-                                              job.getDelegate().getName() );
-
-            curses.mvaddstr( y_pos++, 4, String.format( "%s" , formatted ) );
-
-        }
-
-    }
-
-    public void formatJobsHeaders( Formatter fmt ) {
-
-        fmt.printf( 4, "%-20s %-15s %-10s %-12s %s", "name", "state", "operation", "duration", "delegate" );
-        fmt.printf( 4, "%-20s %-15s %-10s %-12s %s", "----", "-----", "---------", "--------", "--------" );
-
-    }
 
     public void formatBatchOverviewHeaders( Formatter fmt ) {
 
@@ -226,13 +195,22 @@ public class Main {
                        getFirstLine( batch.getCause(), "" ) );
     }
 
+    public void formatJobsHeaders( Formatter fmt ) {
+
+        fmt.printf( 4, "%-20s %-15s %-10s %-12s %20s %20s   %s", "name", "state", "operation", "duration", "consumed", "emitted", "delegate" );
+        fmt.printf( 4, "%-20s %-15s %-10s %-12s %20s %20s   %s", "----", "-----", "---------", "--------", "--------", "-------", "--------" );
+
+    }
+
     private void formatJob( Job job, Formatter fmt ) {
 
-        fmt.printf( 4, "%-20s %-15s %-10s %-12s %s",
+        fmt.printf( 4, "%-20s %-15s %-10s %-12s %,20d %,20d   %s",
                        job.getName(),
                        job.getState(),
                        job.getOperation(),
                        getDuration( job.getStarted(), job.getDuration() ),
+                       job.getReport().getConsumed().get(),
+                       job.getReport().getEmitted().get(),
                        job.getDelegate().getName() );
 
     }

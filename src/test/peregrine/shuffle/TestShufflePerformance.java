@@ -28,6 +28,7 @@ import peregrine.io.chunk.*;
 import peregrine.io.driver.shuffle.*;
 import peregrine.shuffle.sender.*;
 import peregrine.reduce.sorter.*;
+import peregrine.task.*;
 
 /**
  * Test the FULL shuffle path, not just pats of it...including running with two
@@ -60,7 +61,7 @@ public class TestShufflePerformance extends BaseTestWithMultipleProcesses {
 
             long before = System.currentTimeMillis();
             
-            ShuffleJobOutput output = new ShuffleJobOutput( config, job, new Partition( 0 ) );
+            ShuffleJobOutput output = new ShuffleJobOutput( config, job, new Partition( 0 ), new Reporter() );
 
             ChunkReference chunkRef = new ChunkReference( new Partition( 0 ) );
             chunkRef.local = 0;

@@ -34,18 +34,20 @@ import com.spinn3r.log5j.Logger;
 public class Reporter implements Comparable<Reporter>, MessageSerializable {
 
     // the partition for which these reported stats belong
-    protected Partition partition = null;
+    protected Partition partition = new Partition(-1);
     
     // the number of consumed records. This should be ever increasing.  A job
     // MAY NOT actually be emitting anything but it DOES need to consume
     // records.
-    private Metric consumed = new Metric();
+    protected Metric consumed = new Metric();
     
     // the number of emitted records.  This should be ever increasing.
-    private Metric emitted = new Metric();
+    protected Metric emitted = new Metric();
 
     // the progress of our job between 0 and 100.
-    private Metric progress = new Metric( 100 );
+    protected Metric progress = new Metric( 100 );
+
+    public Reporter() {}
 
     public Reporter( Partition partition ) {
         this.partition = partition;
@@ -88,6 +90,18 @@ public class Reporter implements Comparable<Reporter>, MessageSerializable {
     @Override
     public String toString() {
         return String.format( "consumed: %s, emitted: %s, progress: %s", consumed, emitted, progress );
+    }
+
+    public Reporter plus( Reporter val ) {
+
+        Reporter result = new Reporter();
+
+        result.consumed.set( consumed.get() + val.consumed.get() );
+        result.emitted.set( emitted.get() + val.emitted.get() );
+        result.progress.set( progress.get() + val.progress.get() );
+
+        return result;
+
     }
     
     public Message toMessage() {

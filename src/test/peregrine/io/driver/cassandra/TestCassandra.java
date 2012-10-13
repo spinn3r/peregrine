@@ -146,7 +146,7 @@ public class TestCassandra extends peregrine.BaseTestWithTwoDaemons {
 
                         StructReader value = structSequenceWriter.toStructReader();
 
-                        JobOutput output = driver.getJobOutput( config, job, outputRef, workRef );
+                        JobOutput output = driver.getJobOutput( config, job, outputRef, workRef, new Reporter() );
 
                         output.emit( key, value );
                         
