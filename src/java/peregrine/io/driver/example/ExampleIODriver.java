@@ -51,7 +51,7 @@ public class ExampleIODriver extends BaseIODriver implements IODriver {
 	}
 
 	@Override
-	public JobOutput getJobOutput( Config config, Job job, OutputReference outputReference, WorkReference work ) throws IOException {
+	public JobOutput getJobOutput( Config config, Job job, OutputReference outputReference, WorkReference work, Reporter reporter ) throws IOException {
 		return new ExampleJobOutput();
 	}
 

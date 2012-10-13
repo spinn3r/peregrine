@@ -71,7 +71,7 @@ public abstract class BaseTask implements Task {
 
     protected Job job = null;
 
-    protected Reporter reporter = new Reporter();
+    protected Reporter reporter = null;
     
     public void init( Config config, Work work, Class delegate ) throws IOException {
 
@@ -158,6 +158,8 @@ public abstract class BaseTask implements Task {
     
     public void setup() throws Exception {
 
+        reporter = new Reporter( partition );
+        
         jobDelegate = (JobDelegate)delegate.newInstance();
     	    		
         if ( output == null || output.size() == 0 ) {

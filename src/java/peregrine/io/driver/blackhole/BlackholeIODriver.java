@@ -48,8 +48,8 @@ public class BlackholeIODriver extends BaseIODriver implements IODriver {
 	}
 
 	@Override
-	public JobOutput getJobOutput( Config config, Job job, OutputReference outputReference, WorkReference work ) throws IOException {
-		return new BlackholeJobOutput();
+	public JobOutput getJobOutput( Config config, Job job, OutputReference outputReference, WorkReference work, Reporter reporter ) throws IOException {
+		return new BlackholeJobOutput( reporter );
 	}
 
 	@Override

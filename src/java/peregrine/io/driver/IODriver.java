@@ -75,6 +75,7 @@ public interface IODriver {
     public JobOutput getJobOutput( Config config,
                                    Job job,
                                    OutputReference outputReference,
-                                   WorkReference Work ) throws IOException;
+                                   WorkReference Work,
+                                   Reporter reporter ) throws IOException;
     
 }

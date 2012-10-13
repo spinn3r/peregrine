@@ -18,6 +18,7 @@ package peregrine.io.driver.broadcast;
 import java.io.*;
 
 import peregrine.*;
+import peregrine.task.*;
 import peregrine.config.*;
 import peregrine.io.driver.shuffle.*;
 
@@ -27,12 +28,15 @@ public class BroadcastJobOutput extends ShuffleJobOutput {
 
     private static final Logger log = Logger.getLogger();
 
-    public BroadcastJobOutput( Config config, Job job, Partition partition ) {
-        this( config, job, "default", partition );
+    private Reporter reporter;
+    
+    public BroadcastJobOutput( Config config, Job job, Partition partition, Reporter reporter ) {
+        this( config, job, "default", partition, reporter );
     }
         
-    public BroadcastJobOutput( Config config, Job job, String name, Partition partition ) {
-        super( config, job, name, partition );
+    public BroadcastJobOutput( Config config, Job job, String name, Partition partition, Reporter reporter ) {
+        super( config, job, name, partition, reporter );
+        this.reporter = reporter;
     }
     
     @Override
@@ -45,6 +49,8 @@ public class BroadcastJobOutput extends ShuffleJobOutput {
             key.reset();
             value.reset();
         }
+
+        reporter.getEmitted().incr();
 
     }
 

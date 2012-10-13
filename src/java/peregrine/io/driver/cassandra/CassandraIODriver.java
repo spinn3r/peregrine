@@ -114,10 +114,10 @@ public class CassandraIODriver extends BaseIODriver implements IODriver {
 	public JobOutput getJobOutput( Config config,
                                    Job job, 
                                    OutputReference outputReference,
-                                   WorkReference work ) throws IOException {
+                                   WorkReference work,
+                                   Reporter reporter ) throws IOException {
 
-        return new CassandraJobOutput( this,
-                                       (CassandraOutputReference)outputReference );
+        return new CassandraJobOutput( this, (CassandraOutputReference)outputReference );
 
 	}
 
