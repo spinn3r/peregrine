@@ -38,26 +38,33 @@ public class BackgroundTaskReporter implements Callable<Boolean> {
     public static final long SLEEP_INTERVAL = 1000L;
 
     private BaseTask task;
+
+    private ArrayBlockingQueue<Boolean> queue = new ArrayBlockingQueue(1);
     
     public BackgroundTaskReporter( BaseTask task ) {
         this.task = task;
+    }
+
+    public void shutdown() throws InterruptedException {
+        queue.put( true );
     }
     
     public Boolean call() throws Exception {
 
         while( true ) {
 
-            //TODO: this must be sent BEFORE we check the task status because
-            //that way if we are 100% complete we send the last progress
-            
+            boolean done = task.status != TaskStatus.UNKNOWN;
+
+            // check completion status (done) first, then always send the last
+            // progress to the controller otherwise there would be a race to
+            // send the last message.
             task.sendProgressToController();
-            
-            if ( task.status != TaskStatus.UNKNOWN )
-                return true;
+
+            if ( done ) return true;
 
             // send the current state of the Reporter to the controller. 
-            
-            Thread.sleep( SLEEP_INTERVAL );
+
+            queue.poll( SLEEP_INTERVAL, TimeUnit.MILLISECONDS );
 
         }
         

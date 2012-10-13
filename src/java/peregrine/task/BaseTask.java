@@ -85,6 +85,9 @@ public abstract class BaseTask implements Task {
 
     // future used to verify that hte BackgroundTaskReporter has finished.
     protected Future backgroundTaskReporterFuture = null;
+
+    // reference to the BackgroundTaskReporter so that we can call shutdown() later.
+    protected BackgroundTaskReporter backgroundTaskReporter = null;
     
     public void init( Config config, Work work, Class delegate ) throws IOException {
 
@@ -173,7 +176,8 @@ public abstract class BaseTask implements Task {
 
         report = new Report( partition );
 
-        backgroundTaskReporterFuture = backgroundTaskExecutorService.submit( new BackgroundTaskReporter( this ) );
+        backgroundTaskReporter = new BackgroundTaskReporter( this );
+        backgroundTaskReporterFuture = backgroundTaskExecutorService.submit( backgroundTaskReporter );
         
         jobDelegate = (JobDelegate)delegate.newInstance();
     	    		
@@ -242,12 +246,12 @@ public abstract class BaseTask implements Task {
 
             try {
             
-                report();
+                term();
                 
                 log.info( "Ran with profiler rate: \n%s", profiler.rate() );
 
             } catch ( Throwable t ) {
-                log.error( "Unable to report: ", t );
+                log.error( "Unable to term: ", t );
             }
             
         }
@@ -263,6 +267,9 @@ public abstract class BaseTask implements Task {
      */
     protected abstract void doCall() throws Exception;
 
+    /**
+     * Close all resources and cleanup.
+     */
     public void teardown() throws IOException {
 
         //TODO: close ALL of these jobs even if one of them fails and then
@@ -276,17 +283,9 @@ public abstract class BaseTask implements Task {
 
         log.debug( "Closing job output...done" );
 
-        // make sure our reporter has finished up.
-
-        try {
-            backgroundTaskReporterFuture.get();
-        } catch ( Throwable t ) {
-            throw new IOException( t );
-        }
-        
     }
 
-    public void report() throws IOException {
+    public void term() throws IOException {
 
         if ( status == TaskStatus.UNKNOWN ) {
 
@@ -294,6 +293,15 @@ public abstract class BaseTask implements Task {
             // are complete.
 
             setStatus( TaskStatus.COMPLETE );
+            
+        }
+
+        // make sure our reporter has finished up.
+        try {
+            backgroundTaskReporter.shutdown();
+            backgroundTaskReporterFuture.get();
+        } catch ( Throwable t ) {
+            throw new IOException( t );
         }
 
         log.info( "Task %s on %s (%s) is %s", delegate, partition, config.getHost(), status );
