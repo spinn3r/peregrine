@@ -124,12 +124,12 @@ public class ChunkSorter extends BaseChunkSorter {
 
             if ( job.getCombiner() != null ) {
 
-                final Reducer reducer = newCombiner( writer );
+                final Reducer combiner = newCombiner( writer );
 
                 sortListener = new SortListener() {
 
                         public void onFinalValue( StructReader key, List<StructReader> values ) {
-                            reducer.reduce( key, values );
+                            combiner.reduce( key, values );
                         }
 
                     };

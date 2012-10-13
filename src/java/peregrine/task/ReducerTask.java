@@ -39,8 +39,6 @@ public class ReducerTask extends BaseTask implements Callable {
     
     private ShuffleInputReference shuffleInput;
 
-    private AtomicInteger nrTuples = new AtomicInteger();
-
     private ReduceRunner reduceRunner = null;
     
     public ReducerTask() {}
@@ -95,7 +93,7 @@ public class ReducerTask extends BaseTask implements Callable {
         reduceRunner.reduce();
 
         log.info( "Sorted %,d entries in %,d chunk readers for partition %s",
-                  nrTuples.get() , nr_readers, partition );
+                  report.getConsumed().get() , nr_readers, partition );
 
     }
 
@@ -105,7 +103,6 @@ public class ReducerTask extends BaseTask implements Callable {
         super.teardown();
     }
 
-    
     /**
      * Call the reduce() method when we have a final value on the merge.
      */
@@ -119,7 +116,8 @@ public class ReducerTask extends BaseTask implements Callable {
             try {
 
                 reducer.reduce( key, values );
-                nrTuples.getAndIncrement();
+
+                report.getConsumed().incr();
 
             } catch ( Exception e ) {
                 throw new RuntimeException( "Reduce failed: " , e );
