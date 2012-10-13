@@ -27,6 +27,7 @@ run() {
 : ${PROFILER_PATH:="/usr/local/jprofiler"}
 : ${PROFILER_OPTS:="-agentlib:jprofilerti=port=8849 -Xint -Xbootclasspath/a:$PROFILER_PATH/bin/agent.jar"}
 : ${JMX_PORT:=12112}
+: ${AUTO_RESTART:="false"}
 
 # TODO: would be nice to not have to use sed here.
 
@@ -77,15 +78,23 @@ JVM_ARGS="$JVM_ARGS -XX:+UseParallelGC"
 
 JVM_ARGS="$JVM_ARGS -XX:+UseCompressedOops"
 
-run $JAVA \
-  -XX:MaxDirectMemorySize=$MAX_DIRECT_MEMORY \
-  -Xms$MAX_MEMORY \
-  -Xmx$MAX_MEMORY \
-  $JVM_ARGS \
-  -DMaxDirectMemorySize=$MAX_DIRECT_MEMORY \
-  $JAVA_OPTS \
-  $CLASSNAME "$@"
+while [ true ]; do
 
-result=$?
+    run $JAVA \
+      -XX:MaxDirectMemorySize=$MAX_DIRECT_MEMORY \
+      -Xms$MAX_MEMORY \
+      -Xmx$MAX_MEMORY \
+      $JVM_ARGS \
+      -DMaxDirectMemorySize=$MAX_DIRECT_MEMORY \
+      $JAVA_OPTS \
+      $CLASSNAME "$@"
+
+    result=$?
+
+    if [ "$AUTO_RESTART" != "true" ]; then
+        break
+    fi
+
+done
 
 exit $result
