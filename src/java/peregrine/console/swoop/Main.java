@@ -197,20 +197,20 @@ public class Main {
 
     public void formatJobsHeaders( Formatter fmt ) {
 
-        fmt.printf( 4, "%-20s %-15s %-10s %-12s %20s %20s   %s", "name", "state", "operation", "duration", "consumed", "emitted", "delegate" );
-        fmt.printf( 4, "%-20s %-15s %-10s %-12s %20s %20s   %s", "----", "-----", "---------", "--------", "--------", "-------", "--------" );
+        fmt.printf( 4, "%-20s %-15s %-10s %-12s %8s %8s   %s", "name", "state", "operation", "duration", "consumed", "emitted", "delegate" );
+        fmt.printf( 4, "%-20s %-15s %-10s %-12s %8s %8s   %s", "----", "-----", "---------", "--------", "--------", "-------", "--------" );
 
     }
 
     private void formatJob( Job job, Formatter fmt ) {
 
-        fmt.printf( 4, "%-20s %-15s %-10s %-12s %,20d %,20d   %s",
+        fmt.printf( 4, "%-20s %-15s %-10s %-12s %8s %8s   %s",
                        job.getName(),
                        job.getState(),
                        job.getOperation(),
                        getDuration( job.getStarted(), job.getDuration() ),
-                       job.getReport().getConsumed().get(),
-                       job.getReport().getEmitted().get(),
+                       Longs.format( job.getReport().getConsumed().get() ),
+                       Longs.format( job.getReport().getEmitted().get() ),
                        job.getDelegate().getName() );
 
     }

@@ -72,6 +72,10 @@ public abstract class BaseTask implements Task {
     protected Job job = null;
 
     protected Reporter reporter = null;
+
+    protected String nonce = "";
+    
+    protected String pointer = "";
     
     public void init( Config config, Work work, Class delegate ) throws IOException {
 
@@ -361,7 +365,7 @@ public abstract class BaseTask implements Task {
      * once.  This way if we fail to process a chunk, the second time we process
      * it we will just use the second nonce and discard the first nonce data.
      */
-    protected void sendProgressToController( String nonce, String pointer ) throws IOException {
+    protected void sendProgressToController() throws IOException {
 
         Message message = new Message();
         

@@ -77,11 +77,14 @@ public class Test {
 
     public static void main( String[] args ) throws Exception {
 
+        //System.out.printf( "%s\n", Longs.format( 1000 ) );
+        //System.out.printf( "%s\n", Longs.format( 1100000 ) );
+        System.out.printf( "%s\n", Longs.format( 999000 ) );
+        System.out.printf( "%s\n", Longs.format( 999999 ) );
+        System.out.printf( "%s\n", Longs.format( 1001 ) );
 
         //Default
-        
-        
-        
+
         // new Initializer().logger( "test" );
 
         // List<StructReader> list = new ArrayList();

@@ -36,5 +36,44 @@ public class Longs {
         return list;
 
     }
-    
+
+    /**
+     * Format a long into K,M,B units.
+     */
+    public static String format( long val ) {
+
+        if ( val <= 1000 )
+            return "" + val;
+
+        double[] units  = new double[] { 1000.0, 1000000.0, 1000000000.0 };
+        String[] suffix = new String[] { "K", "M", "B" };
+
+        for ( int i = 0; i < units.length; ++i ) {
+
+            double u = units[i];
+
+            if ( val < (u * 1000.0) ) {
+
+                double div = val / u;
+                String str = "" + div;
+
+                str = str.substring( 0, str.indexOf( "." )  + 2 );
+
+                // remove trailing zero if necessary
+                if ( str.endsWith( ".0" ) ) {
+                    str = str.substring( 0, str.length() - 2 );
+                }
+                
+                String s = suffix[i];
+                
+                return String.format( "%s%s", str, s );
+                
+            }
+            
+        }
+
+        return "" + val;
+
+    }
+
 }

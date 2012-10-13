@@ -49,11 +49,6 @@ public abstract class BaseMapperTask extends BaseTask implements Callable {
 
     protected List<SequenceReader> jobInput = null;
 
-    /**
-     * The current nonce computed from the current input position.
-     */
-    protected String nonce = null;
-
     protected MapperChunkStreamListener mapperChunkStreamListener = null;
     
     /**
@@ -191,9 +186,8 @@ public abstract class BaseMapperTask extends BaseTask implements Callable {
                 // first try to flush job output.
                 new Flusher( getJobOutput() ).flush();
 
-                // now send progress to the controller.
-                sendProgressToController( nonce, getPointer() );
-
+                pointer = getPointer();
+                
                 // update the nonce now ... 
                 nonce = getNonce();
                 
