@@ -30,8 +30,14 @@ import peregrine.util.netty.*;
 import peregrine.util.primitive.*;
 
 /**
+ * <p>
  * Write key/value pairs to a given file on disk and include any additional
  * metadata (size, etc).
+ *
+ * <p> The output format is very simple.  The file is a collection of key value
+ * pairs.  First read a varint.  This will denote how many bytes to read next.
+ * That will become your key.  Then read another varint, then read that many
+ * bytes and that will become your value.
  */
 public class DefaultChunkWriter implements ChunkWriter {
 
