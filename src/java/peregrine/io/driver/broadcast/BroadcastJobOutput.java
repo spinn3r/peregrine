@@ -28,15 +28,15 @@ public class BroadcastJobOutput extends ShuffleJobOutput {
 
     private static final Logger log = Logger.getLogger();
 
-    private Reporter reporter;
+    private Report report;
     
-    public BroadcastJobOutput( Config config, Job job, Partition partition, Reporter reporter ) {
-        this( config, job, "default", partition, reporter );
+    public BroadcastJobOutput( Config config, Job job, Partition partition, Report report ) {
+        this( config, job, "default", partition, report );
     }
         
-    public BroadcastJobOutput( Config config, Job job, String name, Partition partition, Reporter reporter ) {
-        super( config, job, name, partition, reporter );
-        this.reporter = reporter;
+    public BroadcastJobOutput( Config config, Job job, String name, Partition partition, Report report ) {
+        super( config, job, name, partition, report );
+        this.report = report;
     }
     
     @Override
@@ -50,7 +50,7 @@ public class BroadcastJobOutput extends ShuffleJobOutput {
             value.reset();
         }
 
-        reporter.getEmitted().incr();
+        report.getEmitted().incr();
 
     }
 

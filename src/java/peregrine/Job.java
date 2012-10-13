@@ -66,7 +66,7 @@ public class Job extends BaseJob<Job> {
      */
     protected String cause = null;
 
-    protected Reporter report = new Reporter();
+    protected Report report = new Report();
 
     public Job() {
         init( this );
@@ -203,11 +203,11 @@ public class Job extends BaseJob<Job> {
         return this;
     }
 
-    public Reporter getReport() { 
+    public Report getReport() { 
         return this.report;
     }
 
-    public Job setReport( Reporter report ) { 
+    public Job setReport( Report report ) { 
         this.report = report;
         return this;
     }
@@ -265,7 +265,7 @@ public class Job extends BaseJob<Job> {
         parameters    = new Message( message.getString( "parameters" ) );
         operation     = message.getString( "operation" );
 
-        this.report = new Reporter();
+        this.report = new Report();
         this.report.fromMessage( message.getMessage( "report" ) );
         
     }

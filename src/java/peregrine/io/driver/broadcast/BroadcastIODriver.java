@@ -48,10 +48,10 @@ public class BroadcastIODriver  extends BaseIODriver implements IODriver {
 	}
 
 	@Override
-	public JobOutput getJobOutput( Config config, Job job, OutputReference outputReference, WorkReference work, Reporter reporter ) throws IOException {
+	public JobOutput getJobOutput( Config config, Job job, OutputReference outputReference, WorkReference work, Report report ) throws IOException {
 		PartitionWorkReference partitionWork = (PartitionWorkReference)work;
         BroadcastOutputReference bcast = (BroadcastOutputReference) outputReference;
-        return new BroadcastJobOutput( config, job, bcast.getName(), partitionWork.getPartition(), reporter );
+        return new BroadcastJobOutput( config, job, bcast.getName(), partitionWork.getPartition(), report );
 	}
 
 	@Override

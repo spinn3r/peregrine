@@ -71,7 +71,7 @@ public abstract class BaseTask implements Task {
 
     protected Job job = null;
 
-    protected Reporter reporter = null;
+    protected Report report = null;
 
     protected String nonce = "";
     
@@ -162,7 +162,7 @@ public abstract class BaseTask implements Task {
     
     public void setup() throws Exception {
 
-        reporter = new Reporter( partition );
+        report = new Report( partition );
         
         jobDelegate = (JobDelegate)delegate.newInstance();
     	    		
@@ -170,7 +170,7 @@ public abstract class BaseTask implements Task {
             throw new Exception( "No output specified. " );
         }
     	
-        this.jobOutput = JobOutputFactory.getJobOutput( config, job, partition, output, reporter );
+        this.jobOutput = JobOutputFactory.getJobOutput( config, job, partition, output, report );
        
         for( JobOutput current : jobOutput ) {
 
@@ -373,7 +373,7 @@ public abstract class BaseTask implements Task {
         message.put( "job"     ,    job.getIdentifier() );
         message.put( "nonce"   ,    nonce );
         message.put( "pointer" ,    pointer );
-        message.put( "report"  ,    reporter.toMessage() );
+        message.put( "report"  ,    report.toMessage() );
         
         sendMessageToController( message );
 

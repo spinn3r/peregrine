@@ -60,7 +60,7 @@ public class MergerTask extends BaseMapperTask {
                 
                 merger.merge( joined.key, joined.values );
 
-                reporter.getConsumed().incr();
+                report.getConsumed().incr();
 
             }
 

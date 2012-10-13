@@ -76,7 +76,7 @@ public class MapperTask extends BaseMapperTask {
 
                 mapper.map( reader.key(), reader.value() );
 
-                reporter.getConsumed().incr();
+                report.getConsumed().incr();
                 
                 ++count;
 

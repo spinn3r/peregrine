@@ -33,11 +33,11 @@ public class PartitionWriterJobOutput implements JobOutput {
 
     protected PartitionWriter writer;
 
-    protected Reporter reporter;
+    protected Report report;
     
-    public PartitionWriterJobOutput( PartitionWriter writer, Reporter reporter ) {
+    public PartitionWriterJobOutput( PartitionWriter writer, Report report ) {
         this.writer = writer;
-        this.reporter = reporter;
+        this.report = report;
     }
 
     @Override
@@ -47,7 +47,7 @@ public class PartitionWriterJobOutput implements JobOutput {
             
             writer.write( key, value );
 
-            reporter.getEmitted().incr();
+            report.getEmitted().incr();
             
         } catch ( IOException e ) {
             throw new RuntimeException( e );

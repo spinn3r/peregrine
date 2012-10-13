@@ -39,7 +39,7 @@ public class JobOutputFactory {
                                                 Job job,
                                                 Partition partition,
                                                 Output output,
-                                                Reporter reporter ) throws IOException {
+                                                Report report ) throws IOException {
 
         List<JobOutput> result = new ArrayList( output.getReferences().size() );
 
@@ -50,10 +50,7 @@ public class JobOutputFactory {
             // see if it is registered as a driver.
             if ( driver != null ) {
 
-                JobOutput delegate = driver.getJobOutput( config, job, ref, new PartitionWorkReference( partition ), reporter );
-
-                result.add( delegate );
-                //result.add( new ReportingJobOutput( delegate, reporter ) );
+                result.add( driver.getJobOutput( config, job, ref, new PartitionWorkReference( partition ), report ) );
 
                 continue;
             }
@@ -66,39 +63,4 @@ public class JobOutputFactory {
         
     }
     
-}
-
-/**
- * Wrapper delegate for JobOutput so that we don't forget to keep track of our
- * emit rate.
- */
-class ReportingJobOutput implements JobOutput {
-
-    private JobOutput delegate;
-    private Reporter reporter;
-    
-    public ReportingJobOutput( JobOutput delegate, Reporter reporter ) {
-        this.delegate = delegate;
-        this.reporter = reporter;
-    }
-
-    @Override
-    public void emit( StructReader key , StructReader value ) {
-
-        reporter.getEmitted().incr();
-        
-        delegate.emit( key, value );
-        
-    }
-
-    @Override
-    public void close() throws IOException {
-        delegate.close();
-    }
-
-    @Override
-    public void flush() throws IOException {
-        delegate.flush();
-    }
-
 }

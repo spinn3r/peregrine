@@ -28,10 +28,10 @@ import peregrine.controller.*;
 import com.spinn3r.log5j.Logger;
 
 /**
- * A Reporter allows a job to report progress to the controller for tracking and
+ * A Report allows a job to report progress to the controller for tracking and
  * auditing purposes.
  */
-public class Reporter implements Comparable<Reporter>, MessageSerializable {
+public class Report implements Comparable<Report>, MessageSerializable {
 
     // the partition for which these reported stats belong
     protected Partition partition = new Partition(-1);
@@ -47,14 +47,14 @@ public class Reporter implements Comparable<Reporter>, MessageSerializable {
     // the progress of our job between 0 and 100.
     protected Metric progress = new Metric( 100 );
 
-    public Reporter() {}
+    public Report() {}
 
-    public Reporter( Partition partition ) {
+    public Report( Partition partition ) {
         this.partition = partition;
     }
 
     /**
-     * Get the partition for this Reporter.
+     * Get the partition for this Report.
      */
     public Partition getPartition() {
         return partition;
@@ -79,11 +79,11 @@ public class Reporter implements Comparable<Reporter>, MessageSerializable {
 
     @Override
     public boolean equals( Object obj ) {
-        return partition.equals( ((Reporter)obj).partition );
+        return partition.equals( ((Report)obj).partition );
     }
 
     @Override
-    public int compareTo( Reporter r ) {
+    public int compareTo( Report r ) {
         return partition.compareTo( r.partition );
     }
 
@@ -92,9 +92,9 @@ public class Reporter implements Comparable<Reporter>, MessageSerializable {
         return String.format( "consumed: %s, emitted: %s, progress: %s", consumed, emitted, progress );
     }
 
-    public Reporter plus( Reporter val ) {
+    public Report plus( Report val ) {
 
-        Reporter result = new Reporter();
+        Report result = new Report();
 
         result.consumed.set( consumed.get() + val.consumed.get() );
         result.emitted.set( emitted.get() + val.emitted.get() );

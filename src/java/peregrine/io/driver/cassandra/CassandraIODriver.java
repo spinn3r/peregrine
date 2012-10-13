@@ -115,7 +115,7 @@ public class CassandraIODriver extends BaseIODriver implements IODriver {
                                    Job job, 
                                    OutputReference outputReference,
                                    WorkReference work,
-                                   Reporter reporter ) throws IOException {
+                                   Report report ) throws IOException {
 
         return new CassandraJobOutput( this, (CassandraOutputReference)outputReference );
 

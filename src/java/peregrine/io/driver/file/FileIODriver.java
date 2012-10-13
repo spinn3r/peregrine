@@ -51,11 +51,11 @@ public class FileIODriver  extends BaseIODriver implements IODriver {
 	}
 
 	@Override
-	public JobOutput getJobOutput( Config config, Job job, OutputReference outputReference, WorkReference work, Reporter reporter ) throws IOException {
+	public JobOutput getJobOutput( Config config, Job job, OutputReference outputReference, WorkReference work, Report report ) throws IOException {
 		PartitionWorkReference partitionWork = (PartitionWorkReference)work;
         FileOutputReference fileref = (FileOutputReference)outputReference;
         PartitionWriter writer = new DefaultPartitionWriter( config, partitionWork.getPartition(), fileref.getPath(), fileref.getAppend() );
-        return new PartitionWriterJobOutput( writer, reporter );	
+        return new PartitionWriterJobOutput( writer, report );	
 	}
 
 	@Override

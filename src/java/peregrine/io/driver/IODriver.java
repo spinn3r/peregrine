@@ -76,6 +76,6 @@ public interface IODriver {
                                    Job job,
                                    OutputReference outputReference,
                                    WorkReference Work,
-                                   Reporter reporter ) throws IOException;
+                                   Report report ) throws IOException;
     
 }

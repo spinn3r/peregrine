@@ -50,23 +50,23 @@ public class ShuffleJobOutput
 
     private int emits = 0;
 
-    private Reporter reporter;
+    private Report report;
     
-    public ShuffleJobOutput( Config config, Job job, Partition partition, Reporter reporter ) {
-        this( config, job, "default", partition, reporter );
+    public ShuffleJobOutput( Config config, Job job, Partition partition, Report report ) {
+        this( config, job, "default", partition, report );
     }
 
-    public ShuffleJobOutput( Config config, Job job, ShuffleOutputReference outputReference, Partition partition, Reporter reporter ) {
-    	this(config, job, outputReference.getName(), partition, reporter );
+    public ShuffleJobOutput( Config config, Job job, ShuffleOutputReference outputReference, Partition partition, Report report ) {
+    	this(config, job, outputReference.getName(), partition, report );
     }
     
-    public ShuffleJobOutput( Config config, Job job, String name, Partition partition, Reporter reporter ) {
+    public ShuffleJobOutput( Config config, Job job, String name, Partition partition, Report report ) {
     	
         this.config = config;
         this.job = job;
         this.name = name;
         this.partition = partition;
-        this.reporter = reporter;
+        this.report = report;
         
         jobOutputDelegate = new ShuffleJobOutputDirect( this );
 
@@ -82,7 +82,7 @@ public class ShuffleJobOutput
         jobOutputDelegate.emit( key, value );
         ++emits;
 
-        reporter.getEmitted().incr();
+        report.getEmitted().incr();
         
     }
 

@@ -27,15 +27,15 @@ import peregrine.io.driver.blackhole.*;
  */
 public class BlackholeJobOutput implements JobOutput {
 
-    private Reporter reporter;
+    private Report report;
 
-    public BlackholeJobOutput( Reporter reporter ) {
-        this.reporter = reporter;
+    public BlackholeJobOutput( Report report ) {
+        this.report = report;
     }
 
     @Override
     public void emit( StructReader key , StructReader value ) {
-        reporter.getEmitted().incr();
+        report.getEmitted().incr();
     }
 
     @Override

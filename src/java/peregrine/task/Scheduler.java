@@ -147,7 +147,7 @@ public class Scheduler {
      * Keep track of reporters send within progress messages so that we can
      * return this state information status client.
      */
-    protected Map<Partition,Reporter> reports = new ConcurrentHashMap();
+    protected Map<Partition,Report> reports = new ConcurrentHashMap();
     
     protected ChangedMessage changedMessage = new ChangedMessage();
 
@@ -453,19 +453,19 @@ public class Scheduler {
     /**
      * New report information is available.
      */
-    public void updateReport( Reporter reporter ) {
-        reports.put( reporter.getPartition(), reporter );
+    public void updateReport( Report report ) {
+        reports.put( report.getPartition(), report );
     }
 
     /**
      * Get a report representing the GLOBAL state of all reports acros all
      * partitions reporting.
      */
-    public Reporter getReport() {
+    public Report getReport() {
 
-        Reporter result = new Reporter();
+        Report result = new Report();
 
-        for( Reporter current : reports.values() ) {
+        for( Report current : reports.values() ) {
             result = result.plus( current );
         }
 
