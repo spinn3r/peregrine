@@ -52,7 +52,8 @@ public class JobOutputFactory {
 
                 JobOutput delegate = driver.getJobOutput( config, job, ref, new PartitionWorkReference( partition ) );
 
-                result.add( new ReportingJobOutput( delegate, reporter ) );
+                result.add( delegate );
+                //result.add( new ReportingJobOutput( delegate, reporter ) );
 
                 continue;
             }
