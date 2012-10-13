@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
 */
-package peregrine.worker;
+package peregrine.task;
 
 import java.util.*;
 
@@ -32,12 +32,21 @@ import com.spinn3r.log5j.Logger;
  */
 public class Reporter {
 
+    // the number of consumed records. This should be ever increasing.  A job
+    // MAY NOT actually be emitting anything but it DOES need to consume
+    // records.
+    private Metric consumed = new Metric();
+    
     // the number of emitted records.  This should be ever increasing.
     private Metric emitted = new Metric();
 
     // the progress of our job between 0 and 100.
     private Metric progress = new Metric( 100 );
 
+    public Metric getConsumed() {
+        return consumed;
+    }
+    
     public Metric getEmitted() {
         return emitted;
     }
@@ -46,7 +55,7 @@ public class Reporter {
         return progress;
     }
     
-    class Metric {
+    public class Metric {
 
         private long value;
 

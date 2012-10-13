@@ -56,7 +56,9 @@ public class MergerTask extends BaseMapperTask {
                 assertActiveJob();
                 
                 merger.merge( joined.key, joined.values );
-                
+
+                reporter.getConsumed().incr();
+
             }
 
             log.info( "Running merge jobs on host: %s ... done", host );

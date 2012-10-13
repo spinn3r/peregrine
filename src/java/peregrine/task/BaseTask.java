@@ -54,28 +54,24 @@ public abstract class BaseTask implements Task {
 
     protected Throwable cause = null;
 
-    /**
-     * The job we should be running.
-     */
+    // The job we should be running.
     protected Class delegate = null;
 
     protected Input input = null;
     
-    /**
-     * The given work for this task.
-     */
+    // The given work for this task.
     protected Work work = null;
     
     protected JobDelegate jobDelegate = null;
 
     private boolean killed = false;
 
-    /**
-     * The time this job was started, in milliseconds.
-     */
+    // The time this job was started, in milliseconds.
     protected long started = -1;
 
     protected Job job = null;
+
+    protected Reporter reporter = new Reporter();
     
     public void init( Config config, Work work, Class delegate ) throws IOException {
 
@@ -168,7 +164,7 @@ public abstract class BaseTask implements Task {
             throw new Exception( "No output specified. " );
         }
     	
-        this.jobOutput = JobOutputFactory.getJobOutput( config, job, partition, output );
+        this.jobOutput = JobOutputFactory.getJobOutput( config, job, partition, output, reporter );
        
         for( JobOutput current : jobOutput ) {
 

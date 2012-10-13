@@ -73,9 +73,11 @@ public class MapperTask extends BaseMapperTask {
                 assertActiveJob();
                 
             	reader.next();
-            	
+
                 mapper.map( reader.key(), reader.value() );
 
+                reporter.getConsumed().incr();
+                
                 ++count;
 
             }

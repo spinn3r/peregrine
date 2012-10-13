@@ -37,5 +37,8 @@ public interface JobOutput extends Closeable, Flushable {
      */
     @Override
     public void close() throws IOException;
+
+    @Override
+    public void flush() throws IOException;
     
 }
