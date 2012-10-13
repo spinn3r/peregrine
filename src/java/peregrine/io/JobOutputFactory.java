@@ -50,7 +50,7 @@ public class JobOutputFactory {
             // see if it is registered as a driver.
             if ( driver != null ) {
 
-                JobOutput delegate = driver.getJobOutput( config, job, ref, new PartitionWorkReference( partition ) );
+                JobOutput delegate = driver.getJobOutput( config, job, ref, new PartitionWorkReference( partition ), reporter );
 
                 result.add( delegate );
                 //result.add( new ReportingJobOutput( delegate, reporter ) );

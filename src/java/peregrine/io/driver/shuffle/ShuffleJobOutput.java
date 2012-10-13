@@ -21,10 +21,11 @@ import java.util.concurrent.*;
 import peregrine.*;
 import peregrine.config.*;
 import peregrine.io.*;
+import peregrine.io.chunk.*;
 import peregrine.io.partition.*;
 import peregrine.shuffle.sender.*;
+import peregrine.task.*;
 import peregrine.util.*;
-import peregrine.io.chunk.*;
 
 import com.spinn3r.log5j.Logger;
 
@@ -48,21 +49,24 @@ public class ShuffleJobOutput
     private long started = System.currentTimeMillis();
 
     private int emits = 0;
+
+    private Reporter reporter;
     
-    public ShuffleJobOutput( Config config, Job job, Partition partition ) {
-        this( config, job, "default", partition );
+    public ShuffleJobOutput( Config config, Job job, Partition partition, Reporter reporter ) {
+        this( config, job, "default", partition, reporter );
     }
 
-    public ShuffleJobOutput( Config config, Job job, ShuffleOutputReference outputReference, Partition partition ) {
-    	this(config, job, outputReference.getName(), partition );
+    public ShuffleJobOutput( Config config, Job job, ShuffleOutputReference outputReference, Partition partition, Reporter reporter ) {
+    	this(config, job, outputReference.getName(), partition, reporter );
     }
     
-    public ShuffleJobOutput( Config config, Job job, String name, Partition partition ) {
+    public ShuffleJobOutput( Config config, Job job, String name, Partition partition, Reporter reporter ) {
     	
         this.config = config;
         this.job = job;
         this.name = name;
         this.partition = partition;
+        this.reporter = reporter;
         
         jobOutputDelegate = new ShuffleJobOutputDirect( this );
 
@@ -78,6 +82,8 @@ public class ShuffleJobOutput
         jobOutputDelegate.emit( key, value );
         ++emits;
 
+        reporter.getEmitted().incr();
+        
     }
 
     public void emit( int to_partition, StructReader key , StructReader value ) {

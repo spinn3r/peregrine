@@ -17,6 +17,7 @@ package peregrine.task;
 
 import java.util.*;
 
+import peregrine.config.*;
 import peregrine.config.partitioner.*;
 import peregrine.io.*;
 import peregrine.rpc.*;
@@ -30,8 +31,11 @@ import com.spinn3r.log5j.Logger;
  * A Reporter allows a job to report progress to the controller for tracking and
  * auditing purposes.
  */
-public class Reporter {
+public class Reporter implements Comparable<Reporter> {
 
+    // the partition for which these reported stats belong
+    protected Partition partition = null;
+    
     // the number of consumed records. This should be ever increasing.  A job
     // MAY NOT actually be emitting anything but it DOES need to consume
     // records.
@@ -43,6 +47,17 @@ public class Reporter {
     // the progress of our job between 0 and 100.
     private Metric progress = new Metric( 100 );
 
+    public Reporter( Partition partition ) {
+        this.partition = partition;
+    }
+
+    /**
+     * Get the partition for this Reporter.
+     */
+    public Partition getPartition() {
+        return partition;
+    }
+    
     public Metric getConsumed() {
         return consumed;
     }
@@ -54,7 +69,22 @@ public class Reporter {
     public Metric getProgress() {
         return progress;
     }
-    
+
+    @Override
+    public int hashCode() {
+        return partition.hashCode();
+    }
+
+    @Override
+    public boolean equals( Object obj ) {
+        return partition.equals( ((Reporter)obj).partition );
+    }
+
+    @Override
+    public int compareTo( Reporter r ) {
+        return partition.compareTo( r.partition );
+    }
+
     public class Metric {
 
         private long value;

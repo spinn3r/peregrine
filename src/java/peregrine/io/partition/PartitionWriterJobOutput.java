@@ -19,6 +19,7 @@ import java.io.*;
 
 import peregrine.*;
 import peregrine.io.*;
+import peregrine.task.*;
 
 import com.spinn3r.log5j.Logger;
 
@@ -31,9 +32,12 @@ public class PartitionWriterJobOutput implements JobOutput {
     private static final Logger log = Logger.getLogger();
 
     protected PartitionWriter writer;
+
+    protected Reporter reporter;
     
-    public PartitionWriterJobOutput( PartitionWriter writer ) {
+    public PartitionWriterJobOutput( PartitionWriter writer, Reporter reporter ) {
         this.writer = writer;
+        this.reporter = reporter;
     }
 
     @Override
@@ -42,6 +46,8 @@ public class PartitionWriterJobOutput implements JobOutput {
         try {
             
             writer.write( key, value );
+
+            reporter.getEmitted().incr();
             
         } catch ( IOException e ) {
             throw new RuntimeException( e );

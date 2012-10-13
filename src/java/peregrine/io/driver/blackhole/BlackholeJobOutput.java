@@ -18,6 +18,7 @@ package peregrine.io.driver.blackhole;
 import java.io.*;
 
 import peregrine.*;
+import peregrine.task.*;
 import peregrine.io.*;
 import peregrine.io.driver.blackhole.*;
 
@@ -26,9 +27,15 @@ import peregrine.io.driver.blackhole.*;
  */
 public class BlackholeJobOutput implements JobOutput {
 
+    private Reporter reporter;
+
+    public BlackholeJobOutput( Reporter reporter ) {
+        this.reporter = reporter;
+    }
+
     @Override
     public void emit( StructReader key , StructReader value ) {
-        //noop
+        reporter.getEmitted().incr();
     }
 
     @Override
