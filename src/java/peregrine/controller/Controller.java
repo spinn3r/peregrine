@@ -372,7 +372,7 @@ public class Controller {
 
             if ( processCurrentBatchSubmissions() == false ) {
 
-                Threads.coma( 100L );
+                Threads.nap( 100L );
 
             }
 

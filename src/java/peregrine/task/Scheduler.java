@@ -646,7 +646,7 @@ public class Scheduler {
             } catch ( IOException e ) {
                 
                 log.error( String.format( "Unable to kill %s on %s for %s", service, host, work ), e );
-                Threads.coma( 1500L );
+                Threads.nap( 1500L );
                 
             }
             

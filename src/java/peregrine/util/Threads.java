@@ -21,12 +21,11 @@ package peregrine.util;
 public class Threads {
 
     /**
-     * Sleep without dealing with interrupt which is fine for many tasks.
+     * Sleep without dealing with interrupt which is fine for many tasks.  It's
+     * ok if we are woken from our nap.
      * 
-     * "A state of deep unconsciousness that lasts for a prolonged or indefinite
-     * period"
      */
-    public static void coma( long duration ) {
+    public static void nap( long duration ) {
 
         try {
             Thread.sleep( duration );
