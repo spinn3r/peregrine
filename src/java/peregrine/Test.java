@@ -77,7 +77,7 @@ public class Test {
 
     public static void main( String[] args ) throws Exception {
 
-        Thread.sleep( 1000L );
+        Thread.sleep( 10000L );
         
         //System.out.printf( "%s\n", Longs.format( 1000 ) );
         //System.out.printf( "%s\n", Longs.format( 1100000 ) );
