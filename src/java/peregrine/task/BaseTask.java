@@ -17,6 +17,7 @@ package peregrine.task;
 
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.*;
 
 import peregrine.*;
 import peregrine.config.*;
@@ -26,6 +27,7 @@ import peregrine.rpc.*;
 import peregrine.shuffle.sender.*;
 import peregrine.sysstat.*;
 import peregrine.task.*;
+import peregrine.util.netty.*;
 
 import com.spinn3r.log5j.*;
 
@@ -76,6 +78,13 @@ public abstract class BaseTask implements Task {
     protected String nonce = "";
     
     protected String pointer = "";
+
+    // runs the BackgroundTaskReporter to send progress reports to the controller.
+    protected ExecutorService backgroundTaskExecutorService
+        = BaseDaemon.newDefaultThreadPool( 1, BackgroundTaskReporter.class );
+
+    // future used to verify that hte BackgroundTaskReporter has finished.
+    protected Future backgroundTaskReporterFuture = null;
     
     public void init( Config config, Work work, Class delegate ) throws IOException {
 
@@ -163,6 +172,8 @@ public abstract class BaseTask implements Task {
     public void setup() throws Exception {
 
         report = new Report( partition );
+
+        backgroundTaskReporterFuture = backgroundTaskExecutorService.submit( new BackgroundTaskReporter( this ) );
         
         jobDelegate = (JobDelegate)delegate.newInstance();
     	    		
@@ -265,6 +276,14 @@ public abstract class BaseTask implements Task {
 
         log.debug( "Closing job output...done" );
 
+        // make sure our reporter has finished up.
+
+        try {
+            backgroundTaskReporterFuture.get();
+        } catch ( Throwable t ) {
+            throw new IOException( t );
+        }
+        
     }
 
     public void report() throws IOException {

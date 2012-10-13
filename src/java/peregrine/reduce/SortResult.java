@@ -44,8 +44,7 @@ public class SortResult implements Closeable {
     	this.writer = writer;
     }
     
-    public SortResult( ChunkWriter writer,
-                       SortListener listener ) {
+    public SortResult( ChunkWriter writer, SortListener listener ) {
         
         this.writer = writer;
         this.listener = listener;

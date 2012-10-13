@@ -61,7 +61,7 @@ public class TestShufflePerformance extends BaseTestWithMultipleProcesses {
 
             long before = System.currentTimeMillis();
             
-            ShuffleJobOutput output = new ShuffleJobOutput( config, job, new Partition( 0 ), new Reporter() );
+            ShuffleJobOutput output = new ShuffleJobOutput( config, job, new Partition( 0 ), new Report() );
 
             ChunkReference chunkRef = new ChunkReference( new Partition( 0 ) );
             chunkRef.local = 0;

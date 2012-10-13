@@ -114,6 +114,14 @@ public abstract class BaseDaemon {
     }
 
     /**
+     * Create a default thread pool for use in the system with the
+     * <i>specified</i> concurrency.
+     */
+    public static ExecutorService newDefaultThreadPool( int concurrency, Class clazz ) {
+        return newDefaultThreadPool( concurrency, new DefaultThreadFactory( clazz ) );
+    }
+
+    /**
      * Create a default thread pool for use in the system with the correct
      * concurrency.
      */
