@@ -93,9 +93,10 @@ public class Reporter implements Comparable<Reporter>, MessageSerializable {
     public Message toMessage() {
 
         Message message = new Message();
-        message.put( "consumed" , consumed.get() );
-        message.put( "emitted"  , emitted.get() );
-        message.put( "progress" , progress.get() );
+        message.put( "consumed"  , consumed.get() );
+        message.put( "emitted"   , emitted.get() );
+        message.put( "progress"  , progress.get() );
+        message.put( "partition" , partition.getId() );
 
         return message;
         
@@ -103,6 +104,12 @@ public class Reporter implements Comparable<Reporter>, MessageSerializable {
 
     public void fromMessage( Message message ) {
 
+        consumed.set( message.getLong( "consumed" ) );
+        emitted.set( message.getLong( "emitted" ) );
+        progress.set( message.getLong( "progress" ) );
+
+        partition = new Partition( message.getInt( "partition" ) );
+        
     }
 
     public class Metric {

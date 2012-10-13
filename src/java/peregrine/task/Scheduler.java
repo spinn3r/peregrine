@@ -449,6 +449,13 @@ public class Scheduler {
         throw new RuntimeException( "not implemented" );
         
     }
+
+    /**
+     * New report information is available.
+     */
+    public void updateReport( Reporter reporter ) {
+        reports.put( reporter.getPartition(), reporter );
+    }
     
     /**
      * Mark a job as complete.  The RPC service calls this method when we are

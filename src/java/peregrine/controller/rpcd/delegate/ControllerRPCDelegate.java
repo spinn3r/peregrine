@@ -95,7 +95,15 @@ public class ControllerRPCDelegate extends RPCDelegate<ControllerDaemon> {
         Host host          = Host.parse( message.get( "host" ) );
         Input input        = new Input( message.getList( "input" ) );
         Work work          = new Work( host, input, message.getList( "work" ) );
+
+        Reporter reporter  = new Reporter();
+        reporter.fromMessage( message.get( "report" ) );
         
+        Scheduler scheduler = controllerDaemon.getScheduler();
+
+        if ( scheduler != null )
+            scheduler.updateReport( reporter );
+
         return null;
 		
     }
