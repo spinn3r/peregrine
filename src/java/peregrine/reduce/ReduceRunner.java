@@ -49,7 +49,17 @@ public class ReduceRunner implements Closeable {
      * can back this out later once I track down exactly why we are running out
      * of memory here.
      */
-    public static final boolean TRIGGER_GC_AFTER_SORT = true; // FIXME: set to false in 1.0
+
+    // TODO
+    //
+    // https://bitbucket.org/burtonator/peregrine/issue/184/remove-trigger_gc_after_sort-in-10-ideally
+    //
+    // I had to push this because we were having trouble running with a real
+    // load and not running out of memory. This is just a pragmatic work
+    // around. I need to figure out why our direct memory isn't being released
+    // correctly.
+
+    public static final boolean TRIGGER_GC_AFTER_SORT = true; 
     
     private List<File> input = new ArrayList();
 

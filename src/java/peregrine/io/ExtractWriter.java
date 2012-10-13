@@ -32,7 +32,7 @@ import com.spinn3r.log5j.Logger;
  * data to the correct partition.  If your data is already partitioned, with the correct
  * algorithm, at least right now you can run these in parallel
  */
-public class ExtractWriter implements Closeable {
+public class ExtractWriter implements Closeable, SequenceWriter {
 
     private static final Logger log = Logger.getLogger();
 
@@ -65,6 +65,7 @@ public class ExtractWriter implements Closeable {
     /**
      * If the Key is already a hashcode and we can route over it specify keyIsHashcode=true.
      */
+    @Override
     public void write( StructReader key, StructReader value )
         throws IOException {
 
