@@ -29,6 +29,9 @@ import peregrine.sysstat.*;
 
 import com.spinn3r.log5j.*;
 
+/**
+ * Handles invoking merges, reading the data off disk, etc.
+ */
 public class MergerTask extends BaseMapperTask {
 
     private static final Logger log = Logger.getLogger();

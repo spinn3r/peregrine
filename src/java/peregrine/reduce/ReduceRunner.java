@@ -410,7 +410,14 @@ public class ReduceRunner implements Closeable {
                 }
 
         		workCapacity += header.length;
-                workCapacity += KeyLookup.computeCapacity( header.count ) * 2;
+
+                //TODO a memory overhead of 2.5 (vs the theoretical 2) is
+                //required.  I'm not sure why this is the case? It might be that
+                //my direct memory de-allocation could be failing.  I will need
+                //to investigate this more. I've tried turning this down to 2 on
+                //mulitiple occasions but it just doesn't work.
+                
+                workCapacity += KeyLookup.computeCapacity( header.count ) * 2.5;
                 
         		if ( workCapacity > config.getSortBufferSize() ) {
         			pendingIterator = pending.iterator();
