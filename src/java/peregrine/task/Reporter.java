@@ -31,7 +31,7 @@ import com.spinn3r.log5j.Logger;
  * A Reporter allows a job to report progress to the controller for tracking and
  * auditing purposes.
  */
-public class Reporter implements Comparable<Reporter> {
+public class Reporter implements Comparable<Reporter>, MessageSerializable {
 
     // the partition for which these reported stats belong
     protected Partition partition = null;
@@ -85,6 +85,26 @@ public class Reporter implements Comparable<Reporter> {
         return partition.compareTo( r.partition );
     }
 
+    @Override
+    public String toString() {
+        return String.format( "consumed: %s, emitted: %s, progress: %s", consumed, emitted, progress );
+    }
+    
+    public Message toMessage() {
+
+        Message message = new Message();
+        message.put( "consumed" , consumed.get() );
+        message.put( "emitted"  , emitted.get() );
+        message.put( "progress" , progress.get() );
+
+        return message;
+        
+    }
+
+    public void fromMessage( Message message ) {
+
+    }
+
     public class Metric {
 
         private long value;
@@ -105,6 +125,10 @@ public class Reporter implements Comparable<Reporter> {
             return value;
         }
 
+        public void set( long value ) {
+            this.value = value;
+        }
+        
         @Override
         public String toString() {
             return "" + value;

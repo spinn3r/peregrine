@@ -142,6 +142,12 @@ public class Scheduler {
      * at runtime as a full reference of all the work needed.
      */
     protected SortedSet<Work> work = new TreeSet();
+
+    /**
+     * Keep track of reporters send within progress messages so that we can
+     * return this state information status client.
+     */
+    protected Map<Partition,Reporter> reports = new ConcurrentHashMap();
     
     protected ChangedMessage changedMessage = new ChangedMessage();
 
