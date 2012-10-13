@@ -410,14 +410,8 @@ public class ReduceRunner implements Closeable {
                 }
 
         		workCapacity += header.length;
-                workCapacity += KeyLookup.computeCapacity( header.count ) * 2.5; // FIXME: we added this 2.5 multipler with no justification
-                                                                                 // and it shouldn't be there I think.  Actually I think the
-                                                                                 // justification at the time was that we were running out
-                                                                                 // of memory but now I think the System.gc at the bottom
-                                                                                 // is temporarily fixing this.  The real multipler should
-                                                                                 // be 2x as I need effectively TWO copies of the data, the
-                                                                                 // one I am reading from and the won I am writing to.
-
+                workCapacity += KeyLookup.computeCapacity( header.count ) * 2;
+                
         		if ( workCapacity > config.getSortBufferSize() ) {
         			pendingIterator = pending.iterator();
         			break;        			
