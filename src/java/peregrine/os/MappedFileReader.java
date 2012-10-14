@@ -58,6 +58,8 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
     
     protected MappedByteBufferCloser mappedByteBufferCloser = null;
 
+    protected boolean shieldMappedFileAccess = false;
+    
     public MappedFileReader( Config config, File file ) throws IOException {
         init( config, file );
     }
@@ -81,6 +83,7 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
 
         if ( config != null ) {
             fadviseDontNeedEnabled  = config.getFadviseDontNeedEnabled();
+            shieldMappedFileAccess = config.getShieldMappedFileAccess();
         }
 
         this.in = new FileInputStream( file );
@@ -127,14 +130,18 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
                 fileMapper.setLock( autoLock );
                 new NativeMapStrategy().map();
 
-                //NOTE: see CloseableByteBufferBackedChannelBuffer as ideally we
-                //would wrap ALL byte buffers with this class but it imposes a
-                //performance overhead in practice.
-
-                //this.map = new CloseableByteBufferBackedChannelBuffer( new ByteBufferBackedChannelBuffer( byteBuffer ), this );
+                ByteBufferBackedChannelBuffer delegate =
+                    new ByteBufferBackedChannelBuffer( byteBuffer );
                 
-                this.map = new ByteBufferBackedChannelBuffer( byteBuffer );
+                this.map = delegate;
 
+                // NOTE: Ideally we would wrap ALL byte buffers with this class
+                // but it imposes a performance overhead in practice.
+                
+                if ( shieldMappedFileAccess ) {
+                    this.map = new CloseableByteBufferBackedChannelBuffer( delegate, this );
+                } 
+                
             }
 
             if ( reader == null ) {

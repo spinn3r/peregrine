@@ -29,7 +29,7 @@ import peregrine.os.*;
  * 
  */
 public class BaseConfig {
-
+    
     /**
      * The default params we have been started with.  These are loaded from the
      * .conf which we store in the .jar.
@@ -125,7 +125,9 @@ public class BaseConfig {
     protected long httpMaxChunkSize = -1;
 
     protected long maxClientShuffleOutputBufferSize = -1;
-    
+
+    protected boolean shieldMappedFileAccess = false;
+
     public void init( StructMap struct ) {
 
         this.struct = struct;
@@ -158,7 +160,8 @@ public class BaseConfig {
         setRequireFreeDiskSpaceSize( struct.getSize( "requireFreeDiskSpaceSize" ) );
         setHttpMaxChunkSize( struct.getSize( "httpMaxChunkSize" ) );
         setMaxClientShuffleOutputBufferSize( struct.getSize( "maxClientShuffleOutputBufferSize" ) );
-        
+        setShieldMappedFileAccess( struct.getBoolean( "shieldMappedFileAccess" ) );
+
         if ( struct.containsKey( "host" ) )
             setHost( Host.parse( struct.getString( "host" ) ) );
 
@@ -414,7 +417,15 @@ public class BaseConfig {
     public void setMaxClientShuffleOutputBufferSize( long maxClientShuffleOutputBufferSize ) {
         this.maxClientShuffleOutputBufferSize = maxClientShuffleOutputBufferSize;
     }
-    
+
+    public boolean getShieldMappedFileAccess() { 
+        return this.shieldMappedFileAccess;
+    }
+
+    public void setShieldMappedFileAccess( boolean shieldMappedFileAccess ) { 
+        this.shieldMappedFileAccess = shieldMappedFileAccess;
+    }
+
     static {
 
         try {

@@ -241,7 +241,7 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
                                            Process proc,
                                            int port ) throws Exception {
 
-        System.out.printf( "Waiting for startup: " );
+        System.out.printf( "Waiting for startup on port %s ", port );
         
         long started = System.currentTimeMillis();
         
