@@ -37,8 +37,6 @@ public class Job extends BaseJob<Job> {
 
     private static final Logger log = Logger.getLogger();
 
-    private static AtomicInteger nonce = new AtomicInteger();
-
     protected long timestamp = System.currentTimeMillis();
 
 	protected Class delegate = Mapper.class; 

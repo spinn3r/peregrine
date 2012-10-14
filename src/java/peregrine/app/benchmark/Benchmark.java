@@ -49,7 +49,7 @@ public class Benchmark {
 
     public static class Reduce extends Reducer {
 
-        AtomicInteger count = new AtomicInteger();
+        int count = 0;
         
         @Override
         public void reduce( StructReader key, List<StructReader> values ) {
@@ -61,7 +61,7 @@ public class Benchmark {
                 ints.add( val.readInt() );
             }
 
-            count.getAndIncrement();
+            ++count;
 
         }
 

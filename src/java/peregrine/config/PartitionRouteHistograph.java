@@ -25,7 +25,7 @@ import java.util.concurrent.atomic.*;
  */
 public class PartitionRouteHistograph {
 
-    private AtomicInteger total = new AtomicInteger();
+    private int total = 0;
 
     private Config config = null;
 
@@ -45,7 +45,7 @@ public class PartitionRouteHistograph {
 
     public void incr( Partition part ) {
 
-        total.getAndIncrement();
+        ++total;
         data[ part.getId() ].getAndIncrement();
         
      }

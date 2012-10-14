@@ -30,11 +30,13 @@ public class MemoryAllocationTracker {
 
     private static final Logger log = Logger.getLogger();
 
+    public static boolean ENABLED = false;
+    
     /**
      * True when we should trace memory allocations.
      */
     public static boolean TRACE = false; 
-    
+
     /**
      * The current amount of memory allocated.
      */
@@ -48,6 +50,8 @@ public class MemoryAllocationTracker {
 
     public void incr( long v ) {
 
+        if ( ! ENABLED ) return;
+        
         if ( TRACE ) {
             log.info( String.format( "%s and incr() by %,d bytes.", getStatus(), v ) );
         }
@@ -58,6 +62,8 @@ public class MemoryAllocationTracker {
 
     public void decr( long v ) {
 
+        if ( ! ENABLED ) return;
+
         if ( TRACE ) {
             log.info( String.format( "%s and decr() by %,d bytes.", getStatus(), v ) );
         }
@@ -67,6 +73,9 @@ public class MemoryAllocationTracker {
     }
 
     private String getStatus() {
+
+        if ( ! ENABLED )
+            return "disabled";
 
         long current = get();
 
@@ -86,6 +95,9 @@ public class MemoryAllocationTracker {
      * Not that we failed to allocate memory.
      */
     public void fail( long v, Throwable cause ) {
+
+        if ( ! ENABLED ) return;
+
         if ( TRACE ) {
             log.error( String.format( "%s and FAILED to allocate by %,d bytes.", getStatus(), v ), cause );
         }
