@@ -27,7 +27,12 @@ public abstract class IdempotentCloser
     extends IdempotentFunction<Object,IOException>
     implements Closeable {
 
-    public static boolean ENABLE_TRACING = true;
+    /**
+     * When true, all close/open operations use tracing to find out where this
+     * was closed but this slows down performance so keep it disabled by
+     * default.
+     */
+    public static boolean ENABLE_TRACING = false;
     
     public IdempotentCloser() {
         super( ENABLE_TRACING );

@@ -21,7 +21,7 @@ import java.io.*;
 import java.util.*;
 
 /**
-  *
+ *
  */
 public class CRC32ChannelBuffer extends CompositeChannelBuffer {
 

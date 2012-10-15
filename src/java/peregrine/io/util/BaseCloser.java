@@ -37,13 +37,17 @@ public abstract class BaseCloser<T> extends IdempotentFunction<Object,GroupIOExc
 
     private Throwable cause = null;
 
-    public BaseCloser() { }
+    public BaseCloser() {
+        super();
+    }
 
     public BaseCloser( List<T> delegates ) {
+        this();
         this.delegates = delegates;
     }
     
     public BaseCloser( T... delegates ) {
+        this();
         add( delegates );
     }
 
