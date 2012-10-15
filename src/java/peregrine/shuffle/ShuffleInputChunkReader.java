@@ -375,7 +375,7 @@ public class ShuffleInputChunkReader implements ChunkReader {
                         
                     }
 
-                    // FIXME: I don't think we no longer need the 'finished' code
+                    // TODO: I don't think we no longer need the 'finished' code
                     // because we now have the close() code
 
                     // make sure all partitions are finished reading.
@@ -457,8 +457,14 @@ public class ShuffleInputChunkReader implements ChunkReader {
 
             synchronized( instances ) {
 
-                // FIXME: right now this means that we startup 1 thread per
-                // chunk which is not super efficient... 
+                //TODO: https://bitbucket.org/burtonator/peregrine/issue/185/shuffleinputchunkreader-has-one-thread-per
+
+                // Right now this means that we startup 1 thread per chunk which
+                // is not super efficient. I need to look into why this is the
+                // case. It would be nice to only start N so that we aren't
+                // thrashing the disk. Also are the threads NAMED after the
+                // files?
+                
                 PrefetchReader reader = instances.remove( path );
                 reader.executor.shutdown();
                 

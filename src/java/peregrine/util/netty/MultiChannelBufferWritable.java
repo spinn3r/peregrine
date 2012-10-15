@@ -126,8 +126,9 @@ public class MultiChannelBufferWritable implements ChannelBufferWritable {
     	
         log.error( String.format( "Unable to handle chunk on host %s for %s", host, out) , cause );
         
-        // FIXME: we need to gossip about this because a host may be down and 
-        // failing writes
+        // TODO: we need to gossip about this because a host may be down and
+        // failing writes.  this isn't a high priority right now with pipeline
+        // writes
         
     }
 

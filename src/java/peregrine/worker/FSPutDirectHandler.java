@@ -38,6 +38,7 @@ public class FSPutDirectHandler extends FSPutBaseHandler {
     private ChannelBufferWritable output = null;
 
     public FSPutDirectHandler( FSDaemon daemon, FSHandler handler ) throws IOException {
+
         super( handler );
 
         File file = new File( handler.path );
