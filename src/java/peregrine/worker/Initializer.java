@@ -51,10 +51,6 @@ public final class Initializer {
         Files.initDataDir( config.getBasedir(), config.getUser() );
     }
 
-    public void logger( File file ) throws IOException {
-        DOMConfigurator.configure( file.getPath() );
-    }
-
     public void logger( String suffix ) throws IOException {
 
         String conf = "conf/log4j.xml";
@@ -70,6 +66,17 @@ public final class Initializer {
         System.setProperty( "peregrine.log.suffix", suffix );
         logger( new File( conf ) );
         
+    }
+
+    public void logger( String conf, String suffix ) throws IOException {
+
+        System.setProperty( "peregrine.log.suffix", suffix );
+        logger( new File( conf ) );
+
+    }
+
+    private void logger( File file ) throws IOException {
+        DOMConfigurator.configure( file.getPath() );
     }
 
     public void pidfile() throws IOException {

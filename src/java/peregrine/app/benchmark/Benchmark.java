@@ -68,7 +68,7 @@ public class Benchmark {
         @Override
         public void close() throws IOException {
 
-            if ( count.get() == 0 )
+            if ( count == 0 )
                throw new RuntimeException( "count is zero" );
             
         }

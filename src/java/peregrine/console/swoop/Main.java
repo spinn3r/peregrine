@@ -572,7 +572,7 @@ public class Main {
         //
         //  q      should quit
 
-        new Initializer().logger( new File( "conf/log4j-silent.xml" ) );
+        new Initializer().logger( "conf/log4j-silent.xml", "swoop" );
 
         Getopt getopt = new Getopt( args );
 

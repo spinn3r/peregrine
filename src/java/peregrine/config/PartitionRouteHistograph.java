@@ -63,7 +63,7 @@ public class PartitionRouteHistograph {
             
         }
         
-        return String.format( "total: %,d: %s", total.get(), hist.toString() );
+        return String.format( "total: %,d: %s", total, hist.toString() );
 
     }
 
