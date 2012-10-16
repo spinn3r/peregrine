@@ -20,7 +20,6 @@ import java.nio.*;
 import java.nio.channels.*;
 import java.util.*;
 
-import peregrine.app.wikirank.*;
 import peregrine.config.*;
 import peregrine.controller.*;
 import peregrine.io.*;
@@ -198,17 +197,6 @@ public class InputSplitter {
 
     public List<InputSplit> getInputSplitsForPartitions( Config config, Partition partition ) {
         return getInputSplitsForPartitions( config ).get( partition );
-    }
-
-    public static void main( String[] args ) throws Exception {
-
-        String path = args[0];
-        InputSplitter splitter = new InputSplitter( path, new WikiRecordFinder(), 128000 );
-
-        List<InputSplit> result = splitter.getInputSplits();
-
-        System.out.printf( "Found %,d splits\n", result.size() );
-        
     }
 
 }
