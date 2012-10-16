@@ -43,10 +43,10 @@ public class NonceFactory {
 
     public static long newNonce() {
 
-        int global = (int)(System.currentTimeMillis() / 1000);
-        int local  = local.getAndIncrement();
+        int g = (int)(System.currentTimeMillis() / 1000);
+        int l = local.getAndIncrement();
 
-        return (global * PADD) + local;
+        return (g * PADD) + l;
 
     }
     

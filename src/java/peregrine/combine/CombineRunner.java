@@ -40,7 +40,7 @@ public class CombineRunner {
     public void combine( Config config,
                          Partition partition,
                          ChunkReader reader,
-                         final Combiner combiner ) throws IOException {
+                         final Reducer combiner ) throws IOException {
 
         SortComparator comparator = new DefaultSortComparator();
         
@@ -56,7 +56,7 @@ public class CombineRunner {
         SortListener sortListener = new SortListener() {
 
                 public void onFinalValue( StructReader key, List<StructReader> values ) {
-                    combiner.combine( key, values );
+                    combiner.reduce( key, values );
                 }
 
             };
