@@ -480,7 +480,14 @@
     </target>
 
     <target name="coverage"  
-            depends="clean, with.clover, jar, test, clover.html, test-report">
+            depends="clean, with.clover, jar, compile.test, test-basic, test-multi, clover.html, test-report">
+
+        <available property="test.failed" file="target/test-failed.true" />
+
+        <echo message="test.failed (fail(3)): ${test.failed}"/>
+
+        <fail if="test.failed"/>
+
     </target>
 
     <target name="coverage-simple" 
