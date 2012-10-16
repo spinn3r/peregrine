@@ -12,7 +12,7 @@
 
     <property name="project"         value="peregrine"/>
     <property name="javadocdir"      value="target/javadoc"/>
-    <property name="version"         value="0.5.3"/>
+    <property name="version"         value="0.8.0"/>
 
     <property name="haltonfailure"   value="false"/>
     <property name="haltonerror"     value="false"/>
@@ -45,7 +45,6 @@
 
     <target name="with.clover">
 
-      <!---->
         <clover-setup initstring="target/clover.db" flushpolicy="threaded" flushinterval="5000">
           <distributedCoverage/>
         </clover-setup>

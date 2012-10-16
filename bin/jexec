@@ -29,7 +29,7 @@ run() {
 : ${JMX_PORT:=12112}
 : ${AUTO_RESTART:="false"}
 : ${JVM_ARGS:=""}
-: ${JAVA_OPTS:="-Dclover.distributed.coverage=ON"}
+: ${JAVA_OPTS:="-Dclover.distributed.coverage=ON -Dclover.server=true"}
 
 # TODO: would be nice to not have to use sed here.
 
