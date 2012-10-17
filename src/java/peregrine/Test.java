@@ -140,7 +140,7 @@ public class Test {
             MappedFileWriter writer = new MappedFileWriter( null, path );
             writer.write( buff );
 
-            if ( sync_pending >= sync_pending ) {
+            if ( sync_pending >= sync_interval ) {
                 sync( pending );
                 sync_pending = 0;
                 pending = new ArrayList();
