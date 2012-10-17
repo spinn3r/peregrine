@@ -81,7 +81,15 @@ public class Test {
 
         int size = 16000000;
         int nr_files = 200;
+
+        if ( args.length == 2 ) {
+            size = Integer.parseInt( args[0] );
+            nr_files = Integer.parseInt( args[1] );
+        }
         
+        System.out.printf( "size: %,d\n", size );
+        System.out.printf( "nr_files: %,d\n", nr_files );
+
         byte[] data = new byte[ size ];
 
         ChannelBuffer buff = ChannelBuffers.wrappedBuffer( data );
