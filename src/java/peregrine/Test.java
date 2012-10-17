@@ -75,6 +75,20 @@ public class Test {
 
     }
 
+    public static void sync( List<MappedFileWriter> writers ) throws IOException {
+
+        if ( writers.size() == 0 )
+            return;
+
+        System.out.printf( "Syncing %,d writers.\n", writers.size() );
+        
+        for( MappedFileWriter writer : writers ) {
+            writer.sync();
+            writer.close();
+        }
+        
+    }
+    
     public static void main( String[] args ) throws Exception {
 
         //Thread.sleep( 10000L );
@@ -110,6 +124,12 @@ public class Test {
 
         }
 
+        int sync_interval = 250000000;
+
+        int sync_pending = 0;
+
+        List<MappedFileWriter> pending = new ArrayList();
+        
         //FIXME: only sync every 100MB or so?
         for( int i = 0; i < nr_files; ++i ) {
 
@@ -119,11 +139,22 @@ public class Test {
             
             MappedFileWriter writer = new MappedFileWriter( null, path );
             writer.write( buff );
-            writer.sync();
-            writer.close();
-            
+
+            if ( sync_pending >= sync_pending ) {
+                sync( pending );
+                sync_pending = 0;
+                pending = new ArrayList();
+            } else {
+
+                pending.add( writer );
+                sync_pending += size;
+                
+            }
+
         }
-        
+
+        sync( pending );
+
         //System.out.printf( "%s\n", Longs.format( 1000 ) );
         //System.out.printf( "%s\n", Longs.format( 1100000 ) );
         // System.out.printf( "%s\n", Longs.format( 999000 ) );
