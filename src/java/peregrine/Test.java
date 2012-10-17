@@ -100,14 +100,17 @@ public class Test {
 
             File file = new File( path );
 
-            if ( file.exists() )
-                continue;
-            
-            if ( file.createNewFile() == false )
+            if ( file.exists() == false && file.createNewFile() == false )
                 throw new IOException();
-   
+
+            MappedFileWriter writer = new MappedFileWriter( null, file );
+
+            fcntl.posix_fallocate( writer.getFd(), 0, size );
+            writer.close();
+
         }
 
+        //FIXME: only sync every 100MB or so?
         for( int i = 0; i < nr_files; ++i ) {
 
             String path = String.format( "/d0/test-%s.dat", i );
