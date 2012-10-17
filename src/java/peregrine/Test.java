@@ -80,7 +80,7 @@ public class Test {
         //Thread.sleep( 10000L );
 
         int size = 16000000;
-        int nr_files = 20;
+        int nr_files = 200;
         
         byte[] data = new byte[ size ];
 
