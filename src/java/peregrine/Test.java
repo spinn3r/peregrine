@@ -88,8 +88,13 @@ public class Test {
         
         for( int i = 0; i < nr_files; ++i ) {
 
-            MappedFileWriter writer = new MappedFileWriter( null, String.format( "/d0/test-%s.dat", i ) );
+            String path = String.format( "/d0/test-%s.dat", i );
+
+            System.out.printf( "%s\n", path );
+            
+            MappedFileWriter writer = new MappedFileWriter( null, path );
             writer.write( buff );
+            writer.sync();
             writer.close();
             
         }
