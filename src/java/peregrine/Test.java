@@ -93,7 +93,21 @@ public class Test {
         byte[] data = new byte[ size ];
 
         ChannelBuffer buff = ChannelBuffers.wrappedBuffer( data );
-        
+
+        for( int i = 0; i < nr_files; ++i ) {
+            
+            String path = String.format( "/d0/test-%s.dat", i );
+
+            File file = new File( path );
+
+            if ( file.exists() )
+                continue;
+            
+            if ( file.createNewFile() == false )
+                throw new IOException();
+   
+        }
+
         for( int i = 0; i < nr_files; ++i ) {
 
             String path = String.format( "/d0/test-%s.dat", i );
