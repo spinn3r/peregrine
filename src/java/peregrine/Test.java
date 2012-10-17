@@ -77,7 +77,22 @@ public class Test {
 
     public static void main( String[] args ) throws Exception {
 
-        Thread.sleep( 10000L );
+        //Thread.sleep( 10000L );
+
+        int size = 16000000;
+        int nr_files = 20;
+        
+        byte[] data = new byte[ size ];
+
+        ChannelBuffer buff = ChannelBuffers.wrappedBuffer( data );
+        
+        for( int i = 0; i < nr_files; ++i ) {
+
+            MappedFileWriter writer = new MappedFileWriter( null, String.format( "/d0/test-%s.dat", i ) );
+            writer.write( buff );
+            writer.close();
+            
+        }
         
         //System.out.printf( "%s\n", Longs.format( 1000 ) );
         //System.out.printf( "%s\n", Longs.format( 1100000 ) );

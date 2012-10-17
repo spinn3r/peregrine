@@ -45,8 +45,9 @@
 
     <target name="with.clover">
 
-        <clover-setup initstring="target/clover.db" flushpolicy="threaded" flushinterval="5000">
-          <distributedCoverage/>
+      <!-- -->
+        <clover-setup initstring="target/clover.db" flushpolicy="threaded" flushinterval="5000" >
+          <distributedCoverage timeout="60000"/>
         </clover-setup>
 
     </target>
