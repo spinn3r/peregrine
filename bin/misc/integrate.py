@@ -513,7 +513,7 @@ def run(limit=LIMIT):
             # TODO: we should ALSO have a flag/color indicating that something
             # is being integrated.
             
-            simulate=True
+            simulate=False
 
             if not simulate: 
             
