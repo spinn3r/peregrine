@@ -251,7 +251,7 @@ public class TestMapReduce extends peregrine.BaseTestWithMultipleProcesses {
         //System.setProperty( "peregrine.test.config", "1:1:1" ); // 3sec
 
         setPropertyDefault( "peregrine.test.factor", "1" ); // 
-        setPropertyDefault( "peregrine.test.config", "01:01:01" ); // takes 3 seconds
+        setPropertyDefault( "peregrine.test.config", "1:2:3" ); // takes 3 seconds
 
         // 256 partitions... 
         //System.setProperty( "peregrine.test.config", "08:01:32" );  // 1m
