@@ -573,7 +573,7 @@ def index(current=None):
                 bgcolor="gray"
                 
                 if int(rev) == current:
-                    bgcolo="blue"
+                    bgcolor="blue"
                 
                 sidebar.link( bgcolor, rev, report, change, coverage )
 
