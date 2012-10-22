@@ -331,7 +331,7 @@ def get_changedir(rev):
 
     return changedir
 
-def test(branch,rev,date):
+def test(branch,rev):
     """Run the tests on the current branch."""
 
     print "Testing %s on branch %s" % ( rev, branch )
