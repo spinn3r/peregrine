@@ -498,9 +498,17 @@ def run(limit=LIMIT):
 
             rev=changectx['rev']
 
+            # regen the HTML index... do this BEFORE we run a test so that we
+            # know that it has pulled the most recent version and is running.
+
+            # TODO: we should ALSO have a flag/color indicating that something
+            # is being integrated.
+            
+            index(int(rev))
+
             test(branch,rev)
 
-            # regen the index.
+            # regen the HTML index.
             index()
 
 def get_log(rev):
@@ -516,7 +524,7 @@ def get_log(rev):
 
     return parsed[key][0]
 
-def index():
+def index(current=None):
     """Write the full index of the sidebar and index.html"""
 
     index   = ReportIndex()
@@ -561,7 +569,13 @@ def index():
                     sidebar.link( bgcolor, rev, report, change, coverage )
 
             else:
-                sidebar.link( "gray", rev, report, change, coverage )
+
+                bgcolor="gray"
+                
+                if int(rev) == current:
+                    bgcolo="blue"
+                
+                sidebar.link( bgcolor, rev, report, change, coverage )
 
     finally:
         
