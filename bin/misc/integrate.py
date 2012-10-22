@@ -52,6 +52,8 @@ IGNORE_CHANGESETS['1852']=1
 # Timeout for build commands (in seconds)
 TIMEOUT=120*60
 
+OLD_AGE=7 * 24 * 60 * 60
+
 class ReportIndex:
 
     def __init__(self):
@@ -329,16 +331,8 @@ def get_changedir(rev):
 
     return changedir
 
-def test(branch,rev):
+def test(branch,rev,date):
     """Run the tests on the current branch."""
-
-    if ( isTested( rev ) ):
-        print "Skipping rev %s (already tested)." % rev
-        return
-
-    if ( isIgnored( rev ) ):
-        print "Skipping rev %s (ignored)." % rev
-        return
 
     print "Testing %s on branch %s" % ( rev, branch )
 
@@ -408,6 +402,10 @@ def isTested(rev):
 def isIgnored(rev):
 
     return IGNORE_CHANGESETS.get( rev ) != None
+
+def isOld(date):
+
+    return (time.time() - OLD_AGE) > float(date)
 
 def prioritize(list,depth=0):
     """
@@ -497,6 +495,17 @@ def run(limit=LIMIT):
             changectx=changes[i]
 
             rev=changectx['rev']
+            date=changectx['date']
+
+            if ( isTested( rev ) ):
+                continue
+
+            if ( isIgnored( rev ) ):
+                continue
+
+            if ( isOld( date ) ):
+                print "Skipping rev %s (old)." % rev
+                continue
 
             # regen the HTML index... do this BEFORE we run a test so that we
             # know that it has pulled the most recent version and is running.
@@ -504,12 +513,18 @@ def run(limit=LIMIT):
             # TODO: we should ALSO have a flag/color indicating that something
             # is being integrated.
             
-            index(int(rev))
+            simulate=True
 
-            test(branch,rev)
+            if not simulate: 
+            
+                index(int(rev))
 
-            # regen the HTML index.
-            index()
+                test(branch,rev)
+
+                # regen the HTML index.
+                index()
+            else:
+                print "%s:%s:%s" % (branch, rev, date)
 
 def get_log(rev):
     """Run hg log and get the output""" 
@@ -591,6 +606,7 @@ if len(sys.argv) == 2 and sys.argv[1] == "--index":
 daemon=len(sys.argv) == 2 and sys.argv[1] == "--daemon"
 
 while True:
+    
     # test the first changeset from each branch
     run(1)
     
