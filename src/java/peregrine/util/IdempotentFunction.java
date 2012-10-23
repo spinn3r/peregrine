@@ -29,16 +29,10 @@ public abstract class IdempotentFunction<T,E extends Exception> {
 
     private E failure = null;
 
-    private boolean traceExec = false;
+    private boolean enableTracing = false;
 
-    protected Exception caller = null;
+    protected Exception trace = null;
     
-    public IdempotentFunction() { }
-
-    public IdempotentFunction( boolean traceExec ) {
-        this.traceExec = traceExec;
-    }
-
     protected final T getResult() throws E {
         
         if ( failure != null )
@@ -62,8 +56,8 @@ public abstract class IdempotentFunction<T,E extends Exception> {
 
             try {
 
-                if ( traceExec )
-                    caller = new Exception( "TRACE" );
+                if ( enableTracing )
+                    trace = new Exception( "TRACE" );
 
                 result = invoke();
                 return result;
@@ -72,7 +66,7 @@ public abstract class IdempotentFunction<T,E extends Exception> {
                 
                 failure = (E)e;
 
-                if ( traceExec ) {
+                if ( enableTracing ) {
 
                     Throwable root = failure;
 
@@ -80,7 +74,7 @@ public abstract class IdempotentFunction<T,E extends Exception> {
                         root = root.getCause();
                     }
 
-                    root.initCause( caller );
+                    root.initCause( trace );
                     
                 }
                 
@@ -97,6 +91,10 @@ public abstract class IdempotentFunction<T,E extends Exception> {
     protected boolean executed() {
         return executed;
     }
+
+    protected void setEnableTracing( boolean _enableTracing ) {
+        this.enableTracing = _enableTracing;
+    }
     
     /**
      * Perform the action you want to execute once.  This is the actual body of
@@ -105,5 +103,9 @@ public abstract class IdempotentFunction<T,E extends Exception> {
      */
     protected abstract T invoke() throws E;
 
+    protected Exception getTrace() {
+        return trace;
+    }
+    
 }
 

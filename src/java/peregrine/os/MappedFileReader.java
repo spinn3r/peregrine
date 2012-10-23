@@ -59,7 +59,7 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
     protected MappedByteBufferCloser mappedByteBufferCloser = null;
 
     protected boolean shieldMappedFileAccess = false;
-    
+
     public MappedFileReader( Config config, File file ) throws IOException {
         init( config, file );
     }
@@ -82,8 +82,14 @@ public class MappedFileReader extends BaseMappedFile implements Closeable {
         this.file = file;
 
         if ( config != null ) {
+
+            // read in config settings (which are optional)
+            
             fadviseDontNeedEnabled  = config.getFadviseDontNeedEnabled();
-            shieldMappedFileAccess = config.getShieldMappedFileAccess();
+            shieldMappedFileAccess  = config.getShieldMappedFileAccess();
+
+            setEnableTracing( shieldMappedFileAccess ); 
+
         }
 
         this.in = new FileInputStream( file );

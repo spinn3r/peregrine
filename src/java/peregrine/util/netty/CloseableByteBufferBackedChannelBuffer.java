@@ -203,10 +203,15 @@ public class CloseableByteBufferBackedChannelBuffer extends AbstractChannelBuffe
         // NOTE: this method is the only dangerous one right now but I can't
         // provide an implementation of this without converting to a ByteBuffer
         // but there is NO way that I can wrap ByteBuffers for now.
+        //
+        // TODO: copy the entire thing to a byte[] OR throw an exception saying
+        // that this operation is unsafe.
+        
+        //requireOpen();
+        //return delegate.toByteBuffer( index, length );
 
-        requireOpen();
-        return delegate.toByteBuffer( index, length );
-
+        throw new RuntimeException( "unsafe" );
+        
     }
     
     public ChannelBuffer slice(int index, int length) {

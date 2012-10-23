@@ -31,8 +31,6 @@ public abstract class BaseCloser<T> extends IdempotentFunction<Object,GroupIOExc
 
     private static final Logger log = Logger.getLogger();
 
-    private boolean trace = false;
-
     protected List<T> delegates = new ArrayList();
 
     private Throwable cause = null;
@@ -73,14 +71,6 @@ public abstract class BaseCloser<T> extends IdempotentFunction<Object,GroupIOExc
         this.cause = cause;
     }
 
-    public boolean getTrace() { 
-        return this.trace;
-    }
-
-    public void setTrace( boolean trace ) { 
-        this.trace = trace;
-    }
-
     @Override
     protected Object invoke() throws GroupIOException {
 
@@ -96,10 +86,6 @@ public abstract class BaseCloser<T> extends IdempotentFunction<Object,GroupIOExc
             
             try {
 
-                if ( trace ) {
-                    log.info( "Going to handle %s" , current.getClass().getName() );
-                }
-                
                 onDelegate( current );
 
             } catch ( Throwable t ) {

@@ -32,17 +32,17 @@ public abstract class IdempotentCloser
      * was closed but this slows down performance so keep it disabled by
      * default.
      */
-    public static boolean ENABLE_TRACING = false;
+    public static boolean DEFAULT_ENABLE_TRACING = false;
     
     public IdempotentCloser() {
-        super( ENABLE_TRACING );
+        setEnableTracing( DEFAULT_ENABLE_TRACING );
     }
 
-    @Override
     /**
      * Idempotently close the resource.  This is a final method so that we don't
      * accidentally override it during implementation.
      */
+    @Override
     public final void close() throws IOException {
         exec();
     }
@@ -70,8 +70,11 @@ public abstract class IdempotentCloser
         return null;
     }
 
+    /**
+     * Get a stacktrace for who closed this object.
+     */
     public Exception getCloser() {
-        return caller;
+        return getTrace();
     }
         
 }
