@@ -200,17 +200,12 @@ public class CloseableByteBufferBackedChannelBuffer extends AbstractChannelBuffe
 
     public ByteBuffer toByteBuffer(int index, int length) {
 
-        // NOTE: this method is the only dangerous one right now but I can't
-        // provide an implementation of this without converting to a ByteBuffer
-        // but there is NO way that I can wrap ByteBuffers for now.
-        //
-        // TODO: copy the entire thing to a byte[] OR throw an exception saying
-        // that this operation is unsafe.
-        
-        //requireOpen();
-        //return delegate.toByteBuffer( index, length );
+        byte[] buff = new byte[ length ];
 
-        throw new RuntimeException( "unsafe" );
+        // this function calls requireOpen for us.
+        getBytes( index, buff, 0, length );
+
+        return ByteBuffer.wrap( buff );
         
     }
     
