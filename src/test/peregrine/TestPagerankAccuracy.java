@@ -134,6 +134,23 @@ public class TestPagerankAccuracy extends peregrine.BaseTestWithMultipleProcesse
             System.out.printf( "%10s=%2.10f\n", i, rank_vector.get( StructReaders.hashcode( i ) ) );
         }
 
+        Map<Long,String> correctResults = new HashMap();
+
+        correctResults.put( 1L, "0.0395326288" );
+        correctResults.put( 2L, "0.0577733142" );
+        correctResults.put( 3L, "0.0441743551" );
+        
+        for( long key : correctResults.keySet() ) {
+
+            String value = correctResults.get( key );
+            
+            Double rank = rank_vector.get( StructReaders.hashcode( key ) );
+            String rank_formatted = String.format( "%2.10f", rank );
+
+            assertEquals( rank_formatted, value );
+            
+        }
+        
         System.out.printf( "teleportation_grant: %s\n", teleportation_grant );
         
         //System.out.printf( "rank_vector: %s\n", rank_vector );
