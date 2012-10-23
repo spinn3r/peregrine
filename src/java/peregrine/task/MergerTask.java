@@ -15,6 +15,7 @@
 */
 package peregrine.task;
 
+import java.io.*;
 import java.util.*;
 
 import peregrine.*;
@@ -36,6 +37,8 @@ public class MergerTask extends BaseMapperTask {
 
     private static final Logger log = Logger.getLogger();
 
+    private Closer closer = null;
+    
     protected void doCall() throws Exception {
 
         log.info( "Running merge jobs on host: %s ...", host );
@@ -45,32 +48,32 @@ public class MergerTask extends BaseMapperTask {
         MergeRunner mergeRunner = new MergeRunner( jobInput );
 
         Merger merger = (Merger)jobDelegate;
-        Closer closer = new Closer( mergeRunner );
+        closer = new Closer( mergeRunner );
         
-        try { 
+        while( true ) {
 
-            while( true ) {
+            MergedValue joined = mergeRunner.next();
 
-                MergedValue joined = mergeRunner.next();
+            if ( joined == null )
+                break;
 
-                if ( joined == null )
-                    break;
+            assertActiveJob();
+            
+            merger.merge( joined.key, joined.values );
 
-                assertActiveJob();
-                
-                merger.merge( joined.key, joined.values );
+            report.getConsumed().incr();
 
-                report.getConsumed().incr();
-
-            }
-
-            log.info( "Running merge jobs on host: %s ... done", host );
-
-        } finally {
-            closer.close();
         }
+
+        log.info( "Running merge jobs on host: %s ... done", host );
             
     }
-    
+
+    @Override
+    public void teardown() throws IOException {
+        super.teardown();
+        closer.close();        
+    }
+
 }
 
