@@ -449,6 +449,8 @@ public class ReduceRunner implements Closeable {
 
             SequenceReader result = sorter.sort( work, out, jobOutput );
 
+            sorter = null;
+            
             if ( TRIGGER_GC_AFTER_SORT ) {
                 System.gc(); 
             }

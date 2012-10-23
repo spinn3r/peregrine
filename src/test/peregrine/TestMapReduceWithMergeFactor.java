@@ -127,6 +127,7 @@ public class TestMapReduceWithMergeFactor extends peregrine.BaseTestWithMultiple
         // 256 partitions... 
         //System.setProperty( "peregrine.test.config", "08:01:32" );  // 1m
         //System.setProperty( "peregrine.test.config", "02:01:04" );  // 1m
+        System.setProperty( "peregrine.test.config", "1:1:1" );  // 1m
 
         runTests();
 

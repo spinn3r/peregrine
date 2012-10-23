@@ -218,6 +218,13 @@ public class Config extends BaseConfig {
         
     }
 
+    public long getMaxDirectMemory() {
+
+        return getConcurrency() *
+            Math.max( getShuffleBufferSize(), getSortBufferSize() );
+
+    }
+
     @Override
     public String toString() {
         return String.format( "host=%s, root=%s, concurrency=%s, replicas=%s, nr_hosts=%s",

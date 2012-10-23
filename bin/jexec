@@ -78,14 +78,18 @@ JVM_ARGS="$JVM_ARGS -XX:+UseParallelGC"
 
 JVM_ARGS="$JVM_ARGS -XX:+UseCompressedOops"
 
+      #-XX:MaxDirectMemorySize=$MAX_DIRECT_MEMORY \
+      #-DMaxDirectMemorySize=$MAX_DIRECT_MEMORY \
+
+#TODO: I think we can read this from the sun.nio.MaxDirectMemorySize system
+#property.
+
 while [ true ]; do
 
     run $JAVA \
-      -XX:MaxDirectMemorySize=$MAX_DIRECT_MEMORY \
       -Xms$MAX_MEMORY \
       -Xmx$MAX_MEMORY \
       $JVM_ARGS \
-      -DMaxDirectMemorySize=$MAX_DIRECT_MEMORY \
       $JAVA_OPTS \
       $CLASSNAME "$@"
 
