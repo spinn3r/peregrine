@@ -616,5 +616,6 @@ while True:
     if not daemon:
         break
 
+    print "Sleeping for %s" % DAEMON_SLEEP_INTERVAL
     time.sleep( DAEMON_SLEEP_INTERVAL )
 

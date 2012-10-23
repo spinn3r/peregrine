@@ -169,7 +169,7 @@ public class TestPagerankAccuracy extends peregrine.BaseTestWithMultipleProcesse
         //System.setProperty( "peregrine.test.config", "2:1:3" ); 
         //System.setProperty( "peregrine.test.config", "2:1:3" ); 
 
-        System.setProperty( "peregrine.test.config", "1:1:1" ); 
+        System.setProperty( "peregrine.test.config", "1:1:2" ); 
         runTests();
         
     }
