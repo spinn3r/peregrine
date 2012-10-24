@@ -64,16 +64,18 @@ public class AllocateRequiredMemory {
         
         List<Integer> capacities = new ArrayList();
 
+        int max = Integer.MAX_VALUE - 1;
+        
         while( true ) {
 
             if ( capacity < 0 ) {
                 break;
-            } else if ( capacity < Integer.MAX_VALUE ) {
+            } else if ( capacity < max ) {
                 capacities.add( (int)capacity );
                 break;
             } else {
-                capacities.add( Integer.MAX_VALUE );
-                capacity -= Integer.MAX_VALUE;
+                capacities.add( max );
+                capacity -= max;
             }
             
         }
