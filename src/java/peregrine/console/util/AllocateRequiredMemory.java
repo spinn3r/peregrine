@@ -73,10 +73,15 @@ public class AllocateRequiredMemory {
         
         List<ByteBuffer> buffers = new ArrayList();
 
+        long allocated = 0;
+        
         for( int cap : capacities ) {
             ByteBuffer buff = ByteBuffer.allocateDirect( cap );
             buffers.add( buff );
+            allocated += cap;
         }
+
+        System.out.printf( "Allocated %,d bytes\n", allocated );
 
         //now actualy USE the allocated memory because we have to factor in
         //overcommit
