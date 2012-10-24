@@ -130,7 +130,7 @@ public class TestSortViaMapReduce extends peregrine.BaseTestWithMultipleProcesse
 
             System.out.printf( "host: %s\n", c.getHost() );
 
-            // /tmp/peregrine-fs-11112/localhost/11112/0/
+            // /tmp/peregrine/fs-11112/localhost/11112/0/
 
             List<Partition> partitions = c.getMembership().getPartitions( c.getHost() );
 
@@ -138,7 +138,7 @@ public class TestSortViaMapReduce extends peregrine.BaseTestWithMultipleProcesse
 
                 int port = c.getHost().getPort();
                 
-                String dir = String.format( "/tmp/peregrine-fs-%s/localhost/%s/%s/%s", port, port, part.getId(), output );
+                String dir = String.format( "/tmp/peregrine/fs-%s/localhost/%s/%s/%s", port, port, part.getId(), output );
 
                 File file = new File( dir );
 

@@ -289,7 +289,7 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
         String basedir = BASEDIR_MAP.get( port );
 
         if ( basedir == null )
-            basedir = "/tmp/peregrine-fs-" + port;
+            basedir = "/tmp/peregrine/fs-" + port;
 
         return basedir;
         
