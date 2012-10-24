@@ -199,6 +199,9 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
         
     }
 
+    /**
+     * 
+     */
     private void killAllDaemons() throws Exception {
 
         ProcessList ps = new ProcessList();

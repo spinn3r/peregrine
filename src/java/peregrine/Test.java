@@ -91,69 +91,76 @@ public class Test {
     
     public static void main( String[] args ) throws Exception {
 
+        String[] argv = new String[] { "", "one", "two", "three" };
+        String[] envp = new String[] {};
+        
+        unistd.spawn( "/bin/echo", argv, envp );
+
+        System.out.printf( "spawned!\n" );
+        
         //Thread.sleep( 10000L );
 
-        int size = 16000000;
-        int nr_files = 200;
+        // int size = 16000000;
+        // int nr_files = 200;
 
-        if ( args.length == 2 ) {
-            size = Integer.parseInt( args[0] );
-            nr_files = Integer.parseInt( args[1] );
-        }
+        // if ( args.length == 2 ) {
+        //     size = Integer.parseInt( args[0] );
+        //     nr_files = Integer.parseInt( args[1] );
+        // }
         
-        System.out.printf( "size: %,d\n", size );
-        System.out.printf( "nr_files: %,d\n", nr_files );
+        // System.out.printf( "size: %,d\n", size );
+        // System.out.printf( "nr_files: %,d\n", nr_files );
 
-        byte[] data = new byte[ size ];
+        // byte[] data = new byte[ size ];
 
-        ChannelBuffer buff = ChannelBuffers.wrappedBuffer( data );
+        // ChannelBuffer buff = ChannelBuffers.wrappedBuffer( data );
 
-        for( int i = 0; i < nr_files; ++i ) {
+        // for( int i = 0; i < nr_files; ++i ) {
             
-            String path = String.format( "/d0/test-%s.dat", i );
+        //     String path = String.format( "/d0/test-%s.dat", i );
 
-            File file = new File( path );
+        //     File file = new File( path );
 
-            if ( file.exists() == false && file.createNewFile() == false )
-                throw new IOException();
+        //     if ( file.exists() == false && file.createNewFile() == false )
+        //         throw new IOException();
 
-            MappedFileWriter writer = new MappedFileWriter( null, file );
+        //     MappedFileWriter writer = new MappedFileWriter( null, file );
 
-            fcntl.posix_fallocate( writer.getFd(), 0, size );
-            writer.close();
+        //     fcntl.posix_fallocate( writer.getFd(), 0, size );
+        //     writer.close();
 
-        }
+        // }
 
-        int sync_interval = 250000000;
+        // int sync_interval = 250000000;
 
-        int sync_pending = 0;
+        // int sync_pending = 0;
 
-        List<MappedFileWriter> pending = new ArrayList();
+        // List<MappedFileWriter> pending = new ArrayList();
         
-        //FIXME: only sync every 100MB or so?
-        for( int i = 0; i < nr_files; ++i ) {
+        // //FIXME: only sync every 100MB or so?
+        // for( int i = 0; i < nr_files; ++i ) {
 
-            String path = String.format( "/d0/test-%s.dat", i );
+        //     String path = String.format( "/d0/test-%s.dat", i );
 
-            System.out.printf( "%s\n", path );
+        //     System.out.printf( "%s\n", path );
             
-            MappedFileWriter writer = new MappedFileWriter( null, path );
-            writer.write( buff );
+        //     MappedFileWriter writer = new MappedFileWriter( null, path );
+        //     writer.write( buff );
 
-            if ( sync_pending >= sync_interval ) {
-                sync( pending );
-                sync_pending = 0;
-                pending = new ArrayList();
-            } else {
+        //     if ( sync_pending >= sync_interval ) {
+        //         sync( pending );
+        //         sync_pending = 0;
+        //         pending = new ArrayList();
+        //     } else {
 
-                pending.add( writer );
-                sync_pending += size;
+        //         pending.add( writer );
+        //         sync_pending += size;
                 
-            }
+        //     }
 
-        }
+        // }
 
-        sync( pending );
+        // sync( pending );
 
         //System.out.printf( "%s\n", Longs.format( 1000 ) );
         //System.out.printf( "%s\n", Longs.format( 1100000 ) );

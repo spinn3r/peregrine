@@ -293,6 +293,49 @@ public class unistd {
 
     }
 
+    public static int fork() throws Exception {
+
+        int result = delegate.fork();
+
+        if ( result == -1 )
+            throw new PlatformException();
+
+        return result;
+
+    }
+
+    public static int execve( String path, String[] argv, String [] envp ) throws Exception {
+
+        int result = delegate.execve( path, argv, envp );
+
+        if ( result == -1 )
+            throw new PlatformException();
+
+        return result;
+        
+    }
+
+    /**
+     * Spawn the given command in a subprocess and return the created pid.
+     */
+    public static int spawn( String path, String[] argv, String[] envp ) throws Exception {
+
+        int f = fork();
+        
+        if ( f == 0 ) {
+
+            // we are in the child
+            return execve( path, argv, envp );
+            
+        } else {
+
+            //we are the parent and f is the pid.
+            return f;
+            
+        }
+        
+    }
+    
     interface InterfaceDelegate extends Library {
 
         void sync();
@@ -306,6 +349,8 @@ public class unistd {
         int mkdir( String path, int mode );
         int unlink( String path );
         int rename( String oldPath, String newPath );
+        int fork();
+        int execve( String path, String[] argv, String [] envp );
         
     }
 
