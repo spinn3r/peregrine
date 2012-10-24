@@ -41,6 +41,8 @@ public class AllocateRequiredMemory {
         
         Getopt getopt = new Getopt( args );
 
+        new Initializer().logger( "conf/log4j-silent.xml", "allocate" );
+
         Config config = ConfigParser.parse( args );
 
         getopt.require( "daemons" );
@@ -55,6 +57,8 @@ public class AllocateRequiredMemory {
 
         capacity += config.getMaxMemory() * daemons;
 
+        System.out.printf( "Testing for capacity: %,d bytes\n", capacity );
+        
         List<Integer> capacities = new ArrayList();
 
         while( true ) {
