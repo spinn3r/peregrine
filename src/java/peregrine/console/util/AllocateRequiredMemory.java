@@ -85,6 +85,7 @@ public class AllocateRequiredMemory {
         long allocated = 0;
         
         for( int cap : capacities ) {
+            System.out.printf( "Allocating %,d bytes\n", cap );
             ByteBuffer buff = ByteBuffer.allocateDirect( cap );
             buffers.add( buff );
             allocated += cap;
