@@ -47,6 +47,8 @@ public class AllocateRequiredMemory {
 
         int daemons = getopt.getInt( "daemons" );
 
+        System.out.printf( "Testing for %,d daemons\n", daemons );
+        
         long capacity = 0;
         
         capacity += config.getMaxDirectMemory() * daemons;
