@@ -20,7 +20,7 @@ import peregrine.config.Config;
 import peregrine.config.Host;
 import peregrine.worker.*;
 
-public abstract class BaseTestWithTwoDaemons extends peregrine.BaseTestWithMultipleConfigs {
+public abstract class BaseTestWithTwoDaemons extends peregrine.BaseTestWithMultipleProcesses {
 
     public BaseTestWithTwoDaemons() {
 

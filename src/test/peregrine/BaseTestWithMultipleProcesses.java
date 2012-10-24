@@ -48,7 +48,9 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
     protected static Map<Integer,String> BASEDIR_MAP = new HashMap();
 
     protected int concurrency = 0;
+
     protected int replicas = 0;
+
     protected int hosts = 0;
 
     protected Map<Integer,Integer> processes = new HashMap();
@@ -61,6 +63,9 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
      * Specify extra arguments to worker daemons.
      */
     protected List<String> extraWorkerArguments = new ArrayList();
+
+    // the config for a controller.
+    protected Config config = null;
     
     private boolean readConfig() {
 
@@ -96,23 +101,20 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
         super.setUp();
 
         try {
+
             killAllDaemons();
-        } catch ( Exception e ) {
-            RuntimeException rte = new RuntimeException( "Unable to kill daemons: " );
-            rte.initCause( e );
-            throw rte;
-        }
-        
-        if ( readConfig() == false ) {
-            return;
-        }
-        
-        log.info( "Working with concurrency=%s, replicas=%s, hosts=%s" , concurrency, replicas, hosts );
-
-        //Write out a new peregrine.hosts file.
-
-        try {
             
+            if ( readConfig() == false ) {
+                return;
+            }
+
+            // get the config for the controller
+            config = getConfig( 11111 );
+
+            log.info( "Working with concurrency=%s, replicas=%s, hosts=%s" , concurrency, replicas, hosts );
+
+            //Write out a new peregrine.hosts file.
+
             FileOutputStream fos = new FileOutputStream( "/tmp/peregrine.hosts" );
 
             for( int i = 0; i < hosts; ++i ) {
@@ -124,54 +126,39 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
 
             fos.close();
 
-        } catch ( IOException e ) {
-            throw new RuntimeException( e );
-        }
+            for( int i = 0; i < hosts; ++i ) {
+
+                // startup new daemons no different port and in different
+                // directories.
+
+                int port = Host.DEFAULT_PORT + i;
+                String basedir = getBasedir( port );
+
+                Host host = new Host( "localhost", port );
+
+                Config config = getConfig( port );
             
-        for( int i = 0; i < hosts; ++i ) {
+                configsByHost.put( host, config );
+                configs.add( config );
 
-            // startup new daemons no different port and in different
-            // directories.
+                //clean up the previous basedir
 
-            int port = Host.DEFAULT_PORT + i;
-            String basedir = getBasedir( port );
+                System.out.printf( "Removing files in %s\n", basedir );
 
-            Host host = new Host( "localhost", port );
-
-            Config config = null;
-            
-            try {
-                config = getConfig( port );
-            } catch ( IOException e ) {
-                throw new RuntimeException( e );
-            }
-            
-            configsByHost.put( host, config );
-            configs.add( config );
-
-            //clean up the previous basedir
-
-            System.out.printf( "Removing files in %s\n", basedir );
-
-            try {
                 Files.purge( basedir );
-            } catch ( IOException e ) {
-                throw new RuntimeException( e );
-            }
 
-            List<String> workerd_args = getArguments( port );
+                List<String> workerd_args = getArguments( port );
 
-            // the args specific in spawn() must begin at 1 and have the name of
-            // the command first (by convention)
-            workerd_args.add( 0, "bin/workerd" );
+                // the args specific in spawn() must begin at 1 and have the name of
+                // the command first (by convention)
+                workerd_args.add( 0, "bin/workerd" );
 
-            // tell the daemon that we want to start.
-            workerd_args.add( "start" );
+                // tell the daemon that we want to start.
+                workerd_args.add( "start" );
 
-            String cmdline = Strings.join( workerd_args, " " );
+                String cmdline = Strings.join( workerd_args, " " );
 
-            List<String> env = new ArrayList();
-            try {
+                List<String> env = new ArrayList();
 
                 System.out.printf( "Starting proc: %s\n", cmdline );
 
@@ -183,15 +170,17 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
                 WaitForDaemon.waitForDaemon( pid, port );
                 
                 processes.put( port, pid );
-
-            } catch ( Throwable t ) {
-                throw new RuntimeException( t );
+                
             }
-            
+
+            System.out.printf( "setUp complete and all daemons running.\n" );
+
+        } catch ( Exception e ) {
+            RuntimeException rte = new RuntimeException( e.getMessage() );
+            rte.initCause( e );
+            throw rte;
         }
 
-        System.out.printf( "setUp complete and all daemons running.\n" );
-        
     }
 
     /**
@@ -203,7 +192,7 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
 
             int pid = processes.get( port );
 
-            System.out.printf( "Sending SIGTERM to %s\n", port  );
+            System.out.printf( "Sending SIGTERM to %s\n", port );
             signal.kill( pid, signal.SIGTERM );
             
         }
