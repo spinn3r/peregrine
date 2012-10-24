@@ -174,7 +174,7 @@ public class TestBroadcastMapReduce extends peregrine.BaseTestWithMultipleProces
 
     public static void main( String[] args ) throws Exception {
 
-        System.setProperty( "peregrine.test.config", "1:1:2" ); 
+        System.setProperty( "peregrine.test.config", "1:1:4" ); 
 
         //System.setProperty( "peregrine.test.config", "4:1:16" ); 
         //System.setProperty( "peregrine.test.config", "01:01:1" ); 

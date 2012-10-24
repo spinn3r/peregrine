@@ -128,6 +128,8 @@ public class BaseConfig {
 
     protected boolean shieldMappedFileAccess = false;
 
+    protected long maxMemory = -1;
+
     public void init( StructMap struct ) {
 
         this.struct = struct;
@@ -161,7 +163,8 @@ public class BaseConfig {
         setHttpMaxChunkSize( struct.getSize( "httpMaxChunkSize" ) );
         setMaxClientShuffleOutputBufferSize( struct.getSize( "maxClientShuffleOutputBufferSize" ) );
         setShieldMappedFileAccess( struct.getBoolean( "shieldMappedFileAccess" ) );
-
+        setMaxMemory( struct.getSize( "maxMemory" ) );
+        
         if ( struct.containsKey( "host" ) )
             setHost( Host.parse( struct.getString( "host" ) ) );
 
@@ -424,6 +427,14 @@ public class BaseConfig {
 
     public void setShieldMappedFileAccess( boolean shieldMappedFileAccess ) { 
         this.shieldMappedFileAccess = shieldMappedFileAccess;
+    }
+
+    public long getMaxMemory() { 
+        return this.maxMemory;
+    }
+
+    public void setMaxMemory( long maxMemory ) { 
+        this.maxMemory = maxMemory;
     }
 
     static {
