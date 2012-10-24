@@ -11,13 +11,20 @@ shift
 run() {
 
     echo $@ > /dev/stderr
-    $@
+
+    if [ "$REPLACE_PROCESS" == "false" ]; then
+        $@
+    else
+        exec $@
+    fi
+    
     result=$?
     return $result
 
 }
 
 ## set default variables.
+
 : ${MAX_MEMORY:="128M"}
 : ${MAX_DIRECT_MEMORY:="128G"}
 : ${JAVA:="java"}
@@ -27,9 +34,23 @@ run() {
 : ${PROFILER_PATH:="/usr/local/jprofiler"}
 : ${PROFILER_OPTS:="-agentlib:jprofilerti=port=8849 -Xint -Xbootclasspath/a:$PROFILER_PATH/bin/agent.jar"}
 : ${JMX_PORT:=12112}
-: ${AUTO_RESTART:="false"}
-: ${JVM_ARGS:=""}
-: ${JAVA_OPTS:="-Dclover.distributed.coverage=ON -Dclover.server=true"}
+
+### 
+#
+# http://javarevisited.blogspot.com/2012/06/what-is-xxusecompressedoops-in-64-bit.html
+#
+# Enable use of 32 bit ordinary object pointers as almost ALL of our JVMs we use
+# will be less than 32GB for a long time to come.
+
+: ${JVM_ARGS:="-XX:+UseParallelGC -XX:+UseCompressedOops"}
+
+: ${JAVA_OPTS:=""}
+
+### 
+# When true, replace the current process by calling exec.
+: ${REPLACE_PROCESS:="false"}
+
+#: ${JAVA_OPTS:="-Dclover.distributed.coverage=ON -Dclover.server=true"}
 
 # TODO: would be nice to not have to use sed here.
 
@@ -63,40 +84,14 @@ set -o noglob
 
 export CLASSPATH=target/compile:lib/*:lib/optional/cassandra/*:lib/build/*
 
-# NOTE: we include -XX:MaxDirectMemorySize and -DMaxDirectMemorySize here so
-# that we can read the max direct memory as a java system property.
+run $JAVA \
+  -XX:MaxDirectMemorySize=$MAX_DIRECT_MEMORY \
+  -Xms$MAX_MEMORY \
+  -Xmx$MAX_MEMORY \
+  $JVM_ARGS \
+  $JAVA_OPTS \
+  $CLASSNAME "$@"
 
-###
-# Use the JVM ParallelGC and not CMS 
-# 
-JVM_ARGS="$JVM_ARGS -XX:+UseParallelGC"
-
-# http://javarevisited.blogspot.com/2012/06/what-is-xxusecompressedoops-in-64-bit.html
-#
-# Enable use of 32 bit ordinary object pointers as almost ALL of our JVMs we use
-# will be less than 32GB for a long time to come.
-
-JVM_ARGS="$JVM_ARGS -XX:+UseCompressedOops"
-
-#TODO: I think we can read this from the sun.nio.MaxDirectMemorySize system
-#property.
-
-while [ true ]; do
-
-    run $JAVA \
-      -XX:MaxDirectMemorySize=$MAX_DIRECT_MEMORY \
-      -Xms$MAX_MEMORY \
-      -Xmx$MAX_MEMORY \
-      $JVM_ARGS \
-      $JAVA_OPTS \
-      $CLASSNAME "$@"
-
-    result=$?
-
-    if [ "$AUTO_RESTART" != "true" ]; then
-        break
-    fi
-
-done
+result=$?
 
 exit $result

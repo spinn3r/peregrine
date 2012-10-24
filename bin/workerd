@@ -28,13 +28,6 @@ start() {
 
     export MAX_MEMORY=$(./bin/jexec peregrine.worker.GetConfig $args --getString=maxMemory 2> /dev/null | tail -1)
 
-    port=$(./bin/jexec peregrine.worker.GetConfig $args --getString=port 2> /dev/null | tail -1)
-    export JMX_PORT=$(expr $port + $JMX_PORT_OFFSET)
-
-    # Get the max direct memory we will use.  This can't use GetConfig because
-    # there may be multiple variables involved.
-
-    #export MAX_DIRECT_MEMORY=$(./bin/jexec peregrine.worker.GetMaxDirectMemory $args 2> /dev/null | tail -1)
     result=$?
 
     if [ "$result" != "0" ]; then
@@ -71,19 +64,14 @@ start() {
 
     echo "Running with max JVM memory $MAX_MEMORY and max direct memory $MAX_DIRECT_MEMORY and writing output to '$OUTPUT'"
 
+    export REPLACE_PROCESS=true
+
     #export PROFILER_ENABLED_OSX=true
-
-    # enable auto-restart so that the workerd will restart automatically.
-    #
-    # killall is auto-restarting this ...
-    #
-    #export AUTO_RESTART=true
-
     ./bin/jexec peregrine.worker.Main $args < /dev/null > $stdout 2> $stderr &
+
     pid=$!
 
-    # now disable auto-restart or WaitForDaemon will never return.
-    export AUTO_RESTART=false
+    export REPLACE_PROCESS=false
 
     # now that we started the daemon, wait for it to startup... if it starts, great,
     # if not fail.
