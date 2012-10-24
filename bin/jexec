@@ -26,7 +26,18 @@ run() {
 ## set default variables.
 
 : ${MAX_MEMORY:="128M"}
-: ${MAX_DIRECT_MEMORY:="128G"}
+
+###
+# 
+# Specify the JVM max direct memory.  By default it is the same as MAX_MEMORY if
+# not set by the JVM so we should set it or it will be set for us.
+
+: ${MAX_DIRECT_MEMORY:="256G"}
+
+###
+# The name for the java command.  You can change this to a full command path
+# here. 
+
 : ${JAVA:="java"}
 : ${SILENT:="false"}
 : ${PROFILER_ENABLED:="false"}

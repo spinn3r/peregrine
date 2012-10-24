@@ -41,8 +41,6 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
     
     public static boolean KILL_WORKERS_ON_TEARDOWN = true;
     
-    public static String MAX_MEMORY = "128M";
-
     /**
      * Map to store port to base directory maps.  This way unit tests can use
      * different drives and different devices.
@@ -53,7 +51,7 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
     protected int replicas = 0;
     protected int hosts = 0;
 
-    protected Map<Integer,Process> processes = new HashMap();
+    protected Map<Integer,Integer> processes = new HashMap();
 
     protected Map<Host,Config> configsByHost = new HashMap();
 
@@ -163,31 +161,28 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
 
             List<String> workerd_args = getArguments( port );
 
+            // the args specific in spawn() must begin at 1 and have the name of
+            // the command first (by convention)
             workerd_args.add( 0, "bin/workerd" );
+
+            // tell the daemon that we want to start.
             workerd_args.add( "start" );
 
             String cmdline = Strings.join( workerd_args, " " );
 
-            ProcessBuilder pb = new ProcessBuilder( workerd_args );
-
-            pb.environment().put( "MAX_MEMORY",        MAX_MEMORY );
-            pb.environment().put( "MAX_DIRECT_MEMORY", MAX_MEMORY );
-            pb.environment().put( "OUTPUT",            "standard" );
-
+            List<String> env = new ArrayList();
             try {
 
                 System.out.printf( "Starting proc: %s\n", cmdline );
 
-                Process proc = pb.start();
+                int pid = unistd.spawn( "bin/workerd",
+                                        Strings.toArray( workerd_args ),
+                                        Strings.toArray( env ) );
 
-                // wait for the pid file to be created OR the process exits.
-
-                int pid = waitForProcStartup( config, proc, port );
-                
                 // wait for startup so we know the port is open
                 WaitForDaemon.waitForDaemon( pid, port );
                 
-                processes.put( port, proc );
+                processes.put( port, pid );
 
             } catch ( Throwable t ) {
                 throw new RuntimeException( t );
@@ -204,68 +199,12 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
      */
     private void killAllDaemons() throws Exception {
 
-        ProcessList ps = new ProcessList();
+        for( int port : processes.keySet() ) {
 
-        for( ProcessListEntry proc : ps.getProcesses() ) {
+            int pid = processes.get( port );
 
-            List<String> arguments = proc.getArguments();
-
-            if ( arguments.size() <= 1 )
-                continue;
-
-            if ( ! "java".equals( arguments.get( 0 ) ) ) {
-                continue;
-            }
-
-            boolean isDaemon = false;
-
-            for( String arg : arguments ) {
-                if ( peregrine.worker.Main.class.getName().equals( arg ) ) {
-                    isDaemon = true;
-                    break;
-                }
-            }
-
-            if ( isDaemon ) {
-                
-                int pid = proc.getId();
-                
-                System.out.printf( "Sending SIGTERM to %s\n", proc  );
-                signal.kill( pid, signal.SIGTERM );
-                
-            }
-            
-        }
-
-    }
-
-    /**
-     * Wait for the proc to startup and for the pid file to be written.
-     */
-    private static int waitForProcStartup( Config config,
-                                           Process proc,
-                                           int port ) throws Exception {
-
-        System.out.printf( "Waiting for startup on port %s ", port );
-        
-        long started = System.currentTimeMillis();
-        
-        while( true ) {
-
-            int pid = new Pidfile( config ).read();
-            
-            if ( pid > -1 ) {
-                System.out.printf( "done\n" );
-                return pid;
-            }
-
-            if ( System.currentTimeMillis() - started > TIMEOUT ) {
-                throw new RuntimeException( "timeout while starting proc." );
-            }
-
-            System.out.printf( "." );
-            
-            Thread.sleep( 1000L );
+            System.out.printf( "Sending SIGTERM to %s\n", port  );
+            signal.kill( pid, signal.SIGTERM );
             
         }
 
