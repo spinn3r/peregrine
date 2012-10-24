@@ -95,8 +95,8 @@ public class AllocateRequiredMemory {
 
         System.out.printf( "Allocated %,d bytes\n", allocated );
 
-        //now actualy USE the allocated memory because we have to factor in
-        //overcommit
+        //now actually USE the allocated memory because we have to factor in
+        //overcommit.
 
         System.out.printf( "Using memory..." );
         

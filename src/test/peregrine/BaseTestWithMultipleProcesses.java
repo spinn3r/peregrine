@@ -37,6 +37,8 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
 
     private static final Logger log = Logger.getLogger();
 
+    public static long TIMEOUT = 2 * 60 * 1000;
+    
     public static boolean KILL_WORKERS_ON_TEARDOWN = true;
     
     public static String MAX_MEMORY = "128M";
@@ -254,8 +256,8 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
                 return pid;
             }
 
-            if ( System.currentTimeMillis() - started > 60000 ) {
-                throw new RuntimeException( "timeout while starting proc" );
+            if ( System.currentTimeMillis() - started > TIMEOUT ) {
+                throw new RuntimeException( "timeout while starting proc." );
             }
 
             System.out.printf( "." );
