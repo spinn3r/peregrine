@@ -64,7 +64,7 @@ public class AllocateRequiredMemory {
         
         List<Integer> capacities = new ArrayList();
 
-        int max = Integer.MAX_VALUE - 1;
+        int max = Integer.MAX_VALUE / 2;
         
         while( true ) {
 
