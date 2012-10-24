@@ -109,29 +109,29 @@ public class TestCombinerEfficiency extends peregrine.BaseTestWithMultipleConfig
             
         // now attempt to open the main shuffle file... 
 
-        //combine( "/tmp/peregrine-fs/localhost/11112/0/pr/tmp/shuffled_out/chunk000000.dat" );
+        //combine( "/tmp/peregrine/fs/localhost/11112/0/pr/tmp/shuffled_out/chunk000000.dat" );
 
         /*
-        combine( "/tmp/peregrine-fs/localhost/11112/tmp/shuffle/default/0000000000.tmp" );
-        combine( "/tmp/peregrine-fs/localhost/11112/tmp/shuffle/default/0000000001.tmp" );
-        combine( "/tmp/peregrine-fs/localhost/11112/tmp/shuffle/default/0000000002.tmp" );
-        combine( "/tmp/peregrine-fs/localhost/11112/tmp/shuffle/default/0000000003.tmp" );
+        combine( "/tmp/peregrine/fs/localhost/11112/tmp/shuffle/default/0000000000.tmp" );
+        combine( "/tmp/peregrine/fs/localhost/11112/tmp/shuffle/default/0000000001.tmp" );
+        combine( "/tmp/peregrine/fs/localhost/11112/tmp/shuffle/default/0000000002.tmp" );
+        combine( "/tmp/peregrine/fs/localhost/11112/tmp/shuffle/default/0000000003.tmp" );
         */
 
         /*
-        combine( "/tmp/peregrine-fs/localhost/11112/tmp/shuffle/default/0000000000.tmp" );
-        combine( "/tmp/peregrine-fs/localhost/11112/tmp/shuffle/default/0000000001.tmp" );
-        combine( "/tmp/peregrine-fs/localhost/11112/tmp/shuffle/default/0000000002.tmp" );
-        combine( "/tmp/peregrine-fs/localhost/11112/tmp/shuffle/default/0000000003.tmp" );
+        combine( "/tmp/peregrine/fs/localhost/11112/tmp/shuffle/default/0000000000.tmp" );
+        combine( "/tmp/peregrine/fs/localhost/11112/tmp/shuffle/default/0000000001.tmp" );
+        combine( "/tmp/peregrine/fs/localhost/11112/tmp/shuffle/default/0000000002.tmp" );
+        combine( "/tmp/peregrine/fs/localhost/11112/tmp/shuffle/default/0000000003.tmp" );
         */
         
-        combineSamples( "/tmp/peregrine-fs/localhost/11112/tmp/shuffle/default/" , 20 );
+        combineSamples( "/tmp/peregrine/fs/localhost/11112/tmp/shuffle/default/" , 20 );
         
-        //combineAll( "/tmp/peregrine-fs/localhost/11112/tmp/shuffle/default/" );
+        //combineAll( "/tmp/peregrine/fs/localhost/11112/tmp/shuffle/default/" );
 
-        //combine( "/tmp/peregrine-fs/localhost/11112/tmp/shuffle/default/0000000007.tmp" );
+        //combine( "/tmp/peregrine/fs/localhost/11112/tmp/shuffle/default/0000000007.tmp" );
 
-        //combine2( "/tmp/peregrine-fs/localhost/11112/0/pr/tmp/node_indegree/" );
+        //combine2( "/tmp/peregrine/fs/localhost/11112/0/pr/tmp/node_indegree/" );
 
         System.out.printf( "TEST DONE\n" );
         
