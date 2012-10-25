@@ -46,7 +46,11 @@ public class Strings {
         return result;
 
     }
-    
+
+    public static String join( String[] in, String sep ) {
+        return join( toList( in ), sep );
+    }
+
     /**
      * Join the given strings , adding a separator between them.
      */
