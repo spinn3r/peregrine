@@ -326,12 +326,17 @@ public class unistd {
         
         if ( f == 0 ) {
 
-            // NOTE:
+            System.out.printf( "FIXME: spawn is goign to call execve %s %s %s\n",
+                               path,
+                               Strings.join( argv, " " ),
+                               Strings.join( envp, " " ) );
 
+            /*
             String.format( "%s %s %s",
                            path, 
                            Strings.join( argv, " " ),
                            Strings.join( envp, " " ) );
+            */
             
             try { 
                 return execve( path, argv, envp );
