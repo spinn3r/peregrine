@@ -94,9 +94,9 @@ public class Test {
         String[] argv = new String[] { "", "one", "two", "three" };
         String[] envp = new String[] {};
         
-        unistd.posix_spawn( "/bin/echo", argv, envp );
+        int pid = unistd.posix_spawn( "/bin/echo", argv, envp );
 
-        System.out.printf( "spawned!\n" );
+        System.out.printf( "spawned: %s\n", pid );
         
         //Thread.sleep( 10000L );
 

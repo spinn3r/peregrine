@@ -23,6 +23,8 @@ import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 
+import com.sun.jna.ptr.IntByReference;
+
 import peregrine.*;
 import peregrine.util.*;
 
@@ -328,12 +330,16 @@ public class unistd {
                                    String[] envp ) {
 
         Pointer NULL = new Pointer( 0 );
+
+        IntByReference pid = new IntByReference();
         
-        return delegate.posix_spawn( 0, path, NULL, NULL, argv, envp );
+        delegate.posix_spawn( pid, path, NULL, NULL, argv, envp );
+
+        return pid.getValue();
         
     }
 
-    public static int posix_spawn( int pid,
+    public static int posix_spawn( IntByReference pid,
                                    String path,
                                    Pointer fileActions, 
                                    Pointer attr,
@@ -360,7 +366,7 @@ public class unistd {
         int fork();
         int execve( String path, String[] argv, String [] envp );
 
-        int posix_spawn( int pid,
+        int posix_spawn( IntByReference pid,
                          String path,
                          Pointer fileActions, 
                          Pointer attr,
