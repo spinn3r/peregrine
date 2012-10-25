@@ -160,7 +160,7 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
 
                 List<String> env = new ArrayList();
 
-                env.add( String.format( "MAX_MEMORY=%s", MAX_MEMORY ) );
+                //env.add( String.format( "MAX_MEMORY=%s", MAX_MEMORY ) );
                 
                 System.out.printf( "Starting proc: %s with env %s\n",
                                    Strings.join( workerd_args, " " ),
@@ -237,6 +237,7 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
 
         String basedir = getBasedir( port );
 
+        list.add( "--maxMemory=" + MAX_MEMORY );
         list.add( "--hostsFile=/tmp/peregrine.hosts" );
         list.add( "--host=localhost:" + port );
         list.add( "--concurrency=" + concurrency );
