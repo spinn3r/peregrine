@@ -62,7 +62,7 @@ start() {
 
     esac
 
-    echo "Running with max JVM memory $MAX_MEMORY and max direct memory $MAX_DIRECT_MEMORY and writing output to '$OUTPUT'"
+    echo "Running on $host with max JVM memory $MAX_MEMORY and max direct memory $MAX_DIRECT_MEMORY and writing output to '$OUTPUT'"
 
     export REPLACE_PROCESS=true
 
