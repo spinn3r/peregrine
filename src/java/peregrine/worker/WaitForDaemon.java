@@ -63,10 +63,10 @@ public class WaitForDaemon {
 
         long now = System.currentTimeMillis();
 
-        InetAddress localhost = InetAddress.getLocalHost();
-        SocketAddress addr = new InetSocketAddress( localhost, port );
-        
         while( true ) {
+
+            InetAddress localhost = InetAddress.getLocalHost();
+            SocketAddress addr = new InetSocketAddress( localhost, port );
 
             Socket sock = new Socket();
 
@@ -88,7 +88,9 @@ public class WaitForDaemon {
                 System.out.printf( "SUCCESS: daemon up and listening on port %s\n", port );
                 return;
                 
-            } catch ( IOException e ) { }
+            } catch ( IOException e ) {
+                e.printStackTrace();
+            }
 
             if ( pid == -1 ) {
                 throw new Exception( "Process pid not running" );
