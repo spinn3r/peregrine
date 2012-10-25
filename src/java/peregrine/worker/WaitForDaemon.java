@@ -89,7 +89,7 @@ public class WaitForDaemon {
                 return;
                 
             } catch ( IOException e ) {
-                System.out.printf( "FIXME: unable to connect to \n" );
+                System.out.printf( "FIXME: unable to connect to: %s \n", addr );
                 e.printStackTrace();
             }
 

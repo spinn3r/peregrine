@@ -158,13 +158,13 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
                 // tell the daemon that we want to start.
                 workerd_args.add( "start" );
 
-                String cmdline = Strings.join( workerd_args, " " );
-
                 List<String> env = new ArrayList();
 
                 env.add( String.format( "MAX_MEMORY=%s", MAX_MEMORY ) );
                 
-                System.out.printf( "Starting proc: %s\n", cmdline );
+                System.out.printf( "Starting proc: %s with env %s\n",
+                                   Strings.join( workerd_args, " " ),
+                                   Strings.join( env, " " ) );
 
                 int pid = unistd.spawn( "bin/workerd",
                                         Strings.toArray( workerd_args ),
