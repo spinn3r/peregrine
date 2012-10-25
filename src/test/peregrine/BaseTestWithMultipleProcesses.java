@@ -176,9 +176,13 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
             System.out.printf( "setUp complete and all daemons running.\n" );
 
         } catch ( Exception e ) {
+
+            tearDown();
+
             RuntimeException rte = new RuntimeException( e.getMessage() );
             rte.initCause( e );
             throw rte;
+
         }
 
     }
@@ -260,6 +264,7 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
         
     }
 
+    @Override
     public void tearDown() {
 
         System.out.printf( "tearDown()\n" );
