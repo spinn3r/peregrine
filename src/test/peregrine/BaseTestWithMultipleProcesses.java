@@ -40,6 +40,8 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
     public static long TIMEOUT = 2 * 60 * 1000;
     
     public static boolean KILL_WORKERS_ON_TEARDOWN = true;
+
+    public static String MAX_MEMORY = "96M";
     
     /**
      * Map to store port to base directory maps.  This way unit tests can use
@@ -160,6 +162,8 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
 
                 List<String> env = new ArrayList();
 
+                env.add( String.format( "MAX_MEMORY=%s", MAX_MEMORY ) );
+                
                 System.out.printf( "Starting proc: %s\n", cmdline );
 
                 int pid = unistd.spawn( "bin/workerd",
