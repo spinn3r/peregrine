@@ -83,6 +83,7 @@ public class MapperTask extends BaseMapperTask {
             }
 
         } finally {
+            //TODO: I am pretty sure this is automatically closed.
             closer.close();
         }
             

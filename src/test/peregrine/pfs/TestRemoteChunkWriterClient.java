@@ -73,7 +73,7 @@ public class TestRemoteChunkWriterClient extends peregrine.BaseTestWithMultipleP
 
         byte[] digest_value = digest.digest();
 
-        File file = new File( String.format( "%s/localhost/11112/test-write-hash", "/tmp/peregrine-fs-11112" ) );
+        File file = new File( String.format( "%s/localhost/11112/test-write-hash", "/tmp/peregrine/fs-11112" ) );
 
         byte[] data = toByteArray( new FileInputStream( file ) );
 

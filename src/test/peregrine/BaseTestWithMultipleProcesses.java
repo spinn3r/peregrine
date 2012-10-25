@@ -165,9 +165,7 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
 
                 //env.add( String.format( "MAX_MEMORY=%s", MAX_MEMORY ) );
                 
-                System.out.printf( "Starting proc: %s with env %s\n",
-                                   Strings.join( workerd_args, " " ),
-                                   Strings.join( env, " " ) );
+                System.out.printf( "Starting proc: %s\n", Strings.join( workerd_args, " " ) );
 
                 int pid = unistd.posix_spawn( "bin/workerd",
                                               Strings.toArray( workerd_args ),
