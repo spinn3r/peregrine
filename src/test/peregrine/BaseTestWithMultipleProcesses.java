@@ -240,8 +240,14 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
 
         System.out.printf( "tearDown()\n" );
 
+        try {
+            killAllDaemons();
+        } catch ( Exception e ) {
+            log.error( "Unable to kill daemons: ", e );
+        }
+
         super.tearDown();
-        
+
     }
 
     /**
@@ -274,21 +280,7 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
 
             throw new RuntimeException( t );
             
-        } finally {
-
-            try {
-                killAllDaemons();
-            } catch ( Exception e ) {
-                log.error( "Unable to kill daemons: ", e );
-            }
-
-            try {
-                readWorkerOutput();
-            } catch ( Exception e ) {
-                log.error( "Unable to read worker output: ", e );
-            }
-
-        }
+        } 
 
     }
 
