@@ -398,17 +398,19 @@
 
     <target name="test-report">
 
-        <junitreport todir="target/test-reports">
+        <property name="test-report.dir" value="target/test-reports"/>
 
-            <fileset dir="target/test-reports">
+        <junitreport todir="${test-report.dir}">
+
+            <fileset dir="${test-report.dir}">
                 <include name="**/TEST-*.xml"/>
             </fileset>
 
-            <report format="frames" todir="./target/test-reports"/>
+            <report format="frames" todir="${test-report.dir}"/>
 
         </junitreport>
 
-        <echo message="Wrote test-reports successfully." />
+        <echo message="Wrote test-reports successfully to ${test-report.dir}" />
 
     </target>
 
