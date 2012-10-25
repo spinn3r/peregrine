@@ -188,12 +188,36 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
      */
     private void killAllDaemons() throws Exception {
 
-        for( int port : processes.keySet() ) {
-
-            int pid = processes.get( port );
-
-            System.out.printf( "Sending SIGTERM to %s\n", port );
-            signal.kill( pid, signal.SIGTERM );
+        ProcessList ps = new ProcessList();
+ 
+        for( ProcessListEntry proc : ps.getProcesses() ) {
+            
+            List<String> arguments = proc.getArguments();
+            
+            if ( arguments.size() <= 1 )
+                continue;
+            
+            if ( ! "java".equals( arguments.get( 0 ) ) ) {
+                continue;
+            }
+            
+            boolean isDaemon = false;
+            
+            for( String arg : arguments ) {
+                if ( peregrine.worker.Main.class.getName().equals( arg ) ) {
+                    isDaemon = true;
+                    break;
+                }
+            }
+            
+            if ( isDaemon ) {
+                
+                int pid = proc.getId();
+                
+                System.out.printf( "Sending SIGTERM to %s\n", proc  );
+                signal.kill( pid, signal.SIGTERM );
+                
+            }
             
         }
 
