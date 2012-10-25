@@ -80,7 +80,7 @@ public class WaitForDaemon {
                 
             try {
 
-                sock.connect( addr, 1000 );
+                sock.connect( addr, 5000L );
                 //success ... we are up so just exit.
 
                 System.out.printf( "\n" );
