@@ -89,6 +89,7 @@ public class WaitForDaemon {
                 return;
                 
             } catch ( IOException e ) {
+                System.out.printf( "FIXME: unable to connect to \n" );
                 e.printStackTrace();
             }
 
@@ -102,7 +103,16 @@ public class WaitForDaemon {
 
             if ( System.currentTimeMillis() > now + TIMEOUT ) {
 
-                throw new Exception( String.format( "Exceeded timeout %,d ms waiting for pid %s on port %s", TIMEOUT, pid, port  ) );
+                String msg = String.format( "Exceeded timeout %,d ms waiting for pid %s on port %s at sock address %s",
+                                            TIMEOUT, pid, port, addr );
+
+                System.err.printf( "FIXME: %s\n", msg );
+                
+                System.err.printf( "FIXME: sleeping forever to help you debug \n" );
+                
+                Thread.sleep( Long.MAX_MEMORY );
+                
+                throw new Exception( msg );
                 
             }
             
