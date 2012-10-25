@@ -28,6 +28,7 @@ import peregrine.io.driver.blackhole.*;
 import peregrine.io.driver.shuffle.*;
 import peregrine.io.driver.file.*;
 import peregrine.io.driver.broadcast.*;
+import peregrine.io.driver.example.*;
 
 /**
  * Keeps track of URI schemes and registered drivers.
@@ -51,6 +52,7 @@ public class IODriverRegistry {
     static {
 
         // register all internal drivers
+        register( new ExampleIODriver() );
         register( new BlackholeIODriver() );
         register( new ShuffleIODriver() );
         register( new FileIODriver() );
