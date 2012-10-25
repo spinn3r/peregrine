@@ -110,7 +110,7 @@ public class WaitForDaemon {
                 
                 System.err.printf( "FIXME: sleeping forever to help you debug \n" );
                 
-                Thread.sleep( Long.MAX_MEMORY );
+                Thread.sleep( Long.MAX_VALUE );
                 
                 throw new Exception( msg );
                 
