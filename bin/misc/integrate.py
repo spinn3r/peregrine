@@ -14,6 +14,8 @@
 #    - timeout
 #    - ignore-branches
 #    - ignore-changesets
+#
+# - if we timeout we should STILL run tast-report , etc.
 
 import datetime
 import os

@@ -94,7 +94,7 @@ public class Test {
         String[] argv = new String[] { "", "one", "two", "three" };
         String[] envp = new String[] {};
         
-        unistd.spawn( "/bin/echo", argv, envp );
+        unistd.posix_spawn( "/bin/echo", argv, envp );
 
         System.out.printf( "spawned!\n" );
         

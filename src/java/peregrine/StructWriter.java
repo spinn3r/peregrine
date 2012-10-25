@@ -15,6 +15,7 @@
 */
 package peregrine;
 
+import java.nio.*;
 import java.nio.charset.Charset;
 
 import org.jboss.netty.buffer.*;

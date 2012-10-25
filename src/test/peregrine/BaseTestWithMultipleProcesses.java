@@ -113,12 +113,9 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
                 return;
             }
 
-            // get the config for the controller
-            config = getConfig( 11111 );
-
             log.info( "Working with concurrency=%s, replicas=%s, hosts=%s" , concurrency, replicas, hosts );
 
-            //Write out a new peregrine.hosts file.
+            // write out a new peregrine.hosts file.
 
             FileOutputStream fos = new FileOutputStream( "/tmp/peregrine.hosts" );
 
@@ -130,6 +127,9 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
             }
 
             fos.close();
+
+            // get the config for the controller
+            config = getConfig( 11111 );
 
             for( int i = 0; i < hosts; ++i ) {
 
@@ -169,9 +169,9 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
                                    Strings.join( workerd_args, " " ),
                                    Strings.join( env, " " ) );
 
-                int pid = unistd.spawn( "bin/workerd",
-                                        Strings.toArray( workerd_args ),
-                                        Strings.toArray( env ) );
+                int pid = unistd.posix_spawn( "bin/workerd",
+                                              Strings.toArray( workerd_args ),
+                                              Strings.toArray( env ) );
 
                 // wait for startup so we know the port is open
                 WaitForDaemon.waitForDaemon( pid, port );

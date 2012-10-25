@@ -88,10 +88,7 @@ public class WaitForDaemon {
                 System.out.printf( "SUCCESS: daemon up and listening on port %s\n", port );
                 return;
                 
-            } catch ( IOException e ) {
-                System.out.printf( "FIXME: unable to connect to: %s \n", addr );
-                e.printStackTrace();
-            }
+            } catch ( IOException e ) { }
 
             if ( pid == -1 ) {
                 throw new Exception( "Process pid not running" );
@@ -106,12 +103,6 @@ public class WaitForDaemon {
                 String msg = String.format( "Exceeded timeout %,d ms waiting for pid %s on port %s at sock address %s",
                                             TIMEOUT, pid, port, addr );
 
-                System.err.printf( "FIXME: %s\n", msg );
-                
-                System.err.printf( "FIXME: sleeping forever to help you debug \n" );
-                
-                Thread.sleep( Long.MAX_VALUE );
-                
                 throw new Exception( msg );
                 
             }

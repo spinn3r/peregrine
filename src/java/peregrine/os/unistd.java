@@ -16,12 +16,14 @@
 package peregrine.os;
 
 import java.io.*;
+import java.nio.*;
 
 import com.sun.jna.Library;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 
+import peregrine.*;
 import peregrine.util.*;
 
 public class unistd {
@@ -318,39 +320,27 @@ public class unistd {
     }
 
     /**
-     * Spawn the given command in a subprocess and return the created pid.
+     * Simple implementation of spawn which combines fork/exec into the same
+     * call under the covers in glibc land.
      */
-    public static int spawn( String path, String[] argv, String[] envp ) throws Exception {
+    public static int posix_spawn( String path,
+                                   String[] argv, 
+                                   String[] envp ) {
 
-        int f = fork();
+        Pointer NULL = new Pointer( 0 );
         
-        if ( f == 0 ) {
+        return delegate.posix_spawn( 0, path, NULL, NULL, argv, envp );
+        
+    }
 
-            System.out.printf( "FIXME: spawn is goign to call execve %s %s %s\n",
-                               path,
-                               Strings.join( argv, " " ),
-                               Strings.join( envp, " " ) );
+    public static int posix_spawn( int pid,
+                                   String path,
+                                   Pointer fileActions, 
+                                   Pointer attr,
+                                   String[] argv, 
+                                   String[] envp ) {
 
-            /*
-            String.format( "%s %s %s",
-                           path, 
-                           Strings.join( argv, " " ),
-                           Strings.join( envp, " " ) );
-            */
-            
-            try { 
-                return execve( path, argv, envp );
-            } catch ( Throwable t ) {
-                t.printStackTrace();
-                throw new Exception( t );
-            }
-            
-        } else {
-
-            //we are the parent and f is the pid.
-            return f;
-            
-        }
+        return delegate.posix_spawn( pid, path, fileActions, attr, argv, envp );
         
     }
     
@@ -369,6 +359,13 @@ public class unistd {
         int rename( String oldPath, String newPath );
         int fork();
         int execve( String path, String[] argv, String [] envp );
+
+        int posix_spawn( int pid,
+                         String path,
+                         Pointer fileActions, 
+                         Pointer attr,
+                         String[] argv, 
+                         String[] envp );
         
     }
 
