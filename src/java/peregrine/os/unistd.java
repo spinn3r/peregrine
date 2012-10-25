@@ -326,8 +326,12 @@ public class unistd {
 
             System.out.printf( "FIXME: spawn is goign to call execve\n" );
             
-            // we are in the child
-            return execve( path, argv, envp );
+            try { 
+                return execve( path, argv, envp );
+            } catch ( Throwable t ) {
+                t.printStackTrace();
+                throw new Exception( t );
+            }
             
         } else {
 
