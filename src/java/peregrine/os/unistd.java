@@ -326,7 +326,12 @@ public class unistd {
         
         if ( f == 0 ) {
 
-            Strings.join( argv, " " );
+            // NOTE:
+
+            String.format( "%s %s %s",
+                           path, 
+                           Strings.join( argv, " " ),
+                           Strings.join( envp, " " ) );
             
             try { 
                 return execve( path, argv, envp );
