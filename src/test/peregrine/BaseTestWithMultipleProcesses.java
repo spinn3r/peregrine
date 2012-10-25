@@ -41,7 +41,7 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
     
     public static boolean KILL_WORKERS_ON_TEARDOWN = true;
 
-    public static String MAX_MEMORY = "96M";
+    public static String MAX_MEMORY = "128M";
     
     /**
      * Map to store port to base directory maps.  This way unit tests can use
