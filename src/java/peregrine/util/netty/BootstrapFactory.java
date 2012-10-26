@@ -28,8 +28,12 @@ public class BootstrapFactory {
 
     public static long CONNECT_TIMEOUT_MILLIS = 5000;
 
+    /**
+     */
     public static int SO_LINGER = 5;
-    
+
+    public static boolean REUSE_ADDRESS = true;
+
     public static boolean logged = false;
     
 	public static ServerBootstrap newServerBootstrap( NioServerSocketChannelFactory factory ) {
@@ -66,6 +70,7 @@ public class BootstrapFactory {
         setOption( bootstrap, prefix+"tcpNoDelay",            TCP_NODELAY );
         setOption( bootstrap, prefix+"connectTimeoutMillis",  CONNECT_TIMEOUT_MILLIS );
         setOption( bootstrap, prefix+"soLinger",              SO_LINGER );
+        setOption( bootstrap, prefix+"reuseAddress",          REUSE_ADDRESS );
 
         //setOption( bootstrap, prefix+"bufferFactory",         new DirectChannelBufferFactory() );
 		
