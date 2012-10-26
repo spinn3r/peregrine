@@ -88,7 +88,11 @@ public class WaitForDaemon {
                 System.out.printf( "SUCCESS: daemon up and listening on port %s\n", port );
                 return;
                 
-            } catch ( IOException e ) { }
+            } catch ( IOException e ) {
+                //noop.  this is just a test connect.
+            } finally {
+                sock.close();
+            }
 
             if ( pid == -1 ) {
                 throw new Exception( "Process pid not running" );
