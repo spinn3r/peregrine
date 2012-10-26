@@ -27,7 +27,9 @@ public class BootstrapFactory {
     public static boolean TCP_NODELAY = true;
 
     public static long CONNECT_TIMEOUT_MILLIS = 5000;
-	
+
+    public static int SO_LINGER = 5;
+    
     public static boolean logged = false;
     
 	public static ServerBootstrap newServerBootstrap( NioServerSocketChannelFactory factory ) {
@@ -63,6 +65,8 @@ public class BootstrapFactory {
         // set options 	
         setOption( bootstrap, prefix+"tcpNoDelay",            TCP_NODELAY );
         setOption( bootstrap, prefix+"connectTimeoutMillis",  CONNECT_TIMEOUT_MILLIS );
+        setOption( bootstrap, prefix+"soLinger",              SO_LINGER );
+
         //setOption( bootstrap, prefix+"bufferFactory",         new DirectChannelBufferFactory() );
 		
 	}
