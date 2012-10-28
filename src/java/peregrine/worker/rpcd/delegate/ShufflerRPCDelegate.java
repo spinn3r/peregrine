@@ -23,6 +23,7 @@ import org.jboss.netty.channel.*;
 import peregrine.rpc.*;
 import peregrine.rpcd.delegate.*;
 import peregrine.worker.*;
+import peregrine.io.util.*;
 
 /**
  * Handles all shuffle related RPC messages.
@@ -62,7 +63,7 @@ public class ShufflerRPCDelegate extends RPCDelegate<FSDaemon> {
     @RPC
     public ChannelBuffer purge( FSDaemon daemon, Channel channel, Message message ) throws IOException {
 
-        Files.purge( config.getShuffleDir() );
+        Files.purge( daemon.getConfig().getShuffleDir() );
         return null;
         
     }
