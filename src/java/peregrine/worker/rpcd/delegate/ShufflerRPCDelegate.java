@@ -26,6 +26,10 @@ import peregrine.worker.*;
 
 /**
  * Handles all shuffle related RPC messages.
+ *
+ * <h2>Protocol interaction</h2>
+ * <p>
+ * <img src="https://bitbucket.org/burtonator/peregrine/raw/78abaa786a1b650601eed017bff573f968bf403f/misc/shuffle-flush.png" border="1"/>
  */
 public class ShufflerRPCDelegate extends RPCDelegate<FSDaemon> {
 
@@ -41,13 +45,26 @@ public class ShufflerRPCDelegate extends RPCDelegate<FSDaemon> {
     }
 
     /**
-     * Purge/delete all the shuffle data on disk or the shuffle with the given
-     * name.
+     * Delete all the shuffle data on disk for the shuffle with the given name.
      */
     @RPC
-    public ChannelBuffer purge( FSDaemon daemon, Channel channel, Message message ) throws IOException {
+    public ChannelBuffer delete( FSDaemon daemon, Channel channel, Message message ) throws IOException {
         daemon.shuffleReceiverFactory.purge( message.get( "name" ) );
         return null;
     }
 
+    /**
+     * Purge all shuffle data in the shuffle directory.  This is done BEFORE
+     * batch jobs to verify that we don't have any shuffle data (incorrectly)
+     * sitting around from the previous batch job.  Shuffle data may be used
+     * <b>within</b> a Batch but not between batches.  
+     */
+    @RPC
+    public ChannelBuffer purge( FSDaemon daemon, Channel channel, Message message ) throws IOException {
+
+        Files.purge( config.getShuffleDir() );
+        return null;
+        
+    }
+    
 }

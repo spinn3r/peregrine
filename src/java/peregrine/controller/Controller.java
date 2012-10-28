@@ -257,6 +257,8 @@ public class Controller {
 
             batch.assertExecutionViability();
 
+            purgeShuffleData();
+
             int id = -1;
             for ( Job job : batch.getJobs() ) {
 
@@ -336,8 +338,8 @@ public class Controller {
 
                         ShuffleInputReference shuffle = (ShuffleInputReference)ref;
 
-                        log.info( "Going to purge %s for job %s", shuffle.getName(), job );
-                        purgeShuffleData( shuffle.getName() );
+                        log.info( "Going to delete %s for job %s", shuffle.getName(), job );
+                        deleteShuffleData( shuffle.getName() );
 
                     }
                     
@@ -477,16 +479,25 @@ public class Controller {
      * 
      * @throws Exception
      */
-    public void purgeShuffleData( String name ) throws Exception {
+    public void deleteShuffleData( String name ) throws Exception {
 
         Message message = new Message();
-        message.put( "action", "purge" );
+        message.put( "action", "delete" );
         message.put( "name",   name );
 
         callMethodOnCluster( "shuffler", message );
         
     }
 
+    public void purgeShuffleData() throws Exception {
+
+        Message message = new Message();
+        message.put( "action", "purge" );
+
+        callMethodOnCluster( "shuffler", message );
+
+    }
+    
     /**
      * Reset cluster job state between jobs.
      */
