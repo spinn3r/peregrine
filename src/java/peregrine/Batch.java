@@ -40,6 +40,9 @@ public class Batch extends BaseJob<Batch> {
 
     protected int end = Integer.MAX_VALUE;
 
+    /**
+     * Needed for loading batches via RPC.
+     */
     public Batch() {
         init( this );
     }
