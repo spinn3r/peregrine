@@ -28,8 +28,6 @@ public class BootstrapFactory {
 
     public static long CONNECT_TIMEOUT_MILLIS = 5000;
 
-    /**
-     */
     public static int SO_LINGER = 5;
 
     public static boolean REUSE_ADDRESS = true;

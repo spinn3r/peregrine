@@ -30,7 +30,8 @@ import peregrine.worker.*;
 public class ShufflerRPCDelegate extends RPCDelegate<FSDaemon> {
 
     /**
-     * Flush pending shuffle data to disk.
+     * Flush pending shuffle data to disk.  This is called at the end of jobs to
+     * verify that we don't have pending shuffle data in memory.
      */
     @RPC
     public ChannelBuffer flush( FSDaemon daemon, Channel channel, Message message ) throws IOException {
