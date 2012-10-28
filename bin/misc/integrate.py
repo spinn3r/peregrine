@@ -38,6 +38,10 @@ TEST_LOGS="/var/lib/integration/peregrine"
 TEST_COMMAND="pkill -9 -u nobody java 2> /dev/null ; hg cat -r default build.xml > build.xml && export HOSTNAME=localhost && export ANT_OPTS=-Xmx512M && ant clean jar compile.test jar && time ant test"
 #TEST_COMMAND="false"
 
+###
+# specify a post command to use AFTER we run our test.
+POST_COMMAND="export ANT_OPTS=-Xmx512M && ant test-report"
+
 REPO="https://burtonator:redapplekittycat@bitbucket.org/burtonator/peregrine"
 
 DAEMON_SLEEP_INTERVAL=240
@@ -360,6 +364,9 @@ def test(branch,rev):
         print "FAILED"
     else:
         print "TIMEOUT"
+
+    # run the post command so we can get coverage report , test reports, etc.
+    run_cmd2( POST_COMMAND, stdout=_stdout, stderr=_stderr, fail=False )
 
     # TODO consider just making this a move.
     if os.path.exists( "%s/target/test-reports" % SCRATCH):
