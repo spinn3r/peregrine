@@ -88,11 +88,15 @@ public class TestCombinerEfficiency extends peregrine.BaseTestWithMultipleConfig
                 // once and writing two two destinations.  this would read from
                 // 'path' and then wrote to node_indegree and graph_by_source at the
                 // same time.
-                
-                controller.map( NodeIndegreeJob.Map.class,
-                                new Input( graph ),
-                                new Output( "shuffle:default" ) );
 
+                Batch batch = new Batch( getClass() );
+
+                batch.map( NodeIndegreeJob.Map.class,
+                           new Input( graph ),
+                           new Output( "shuffle:default" ) );
+
+                controller.exec( batch );
+                
                 controller.flushAllShufflers();
 
                 /*

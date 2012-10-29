@@ -76,15 +76,19 @@ public class TestChunkWriterCloseOnReferenceCount extends peregrine.BaseTestWith
     }
 
     private void sort( Controller controller, String in, String out ) throws Exception {
-        
-        controller.map( Mapper.class,
-                        new Input( in ),
-                        new Output( "shuffle:default" ) );
-        
-        controller.reduce( Reducer.class,
-                           new Input( "shuffle:default" ),
-                           new Output( out ) );
 
+        Batch batch = new Batch( getClass() );
+
+        batch.map( Mapper.class,
+                   new Input( in ),
+                   new Output( "shuffle:default" ) );
+        
+        batch.reduce( Reducer.class,
+                      new Input( "shuffle:default" ),
+                      new Output( out ) );
+
+        controller.exec( batch );
+        
     }
     
     @Override
@@ -110,9 +114,13 @@ public class TestChunkWriterCloseOnReferenceCount extends peregrine.BaseTestWith
             sort( controller, test1_in, test1_sorted );
             sort( controller, test2_in, test2_sorted );
 
-            controller.merge( Merge.class,
-                              new Input( test1_sorted, test2_sorted ),
-                              new Output( String.format( "/test/%s.out", getClass().getName() ) ) );
+            Batch batch = new Batch( getClass() );
+            
+            batch.merge( Merge.class,
+                         new Input( test1_sorted, test2_sorted ),
+                         new Output( String.format( "/test/%s.out", getClass().getName() ) ) );
+
+            controller.exec( batch );
             
         } finally {
             controller.shutdown();

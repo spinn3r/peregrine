@@ -134,28 +134,6 @@ public class Controller {
     public long getStarted() {
         return started;
     }
-    
-    public void map( Class mapper,
-                     String... paths ) throws Exception {
-
-        exec( new Batch( mapper ).map( mapper, paths ) );
-
-    }
-
-    public void map( Class mapper,
-                     Input input ) throws Exception {
-
-        exec( new Batch( mapper ).map( mapper, input ) );
-
-    }
-    
-    public void map( Class delegate,
-    		 		 Input input,
-    				 Output output ) throws Exception {
-
-        exec( new Batch( delegate ).map( delegate, input, output ) );
-
-    }
 
     /**
      * Add a job to the pending queue for later execution.  If there are no jobs

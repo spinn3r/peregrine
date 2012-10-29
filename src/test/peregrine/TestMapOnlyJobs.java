@@ -56,8 +56,12 @@ public class TestMapOnlyJobs extends peregrine.BaseTestWithTwoDaemons {
         Controller controller = new Controller( config );
 
         try {
-            
-            controller.map( Map.class, new Input( path ), new Output( output ) );
+
+            Batch batch = new Batch( getClass() );
+
+            batch.map( Map.class, new Input( path ), new Output( output ) );
+
+            controller.exec( batch );
 
             Partition part = new Partition( 1 );
             
