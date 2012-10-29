@@ -107,13 +107,22 @@ public class Batch extends BaseJob<Batch> {
                         Input input,
                         Output output ) {
     	
-    	merge( new Job().setDelegate( delegate )
-               .setInput( input )
-               .setOutput( output ) );
-        return this;
+    	return merge( new Job().setDelegate( delegate )
+                               .setInput( input )
+                               .setOutput( output ) );
         
     }
 
+    /**
+     * 
+     * Conceptually, <a href='http://en.wikipedia.org/wiki/Join_(SQL)#Full_outer_join'>
+     * a full outer join</a> combines the effect of applying both left
+     * and right outer joins. Where records in the FULL OUTER JOINed tables do not
+     * match, the result set will have NULL values for every column of the table
+     * that lacks a matching row. For those records that do match, a single row
+     * will be produced in the result set (containing fields populated from both
+     * tables)
+     */
     public Batch merge( Job job ) {
 
         useDefaultName( job );
