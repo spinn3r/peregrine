@@ -15,6 +15,8 @@
 */
 package peregrine.util.netty;
 
+import peregrine.http.*;
+
 import org.jboss.netty.bootstrap.*;
 import org.jboss.netty.channel.socket.nio.*;
 
@@ -26,7 +28,7 @@ public class BootstrapFactory {
 	
     public static boolean TCP_NODELAY = true;
 
-    public static long CONNECT_TIMEOUT_MILLIS = 5000;
+    public static long CONNECT_TIMEOUT_MILLIS = HttpClient.WRITE_TIMEOUT;
 
     public static int SO_LINGER = 5;
 
