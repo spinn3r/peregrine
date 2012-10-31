@@ -63,30 +63,37 @@ public class Flow extends Batch {
                       .setInput( input )
                       .setOutput( "shuffle:default" )
                       .setParameters( "sources", sources,
-                                      "caseInsensitive", caseInsensitive ) ) ;
+                                      "caseInsensitive", caseInsensitive )
+                      .setDescription( String.format( "Flow init (sources=%s, caseInsensitive=%s)" , sources, caseInsensitive ) ) ) ;
         
         reduce( new Job().setDelegate( FlowInitJob.Reduce.class )
                          .setCombiner( FlowInitJob.Reduce.class )
                          .setInput( "shuffle:default" )
-                         .setOutput( tmp ) );
+                         .setOutput( tmp )
+                         .setDescription( String.format( "Writing output file %s", tmp ) ) );
 
         for( int i = 0; i < iterations; ++i ) {
 
+            String desc = String.format( "Flow iter %s of %s" , i + 1, iterations );
+            
             // now merge against the output and the input
             merge( new Job().setDelegate( FlowIterJob.Merge.class )
                             .setInput( tmp, input )
-                            .setOutput( "shuffle:default" ) );
+                            .setOutput( "shuffle:default" )
+                            .setDescription( desc ) );
 
             reduce( new Job().setDelegate( FlowIterJob.Reduce.class )
                              .setCombiner( FlowIterJob.Reduce.class )
                              .setInput( "shuffle:default" )
-                             .setOutput( tmp ) );
+                             .setOutput( tmp )
+                             .setDescription( desc ) );
             
         }
 
         merge( new Job().setDelegate( FlowTermJob.Merge.class )
                         .setInput( tmp, input )
-                        .setOutput( output ) );
+                        .setOutput( output )
+                        .setDescription( String.format( "Write final output %s", output ) ) );
         
         // now terminate the job by writing out the actual link data.
         truncate( tmp ); 

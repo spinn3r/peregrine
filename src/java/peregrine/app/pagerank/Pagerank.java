@@ -167,14 +167,18 @@ public class Pagerank extends Batch {
     public void iter() {
 
         // TODO: migrate these to the new syntax of new Job() 
+
+        String desc = String.format( "Iteration %s of %s", step, iterations ); 
         
-        merge( IterJob.Map.class,
-               new Input( graph_by_source ,
-                          "/pr/out/rank_vector" ,
-                          "/pr/out/dangling" ,
-                          "/pr/out/nonlinked" ,
-                          "broadcast:/pr/out/nr_nodes" ) ,
-               new Output( "shuffle:default", "broadcast:dangling_rank_sum" ) );
+        merge( new Job().setDelegate( IterJob.Map.class )
+                        .setInput( graph_by_source ,
+                                   "/pr/out/rank_vector" ,
+                                   "/pr/out/dangling" ,
+                                   "/pr/out/nonlinked" ,
+                                   "broadcast:/pr/out/nr_nodes" )
+                        .setOutput( "shuffle:default",
+                                    "broadcast:dangling_rank_sum" )
+                        .setDescription( desc ) );
 
         reduce( new Job().setDelegate( IterJob.Reduce.class )
                          .setCombiner( IterJob.Combine.class )
@@ -183,13 +187,14 @@ public class Pagerank extends Batch {
                                     "broadcast:/pr/out/nr_dangling",
                                     "broadcast:/pr/out/teleportation_grant" )
                          .setOutput( "/pr/out/rank_vector",
-                                     "broadcast:rank_sum" ) );
+                                     "broadcast:rank_sum" )
+                         .setDescription( desc ) );
 
         // now reduce the broadcast rank sum to an individual file for analysis
         // and reading
-        reduce( GlobalRankSumJob.Reduce.class,
-                new Input( "shuffle:rank_sum" ),
-                new Output( "/pr/out/rank_sum" ) );
+        reduce( new Job().setDelegate( GlobalRankSumJob.Reduce.class )
+                         .setInput( "shuffle:rank_sum" )
+                         .setOutput( "/pr/out/rank_sum" ) );
         
         // ***
         // 

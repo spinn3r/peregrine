@@ -53,16 +53,19 @@ public class Extract extends Batch {
                       .setOutput( new Output( "shuffle:nodes", "shuffle:links" ) )
                       .setMaxChunks( maxChunks )
                       .setParameters( "path", path,
-                                      "caseInsensitive", caseInsensitive ) );
+                                      "caseInsensitive", caseInsensitive )
+                      .setDescription( String.format( "Extract to create graph and nodes_by_hashcode path=%s, caseInsensitive=%s", path, caseInsensitive ) ) );
        
         reduce( new Job().setDelegate( UniqueNodeJob.Reduce.class )
                          .setCombiner( UniqueNodeJob.Reduce.class )
                          .setInput( "shuffle:nodes" )
-                         .setOutput( nodes_by_hashcode ) );
+                         .setOutput( nodes_by_hashcode )
+                         .setDescription( String.format( "Create nodes_by_hashcode=%s", nodes_by_hashcode ) ) );
 
         reduce( new Job().setDelegate( UniqueOutboundLinksJob.Reduce.class )
                          .setInput( "shuffle:links" )
-                         .setOutput( graph ) );
+                         .setOutput( graph )
+                         .setDescription( String.format( "Create graph=%s", graph ) ) );
 
     }
 

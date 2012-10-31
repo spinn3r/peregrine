@@ -76,7 +76,7 @@ public class Main {
 
         if ( getopt.containsKey( "flow" ) ) {
            
-            getopt.require( "flow", "sources" );
+            getopt.require( "sources" );
 
             String output = getopt.getString( "flow.output", "/pr/graph.flowed" );
             
