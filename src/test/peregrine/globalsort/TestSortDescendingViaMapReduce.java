@@ -75,7 +75,11 @@ public class TestSortDescendingViaMapReduce extends peregrine.BaseTestWithMultip
 
         try {
 
-            controller.sort( path, output, JobSortDescendingComparator.class );
+            Batch batch = new Batch(getClass());
+            
+            batch.sort( path, output, JobSortDescendingComparator.class );
+            
+            controller.exec( batch );
             
         } finally {
             controller.shutdown();

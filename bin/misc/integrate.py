@@ -67,7 +67,12 @@ class ReportIndex:
         file=open( "%s/index.html" % TEST_LOGS , "w" );
 
         file.write( "<html>\n" )
-        file.write( "<head><title>Integration report</title></head>\n" )
+
+        file.write( "<head>\n" )
+        file.write( "<title>Integration report</title>\n" )
+        file.write( "<meta http-equiv='cache-control' content='no-cache'>\n" )
+        file.write( "</head>\n" )
+
         file.write( "<frameset cols='500,100%' title=''>\n" )
         file.write( "<frame src='left.html' name='left' title='all tests'>\n" )
         file.write( "<frame src='' name='right' title=''>\n" )
@@ -95,7 +100,9 @@ class ReportSidebar:
         file.write( "<style>\n" )
         file.write( "* { font-family: sans-serif; font-size: 12px; }\n" )
         file.write( "</style>\n" )
-        
+
+        file.write( "<meta http-equiv='cache-control' content='no-cache'>\n" )
+
         file.write( "</head>\n" )
         file.write( "<body>\n" )
 

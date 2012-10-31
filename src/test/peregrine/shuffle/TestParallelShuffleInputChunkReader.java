@@ -84,10 +84,14 @@ public class TestParallelShuffleInputChunkReader extends peregrine.BaseTestWithM
         Controller controller = new Controller( config );
 
         try {
-            
-            controller.map( Map.class,
-                            new Input( path ),
-                            new Output( "shuffle:default" ) );
+
+            Batch batch = new Batch( getClass() );
+
+            batch.map( Map.class,
+                       new Input( path ),
+                       new Output( "shuffle:default" ) );
+
+            controller.exec( batch );
             
         } finally {
             controller.shutdown();

@@ -88,19 +88,23 @@ public class TestPagerankAccuracy extends peregrine.BaseTestWithMultipleProcesse
 
             controller = new Controller( config );
 
-            controller.map( new Job().setDelegate( Mapper.class )
-                                     .setInput( graph )
-                                     .setOutput( "shuffle:default" ) );
+            Batch batch = new Batch( getClass() );
+            
+            batch.map( new Job().setDelegate( Mapper.class )
+                                .setInput( graph )
+                                .setOutput( "shuffle:default" ) );
 
-            controller.reduce( new Job().setDelegate( Reducer.class )
-                                        .setInput( "shuffle:default" )
-                                        .setOutput( graph ) );
+            batch.reduce( new Job().setDelegate( Reducer.class )
+                                   .setInput( "shuffle:default" )
+                                   .setOutput( graph ) );
             
             pr = new Pagerank( config, graph, nodes_by_hashcode );
             pr.setIterations( 10 );
             pr.prepare();
 
-            for ( Job job : pr.getJobs() ) {
+            batch.add( pr );
+            
+            for ( Job job : batch.getJobs() ) {
                 System.out.printf( "    %s\n", job );
             }
 

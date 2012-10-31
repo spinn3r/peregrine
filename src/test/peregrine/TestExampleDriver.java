@@ -56,14 +56,18 @@ public class TestExampleDriver extends peregrine.BaseTestWithTwoDaemons {
 
         try {
 
-            controller.map( Map.class,
-                            new Input( "example:" ),
-                            new Output( "shuffle:default" ) );
+            Batch batch = new Batch( getClass() );
+            
+            batch.map( Map.class,
+                       new Input( "example:" ),
+                       new Output( "shuffle:default" ) );
 
-            controller.reduce( Reduce.class,
-                               new Input( "shuffle:default" ),
-                               new Output( "example:" ) );
+            batch.reduce( Reduce.class,
+                          new Input( "shuffle:default" ),
+                          new Output( "example:" ) );
 
+            controller.exec( batch );
+            
         } finally {
             controller.shutdown();
         }

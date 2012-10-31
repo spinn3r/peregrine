@@ -221,16 +221,20 @@ public class TestMapReduce extends peregrine.BaseTestWithMultipleProcesses {
 
         try {
 
-            controller.map( Map.class,
-                            new Input( path ),
-                            new Output( "shuffle:default" ) );
+            Batch batch = new Batch(getClass());
+            
+            batch.map( Map.class,
+                       new Input( path ),
+                       new Output( "shuffle:default" ) );
 
             // make sure the shuffle output worked
             
-            controller.reduce( Reduce.class,
-                               new Input( "shuffle:default" ),
-                               new Output( output ) );
+            batch.reduce( Reduce.class,
+                          new Input( "shuffle:default" ),
+                          new Output( output ) );
 
+            controller.exec( batch );
+            
             System.gc();
 
             long after = runtime.totalMemory() - runtime.freeMemory();
@@ -250,7 +254,7 @@ public class TestMapReduce extends peregrine.BaseTestWithMultipleProcesses {
 
         //System.setProperty( "peregrine.test.config", "1:1:1" ); // 3sec
 
-        setPropertyDefault( "peregrine.test.factor", "1" ); // 
+        setPropertyDefault( "peregrine.test.factor", "100" ); // 
         setPropertyDefault( "peregrine.test.config", "1:2:3" ); // takes 3 seconds
 
         // 256 partitions... 
