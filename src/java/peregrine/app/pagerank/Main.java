@@ -41,7 +41,9 @@ public class Main {
         String corpus              = getopt.getString( "corpus" );
         int iterations             = getopt.getInt( "iterations", Pagerank.DEFAULT_ITERATIONS );
         boolean sortedGraph        = getopt.getBoolean( "sortedGraph" );
+        boolean caseInsensitive    = getopt.getBoolean( "caseInsensitive" );
 
+        //TODO maybe do this if graph == "random:"
         if ( "random".equals( corpus ) ) {
 
             //build a grandom graph
@@ -70,6 +72,16 @@ public class Main {
         
         if ( getopt.getBoolean( "extract" ) ) {
 
+            Extract extract = new Extract( getopt.getString( "extract.path" ),
+                                           graph,
+                                           nodes_by_hashcode,
+                                           caseInsensitive );
+
+            // when we run in extract mode, the graph is already sorted.
+            sortedGraph = true;
+            
+            batch.add( extract );
+            
         }
                                                        
         // see if we first need to run flow to prune disconnected graphs.
@@ -84,7 +96,7 @@ public class Main {
                                   output,
                                   getopt.getString( "flow.sources" ),
                                   getopt.getInt( "flow.iterations", 5 ),
-                                  getopt.getBoolean( "flow.caseInsensitive" ) );
+                                  caseInsensitive );
             batch.add( flow );
 
             // we need to use the flowed graph as the input for pagerank now
