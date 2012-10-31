@@ -121,13 +121,19 @@ public class TestNewReduceCode extends peregrine.BaseTestWithMultipleProcesses {
         Controller controller = new Controller( config );
 
         try {
-            controller.map( Map.class,
-                            new Input( path ),
-                            new Output( "shuffle:default" ) );
+
+            Batch batch = new Batch( getClass() );
+
+            batch.map( Map.class,
+                       new Input( path ),
+                       new Output( "shuffle:default" ) );
             
-            controller.reduce( Reduce.class,
-                               new Input( "shuffle:default" ),
-                               new Output( output ) );
+            batch.reduce( Reduce.class,
+                          new Input( "shuffle:default" ),
+                          new Output( output ) );
+
+            controller.exec( batch );
+            
         } finally {
             controller.shutdown();
         }

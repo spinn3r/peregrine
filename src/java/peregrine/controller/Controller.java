@@ -134,94 +134,6 @@ public class Controller {
     public long getStarted() {
         return started;
     }
-    
-    public void map( Class mapper,
-                     String... paths ) throws Exception {
-
-        exec( new Batch( mapper ).map( mapper, paths ) );
-
-    }
-
-    public void map( Class mapper,
-                     Input input ) throws Exception {
-
-        exec( new Batch( mapper ).map( mapper, input ) );
-
-    }
-    
-    public void map( Class delegate,
-    		 		 Input input,
-    				 Output output ) throws Exception {
-
-        exec( new Batch( delegate ).map( delegate, input, output ) );
-
-    }
-    
-    /**
-     * Run map jobs on all chunks on the given path.
-     */
-    public void map( Job job ) throws Exception {
-        exec( new Batch( job ).map( job ) );
-    }
-    
-    public void merge( Class mapper,
-                       String... paths ) throws Exception {
-
-        merge( mapper, new Input( paths ) );
-
-    }
-
-    public  void merge( Class mapper,
-                        Input input ) throws Exception {
-
-        merge( mapper, input, null );
-
-    }
-
-    public void merge( Class delegate,
-                       Input input,
-                       Output output ) throws Exception {
-
-        exec( new Batch( delegate ).merge( delegate, input, output ) );
-
-    }
-
-    /**
-     * 
-     * Conceptually, <a href='http://en.wikipedia.org/wiki/Join_(SQL)#Full_outer_join'>
-     * a full outer join</a> combines the effect of applying both left
-     * and right outer joins. Where records in the FULL OUTER JOINed tables do not
-     * match, the result set will have NULL values for every column of the table
-     * that lacks a matching row. For those records that do match, a single row
-     * will be produced in the result set (containing fields populated from both
-     * tables)
-     */
-    public void merge( Job job ) throws Exception {
-        exec( new Batch( job ).merge( job ) );
-    }
-  
-    public void reduce( Class delegate,
-    				    Input input,
-    				    Output output ) throws Exception {
-
-        exec( new Batch(delegate ).reduce( delegate, input, output ) );
-
-    }
-
-    public void truncate( String output ) throws Exception {
-        exec( new Batch( output ).truncate( output ) );
-    }
-    
-    public void sort( String input, String output, Class comparator ) throws Exception {
-        exec( new Batch( output ).sort( input, output, comparator ) );
-    }
-
-    /**
-     * Perform a reduce over the previous shuffle data (or broadcast data).
-     */
-    public void reduce( Job job ) throws Exception {
-        exec( new Batch( job ).reduce( job ) );
-    }
 
     /**
      * Add a job to the pending queue for later execution.  If there are no jobs
@@ -256,6 +168,8 @@ public class Controller {
             setExecuting( batch );
 
             batch.assertExecutionViability();
+
+            purgeShuffleData();
 
             int id = -1;
             for ( Job job : batch.getJobs() ) {
@@ -301,7 +215,7 @@ public class Controller {
     /**
      * Run map jobs on all chunks on the given path.
      */
-    public void exec( final Job job ) throws Exception {
+    private void exec( final Job job ) throws Exception {
 
         try {
 
@@ -336,8 +250,8 @@ public class Controller {
 
                         ShuffleInputReference shuffle = (ShuffleInputReference)ref;
 
-                        log.info( "Going to purge %s for job %s", shuffle.getName(), job );
-                        purgeShuffleData( shuffle.getName() );
+                        log.info( "Going to delete %s for job %s", shuffle.getName(), job );
+                        deleteShuffleData( shuffle.getName() );
 
                     }
                     
@@ -477,16 +391,25 @@ public class Controller {
      * 
      * @throws Exception
      */
-    public void purgeShuffleData( String name ) throws Exception {
+    public void deleteShuffleData( String name ) throws Exception {
 
         Message message = new Message();
-        message.put( "action", "purge" );
+        message.put( "action", "delete" );
         message.put( "name",   name );
 
         callMethodOnCluster( "shuffler", message );
         
     }
 
+    public void purgeShuffleData() throws Exception {
+
+        Message message = new Message();
+        message.put( "action", "purge" );
+
+        callMethodOnCluster( "shuffler", message );
+
+    }
+    
     /**
      * Reset cluster job state between jobs.
      */

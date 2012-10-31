@@ -62,15 +62,20 @@ public class TestMultipleProcesses extends peregrine.BaseTestWithMultipleProcess
 
         try {
 
-             controller.map( TestBroadcastMapReduce.Map.class,
-                             new Input( path ),
-                             new Output( "shuffle:default",
-                                         "broadcast:count" ) );
+            Batch batch = new Batch( getClass() );
+                        
+            
+            batch.map( TestBroadcastMapReduce.Map.class,
+                       new Input( path ),
+                       new Output( "shuffle:default",
+                                   "broadcast:count" ) );
 
-            controller.reduce( TestBroadcastMapReduce.Reduce.class,
-                               new Input( "shuffle:default" ),
-                               new Output( out ) );
+            batch.reduce( TestBroadcastMapReduce.Reduce.class,
+                          new Input( "shuffle:default" ),
+                          new Output( out ) );
 
+            controller.exec( batch );
+            
         } finally {
             controller.shutdown();
         }

@@ -109,18 +109,21 @@ public class TestBroadcastMapReduce extends peregrine.BaseTestWithMultipleProces
          Controller controller = new Controller( config );
 
          try {
-             
-             controller.map( Map.class,
-                             new Input( path ),
-                             new Output( "shuffle:default",
-                                         "broadcast:count" ) );
 
-             System.out.printf( "job done.. now going to assert the values.\n" );
-             
-             controller.reduce( Reduce.class,
-                                new Input( "shuffle:count" ),
-                                new Output( count_out ) );
 
+             Batch batch = new Batch( getClass() );
+             
+             batch.map( Map.class,
+                        new Input( path ),
+                        new Output( "shuffle:default",
+                                    "broadcast:count" ) );
+             
+             batch.reduce( Reduce.class,
+                           new Input( "shuffle:count" ),
+                           new Output( count_out ) );
+
+             controller.exec( batch );
+             
          } finally {
              controller.shutdown();
          }

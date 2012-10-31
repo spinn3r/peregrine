@@ -86,15 +86,19 @@ public class TestCombinerWithinReduce extends peregrine.BaseTestWithMultipleProc
         Controller controller = new Controller( config );
 
         try {
-            
-            controller.map( Map.class,
-                            new Input( path ),
-                            new Output( "shuffle:default" ) );
 
-            controller.reduce( new Job().setDelegate( Reduce.class )
-                                        .setCombiner( Reduce.class )
-                                        .setInput( "shuffle:default" )
-                                        .setOutput( output ) );
+            Batch batch = new Batch( getClass() );
+
+            batch.map( Map.class,
+                       new Input( path ),
+                       new Output( "shuffle:default" ) );
+
+            batch.reduce( new Job().setDelegate( Reduce.class )
+                                   .setCombiner( Reduce.class )
+                                   .setInput( "shuffle:default" )
+                                   .setOutput( output ) );
+
+            controller.exec( batch );
             
         } finally {
             controller.shutdown();

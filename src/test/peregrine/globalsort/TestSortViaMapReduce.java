@@ -104,15 +104,19 @@ public class TestSortViaMapReduce extends peregrine.BaseTestWithMultipleProcesse
             // same order as a mapper since the keys are ordered on disk.  We
             // have to map it like it would be in production.
 
-            controller.map( new Job().setDelegate( Mapper.class )
-                                     .setInput( path )
-                                     .setOutput( "shuffle:default" ) );
+            Batch batch = new Batch( getClass() );
 
-            controller.reduce( new Job().setDelegate( Reducer.class )
-                                        .setInput( "shuffle:default" )
-                                        .setOutput( path ) );
+            batch.map( new Job().setDelegate( Mapper.class )
+                                .setInput( path )
+                                .setOutput( "shuffle:default" ) );
+
+            batch.reduce( new Job().setDelegate( Reducer.class )
+                                   .setInput( "shuffle:default" )
+                                   .setOutput( path ) );
             
-            controller.sort( path, output, comparator.getClass() );
+            batch.sort( path, output, comparator.getClass() );
+
+            controller.exec( batch );
             
         } finally {
             controller.shutdown();
