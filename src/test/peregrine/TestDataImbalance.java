@@ -63,9 +63,14 @@ public class TestDataImbalance extends peregrine.BaseTestWithMultipleProcesses {
 
         try {
 
-            controller.map( Mapper.class,
-                            new Input( path ),
-                            new Output( "shuffle:default" ) );
+            Batch batch = new Batch( getClass() );
+
+            batch.map( Mapper.class,
+                       new Input( path ),
+                       new Output( "shuffle:default" ) );
+
+            controller.exec( batch );
+            
             /*
             
             controller.reduce( Reducer.class,

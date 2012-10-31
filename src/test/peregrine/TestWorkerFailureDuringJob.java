@@ -54,13 +54,17 @@ public class TestWorkerFailureDuringJob extends peregrine.BaseTestWithMultiplePr
 
         try {
 
-            controller.map( Mapper.class,
-                            new Input( path ),
-                            new Output( "shuffle:default" ) );
+            Batch batch = new Batch( getClass() );
 
-            controller.reduce( Reducer.class,
-                               new Input( "shuffle:default" ),
-                               new Output( "/test/test.out" ) );
+            batch.map( Mapper.class,
+                       new Input( path ),
+                       new Output( "shuffle:default" ) );
+
+            batch.reduce( Reducer.class,
+                          new Input( "shuffle:default" ),
+                          new Output( "/test/test.out" ) );
+
+            controller.exec( batch );
 
         } finally {
             controller.shutdown();

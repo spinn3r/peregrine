@@ -110,15 +110,19 @@ public class TestMapReduceWithBroadcastOnClose extends peregrine.BaseTestWithMul
 
         try {
 
-            controller.map( Map.class,
-                            new Input( path ),
-                            new Output( "shuffle:default" ) );
+            Batch batch = new Batch( getClass() );
+            
+            batch.map( Map.class,
+                       new Input( path ),
+                       new Output( "shuffle:default" ) );
 
             // make sure the shuffle output worked
             
-            controller.reduce( Reduce.class,
-                               new Input( "shuffle:default" ),
-                               new Output( output, "broadcast:test" ) );
+            batch.reduce( Reduce.class,
+                          new Input( "shuffle:default" ),
+                          new Output( output, "broadcast:test" ) );
+
+            controller.exec( batch );
 
         } finally {
             controller.shutdown();

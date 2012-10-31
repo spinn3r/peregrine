@@ -96,15 +96,19 @@ public class TestMapReduceWithMergeFactor extends peregrine.BaseTestWithMultiple
         Controller controller = new Controller( config );
 
         try {
+
+            Batch batch = new Batch( getClass() );
             
-            controller.map( Map.class,
-                            new Input( path ),
-                            new Output( "shuffle:default" ) );
+            batch.map( Map.class,
+                       new Input( path ),
+                       new Output( "shuffle:default" ) );
 
-            controller.reduce( Reduce.class,
-                               new Input( "shuffle:default" ),
-                               new Output( output ) );
+            batch.reduce( Reduce.class,
+                          new Input( "shuffle:default" ),
+                          new Output( output ) );
 
+            controller.exec( batch );
+            
             //FIXME: add a feature to make sure that the strategy we wanted was
             //actually working.
             
