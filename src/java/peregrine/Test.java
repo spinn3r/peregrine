@@ -91,12 +91,9 @@ public class Test {
     
     public static void main( String[] args ) throws Exception {
 
-        String[] argv = new String[] { "", "one", "two", "three" };
-        String[] envp = new String[] {};
-        
-        int pid = unistd.posix_spawn( "/bin/echo", argv, envp );
+        Getopt getopt = new Getopt( args );
 
-        System.out.printf( "spawned: %s\n", pid );
+        System.out.printf( "extract: %s\n", getopt.getBoolean( "extract" ) );
         
         //Thread.sleep( 10000L );
 
