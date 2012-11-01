@@ -231,6 +231,10 @@ public class Batch extends BaseJob<Batch> {
     public void add( Batch... batches ) {
 
         for( Batch batch : batches ) {
+
+            if ( batch.getJobs().size() == 0 ) {
+                throw new IllegalArgumentException( "Batch has no jobs: " + batch );
+            }
             
             for ( Job job : batch.getJobs() ) {
                 add( job );

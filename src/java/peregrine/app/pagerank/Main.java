@@ -79,6 +79,8 @@ public class Main {
 
             // when we run in extract mode, the graph is already sorted.
             sortedGraph = true;
+
+            extract.prepare();
             
             batch.add( extract );
             
@@ -86,7 +88,7 @@ public class Main {
                                                        
         // see if we first need to run flow to prune disconnected graphs.
 
-        if ( getopt.containsKey( "flow" ) ) {
+        if ( getopt.getBoolean( "flow" ) ) {
            
             getopt.require( "flow.sources" );
 
