@@ -72,6 +72,8 @@ public class Main {
         
         if ( getopt.getBoolean( "extract" ) ) {
 
+            System.out.printf( "Adding extract batch... \n" );
+            
             Extract extract = new Extract( getopt.getString( "extract.path" ),
                                            graph,
                                            nodes_by_hashcode,
@@ -91,6 +93,8 @@ public class Main {
         if ( getopt.getBoolean( "flow" ) ) {
            
             getopt.require( "flow.sources" );
+
+            System.out.printf( "Adding flow batch... \n" );
 
             String output = getopt.getString( "flow.output", "/pr/graph.flowed" );
             
