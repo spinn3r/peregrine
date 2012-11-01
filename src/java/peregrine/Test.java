@@ -91,9 +91,14 @@ public class Test {
     
     public static void main( String[] args ) throws Exception {
 
-        Getopt getopt = new Getopt( args );
+        //Getopt getopt = new Getopt( args );
 
-        System.out.printf( "extract: %s\n", getopt.getBoolean( "extract" ) );
+        //System.out.printf( "extract: %s\n", getopt.getBoolean( "extract" ) );
+
+        System.out.printf( "%s\n" , Longs.format( 12345 ) );
+        System.out.printf( "%s\n" , Longs.format( 1234567890 ) );
+        System.out.printf( "%s\n" , Longs.format( 123456789000L ) );
+        System.out.printf( "%s\n" , Longs.format( 1234567890000L ) );
         
         //Thread.sleep( 10000L );
 

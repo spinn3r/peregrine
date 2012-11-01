@@ -37,16 +37,21 @@ public class Longs {
 
     }
 
-    /**
-     * Format a long into K,M,B units.
-     */
     public static String format( long val ) {
+        return format( val, 4 );
+    }
+
+    /**
+     * Format a long into K,M,B units.  The val is the value we wish to format
+     * and the length is the ideal length of the value without the suffix.
+     */
+    public static String format( long val, int length ) {
 
         if ( val <= 1000 )
             return "" + val;
 
-        double[] units  = new double[] { 1000.0, 1000000.0, 1000000000.0 };
-        String[] suffix = new String[] { "K", "M", "B" };
+        double[] units  = new double[] { 1000.0, 1000000.0, 1000000000.0, 1000000000000.0 };
+        String[] suffix = new String[] { "K", "M", "B", "T" };
 
         for ( int i = 0; i < units.length; ++i ) {
 
@@ -55,15 +60,18 @@ public class Longs {
             if ( val < (u * 1000.0) ) {
 
                 double div = val / u;
-                String str = "" + div;
+                String str = null;
 
-                str = str.substring( 0, str.indexOf( "." )  + 2 );
+                for( int j = 3; j >= 0; --j ) {
 
-                // remove trailing zero if necessary
-                if ( str.endsWith( ".0" ) ) {
-                    str = str.substring( 0, str.length() - 2 );
+                    String fmt = String.format( "%%.%sf", j );
+                    str = String.format( fmt, div );
+
+                    if ( str.length() == length )
+                        break;
+                    
                 }
-                
+
                 String s = suffix[i];
                 
                 return String.format( "%s%s", str, s );
