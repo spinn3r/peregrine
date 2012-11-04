@@ -41,9 +41,12 @@ public class Report implements Comparable<Report>, MessageSerializable {
     // records.
     protected Metric consumed = new Metric();
     
-    // the number of emitted records.  This should be ever increasing.
+    // the number of emitted records for this job.
     protected Metric emitted = new Metric();
 
+    // the total number of bytes we have emitted during this job.
+    protected Metric emittedBytes = new Metric();
+    
     // the progress of our job between 0 and 100.
     protected Metric progress = new Metric( 100 );
 
@@ -68,6 +71,10 @@ public class Report implements Comparable<Report>, MessageSerializable {
         return emitted;
     }
 
+    public Metric getEmittedBytes() {
+        return emittedBytes;
+    }
+    
     public Metric getProgress() {
         return progress;
     }
@@ -89,7 +96,7 @@ public class Report implements Comparable<Report>, MessageSerializable {
 
     @Override
     public String toString() {
-        return String.format( "consumed: %s, emitted: %s, progress: %s", consumed, emitted, progress );
+        return String.format( "consumed: %s, emitted: %s, emittedBytes: %s, progress: %s", consumed, emitted, emittedBytes, progress );
     }
 
     public Report plus( Report val ) {
@@ -98,6 +105,7 @@ public class Report implements Comparable<Report>, MessageSerializable {
 
         result.consumed.set( consumed.get() + val.consumed.get() );
         result.emitted.set( emitted.get() + val.emitted.get() );
+        result.emittedBytes.set( emittedBytes.get() + val.emittedBytes.get() );
         result.progress.set( progress.get() + val.progress.get() );
 
         return result;
@@ -107,10 +115,11 @@ public class Report implements Comparable<Report>, MessageSerializable {
     public Message toMessage() {
 
         Message message = new Message();
-        message.put( "consumed"  , consumed.get() );
-        message.put( "emitted"   , emitted.get() );
-        message.put( "progress"  , progress.get() );
-        message.put( "partition" , partition.getId() );
+        message.put( "consumed"  ,     consumed.get() );
+        message.put( "emitted"   ,     emitted.get() );
+        message.put( "emittedBytes" ,  emittedBytes.get() );
+        message.put( "progress"  ,     progress.get() );
+        message.put( "partition" ,     partition.getId() );
 
         return message;
         
@@ -120,8 +129,8 @@ public class Report implements Comparable<Report>, MessageSerializable {
 
         consumed.set( message.getLong( "consumed" ) );
         emitted.set( message.getLong( "emitted" ) );
+        emittedBytes.set( message.getLong( "emittedBytes" ) );
         progress.set( message.getLong( "progress" ) );
-
         partition = new Partition( message.getInt( "partition" ) );
         
     }
@@ -142,6 +151,10 @@ public class Report implements Comparable<Report>, MessageSerializable {
             ++value;
         }
 
+        public void incr( long delta ) {
+            value += delta;
+        }
+        
         public long get() {
             return value;
         }

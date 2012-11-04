@@ -135,6 +135,10 @@ public class ShuffleJobOutput
         return jobOutputDelegate.length();
     }
 
+    public Report getReport() {
+        return report;
+    }
+
     public Partition getPartition() {
         return partition;
     }

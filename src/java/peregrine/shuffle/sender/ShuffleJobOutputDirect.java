@@ -67,7 +67,12 @@ public class ShuffleJobOutputDirect extends ShuffleJobOutputBase implements Clos
         // see if we have too much data in memory and if so we need to send this
         // shuffle data now as we would run out of memory otherwise.
         if ( sender.length() + key.length() + value.length() > parent.config.getMaxClientShuffleOutputBufferSize() ) {
+
+            // keep track of how many byte we have sent. 
+            parent.getReport().getEmittedBytes().incr( sender.length() );
+
             rollover();
+
         }
         
         Partition target = partitioner.partition( key, value );
@@ -127,14 +132,19 @@ public class ShuffleJobOutputDirect extends ShuffleJobOutputBase implements Clos
         
         if ( sender != null ) {
             sender.close();
+
+            // now report how many bytes we just sent.
+            parent.getReport().getEmittedBytes().incr( sender.length() );
+
             length += sender.length();
             sender = null;
+
         }
 
         closed = true;
         
     }
-
+    
     private void assertOpen() throws RuntimeException {
 
         if ( closed )
