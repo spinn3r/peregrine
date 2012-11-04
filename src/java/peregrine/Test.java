@@ -91,15 +91,49 @@ public class Test {
     
     public static void main( String[] args ) throws Exception {
 
+        StructReader sr = StructReaders.hashcode( "666" );
+
+        int max = 4096;
+        
+        StructReader[] readers = new StructReader[max];
+        
+        for( int i = 0; i < max; ++i ) {
+            readers[i]=StructReaders.hashcode( "" + i );            
+        }
+
+        int iterations = 10;
+
+        long before = System.currentTimeMillis();
+        
+        for( int i = 0; i < iterations; ++i ) {
+
+            for( StructReader current : readers ) {
+                current.equals( sr );
+            }
+            
+        }
+
+        long after = System.currentTimeMillis();
+
+        long duration = (after-before);
+
+        long per_call = duration / iterations;
+        
+        System.out.printf( "duration: %,d ms\n", duration );
+        System.out.printf( "per_call: %,d ms\n", per_call );
+
         //Getopt getopt = new Getopt( args );
 
         //System.out.printf( "extract: %s\n", getopt.getBoolean( "extract" ) );
 
-        System.out.printf( "%s\n" , Longs.format( 12345 ) );
-        System.out.printf( "%s\n" , Longs.format( 1234567890 ) );
-        System.out.printf( "%s\n" , Longs.format( 123456789000L ) );
-        System.out.printf( "%s\n" , Longs.format( 1234567890000L ) );
+        // long v = Long.MAX_VALUE;
         
+        // System.out.printf( "v: %s\n", v );
+
+        // ++v;
+
+        // System.out.printf( "v: %s\n", v );
+
         //Thread.sleep( 10000L );
 
         // int size = 16000000;
