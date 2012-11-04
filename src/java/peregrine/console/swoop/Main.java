@@ -210,7 +210,7 @@ public class Main {
                        getDuration( job.getStarted(), job.getDuration() ),
                        Longs.format( job.getReport().getConsumed().get() ),
                        String.format( "%5s  %5sB" , Longs.format( job.getReport().getEmitted().get() ),
-                                                    Longs.format( job.getReport().getEmittedBytes().get() ) ),
+                                                    Longs.formatBytes( job.getReport().getEmittedBytes().get() ) ),
                        job.getDelegate().getName(),
                        job.getDescription() );
 

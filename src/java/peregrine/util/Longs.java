@@ -41,25 +41,45 @@ public class Longs {
         return format( val, 4 );
     }
 
+    public static String format( long val, int length ) {
+        return format( val, length, new ArrayList() {{
+            add( new Unit( 1000.0,          "K" ) );
+            add( new Unit( 1000000.0,       "M" ) );
+            add( new Unit( 1000000000.0,    "B" ) );
+            add( new Unit( 1000000000000.0, "T" ) );
+        }} );
+    }
+
+    public static String formatBytes( long val ) {
+        return format( val, 4 );
+    }
+
+    /**
+     * Just like format but we use 'byte' specifiers(KB,MB,GB,etc)
+     */
+    public static String formatBytes( long val, int length ) {
+        return format( val, length, new ArrayList() {{
+            add( new Unit( 1000.0,          "KB" ) );
+            add( new Unit( 1000000.0,       "MB" ) );
+            add( new Unit( 1000000000.0,    "GB" ) );
+            add( new Unit( 1000000000000.0, "TB" ) );
+        }} );
+    }
+
     /**
      * Format a long into K,M,B units.  The val is the value we wish to format
      * and the length is the ideal length of the value without the suffix.
      */
-    public static String format( long val, int length ) {
+    public static String format( long val, int length, List<Unit> units ) {
 
         if ( val <= 1000 )
             return "" + val;
 
-        double[] units  = new double[] { 1000.0, 1000000.0, 1000000000.0, 1000000000000.0 };
-        String[] suffix = new String[] { "K", "M", "B", "T" };
+        for ( Unit unit : units ) {
 
-        for ( int i = 0; i < units.length; ++i ) {
+            if ( val < (unit.value * 1000.0) ) {
 
-            double u = units[i];
-
-            if ( val < (u * 1000.0) ) {
-
-                double div = val / u;
+                double div = val / unit.value;
                 String str = null;
 
                 for( int j = 3; j >= 0; --j ) {
@@ -72,9 +92,7 @@ public class Longs {
                     
                 }
 
-                String s = suffix[i];
-                
-                return String.format( "%s%s", str, s );
+                return String.format( "%s%s", str, unit.name );
                 
             }
             
@@ -84,4 +102,16 @@ public class Longs {
 
     }
 
+    static class Unit {
+
+        protected double value;
+        protected String name;
+        
+        public Unit( double value , String name ) {
+            this.value = value;
+            this.name = name;
+        }
+        
+    }
+    
 }
