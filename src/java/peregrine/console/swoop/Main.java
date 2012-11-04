@@ -209,8 +209,8 @@ public class Main {
                        job.getOperation(),
                        getDuration( job.getStarted(), job.getDuration() ),
                        Longs.format( job.getReport().getConsumed().get() ),
-                       String.format( "%5s  %5sB" , Longs.format( job.getReport().getEmitted().get() ),
-                                                    Longs.formatBytes( job.getReport().getEmittedBytes().get() ) ),
+                       String.format( "%5s  %5s" , Longs.format( job.getReport().getEmitted().get() ),
+                                                   Longs.formatBytes( job.getReport().getEmittedBytes().get() ) ),
                        job.getDelegate().getName(),
                        job.getDescription() );
 
