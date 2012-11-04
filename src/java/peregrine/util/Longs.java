@@ -51,7 +51,7 @@ public class Longs {
     }
 
     public static String formatBytes( long val ) {
-        return format( val, 4 );
+        return formatBytes( val, 4 );
     }
 
     /**
