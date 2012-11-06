@@ -36,31 +36,7 @@ public class Main {
 
     public static int DEFAULT_WIDTH   = 1024;
     public static int DEFAULT_MAX     = 10000;
-    
-    static String IN = "/test/benchmark.in";
-    static String OUT = null;
 
-    public static void extract( Config config, int max, int width ) throws Exception {
-
-        log.info( "Testing with %,d records." , max );
-
-        ExtractWriter writer = new ExtractWriter( config, IN );
-        StructReader value = StructReaders.wrap( new byte[ width ] );
-        
-        for( long i = 0; i < max; ++i ) {
-
-            StructReader key  = StructReaders.hashcode( i );
-
-            writer.write( key, value );
-
-        }
-
-        writer.close();
-
-        System.out.printf( "Wrote %,d bytes to extract writer.\n", writer.length() );
-
-    }
-    
     public static void main( String[] args ) throws Exception {
 
         Getopt getopt = new Getopt( args );
@@ -88,13 +64,16 @@ public class Main {
             
         }
 
+        String input         = getopt.getString( "input",  "/test/benchmark.in" );
+        String output        = getopt.getString( "output", "/test/benchmark.out" );
+
         // 10MB by default.
         int width            = getopt.getInt( "width", DEFAULT_WIDTH );
         int max              = getopt.getInt( "max", DEFAULT_MAX ); 
 
-        Benchmark.Map.EMIT   = getopt.getBoolean( "emit", true );
+        boolean emit         = getopt.getBoolean( "emit", true );
         String stage         = getopt.getString( "stage", "all" );
-        Main.OUT             = getopt.getString( "out", "/test/benchmark.out" );
+
         boolean embed        = getopt.getBoolean( "embed" );
 
         EmbeddedDaemon embedded = null;
@@ -111,28 +90,35 @@ public class Main {
         long size = width * (long) max;
 
         System.out.printf( "Writing %,d total bytes with width=%,d , max=%,d and emit=%s\n",
-                           size, width, max, Benchmark.Map.EMIT );
+                           size, width, max, emit );
 
         // start our job... 
         
         Config config = ConfigParser.parse( args );
         new Initializer( config ).basic( Main.class );
 
-        if ( "all".equals( stage ) || "extract".equals( stage ) )
-            extract( config, max, width );
-
         Batch batch = new Batch( Main.class );
+
+        if ( "all".equals( stage ) || "extract".equals( stage ) ) {
+
+            batch.map( new Job().setDelegate( Benchmark.Extract.class )
+                                .setInput( "blackhole:" )
+                                .setOutput( input )
+                                .setParameters( "max", max,
+                                                "width", width ) );
+
+        }
         
         if ( "all".equals( stage ) || "map".equals( stage ) ) {
             batch.map( Benchmark.Map.class,
-                       new Input( IN ),
+                       new Input( input ),
                        new Output( "shuffle:default" ) );
         }
         
         if ( "all".equals( stage ) || "reduce".equals( stage ) ) {
             batch.reduce( Benchmark.Reduce.class,
                           new Input( "shuffle:default" ),
-                          new Output( OUT ) );
+                          new Output( output ) );
         }
 
         batch.init( args );

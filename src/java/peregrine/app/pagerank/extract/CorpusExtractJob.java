@@ -53,7 +53,7 @@ public class CorpusExtractJob {
             nodeOutput = output.get( 0 );
             linkOutput = output.get( 1 );
 
-            caseInsensitive = "true".equals( job.getParameters().getString( "caseInsensitive" ) );
+            caseInsensitive = job.getParameters().getBoolean( "caseInsensitive" );
 
             log.info( "Using case insensitive graph: %s", caseInsensitive );
             

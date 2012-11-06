@@ -32,16 +32,40 @@ public class Benchmark {
 
     private static final Logger log = Logger.getLogger();
 
-    public static class Map extends Mapper {
+    public static class Extract extends Mapper {
 
-        public static boolean EMIT = true;
+        @Override
+        public void init( Job job, List<JobOutput> output ) {
+
+            super.init( job, output );
+            
+            int max    = job.getParameters().getInt( "max" );
+            int width  = job.getParameters().getInt( "width" );
+
+            StructReader value = StructReaders.wrap( new byte[ width ] );
+
+            int nr_partitions = config.getMembership().size();
+
+            int total = max / nr_partitions;
+            
+            for( long i = 0; i < total; ++i ) {
+                
+                StructReader key  = StructReaders.hashcode( i );
+                emit( key, value );
+
+            }
+
+        }
+        
+    }
+    
+    public static class Map extends Mapper {
         
         @Override
         public void map( StructReader key,
                          StructReader value ) {
 
-            if ( EMIT )
-                emit( key, value );
+            emit( key, value );
             
         }
 
