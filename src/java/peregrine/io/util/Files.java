@@ -20,6 +20,7 @@ import java.util.concurrent.atomic.*;
 import java.lang.reflect.*;
 
 import peregrine.os.*;
+import peregrine.util.*;
 
 import com.spinn3r.log5j.*;
 
@@ -313,7 +314,7 @@ public class Files {
             byte[] data = new byte[ (int)file.length() ];
             fis.read( data );
             
-            return new String( data, "UTF8" );
+            return new String( data, Charsets.UTF8 );
 
         } finally {
             new Closer( fis ).close();

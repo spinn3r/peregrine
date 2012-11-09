@@ -25,8 +25,6 @@ public class TestRangeRouter extends BaseTest {
 
 	public void test1() {
 
-        Config config = new Config();
-
         //TODO: this needs to be refactored to use BaseTestWithMultipleProcesses
         
         // int nr_partitions = 10;

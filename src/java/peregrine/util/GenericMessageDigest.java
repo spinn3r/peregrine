@@ -23,8 +23,6 @@ import java.security.*;
  */
 public class GenericMessageDigest {
 
-    private static Charset UTF8 = Charset.forName( "UTF-8" );
-
     private ThreadLocalMessageDigest local = null;
 
     public GenericMessageDigest( String name ) {
@@ -32,7 +30,7 @@ public class GenericMessageDigest {
     }
     
     public byte[] encode( final String content ) {
-       return encode( content.getBytes( UTF8 ) );
+       return encode( content.getBytes( Charsets.UTF8 ) );
     }
     
     public byte[] encode( final byte[] bytes ) {

@@ -179,7 +179,7 @@ public class StructReader implements ByteReadable, Comparable<StructReader> {
     public String readString() {
 
         byte[] data = readBytes();
-        return new String( data, StructWriter.UTF8 );
+        return new String( data, Charsets.UTF8 );
         
     }
     

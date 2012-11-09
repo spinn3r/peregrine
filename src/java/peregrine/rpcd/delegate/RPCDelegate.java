@@ -41,10 +41,6 @@ public abstract class RPCDelegate<T> {
         Method method = getClass().getMethod( action, new Class[] { parent.getClass(),
                                                                     Channel.class,
                                                                     Message.class } );
-
-        if ( method == null ) {
-            throw new Exception( String.format( "No handler for action %s with message %s", action, message ) );
-        }
         
         return (ChannelBuffer)method.invoke( this, parent, channel, message );
         

@@ -92,9 +92,6 @@ public class ControllerRPCDelegate extends RPCDelegate<ControllerDaemon> {
     public ChannelBuffer progress( ControllerDaemon controllerDaemon, Channel channel, Message message )
         throws Exception {
         
-        Host host          = Host.parse( message.get( "host" ) );
-        Input input        = new Input( message.getList( "input" ) );
-
         Report report = new Report();
         report.fromMessage( message.getMessage( "report" ) );
 

@@ -60,10 +60,7 @@ public class Platform {
 
      public static int getFd( FileDescriptor descriptor ) {
          
-        Field field = getProtectedField(descriptor.getClass(), "fd");
-
-        if ( field == null )
-            return -1;
+        Field field = getProtectedField( descriptor.getClass(), "fd" );
 
         try { 
             return field.getInt(descriptor);

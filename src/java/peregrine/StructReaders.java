@@ -72,7 +72,7 @@ public class StructReaders {
 
         // NOTE: this is a bit of a layering violation but the StructWriter
         // needs to be created with its capacity ahead of time.
-        byte[] data = value.getBytes( StructWriter.UTF8 );
+        byte[] data = value.getBytes( Charsets.UTF8 );
         
         return new StructWriter( data.length + 4 )
             .writeBytes( data )

@@ -31,10 +31,8 @@ public class Hashcode {
      */
     public static final int KEY_WIDTH = HASH_WIDTH;
 
-    private static Charset UTF8 = Charset.forName( "UTF-8" );
-
     public static byte[] getHashcode( String input ) {
-        return getHashcode( input.getBytes( UTF8 ) );
+        return getHashcode( input.getBytes( Charsets.UTF8 ) );
     }
 
     public static byte[] getHashcode( byte[] input ) {

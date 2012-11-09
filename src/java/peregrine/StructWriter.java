@@ -37,8 +37,6 @@ public class StructWriter {
 
     public static int BUFFER_SIZE = 16384;
 
-    protected static Charset UTF8 = null;
-    
     private ChannelBuffer buff = null;
 
     /**
@@ -138,7 +136,7 @@ public class StructWriter {
     }
 
     public StructWriter writeString( String value ) {
-        writeBytes( value.getBytes( UTF8 ) );
+        writeBytes( value.getBytes( Charsets.UTF8 ) );
         return this;
     }
 
@@ -168,10 +166,6 @@ public class StructWriter {
 
     public StructReader toStructReader() {
         return new StructReader( getChannelBuffer() );
-    }
-
-    static {
-        UTF8 = Charset.forName( "UTF-8" );
     }
 
 }
