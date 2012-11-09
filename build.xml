@@ -418,8 +418,14 @@
 
       <mkdir dir="target/findbugs"/>
 
+      <path id="findbugs.classpath">
+        <fileset dir="../findbugs-2.0.1/lib">
+          <include name="*.jar"/>
+        </fileset>
+      </path>
+
       <taskdef name="findbugs" classname="edu.umd.cs.findbugs.anttask.FindBugsTask">
-        <classpath refid="project.classpath"/>
+        <classpath refid="findbugs.classpath"/>
       </taskdef>
       
       <findbugs home="../findbugs-2.0.1"
