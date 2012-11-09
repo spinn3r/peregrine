@@ -57,7 +57,9 @@ public class StructReader implements ByteReadable, Comparable<StructReader> {
 
     protected ChannelBuffer buff;
 
-    protected static FastStructReaderComparator comparator = new FastStructReaderComparator();
+    // the comparator for taking two struct readers and comparing.
+    private static final FastStructReaderComparator comparator
+        = new FastStructReaderComparator();
     
     public StructReader( byte[] data ) {
         this( ChannelBuffers.wrappedBuffer( data ) );

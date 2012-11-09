@@ -26,23 +26,20 @@ public class BootstrapFactory {
 
 	private static final Logger log = Logger.getLogger();
 	
-    public static boolean TCP_NODELAY = true;
+    public static final boolean TCP_NODELAY = true;
 
-    public static long CONNECT_TIMEOUT_MILLIS = HttpClient.WRITE_TIMEOUT;
+    public static final long CONNECT_TIMEOUT_MILLIS = HttpClient.WRITE_TIMEOUT;
 
-    public static int SO_LINGER = 5;
+    public static final int SO_LINGER = 5;
 
-    public static boolean REUSE_ADDRESS = true;
+    public static final boolean REUSE_ADDRESS = true;
 
-    public static boolean logged = false;
-    
 	public static ServerBootstrap newServerBootstrap( NioServerSocketChannelFactory factory ) {
 		
 		ServerBootstrap bootstrap = new ServerBootstrap( factory );
 
 		setOptions( bootstrap );
 		setOptions( "child.", bootstrap );
-		logged = true;
 		
         return bootstrap;
         
@@ -54,7 +51,6 @@ public class BootstrapFactory {
 		ClientBootstrap bootstrap = new ClientBootstrap( factory );
 		
 		setOptions( bootstrap );
-		logged = true;
 
 		return bootstrap;
 		
@@ -77,9 +73,6 @@ public class BootstrapFactory {
 	}
 	
 	private static void setOption( Bootstrap bootstrap, String name, Object value ) {
-		
-		if ( ! logged )
-			log.info( "Setting bootstrap: %s=%s", name, value );
 		
 		bootstrap.setOption( name, value );
 		
