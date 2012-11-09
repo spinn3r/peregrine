@@ -58,9 +58,6 @@ public class Main {
         // send the kill
         signal.kill( pid, signal.SIGTERM );
         
-        // see if the daemon is still running
-        long now = System.currentTimeMillis();
-
         while( WaitForDaemon.running( pid ) ) {
 
             Thread.sleep( 1000L );

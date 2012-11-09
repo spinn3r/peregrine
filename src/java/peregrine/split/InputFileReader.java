@@ -49,7 +49,7 @@ public class InputFileReader {
     public char read( long pos ) throws IOException {
 
         if ( pos <= start || pos > end ) {
-            throw new IOException( String.format( "Position %s not within interval [%s,)", pos, start, end ) );
+            throw new IOException( String.format( "Position %s not within interval [%s,%s)", pos, start, end ) );
         }
 
         raf.seek( pos );

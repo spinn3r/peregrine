@@ -154,16 +154,5 @@ public class Getopt {
     public List<String> getValues() {
         return values;
     }
-
-    public static void main( String[] args ) {
-
-        //example usage.
-        
-        Getopt getopt = new Getopt( args );
-
-        Map<String,String> params = getopt.getParams();
-        List<String> values = getopt.getValues();
-
-    }
     
 }

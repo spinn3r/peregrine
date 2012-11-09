@@ -57,8 +57,6 @@ public class Flow extends Batch {
 
         String tmp = "/flow/connected.tmp";
         
-        Job job = new Job();
-
         map( new Job().setDelegate( FlowInitJob.Map.class )
                       .setInput( input )
                       .setOutput( "shuffle:default" )

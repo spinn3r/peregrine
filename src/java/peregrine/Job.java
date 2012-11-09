@@ -59,11 +59,6 @@ public class Job extends BaseJob<Job> {
 
     protected String operation = JobOperation.MAP;
 
-    /**
-     * If this job failed this is the cause.
-     */
-    protected String cause = null;
-
     protected Report report = new Report();
 
     public Job() {

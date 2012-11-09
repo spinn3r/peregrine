@@ -71,6 +71,9 @@ public class Host implements Comparable<Host> {
 
         if ( obj == null )
             return false;
+
+        if ( obj instanceof Host == false )
+            return false;
         
         return id == ((Host)obj).id;
         

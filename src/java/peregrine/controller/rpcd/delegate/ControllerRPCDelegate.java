@@ -94,7 +94,6 @@ public class ControllerRPCDelegate extends RPCDelegate<ControllerDaemon> {
         
         Host host          = Host.parse( message.get( "host" ) );
         Input input        = new Input( message.getList( "input" ) );
-        Work work          = new Work( host, input, message.getList( "work" ) );
 
         Report report = new Report();
         report.fromMessage( message.getMessage( "report" ) );
@@ -158,8 +157,6 @@ public class ControllerRPCDelegate extends RPCDelegate<ControllerDaemon> {
     @RPC
     public ChannelBuffer status( ControllerDaemon controllerDaemon, Channel channel, Message message )
         throws Exception {
-
-        Scheduler scheduler = controllerDaemon.getScheduler();
 
         ControllerStatusResponse response = new ControllerStatusResponse( controllerDaemon.getController(),
                                                                           controllerDaemon.getScheduler() );

@@ -414,6 +414,23 @@
 
     </target>
 
+    <target name="findbugs" depends="jar">
+
+      <mkdir dir="target/findbugs"/>
+
+      <taskdef name="findbugs" classname="edu.umd.cs.findbugs.anttask.FindBugsTask">
+        <classpath refid="project.classpath"/>
+      </taskdef>
+      
+      <findbugs home="../findbugs-2.0.1"
+                output="html"
+                outputFile="target/findbugs/index.html" >
+        <sourcePath path="src/java" />
+        <class location="lib/${project}-${version}.jar" />
+      </findbugs>
+      
+    </target>
+
     <target name="javadoc" description="Generate javadoc" depends="compile">
 
         <mkdir dir="${javadocdir}"/>

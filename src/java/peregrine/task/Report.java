@@ -86,7 +86,12 @@ public class Report implements Comparable<Report>, MessageSerializable {
 
     @Override
     public boolean equals( Object obj ) {
+
+        if ( obj instanceof Report == false )
+            return false;
+        
         return partition.equals( ((Report)obj).partition );
+        
     }
 
     @Override

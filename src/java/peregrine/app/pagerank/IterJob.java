@@ -67,7 +67,6 @@ public class IterJob {
         	StructReader outbound         = values.get( 0 );
         	StructReader rank_vector      = values.get( 1 );
         	StructReader dangling         = values.get( 2 );
-            String source                 = key.readHashcodeAsBase64();
 
             double rank;
 
