@@ -4,7 +4,7 @@ public class PerfTest1 {
 
     public static void main( String[] args ) throws Exception {
 
-        long max = 10000000000L;
+        long max = 100000000000L;
 
         long v = 0;
         
