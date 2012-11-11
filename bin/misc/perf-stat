@@ -4,4 +4,6 @@
 
 EVENTS=cache-misses,cache-references,instructions,cycles,CPU-migrations,page-faults,stalled-cycles-frontend,stalled-cycles-backend
 
-/usr/local/bin/perf stat -e $EVENTS $@
+export LC_NUMERIC=en_US.UTF8 
+
+/usr/local/bin/perf stat -B -e $EVENTS $@
