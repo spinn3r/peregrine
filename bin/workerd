@@ -11,7 +11,7 @@ export YIELD_TO_EXISTING_DAEMON=true
 #
 # file: write to .err and .out files.
 
-export OUTPUT=file
+export OUTPUT=none
 
 ###
 #
