@@ -91,36 +91,44 @@ public class Test {
     
     public static void main( String[] args ) throws Exception {
 
-        StructReader sr = StructReaders.hashcode( "666" );
+        long max = 10000000000L;
 
-        int max = 4096;
+        long v = 0;
         
-        StructReader[] readers = new StructReader[max];
-        
-        for( int i = 0; i < max; ++i ) {
-            readers[i]=StructReaders.hashcode( "" + i );            
+        for( long i = 0; i < max; ++i ) {
+            ++v;
         }
-
-        int iterations = 10;
-
-        long before = System.currentTimeMillis();
         
-        for( int i = 0; i < iterations; ++i ) {
+        // StructReader sr = StructReaders.hashcode( "666" );
 
-            for( StructReader current : readers ) {
-                current.equals( sr );
-            }
+        // int max = 4096;
+        
+        // StructReader[] readers = new StructReader[max];
+        
+        // for( int i = 0; i < max; ++i ) {
+        //     readers[i]=StructReaders.hashcode( "" + i );            
+        // }
+
+        // int iterations = 10;
+
+        // long before = System.currentTimeMillis();
+        
+        // for( int i = 0; i < iterations; ++i ) {
+
+        //     for( StructReader current : readers ) {
+        //         current.equals( sr );
+        //     }
             
-        }
+        // }
 
-        long after = System.currentTimeMillis();
+        // long after = System.currentTimeMillis();
 
-        long duration = (after-before);
+        // long duration = (after-before);
 
-        long per_call = duration / iterations;
+        // long per_call = duration / iterations;
         
-        System.out.printf( "duration: %,d ms\n", duration );
-        System.out.printf( "per_call: %,d ms\n", per_call );
+        // System.out.printf( "duration: %,d ms\n", duration );
+        // System.out.printf( "per_call: %,d ms\n", per_call );
 
         //Getopt getopt = new Getopt( args );
 
