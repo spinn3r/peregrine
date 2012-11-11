@@ -63,19 +63,19 @@ start() {
 
         basedir="/tmp/peregrine-fs"
 
-        if [ "$port" = "11112" ] || [ "$port" = "11113" ]; then
+        if [ "$port" = "11112" ] || [ "$port" = "11116" ] || [ "$port" = "11120" ]; then
             basedir="/d0/peregrine-fs"
         fi
 
-        if [ "$port" = "11114" ] || [ "$port" = "11115" ]; then
+        if [ "$port" = "11113" ] || [ "$port" = "11117" ] || [ "$port" = "11121" ]; then
             basedir="/d1/peregrine-fs"
         fi
 
-        if [ "$port" = "11116" ] || [ "$port" = "11117" ]; then
+        if [ "$port" = "11114" ] || [ "$port" = "11118" ] || [ "$port" = "11122" ]; then
             basedir="/d2/peregrine-fs"
         fi
 
-        if [ "$port" = "11118" ] || [ "$port" = "11119" ]; then
+        if [ "$port" = "11115" ] || [ "$port" = "11119" ] || [ "$port" = "11123" ]; then
             basedir="/d3/peregrine-fs"
         fi
 

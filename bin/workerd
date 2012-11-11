@@ -12,7 +12,67 @@ export YIELD_TO_EXISTING_DAEMON=true
 # file: write to .err and .out files.
 
 export OUTPUT=file
-export JMX_PORT_OFFSET=1000
+
+###
+#
+# when true we run numactl and bind to a specific CPU and node.
+export ENABLE_NUMACTL=true
+
+###
+# Get the numactl config by running numactl --hardware and then looking at the distribution 
+get_numactl_config() {
+
+    # the concurrency we need to run with.
+    concurrency=$1
+
+    hardware=$(numactl --hardware |grep -E 'node [0-9]+ cpus' |grep -Eo '[0-9 ]+$' )
+
+    node=0
+    port=11112
+
+    IFS=$'\n' 
+    for line in $hardware; do
+
+        # change the IFS so we can break up CPUs
+        IFS=' '
+        
+        # the current CPU count in the cpu set.
+        cpu_count=0
+        
+        # the named set of CPUs to execute on 
+        cpu_set=""
+
+        for cpu in $line; do
+
+            if [ "$cpu_set" == "" ]; then
+                cpu_set="$cpu"
+            else
+                cpu_set="$cpu_set,$cpu"
+            fi
+
+            cpu_count=`expr $cpu_count + 1`
+
+            if [ $cpu_count == $concurrency ]; then
+                echo "$port --membind=$node --cpubind=$cpu_set"
+
+                cpu_count=0
+                cpu_set=""
+
+                port=`expr $port + 1`
+
+            fi
+
+        done
+
+        #echo $line
+        node=`expr $node + 1`
+
+        # we need to reset the IFS now.
+        IFS=$'\n' 
+
+    done
+
+}
 
 start() {
 
@@ -27,6 +87,10 @@ start() {
     fi
 
     export MAX_MEMORY=$(./bin/jexec peregrine.worker.GetConfig $args --getString=maxMemory 2> /dev/null | tail -1)
+
+    export CONCURRENCY=$(./bin/jexec peregrine.worker.GetConfig $args --getString=concurrency 2> /dev/null | tail -1)
+
+    export PORT=$(./bin/jexec peregrine.worker.GetConfig $args --getString=port 2> /dev/null | tail -1)
 
     result=$?
 
