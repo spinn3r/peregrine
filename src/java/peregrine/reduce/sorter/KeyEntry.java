@@ -63,7 +63,7 @@ public class KeyEntry implements KeyValuePair {
         return backing.getByte( offset + pos );
     }
 
-    public void readKey() {
+    private void readKey() {
 
         backing.readerIndex( offset - 1 );
 
@@ -72,7 +72,7 @@ public class KeyEntry implements KeyValuePair {
         
     }
 
-    public void readValue() {
+    private void readValue() {
 
         backing.readerIndex( valueOffset - 1 );
 
