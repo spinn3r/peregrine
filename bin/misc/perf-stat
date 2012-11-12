@@ -10,4 +10,4 @@ EVENTS=$EVENTS,LLC-loads,LLC-load-misses,LLC-stores,LLC-store-misses,LLC-prefetc
 
 export LC_NUMERIC=en_US.UTF8 
 
-/usr/local/bin/perf stat -B -e $EVENTS $@
+/usr/local/bin/perf stat -a -B -e $EVENTS $@
