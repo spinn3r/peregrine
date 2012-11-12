@@ -10,7 +10,7 @@ public class PerfTest2 {
         int slabs = 1;
         int range = 1000;
 
-        if ( args.length == 2 ) {
+        if ( args.length == 3 ) {
             max   = Long.parseLong( args[0] );
             slabs = Integer.parseInt( args[1] );
             range = Integer.parseInt( args[2] );
