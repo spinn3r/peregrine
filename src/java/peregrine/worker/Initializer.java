@@ -167,15 +167,26 @@ public final class Initializer {
         }
         
     }
-    
-    public void assertRoot() throws Exception {
+
+    /**
+     * Assert that we can perform control actions on the daemon.  This includes
+     * killing the daemon.  In practice this means we are either root or the
+     * user that controls the daemon.
+     */
+    protected void assertControlPermission() throws Exception {
 
         int uid = unistd.getuid();
 
-        if ( uid != 0 ) {
-            pwd.Passwd passwd = pwd.getpwuid( uid );
-            throw new Exception( "Daemon must be started as root.  Currently running as " + passwd.name );
-        }
+        if ( uid == 0 )
+            return;
+
+        pwd.Passwd passwd = pwd.getpwuid( uid );
+
+        if ( config.getUser().equals( passwd.name ) )
+            return;
+        
+        throw new Exception( String.format( "Daemon must be started as root or %s.  Currently running as: %s",
+                                            config.getUser(),  passwd.name ) );
 
     }
     
@@ -184,7 +195,7 @@ public final class Initializer {
      */
     public void workerd() throws Exception {
 
-        assertRoot();
+        assertControlPermission();
         permissions();
         requireFreeDiskSpace();
         limitMemoryUsage();
@@ -198,7 +209,7 @@ public final class Initializer {
      * Perform all init steps required for the controller.
      */
     public void controllerd() throws Exception {
-        assertRoot();
+        assertControlPermission();
         limitMemoryUsage();
         setuid();
         basic( "controllerd" );

@@ -40,7 +40,7 @@ public class Main {
     
     public static void stop( Config config ) throws Exception {
 
-        new Initializer( config ).assertRoot();
+        new Initializer( config ).assertControlPermission();
 
         log.info( "Stopping on %s" , config.getHost() );
         
@@ -97,7 +97,7 @@ public class Main {
     public static void main( String[] args ) {
 
         try {
-        
+
             if ( args.length == 0 ) {
                 System.out.printf( "SYNTAX start|stop\n" );
                 System.exit( 1 );
@@ -114,6 +114,7 @@ public class Main {
             }
 
         } catch ( Exception e ) {
+            e.printStackTrace();
             log.error( e );
         }
             
