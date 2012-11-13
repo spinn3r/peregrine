@@ -18,6 +18,9 @@ public class PerfTest1 {
             ++v;
         }
 
+        System.out.printf( "v: %,d\n", v );
+        
     }
     
 }
+
