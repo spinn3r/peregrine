@@ -33,7 +33,9 @@ public class SSTableReader {
         // read the trailer
         trailer.read( buff );
         
-        // TODO: read the file info
+        // read the file info
+        fileInfo.read( buff, trailer );
+        
         // TODO: read data and meta index
         
     }

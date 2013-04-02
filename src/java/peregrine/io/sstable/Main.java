@@ -27,12 +27,14 @@ public class Main {
         tableWriter.close();
 
         System.out.printf( "trailer written: %s\n", tableWriter.trailer );
+        System.out.printf( "fileInfo written: %s\n", tableWriter.fileInfo );
         
         MappedFileReader reader = new MappedFileReader( null, "/tmp/test.dat" );
 
         SSTableReader tableReader = new SSTableReader( reader );
 
         System.out.printf( "trailer read: %s\n", tableReader.trailer );
+        System.out.printf( "fileInfo read: %s\n", tableReader.fileInfo );
 
     }
 

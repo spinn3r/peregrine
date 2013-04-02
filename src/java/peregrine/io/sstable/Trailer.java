@@ -90,8 +90,6 @@ public class Trailer {
         //TODO: seek to the trailer position
 
         int offset = buff.writerIndex() - LENGTH;
-
-        System.out.printf( "FIXE: %s\n", offset );
         
         buff.readerIndex( offset );
         

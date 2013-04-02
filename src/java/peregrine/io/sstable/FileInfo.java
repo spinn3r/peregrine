@@ -4,6 +4,9 @@ import java.io.*;
 
 import peregrine.*;
 import peregrine.os.*;
+import peregrine.util.*;
+
+import org.jboss.netty.buffer.*;
 
 public class FileInfo {
 
@@ -48,6 +51,19 @@ public class FileInfo {
         this.comparatorClass = comparatorClass;
     }
 
+    public void read( ChannelBuffer buff, Trailer trailer ) throws IOException {
+
+        buff.readerIndex( (int)trailer.fileInfoOffset );
+
+        StructReader sr = new StructReader( buff );
+        
+        meanKeyLength = sr.readInt();
+        meanValueLength = sr.readInt();
+        lastKey = sr.readBytes();
+        comparatorClass = sr.readBytes();
+        
+    }
+
     public void write( MappedFileWriter writer ) throws IOException {
 
         StructWriter sw = new StructWriter( 100 );
@@ -61,4 +77,15 @@ public class FileInfo {
         
     }
 
+    @Override
+    public String toString() {
+
+        return String.format( "meanKeyLength: %s, meanValueLength: %s, lastKey: %s, comparatorClass: '%s'" ,
+                              meanKeyLength,
+                              meanValueLength,
+                              Hex.encode( lastKey ),
+                              new String( comparatorClass ) );
+        
+    }
+    
 }
