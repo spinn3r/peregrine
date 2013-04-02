@@ -4,12 +4,17 @@ import java.io.*;
 
 import peregrine.*;
 import peregrine.os.*;
+import peregrine.util.*;
+
+import org.jboss.netty.buffer.*;
 
 public class Trailer {
-    
-    protected int version = 1;
 
-    protected byte[] compressionAlgorithm = "none".getBytes();
+    protected static int LENGTH = 7 * Longs.LENGTH ;
+    
+    protected long version = 1;
+
+    protected long compressionAlgorithm = 0;
     
     protected long count = 0;
     
@@ -64,28 +69,50 @@ public class Trailer {
         this.count = count;
     }
 
-    public byte[] getCompressionAlgorithm() { 
+    public long getCompressionAlgorithm() { 
         return this.compressionAlgorithm;
     }
 
-    public void setCompressionAlgorithm( byte[] compressionAlgorithm ) { 
+    public void setCompressionAlgorithm( long compressionAlgorithm ) { 
         this.compressionAlgorithm = compressionAlgorithm;
     }
 
-    public int getVersion() { 
+    public long getVersion() { 
         return this.version;
     }
 
-    public void setVersion( int version ) { 
+    public void setVersion( long version ) { 
         this.version = version;
     }
 
+    public void read( ChannelBuffer buff ) throws IOException {
+
+        //TODO: seek to the trailer position
+
+        int offset = buff.writerIndex() - LENGTH;
+
+        System.out.printf( "FIXE: %s\n", offset );
+        
+        buff.readerIndex( offset );
+        
+        StructReader sr = new StructReader( buff );
+
+        version = sr.readLong();
+        compressionAlgorithm = sr.readLong();
+        count = sr.readLong();
+        size = sr.readLong();
+        indexOffset = sr.readLong();
+        indexCount = sr.readLong();
+        fileInfoOffset = sr.readLong();
+
+    }
+    
     public void write( MappedFileWriter writer ) throws IOException {
 
         StructWriter sw = new StructWriter( 100 );
 
-        sw.writeInt( version );
-        sw.writeBytes( compressionAlgorithm );
+        sw.writeLong( version );
+        sw.writeLong( compressionAlgorithm );
         sw.writeLong( count );
         sw.writeLong( size );
         sw.writeLong( indexOffset );
@@ -93,6 +120,20 @@ public class Trailer {
         sw.writeLong( fileInfoOffset );
 
         writer.write( sw.getChannelBuffer() );
+        
+    }
+
+    @Override
+    public String toString() {
+        
+        return String.format( "version=%s, compressionAlgorithm=%s, count=%s, size=%s, indexOffset=%s, indexCount=%s, fileInfoOffset=%s", 
+                              version,
+                              compressionAlgorithm,
+                              count,
+                              size,
+                              indexOffset,
+                              indexCount,
+                              fileInfoOffset );
         
     }
     

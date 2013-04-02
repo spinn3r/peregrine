@@ -18,27 +18,27 @@ import peregrine.os.*;
 public class SSTableWriter implements SequenceWriter {
 
     // default block size
-    private long blockSize = 65536;
+    protected long blockSize = 65536;
 
     // information about the file we are writing to...
-    private FileInfo fileInfo = new FileInfo();
+    protected FileInfo fileInfo = new FileInfo();
 
     // trailer information for the file
-    private Trailer trailer = new Trailer();
+    protected Trailer trailer = new Trailer();
 
     // a list of all data blocks written so that we can write out their metadata on close()
-    private List<DataBlock> dataBlocks = new ArrayList();
+    protected List<DataBlock> dataBlocks = new ArrayList();
 
     // a list of all meta blocks written so that we can write out their metadata on close()
-    private List<MetaBlock> metaBlocks = new ArrayList();
+    protected List<MetaBlock> metaBlocks = new ArrayList();
 
-    private MappedFileWriter writer = null;
+    protected MappedFileWriter writer = null;
 
-    private DataBlock dataBlock = null;
+    protected DataBlock dataBlock = null;
 
-    private MetaBlock metaBlock = null;
+    protected MetaBlock metaBlock = null;
     
-    private StructReader lastKey = null;
+    protected StructReader lastKey = null;
 
     public SSTableWriter( MappedFileWriter writer ) {
 
@@ -141,8 +141,9 @@ public class SSTableWriter implements SequenceWriter {
         if ( lastKey != null )
             fileInfo.lastKey = lastKey.toByteArray();
 
+        trailer.fileInfoOffset = writer.length();
         fileInfo.write( writer );
-        
+
         trailer.indexOffset = writer.length();
         trailer.indexCount = dataBlocks.size();
 
