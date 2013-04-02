@@ -36,7 +36,7 @@ public class SSTableReader {
         // read the file info
         fileInfo.read( buff, trailer );
         
-        // TODO: read data and meta index
+        // read data and meta index
 
         buff.readerIndex( (int)trailer.indexOffset );
 

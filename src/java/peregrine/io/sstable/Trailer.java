@@ -87,8 +87,7 @@ public class Trailer {
 
     public void read( ChannelBuffer buff ) throws IOException {
 
-        //TODO: seek to the trailer position
-
+        //seek to the trailer position
         int offset = buff.writerIndex() - LENGTH;
         
         buff.readerIndex( offset );
