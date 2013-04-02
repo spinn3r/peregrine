@@ -37,6 +37,18 @@ public class SSTableReader {
         fileInfo.read( buff, trailer );
         
         // TODO: read data and meta index
+
+        buff.readerIndex( (int)trailer.indexOffset );
+
+        for( int i = 0; i < trailer.indexCount; ++i ) {
+
+            DataBlock db = new DataBlock();
+            MetaBlock mb = new MetaBlock();
+
+            db.read( buff );
+            mb.read( buff );
+            
+        }
         
     }
     

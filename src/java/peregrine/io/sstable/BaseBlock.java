@@ -5,6 +5,8 @@ import java.io.*;
 import peregrine.*;
 import peregrine.os.*;
 
+import org.jboss.netty.buffer.*;
+
 public abstract class BaseBlock {
 
     protected long length = -1;
@@ -37,6 +39,16 @@ public abstract class BaseBlock {
         this.count = count;
     }
 
+    public void read( ChannelBuffer buff ) throws IOException {
+
+        StructReader sr = new StructReader( buff );
+
+        length = sr.readLong();
+        offset = sr.readLong();
+        count = sr.readLong();
+        
+    }
+
     public void write( MappedFileWriter writer ) throws IOException {
 
         StructWriter sw = new StructWriter( 100 );
@@ -46,6 +58,11 @@ public abstract class BaseBlock {
 
         writer.write( sw.getChannelBuffer() );
 
+    }
+
+    @Override
+    public String toString() {
+        return String.format( "length=%s, offset=%s, count=%s", length, offset, count );
     }
 
 }

@@ -28,6 +28,10 @@ public class Main {
 
         System.out.printf( "trailer written: %s\n", tableWriter.trailer );
         System.out.printf( "fileInfo written: %s\n", tableWriter.fileInfo );
+
+        for( DataBlock block : tableWriter.dataBlocks ) {
+            System.out.printf( "DataBlock written: %s\n", block );
+        }
         
         MappedFileReader reader = new MappedFileReader( null, "/tmp/test.dat" );
 
@@ -35,6 +39,10 @@ public class Main {
 
         System.out.printf( "trailer read: %s\n", tableReader.trailer );
         System.out.printf( "fileInfo read: %s\n", tableReader.fileInfo );
+
+        for( DataBlock block : tableReader.dataBlocks ) {
+            System.out.printf( "DataBlock read: %s\n", block );
+        }
 
     }
 
