@@ -13,10 +13,20 @@ import peregrine.os.*;
  * key/value pairs but also adds support for writing data as blocks, optionally
  * compressing those blocks, and then keeping an index of metadata (bloom
  * filters) and indexing of the data blocks.  This way we can also support key
- * lookup by seekTo() merging based on keys.
+ * lookup by seekTo() and merging based on key seek when one of the left or
+ * right side of the join is smaller.
  */
 public class SSTableWriter implements SequenceWriter {
 
+    // TODO: support per-SSTable metadata ... for example a schema so that we
+    // could use something like protocol buffers or avro for the schema format.
+    //
+    // TODO: EVERY block should have a checksum algorithm.
+    //
+    // TODO: data blocks need to store the compressed size and decompressed
+    // size.  This way I can quicky compute stats like % compression rate per
+    // block.  I should also write on on the trailer so I can look there too.
+    
     // default block size
     protected long blockSize = 65536;
 
@@ -32,12 +42,17 @@ public class SSTableWriter implements SequenceWriter {
     // a list of all meta blocks written so that we can write out their metadata on close()
     protected List<MetaBlock> metaBlocks = new ArrayList();
 
+    // the writer for storing all data.
     protected MappedFileWriter writer = null;
 
+    // the current DataBlock
     protected DataBlock dataBlock = null;
 
+    // the current MetaBlock
     protected MetaBlock metaBlock = null;
-    
+
+    // the last key we saw in the whole stream.  This way we have the first key
+    // of each block as well as the last key of the entire file.
     protected StructReader lastKey = null;
 
     public SSTableWriter( MappedFileWriter writer ) {

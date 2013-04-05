@@ -15,6 +15,7 @@ public abstract class BaseBlock {
 
     protected long count = 0;
 
+
     public long getLength() { 
         return this.length;
     }
