@@ -58,7 +58,7 @@ IGNORE_CHANGESETS['1852']=1
 # Timeout for build commands (in seconds)
 TIMEOUT=1*60*60
 
-OLD_AGE=7 * 24 * 60 * 60
+OLD_AGE=3 * 7 * 24 * 60 * 60
 
 class ReportIndex:
 
