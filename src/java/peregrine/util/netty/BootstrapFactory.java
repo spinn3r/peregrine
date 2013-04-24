@@ -67,8 +67,6 @@ public class BootstrapFactory {
         setOption( bootstrap, prefix+"connectTimeoutMillis",  CONNECT_TIMEOUT_MILLIS );
         setOption( bootstrap, prefix+"soLinger",              SO_LINGER );
         setOption( bootstrap, prefix+"reuseAddress",          REUSE_ADDRESS );
-
-        //setOption( bootstrap, prefix+"bufferFactory",         new DirectChannelBufferFactory() );
 		
 	}
 	

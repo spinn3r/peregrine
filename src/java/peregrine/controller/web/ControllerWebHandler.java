@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
 */
-package peregrine.controller;
+package peregrine.controller.web;
 
 import static org.jboss.netty.handler.codec.http.HttpMethod.*;
 import static org.jboss.netty.handler.codec.http.HttpResponseStatus.*;
@@ -29,61 +29,47 @@ import org.jboss.netty.handler.codec.http.*;
 
 import peregrine.*;
 import peregrine.config.*;
-import peregrine.controller.rpcd.*;
-import peregrine.controller.web.*;
+import peregrine.controller.*;
+import peregrine.controller.rpcd.delegate.*;
 import peregrine.http.*;
-import peregrine.util.netty.*;
-
+import peregrine.rpc.*;
+import peregrine.rpcd.*;
+import peregrine.rpcd.delegate.*;
 import com.spinn3r.log5j.*;
 
 /**
- * Netty support for handling controller message.
  */
-public class ControllerHandler extends DefaultChannelUpstreamHandler {
+public class ControllerWebHandler extends SimpleChannelUpstreamHandler  {
 
     private static final Logger log = Logger.getLogger();
+
+    private static final ControllerRPCDelegate delegate = new ControllerRPCDelegate();
 
     protected Config config;
     protected ControllerDaemon controllerDaemon;
 
-    protected SimpleChannelUpstreamHandler handler = null;
-
-    public ControllerHandler( Config config,
-                              ControllerDaemon controllerDaemon ) {
+    public ControllerWebHandler( Config config,
+                                 ControllerDaemon controllerDaemon,
+                                 String uri ) {
 
         this.config = config;
         this.controllerDaemon = controllerDaemon;
 
     }
-    
+
     @Override
-    public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
+    public void messageReceived( ChannelHandlerContext ctx, MessageEvent e ) throws Exception {
 
-        super.messageReceived( ctx, e );
+        Channel channel = e.getChannel();
+
+        ChannelBuffer content = ChannelBuffers.wrappedBuffer( "<html><body>hello world</body></html>".getBytes() );
+
+        HttpResponse response = new DefaultHttpResponse( HTTP_1_1, OK );
+        response.setContent( content );
         
-        // introspect requests and route them to the correct handler.  For
-        // example, PUT request need to be handled separately than GET requests
-        // as well as DELETE and HEAD.
-        
-        Object message = e.getMessage();
-
-        if ( message instanceof HttpRequest ) {
-
-            HttpMethod method = request.getMethod();
-        	
-            if ( method == POST ) {
-                handler = new ControllerRPCHandler( config, controllerDaemon, request.getUri() );
-            } else {
-                handler = new ControllerWebHandler( config, controllerDaemon, request.getUri() );
-            }
-
-        }
-
-        if ( handler != null ) {
-            handler.messageReceived( ctx, e );
-        }
+        channel.write(response).addListener(ChannelFutureListener.CLOSE);
 
     }
-    
+
 }
 
