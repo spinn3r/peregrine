@@ -26,6 +26,9 @@ import com.spinn3r.log5j.Logger;
 
 import java.nio.charset.Charset;
 
+import org.apache.velocity.app.*;
+import org.apache.velocity.*;
+
 public class Test {
 
     private static final Logger log = Logger.getLogger();
@@ -91,13 +94,37 @@ public class Test {
     
     public static void main( String[] args ) throws Exception {
 
-        long max = 10000000000L;
+        System.out.printf( "init of velocity\n" );
 
-        long v = 0;
+        //Velocity.setProperty( VelocityEngine.RESOURCE_LOADER, "class");
+        //Velocity.setProperty( "resource.loader.class", org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader.class.getName() );
+
+        Velocity.setProperty( VelocityEngine.FILE_RESOURCE_LOADER_PATH, ".");
+        Velocity.setProperty( VelocityEngine.RUNTIME_LOG_LOGSYSTEM_CLASS, "org.apache.velocity.runtime.log.Log4JLogChute" );
+        Velocity.setProperty( "runtime.log.logsystem.log4j.logger", "velocity" );
+
+        //Velocity.setProperty( VelocityEngine.FILE_RESOURCE_LOADER_PATH, "/projects/peregrine/src/web");
+        Velocity.init();
         
-        for( long i = 0; i < max; ++i ) {
-            ++v;
-        }
+        VelocityContext context = new VelocityContext();
+
+        StringWriter sw = new StringWriter();
+
+        Template template = Velocity.getTemplate("web/index.vm");
+
+        template.merge( context, sw );
+
+        System.out.printf( "done\n" );
+
+        System.out.printf( "%s\n", sw );
+        
+        // long max = 10000000000L;
+
+        // long v = 0;
+        
+        // for( long i = 0; i < max; ++i ) {
+        //     ++v;
+        // }
         
         // StructReader sr = StructReaders.hashcode( "666" );
 

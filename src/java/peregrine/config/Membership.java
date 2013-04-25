@@ -120,6 +120,10 @@ public class Membership {
         return hostsByPartition.size();
     }
 
+    public Map<Host,List<Partition>> getPartitionsByHost() {
+        return partitionsByHost;
+    }
+    
     public String toMatrix() {
 
         String host_format = "%35s ";

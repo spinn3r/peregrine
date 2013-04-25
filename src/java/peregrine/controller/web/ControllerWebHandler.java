@@ -21,6 +21,7 @@ import static org.jboss.netty.handler.codec.http.HttpVersion.*;
 
 import java.io.*;
 import java.net.*;
+import java.util.*;
 
 import org.jboss.netty.buffer.*;
 import org.jboss.netty.channel.*;
@@ -35,41 +36,80 @@ import peregrine.http.*;
 import peregrine.rpc.*;
 import peregrine.rpcd.*;
 import peregrine.rpcd.delegate.*;
+
+import org.apache.velocity.app.*;
+import org.apache.velocity.*;
+
 import com.spinn3r.log5j.*;
 
 /**
  */
 public class ControllerWebHandler extends SimpleChannelUpstreamHandler  {
-
+    
     private static final Logger log = Logger.getLogger();
-
+    
     private static final ControllerRPCDelegate delegate = new ControllerRPCDelegate();
-
+    
     protected Config config;
     protected ControllerDaemon controllerDaemon;
-
+    protected String uri;
+    
     public ControllerWebHandler( Config config,
                                  ControllerDaemon controllerDaemon,
                                  String uri ) {
-
+        
         this.config = config;
         this.controllerDaemon = controllerDaemon;
-
+        this.uri = uri;
+        
     }
-
+    
     @Override
     public void messageReceived( ChannelHandlerContext ctx, MessageEvent e ) throws Exception {
 
         Channel channel = e.getChannel();
 
-        ChannelBuffer content = ChannelBuffers.wrappedBuffer( "<html><body>hello world</body></html>".getBytes() );
+        VelocityContext context = new VelocityContext();
+        context.put( "config", config );
+        context.put( "controller", controllerDaemon.getController() );
+
+        QueryStringDecoder decoder = new QueryStringDecoder( uri );
+
+        Map<String,List<String>> params = decoder.getParameters();
+
+        // new map with just key/value mappings.  
+        Map<String,String> map = new HashMap();
+
+        for( String key : params.keySet() ) {
+            map.put( key, params.get( key ).get(0) );
+        }
+
+        context.put( "params", map );
+        
+        StringWriter sw = new StringWriter();
+
+        Template template = Velocity.getTemplate("index.vm");
+
+        template.merge( context, sw );
+        
+        ChannelBuffer content = ChannelBuffers.wrappedBuffer( sw.toString().getBytes() );
 
         HttpResponse response = new DefaultHttpResponse( HTTP_1_1, OK );
         response.setContent( content );
         
         channel.write(response).addListener(ChannelFutureListener.CLOSE);
-
+        
     }
 
+    static {
+
+        Velocity.setProperty( VelocityEngine.FILE_RESOURCE_LOADER_PATH, ".");
+        Velocity.setProperty( VelocityEngine.RUNTIME_LOG_LOGSYSTEM_CLASS, "org.apache.velocity.runtime.log.Log4JLogChute" );
+        Velocity.setProperty( "runtime.log.logsystem.log4j.logger", "velocity" );
+
+        Velocity.init();
+        
+    }
+    
 }
 

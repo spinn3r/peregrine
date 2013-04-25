@@ -284,6 +284,22 @@ public class Batch extends BaseJob<Batch> {
         return this;
     }
 
+    public int getProgress() {
+
+        int nr_jobs = getJobs().size();
+        int nr_complete = 0;
+        
+        for( Job job : getJobs() ) {
+            
+            if ( job.getState().equals( JobState.COMPLETED ) )
+                ++nr_complete;
+            
+        }
+
+        return (int)(100 * (nr_complete / (double)nr_jobs));
+
+    }
+    
     public Job getExecutingJob() {
 
         for ( Job job : getJobs() ) {

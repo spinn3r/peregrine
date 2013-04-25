@@ -1,0 +1,144 @@
+
+<html>
+<head>
+<style>
+
+body {
+   font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif; 
+   font-weight: 300;
+}
+
+p { 
+   font-family: Helvetica, Arial, "Lucida Grande", sans-serif; 
+   line-height: 1.4em;
+}
+
+th {
+    text-align: left;
+}
+
+blockquote { 
+
+  border-left-style:solid;
+  border-left-width:2px;
+  border-left-color: #c6c6c6;
+
+  padding-left: 5px;
+
+}
+
+.state-submitted {
+    background-color: white;
+}
+
+.state-failed {
+    background-color: red;
+}
+
+.state-completed {
+    background-color: green;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<img src="http://peregrine_mapreduce.bitbucket.org/images/peregrine-logo-header3.png">
+
+<p>
+<a href="/">home</a> <a href="?cluster=1">cluster</a>
+</p>
+
+<h1>Peregrine controller on $config.Host</h1>
+
+<!-- <b>Online since: $controller.Started</b> -->
+
+#if( $params.containsKey( 'batch' ) )
+
+    #foreach( $batch in $controller.History )
+
+        #if( $batch.Identifier == $params['batch'] )
+
+            <h2>Batch $batch.Name</h2>
+
+            <table>
+            <tr><td><b>Name:</b></td><td>$batch.Name</td></tr>
+            <tr><td><b>Identifier:</b></td><td>$batch.Identifier</td></tr>
+            <tr><td><b>State:</b></td><td>$batch.State</td></tr>
+            </table>
+            
+            <p>
+            <b>Cause:</b><br/>
+            <blockquote>
+            <pre>$batch.Cause</pre>
+            </blockquote>
+            </p>
+
+            <p>
+            <b>Batch progress: </b><progress value="$batch.Progress" max="100"></progress> $batch.Progress%
+            </p>
+
+            <table width="100%">
+        
+            #foreach( $job in $batch.Jobs )
+
+            <tr class='state-$job.state'>
+            <td>$job.state</td>
+            <td>$job.operation</td>
+            <td>$job.delegate</td>
+            <td>$job.description</td>
+            </tr>
+            
+            #end
+
+            </table>
+            
+        #end
+    
+    #end
+
+#elseif ( $params.containsKey( 'cluster' ) )
+
+    <h2>Cluster</h2>
+
+    <h3>Hosts</h3>
+
+    <pre>
+    $config.Membership.toMatrix()
+    </pre>
+       
+    
+#else
+
+    <h2>History:</h2>
+
+    <table width="100%">
+    <tr>
+
+    <th>name</th>
+    <th>identifier</th>
+    <th>state</th>
+    <th>start</th>
+    <th>end</th>
+
+    </tr>
+
+    #foreach( $batch in $controller.History )
+        <tr class='state-$batch.state'>
+        <td>$batch.Name</td>
+        <td><a href="?batch=$batch.Identifier">$batch.Identifier</a></td>
+        <td>$batch.State</td>
+        <td>$batch.Start</td>
+        <td>$batch.End</td>
+        </tr>
+    #end
+    </table>
+
+    <!-- FIXME: include the partition layout -->
+
+#end
+
+</body>
+</html>
