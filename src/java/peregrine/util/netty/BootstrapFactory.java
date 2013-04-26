@@ -27,13 +27,7 @@ public class BootstrapFactory {
 
 	private static final Logger log = Logger.getLogger();
 	
-    public static final boolean TCP_NODELAY = true;
-
     public static final long CONNECT_TIMEOUT_MILLIS = HttpClient.WRITE_TIMEOUT;
-
-    public static final int SO_LINGER = 5;
-
-    public static final boolean REUSE_ADDRESS = true;
 
     private Config config;
 
@@ -70,10 +64,10 @@ public class BootstrapFactory {
 	private void setOptions( String prefix, Bootstrap bootstrap ) {
 		
         // set options 	
-        setOption( bootstrap, prefix+"tcpNoDelay",            TCP_NODELAY );
         setOption( bootstrap, prefix+"connectTimeoutMillis",  CONNECT_TIMEOUT_MILLIS );
-        setOption( bootstrap, prefix+"soLinger",              SO_LINGER );
-        setOption( bootstrap, prefix+"reuseAddress",          REUSE_ADDRESS );
+        setOption( bootstrap, prefix+"tcpNoDelay",            config.getNetTcpNodelay() );
+        setOption( bootstrap, prefix+"soLinger",              config.getNetSoLinger() );
+        setOption( bootstrap, prefix+"reuseAddress",          config.getNetReuseAddress() );
 
         //setOption( bootstrap, prefix+"bufferFactory",         new DirectChannelBufferFactory() );
 		
