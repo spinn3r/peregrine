@@ -136,6 +136,10 @@ public class BaseConfig {
     
     protected boolean netTcpNodelay = false;
 
+    protected int netConnectTimeout = -1;
+    
+    protected int netWriteTimeout = -1;
+
     public void init( StructMap struct ) {
 
         this.struct = struct;
@@ -173,7 +177,9 @@ public class BaseConfig {
         setNetSoLinger( struct.getInt( "netSoLinger" ) );
         setNetReuseAddress( struct.getBoolean( "netReuseAddress" ) );
         setNetTcpNodelay( struct.getBoolean( "netTcpNodelay" ) );
-        
+        setNetWriteTimeout( struct.getInt( "netWriteTimeout" ) );
+        setNetConnectTimeout( struct.getInt( "netConnectTimeout" ) );
+
         if ( struct.containsKey( "host" ) )
             setHost( Host.parse( struct.getString( "host" ) ) );
 
@@ -468,6 +474,22 @@ public class BaseConfig {
 
     public void setNetTcpNodelay( boolean netTcpNodelay ) { 
         this.netTcpNodelay = netTcpNodelay;
+    }
+
+    public int getNetWriteTimeout() { 
+        return this.netWriteTimeout;
+    }
+
+    public void setNetWriteTimeout( int netWriteTimeout ) { 
+        this.netWriteTimeout = netWriteTimeout;
+    }
+
+    public int getNetConnectTimeout() { 
+        return this.netConnectTimeout;
+    }
+
+    public void setNetConnectTimeout( int netConnectTimeout ) { 
+        this.netConnectTimeout = netConnectTimeout;
     }
 
     static {

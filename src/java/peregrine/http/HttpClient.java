@@ -72,22 +72,12 @@ public class HttpClient implements ChannelBufferWritable {
      * Maximum number of writes to keep in the queue.
      */
     public static int QUEUE_CAPACITY = 10;
-
-    /**
-     * The write timeout for requests.  Due to GC pause and so forth when using
-     * the ParallelGC this should probably be larger as we HAVE seen write
-     * timeouts when setting it to 60 seconds.  
-     *
-     * <p>TODO: this should be a configuration directive.
-     */
-    public static final int WRITE_TIMEOUT = 300000;
-    
     protected int channelState = PENDING;
 
     /**
      * Stores writes waiting to be sent over the wire.
      */
-    protected SimpleBlockingQueue<ChannelBuffer> queue = new SimpleBlockingQueue( QUEUE_CAPACITY, WRITE_TIMEOUT );
+    protected SimpleBlockingQueue<ChannelBuffer> queue = null;
 
     /**
      * Stores the result of this IO operation.  Boolean.TRUE if it was success
@@ -212,7 +202,9 @@ public class HttpClient implements ChannelBufferWritable {
         request.setHeader( HttpHeaders.Names.TRANSFER_ENCODING, "chunked" );
 
         request.setHeader( X_TAG, "" + tag++ );
-        
+
+        this.queue = new SimpleBlockingQueue( QUEUE_CAPACITY, config.getNetWriteTimeout() );
+
         initialized = true;
         
     }
@@ -492,8 +484,8 @@ public class HttpClient implements ChannelBufferWritable {
                 throw new IOException( e );
             }
 
-            if ( System.currentTimeMillis() - started >= WRITE_TIMEOUT ) {
-                throw new IOException( String.format( "write timeout: %s (%s)", WRITE_TIMEOUT, result ) );
+            if ( System.currentTimeMillis() - started >= config.getNetWriteTimeout() ) {
+                throw new IOException( String.format( "write timeout: %s (%s)", config.getNetWriteTimeout(), result ) );
             }
 
         }

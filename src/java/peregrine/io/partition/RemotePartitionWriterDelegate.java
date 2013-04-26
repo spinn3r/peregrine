@@ -33,7 +33,7 @@ public class RemotePartitionWriterDelegate extends BasePartitionWriterDelegate {
     private static final Logger log = Logger.getLogger();
 
     public RemotePartitionWriterDelegate( Config config, boolean autoSync ) {
-
+        this.config = config;
     }
 
     @Override
@@ -98,8 +98,8 @@ public class RemotePartitionWriterDelegate extends BasePartitionWriterDelegate {
 
         HttpURLConnection httpCon = (HttpURLConnection) url.openConnection();
         httpCon.setRequestMethod( method );
-        httpCon.setConnectTimeout( HttpClient.WRITE_TIMEOUT );
-        httpCon.setReadTimeout( HttpClient.WRITE_TIMEOUT );
+        httpCon.setConnectTimeout( config.getNetConnectTimeout() );
+        httpCon.setReadTimeout( config.getNetWriteTimeout() );
         int response = httpCon.getResponseCode();
 
         if ( response != 200 ) {

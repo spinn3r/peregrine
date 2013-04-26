@@ -27,8 +27,6 @@ public class BootstrapFactory {
 
 	private static final Logger log = Logger.getLogger();
 	
-    public static final long CONNECT_TIMEOUT_MILLIS = HttpClient.WRITE_TIMEOUT;
-
     private Config config;
 
     public BootstrapFactory( Config config ) {
@@ -64,7 +62,7 @@ public class BootstrapFactory {
 	private void setOptions( String prefix, Bootstrap bootstrap ) {
 		
         // set options 	
-        setOption( bootstrap, prefix+"connectTimeoutMillis",  CONNECT_TIMEOUT_MILLIS );
+        setOption( bootstrap, prefix+"connectTimeoutMillis",  config.getNetConnectTimeout() );
         setOption( bootstrap, prefix+"tcpNoDelay",            config.getNetTcpNodelay() );
         setOption( bootstrap, prefix+"soLinger",              config.getNetSoLinger() );
         setOption( bootstrap, prefix+"reuseAddress",          config.getNetReuseAddress() );
