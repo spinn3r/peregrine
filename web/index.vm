@@ -97,6 +97,7 @@ tr th {
     <th></th>
     <th>name</th>
     <th>identifier</th>
+    <th>started</th>
     <th>duration</th>
     <th>nr jobs</th>
     <th>completed</th>
@@ -126,6 +127,7 @@ tr th {
                 <td class='state-$batch.state'></td>
                 <td>$batch.Name</td>
                 <td><a href="?batch=$batch.Identifier">$batch.Identifier</a></td>
+                <td>$batch.getStartedFormatted()</td>
                 <td>$batch.getDurationFormatted()</td>
                 <td>$batch.getJobs().size()</td>
                 <td>$nr_complete_jobs</td>
@@ -189,9 +191,7 @@ $batches.addAll( $controller.getPending() )
             </table>
             -->
             <p>
-            <table>
-              <tr><td><b>Progress: </b></td><td><progress class="batch-progress" value="$batch.Progress" max="100"></progress> $batch.Progress%</td></tr>
-            </table>
+              <b>Progress: </b> <progress class="batch-progress" value="$batch.Progress" max="100"></progress> $batch.Progress%
             </p>
 
             #show_batch( $batches $params['batch'] )
@@ -211,6 +211,7 @@ $batches.addAll( $controller.getPending() )
             <th></th>
             <th>state</th>
             <th>operation</th>
+            <th>started</th>
             <th>duration</th>
             <th>delegate</th>
             <th class="job-metric">consumed</th>
@@ -226,6 +227,7 @@ $batches.addAll( $controller.getPending() )
             <td class='state-$job.state'></td>
             <td>$job.state</td>
             <td>$job.operation</td>
+            <td>$job.getStartedFormatted()</td>
             <td>$job.getDurationFormatted()</td>
             <td><a href='?batch=$batch.identifier&job=$job.identifier'>$job.delegate.name</a></td>
             <td class="job-metric">$job.getReport().getConsumed().getFormatted()</td>

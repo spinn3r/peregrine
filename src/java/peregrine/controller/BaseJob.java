@@ -125,6 +125,18 @@ public abstract class BaseJob<T> implements MessageSerializable {
         return this.started;
     }
 
+    /**
+     * Get the started time as ISO8601.
+     */
+    public String getStartedFormatted() {
+
+        if ( started <= 0 )
+            return "";
+
+        return Dates.toISO8601( this.started );
+        
+    }
+
     public T setStarted( long started ) {
         this.started = started;
         return instance;
