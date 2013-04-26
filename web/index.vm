@@ -7,17 +7,25 @@
 <style>
 
 body {
-   font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif; 
-   font-weight: 300;
+  font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif; 
+  font-weight: 200;
+}
+
+body, td, th {
+  font-size: 14px;
 }
 
 p { 
-   font-family: Helvetica, Arial, "Lucida Grande", sans-serif; 
-   line-height: 1.4em;
+  font-family: Helvetica, Arial, "Lucida Grande", sans-serif; 
+  line-height: 1.4em;
 }
 
 th {
-    text-align: left;
+  text-align: left;
+}
+
+td, th {
+  white-space:nowrap;
 }
 
 blockquote { 
@@ -124,7 +132,7 @@ tr th {
                 #end
 
                 <tr>
-                <td class='state-$batch.state'></td>
+                <td class='state-$batch.state'>&nbsp;</td>
                 <td>$batch.Name</td>
                 <td><a href="?batch=$batch.Identifier">$batch.Identifier</a></td>
                 <td>$batch.getStartedFormatted()</td>
@@ -224,7 +232,7 @@ $batches.addAll( $controller.getPending() )
             #foreach( $job in $batch.Jobs )
 
             <tr>
-            <td class='state-$job.state'></td>
+            <td class='state-$job.state'>&nbsp</td>
             <td>$job.state</td>
             <td>$job.operation</td>
             <td>$job.getStartedFormatted()</td>
