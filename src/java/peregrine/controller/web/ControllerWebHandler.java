@@ -88,7 +88,7 @@ public class ControllerWebHandler extends SimpleChannelUpstreamHandler  {
         
         StringWriter sw = new StringWriter();
 
-        Template template = Velocity.getTemplate("index.vm");
+        Template template = Velocity.getTemplate("web/index.vm");
 
         template.merge( context, sw );
         
@@ -105,8 +105,9 @@ public class ControllerWebHandler extends SimpleChannelUpstreamHandler  {
 
         Velocity.setProperty( VelocityEngine.FILE_RESOURCE_LOADER_PATH, ".");
         Velocity.setProperty( VelocityEngine.RUNTIME_LOG_LOGSYSTEM_CLASS, "org.apache.velocity.runtime.log.Log4JLogChute" );
+        Velocity.setProperty( VelocityEngine.VM_PERM_ALLOW_INLINE_REPLACE_GLOBAL, true);
         Velocity.setProperty( "runtime.log.logsystem.log4j.logger", "velocity" );
-
+        Velocity.setProperty( "file.resource.loader.cache", "false" );
         Velocity.init();
         
     }

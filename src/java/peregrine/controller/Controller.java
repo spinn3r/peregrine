@@ -108,6 +108,10 @@ public class Controller {
 
     }
 
+    public ClusterState getClusterState() {
+        return this.clusterState;
+    }
+    
     public Config getConfig() {
         return config;
     }

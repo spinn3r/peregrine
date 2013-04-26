@@ -43,15 +43,54 @@ blockquote {
 
 </head>
 
+#macro(show_batch $items $identifier)
+
+    <table width="100%">
+
+    <tr>
+    <th>name</th>
+    <th>identifier</th>
+    <th>state</th>
+    <th>start</th>
+    <th>end</th>
+
+    </tr>
+
+    #foreach( $batch in $items )
+
+        #if ( ! $identifier || $batch.Identifier == $identifier ) 
+
+        <tr class='state-$batch.state'>
+        <td>$batch.Name</td>
+        <td><a href="?batch=$batch.Identifier">$batch.Identifier</a></td>
+        <td>$batch.Identifier</td>
+        <td>$batch.State</td>
+        <td>$batch.Start</td>
+        <td>$batch.End</td>
+        </tr>
+
+        #end
+
+        #end
+
+    </table>
+
+#end    
+
 <body>
 
-<img src="http://peregrine_mapreduce.bitbucket.org/images/peregrine-logo-header3.png">
+<img src="http://peregrine_mapreduce.bitbucket.org/images/peregrine-logo-header3.png"
+     align="right"
+     width="407"
+     height="99">
 
 <p>
-<a href="/">home</a> <a href="?cluster=1">cluster</a>
+<a href="/">home</a>
+<a href="?cluster=1">cluster</a>
+<a href="?config=1">config</a>
 </p>
 
-<h1>Peregrine controller on $config.Host</h1>
+<h1>Controller on $config.Host</h1>
 
 <!-- <b>Online since: $controller.Started</b> -->
 
@@ -64,20 +103,24 @@ blockquote {
             <h2>Batch $batch.Name</h2>
 
             <table>
-            <tr><td><b>Name:</b></td><td>$batch.Name</td></tr>
-            <tr><td><b>Identifier:</b></td><td>$batch.Identifier</td></tr>
-            <tr><td><b>State:</b></td><td>$batch.State</td></tr>
+                <tr><td><b>Name:</b></td><td>$batch.Name</td></tr>
+                <tr><td><b>Identifier:</b></td><td>$batch.Identifier</td></tr>
+                <tr><td><b>State:</b></td><td>$batch.State</td></tr>
             </table>
-            
-            <p>
-            <b>Cause:</b><br/>
-            <blockquote>
-            <pre>$batch.Cause</pre>
-            </blockquote>
-            </p>
+
+            #show_batch( $controller.History $params['batch'] )
+
+            #set( $nr_complete_jobs = 0)
+
+            #foreach( $job in $batch.Jobs )
+                #set( $nr_complete_jobs = $nr_complete_jobs + 1 )
+            #end
 
             <p>
-            <b>Batch progress: </b><progress value="$batch.Progress" max="100"></progress> $batch.Progress%
+            <table>
+              <tr><td><b>NR complete jobs: </b></td><td>$nr_complete_jobs</td></tr>
+              <tr><td><b>Batch progress: </b></td><td><progress value="$batch.Progress" max="100"></progress> $batch.Progress%</td></tr>
+            </table>
             </p>
 
             <table width="100%">
@@ -94,7 +137,17 @@ blockquote {
             #end
 
             </table>
+
+            #if( $batch.Cause )
             
+                <br/>
+                <b>Cause:</b><br/>
+                <blockquote>
+                <pre>$batch.Cause</pre>
+                </blockquote>
+
+            #end
+
         #end
     
     #end
@@ -103,40 +156,36 @@ blockquote {
 
     <h2>Cluster</h2>
 
-    <h3>Hosts</h3>
+    <h3>Online Hosts</h3>
 
-    <pre>
-    $config.Membership.toMatrix()
-    </pre>
-       
-    
+    #foreach( $host in $controller.ClusterState.Online.values() )
+        $host<br/>
+    #end
+
+    <h3>Offline Hosts</h3>
+
+    #foreach( $host in $controller.ClusterState.Offline.values() )
+        $host<br/>
+    #end
+
+#elseif ( $params.containsKey( 'config' ) )
+
+    <h2>Config</h2>
+
+    <table>
+    #foreach( $key in $config.getStructMap().getKeys() )
+        <tr>
+          <td><b>$key</b></td>
+          <td>$config.getStructMap().getString( $key )</td>
+        </tr>
+    #end
+    </table>
+            
 #else
 
     <h2>History:</h2>
 
-    <table width="100%">
-    <tr>
-
-    <th>name</th>
-    <th>identifier</th>
-    <th>state</th>
-    <th>start</th>
-    <th>end</th>
-
-    </tr>
-
-    #foreach( $batch in $controller.History )
-        <tr class='state-$batch.state'>
-        <td>$batch.Name</td>
-        <td><a href="?batch=$batch.Identifier">$batch.Identifier</a></td>
-        <td>$batch.State</td>
-        <td>$batch.Start</td>
-        <td>$batch.End</td>
-        </tr>
-    #end
-    </table>
-
-    <!-- FIXME: include the partition layout -->
+    #show_batch( $controller.History )
 
 #end
 

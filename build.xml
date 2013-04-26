@@ -105,20 +105,12 @@
 
         <copy file="conf/peregrine.conf" tofile="target/compile/default.conf" />
 
-        <copy todir="target/compile" >
-              <fileset dir="src" >
-                <include name="web/**"/>
-              </fileset>
-        </copy>
-
-
         <jar compress="yes" jarfile="lib/${project}-${version}.jar">
 
             <fileset dir="target/compile">
 
                 <include name="com/**"/>
                 <include name="org/**"/>
-                <include name="web/**"/>
                 <include name="peregrine/**"/>
                 <include name="default.conf"/>
             

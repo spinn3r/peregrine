@@ -258,9 +258,9 @@ public class StructMap {
         
     }
     
-    public List<String> getKeys() {
+    public Set<String> getKeys() {
 
-        List<String> result = new ArrayList();
+        Set<String> result = new TreeSet();
         result.addAll( keys );
         return result;
         
