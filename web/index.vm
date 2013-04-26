@@ -31,6 +31,13 @@ blockquote {
     background-color: white;
 }
 
+.state-failed,
+.state-completed,
+.state-executing,
+.state-submitted {
+   width: 1em;
+}
+
 .state-failed {
     background-color: red;
 }
@@ -48,6 +55,23 @@ blockquote {
     margin-left: 10px;
 }
 
+table { 
+  border-spacing:0;
+  border-collapse:collapse;
+}
+
+tr:hover {
+  background: #c6c6c6;
+}
+
+tr th {
+  background: white;
+}
+
+.batch-progress {
+  width: 300px;
+}
+
 </style>
 
 </head>
@@ -59,8 +83,10 @@ blockquote {
     <table width="100%">
 
     <tr>
+    <th></th>
     <th>name</th>
     <th>identifier</th>
+    <th>duration</th>
     <th>nr jobs</th>
     <th>completed</th>
     <th>state</th>
@@ -71,29 +97,35 @@ blockquote {
 
     #foreach( $batch in $items )
 
-        #if ( ! $identifier || $batch.Identifier == $identifier ) 
+        #if ( $batch )
+    
+            #if ( ! $identifier || $batch.Identifier == $identifier ) 
 
-        #set( $nr_complete_jobs = 0)
+                #set( $nr_complete_jobs = 0)
 
-        #foreach( $job in $batch.Jobs )
+                #foreach( $job in $batch.Jobs )
 
-            #if( $job.State == "completed" )
-                #set( $nr_complete_jobs = $nr_complete_jobs + 1 )
+                    #if( $job.State == "completed" )
+                        #set( $nr_complete_jobs = $nr_complete_jobs + 1 )
+                    #end
+
+                #end
+
+                <tr>
+                <td class='state-$batch.state'></td>
+                <td>$batch.Name</td>
+                <td><a href="?batch=$batch.Identifier">$batch.Identifier</a></td>
+                <td>$batch.getDurationFormatted()</td>
+                <td>$batch.getJobs().size()</td>
+                <td>$nr_complete_jobs</td>
+                <td>$batch.State</td>
+                <td>$batch.Start</td>
+                <td>$batch.End</td>
+                </tr>
+
+                #end
+
             #end
-
-        #end
-
-        <tr class='state-$batch.state'>
-        <td>$batch.Name</td>
-        <td><a href="?batch=$batch.Identifier">$batch.Identifier</a></td>
-        <td>$batch.getJobs().size()</td>
-        <td>$nr_complete_jobs</td>
-        <td>$batch.State</td>
-        <td>$batch.Start</td>
-        <td>$batch.End</td>
-        </tr>
-
-        #end
 
         #end
 
@@ -105,6 +137,16 @@ blockquote {
 
 <body>
 
+#set( $batches = [$controller.executing ] )
+
+<!--
+
+TODO: Is there a better way to build a list?
+
+$batches.addAll( $controller.getHistory() )
+$batches.addAll( $controller.getPending() )
+-->
+    
 <img src="http://peregrine_mapreduce.bitbucket.org/images/peregrine-logo-header3.png"
      align="right"
      width="407"
@@ -122,9 +164,9 @@ blockquote {
 
 #if( $params.containsKey( 'batch' ) )
 
-    #foreach( $batch in $controller.History )
+    #foreach( $batch in $batches )
 
-        #if( $batch.Identifier == $params['batch'] )
+        #if( $batch && $batch.Identifier == $params['batch'] )
 
             <h2>Batch $batch.Name</h2>
 
@@ -135,14 +177,13 @@ blockquote {
                 <tr><td><b>State:</b></td><td>$batch.State</td></tr>
             </table>
             -->
-            
-            #show_batch( $controller.History $params['batch'] )
-
             <p>
             <table>
-              <tr><td><b>Batch progress: </b></td><td><progress value="$batch.Progress" max="100"></progress> $batch.Progress%</td></tr>
+              <tr><td><b>Progress: </b></td><td><progress class="batch-progress" value="$batch.Progress" max="100"></progress> $batch.Progress%</td></tr>
             </table>
             </p>
+
+            #show_batch( $batches $params['batch'] )
 
             #if( $batch.Cause )
             
@@ -156,8 +197,10 @@ blockquote {
             <table width="100%">
 
             <tr>
+            <th></th>
             <th>state</th>
             <th>operation</th>
+            <th>duration</th>
             <th>delegate</th>
             <th class="job-metric">consumed</th>
             <th class="job-metric">emitted</th>
@@ -168,9 +211,11 @@ blockquote {
             
             #foreach( $job in $batch.Jobs )
 
-            <tr class='state-$job.state'>
+            <tr>
+            <td class='state-$job.state'></td>
             <td>$job.state</td>
             <td>$job.operation</td>
+            <td>$job.getDurationFormatted()</td>
             <td><a href='?batch=$batch.identifier&job=$job.identifier'>$job.delegate.name</a></td>
             <td class="job-metric">$job.getReport().getConsumed().getFormatted()</td>
             <td class="job-metric" title="$job.getReport().getEmitted().getFormattedBytes()">$job.getReport().getEmitted().getFormatted()</td>
@@ -194,7 +239,7 @@ blockquote {
             <table>
               <tr><td><b>Operation: </b></td><td>$show_job.operation</td></tr>
               <tr><td><b>Delegate: </b></td><td>$show_job.delegate.name</td></tr>
-              <tr><td><b>Combiner: </b></td><td>$show_job.combiner.name</td></tr>
+              <!-- <tr><td><b>Combiner: </b></td><td>$show_job.combiner</td></tr> -->
             </table>
             
             <p>
@@ -253,6 +298,14 @@ blockquote {
     <h2>Pending:</h2>
 
     #show_batch( $controller.pending )
+
+    <h2>Executing:</h2>
+
+    #set( $executing = $controller.executing )
+
+    #if ( $executing )
+        #show_batch( [ $executing ] )
+    #end
 
     <h2>History:</h2>
 

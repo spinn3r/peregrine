@@ -137,6 +137,18 @@ public abstract class BaseJob<T> implements MessageSerializable {
         return this.duration;
     }
 
+    public String getDurationFormatted() {
+
+        if ( duration == 0 && started != 0 )
+            duration = System.currentTimeMillis() - started;
+        
+        if ( duration <= 0 )
+            return "";
+
+        return new Duration( duration ).toString();
+
+    }
+    
     public T setDuration( long duration ) {
         this.duration = duration;
         return instance;
