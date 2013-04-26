@@ -1,6 +1,9 @@
 
 <html>
 <head>
+
+<!-- http://1.bp.blogspot.com/-WW9buc_R518/T7P_EQ4GK3I/AAAAAAAAAVY/VcusxtWplu4/s1600/ambrose-full.png -->
+
 <style>
 
 body {
@@ -36,6 +39,14 @@ blockquote {
 .state-executing,
 .state-submitted {
    width: 1em;
+}
+
+.state-submitted {
+    background-color: purple;
+}
+
+.state-executing {
+    background-color: grey;
 }
 
 .state-failed {
