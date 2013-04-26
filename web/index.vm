@@ -54,6 +54,8 @@ blockquote {
 
 #macro(show_batch $items $identifier)
 
+    #if( $items.size() > 0 )
+
     <table width="100%">
 
     <tr>
@@ -97,6 +99,8 @@ blockquote {
 
     </table>
 
+    #end
+    
 #end    
 
 <body>
@@ -246,9 +250,13 @@ blockquote {
             
 #else
 
+    <h2>Pending:</h2>
+
+    #show_batch( $controller.pending )
+
     <h2>History:</h2>
 
-    #show_batch( $controller.History )
+    #show_batch( $controller.history )
 
 #end
 
