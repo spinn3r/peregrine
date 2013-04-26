@@ -16,6 +16,7 @@
 package peregrine.util.netty;
 
 import peregrine.http.*;
+import peregrine.config.*;
 
 import org.jboss.netty.bootstrap.*;
 import org.jboss.netty.channel.socket.nio.*;
@@ -34,7 +35,13 @@ public class BootstrapFactory {
 
     public static final boolean REUSE_ADDRESS = true;
 
-	public static ServerBootstrap newServerBootstrap( NioServerSocketChannelFactory factory ) {
+    private Config config;
+
+    public BootstrapFactory( Config config ) {
+        this.config = config;
+    }
+
+	public ServerBootstrap newServerBootstrap( NioServerSocketChannelFactory factory ) {
 		
 		ServerBootstrap bootstrap = new ServerBootstrap( factory );
 
@@ -45,7 +52,7 @@ public class BootstrapFactory {
         
 	}
 	
-	public static ClientBootstrap newClientBootstrap( NioClientSocketChannelFactory factory ) {
+	public ClientBootstrap newClientBootstrap( NioClientSocketChannelFactory factory ) {
 	
 		// Configure the client.	
 		ClientBootstrap bootstrap = new ClientBootstrap( factory );
@@ -56,11 +63,11 @@ public class BootstrapFactory {
 		
 	}
 
-	private static void setOptions( Bootstrap bootstrap ) {
+	private void setOptions( Bootstrap bootstrap ) {
 		setOptions( "", bootstrap );
 	}
 		
-	private static void setOptions( String prefix, Bootstrap bootstrap ) {
+	private void setOptions( String prefix, Bootstrap bootstrap ) {
 		
         // set options 	
         setOption( bootstrap, prefix+"tcpNoDelay",            TCP_NODELAY );

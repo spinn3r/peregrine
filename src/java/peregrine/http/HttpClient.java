@@ -229,7 +229,7 @@ public class HttpClient implements ChannelBufferWritable {
         int port = uri.getPort();
         
         // Configure the client.
-        ClientBootstrap bootstrap = BootstrapFactory.newClientBootstrap( socketChannelFactory );
+        ClientBootstrap bootstrap = new BootstrapFactory( config ).newClientBootstrap( socketChannelFactory );
 
         // Set up the event pipeline factory.
         bootstrap.setPipelineFactory( new HttpClientPipelineFactory( config, this ) );
