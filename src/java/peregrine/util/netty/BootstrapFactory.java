@@ -16,6 +16,7 @@
 package peregrine.util.netty;
 
 import peregrine.http.*;
+import peregrine.config.*;
 
 import org.jboss.netty.bootstrap.*;
 import org.jboss.netty.channel.socket.nio.*;
@@ -26,15 +27,13 @@ public class BootstrapFactory {
 
 	private static final Logger log = Logger.getLogger();
 	
-    public static final boolean TCP_NODELAY = true;
+    private Config config;
 
-    public static final long CONNECT_TIMEOUT_MILLIS = HttpClient.WRITE_TIMEOUT;
+    public BootstrapFactory( Config config ) {
+        this.config = config;
+    }
 
-    public static final int SO_LINGER = 5;
-
-    public static final boolean REUSE_ADDRESS = true;
-
-	public static ServerBootstrap newServerBootstrap( NioServerSocketChannelFactory factory ) {
+	public ServerBootstrap newServerBootstrap( NioServerSocketChannelFactory factory ) {
 		
 		ServerBootstrap bootstrap = new ServerBootstrap( factory );
 
@@ -45,7 +44,7 @@ public class BootstrapFactory {
         
 	}
 	
-	public static ClientBootstrap newClientBootstrap( NioClientSocketChannelFactory factory ) {
+	public ClientBootstrap newClientBootstrap( NioClientSocketChannelFactory factory ) {
 	
 		// Configure the client.	
 		ClientBootstrap bootstrap = new ClientBootstrap( factory );
@@ -56,17 +55,17 @@ public class BootstrapFactory {
 		
 	}
 
-	private static void setOptions( Bootstrap bootstrap ) {
+	private void setOptions( Bootstrap bootstrap ) {
 		setOptions( "", bootstrap );
 	}
 		
-	private static void setOptions( String prefix, Bootstrap bootstrap ) {
+	private void setOptions( String prefix, Bootstrap bootstrap ) {
 		
         // set options 	
-        setOption( bootstrap, prefix+"tcpNoDelay",            TCP_NODELAY );
-        setOption( bootstrap, prefix+"connectTimeoutMillis",  CONNECT_TIMEOUT_MILLIS );
-        setOption( bootstrap, prefix+"soLinger",              SO_LINGER );
-        setOption( bootstrap, prefix+"reuseAddress",          REUSE_ADDRESS );
+        setOption( bootstrap, prefix+"connectTimeoutMillis",  config.getNetConnectTimeout() );
+        setOption( bootstrap, prefix+"tcpNoDelay",            config.getNetTcpNodelay() );
+        setOption( bootstrap, prefix+"soLinger",              config.getNetSoLinger() );
+        setOption( bootstrap, prefix+"reuseAddress",          config.getNetReuseAddress() );
 
         //setOption( bootstrap, prefix+"bufferFactory",         new DirectChannelBufferFactory() );
 		

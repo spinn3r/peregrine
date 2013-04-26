@@ -29,7 +29,7 @@ import peregrine.os.*;
  * 
  */
 public class BaseConfig {
-    
+
     /**
      * The default params we have been started with.  These are loaded from the
      * .conf which we store in the .jar.
@@ -130,6 +130,16 @@ public class BaseConfig {
 
     protected long maxMemory = -1;
 
+    protected int netSoLinger = -1;
+
+    protected boolean netReuseAddress = false;
+    
+    protected boolean netTcpNodelay = false;
+
+    protected int netConnectTimeout = -1;
+    
+    protected int netWriteTimeout = -1;
+
     public void init( StructMap struct ) {
 
         this.struct = struct;
@@ -164,7 +174,12 @@ public class BaseConfig {
         setMaxClientShuffleOutputBufferSize( struct.getSize( "maxClientShuffleOutputBufferSize" ) );
         setShieldMappedFileAccess( struct.getBoolean( "shieldMappedFileAccess" ) );
         setMaxMemory( struct.getSize( "maxMemory" ) );
-        
+        setNetSoLinger( struct.getInt( "netSoLinger" ) );
+        setNetReuseAddress( struct.getBoolean( "netReuseAddress" ) );
+        setNetTcpNodelay( struct.getBoolean( "netTcpNodelay" ) );
+        setNetWriteTimeout( struct.getInt( "netWriteTimeout" ) );
+        setNetConnectTimeout( struct.getInt( "netConnectTimeout" ) );
+
         if ( struct.containsKey( "host" ) )
             setHost( Host.parse( struct.getString( "host" ) ) );
 
@@ -437,12 +452,54 @@ public class BaseConfig {
         this.maxMemory = maxMemory;
     }
 
+    public int getNetSoLinger() { 
+        return this.netSoLinger;
+    }
+
+    public void setNetSoLinger( int netSoLinger ) { 
+        this.netSoLinger = netSoLinger;
+    }
+
+    public boolean getNetReuseAddress() { 
+        return this.netReuseAddress;
+    }
+
+    public void setNetReuseAddress( boolean netReuseAddress ) { 
+        this.netReuseAddress = netReuseAddress;
+    }
+
+    public boolean getNetTcpNodelay() { 
+        return this.netTcpNodelay;
+    }
+
+    public void setNetTcpNodelay( boolean netTcpNodelay ) { 
+        this.netTcpNodelay = netTcpNodelay;
+    }
+
+    public int getNetWriteTimeout() { 
+        return this.netWriteTimeout;
+    }
+
+    public void setNetWriteTimeout( int netWriteTimeout ) { 
+        this.netWriteTimeout = netWriteTimeout;
+    }
+
+    public int getNetConnectTimeout() { 
+        return this.netConnectTimeout;
+    }
+
+    public void setNetConnectTimeout( int netConnectTimeout ) { 
+        this.netConnectTimeout = netConnectTimeout;
+    }
+
     static {
 
         try {
 
             // Load the default configuration on startup.  This is required for
-            // definition of all default values in the system.
+            // definition of all default values in the system.  This is actually
+            // the peregrine.conf copied to default.conf so we can use that as
+            // the defaults.
             
             InputStream is = ConfigParser.class.getResourceAsStream( "/default.conf" );
             DEFAULTS = new StructMap( is );

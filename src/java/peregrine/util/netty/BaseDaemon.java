@@ -66,7 +66,7 @@ public abstract class BaseDaemon {
                                                        newDefaultThreadPool( concurrency, tf ),
                                                        concurrency ) ;
             		
-            bootstrap = BootstrapFactory.newServerBootstrap( factory );
+            bootstrap = new BootstrapFactory( config ).newServerBootstrap( factory );
 
             // set up the event pipeline factory.
             bootstrap.setPipelineFactory( getChannelPipelineFactory() );
