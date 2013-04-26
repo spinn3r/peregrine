@@ -164,6 +164,14 @@ public class Report implements Comparable<Report>, MessageSerializable {
             return value;
         }
 
+        public String getFormatted() {
+            return Longs.format( get() );
+        }
+
+        public String getFormattedBytes() {
+            return Longs.formatBytes( get() );
+        }
+
         public void set( long value ) {
             this.value = value;
         }

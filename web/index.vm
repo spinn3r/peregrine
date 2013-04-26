@@ -39,6 +39,15 @@ blockquote {
     background-color: green;
 }
 
+.job-metric {
+    text-align: right;
+    width: 70px;
+}
+
+.job-path {
+    margin-left: 10px;
+}
+
 </style>
 
 </head>
@@ -50,6 +59,8 @@ blockquote {
     <tr>
     <th>name</th>
     <th>identifier</th>
+    <th>nr jobs</th>
+    <th>completed</th>
     <th>state</th>
     <th>start</th>
     <th>end</th>
@@ -60,10 +71,21 @@ blockquote {
 
         #if ( ! $identifier || $batch.Identifier == $identifier ) 
 
+        #set( $nr_complete_jobs = 0)
+
+        #foreach( $job in $batch.Jobs )
+
+            #if( $job.State == "completed" )
+                #set( $nr_complete_jobs = $nr_complete_jobs + 1 )
+            #end
+
+        #end
+
         <tr class='state-$batch.state'>
         <td>$batch.Name</td>
         <td><a href="?batch=$batch.Identifier">$batch.Identifier</a></td>
-        <td>$batch.Identifier</td>
+        <td>$batch.getJobs().size()</td>
+        <td>$nr_complete_jobs</td>
         <td>$batch.State</td>
         <td>$batch.Start</td>
         <td>$batch.End</td>
@@ -102,45 +124,24 @@ blockquote {
 
             <h2>Batch $batch.Name</h2>
 
+            <!--
             <table>
                 <tr><td><b>Name:</b></td><td>$batch.Name</td></tr>
                 <tr><td><b>Identifier:</b></td><td>$batch.Identifier</td></tr>
                 <tr><td><b>State:</b></td><td>$batch.State</td></tr>
             </table>
-
+            -->
+            
             #show_batch( $controller.History $params['batch'] )
-
-            #set( $nr_complete_jobs = 0)
-
-            #foreach( $job in $batch.Jobs )
-                #set( $nr_complete_jobs = $nr_complete_jobs + 1 )
-            #end
 
             <p>
             <table>
-              <tr><td><b>NR complete jobs: </b></td><td>$nr_complete_jobs</td></tr>
               <tr><td><b>Batch progress: </b></td><td><progress value="$batch.Progress" max="100"></progress> $batch.Progress%</td></tr>
             </table>
             </p>
 
-            <table width="100%">
-        
-            #foreach( $job in $batch.Jobs )
-
-            <tr class='state-$job.state'>
-            <td>$job.state</td>
-            <td>$job.operation</td>
-            <td>$job.delegate</td>
-            <td>$job.description</td>
-            </tr>
-            
-            #end
-
-            </table>
-
             #if( $batch.Cause )
             
-                <br/>
                 <b>Cause:</b><br/>
                 <blockquote>
                 <pre>$batch.Cause</pre>
@@ -148,6 +149,68 @@ blockquote {
 
             #end
 
+            <table width="100%">
+
+            <tr>
+            <th>state</th>
+            <th>operation</th>
+            <th>delegate</th>
+            <th class="job-metric">consumed</th>
+            <th class="job-metric">emitted</th>
+            <th>description</th>
+            </tr>
+
+            <hr/>
+            
+            #foreach( $job in $batch.Jobs )
+
+            <tr class='state-$job.state'>
+            <td>$job.state</td>
+            <td>$job.operation</td>
+            <td><a href='?batch=$batch.identifier&job=$job.identifier'>$job.delegate.name</a></td>
+            <td class="job-metric">$job.getReport().getConsumed().getFormatted()</td>
+            <td class="job-metric" title="$job.getReport().getEmitted().getFormattedBytes()">$job.getReport().getEmitted().getFormatted()</td>
+            <td>$job.description</td>
+            </tr>
+
+            #if( $params['job'] == $job.identifier)
+                #set( $show_job = $job )
+            #end
+
+            #end
+
+            </table>
+
+            #if ( $show_job )
+
+            <hr/>
+
+            <h3>Job $show_job.identifier</h3>
+
+            <table>
+              <tr><td><b>Operation: </b></td><td>$show_job.operation</td></tr>
+              <tr><td><b>Delegate: </b></td><td>$show_job.delegate.name</td></tr>
+              <tr><td><b>Combiner: </b></td><td>$show_job.combiner.name</td></tr>
+            </table>
+            
+            <p>
+            <b>Input:</b>
+            </p>
+
+            #foreach( $name in $show_job.input.references )
+                <div class="job-path">$name</div>
+            #end
+            
+            <p>
+            <b>Output:</b>
+            </p>
+
+            #foreach( $name in $show_job.output.references )
+                <div class="job-path">$name</div>
+            #end
+
+            #end
+            
         #end
     
     #end
