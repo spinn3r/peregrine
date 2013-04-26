@@ -59,8 +59,10 @@ public final class Initializer {
             throw new IOException( "Unable to read: " + conf );
         }
 
-        if ( new File( "logs" ).canWrite() == false ) {
-            throw new IOException( "Unable to write to log directory" );
+        File logdir = new File( "logs" );
+        
+        if ( logdir.canWrite() == false ) {
+            throw new IOException( "Unable to write to log directory: " + logdir );
         }
             
         System.setProperty( "peregrine.log.suffix", suffix );

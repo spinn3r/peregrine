@@ -30,6 +30,7 @@ import org.jboss.netty.handler.codec.http.*;
 import peregrine.*;
 import peregrine.config.*;
 import peregrine.controller.rpcd.*;
+import peregrine.controller.web.*;
 import peregrine.http.*;
 import peregrine.util.netty.*;
 
@@ -45,7 +46,7 @@ public class ControllerHandler extends DefaultChannelUpstreamHandler {
     protected Config config;
     protected ControllerDaemon controllerDaemon;
 
-    protected ControllerRPCHandler handler = null;
+    protected SimpleChannelUpstreamHandler handler = null;
 
     public ControllerHandler( Config config,
                               ControllerDaemon controllerDaemon ) {
@@ -73,7 +74,7 @@ public class ControllerHandler extends DefaultChannelUpstreamHandler {
             if ( method == POST ) {
                 handler = new ControllerRPCHandler( config, controllerDaemon, request.getUri() );
             } else {
-                sendError( ctx , NOT_FOUND );
+                handler = new ControllerWebHandler( config, controllerDaemon, request.getUri() );
             }
 
         }

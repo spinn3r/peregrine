@@ -7,6 +7,9 @@ start() {
     stdout="/dev/null"
     stderr="/dev/null"
 
+    stderr="logs/peregrine-controllerd-$host.err"
+    stdout="logs/peregrine-controllerd-$host.out"
+
     ./bin/jexec $main < /dev/null > $stdout 2> $stderr &
     
     echo "started"
