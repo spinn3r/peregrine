@@ -151,7 +151,7 @@ public abstract class BaseJob<T> implements MessageSerializable {
 
     public String getDurationFormatted() {
 
-        if ( duration == 0 && started != 0 )
+        if ( duration <= 0 && started > 0 )
             duration = System.currentTimeMillis() - started;
         
         if ( duration <= 0 )
