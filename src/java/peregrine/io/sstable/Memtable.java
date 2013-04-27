@@ -105,6 +105,21 @@ public class Memtable implements SSTableReader, SSTableWriter {
     private void requireOpen() throws IOException {
         if ( closed ) throw new IOException( "closed" );
     }
+
+    /**
+     * Take the current memtable data and drain/write it to the given
+     * SequenceWriter.  
+     */
+    public void drainTo( SequenceWriter writer ) throws IOException {
+
+        first();
+
+        while( hasNext() ) {
+            next();
+            writer.write( key(), value() );
+        }
+        
+    }
     
     class ByteArrayComparator implements Comparator<byte[]> {
 
