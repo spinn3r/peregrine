@@ -91,32 +91,85 @@ public class Test {
         }
         
     }
+
+    private static long usedMemory() {
+        System.gc();
+
+        return Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+    }
+
+    private static void testMemory( int max ) {
+
+        long before = usedMemory();
+
+        //4000152
+
+        /*
+        Object[] objects = new Object[max];
+
+        for( int i = 0; i < max; ++i ) {
+            objects[i] = new Object();
+        }
+        */
+
+        /*
+        ConcurrentSkipListMap<StructReader,StructReader> map = new ConcurrentSkipListMap();
+        
+        for( int i = 0; i < max; ++i ) {
+
+            map.put( StructReaders.wrap( i ), StructReaders.wrap( i ) );
+            
+        }
+        */
+
+        ConcurrentSkipListMap<Integer,Integer> map = new ConcurrentSkipListMap();
+        
+        for( int i = 0; i < max; ++i ) {
+
+            map.put( i, i );
+            
+        }
+
+        long after = usedMemory();
+        long used = after-before;
+        double bytes_per_object = used / (double)max;
+
+        //System.out.printf( "used: %,d\n", (after-before) );
+        System.out.printf( "bytes per object: %f for max=%,d\n", bytes_per_object, map.size() );
+
+    }
     
     public static void main( String[] args ) throws Exception {
 
-        System.out.printf( "init of velocity\n" );
+        testMemory( 50000 );
+        testMemory( 500000 );
+        testMemory( 800000 );
+        testMemory( 1000000 );
 
-        //Velocity.setProperty( VelocityEngine.RESOURCE_LOADER, "class");
-        //Velocity.setProperty( "resource.loader.class", org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader.class.getName() );
-
-        Velocity.setProperty( VelocityEngine.FILE_RESOURCE_LOADER_PATH, ".");
-        Velocity.setProperty( VelocityEngine.RUNTIME_LOG_LOGSYSTEM_CLASS, "org.apache.velocity.runtime.log.Log4JLogChute" );
-        Velocity.setProperty( "runtime.log.logsystem.log4j.logger", "velocity" );
-
-        //Velocity.setProperty( VelocityEngine.FILE_RESOURCE_LOADER_PATH, "/projects/peregrine/src/web");
-        Velocity.init();
         
-        VelocityContext context = new VelocityContext();
+        // System.out.printf( "init of velocity\n" );
 
-        StringWriter sw = new StringWriter();
+        // //Velocity.setProperty( VelocityEngine.RESOURCE_LOADER, "class");
+        // //Velocity.setProperty( "resource.loader.class", org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader.class.getName() );
 
-        Template template = Velocity.getTemplate("web/index.vm");
+        // Velocity.setProperty( VelocityEngine.FILE_RESOURCE_LOADER_PATH, ".");
+        // Velocity.setProperty( VelocityEngine.RUNTIME_LOG_LOGSYSTEM_CLASS, "org.apache.velocity.runtime.log.Log4JLogChute" );
+        // Velocity.setProperty( "runtime.log.logsystem.log4j.logger", "velocity" );
 
-        template.merge( context, sw );
+        // //Velocity.setProperty( VelocityEngine.FILE_RESOURCE_LOADER_PATH, "/projects/peregrine/src/web");
+        // Velocity.init();
+        
+        // VelocityContext context = new VelocityContext();
 
-        System.out.printf( "done\n" );
+        // StringWriter sw = new StringWriter();
 
-        System.out.printf( "%s\n", sw );
+        // Template template = Velocity.getTemplate("web/index.vm");
+
+        // template.merge( context, sw );
+
+        // System.out.printf( "done\n" );
+
+        // System.out.printf( "%s\n", sw );
         
         // long max = 10000000000L;
 
