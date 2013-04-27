@@ -35,12 +35,17 @@ public class Memtable implements SSTableReader, SSTableWriter {
     // the number of raw bytes stored in the memtable.  This is the number of
     // bytes written to each key and value for all stored records.
     private long rawByteUsage = 0;
-    
+
+    // the iterator for the keys within this memtable.  This walks the keys
+    // ascendign which works for drainTo when we write keys to disk.
     private Iterator<Map.Entry<byte[],byte[]>> iterator = null;
 
-    public Memtable() {
-        first();
-    }
+    // the number of entries within the map.  This is a near approximation
+    // because technically the memtable could be used from multiple threads.
+    // When used from a single thread it's completely accurate.  If we called
+    // map.size() it wouldn't be a constant time operation and would slow down
+    // performance of memoryUsage()
+    private int size = 0;
 
     /**
      * Go to the first entry in the memtable so that next() starts from the
@@ -110,7 +115,9 @@ public class Memtable implements SSTableReader, SSTableWriter {
         // directly because it will collide with another record.
         if ( map.containsKey( _key ) ) {
             rawByteUsage -= ( _key.length + map.get( _key ).length );
-        } 
+        } else {
+            ++size;
+        }
 
         map.put( _key, _value );
 
@@ -137,7 +144,7 @@ public class Memtable implements SSTableReader, SSTableWriter {
     }
 
     public int size() {
-        return map.size();
+        return size;
     }
     
     /**

@@ -99,9 +99,7 @@ public class Test {
         return Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
     }
 
-    private static void testMemory( int max ) throws IOException {
-
-        long before = usedMemory();
+    private static void testMemtable( int max ) throws IOException {
 
         //4000152
 
@@ -153,27 +151,50 @@ public class Test {
         }
         */
 
+        long memory_before = usedMemory();
+        long time_before = System.currentTimeMillis();
+
         Memtable memtable = new Memtable();
 
         for( int i = 0; i < max; ++i ) {
             memtable.write( StructReaders.wrap( i ), StructReaders.wrap( i ) );
         }
 
-        long after = usedMemory();
-        long used = after-before;
-        double bytes_per_object = used / (double)max;
+        long time_after = System.currentTimeMillis();
+        long memory_after = usedMemory();
 
-        //System.out.printf( "used: %,d\n", (after-before) );
-        System.out.printf( "bytes per object: %f for max=%,d, used=%,d memtable.memoryUsage()=%,d\n", bytes_per_object, memtable.size(), used, memtable.memoryUsage() );
+        long memory_used = memory_after - memory_before;
+        long duration = time_after - time_before;
+
+        double bytes_per_object = memory_used / (double)max;
+
+        int operations_per_second = (int)(max / (duration/1000));
+        
+        System.out.printf( "=====\n" );
+        
+        System.out.printf( "bytes per object:        %f\n", bytes_per_object );
+        System.out.printf( "NR records:              %,d\n", memtable.size() );
+        System.out.printf( "memory used:             %,d\n", memory_used );
+        System.out.printf( "memtable.memoryUsage:    %,d\n", memtable.memoryUsage() );
+        System.out.printf( "duration:                %,d ms\n", duration );
+        System.out.printf( "ops per second:          %,d\n", operations_per_second );
 
     }
     
     public static void main( String[] args ) throws Exception {
 
-        testMemory( 50000 );
-        testMemory( 500000 );
-        testMemory( 800000 );
-        testMemory( 1000000 );
+        
+        
+        //testMemtable( 50000 );
+        //testMemtable( 500000 );
+        //testMemtable( 800000 );
+
+        testMemtable( 4000000 );
+
+        
+        testMemtable( 2000000 );
+        testMemtable( 2000000 );
+        testMemtable( 2000000 );
 
         // System.out.printf( "init of velocity\n" );
 
