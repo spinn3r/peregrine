@@ -13,7 +13,7 @@ import peregrine.os.*;
  * This is the same essential design used in LevelDB, Cassandra, and
  * HBase. Specificaly a skip list dictionary / map backing keys directly.
  */
-public class Memtable implements SSTableWriter {
+public class Memtable implements SSTableReader, SSTableWriter {
 
     // the current key updated via next() or seekTo()
     private StructReader key = null;
@@ -28,7 +28,22 @@ public class Memtable implements SSTableWriter {
     // true if close() has been called.  We require that we are still open so
     // that writes don't completed after close()
     private boolean closed = false;
+
+    private Iterator<Map.Entry<byte[],byte[]>> iterator = null;
+
+    public Memtable() {
+        first();
+    }
+
+    /**
+     * Go to the first entry in the memtable so that next() starts from the
+     * beginning.
+     */
+    public void first() {
+        this.iterator = map.entrySet().iterator();
+    }
     
+    @Override
     public boolean seekTo( StructReader key ) {
 
         // reset the current key and value because they are invalid if this
@@ -49,6 +64,31 @@ public class Memtable implements SSTableWriter {
         
         return false;
         
+    }
+
+    @Override
+    public boolean hasNext() {
+        return iterator.hasNext();
+    }
+    
+    @Override
+    public void next() {
+
+        Map.Entry<byte[],byte[]> entry = iterator.next();
+
+        this.key   = new StructReader( entry.getKey() );
+        this.value = new StructReader( entry.getValue() );
+        
+    }
+
+    @Override
+    public StructReader key() {
+        return this.key;
+    }
+
+    @Override
+    public StructReader value() {
+        return this.value;
     }
 
     @Override
@@ -115,6 +155,20 @@ public class Memtable implements SSTableWriter {
 
         System.out.printf( "hits: %,d for max %,d\n", hits, max );
 
+        int found = 0;
+        
+        memtable.first();
+        
+        while( memtable.hasNext() ) {
+
+            memtable.next();
+
+            ++found;
+            
+        }
+
+        System.err.printf( "found: %s\n", found );
+        
     }
 
 }
