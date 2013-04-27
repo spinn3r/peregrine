@@ -17,6 +17,7 @@ import peregrine.worker.*;
 import peregrine.rpc.*;
 import peregrine.sort.*;
 import peregrine.controller.*;
+import peregrine.io.sstable.*;
 
 import org.jboss.netty.buffer.*;
 
@@ -98,7 +99,7 @@ public class Test {
         return Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
     }
 
-    private static void testMemory( int max ) {
+    private static void testMemory( int max ) throws IOException {
 
         long before = usedMemory();
 
@@ -122,6 +123,7 @@ public class Test {
         }
         */
 
+        /*
         ConcurrentSkipListMap<Integer,Integer> map = new ConcurrentSkipListMap();
         
         for( int i = 0; i < max; ++i ) {
@@ -129,6 +131,7 @@ public class Test {
             map.put( i, i );
             
         }
+        */
 
         /*
         ConcurrentSkipListMap<byte[],byte[]> map
@@ -146,19 +149,22 @@ public class Test {
                 } );
         
         for( int i = 0; i < max; ++i ) {
-
             map.put( StructReaders.wrap( i ).toByteArray(), StructReaders.wrap( i ).toByteArray() );
-            
+        }
+        */
+
+        Memtable memtable = new Memtable();
+
+        for( int i = 0; i < max; ++i ) {
+            memtable.write( StructReaders.wrap( i ), StructReaders.wrap( i ) );
         }
 
-        */
-        
         long after = usedMemory();
         long used = after-before;
         double bytes_per_object = used / (double)max;
 
         //System.out.printf( "used: %,d\n", (after-before) );
-        System.out.printf( "bytes per object: %f for max=%,d\n", bytes_per_object, map.size() );
+        System.out.printf( "bytes per object: %f for max=%,d, used=%,d memtable.memoryUsage()=%,d\n", bytes_per_object, memtable.size(), used, memtable.memoryUsage() );
 
     }
     

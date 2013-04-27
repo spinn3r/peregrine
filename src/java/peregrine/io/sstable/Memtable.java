@@ -15,6 +15,9 @@ import peregrine.os.*;
  */
 public class Memtable implements SSTableReader, SSTableWriter {
 
+    // There is an 80 byte overhead for objects in the memtable.
+    private static final long OVERHEAD_PER_RECORD = 80;
+
     // the current key updated via next() or seekTo()
     private StructReader key = null;
 
@@ -29,6 +32,10 @@ public class Memtable implements SSTableReader, SSTableWriter {
     // that writes don't completed after close()
     private boolean closed = false;
 
+    // the number of raw bytes stored in the memtable.  This is the number of
+    // bytes written to each key and value for all stored records.
+    private long rawByteUsage = 0;
+    
     private Iterator<Map.Entry<byte[],byte[]>> iterator = null;
 
     public Memtable() {
@@ -94,7 +101,21 @@ public class Memtable implements SSTableReader, SSTableWriter {
     @Override
     public void write( StructReader key, StructReader value ) throws IOException {
         requireOpen();
-        map.put( key.toByteArray(), value.toByteArray() );
+
+        byte[] _key = key.toByteArray();
+        byte[] _value = value.toByteArray();
+
+        // TODO: it's not very efficient to do this with EVERY write (and will
+        // hurt performance).  Ideally we would update rawByteUsage within put()
+        // directly because it will collide with another record.
+        if ( map.containsKey( _key ) ) {
+            rawByteUsage -= ( _key.length + map.get( _key ).length );
+        } 
+
+        map.put( _key, _value );
+
+        rawByteUsage += _key.length + _value.length;
+
     }
 
     @Override
@@ -106,6 +127,19 @@ public class Memtable implements SSTableReader, SSTableWriter {
         if ( closed ) throw new IOException( "closed" );
     }
 
+    // compute estimated memory usage from the size of the internal skip list,
+    // the number of bytes for each raw key and value, and skip list internal
+    // overhead.
+    public long memoryUsage() {
+
+        return (size() * OVERHEAD_PER_RECORD) + rawByteUsage;
+
+    }
+
+    public int size() {
+        return map.size();
+    }
+    
     /**
      * Take the current memtable data and drain/write it to the given
      * SequenceWriter.  
