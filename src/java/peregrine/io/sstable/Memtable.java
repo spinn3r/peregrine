@@ -13,7 +13,7 @@ import peregrine.os.*;
  * This is the same essential design used in LevelDB, Cassandra, and
  * HBase. Specificaly a skip list dictionary / map backing keys directly.
  */
-public class Memtable {
+public class Memtable implements SSTableWriter {
 
     // the current key updated via next() or seekTo()
     private StructReader key = null;
@@ -24,6 +24,10 @@ public class Memtable {
     // the actual backing that stores the data for our memtable.
     private Map<byte[],byte[]> map
         = new ConcurrentSkipListMap( new ByteArrayComparator() );
+
+    // true if close() has been called.  We require that we are still open so
+    // that writes don't completed after close()
+    private boolean closed = false;
     
     public boolean seekTo( StructReader key ) {
 
@@ -47,10 +51,21 @@ public class Memtable {
         
     }
 
+    @Override
     public void write( StructReader key, StructReader value ) throws IOException {
+        requireOpen();
         map.put( key.toByteArray(), value.toByteArray() );
     }
 
+    @Override
+    public void close() throws IOException {
+        closed = true;
+    }
+
+    private void requireOpen() throws IOException {
+        if ( closed ) throw new IOException( "closed" );
+    }
+    
     class ByteArrayComparator implements Comparator<byte[]> {
 
         public int compare( byte[] v1, byte[] v2 ) {
