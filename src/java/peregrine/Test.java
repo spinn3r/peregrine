@@ -183,18 +183,15 @@ public class Test {
     
     public static void main( String[] args ) throws Exception {
 
-        
+        for ( String arg : args ) {
+
+            testMemtable( Integer.parseInt( arg ) ) ;
+            
+        }
         
         //testMemtable( 50000 );
         //testMemtable( 500000 );
         //testMemtable( 800000 );
-
-        testMemtable( 4000000 );
-
-        
-        testMemtable( 2000000 );
-        testMemtable( 2000000 );
-        testMemtable( 2000000 );
 
         // System.out.printf( "init of velocity\n" );
 
