@@ -16,7 +16,7 @@ import peregrine.os.*;
  * lookup by seekTo() and merging based on key seek when one of the left or
  * right side of the join is smaller.
  */
-public class SSTableWriter implements SequenceWriter {
+public class MappedSSTableWriter implements SequenceWriter {
 
     // TODO: support per-SSTable metadata ... for example a schema so that we
     // could use something like protocol buffers or avro for the schema format.
@@ -55,7 +55,7 @@ public class SSTableWriter implements SequenceWriter {
     // of each block as well as the last key of the entire file.
     protected StructReader lastKey = null;
 
-    public SSTableWriter( MappedFileWriter writer ) {
+    public MappedSSTableWriter( MappedFileWriter writer ) {
 
         this.writer = writer;
 

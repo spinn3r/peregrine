@@ -20,7 +20,7 @@ public class Main {
         
         MappedFileWriter writer = new MappedFileWriter( null, "/tmp/test.dat" );
 
-        SSTableWriter tableWriter = new SSTableWriter( writer );
+        MappedSSTableWriter tableWriter = new MappedSSTableWriter( writer );
 
         tableWriter.write( StructReaders.hashcode( "adsf" ), StructReaders.wrap( true ) );
 
@@ -35,7 +35,7 @@ public class Main {
         
         MappedFileReader reader = new MappedFileReader( null, "/tmp/test.dat" );
 
-        SSTableReader tableReader = new SSTableReader( reader );
+        MappedSSTableReader tableReader = new MappedSSTableReader( reader );
 
         System.out.printf( "trailer read: %s\n", tableReader.trailer );
         System.out.printf( "fileInfo read: %s\n", tableReader.fileInfo );

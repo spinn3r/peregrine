@@ -10,7 +10,7 @@ import peregrine.os.*;
 
 import org.jboss.netty.buffer.*;
 
-public class SSTableReader {
+public class MappedSSTableReader {
 
     protected MappedFileReader reader;
 
@@ -24,7 +24,7 @@ public class SSTableReader {
 
     protected List<MetaBlock> metaBlocks = new ArrayList();
 
-    public SSTableReader( MappedFileReader reader ) throws IOException {
+    public MappedSSTableReader( MappedFileReader reader ) throws IOException {
 
         this.reader = reader;
 

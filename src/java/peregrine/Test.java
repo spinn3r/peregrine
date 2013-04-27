@@ -130,6 +130,29 @@ public class Test {
             
         }
 
+        /*
+        ConcurrentSkipListMap<byte[],byte[]> map
+            = new ConcurrentSkipListMap( new Comparator<byte[]>() {
+
+                    public int compare(byte[] b0, byte[] b1) {
+
+                        StructReader sr0 = new StructReader( b0 );
+                        StructReader sr1 = new StructReader( b1 );
+
+                        return sr0.readInt() - sr1.readInt();
+                        
+                    }
+                    
+                } );
+        
+        for( int i = 0; i < max; ++i ) {
+
+            map.put( StructReaders.wrap( i ).toByteArray(), StructReaders.wrap( i ).toByteArray() );
+            
+        }
+
+        */
+        
         long after = usedMemory();
         long used = after-before;
         double bytes_per_object = used / (double)max;
@@ -146,7 +169,6 @@ public class Test {
         testMemory( 800000 );
         testMemory( 1000000 );
 
-        
         // System.out.printf( "init of velocity\n" );
 
         // //Velocity.setProperty( VelocityEngine.RESOURCE_LOADER, "class");
