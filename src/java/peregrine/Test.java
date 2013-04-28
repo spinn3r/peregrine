@@ -177,11 +177,14 @@ public class Test {
             long time_after = System.currentTimeMillis();
             long duration = time_after - time_before;
 
-            int operations_per_second = (int) ( ( (i+1) * iterations ) / (duration/1000) );
+            int records = (i+1) * iterations;
+            
+            int operations_per_second = (int) ( records / (duration/1000) );
             
             System.out.printf( "=====\n" );
             
             System.out.printf( "duration:                %,d ms\n", duration );
+            System.out.printf( "records:                 %,d ms\n", records );
             System.out.printf( "ops per second:          %,d\n", operations_per_second );
 
         }
