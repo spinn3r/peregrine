@@ -171,7 +171,6 @@ public class Test {
             System.out.printf( "bytes per object:        %f\n", bytes_per_object );
             System.out.printf( "NR records:              %,d\n", memtable.size() );
             System.out.printf( "memory used:             %,d\n", memory_used );
-            System.out.printf( "memtable.memoryUsage:    %,d\n", memtable.memoryUsage() );
             */
 
             long time_after = System.currentTimeMillis();
@@ -186,6 +185,7 @@ public class Test {
             System.out.printf( "duration:                %,d ms\n", duration );
             System.out.printf( "records:                 %,d ms\n", records );
             System.out.printf( "ops per second:          %,d\n", operations_per_second );
+            System.out.printf( "memtable.memoryUsage:    %,d\n", memtable.memoryUsage() );
 
         }
 
