@@ -136,7 +136,7 @@ public class KeyLookup extends IdempotentCloser {
     public KeyLookup( CompositeChunkReader reader )
         throws IOException {
 
-        this( reader.size(), reader.getBuffers().toArray( new ChannelBuffer[0] ) );
+        this( reader.count(), reader.getBuffers().toArray( new ChannelBuffer[0] ) );
 
         while ( reader.hasNext() ) {
 

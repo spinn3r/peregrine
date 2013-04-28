@@ -9,7 +9,7 @@ import peregrine.io.chunk.*;
 import peregrine.os.*;
 
 /**
- *
+ * Major interface for all SSTable writers.  
  */
 public interface SSTableWriter extends SequenceWriter {
 

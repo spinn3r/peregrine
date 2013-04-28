@@ -200,6 +200,7 @@
                   <exclude name="peregrine/TestChunkWriterCloseOnReferenceCount.java"/>
                   <exclude name="peregrine/TestWorkerFailureDuringJob.java"/>
                   <exclude name="peregrine/TestWikirank.java"/>
+                  <exclude name="peregrine/io/chunk/TestChunkWriteAndRead.java"/>
                   
                 </fileset>
 

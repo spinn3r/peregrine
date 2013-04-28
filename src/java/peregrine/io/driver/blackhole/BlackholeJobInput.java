@@ -52,7 +52,7 @@ public class BlackholeJobInput extends BaseJobInput implements JobInput {
     }
 
     @Override
-    public int size() {
+    public int count() {
         return 0;
     }
 

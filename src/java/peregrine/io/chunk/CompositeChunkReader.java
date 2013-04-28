@@ -63,7 +63,7 @@ public class CompositeChunkReader implements Closeable {
     /**
      * The sum of items in all delegate readers.
      */
-    private int size = 0;
+    private int count = 0;
     
     public CompositeChunkReader( Config config, final ChunkReader reader ) throws IOException {
     	this( config, new ArrayList() {{ add( reader ); }} );
@@ -78,7 +78,7 @@ public class CompositeChunkReader implements Closeable {
 		
         for ( ChunkReader delegate : readers ) {
 
-        	size += delegate.size();
+        	count += delegate.count();
             
             // we need our OWN copy of this buffer so that other threads don't
             // update the readerIndex and writerIndex
@@ -151,8 +151,8 @@ public class CompositeChunkReader implements Closeable {
         new Closer( readers ).close();
     }
     
-    public int size() {
-    	return size;
+    public int count() {
+    	return count;
     }
     
 }

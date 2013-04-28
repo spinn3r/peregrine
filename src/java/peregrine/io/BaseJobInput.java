@@ -66,7 +66,7 @@ public abstract class BaseJobInput implements JobInput {
     }
 
     @Override
-    public int size() {
+    public int count() {
         throw new RuntimeException( "not implemented" );
     }
 }

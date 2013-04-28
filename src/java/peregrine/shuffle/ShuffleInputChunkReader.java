@@ -238,7 +238,7 @@ public class ShuffleInputChunkReader implements ChunkReader {
 
     }
 
-    public int size() {
+    public int count() {
         return header.count;
     }
 

@@ -24,10 +24,12 @@ import java.nio.charset.*;
 import peregrine.*;
 import peregrine.config.*;
 import peregrine.io.*;
+import peregrine.io.sstable.*;
 import peregrine.os.*;
 import peregrine.util.*;
 import peregrine.util.netty.*;
 import peregrine.util.primitive.*;
+
 import org.jboss.netty.buffer.*;
 
 /**
@@ -54,11 +56,6 @@ public class DefaultChunkReader implements SequenceReader, ChunkReader, Closeabl
     private long length = -1;
 
     /**
-     * number of key value pairs to deal with.
-     */
-    private int size = 0;
-
-    /**
      * The current item we are reading from.
      */
     private int idx = 0;
@@ -81,17 +78,19 @@ public class DefaultChunkReader implements SequenceReader, ChunkReader, Closeabl
     
     private ChannelBuffer buffer = null;
 
+    private Trailer trailer = new Trailer();
+    
     /**
      * When true, parse the number of items we are holding.
      */
-    private boolean readSize = true;
+    private boolean readTrailer = true;
     
     public DefaultChunkReader( ChannelBuffer buff ) {
         init( buff );
     }
 
-    public DefaultChunkReader( ChannelBuffer buff, boolean readSize ) {
-        this.readSize = false;
+    public DefaultChunkReader( ChannelBuffer buff, boolean readTrailer ) {
+        this.readTrailer = false;
         init( buff );
     }
 
@@ -126,9 +125,9 @@ public class DefaultChunkReader implements SequenceReader, ChunkReader, Closeabl
         this.reader = reader;
         this.length = buff.writerIndex();
 
-        if ( readSize ) {
+        if ( readTrailer ) {
             assertLength();
-            setSize( buff.getInt( buff.writerIndex() - IntBytes.LENGTH ) );
+            trailer.read( buff );
         }
 
     }
@@ -143,7 +142,7 @@ public class DefaultChunkReader implements SequenceReader, ChunkReader, Closeabl
     @Override
     public boolean hasNext() throws IOException {
 
-        if( idx < size ) {
+        if( idx < trailer.count ) {
             return true;
         } else {
             return false;
@@ -191,13 +190,13 @@ public class DefaultChunkReader implements SequenceReader, ChunkReader, Closeabl
     }
     
     @Override 
-    public int size() throws IOException {
-        return size;
+    public int count() throws IOException {
+        return (int)trailer.count;
     }
     
     @Override
     public String toString() {
-        return String.format( "file: %s, length (in bytes): %,d, size: %,d", file, length, size );
+        return String.format( "file: %s, length (in bytes): %,d, count: %,d", file, length, trailer.count );
     }
 
     @Override 
@@ -208,15 +207,6 @@ public class DefaultChunkReader implements SequenceReader, ChunkReader, Closeabl
     private void assertLength() {
         if ( this.length < IntBytes.LENGTH )
             throw new RuntimeException( String.format( "File %s is too short (%,d bytes)", file.getPath(), length ) );
-    }
-
-    private void setSize( int size ) {
-
-        if ( size < 0 ) {
-            throw new RuntimeException( String.format( "Invalid size: %s (%s)", size, toString() ) );
-        }
-
-        this.size = size;
     }
 
     /**

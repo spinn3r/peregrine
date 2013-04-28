@@ -24,6 +24,7 @@ import peregrine.*;
 import peregrine.config.*;
 import peregrine.http.*;
 import peregrine.io.*;
+import peregrine.io.sstable.*;
 import peregrine.os.*;
 import peregrine.util.*;
 import peregrine.util.netty.*;
@@ -53,6 +54,8 @@ public class DefaultChunkWriter implements ChunkWriter {
 
     private boolean shutdown = false;
 
+    private Trailer trailer = new Trailer();
+    
     public DefaultChunkWriter( ChannelBufferWritable writer ) throws IOException {
         init( writer );
     }
@@ -74,7 +77,7 @@ public class DefaultChunkWriter implements ChunkWriter {
 
         length += write( writer, key, value );
         
-        ++count;
+        ++trailer.count;
 
     }
 
@@ -117,10 +120,8 @@ public class DefaultChunkWriter implements ChunkWriter {
         
         // last four bytes store the number of items.
 
-        ChannelBuffer buff = ChannelBuffers.buffer( IntBytes.LENGTH );
-        buff.writeInt( count );
-        writer.write( buff );
-        length += IntBytes.LENGTH;
+        trailer.write( writer );
+        length += Trailer.LENGTH;
 
         writer.shutdown();
         

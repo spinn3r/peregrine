@@ -8,23 +8,29 @@ import peregrine.util.*;
 
 import org.jboss.netty.buffer.*;
 
+import peregrine.util.netty.*;
+
+/**
+ * Trailer on a file denoteing metadata about that file.
+ */
 public class Trailer {
 
-    protected static int LENGTH = 7 * Longs.LENGTH ;
+    //length in bytes of the trailer.  This is a fixed width data structure.
+    public static final int LENGTH = 7 * Longs.LENGTH ;
     
-    protected long version = 1;
+    public long version = 1;
 
-    protected long compressionAlgorithm = 0;
+    public long compressionAlgorithm = 0;
     
-    protected long count = 0;
+    public long count = 0;
     
-    protected long size = 0;
+    public long size = 0;
     
-    protected long indexCount = 0;
+    public long indexCount = 0;
     
-    protected long indexOffset = -1;
+    public long indexOffset = -1;
     
-    protected long fileInfoOffset = -1;
+    public long fileInfoOffset = -1;
 
     public void setFileInfoOffset( long fileInfoOffset ) { 
         this.fileInfoOffset = fileInfoOffset;
@@ -42,6 +48,9 @@ public class Trailer {
         return this.indexOffset;
     }
 
+    /**
+     * The number of index entries.
+     */
     public long getIndexCount() { 
         return this.indexCount;
     }
@@ -61,14 +70,25 @@ public class Trailer {
         this.size = size;
     }
 
+    /**
+     * The number of records in this SSTable.
+     */
     public long getCount() { 
         return this.count;
     }
 
     public void setCount( long count ) { 
+
+        if ( count < 0 )
+            throw new IllegalArgumentException( "count" );
+        
         this.count = count;
+
     }
 
+    /**
+     * Get the compression algorithm we are using. 
+     */
     public long getCompressionAlgorithm() { 
         return this.compressionAlgorithm;
     }
@@ -85,26 +105,29 @@ public class Trailer {
         this.version = version;
     }
 
-    public void read( ChannelBuffer buff ) throws IOException {
+    public void read( ChannelBuffer buff ) {
 
+        // duplicate the buffer so the global readerIndex isn't updated.
+        buff = buff.duplicate();
+        
         //seek to the trailer position
         int offset = buff.writerIndex() - LENGTH;
-        
+
         buff.readerIndex( offset );
         
         StructReader sr = new StructReader( buff );
 
-        version = sr.readLong();
-        compressionAlgorithm = sr.readLong();
-        count = sr.readLong();
-        size = sr.readLong();
-        indexOffset = sr.readLong();
-        indexCount = sr.readLong();
-        fileInfoOffset = sr.readLong();
-
+        setVersion( sr.readLong() );
+        setCompressionAlgorithm( sr.readLong() );
+        setCount( sr.readLong() );
+        setSize( sr.readLong() );
+        setIndexOffset( sr.readLong() );
+        setIndexCount( sr.readLong() );
+        setFileInfoOffset( sr.readLong() );
+        
     }
     
-    public void write( MappedFileWriter writer ) throws IOException {
+    public void write( ChannelBufferWritable writer ) throws IOException {
 
         StructWriter sw = new StructWriter( 100 );
 

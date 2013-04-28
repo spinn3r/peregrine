@@ -180,7 +180,7 @@ public class TestFullShufflePath extends peregrine.BaseTestWithMultipleDaemons {
 
         ShuffleInputChunkReader reader = new ShuffleInputChunkReader( configs.get( partition ), new Partition( partition ), path );
 
-        assertTrue( reader.size() > 0 );
+        assertTrue( reader.count() > 0 );
 
         int count = 0;
         while( reader.hasNext() ) {
@@ -193,7 +193,7 @@ public class TestFullShufflePath extends peregrine.BaseTestWithMultipleDaemons {
 
         }
 
-        assertEquals( reader.size(), count );
+        assertEquals( reader.count(), count );
 
         System.out.printf( "Read count: %,d\n", count );
 
