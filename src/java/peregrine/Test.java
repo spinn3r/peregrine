@@ -151,17 +151,21 @@ public class Test {
         }
         */
 
-        long time_before = System.currentTimeMillis();
+        long duration = 0;
 
         for (int i = 0; i < iterations; ++i ) {
 
             long memory_before = usedMemory();
+            long time_before = System.currentTimeMillis();
 
             Memtable memtable = new Memtable();
             
             for( int j = 0; j < max; ++j ) {
                 memtable.write( StructReaders.wrap( j ), StructReaders.wrap( j ) );
             }
+
+            long time_after = System.currentTimeMillis();
+            duration += time_after - time_before;
 
             long memory_after = usedMemory();
             long memory_used = memory_after - memory_before;
@@ -173,10 +177,6 @@ public class Test {
             System.out.printf( "memtable.memoryUsage:    %,d\n", memtable.memoryUsage() );
 
         }
-
-        long time_after = System.currentTimeMillis();
-
-        long duration = time_after - time_before;
 
         int operations_per_second = (int)((max*iterations) / (duration/1000));
         
