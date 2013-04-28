@@ -112,7 +112,8 @@ public class Memtable implements SSTableReader, SSTableWriter {
 
         // TODO: it's not very efficient to do this with EVERY write (and will
         // hurt performance).  Ideally we would update rawByteUsage within put()
-        // directly because it will collide with another record.
+        // directly because it will collide with another record.  It looked like
+        // this was about 15% faster in practice.
         if ( map.containsKey( _key ) ) {
             rawByteUsage -= ( _key.length + map.get( _key ).length );
         } else {

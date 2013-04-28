@@ -99,7 +99,7 @@ public class Test {
         return Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
     }
 
-    private static void testMemtable( int max ) throws IOException {
+    private static void testMemtable( int max, int iterations ) throws IOException {
 
         //4000152
 
@@ -151,31 +151,37 @@ public class Test {
         }
         */
 
-        long memory_before = usedMemory();
         long time_before = System.currentTimeMillis();
 
-        Memtable memtable = new Memtable();
+        for (int i = 0; i < iterations; ++i ) {
 
-        for( int i = 0; i < max; ++i ) {
-            memtable.write( StructReaders.wrap( i ), StructReaders.wrap( i ) );
+            long memory_before = usedMemory();
+
+            Memtable memtable = new Memtable();
+            
+            for( int j = 0; j < max; ++j ) {
+                memtable.write( StructReaders.wrap( j ), StructReaders.wrap( j ) );
+            }
+
+            long memory_after = usedMemory();
+            long memory_used = memory_after - memory_before;
+            double bytes_per_object = memory_used / (double)max;
+
+            System.out.printf( "bytes per object:        %f\n", bytes_per_object );
+            System.out.printf( "NR records:              %,d\n", memtable.size() );
+            System.out.printf( "memory used:             %,d\n", memory_used );
+            System.out.printf( "memtable.memoryUsage:    %,d\n", memtable.memoryUsage() );
+
         }
 
         long time_after = System.currentTimeMillis();
-        long memory_after = usedMemory();
 
-        long memory_used = memory_after - memory_before;
         long duration = time_after - time_before;
-
-        double bytes_per_object = memory_used / (double)max;
 
         int operations_per_second = (int)(max / (duration/1000));
         
         System.out.printf( "=====\n" );
         
-        System.out.printf( "bytes per object:        %f\n", bytes_per_object );
-        System.out.printf( "NR records:              %,d\n", memtable.size() );
-        System.out.printf( "memory used:             %,d\n", memory_used );
-        System.out.printf( "memtable.memoryUsage:    %,d\n", memtable.memoryUsage() );
         System.out.printf( "duration:                %,d ms\n", duration );
         System.out.printf( "ops per second:          %,d\n", operations_per_second );
 
@@ -183,11 +189,15 @@ public class Test {
     
     public static void main( String[] args ) throws Exception {
 
-        for ( String arg : args ) {
+        int max = Integer.parseInt( args[0] );
+        int iterations = Integer.parseInt( args[1] );
 
-            testMemtable( Integer.parseInt( arg ) ) ;
-            
-        }
+        System.out.printf( "Running with max=%,d and iterations=%,d\n", max, iterations );
+        
+        testMemtable( max, iterations ) ;
+
+        //for ( String arg : args ) {
+        //}
         
         //testMemtable( 50000 );
         //testMemtable( 500000 );
