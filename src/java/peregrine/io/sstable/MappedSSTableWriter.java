@@ -76,7 +76,7 @@ public class MappedSSTableWriter implements SequenceWriter {
             rollover( key );
         }
 
-        trailer.size += key.length() + value.length();
+        trailer.recordUsage += key.length() + value.length();
         ++trailer.count;
         ++dataBlock.count;
 
