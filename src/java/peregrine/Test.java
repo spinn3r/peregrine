@@ -177,7 +177,7 @@ public class Test {
             long time_after = System.currentTimeMillis();
             long duration = time_after - time_before;
 
-            int records = (i+1) * iterations;
+            int records = max * (i+1);
             
             int operations_per_second = (int) ( records / (duration/1000) );
             
