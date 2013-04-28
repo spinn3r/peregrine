@@ -178,7 +178,7 @@ public class Test {
 
         long duration = time_after - time_before;
 
-        int operations_per_second = (int)(max / (duration/1000));
+        int operations_per_second = (int)((max*iterations) / (duration/1000));
         
         System.out.printf( "=====\n" );
         
