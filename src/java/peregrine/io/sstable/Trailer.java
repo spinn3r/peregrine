@@ -17,15 +17,21 @@ public class Trailer {
 
     //length in bytes of the trailer.  This is a fixed width data structure.
     public static final int LENGTH = 7 * Longs.LENGTH ;
+
+    public static final long VERSION_OFFSET = 200000;
     
-    public long version = 1;
+    // the version number (and magic number) for the file.  All versions should
+    // start off with a specific offset so that we can use this portion as the
+    // magic number.  This still gives us plenty of versions to play with since
+    // we have 2^64 and doesn't require another magic field.
+    public long version = VERSION_OFFSET + 0;
 
     public long compressionAlgorithm = 0;
     
     public long count = 0;
-    
-    public long size = 0;
-    
+
+    public long recordUsage = 0;
+
     public long indexCount = 0;
     
     public long indexOffset = -1;
@@ -60,14 +66,14 @@ public class Trailer {
     }
 
     /**
-     * Size, in bytes, of the length of keys + values as raw byte.
+     * Size, in bytes, of the number of bytes of both keys and values.
      */
-    public long getSize() { 
-        return this.size;
+    public long getRecordUsage() { 
+        return this.recordUsage;
     }
 
-    public void setSize( long size ) { 
-        this.size = size;
+    public void setRecordUsage( long recordUsage ) { 
+        this.recordUsage = recordUsage;
     }
 
     /**
@@ -117,13 +123,13 @@ public class Trailer {
         
         StructReader sr = new StructReader( buff );
 
-        setVersion( sr.readLong() );
         setCompressionAlgorithm( sr.readLong() );
         setCount( sr.readLong() );
-        setSize( sr.readLong() );
+        setRecordUsage( sr.readLong() );
         setIndexOffset( sr.readLong() );
         setIndexCount( sr.readLong() );
         setFileInfoOffset( sr.readLong() );
+        setVersion( sr.readLong() );
         
     }
     
@@ -131,13 +137,13 @@ public class Trailer {
 
         StructWriter sw = new StructWriter( 100 );
 
-        sw.writeLong( version );
         sw.writeLong( compressionAlgorithm );
         sw.writeLong( count );
-        sw.writeLong( size );
+        sw.writeLong( recordUsage );
         sw.writeLong( indexOffset );
         sw.writeLong( indexCount );
         sw.writeLong( fileInfoOffset );
+        sw.writeLong( version );
 
         writer.write( sw.getChannelBuffer() );
         
@@ -146,11 +152,11 @@ public class Trailer {
     @Override
     public String toString() {
         
-        return String.format( "version=%s, compressionAlgorithm=%s, count=%s, size=%s, indexOffset=%s, indexCount=%s, fileInfoOffset=%s", 
+        return String.format( "version=%s, compressionAlgorithm=%s, count=%s, recordUsage=%s, indexOffset=%s, indexCount=%s, fileInfoOffset=%s", 
                               version,
                               compressionAlgorithm,
                               count,
-                              size,
+                              recordUsage,
                               indexOffset,
                               indexCount,
                               fileInfoOffset );
