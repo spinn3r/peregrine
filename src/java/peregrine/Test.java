@@ -151,12 +151,11 @@ public class Test {
         }
         */
 
-        long duration = 0;
+        long time_before = System.currentTimeMillis();
 
         for (int i = 0; i < iterations; ++i ) {
 
-            long memory_before = usedMemory();
-            long time_before = System.currentTimeMillis();
+            //long memory_before = usedMemory();
 
             Memtable memtable = new Memtable();
             
@@ -164,9 +163,7 @@ public class Test {
                 memtable.write( StructReaders.wrap( j ), StructReaders.wrap( j ) );
             }
 
-            long time_after = System.currentTimeMillis();
-            duration += time_after - time_before;
-
+            /*
             long memory_after = usedMemory();
             long memory_used = memory_after - memory_before;
             double bytes_per_object = memory_used / (double)max;
@@ -175,15 +172,19 @@ public class Test {
             System.out.printf( "NR records:              %,d\n", memtable.size() );
             System.out.printf( "memory used:             %,d\n", memory_used );
             System.out.printf( "memtable.memoryUsage:    %,d\n", memtable.memoryUsage() );
+            */
+
+            long time_after = System.currentTimeMillis();
+            long duration = time_after - time_before;
+
+            int operations_per_second = (int) ( ( (i+1) * iterations ) / (duration/1000) );
+            
+            System.out.printf( "=====\n" );
+            
+            System.out.printf( "duration:                %,d ms\n", duration );
+            System.out.printf( "ops per second:          %,d\n", operations_per_second );
 
         }
-
-        int operations_per_second = (int)((max*iterations) / (duration/1000));
-        
-        System.out.printf( "=====\n" );
-        
-        System.out.printf( "duration:                %,d ms\n", duration );
-        System.out.printf( "ops per second:          %,d\n", operations_per_second );
 
     }
     
