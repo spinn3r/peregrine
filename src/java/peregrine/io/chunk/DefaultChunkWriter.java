@@ -44,7 +44,7 @@ import peregrine.util.primitive.*;
  * https://bitbucket.org/burtonator/peregrine/issue/195/design-sstable-file-layout
  * 
  */
-public class DefaultChunkWriter implements ChunkWriter {
+public class DefaultChunkWriter extends BaseSSTableChunk implements ChunkWriter {
 
     //FIXME: DITCH the data block and meta block metaphor.. we are storing the
     //data blocks inline so at the END of the file we really only just have META
@@ -72,18 +72,6 @@ public class DefaultChunkWriter implements ChunkWriter {
     private boolean closed = false;
 
     private boolean shutdown = false;
-
-    // information about the file we are writing to...
-    protected FileInfo fileInfo = new FileInfo();
-
-    // trailer information for the file
-    protected Trailer trailer = new Trailer();
-
-    // a list of all data blocks written so that we can write out their metadata on close()
-    protected List<DataBlock> dataBlocks = new ArrayList();
-
-    // a list of all meta blocks written so that we can write out their metadata on close()
-    protected List<MetaBlock> metaBlocks = new ArrayList();
 
     // the current DataBlock
     protected DataBlock dataBlock = null;
@@ -138,7 +126,6 @@ public class DefaultChunkWriter implements ChunkWriter {
         if ( dataBlock == null || writer.length() - dataBlock.offset > blockSize ) {
             rollover( key );
         }
-
 
         write( writer, key, value );
 

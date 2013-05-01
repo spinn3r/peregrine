@@ -38,10 +38,8 @@ import org.jboss.netty.buffer.*;
  * Default ChunkReader implementation which uses mmap, and supports features
  * like CRC32, etc.
  */
-public class DefaultChunkReader implements SequenceReader, ChunkReader, Closeable {
+public class DefaultChunkReader extends BaseSSTableChunk implements SequenceReader, ChunkReader, Closeable {
     
-    //FIXME: move getTrailer() etc into a base class shared with DefaultChunkWriter
-
     //FIXME: seekTo uses the last block EVEN if the last key is too large.
     
     // magic numbers for chunk reader files.
@@ -89,18 +87,6 @@ public class DefaultChunkReader implements SequenceReader, ChunkReader, Closeabl
     
     // When true, parse the number of items we are holding.
     private boolean readTrailer = true;
-
-    // information about the file we are writing to...
-    protected FileInfo fileInfo = new FileInfo();
-
-    // trailer information for the file
-    protected Trailer trailer = new Trailer();
-
-    // list of data blocks in the index.
-    protected List<DataBlock> dataBlocks = new ArrayList();
-
-    // list of meta blocks in the index
-    protected List<MetaBlock> metaBlocks = new ArrayList();
 
     protected TreeMap<StructReader,DataBlock> dataBlockLookup =
         new TreeMap( new StrictStructReaderComparator() );
@@ -397,22 +383,6 @@ public class DefaultChunkReader implements SequenceReader, ChunkReader, Closeabl
     @Override 
     public int count() throws IOException {
         return count;
-    }
-
-    public Trailer getTrailer() {
-        return trailer;
-    }
-
-    public FileInfo getFileInfo() {
-        return fileInfo;
-    }
-
-    public List<DataBlock> getDataBlocks() {
-        return dataBlocks;
-    }
-
-    public List<MetaBlock> getMetaBlocks() {
-        return metaBlocks;
     }
 
     @Override

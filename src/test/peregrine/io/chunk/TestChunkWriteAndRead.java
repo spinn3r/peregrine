@@ -107,6 +107,8 @@ public class TestChunkWriteAndRead extends BaseTest {
 
         }
 
+        assertNull( reader.findDataBlock( StructReaders.wrap( max * 2 ) ) );
+        
         reader.close();
 
     }
