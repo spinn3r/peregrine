@@ -143,7 +143,7 @@ public class DefaultChunkWriter extends BaseSSTableChunk implements ChunkWriter 
     public static int write( ChannelBufferWritable writer ,
                              StructReader key,
                              StructReader value ) throws IOException {
-        
+
     	int result = 0;
 
         // TODO: we have to use an atomic write so that the buffered writer can
@@ -250,8 +250,9 @@ public class DefaultChunkWriter extends BaseSSTableChunk implements ChunkWriter 
         } else {
             
             // write out file info
-            if ( lastKey != null )
+            if ( lastKey != null ) {
                 fileInfo.lastKey = lastKey.toByteArray();
+            }
 
             trailer.fileInfoOffset = writer.length();
             fileInfo.write( writer );

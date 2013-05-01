@@ -53,12 +53,12 @@ public class TestChunkWriteAndRead extends BaseTest {
         
         writer.close();
 
-        System.out.printf( "trailer: %s\n", writer.trailer );
-        System.out.printf( "fileInfo: %s\n", writer.fileInfo );
+        System.out.printf( "trailer: %s\n", writer.getTrailer() );
+        System.out.printf( "fileInfo: %s\n", writer.getFileInfo() );
         System.out.printf( "dataBlocks: \n" );
-        showList( writer.dataBlocks );
+        showList( writer.getDataBlocks() );
         System.out.printf( "metaBlocks: \n" );
-        showList( writer.metaBlocks );
+        showList( writer.getMetaBlocks() );
         
         DefaultChunkReader reader = new DefaultChunkReader( null, file );
 
@@ -86,13 +86,12 @@ public class TestChunkWriteAndRead extends BaseTest {
             
         System.out.printf( "==============\n" );
         
-        System.out.printf( "trailer: %s\n", reader.trailer );
-        System.out.printf( "fileInfo: %s\n", reader.fileInfo );
+        System.out.printf( "trailer: %s\n", reader.getTrailer() );
+        System.out.printf( "fileInfo: %s\n", reader.getFileInfo() );
         System.out.printf( "dataBlocks: \n" );
-        showList( writer.dataBlocks );
+        showList( writer.getDataBlocks() );
         System.out.printf( "metaBlocks: \n" );
-        showList( writer.metaBlocks );
-
+        showList( writer.getMetaBlocks() );
 
         if ( minimal == false ) {
             
@@ -105,10 +104,15 @@ public class TestChunkWriteAndRead extends BaseTest {
                 
             }
 
+            assertNull( reader.findDataBlock( StructReaders.wrap( Long.MAX_VALUE ) ) );
+            assertNull( reader.findDataBlock( StructReaders.wrap( max * 2 ) ) );
+            assertNull( reader.findDataBlock( StructReaders.wrap( max ) ) );
+
+            //FIXME: I think this is supposed to pass.
+            //assertNotNull( reader.findDataBlock( StructReaders.wrap( max-1 ) ) );
+
         }
 
-        assertNull( reader.findDataBlock( StructReaders.wrap( max * 2 ) ) );
-        
         reader.close();
 
     }
