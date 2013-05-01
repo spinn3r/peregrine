@@ -24,6 +24,8 @@ import java.util.regex.*;
 import org.jboss.netty.buffer.*;
 import org.jboss.netty.channel.*;
 import org.jboss.netty.handler.codec.http.*;
+
+import peregrine.io.chunk.*;
 import peregrine.util.primitive.IntBytes;
 import peregrine.shuffle.receiver.*;
 
@@ -79,14 +81,10 @@ public class FSPutShuffleHandler extends FSPutBaseHandler {
 
                     ChannelBuffer content = chunk.getContent();
 
-                    // the split pointer of before and after the suffix.
-                    int suffix_idx = content.writerIndex() - IntBytes.LENGTH;
-                    
-                    // get the last 4 bytes to parse the count.
-                    int count = content.getInt( suffix_idx );
+                    DefaultChunkReader reader = new DefaultChunkReader( content );
 
-                    // now slice the data sans suffix.
-                    ChannelBuffer data = content.slice( 0, suffix_idx );
+                    ChannelBuffer data = reader.data();
+                    int count = reader.count();
                     
                     shuffleReceiver.accept( from_partition, from_chunk, to_partition, count, data );
                     
