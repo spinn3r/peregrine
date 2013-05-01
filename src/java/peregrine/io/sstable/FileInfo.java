@@ -5,19 +5,28 @@ import java.io.*;
 import peregrine.*;
 import peregrine.os.*;
 import peregrine.util.*;
+import peregrine.util.netty.*;
 
 import org.jboss.netty.buffer.*;
 
+/**
+ * Because of the lastKey and comparatorClass this field is variable width.
+ */
 public class FileInfo {
 
-    protected int meanKeyLength = -1;
+    //FIXME: this should just be a block with fields ... all of these entries
+    //should key value/pairs.  The ENTIRE MetaBlock in HFile is just key/value
+    //pairs.
+    
+    public int meanKeyLength = -1;
 
-    protected int meanValueLength = -1;
+    public int meanValueLength = -1;
 
-    protected byte[] lastKey = new byte[0];
+    // the last key in the entire SSTable.
+    public byte[] lastKey = new byte[0];
 
-    // default is no comparator ... 
-    protected byte[] comparatorClass = new byte[0];
+    // default is no comparator class specified.  
+    public byte[] comparatorClass = new byte[0];
 
     public int getMeanKeyLength() { 
         return this.meanKeyLength;
@@ -51,7 +60,10 @@ public class FileInfo {
         this.comparatorClass = comparatorClass;
     }
 
-    public void read( ChannelBuffer buff, Trailer trailer ) throws IOException {
+    public void read( ChannelBuffer buff, Trailer trailer ) {
+
+       // duplicate the buffer so the global readerIndex isn't updated.
+        buff = buff.duplicate();
 
         buff.readerIndex( (int)trailer.fileInfoOffset );
 
@@ -64,7 +76,7 @@ public class FileInfo {
         
     }
 
-    public void write( MappedFileWriter writer ) throws IOException {
+    public void write( ChannelBufferWritable writer ) throws IOException {
 
         StructWriter sw = new StructWriter( 100 );
 

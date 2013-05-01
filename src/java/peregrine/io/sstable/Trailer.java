@@ -16,15 +16,12 @@ import peregrine.util.netty.*;
 public class Trailer {
 
     //length in bytes of the trailer.  This is a fixed width data structure.
-    public static final int LENGTH = 7 * Longs.LENGTH ;
+    public static final int LENGTH = (8 * Longs.LENGTH) + Integers.LENGTH;
 
-    public static final long VERSION_OFFSET = 200000;
+    //magic number for the tail of the chunk stream.
+    public static final int MAGIC = -1;
     
-    // the version number (and magic number) for the file.  All versions should
-    // start off with a specific offset so that we can use this portion as the
-    // magic number.  This still gives us plenty of versions to play with since
-    // we have 2^64 and doesn't require another magic field.
-    public long version = VERSION_OFFSET + 0;
+    public static final long VERSION_OFFSET = 200000;
 
     public long compressionAlgorithm = 0;
     
@@ -38,6 +35,16 @@ public class Trailer {
     
     public long fileInfoOffset = -1;
 
+    // the version number (and magic number) for the file.  All versions should
+    // start off with a specific offset so that we can use this portion as the
+    // magic number.  This still gives us plenty of versions to play with since
+    // we have 2^64 and doesn't require another magic field.
+    public long version = VERSION_OFFSET + 0;
+
+    // number of bytes in the data section.  We can read ALL the data just by
+    // reading from 0 to dataSectionLength bytes.
+    public long dataSectionLength = 0;
+    
     public void setFileInfoOffset( long fileInfoOffset ) { 
         this.fileInfoOffset = fileInfoOffset;
     }
@@ -86,7 +93,7 @@ public class Trailer {
     public void setCount( long count ) { 
 
         if ( count < 0 )
-            throw new IllegalArgumentException( "count" );
+            throw new IllegalArgumentException( "count=" + count );
         
         this.count = count;
 
@@ -111,6 +118,14 @@ public class Trailer {
         this.version = version;
     }
 
+    public void setDataSectionLength( long dataSectionLength ) {
+        this.dataSectionLength = dataSectionLength;
+    }
+    
+    public long getDataSectionLength() {
+        return dataSectionLength;
+    }
+
     public void read( ChannelBuffer buff ) {
 
         // duplicate the buffer so the global readerIndex isn't updated.
@@ -129,13 +144,19 @@ public class Trailer {
         setIndexOffset( sr.readLong() );
         setIndexCount( sr.readLong() );
         setFileInfoOffset( sr.readLong() );
+        setDataSectionLength( sr.readLong() );
         setVersion( sr.readLong() );
+
+        int magic = sr.readInt();
+
+        if ( magic != -1 )
+            throw new RuntimeException();
         
     }
     
     public void write( ChannelBufferWritable writer ) throws IOException {
 
-        StructWriter sw = new StructWriter( 100 );
+        StructWriter sw = new StructWriter( LENGTH );
 
         sw.writeLong( compressionAlgorithm );
         sw.writeLong( count );
@@ -143,8 +164,10 @@ public class Trailer {
         sw.writeLong( indexOffset );
         sw.writeLong( indexCount );
         sw.writeLong( fileInfoOffset );
+        sw.writeLong( dataSectionLength );
         sw.writeLong( version );
-
+        sw.writeInt( MAGIC );
+        
         writer.write( sw.getChannelBuffer() );
         
     }

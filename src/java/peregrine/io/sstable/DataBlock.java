@@ -5,12 +5,13 @@ import java.io.*;
 import peregrine.*;
 import peregrine.os.*;
 import peregrine.util.*;
+import peregrine.util.netty.*;
 
 import org.jboss.netty.buffer.*;
 
 public class DataBlock extends BaseBlock {
     
-    private byte[] firstKey = null;
+    public byte[] firstKey = null;
 
     public DataBlock() { }
 
@@ -27,7 +28,7 @@ public class DataBlock extends BaseBlock {
     }
 
     @Override
-    public void read( ChannelBuffer buff ) throws IOException {
+    public void read( ChannelBuffer buff ) {
 
         super.read( buff );
 
@@ -36,13 +37,17 @@ public class DataBlock extends BaseBlock {
         firstKey = sr.readBytes();
         
     }
-        
+
     @Override
-    public void write( MappedFileWriter writer ) throws IOException {
+    public void write( ChannelBufferWritable writer ) throws IOException {
+
         super.write( writer );
 
+        StructWriter sw = new StructWriter( firstKey.length + 4 );
+        sw.writeBytes( firstKey );
+        
         //write the first key
-        writer.write( StructReaders.wrap( firstKey ).getChannelBuffer() );
+        writer.write( sw.getChannelBuffer() );
 
     }
 
