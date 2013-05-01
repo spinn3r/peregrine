@@ -17,27 +17,35 @@ package peregrine.io.chunk;
 
 import java.io.*;
 import java.util.*;
+
 import peregrine.*;
+import peregrine.config.*;
 import peregrine.util.*;
 import peregrine.config.Partition;
+import peregrine.io.*;
 import peregrine.io.partition.*;
 import peregrine.io.chunk.*;
 import peregrine.io.util.*;
 
 public class TestChunkWriteAndRead extends BaseTest {
 
-    /**
-     * test running with two lists which each have different values.
-     */
-    public void test1() throws Exception {
+    private void showList( List list ) {
+
+        for( Object obj : list ) {
+            System.out.printf( "    %s\n", obj );
+        }
+        
+    }
+
+    private void doTest( int max, boolean minimal ) throws Exception {
 
         System.out.printf( "Writing new chunk data.\n" );
 
         File file = new File( "/tmp/test.chunk" );
-        
-        DefaultChunkWriter writer = new DefaultChunkWriter( null, file );
 
-        int max = 100;
+        DefaultChunkWriter writer = new DefaultChunkWriter( null, file );
+        writer.setBlockSize( 1000 );
+        writer.setMinimal( minimal );
         
         for( long i = 0; i < max; ++i ) {
             writer.write( StructReaders.wrap( i ), StructReaders.wrap( i ) );
@@ -45,6 +53,13 @@ public class TestChunkWriteAndRead extends BaseTest {
         
         writer.close();
 
+        System.out.printf( "trailer: %s\n", writer.trailer );
+        System.out.printf( "fileInfo: %s\n", writer.fileInfo );
+        System.out.printf( "dataBlocks: \n" );
+        showList( writer.dataBlocks );
+        System.out.printf( "metaBlocks: \n" );
+        showList( writer.metaBlocks );
+        
         DefaultChunkReader reader = new DefaultChunkReader( null, file );
 
         int count = 0;
@@ -52,16 +67,56 @@ public class TestChunkWriteAndRead extends BaseTest {
         while( reader.hasNext() ) {
 
             reader.next();
-            reader.key();
-            reader.value();
+            assertEquals( 8, reader.key().length() );
+            assertEquals( 8, reader.value().length() );
             ++count;
 
         }
 
         assertEquals( count, max );
+        assertEquals( reader.count(), max );
+
+        if ( minimal == false ) {
         
+            for( long i = 0; i < max; ++i ) {
+                assertNotNull( reader.findDataBlock( StructReaders.wrap( i ) ) );
+            }
+
+        }
+            
+        System.out.printf( "==============\n" );
+        
+        System.out.printf( "trailer: %s\n", reader.trailer );
+        System.out.printf( "fileInfo: %s\n", reader.fileInfo );
+        System.out.printf( "dataBlocks: \n" );
+        showList( writer.dataBlocks );
+        System.out.printf( "metaBlocks: \n" );
+        showList( writer.metaBlocks );
+
+
+        if ( minimal == false ) {
+            
+            for( long i = 0; i < max; ++i ) {
+
+                Record record = reader.seekTo( StructReaders.wrap( i ) );
+
+                if ( record == null )
+                    throw new RuntimeException( "Could not find entry: " + i );
+                
+            }
+
+        }
+
         reader.close();
-        
+
+    }
+    
+    /**
+     * test running with two lists which each have different values.
+     */
+    public void test1() throws Exception {
+        doTest( 1000, false );
+        doTest( 1000, true );
     }
 
     public static void main( String[] args ) throws Exception {

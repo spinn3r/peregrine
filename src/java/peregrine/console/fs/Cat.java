@@ -63,7 +63,8 @@ public class Cat {
         
         String render  = getopt.getString( "render" , "base64" );
         int limit      = getopt.getInt( "limit", -1 );
-        
+
+        //TODO: go over ALL paths specified so the user can cat multiple files.
         String path = getopt.getValues().get( 0 );
 
         SequenceReader reader = null;

@@ -23,7 +23,6 @@ import peregrine.util.netty.*;
 
 import org.jboss.netty.buffer.*;
 
-
 /**
  * Buffer output until it is ready to be sent in one CHUNK.  Not N chunks.  This
  * uses ChannelBuffers which can be more efficient as they are all sliced and
@@ -35,9 +34,14 @@ public class BufferedChannelBufferWritable implements ChannelBufferWritable {
     public List<ChannelBuffer> buffers = new ArrayList();
 
     /**
-     * The length, in bytes, for the pending write.
+     * The length, in bytes, of buffered data for the pending write.
      */
-    private int writeLength = 0;
+    private int buffered = 0;
+
+    /**
+     * The length, in bytes, of all data written.
+     */
+    private int length = 0;
 
     private int capacity;
 
@@ -62,7 +66,8 @@ public class BufferedChannelBufferWritable implements ChannelBufferWritable {
         }
 
         buffers.add( buff );
-        writeLength += buff.writerIndex();
+        buffered += buff.writerIndex();
+        length += buff.writerIndex();
 
     }
 
@@ -84,7 +89,7 @@ public class BufferedChannelBufferWritable implements ChannelBufferWritable {
 
         try {
             
-            if ( writeLength == 0 )
+            if ( buffered == 0 )
                 return;
 
             if ( closed )
@@ -101,7 +106,7 @@ public class BufferedChannelBufferWritable implements ChannelBufferWritable {
             delegate.write( writeBuffer );
             
             buffers = new ArrayList();
-            writeLength = 0;
+            buffered = 0;
 
             // flush the underlying delegate too
             if ( flushDelegate ) 
@@ -158,10 +163,14 @@ public class BufferedChannelBufferWritable implements ChannelBufferWritable {
      */
     protected boolean hasCapacity( ChannelBuffer buff ) {
 
-        int newCapacity = writeLength + buff.writerIndex();
+        int newCapacity = buffered + buff.writerIndex();
         
         return newCapacity < capacity;
 
     }
-    
+
+    public long length() {
+        return length;
+    }
+
 }

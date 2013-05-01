@@ -15,6 +15,11 @@ import peregrine.os.*;
  */
 public class Memtable implements SSTableReader, SSTableWriter {
 
+    //FIXME: this structure won't work because we CAN NOT just overwrite the
+    //prevous value because we may wish to keep the last N value.  It would work
+    //for some tables but not others.  However, the overhead of creating a LIST
+    //of objects isn't easy either.
+    
     // There is an 80 byte overhead for objects in the memtable.
     private static final long OVERHEAD_PER_RECORD = 80;
 
@@ -25,9 +30,12 @@ public class Memtable implements SSTableReader, SSTableWriter {
     private StructReader value = null;
 
     // the actual backing that stores the data for our memtable.
-    private Map<byte[],byte[]> map
-        = new ConcurrentSkipListMap( new ByteArrayComparator() );
+    //private Map<byte[],byte[]> map
+    //that     = new ConcurrentSkipListMap( new ByteArrayComparator() );
 
+    private Map<byte[],byte[]> map
+        = new TreeMap( new ByteArrayComparator() );
+    
     // true if close() has been called.  We require that we are still open so
     // that writes don't completed after close()
     private boolean closed = false;
@@ -162,21 +170,20 @@ public class Memtable implements SSTableReader, SSTableWriter {
         }
         
     }
-    
+
+    // NOTE that this maintains strict byte ordering and not java signed byte
+    // ordering.  In practice this DOES impose a slight performance penalty but
+    // not a significant one.
     class ByteArrayComparator implements Comparator<byte[]> {
 
         public int compare( byte[] v1, byte[] v2 ) {
 
-            int n = Math.min(v1.length, v2.length);
+            final int lim = Math.min(v1.length, v2.length);
 
-            int i = 0;
-            int j = 0;
-
-            int k = i;
-            final int lim = n + i;
+            int k = 0;
             while (k < lim) {
-                byte c1 = v1[k];
-                byte c2 = v2[k];
+                int c1 = v1[k] & 0xFF;
+                int c2 = v2[k] & 0xFF;
                 if (c1 != c2) {
                     return c1 - c2;
                 }
