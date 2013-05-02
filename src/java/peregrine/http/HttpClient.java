@@ -72,6 +72,7 @@ public class HttpClient implements ChannelBufferWritable {
      * Maximum number of writes to keep in the queue.
      */
     public static int QUEUE_CAPACITY = 10;
+    
     protected int channelState = PENDING;
 
     /**

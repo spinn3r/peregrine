@@ -104,7 +104,7 @@ public class TestParallelShuffleInputChunkReader extends peregrine.BaseTestWithM
 
         ShuffleInputChunkReader reader = new ShuffleInputChunkReader( configs.get(0), new Partition( 0 ), path );
 
-        assertTrue( reader.size() > 0 );
+        assertTrue( reader.count() > 0 );
 
         while( reader.hasNext() ) {
 

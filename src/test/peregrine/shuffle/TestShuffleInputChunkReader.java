@@ -102,7 +102,7 @@ public class TestShuffleInputChunkReader extends peregrine.BaseTestWithMultipleD
         
         ShuffleInputChunkReader reader = new ShuffleInputChunkReader( configs.get(0), partition, path );
 
-        assertTrue( reader.size() > 0 );
+        assertTrue( reader.count() > 0 );
 
         while( reader.hasNext() ) {
 

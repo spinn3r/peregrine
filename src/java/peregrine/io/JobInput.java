@@ -41,7 +41,7 @@ public interface JobInput extends SequenceReader {
      * Return the size (number of records as key/value pairs) that this JobInput
      * contains. 
      */
-    public int size();
+    public int count();
     
 }
 

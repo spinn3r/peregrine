@@ -29,7 +29,7 @@ import peregrine.os.*;
  * 
  */
 public class BaseConfig {
-
+    
     /**
      * The default params we have been started with.  These are loaded from the
      * .conf which we store in the .jar.
@@ -140,6 +140,8 @@ public class BaseConfig {
     
     protected int netWriteTimeout = -1;
 
+    protected long sstableBlockSize = -1;
+
     public void init( StructMap struct ) {
 
         this.struct = struct;
@@ -179,6 +181,7 @@ public class BaseConfig {
         setNetTcpNodelay( struct.getBoolean( "netTcpNodelay" ) );
         setNetWriteTimeout( struct.getInt( "netWriteTimeout" ) );
         setNetConnectTimeout( struct.getInt( "netConnectTimeout" ) );
+        setSSTableBlockSize( struct.getSize( "sstableBlockSize" ) );
 
         if ( struct.containsKey( "host" ) )
             setHost( Host.parse( struct.getString( "host" ) ) );
@@ -490,6 +493,14 @@ public class BaseConfig {
 
     public void setNetConnectTimeout( int netConnectTimeout ) { 
         this.netConnectTimeout = netConnectTimeout;
+    }
+
+    public long getSSTableBlockSize() { 
+        return this.sstableBlockSize;
+    }
+
+    public void setSSTableBlockSize( long sstableBlockSize ) { 
+        this.sstableBlockSize = sstableBlockSize;
     }
 
     static {

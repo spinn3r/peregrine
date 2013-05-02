@@ -70,7 +70,7 @@ public class LimitedChunkReader implements ChunkReader {
     }
 
     @Override
-    public int size() {
+    public int count() {
     	return limit;
     }
 

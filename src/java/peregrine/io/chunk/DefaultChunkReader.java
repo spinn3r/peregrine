@@ -16,6 +16,8 @@
 package peregrine.io.chunk;
 
 import java.io.*;
+import java.util.*;
+import java.math.*;
 
 import java.nio.*;
 import java.nio.channels.*;
@@ -24,17 +26,20 @@ import java.nio.charset.*;
 import peregrine.*;
 import peregrine.config.*;
 import peregrine.io.*;
+import peregrine.io.sstable.*;
 import peregrine.os.*;
+import peregrine.sort.*;
 import peregrine.util.*;
 import peregrine.util.netty.*;
 import peregrine.util.primitive.*;
+
 import org.jboss.netty.buffer.*;
 
 /**
  * Default ChunkReader implementation which uses mmap, and supports features
  * like CRC32, etc.
  */
-public class DefaultChunkReader implements SequenceReader, ChunkReader, Closeable {
+public class DefaultChunkReader extends BaseSSTableChunk implements SequenceReader, ChunkReader, Closeable {
     
     // magic numbers for chunk reader files.
 
@@ -54,11 +59,6 @@ public class DefaultChunkReader implements SequenceReader, ChunkReader, Closeabl
     private long length = -1;
 
     /**
-     * number of key value pairs to deal with.
-     */
-    private int size = 0;
-
-    /**
      * The current item we are reading from.
      */
     private int idx = 0;
@@ -67,31 +67,45 @@ public class DefaultChunkReader implements SequenceReader, ChunkReader, Closeabl
 
     private boolean closed = false;
 
-    /**
-     * The current key.
-     */
+    // The current key.
     private StructReader key = null;
     
-    /**
-     * The current value.
-     */
+    // The current value.
     private StructReader value = null;
     
     private int keyOffset = -1;
-    
+
+    // the buffer that backs this chunk
     private ChannelBuffer buffer = null;
 
-    /**
-     * When true, parse the number of items we are holding.
-     */
-    private boolean readSize = true;
+    // the count of entries either in this block or in the entire file.  By
+    // default it's the entire file but if we call restrict() with a given
+    // DataBlock we update that value so hasNext() doesn't try to read past the
+    // restricted block.
+    private int count = 0;
+    
+    // When true, parse the number of items we are holding.
+    private boolean readTrailer = true;
+
+    protected TreeMap<StructReader,DataBlock> dataBlockLookup =
+        new TreeMap( new StrictStructReaderComparator() );
+
+    protected boolean minimal = false;
+    
+    // used internally for duplicate()
+    protected DefaultChunkReader() {}
     
     public DefaultChunkReader( ChannelBuffer buff ) {
         init( buff );
     }
 
-    public DefaultChunkReader( ChannelBuffer buff, boolean readSize ) {
-        this.readSize = false;
+    /**
+     * This allows us to read a SSTable without reading the trailer.  This is
+     * slightly faster than reading the SSTable and seeking to the trailer but
+     * not incredibly so...
+     */
+    public DefaultChunkReader( ChannelBuffer buff, boolean readTrailer ) {
+        this.readTrailer = false;
         init( buff );
     }
 
@@ -111,7 +125,7 @@ public class DefaultChunkReader implements SequenceReader, ChunkReader, Closeabl
         ChannelBuffer buff = mappedFile.map();
       
         init( buff, mappedFile.getStreamReader() );
-        
+
     }
 
     public void init( ChannelBuffer buff ) {
@@ -126,9 +140,75 @@ public class DefaultChunkReader implements SequenceReader, ChunkReader, Closeabl
         this.reader = reader;
         this.length = buff.writerIndex();
 
-        if ( readSize ) {
-            assertLength();
-            setSize( buff.getInt( buff.writerIndex() - IntBytes.LENGTH ) );
+        if ( readTrailer ) {
+
+            //seek the to the end and read the magic ... 
+            assertLength(Integers.LENGTH);
+            int magic = buffer.getInt( buffer.writerIndex() - Integers.LENGTH );
+
+            if ( magic >= 0 ) {
+
+                count = magic;
+                minimal = true;
+                
+            } else {
+
+                assertLength(Trailer.LENGTH);
+
+                trailer.read( buff );
+                count = (int)trailer.count;
+
+                // read the file info
+                if ( trailer.fileInfoOffset > 0 ) {
+                    fileInfo.read( buff, trailer );
+                }
+                
+                // read data and meta index
+
+                if ( trailer.indexOffset > 0 ) {
+                    
+                    buff.readerIndex( (int)trailer.indexOffset );
+
+                    for( int i = 0; i < trailer.indexCount; ++i ) {
+                        DataBlock db = new DataBlock();
+                        db.read( buff );
+                        dataBlocks.add( db );
+
+                        dataBlockLookup.put( StructReaders.wrap( db.firstKey ), db );
+                    }
+
+                    // TODO: add the last fake data block for the lastKey
+
+                    BigInteger ptr = new BigInteger( fileInfo.lastKey );
+                    ptr = ptr.add( BigInteger.valueOf( 1 ) );
+
+                    byte[] pd = ptr.toByteArray();
+
+                    // NOTE: BigInteger is conservative with padding so we have
+                    // to add any byte padding back in.
+                    if ( pd.length < fileInfo.lastKey.length ) {
+
+                        byte[] tmp = new byte[fileInfo.lastKey.length];
+                        System.arraycopy( pd, 0, tmp, fileInfo.lastKey.length - pd.length, pd.length );
+                        pd = tmp;
+
+                    }
+
+                    dataBlockLookup.put( new StructReader( pd ), null );
+
+                    for( int i = 0; i < trailer.indexCount; ++i ) {
+                        MetaBlock mb = new MetaBlock();
+                        mb.read( buff );
+                        metaBlocks.add( mb );
+                    }
+
+                }
+
+            }
+                
+            // jump us back to the beginning of the buffer.
+            buff.readerIndex( 0 );
+
         }
 
     }
@@ -143,7 +223,7 @@ public class DefaultChunkReader implements SequenceReader, ChunkReader, Closeabl
     @Override
     public boolean hasNext() throws IOException {
 
-        if( idx < size ) {
+        if( idx < count ) {
             return true;
         } else {
             return false;
@@ -156,9 +236,122 @@ public class DefaultChunkReader implements SequenceReader, ChunkReader, Closeabl
 
         ++idx;
         keyOffset = reader.index() + 1;
-       
-        key   = readEntry();
-        value = readEntry();
+
+        Record record = read( reader );
+
+        key   = record.getKey();
+        value = record.getValue();
+        
+    }
+
+    public StructReader readEntry() {
+        return readEntry( reader );
+    }
+
+    public static Record read( StreamReader reader ) {
+        return new Record( readEntry( reader ),
+                           readEntry( reader ) );
+    }
+
+    /**
+     * Not part of the API but public so that sorting can read directly from
+     * varint encoded key/value streams.
+     */
+    public static StructReader readEntry( StreamReader reader ) {
+
+        try {
+
+            int len = VarintReader.read( reader );
+            
+            return reader.read( len );
+            
+        } catch ( Throwable t ) {
+            throw new RuntimeException( "Unable to read entry: " + reader , t );
+        }
+        
+    }
+
+    /**
+     * Find the data block that could potentially hold the given key.
+     */
+    protected DataBlock findDataBlock( StructReader key ) {
+        
+        Map.Entry<StructReader,DataBlock> entry = dataBlockLookup.floorEntry(key);
+
+        if ( entry == null )
+            return null;
+
+        return entry.getValue();
+
+    }
+
+    /**
+     * Restrict the chunk reader hasNext and next operations to just the given
+     * data block.
+     */
+    protected void restrict( DataBlock block ) {
+        idx = 0;
+        count = block.count;
+        buffer.readerIndex( (int)block.offset );        
+    }
+
+    /**
+     * Find a given record with a specific key.
+     */
+    public Record seekTo( StructReader key ) throws IOException {
+
+        DataBlock block = findDataBlock( key );
+
+        if ( block == null )
+            return null;
+
+        //TODO: I don't like how we call duplicate every time but I'm not sure
+        //of a reasonable solution here.
+        
+        DefaultChunkReader dup = duplicate();
+        
+        dup.restrict( block );
+
+        while( dup.hasNext() ) {
+
+            dup.next();
+
+            if ( key.equals( dup.key() ) ) {
+                return new Record( dup.key(), dup.value() );
+            }
+            
+        }
+
+        return null;
+        
+    }
+
+    /**
+     * Create a new instance with the same internal members.  This way we can
+     * keep a cached index of open readers but concurrently search over them for
+     * each new request without having them step on each other.
+     */
+    public DefaultChunkReader duplicate() {
+
+        DefaultChunkReader dup = new DefaultChunkReader();
+
+        dup.file = file;
+        dup.reader = reader;
+        dup.length = length;
+        dup.idx = idx;
+        dup.mappedFile = mappedFile;
+        dup.closed = closed;
+        dup.keyOffset = keyOffset;
+        dup.buffer = buffer;
+        dup.count = count;
+        dup.readTrailer = readTrailer;
+        dup.fileInfo = fileInfo;
+        dup.trailer = trailer;
+        dup.dataBlocks = dataBlocks;
+        dup.metaBlocks = metaBlocks;
+        dup.dataBlockLookup = dataBlockLookup;
+
+        return dup;
         
     }
     
@@ -172,6 +365,19 @@ public class DefaultChunkReader implements SequenceReader, ChunkReader, Closeabl
         return value;
     }
 
+    /**
+     * Get the raw data content with no trailer, index, etc.
+     */
+    public ChannelBuffer data() {
+
+        if ( minimal ) {
+            return buffer.slice( 0, buffer.writerIndex() - Integers.LENGTH );
+        } else { 
+            return buffer.slice( 0, (int)trailer.dataSectionLength );
+        }
+
+    }
+    
     @Override
     public void close() throws IOException {
 
@@ -191,13 +397,13 @@ public class DefaultChunkReader implements SequenceReader, ChunkReader, Closeabl
     }
     
     @Override 
-    public int size() throws IOException {
-        return size;
+    public int count() throws IOException {
+        return count;
     }
-    
+
     @Override
     public String toString() {
-        return String.format( "file: %s, length (in bytes): %,d, size: %,d", file, length, size );
+        return String.format( "file: %s, length (in bytes): %,d, count: %,d", file, length, trailer.count );
     }
 
     @Override 
@@ -205,40 +411,13 @@ public class DefaultChunkReader implements SequenceReader, ChunkReader, Closeabl
     	return buffer;
     }
     
-    private void assertLength() {
-        if ( this.length < IntBytes.LENGTH )
+    private void assertLength(int len) {
+        if ( this.length < len )
             throw new RuntimeException( String.format( "File %s is too short (%,d bytes)", file.getPath(), length ) );
-    }
-
-    private void setSize( int size ) {
-
-        if ( size < 0 ) {
-            throw new RuntimeException( String.format( "Invalid size: %s (%s)", size, toString() ) );
-        }
-
-        this.size = size;
-    }
-
-    /**
-     * Not part of the API but public so that sorting can read directly from
-     * varint encoded key/value streams.
-     */
-    public StructReader readEntry() {
-
-        try {
-
-            int len = VarintReader.read( reader );
-            
-            return reader.read( len );
-            
-        } catch ( Throwable t ) {
-            throw new RuntimeException( "Unable to read entry: " + toString() , t );
-        }
-        
     }
 
     public int index() {
         return reader.index();
     }
-    
+
 }

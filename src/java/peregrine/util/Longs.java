@@ -22,6 +22,8 @@ import java.util.*;
  */
 public class Longs {
 
+    public static int LENGTH = 8;
+    
     /**
      * Convert the give list of Longs into an array of Longs.
      */

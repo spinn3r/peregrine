@@ -35,7 +35,7 @@ public interface ChunkReader extends SequenceReader {
 	/**
 	 * Return the number of unique key/value pairs.
 	 */
-	public int size() throws IOException;
+	public int count() throws IOException;
 
     /**
      * Get the underlying ChannelBuffer behind this ChunkReader.  This is used

@@ -237,7 +237,7 @@ public class DefaultPartitionWriter implements PartitionWriter, ChunkWriter {
 
         }
         
-        chunkWriter = new DefaultChunkWriter( new MultiChannelBufferWritable( writablesPerHost ) );
+        chunkWriter = new DefaultChunkWriter( config, new MultiChannelBufferWritable( writablesPerHost ) );
         
         ++chunkId; // change the chunk ID now for the next file.
 

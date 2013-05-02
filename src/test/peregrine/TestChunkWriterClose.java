@@ -26,11 +26,13 @@ public class TestChunkWriterClose extends peregrine.BaseTest {
 
     public void test1() throws Exception {
 
+        Config config = ConfigParser.parse();
+
         String path = "/tmp/test.chunk";
         
         File file = new File( path );
 
-        DefaultChunkWriter writer = new DefaultChunkWriter( null, file );
+        DefaultChunkWriter writer = new DefaultChunkWriter( config, file );
 
         writer.write( StructReaders.hashcode( "1" ),
                       StructReaders.wrap( 1 ) );

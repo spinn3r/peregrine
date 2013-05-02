@@ -17,6 +17,7 @@ import peregrine.worker.*;
 import peregrine.rpc.*;
 import peregrine.sort.*;
 import peregrine.controller.*;
+import peregrine.io.sstable.*;
 
 import org.jboss.netty.buffer.*;
 
@@ -98,9 +99,7 @@ public class Test {
         return Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
     }
 
-    private static void testMemory( int max ) {
-
-        long before = usedMemory();
+    private static void testMemtable( int max, int iterations ) throws IOException {
 
         //4000152
 
@@ -122,6 +121,7 @@ public class Test {
         }
         */
 
+        /*
         ConcurrentSkipListMap<Integer,Integer> map = new ConcurrentSkipListMap();
         
         for( int i = 0; i < max; ++i ) {
@@ -129,24 +129,84 @@ public class Test {
             map.put( i, i );
             
         }
+        */
 
-        long after = usedMemory();
-        long used = after-before;
-        double bytes_per_object = used / (double)max;
+        /*
+        ConcurrentSkipListMap<byte[],byte[]> map
+            = new ConcurrentSkipListMap( new Comparator<byte[]>() {
 
-        //System.out.printf( "used: %,d\n", (after-before) );
-        System.out.printf( "bytes per object: %f for max=%,d\n", bytes_per_object, map.size() );
+                    public int compare(byte[] b0, byte[] b1) {
+
+                        StructReader sr0 = new StructReader( b0 );
+                        StructReader sr1 = new StructReader( b1 );
+
+                        return sr0.readInt() - sr1.readInt();
+                        
+                    }
+                    
+                } );
+        
+        for( int i = 0; i < max; ++i ) {
+            map.put( StructReaders.wrap( i ).toByteArray(), StructReaders.wrap( i ).toByteArray() );
+        }
+        */
+
+        long time_before = System.currentTimeMillis();
+
+        for (int i = 0; i < iterations; ++i ) {
+
+            //long memory_before = usedMemory();
+
+            Memtable memtable = new Memtable();
+            
+            for( int j = 0; j < max; ++j ) {
+                memtable.write( StructReaders.wrap( j ), StructReaders.wrap( j ) );
+            }
+
+            /*
+            long memory_after = usedMemory();
+            long memory_used = memory_after - memory_before;
+            double bytes_per_object = memory_used / (double)max;
+
+            System.out.printf( "bytes per object:        %f\n", bytes_per_object );
+            System.out.printf( "NR records:              %,d\n", memtable.size() );
+            System.out.printf( "memory used:             %,d\n", memory_used );
+            */
+
+            long time_after = System.currentTimeMillis();
+            long duration = time_after - time_before;
+
+            int records = max * (i+1);
+            
+            int operations_per_second = (int) ( records / (duration/1000) );
+            
+            System.out.printf( "=====\n" );
+            
+            System.out.printf( "duration:                %,d ms\n", duration );
+            System.out.printf( "records:                 %,d ms\n", records );
+            System.out.printf( "ops per second:          %,d\n", operations_per_second );
+            System.out.printf( "memtable.memoryUsage:    %,d\n", memtable.memoryUsage() );
+
+        }
 
     }
     
     public static void main( String[] args ) throws Exception {
 
-        testMemory( 50000 );
-        testMemory( 500000 );
-        testMemory( 800000 );
-        testMemory( 1000000 );
+        int max = Integer.parseInt( args[0] );
+        int iterations = Integer.parseInt( args[1] );
 
+        System.out.printf( "Running with max=%,d and iterations=%,d\n", max, iterations );
         
+        testMemtable( max, iterations ) ;
+
+        //for ( String arg : args ) {
+        //}
+        
+        //testMemtable( 50000 );
+        //testMemtable( 500000 );
+        //testMemtable( 800000 );
+
         // System.out.printf( "init of velocity\n" );
 
         // //Velocity.setProperty( VelocityEngine.RESOURCE_LOADER, "class");

@@ -16,6 +16,7 @@
 package peregrine.io.chunk;
 
 import java.io.*;
+import java.util.*;
 import java.nio.channels.*;
 
 import org.jboss.netty.buffer.*;
@@ -24,6 +25,7 @@ import peregrine.*;
 import peregrine.config.*;
 import peregrine.http.*;
 import peregrine.io.*;
+import peregrine.io.sstable.*;
 import peregrine.os.*;
 import peregrine.util.*;
 import peregrine.util.netty.*;
@@ -38,31 +40,85 @@ import peregrine.util.primitive.*;
  * pairs.  First read a varint.  This will denote how many bytes to read next.
  * That will become your key.  Then read another varint, then read that many
  * bytes and that will become your value.
+ * 
+ * https://bitbucket.org/burtonator/peregrine/issue/195/design-sstable-file-layout
+ * 
  */
-public class DefaultChunkWriter implements ChunkWriter {
+public class DefaultChunkWriter extends BaseSSTableChunk implements ChunkWriter {
+
+    //FIXME: DITCH the data block and meta block metaphor.. we are storing the
+    //data blocks inline so at the END of the file we really only just have META
+    //blocks.  JUST make them blocks. 
+
+    //FIXME: this is WRONG .. the meta blocks need to go AFTER the data block
+    //because otherwise to read the Nth meta block we have to read meta N-1 meta
+    //blocks since they are variable width.  If we place them AFTER the data
+    //blocks then we can easily read the Nth block by just seeking to the end of
+    //the data block and reading the meta block off disk at that location.
+    //
+    //
+    // WRONG.. .we will STLL have the bloom filter issue.  Instead write a list
+    // of offsets and lengths that the meta blocks can be indexed.
 
     public static int BUFFER_SIZE = 16384;
-    
-    protected ChannelBufferWritable writer = null;
+
+    // default block size for writing indexed chunks
+    protected long blockSize = -1;
+
+    protected BufferedChannelBufferWritable writer = null;
 
     private int count = 0;
-
-    protected long length = 0;
 
     private boolean closed = false;
 
     private boolean shutdown = false;
 
-    public DefaultChunkWriter( ChannelBufferWritable writer ) throws IOException {
-        init( writer );
+    // the current DataBlock
+    protected DataBlock dataBlock = null;
+
+    // the current MetaBlock
+    protected MetaBlock metaBlock = null;
+
+    // the last key we saw in the whole stream.  This way we have the first key
+    // of each block as well as the last key of the entire file.
+    protected StructReader lastKey = null;
+
+    // when true, skip the index and just write a minimal chunk stream.  Minimal
+    // chunks have a -1 at the end of the stream which would normally be invalid
+    // for a minimal stream since the last four bytes is the 'count'.
+    protected boolean minimal = true;
+    
+    public DefaultChunkWriter( Config config, ChannelBufferWritable writer ) throws IOException {
+        init( config, writer );
     }
 
     public DefaultChunkWriter( Config config, File file ) throws IOException {
-        init( new MappedFileWriter( config, file ) );
+        init( config, new MappedFileWriter( config, file ) );
     }
 
-    private void init( ChannelBufferWritable writer ) {
+    private void init( Config config, ChannelBufferWritable writer ) {
+
+        if ( config == null )
+            throw new NullPointerException( "config" );
+        
         this.writer = new BufferedChannelBufferWritable( writer, BUFFER_SIZE );
+        this.blockSize = config.getSSTableBlockSize();
+    }
+
+    public void setBlockSize( long blockSize ) {
+        this.blockSize = blockSize;
+    }
+
+    public long getBlockSize() {
+        return this.blockSize;
+    }
+
+    public void setMinimal( boolean minimal ) {
+        this.minimal = minimal;
+    }
+
+    public boolean getMinimal() {
+        return this.minimal;
     }
 
     @Override
@@ -72,10 +128,18 @@ public class DefaultChunkWriter implements ChunkWriter {
         if ( closed )
             throw new IOException( "closed" );
 
-        length += write( writer, key, value );
-        
-        ++count;
+        if ( dataBlock == null || writer.length() - dataBlock.offset > blockSize ) {
+            rollover( key );
+        }
 
+        write( writer, key, value );
+
+        trailer.recordUsage += key.length() + value.length();
+        ++trailer.count;
+        ++dataBlock.count;
+        
+        lastKey = key;
+        
     }
 
     /**
@@ -84,7 +148,7 @@ public class DefaultChunkWriter implements ChunkWriter {
     public static int write( ChannelBufferWritable writer ,
                              StructReader key,
                              StructReader value ) throws IOException {
-        
+
     	int result = 0;
 
         // TODO: we have to use an atomic write so that the buffered writer can
@@ -105,22 +169,114 @@ public class DefaultChunkWriter implements ChunkWriter {
         
     }
 
-    @Override
-    public long length() {
-        return length;
+    // FIXME: I hate all these method names ... startDataBlock, etc... rewrite
+    // it all. 
+    
+    // create a new data block and add it to the data block list and return the
+    // newly created block.
+    private void startDataBlock( StructReader key ) {
+
+        // create a new datablock with teh correct first key specified.
+        dataBlock = new DataBlock( key.toByteArray() );
+        dataBlock.offset = writer.length();
+
+        dataBlocks.add( dataBlock );
+
     }
 
+    private void endDataBlock() {
+
+        //TODO: compression would go here.
+        dataBlock.length = writer.length() - dataBlock.offset;
+        dataBlock.lengthUncompressed = dataBlock.length;
+    }
+
+    // write out a new meta block file which would include bloom filter data as
+    // well as any other additional metadata.
+    private void addMetaBlockToIndex() {
+
+        startMetaBlock();
+        
+        //noop right now.  We don't have any metadata to write.
+
+        endMetaBlock();
+        
+    }
+
+    private void startMetaBlock() {
+
+        metaBlock = new MetaBlock();
+        metaBlock.offset = writer.length();
+
+        metaBlocks.add( metaBlock );
+        
+    }
+
+    private void endMetaBlock() {
+        metaBlock.length = writer.length() - metaBlock.offset;
+    }
+
+    private void rollover( StructReader key) {
+
+        endBlock();
+        
+        startDataBlock( key );
+
+    }
+
+    private void endBlock() {
+
+        if ( dataBlock != null && dataBlock.count != 0 ) {
+            endDataBlock();
+            addMetaBlockToIndex();
+        }
+
+    }
+
+    /**
+     * Perform all final operations before we actually close the writer.
+     */
     public void shutdown() throws IOException {
 
         if ( shutdown )
             return;
         
-        // last four bytes store the number of items.
+        // write trailer to store the number of items.
 
-        ChannelBuffer buff = ChannelBuffers.buffer( IntBytes.LENGTH );
-        buff.writeInt( count );
-        writer.write( buff );
-        length += IntBytes.LENGTH;
+        trailer.dataSectionLength = writer.length();
+        
+        endBlock();
+
+        if ( minimal ) {
+
+            writer.write( StructReaders.wrap( trailer.count )
+                              .getChannelBuffer() );
+            
+        } else {
+            
+            // write out file info
+            if ( lastKey != null ) {
+                fileInfo.lastKey = lastKey.toByteArray();
+            }
+
+            trailer.fileInfoOffset = writer.length();
+            fileInfo.write( writer );
+
+            trailer.indexOffset = writer.length();
+            trailer.indexCount = dataBlocks.size();
+
+            for( DataBlock db : dataBlocks ) {
+                db.write( writer );
+            }
+
+            for( MetaBlock mb : metaBlocks ) {
+                mb.write( writer );
+            }
+
+            // write the trailer
+            trailer.write( writer );
+        
+        }
 
         writer.shutdown();
         
@@ -147,4 +303,10 @@ public class DefaultChunkWriter implements ChunkWriter {
 
     }
 
+    @Override
+    public long length() {
+        return writer.length();
+    }
+
 }
+
