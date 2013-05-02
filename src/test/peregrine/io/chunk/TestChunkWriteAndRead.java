@@ -105,11 +105,10 @@ public class TestChunkWriteAndRead extends BaseTest {
             }
 
             assertNull( reader.findDataBlock( StructReaders.wrap( Long.MAX_VALUE ) ) );
-            assertNull( reader.findDataBlock( StructReaders.wrap( max * 2 ) ) );
-            assertNull( reader.findDataBlock( StructReaders.wrap( max ) ) );
+            assertNull( reader.findDataBlock( StructReaders.wrap( (long)max * 2 ) ) );
+            assertNull( reader.findDataBlock( StructReaders.wrap( (long)max ) ) );
 
-            //FIXME: I think this is supposed to pass.
-            //assertNotNull( reader.findDataBlock( StructReaders.wrap( max-1 ) ) );
+            assertNotNull( reader.findDataBlock( StructReaders.wrap( (long)max-1 ) ) );
 
         }
 
