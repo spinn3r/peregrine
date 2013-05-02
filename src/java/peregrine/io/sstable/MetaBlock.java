@@ -42,8 +42,7 @@ public class MetaBlock extends BaseBlock {
         super.write( writer );
 
         for( Record record : records ) {
-            //FIXME just call this on the raw stream from the parent... 
-            //DefaultChunkWriter.write( writer, record.getKey(), record.getValue() );
+            DefaultChunkWriter.write( writer, record.getKey(), record.getValue() );
         }
         
     }

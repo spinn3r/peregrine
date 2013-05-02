@@ -97,6 +97,10 @@ public class DefaultChunkWriter extends BaseSSTableChunk implements ChunkWriter 
     }
 
     private void init( Config config, ChannelBufferWritable writer ) {
+
+        if ( config == null )
+            throw new NullPointerException( "config" );
+        
         this.writer = new BufferedChannelBufferWritable( writer, BUFFER_SIZE );
         this.blockSize = config.getSSTableBlockSize();
     }

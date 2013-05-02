@@ -181,7 +181,7 @@ public class BaseConfig {
         setNetTcpNodelay( struct.getBoolean( "netTcpNodelay" ) );
         setNetWriteTimeout( struct.getInt( "netWriteTimeout" ) );
         setNetConnectTimeout( struct.getInt( "netConnectTimeout" ) );
-        setSSTableBlockSize( struct.getLong( "sstableBlockSize" ) );
+        setSSTableBlockSize( struct.getSize( "sstableBlockSize" ) );
 
         if ( struct.containsKey( "host" ) )
             setHost( Host.parse( struct.getString( "host" ) ) );

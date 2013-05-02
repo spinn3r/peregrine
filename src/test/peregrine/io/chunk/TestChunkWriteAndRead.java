@@ -41,9 +41,11 @@ public class TestChunkWriteAndRead extends BaseTest {
 
         System.out.printf( "Writing new chunk data.\n" );
 
+        Config config = ConfigParser.parse();
+        
         File file = new File( "/tmp/test.chunk" );
 
-        DefaultChunkWriter writer = new DefaultChunkWriter( null, file );
+        DefaultChunkWriter writer = new DefaultChunkWriter( config, file );
         writer.setBlockSize( 1000 );
         writer.setMinimal( minimal );
         
@@ -60,7 +62,7 @@ public class TestChunkWriteAndRead extends BaseTest {
         System.out.printf( "metaBlocks: \n" );
         showList( writer.getMetaBlocks() );
         
-        DefaultChunkReader reader = new DefaultChunkReader( null, file );
+        DefaultChunkReader reader = new DefaultChunkReader( config, file );
 
         int count = 0;
         
