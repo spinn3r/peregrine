@@ -146,6 +146,10 @@ tr th {
                 <td>$batch.State</td>
                 <td>$batch.Start</td>
                 <td>$batch.End</td>
+
+                <!-- started: $batch.getStarted() -->
+                <!-- duration: $batch.getDuration() -->
+                
                 </tr>
 
                 #end
@@ -235,21 +239,25 @@ $batches.addAll( $controller.getPending() )
             
             #foreach( $job in $batch.Jobs )
 
-            <tr>
-            <td class='state-$job.state'>&nbsp</td>
-            <td>$job.state</td>
-            <td>$job.operation</td>
-            <td>$job.getStartedFormatted()</td>
-            <td>$job.getDurationFormatted()</td>
-            <td><a href='?batch=$batch.identifier&job=$job.identifier'>$job.delegate.name</a></td>
-            <td class="job-metric">$job.getReport().getConsumed().getFormatted()</td>
-            <td class="job-metric" title="$job.getReport().getEmitted().getFormattedBytes()">$job.getReport().getEmitted().getFormatted()</td>
-            <td>$job.description</td>
-            </tr>
+                <tr>
+                <td class='state-$job.state'>&nbsp</td>
+                <td>$job.state</td>
+                <td>$job.operation</td>
+                <td>$job.getStartedFormatted()</td>
+                <td>$job.getDurationFormatted()</td>
+                <td><a href='?batch=$batch.identifier&job=$job.identifier'>$job.delegate.name</a></td>
+                <td class="job-metric">$job.getReport().getConsumed().getFormatted()</td>
+                <td class="job-metric" title="$job.getReport().getEmitted().getFormattedBytes()">$job.getReport().getEmitted().getFormatted()</td>
+                <td>$job.description</td>
 
-            #if( $params['job'] == $job.identifier)
-                #set( $show_job = $job )
-            #end
+                <!-- started: $job.getStarted() -->
+                <!-- duration: $job.getDuration() -->
+
+                </tr>
+
+                #if( $params['job'] == $job.identifier)
+                    #set( $show_job = $job )
+                #end
 
             #end
 
