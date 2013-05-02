@@ -46,9 +46,15 @@
     <target name="with.clover">
 
       <!-- -->
-        <clover-setup initstring="target/clover.db" flushpolicy="threaded" flushinterval="5000" >
+      <!--
+      <clover-setup initstring="target/clover.db" flushpolicy="threaded" flushinterval="5000" >
           <distributedCoverage timeout="60000"/>
-        </clover-setup>
+      </clover-setup>
+      -->
+
+      <clover-setup initstring="target/clover.db">
+
+      </clover-setup>
 
     </target>
 
@@ -570,12 +576,17 @@
 
                 <fileset dir="src/test">
 
+                  <include name="peregrine/io/chunk/TestChunkWriteAndRead.java"/>
+
+                  <!--
+                  <include name="peregrine/TestMapReduce.java"/>
+                  -->
+
                   <!-- <include name="peregrine/globalsort/TestSortViaMapReduce.java"/> -->
                   <!-- <include name="peregrine/TestCombinerWithinReduce.java"/> -->
                   <!-- <include name="peregrine/TestMapReduceWithMergeFactor.java"/> -->
                   <!-- <include name="peregrine/TestBroadcastMapReduce.java"/> -->
                   <!-- <include name="peregrine/TestDataImbalance.java"/> -->
-                  <include name="peregrine/TestMapReduce.java"/>
 
                   <!-- <include name="peregrine/TestNewReduceCode.java"/> -->
                   <!-- <include name="peregrine/TestPagerank.java"/> -->
