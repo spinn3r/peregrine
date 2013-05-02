@@ -41,8 +41,6 @@ import org.jboss.netty.buffer.*;
  */
 public class DefaultChunkReader extends BaseSSTableChunk implements SequenceReader, ChunkReader, Closeable {
     
-    //FIXME: seekTo uses the last block EVEN if the last key is too large.
-    
     // magic numbers for chunk reader files.
 
     private static Charset ASCII = Charset.forName( "ASCII" );
@@ -307,10 +305,8 @@ public class DefaultChunkReader extends BaseSSTableChunk implements SequenceRead
         if ( block == null )
             return null;
 
-        // FIXME: instead of creating a duplicate of the WHOLE
-        // DefaultChunkReader we really only need to duplicate a context object.
-
-        // FIXME: I do not think we should call duplicate() within seekTo ...
+        //TODO: I don't like how we call duplicate every time but I'm not sure
+        //of a reasonable solution here.
         
         DefaultChunkReader dup = duplicate();
         

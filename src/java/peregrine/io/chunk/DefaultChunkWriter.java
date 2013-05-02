@@ -62,8 +62,8 @@ public class DefaultChunkWriter extends BaseSSTableChunk implements ChunkWriter 
 
     public static int BUFFER_SIZE = 16384;
 
-    // default block size FIXME: this MUST be a config and per table setting.
-    protected long blockSize = 65536;
+    // default block size for writing indexed chunks
+    protected long blockSize = -1;
 
     protected BufferedChannelBufferWritable writer = null;
 
@@ -88,16 +88,17 @@ public class DefaultChunkWriter extends BaseSSTableChunk implements ChunkWriter 
     // for a minimal stream since the last four bytes is the 'count'.
     protected boolean minimal = true;
     
-    public DefaultChunkWriter( ChannelBufferWritable writer ) throws IOException {
-        init( writer );
+    public DefaultChunkWriter( Config config, ChannelBufferWritable writer ) throws IOException {
+        init( config, writer );
     }
 
     public DefaultChunkWriter( Config config, File file ) throws IOException {
-        init( new MappedFileWriter( config, file ) );
+        init( config, new MappedFileWriter( config, file ) );
     }
 
-    private void init( ChannelBufferWritable writer ) {
+    private void init( Config config, ChannelBufferWritable writer ) {
         this.writer = new BufferedChannelBufferWritable( writer, BUFFER_SIZE );
+        this.blockSize = config.getSSTableBlockSize();
     }
 
     public void setBlockSize( long blockSize ) {
