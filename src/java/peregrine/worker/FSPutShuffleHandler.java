@@ -93,7 +93,9 @@ public class FSPutShuffleHandler extends FSPutBaseHandler {
                 } else {
 
                     HttpResponse response = new DefaultHttpResponse( HTTP_1_1, OK );
-                    ctx.getChannel().write(response).addListener(ChannelFutureListener.CLOSE);
+
+                    ChannelFuture cf = ctx.getChannel().write(response);
+                    cf.addListener(ChannelFutureListener.CLOSE);
                     
                 }
 
