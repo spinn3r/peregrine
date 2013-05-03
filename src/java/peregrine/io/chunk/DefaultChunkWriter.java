@@ -169,6 +169,20 @@ public class DefaultChunkWriter extends BaseSSTableChunk implements ChunkWriter 
         
     }
 
+    private void rollover( StructReader key) {
+        endBlock();
+        startDataBlock( key );
+    }
+
+    private void endBlock() {
+
+        if ( dataBlock != null && dataBlock.count != 0 ) {
+            endDataBlock();
+            addMetaBlockToIndex();
+        }
+
+    }
+
     // FIXME: I hate all these method names ... startDataBlock, etc... rewrite
     // it all. 
     
@@ -191,18 +205,6 @@ public class DefaultChunkWriter extends BaseSSTableChunk implements ChunkWriter 
         dataBlock.lengthUncompressed = dataBlock.length;
     }
 
-    // write out a new meta block file which would include bloom filter data as
-    // well as any other additional metadata.
-    private void addMetaBlockToIndex() {
-
-        startMetaBlock();
-        
-        //noop right now.  We don't have any metadata to write.
-
-        endMetaBlock();
-        
-    }
-
     private void startMetaBlock() {
 
         metaBlock = new MetaBlock();
@@ -216,21 +218,16 @@ public class DefaultChunkWriter extends BaseSSTableChunk implements ChunkWriter 
         metaBlock.length = writer.length() - metaBlock.offset;
     }
 
-    private void rollover( StructReader key) {
+    // write out a new meta block file which would include bloom filter data as
+    // well as any other additional metadata.
+    private void addMetaBlockToIndex() {
 
-        endBlock();
+        startMetaBlock();
         
-        startDataBlock( key );
+        //noop right now.  We don't have any metadata to write.
 
-    }
-
-    private void endBlock() {
-
-        if ( dataBlock != null && dataBlock.count != 0 ) {
-            endDataBlock();
-            addMetaBlockToIndex();
-        }
-
+        endMetaBlock();
+        
     }
 
     /**
