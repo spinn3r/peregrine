@@ -45,7 +45,7 @@ public class DefaultPartitionWriter implements PartitionWriter, ChunkWriter {
     
     private List<PartitionWriterDelegate> partitionWriterDelegates;
 
-    private ChunkWriter chunkWriter = null;
+    private DefaultChunkWriter chunkWriter = null;
 
     private int chunkId = 0;
 
