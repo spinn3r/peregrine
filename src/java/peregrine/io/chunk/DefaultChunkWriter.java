@@ -46,17 +46,16 @@ import peregrine.util.primitive.*;
  */
 public class DefaultChunkWriter extends BaseSSTableChunk implements ChunkWriter {
 
-    //FIXME: DITCH the data block and meta block metaphor.. we are storing the
-    //data blocks inline so at the END of the file we really only just have META
-    //blocks.  JUST make them blocks. 
+    // FIXME: DITCH the data block and meta block metaphor.. we are storing the
+    // data blocks inline so at the END of the file we really only just have META
+    // blocks.  JUST make them blocks. 
 
-    //FIXME: this is WRONG .. the meta blocks need to go AFTER the data block
-    //because otherwise to read the Nth meta block we have to read meta N-1 meta
-    //blocks since they are variable width.  If we place them AFTER the data
-    //blocks then we can easily read the Nth block by just seeking to the end of
-    //the data block and reading the meta block off disk at that location.
-    //
-    //
+    // FIXME: this is WRONG .. the meta blocks need to go AFTER the data block
+    // because otherwise to read the Nth meta block we have to read meta N-1 meta
+    // blocks since they are variable width.  If we place them AFTER the data
+    // blocks then we can easily read the Nth block by just seeking to the end of
+    // the data block and reading the meta block off disk at that location.
+    // ...
     // WRONG.. .we will STLL have the bloom filter issue.  Instead write a list
     // of offsets and lengths that the meta blocks can be indexed.
 

@@ -238,6 +238,9 @@ public class DefaultPartitionWriter implements PartitionWriter, ChunkWriter {
         }
         
         chunkWriter = new DefaultChunkWriter( config, new MultiChannelBufferWritable( writablesPerHost ) );
+
+        // enable writing index and other SSTable features
+        chunkWriter.setMinimal( false ); 
         
         ++chunkId; // change the chunk ID now for the next file.
 
