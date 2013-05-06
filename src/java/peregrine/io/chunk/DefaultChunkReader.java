@@ -179,22 +179,26 @@ public class DefaultChunkReader extends BaseSSTableChunk implements SequenceRead
 
                     // TODO: add the last fake data block for the lastKey
 
-                    BigInteger ptr = new BigInteger( fileInfo.lastKey );
-                    ptr = ptr.add( BigInteger.valueOf( 1 ) );
+                    if ( trailer.count > 0 ) {
 
-                    byte[] pd = ptr.toByteArray();
+                        BigInteger ptr = new BigInteger( fileInfo.lastKey );
+                        ptr = ptr.add( BigInteger.valueOf( 1 ) );
+                        
+                        byte[] pd = ptr.toByteArray();
+                        
+                        // NOTE: BigInteger is conservative with padding so we have
+                        // to add any byte padding back in.
+                        if ( pd.length < fileInfo.lastKey.length ) {
+                            
+                            byte[] tmp = new byte[fileInfo.lastKey.length];
+                            System.arraycopy( pd, 0, tmp, fileInfo.lastKey.length - pd.length, pd.length );
+                            pd = tmp;
+                            
+                        }
 
-                    // NOTE: BigInteger is conservative with padding so we have
-                    // to add any byte padding back in.
-                    if ( pd.length < fileInfo.lastKey.length ) {
-
-                        byte[] tmp = new byte[fileInfo.lastKey.length];
-                        System.arraycopy( pd, 0, tmp, fileInfo.lastKey.length - pd.length, pd.length );
-                        pd = tmp;
+                        dataBlockLookup.put( new StructReader( pd ), null );
 
                     }
-
-                    dataBlockLookup.put( new StructReader( pd ), null );
 
                     for( int i = 0; i < trailer.indexCount; ++i ) {
                         MetaBlock mb = new MetaBlock();

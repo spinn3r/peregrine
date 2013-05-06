@@ -110,7 +110,8 @@ public class TestChunkWriteAndRead extends BaseTest {
             assertNull( reader.findDataBlock( StructReaders.wrap( (long)max * 2 ) ) );
             assertNull( reader.findDataBlock( StructReaders.wrap( (long)max ) ) );
 
-            assertNotNull( reader.findDataBlock( StructReaders.wrap( (long)max-1 ) ) );
+            if ( max > 0 )
+                assertNotNull( reader.findDataBlock( StructReaders.wrap( (long)max-1 ) ) );
 
         }
 
@@ -122,6 +123,10 @@ public class TestChunkWriteAndRead extends BaseTest {
      * test running with two lists which each have different values.
      */
     public void test1() throws Exception {
+
+        doTest( 0, false );
+        doTest( 0, true );
+
         doTest( 1000, false );
         doTest( 1000, true );
     }
