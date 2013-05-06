@@ -132,7 +132,6 @@ public class DefaultChunkReader extends BaseSSTableChunk implements SequenceRead
     protected DefaultChunkReader( DefaultChunkReader template ) {
 
         this.file = template.file;
-        this.reader = template.reader;
         this.length = template.length;
         this.idx = template.idx;
         this.mappedFile = template.mappedFile;
@@ -147,8 +146,12 @@ public class DefaultChunkReader extends BaseSSTableChunk implements SequenceRead
         this.dataBlockLookup = template.dataBlockLookup;
 
         // we must call duplicate on the underlying buffer so that the reader
-        // and writer indexes aren't mutated globally.
-        this.buffer = template.buffer.duplicate();
+        // and writer indexes aren't mutated globally across requests.
+
+        ChannelBuffer buff = template.buffer.duplicate();
+        
+        this.reader = new StreamReader( buff );
+        this.buffer = buff;
 
     }
 
@@ -337,16 +340,16 @@ public class DefaultChunkReader extends BaseSSTableChunk implements SequenceRead
      */
     public Record seekTo( StructReader key ) throws IOException {
 
-        DataBlock block = findDataBlock( key );
+        DefaultChunkReader dup = duplicate();
+
+        DataBlock block = dup.findDataBlock( key );
 
         if ( block == null )
             return null;
 
         //TODO: I don't like how we call duplicate every time but I'm not sure
         //of a reasonable solution here.
-        
-        DefaultChunkReader dup = duplicate();
-        
+
         dup.restrict( block );
 
         while( dup.hasNext() ) {

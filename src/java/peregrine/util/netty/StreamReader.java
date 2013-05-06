@@ -142,6 +142,12 @@ public class StreamReader implements ByteReadable {
     public int index() {
     	return buff.readerIndex();
     }
+
+    public StreamReader duplicate() {
+        StreamReader dup = new StreamReader( buff.duplicate() );
+        dup.listener = listener;
+        return dup;
+    }
     
     public StreamReaderListener getListener() { 
         return this.listener;

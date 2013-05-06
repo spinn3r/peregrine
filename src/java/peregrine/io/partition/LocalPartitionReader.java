@@ -29,7 +29,8 @@ import peregrine.rpc.*;
 import peregrine.task.*;
 
 /**
- * Read data from a partition from local storage.
+ * Read data from a partition from local storage from the given file with a set
+ * of chunks.
  */
 public class LocalPartitionReader extends BaseJobInput implements SequenceReader, JobInput {
 

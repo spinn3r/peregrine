@@ -26,6 +26,11 @@ public class Memtable implements SSTableReader, SSTableWriter {
     //capacity is deterministic.  I do NOT like the issue where where we have
     //byte[] and List<byte[]> at the same time.
     
+    //FIXME: use a MultiRecordReader to store entries.  It requries 1 byte
+    //overhead PER entry.  We just store a varint which is the length of the
+    //next record.  This way we can store N records per entry without much
+    //overhead.
+
     // There is an 80 byte overhead for objects in the memtable.
     private static final long OVERHEAD_PER_RECORD = 80;
 
