@@ -59,36 +59,38 @@ public class MapperTask extends BaseMapperTask {
 
         Mapper mapper = (Mapper)jobDelegate;
         
-        Closer closer = new Closer( reader );
+        while( reader.hasNext() ) {
 
-        try {
-
-            while( reader.hasNext() ) {
-
-                //TODO: this comparison over maxChunks is going to waste a bit
-                //of CPU so it would be nice to have a way to disable it.
-                if ( mapperChunkStreamListener.lastChunk > job.getMaxChunks() )
-                    break;
-                
-                assertActiveJob();
-                
-            	reader.next();
-
-                mapper.map( reader.key(), reader.value() );
-
-                report.getConsumed().incr();
-                
-                ++count;
-
-            }
-
-        } finally {
-            //TODO: I am pretty sure this is automatically closed.
-            closer.close();
-        }
+            //TODO: this comparison over maxChunks is going to waste a bit
+            //of CPU so it would be nice to have a way to disable it.
+            if ( mapperChunkStreamListener.lastChunk > job.getMaxChunks() )
+                break;
             
+            assertActiveJob();
+            
+        	reader.next();
+
+            mapper.map( reader.key(), reader.value() );
+
+            report.getConsumed().incr();
+            
+            ++count;
+
+        }
+        
         log.info( "Mapped %,d entries on %s on host %s from %s", count, partition, config.getHost(), reader );
 
+    }
+
+    @Override
+    public void teardown() throws IOException {
+        
+        // close the writers first
+        super.teardown();
+
+        // now close the readers.
+        new Closer( jobInput ).close();
+        
     }
 
 }

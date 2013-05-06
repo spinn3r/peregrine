@@ -152,7 +152,7 @@ public class DefaultChunkReader extends BaseSSTableChunk implements SequenceRead
         
         this.reader = new StreamReader( buff );
         this.buffer = buff;
-
+        
     }
 
     /**

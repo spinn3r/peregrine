@@ -22,6 +22,7 @@ import java.util.concurrent.*;
 import peregrine.*;
 import peregrine.config.*;
 import peregrine.io.*;
+import peregrine.io.util.*;
 import peregrine.io.driver.shuffle.*;
 import peregrine.rpc.*;
 import peregrine.shuffle.sender.*;
@@ -272,16 +273,7 @@ public abstract class BaseTask implements Task {
      */
     public void teardown() throws IOException {
 
-        //TODO: close ALL of these jobs even if one of them fails and then
-        //throw ALL exceptions.  Also we need to gossip here if it is failing
-        //talking to a remote host.
-
-        for( JobOutput current : jobOutput ) {
-            log.debug( "Closing job output: %s" , current );
-            current.close();
-        }
-
-        log.debug( "Closing job output...done" );
+        new Closer( jobOutput ).close();
 
     }
 

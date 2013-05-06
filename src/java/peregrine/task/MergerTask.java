@@ -71,7 +71,9 @@ public class MergerTask extends BaseMapperTask {
 
     @Override
     public void teardown() throws IOException {
+        // close the writers first
         super.teardown();
+        // now close the readers.
         closer.close();        
     }
 

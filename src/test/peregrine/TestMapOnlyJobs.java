@@ -16,12 +16,13 @@
 package peregrine;
 
 import java.io.*;
-import peregrine.config.Partition;
+
+import peregrine.config.*;
 import peregrine.controller.*;
 import peregrine.io.*;
 import peregrine.io.partition.*;
 
-public class TestMapOnlyJobs extends peregrine.BaseTestWithTwoDaemons {
+public class TestMapOnlyJobs extends peregrine.BaseTestWithMultipleProcesses {
 
     public static class Map extends Mapper {
 
@@ -38,6 +39,8 @@ public class TestMapOnlyJobs extends peregrine.BaseTestWithTwoDaemons {
     public void doTest() throws Exception {
 
         String path = "/test/map.only/test1";
+
+        Config config = getConfig();
         
         ExtractWriter writer = new ExtractWriter( config, path );
 
@@ -63,9 +66,9 @@ public class TestMapOnlyJobs extends peregrine.BaseTestWithTwoDaemons {
 
             controller.exec( batch );
 
-            Partition part = new Partition( 1 );
+            Partition part = new Partition( 0 );
             
-            LocalPartitionReader reader = new LocalPartitionReader( configs.get( 1 ), part, output );
+            LocalPartitionReader reader = new LocalPartitionReader( configs.get( 0 ), part, output );
 
             if ( reader.hasNext() == false )
                 throw new IOException( "nothing written" );
@@ -77,6 +80,10 @@ public class TestMapOnlyJobs extends peregrine.BaseTestWithTwoDaemons {
     }
 
     public static void main( String[] args ) throws Exception {
+
+        System.setProperty( "peregrine.test.factor", "1" ); 
+        setPropertyDefault( "peregrine.test.config", "1:1:1" ); 
+
         runTests();
     }
 

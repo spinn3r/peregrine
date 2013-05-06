@@ -148,7 +148,7 @@ public abstract class BaseMapperTask extends BaseTask implements Callable {
         return Base64.encode( SHA1.encode( String.format( "%s:%s:%s", config.getHost(), started, getPointer() ) ) );
         
     }
-    
+
     /**
      * 
      * 
