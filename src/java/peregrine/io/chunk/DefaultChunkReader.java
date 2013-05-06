@@ -91,10 +91,7 @@ public class DefaultChunkReader extends BaseSSTableChunk implements SequenceRead
         new TreeMap( new StrictStructReaderComparator() );
 
     protected boolean minimal = false;
-    
-    // used internally for duplicate()
-    protected DefaultChunkReader() {}
-    
+
     public DefaultChunkReader( ChannelBuffer buff ) {
         init( buff );
     }
@@ -128,7 +125,43 @@ public class DefaultChunkReader extends BaseSSTableChunk implements SequenceRead
 
     }
 
-    public void init( ChannelBuffer buff ) {
+    // used internally for duplicate()
+    protected DefaultChunkReader() {}
+
+    // used internally for duplicate()
+    protected DefaultChunkReader( DefaultChunkReader template ) {
+
+        this.file = template.file;
+        this.reader = template.reader;
+        this.length = template.length;
+        this.idx = template.idx;
+        this.mappedFile = template.mappedFile;
+        this.closed = template.closed;
+        this.keyOffset = template.keyOffset;
+        this.count = template.count;
+        this.readTrailer = template.readTrailer;
+        this.fileInfo = template.fileInfo;
+        this.trailer = template.trailer;
+        this.dataBlocks = template.dataBlocks;
+        this.metaBlocks = template.metaBlocks;
+        this.dataBlockLookup = template.dataBlockLookup;
+
+        // we must call duplicate on the underlying buffer so that the reader
+        // and writer indexes aren't mutated globally.
+        this.buffer = template.buffer.duplicate();
+
+    }
+
+    /**
+     * Create a new instance with the same internal members.  This way we can
+     * keep a cached index of open readers but concurrently search over them for
+     * each new request without having them step on each other.
+     */
+    public DefaultChunkReader duplicate() {
+        return new DefaultChunkReader( this );
+    }
+
+    private void init( ChannelBuffer buff ) {
 
         init( buff, new StreamReader( buff ) );
         
@@ -330,35 +363,6 @@ public class DefaultChunkReader extends BaseSSTableChunk implements SequenceRead
         
     }
 
-    /**
-     * Create a new instance with the same internal members.  This way we can
-     * keep a cached index of open readers but concurrently search over them for
-     * each new request without having them step on each other.
-     */
-    public DefaultChunkReader duplicate() {
-
-        DefaultChunkReader dup = new DefaultChunkReader();
-
-        dup.file = file;
-        dup.reader = reader;
-        dup.length = length;
-        dup.idx = idx;
-        dup.mappedFile = mappedFile;
-        dup.closed = closed;
-        dup.keyOffset = keyOffset;
-        dup.buffer = buffer;
-        dup.count = count;
-        dup.readTrailer = readTrailer;
-        dup.fileInfo = fileInfo;
-        dup.trailer = trailer;
-        dup.dataBlocks = dataBlocks;
-        dup.metaBlocks = metaBlocks;
-        dup.dataBlockLookup = dataBlockLookup;
-
-        return dup;
-        
-    }
-    
     @Override
     public StructReader key() throws IOException {
         return key;
