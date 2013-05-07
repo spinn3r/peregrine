@@ -39,7 +39,8 @@ import org.jboss.netty.buffer.*;
  * Default ChunkReader implementation which uses mmap, and supports features
  * like CRC32, etc.
  */
-public class DefaultChunkReader extends BaseSSTableChunk implements SequenceReader, ChunkReader, Closeable {
+public class DefaultChunkReader extends BaseSSTableChunk
+    implements SSTableReader, SequenceReader, ChunkReader, Closeable {
     
     // magic numbers for chunk reader files.
 
@@ -338,6 +339,7 @@ public class DefaultChunkReader extends BaseSSTableChunk implements SequenceRead
     /**
      * Find a given record with a specific key.
      */
+    @Override
     public Record seekTo( StructReader key ) throws IOException {
 
         DefaultChunkReader dup = duplicate();

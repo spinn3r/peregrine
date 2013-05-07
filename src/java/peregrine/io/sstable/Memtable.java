@@ -75,25 +75,15 @@ public class Memtable implements SSTableReader, SSTableWriter {
     }
     
     @Override
-    public boolean seekTo( StructReader key ) {
+    public Record seekTo( StructReader key ) throws IOException {
 
-        // reset the current key and value because they are invalid if this
-        // seekTo fails.
-        this.key = null;
-        this.value = null;
-        
         byte[] value = map.get( key.toByteArray() );
 
         if ( value != null ) {
-
-            this.key = key;
-            this.value = new StructReader( value );
-            
-            return true;
-            
+            return new Record( key, new StructReader( value ) );
         }
         
-        return false;
+        return null;
         
     }
 
@@ -222,7 +212,7 @@ public class Memtable implements SSTableReader, SSTableWriter {
 
             StructReader key = StructReaders.wrap( i );
 
-            if ( memtable.seekTo( key ) ) {
+            if ( memtable.seekTo( key ) != null ) {
                 ++hits;
             }
             

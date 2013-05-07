@@ -20,6 +20,6 @@ public interface SSTableReader extends SequenceReader {
      * we use the meta block information.  For Memtable we can just seek
      * directly to the key in memory.
      */
-    public boolean seekTo( StructReader key );
+    public Record seekTo( StructReader key ) throws IOException;
 
 }
