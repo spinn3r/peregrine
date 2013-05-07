@@ -351,9 +351,6 @@ public class DefaultChunkReader extends BaseSSTableChunk
         if ( block == null )
             return null;
 
-        //TODO: I don't like how we call duplicate every time but I'm not sure
-        //of a reasonable solution here.
-
         restrict( block );
 
         while( hasNext() ) {
@@ -370,6 +367,9 @@ public class DefaultChunkReader extends BaseSSTableChunk
         
     }
 
+    /**
+     * 
+     */
     @Override
     public void scan( Scan scan, ScanListener listener ) throws IOException {
 
