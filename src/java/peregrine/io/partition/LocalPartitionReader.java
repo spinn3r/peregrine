@@ -181,5 +181,11 @@ public class LocalPartitionReader extends BaseJobInput implements SequenceReader
     public int count() {
         return count;
     }
+
+    class DataBlockReference {
+
+        //private 
+        
+    }
     
 }

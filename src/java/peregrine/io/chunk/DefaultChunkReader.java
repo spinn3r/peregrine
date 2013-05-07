@@ -80,7 +80,7 @@ public class DefaultChunkReader extends BaseSSTableChunk
     private ChannelBuffer buffer = null;
 
     // the count of entries either in this block or in the entire file.  By
-    // default it's the entire file but if we call restrict() with a given
+    // default it's the entire file but if we call seekTo() with a given
     // DataBlock we update that value so hasNext() doesn't try to read past the
     // restricted block.
     private int count = 0;
@@ -331,9 +331,7 @@ public class DefaultChunkReader extends BaseSSTableChunk
      * Restrict the chunk reader hasNext and next operations to just the given
      * data block.
      */
-    protected void restrict( DataBlock block ) {
-        idx = 0;
-        count = block.count;
+    public void seekTo( DataBlock block ) {
         buffer.readerIndex( (int)block.offset );        
     }
 
@@ -351,12 +349,15 @@ public class DefaultChunkReader extends BaseSSTableChunk
         if ( block == null )
             return null;
 
-        restrict( block );
+        seekTo( block );
 
-        while( hasNext() ) {
+        int seek_idx = 0;
+        
+        while( seek_idx < block.count ) {
 
             next();
-
+            ++seek_idx;
+            
             if ( key.equals( key() ) ) {
                 return new Record( key(), value() );
             }

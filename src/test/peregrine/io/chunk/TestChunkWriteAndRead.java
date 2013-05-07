@@ -175,7 +175,7 @@ public class TestChunkWriteAndRead extends BaseTest {
 
     // get a list of StructReader between the given range (inclusive)
     private List<StructReader> range( long start, long end ) {
-
+    
         List<StructReader> result = new ArrayList();
 
         for( long i = start; i <= end; ++i ) {
