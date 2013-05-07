@@ -24,6 +24,7 @@ import peregrine.config.*;
 import peregrine.io.*;
 import peregrine.io.chunk.*;
 import peregrine.io.util.*;
+import peregrine.io.sstable.*;
 import peregrine.os.*;
 import peregrine.rpc.*;
 import peregrine.task.*;
@@ -182,9 +183,21 @@ public class LocalPartitionReader extends BaseJobInput implements SequenceReader
         return count;
     }
 
+    // contains a data block and a chunk reference and all the metadata needed
+    // to find a data block and seekTo the position of a key and optionally
+    // scan.
     class DataBlockReference {
 
-        //private 
+        // keeps a pointer to the chunk this data block is stored 
+        protected DefaultChunkReader reader = null;
+
+        // the position in the main chunk reader list so that we can call
+        // subList and get a new iterator for this and all subsequent chunks.
+        protected int idx = -1;
+
+        // the data block for this reference.  Used so that we can call seekTo
+        // within the actual chunk.
+        protected DataBlock dataBlock = null;
         
     }
     

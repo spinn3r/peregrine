@@ -202,6 +202,8 @@ public class TestChunkWriteAndRead extends BaseTest {
         // empty chunk reader
         // at end of chunk reader
 
+        // FIXME: large LIMIT ... 
+        
         Scan scan;
         
         // ********* no start / no end.
