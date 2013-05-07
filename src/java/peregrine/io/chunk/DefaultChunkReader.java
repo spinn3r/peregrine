@@ -376,10 +376,12 @@ public class DefaultChunkReader extends BaseSSTableChunk
         // position us to the starting key if necessary.
         if ( scan.getStart() != null ) {
 
+            // seek to the start and return if we dont' find it.
             if ( seekTo( scan.getStart().key() ) == null ) {
                 return;
             }
 
+            // if it isn't inclusive skip over it.
             if ( scan.getStart().isInclusive() == false ) {
 
                 if ( hasNext() ) {
@@ -402,25 +404,35 @@ public class DefaultChunkReader extends BaseSSTableChunk
         }
 
         int found = 0;
+        boolean finished = false;
         
         while( true ) {
-
-            listener.onRecord( key(), value() );
-            ++found;
 
             // respect the limit on the number of items to return.
             if ( found >= scan.getLimit() ) {
                 return;
             }
 
-            if ( hasNext() ) {
+            if ( scan.getEnd() != null ) {
 
-                next();
+                if ( key().equals( scan.getEnd().key() ) ) {
 
-                if ( scan.getEnd() != null ) {
-
+                    if ( scan.getEnd().isInclusive() == false ) {
+                        return;
+                    } else {
+                        // emit the last key and then return.
+                        finished = true;
+                    }
+                    
                 }
                 
+            }
+
+            listener.onRecord( key(), value() );
+            ++found;
+
+            if ( hasNext() && finished == false ) {
+                next();
             } else {
                 return;
             } 

@@ -203,26 +203,65 @@ public class TestChunkWriteAndRead extends BaseTest {
         // at end of chunk reader
 
         Scan scan;
+        
+        // ********* no start / no end.
 
-        // with start at the first key.
+        scan = new Scan();
+        scan.setLimit( 10 );
+        doTestScan( scan, 1000, range( 0, 9 ) );
+
+        // ********* no start / end inclusive
+        scan = new Scan();
+        scan.setEnd( StructReaders.wrap( 1L ), true );
+        scan.setLimit( 10 );
+        doTestScan( scan, 1000, range( 0, 1 ) );
+
+        // ********* no start / end exclusive
+
+        scan = new Scan();
+        scan.setEnd( StructReaders.wrap( 1L ), false );
+        scan.setLimit( 10 );
+        doTestScan( scan, 1000, range( 0, 0 ) );
+
+        // ********* start inclusive / no end
         scan = new Scan();
         scan.setStart( StructReaders.wrap( 0L ), true );
         scan.setLimit( 10 );
-
         doTestScan( scan, 1000, range( 0, 9 ) );
 
-        // with start at the second key.
+        // ********* start inclusive / end inclusive.
         scan = new Scan();
         scan.setStart( StructReaders.wrap( 1L ), true );
+        scan.setEnd( StructReaders.wrap( 2L ), true );
         scan.setLimit( 10 );
+        doTestScan( scan, 1000, range( 1, 2 ) );
 
+        // ********* start inclusive / end exclusive
+        scan = new Scan();
+        scan.setStart( StructReaders.wrap( 1L ), true );
+        scan.setEnd( StructReaders.wrap( 2L ), false );
+        scan.setLimit( 10 );
+        doTestScan( scan, 1000, range( 1, 1 ) );
+
+        // ********* start exclusive / no end
+        scan = new Scan();
+        scan.setStart( StructReaders.wrap( 0L ), false );
+        scan.setLimit( 10 );
         doTestScan( scan, 1000, range( 1, 10 ) );
 
-        // with no start or end.
+        // ********* start exclusive / end exclusive.
         scan = new Scan();
+        scan.setStart( StructReaders.wrap( 1L ), false );
+        scan.setEnd( StructReaders.wrap( 2L ), true );
         scan.setLimit( 10 );
+        doTestScan( scan, 1000, range( 2, 2 ) );
 
-        doTestScan( scan, 1000, range( 0, 9 ) );
+        // ********* start exclusive / end exclusive
+        scan = new Scan();
+        scan.setStart( StructReaders.wrap( 1L ), false );
+        scan.setEnd( StructReaders.wrap( 3L ), false );
+        scan.setLimit( 10 );
+        doTestScan( scan, 1000, range( 2, 2 ) );
 
     }
     
