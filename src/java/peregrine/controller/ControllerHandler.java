@@ -101,6 +101,8 @@ public class ControllerHandler extends DefaultChannelUpstreamHandler {
 
         if ( handler != null ) {
             handler.messageReceived( ctx, e );
+        } else {
+            sendError(ctx, NOT_FOUND);
         }
 
     }
