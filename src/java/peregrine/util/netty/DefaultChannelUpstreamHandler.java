@@ -43,6 +43,12 @@ public class DefaultChannelUpstreamHandler extends SimpleChannelUpstreamHandler 
 
     public HttpRequest request;
 
+    protected Config config;
+
+    public DefaultChannelUpstreamHandler( Config config ) {
+        this.config = config;
+    }
+
     @Override
     public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
 
@@ -100,6 +106,37 @@ public class DefaultChannelUpstreamHandler extends SimpleChannelUpstreamHandler 
         ctx.getChannel().write(response).addListener(ChannelFutureListener.CLOSE);
 
     }
-    
+
+    protected String sanitizeUri(String rootDirectory, String uri) throws java.net.URISyntaxException {
+
+        // TODO: I believe this is actually wrong and that we have to try
+        // ISO-8601 first according to the HTTP spec but I need to research this
+        // problem.
+
+        try {
+
+            uri = URLDecoder.decode(uri, "UTF-8");
+
+        } catch (UnsupportedEncodingException e) {
+
+            try {
+                uri = URLDecoder.decode(uri, "ISO-8859-1");
+            } catch (UnsupportedEncodingException e1) {
+                throw new Error();
+            }
+
+        }
+
+        if ( uri.contains( "../" ) || uri.contains( "/.." ) )
+            return null;
+
+        if ( ! uri.startsWith( "/" ) )
+            return null;
+        
+        // Convert to absolute path on the filesytem.
+        return rootDirectory + new URI( uri ).getPath();
+        
+    }
+
 }
 

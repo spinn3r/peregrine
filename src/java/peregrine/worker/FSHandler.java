@@ -57,9 +57,9 @@ public class FSHandler extends DefaultChannelUpstreamHandler {
 
     protected FSDaemon daemon;
     
-    public FSHandler( Config config,
-                      FSDaemon daemon ) {
+    public FSHandler( Config config, FSDaemon daemon ) {
 
+        super( config );
         this.daemon = daemon;
         this.config = config;
 
@@ -83,11 +83,9 @@ public class FSHandler extends DefaultChannelUpstreamHandler {
             // log EVERY request no matter the source.
             log.debug( "%s: %s", method, request.getUri() );
 
-            path = request.getUri();
-
-            path = sanitizeUri( path );
+            path = sanitizeUri( config.getRoot(), request.getUri() );
             
-            if ( path == null || ! path.startsWith( "/" ) ) {
+            if ( path == null ) {
                 sendError(ctx, FORBIDDEN);
                 return;
             }
@@ -117,7 +115,7 @@ public class FSHandler extends DefaultChannelUpstreamHandler {
             }
             
             if ( method == GET ) {
-                upstream = new FSGetDirectHandler( daemon, this );
+                upstream = new FSGetDirectHandler( daemon, this, path );
             }
 
             // this method needs pipelining... 
@@ -247,34 +245,6 @@ public class FSHandler extends DefaultChannelUpstreamHandler {
         }
 
     }
-    
-    private String sanitizeUri(String uri) throws java.net.URISyntaxException {
 
-        // TODO: I believe this is actually wrong and that we have to try
-        // ISO-8601 first according to the HTTP spec but I need to research this
-        // problem.
-
-        try {
-
-            uri = URLDecoder.decode(uri, "UTF-8");
-
-        } catch (UnsupportedEncodingException e) {
-
-            try {
-                uri = URLDecoder.decode(uri, "ISO-8859-1");
-            } catch (UnsupportedEncodingException e1) {
-                throw new Error();
-            }
-
-        }
-
-        if ( uri.contains( "../" ) || uri.contains( "/.." ) )
-            return null;
-
-        // Convert to absolute path.
-        return config.getRoot() + new URI( uri ).getPath();
-        
-    }
-    
 }
 
