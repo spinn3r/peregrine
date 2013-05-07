@@ -8,6 +8,9 @@ import peregrine.*;
  */
 public interface ScanListener {
 
+    /**
+     * Called when a scan finds a new record.
+     */
     public void onRecord( StructReader key, StructReader value );
     
 }

@@ -38,16 +38,21 @@ public class LocalPartitionReader extends BaseJobInput implements SequenceReader
 
     private List<DefaultChunkReader> chunkReaders = new ArrayList();
 
+    // iterator to handle 
     private Iterator<DefaultChunkReader> iterator = null;
 
+    // the current chunk reader we are on.
     private DefaultChunkReader chunkReader = null;
 
+    // true when we have another record to read
     private boolean hasNext = false;
 
+    // the partition we're reading from.
     private Partition partition;
     
     private ChunkReference chunkRef;
 
+    // the count of all records across all chunks for the given file.
     private int count = -1;
     
     public LocalPartitionReader( Config config,

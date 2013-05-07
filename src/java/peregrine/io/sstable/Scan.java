@@ -16,7 +16,7 @@ public class Scan {
 
     private Bound end = null;
 
-    private int limit = -1;
+    private int limit = 10;
 
     public void setStart( StructReader key, boolean inclusive ) {
         this.start = new Bound( key, inclusive );
@@ -45,16 +45,24 @@ public class Scan {
         this.limit = limit;
     }
     
-    class Bound {
+    public class Bound {
 
-        public StructReader key;
-        public boolean inclusive;
+        private StructReader key;
+        private boolean inclusive;
 
         public Bound( StructReader key, boolean inclusive ) {
             this.key = key;
             this.inclusive = inclusive;
         }
 
+        public StructReader key() {
+            return key;
+        }
+
+        public boolean isInclusive() {
+            return inclusive;
+        }
+        
     }
     
 }

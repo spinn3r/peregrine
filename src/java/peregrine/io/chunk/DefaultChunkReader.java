@@ -91,6 +91,7 @@ public class DefaultChunkReader extends BaseSSTableChunk
     protected TreeMap<StructReader,DataBlock> dataBlockLookup =
         new TreeMap( new StrictStructReaderComparator() );
 
+    // true when we are in minimal and non-indexed mode.
     protected boolean minimal = false;
 
     public DefaultChunkReader( ChannelBuffer buff ) {
@@ -342,9 +343,10 @@ public class DefaultChunkReader extends BaseSSTableChunk
     @Override
     public Record seekTo( StructReader key ) throws IOException {
 
-        DefaultChunkReader dup = duplicate();
-
-        DataBlock block = dup.findDataBlock( key );
+        this.key = null;
+        this.value = null;
+        
+        DataBlock block = findDataBlock( key );
 
         if ( block == null )
             return null;
@@ -352,20 +354,79 @@ public class DefaultChunkReader extends BaseSSTableChunk
         //TODO: I don't like how we call duplicate every time but I'm not sure
         //of a reasonable solution here.
 
-        dup.restrict( block );
+        restrict( block );
 
-        while( dup.hasNext() ) {
+        while( hasNext() ) {
 
-            dup.next();
+            next();
 
-            if ( key.equals( dup.key() ) ) {
-                return new Record( dup.key(), dup.value() );
+            if ( key.equals( key() ) ) {
+                return new Record( key(), value() );
             }
             
         }
 
         return null;
         
+    }
+
+    @Override
+    public void scan( Scan scan, ScanListener listener ) throws IOException {
+
+        // position us to the starting key if necessary.
+        if ( scan.getStart() != null ) {
+
+            if ( seekTo( scan.getStart().key() ) == null ) {
+                return;
+            }
+
+            if ( scan.getStart().isInclusive() == false ) {
+
+                if ( hasNext() ) {
+                    next();
+                } else {
+                    return;
+                }
+
+            }
+
+        } else if ( hasNext() ) {
+
+            // there is no start key so start at the beginning of the chunk
+            // reader.
+            next();
+            
+        } else {
+            // no start key and this DefaultChunkReader is empty.
+            return;
+        }
+
+        int found = 0;
+        
+        while( true ) {
+
+            listener.onRecord( key(), value() );
+            ++found;
+
+            // respect the limit on the number of items to return.
+            if ( found >= scan.getLimit() ) {
+                return;
+            }
+
+            if ( hasNext() ) {
+
+                next();
+
+                if ( scan.getEnd() != null ) {
+
+                }
+                
+            } else {
+                return;
+            } 
+
+        }
+
     }
 
     @Override

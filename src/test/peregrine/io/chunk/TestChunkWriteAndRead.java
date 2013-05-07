@@ -17,6 +17,7 @@ package peregrine.io.chunk;
 
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.atomic.*;
 
 import peregrine.*;
 import peregrine.config.*;
@@ -26,6 +27,7 @@ import peregrine.io.*;
 import peregrine.io.partition.*;
 import peregrine.io.chunk.*;
 import peregrine.io.util.*;
+import peregrine.io.sstable.*;
 
 public class TestChunkWriteAndRead extends BaseTest {
 
@@ -37,7 +39,7 @@ public class TestChunkWriteAndRead extends BaseTest {
         
     }
 
-    private void doTest( int max, boolean minimal ) throws Exception {
+    private void doTestSeekTo( int max, boolean minimal ) throws Exception {
 
         System.out.printf( "Writing new chunk data.\n" );
 
@@ -110,8 +112,9 @@ public class TestChunkWriteAndRead extends BaseTest {
             assertNull( reader.findDataBlock( StructReaders.wrap( (long)max * 2 ) ) );
             assertNull( reader.findDataBlock( StructReaders.wrap( (long)max ) ) );
 
-            if ( max > 0 )
+            if ( max > 0 ) {
                 assertNotNull( reader.findDataBlock( StructReaders.wrap( (long)max-1 ) ) );
+            }
 
         }
 
@@ -122,15 +125,107 @@ public class TestChunkWriteAndRead extends BaseTest {
     /**
      * test running with two lists which each have different values.
      */
-    public void test1() throws Exception {
+    public void testSeekTo() throws Exception {
 
-        doTest( 0, false );
-        doTest( 0, true );
+        doTestSeekTo( 0, false );
+        doTestSeekTo( 0, true );
 
-        doTest( 1000, false );
-        doTest( 1000, true );
+        doTestSeekTo( 1000, false );
+        doTestSeekTo( 1000, true );
     }
 
+    private void doTestScan( Scan scan, int max, List<StructReader> keys ) throws IOException {
+
+        File file = new File( "/tmp/test.chunk" );
+
+        Config config = ConfigParser.parse();
+
+        DefaultChunkWriter writer = new DefaultChunkWriter( config, file );
+        writer.setBlockSize( 1000 );
+        writer.setMinimal( false );
+
+        for( long i = 0; i < max; ++i ) {
+            writer.write( StructReaders.wrap( i ), StructReaders.wrap( i ) );
+        }
+        
+        writer.close();
+
+        DefaultChunkReader reader = new DefaultChunkReader( config, file );
+
+        final List<StructReader> found = new ArrayList();
+        
+        reader.scan( scan, new ScanListener() {
+
+                @Override
+                public void onRecord( StructReader key, StructReader value ) {
+
+                    System.out.printf( "  scan.onRecord: key=%s\n", Hex.encode( key ) );
+
+                    found.add( key );
+
+                }
+
+            } );
+
+        assertEquals( found , keys );
+
+        reader.close();
+
+    }
+
+    // get a list of StructReader between the given range (inclusive)
+    private List<StructReader> range( long start, long end ) {
+
+        List<StructReader> result = new ArrayList();
+
+        for( long i = start; i <= end; ++i ) {
+            result.add( StructReaders.wrap( i ) );
+        }
+
+        return result;
+        
+    }
+
+    public void testScan() throws Exception {
+
+        // we have to test the powerset of all possible options
+        //
+        // no start
+        // start inclusive
+        // start exclusive
+        //
+        // no end
+        // end inclusive
+        // end exclusive
+        //
+        // beginning of chunk reader
+        // empty chunk reader
+        // at end of chunk reader
+
+        Scan scan;
+
+        // with start at the first key.
+        scan = new Scan();
+        scan.setStart( StructReaders.wrap( 0L ), true );
+        scan.setLimit( 10 );
+
+        doTestScan( scan, 1000, range( 0, 9 ) );
+
+        // with start at the second key.
+        scan = new Scan();
+        scan.setStart( StructReaders.wrap( 1L ), true );
+        scan.setLimit( 10 );
+
+        doTestScan( scan, 1000, range( 1, 10 ) );
+
+        // with no start or end.
+        scan = new Scan();
+        scan.setLimit( 10 );
+
+        doTestScan( scan, 1000, range( 0, 9 ) );
+
+    }
+    
     public static void main( String[] args ) throws Exception {
         runTests();
     }

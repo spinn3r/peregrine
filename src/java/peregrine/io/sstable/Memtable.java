@@ -88,6 +88,11 @@ public class Memtable implements SSTableReader, SSTableWriter {
     }
 
     @Override
+    public void scan( Scan scan, ScanListener listener ) throws IOException {
+        throw new RuntimeException( "not implemented" );
+    }
+
+    @Override
     public boolean hasNext() {
         return iterator.hasNext();
     }
