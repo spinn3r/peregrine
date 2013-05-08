@@ -16,7 +16,7 @@
 package peregrine.io.partition;
 
 import java.io.*;
-
+import java.math.*;
 import java.util.*;
 
 import peregrine.*;
@@ -28,6 +28,7 @@ import peregrine.io.sstable.*;
 import peregrine.os.*;
 import peregrine.rpc.*;
 import peregrine.task.*;
+import peregrine.sort.*;
 
 /**
  * Read data from a partition from local storage from the given file with a set
@@ -55,7 +56,9 @@ public class LocalPartitionReader extends BaseJobInput implements SequenceReader
 
     // the count of all records across all chunks for the given file.
     private int count = -1;
-    
+
+    protected TreeMap<StructReader,DataBlockReference> dataBlockLookup = null;
+
     public LocalPartitionReader( Config config,
                                  Partition partition,
                                  String path ) throws IOException {
@@ -94,9 +97,60 @@ public class LocalPartitionReader extends BaseJobInput implements SequenceReader
         for( ChunkReader reader : chunkReaders ) {
             count += reader.count();
         }
+
+        dataBlockLookup = buildDataBlockIndex();
         
     }
 
+    private TreeMap<StructReader,DataBlockReference> buildDataBlockIndex() {
+
+        TreeMap<StructReader,DataBlockReference> result = new TreeMap( new StrictStructReaderComparator() );
+
+        // build the index of the ChunkReaders.
+
+        byte[] lastKey = new byte[0];
+        
+        for ( int idx = 0; idx < chunkReaders.size(); ++idx ) {
+
+            DefaultChunkReader current = chunkReaders.get( idx );
+            
+            for( DataBlock db : current.getDataBlocks() ) {
+
+                DataBlockReference ref = new DataBlockReference();
+                ref.reader = current;
+                ref.idx = idx;
+                ref.dataBlock = db;
+
+                result.put( StructReaders.wrap( db.firstKey ), ref );
+            }
+
+            if ( current.getTrailer().getCount() > 0 ) {
+                lastKey = current.getFileInfo().getLastKey();
+            }
+            
+        }
+
+        BigInteger ptr = new BigInteger( lastKey );
+        ptr = ptr.add( BigInteger.valueOf( 1 ) );
+        
+        byte[] pd = ptr.toByteArray();
+        
+        // NOTE: BigInteger is conservative with padding so we have
+        // to add any byte padding back in.
+        if ( pd.length < lastKey.length ) {
+            
+            byte[] tmp = new byte[lastKey.length];
+            System.arraycopy( pd, 0, tmp, lastKey.length - pd.length, pd.length );
+            pd = tmp;
+            
+        }
+        
+        result.put( new StructReader( pd ), null );
+
+        return result;
+                    
+    }
+    
     public List<DefaultChunkReader> getDefaultChunkReaders() {
         return chunkReaders;
     }
