@@ -130,9 +130,6 @@ public class DefaultChannelUpstreamHandler extends SimpleChannelUpstreamHandler 
         if ( uri.contains( "../" ) || uri.contains( "/.." ) )
             return null;
 
-        if ( ! uri.startsWith( "/" ) )
-            return null;
-        
         // Convert to absolute path on the filesytem.
         return rootDirectory + new URI( uri ).getPath();
         
