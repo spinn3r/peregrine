@@ -137,6 +137,7 @@ $batches.addAll( $controller.getPending() )
 
             <tr>
             <th></th>
+            <th></th>
             <th>state</th>
             <th>operation</th>
             <th>started</th>
@@ -148,10 +149,15 @@ $batches.addAll( $controller.getPending() )
             </tr>
 
             <hr/>
+
+            #set ( $i = 0 )
             
             #foreach( $job in $batch.Jobs )
 
+                #set ( $i = $i + 1 )
+
                 <tr>
+                <td>$i.</td>
                 <td class='state-$job.state'>&nbsp</td>
                 <td>$job.state</td>
                 <td>$job.operation</td>
