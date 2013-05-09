@@ -119,7 +119,7 @@ public class LocalPartitionReader extends BaseJobInput
 
         // build the index of the ChunkReaders.
 
-        byte[] lastKey = new byte[0];
+        byte[] lastKey = null;
         
         for ( int idx = 0; idx < chunkReaders.size(); ++idx ) {
 
@@ -141,23 +141,27 @@ public class LocalPartitionReader extends BaseJobInput
             
         }
 
-        BigInteger ptr = new BigInteger( lastKey );
-        ptr = ptr.add( BigInteger.valueOf( 1 ) );
+        if ( lastKey != null ) {
         
-        byte[] pd = ptr.toByteArray();
-        
-        // NOTE: BigInteger is conservative with padding so we have
-        // to add any byte padding back in.
-        if ( pd.length < lastKey.length ) {
+            BigInteger ptr = new BigInteger( lastKey );
+            ptr = ptr.add( BigInteger.valueOf( 1 ) );
             
-            byte[] tmp = new byte[lastKey.length];
-            System.arraycopy( pd, 0, tmp, lastKey.length - pd.length, pd.length );
-            pd = tmp;
+            byte[] pd = ptr.toByteArray();
             
-        }
-        
-        result.put( new StructReader( pd ), null );
+            // NOTE: BigInteger is conservative with padding so we have
+            // to add any byte padding back in.
+            if ( pd.length < lastKey.length ) {
+                
+                byte[] tmp = new byte[lastKey.length];
+                System.arraycopy( pd, 0, tmp, lastKey.length - pd.length, pd.length );
+                pd = tmp;
+                
+            }
+            
+            result.put( new StructReader( pd ), null );
 
+        }
+            
         return result;
                     
     }
@@ -197,13 +201,89 @@ public class LocalPartitionReader extends BaseJobInput
         // continue forward.
         iterator = chunkReaders.subList( ref.idx, chunkReaders.size() ).iterator();
 
-        return ref.reader.seekTo( key, ref.dataBlock );
+        // update the chunk ref that we're working with.
+        chunkRef = new ChunkReference( partition, ref.idx );
+        
+        Record result = ref.reader.seekTo( key, ref.dataBlock );
+
+        if ( result != null ) {
+            this.key = result.getKey();
+            this.value = result.getValue();
+        }
+
+        return result;
         
     }
 
     @Override
     public void scan( Scan scan, ScanListener listener ) throws IOException {
-        throw new RuntimeException( "FIXME: not implemented yet" );
+
+        // position us to the starting key if necessary.
+        if ( scan.getStart() != null ) {
+
+            // seek to the start and return if we dont' find it.
+            if ( seekTo( scan.getStart().key() ) == null ) {
+                return;
+            }
+
+            // if it isn't inclusive skip over it.
+            if ( scan.getStart().isInclusive() == false ) {
+
+                if ( hasNext() ) {
+                    next();
+                } else {
+                    return;
+                }
+
+            }
+
+        } else if ( hasNext() ) {
+
+            // there is no start key so start at the beginning of the chunk
+            // reader.
+            next();
+            
+        } else {
+            // no start key and this DefaultChunkReader is empty.
+            return;
+        }
+
+        int found = 0;
+        boolean finished = false;
+        
+        while( true ) {
+
+            // respect the limit on the number of items to return.
+            if ( found >= scan.getLimit() ) {
+                return;
+            }
+
+            if ( scan.getEnd() != null ) {
+
+                if ( key().equals( scan.getEnd().key() ) ) {
+
+                    if ( scan.getEnd().isInclusive() == false ) {
+                        return;
+                    } else {
+                        // emit the last key and then return.
+                        finished = true;
+                    }
+                    
+                }
+                
+            }
+
+            listener.onRecord( key(), value() );
+            ++found;
+
+            if ( hasNext() && finished == false ) {
+                next();
+            } else {
+                return;
+            } 
+
+        }
+
     }
 
     public List<DefaultChunkReader> getDefaultChunkReaders() {

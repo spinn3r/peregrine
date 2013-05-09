@@ -25,9 +25,7 @@ import peregrine.util.*;
 
 public class TestSSTableSupport extends peregrine.BaseTestWithMultipleProcesses {
 
-    public void doTest() throws Exception {
-
-        long max = 1000;
+    public void doTestSeekTo( int max ) throws Exception {
 
         String path = "/tmp/test";
 
@@ -88,6 +86,15 @@ public class TestSSTableSupport extends peregrine.BaseTestWithMultipleProcesses 
 
         reader.close();
 
+    }
+
+    public void doTest() throws Exception {
+
+        doTestSeekTo( 0 );
+        doTestSeekTo( 100 );
+        doTestSeekTo( 1000 );
+        doTestSeekTo( 10000 );
+        
     }
 
     public static void main( String[] args ) throws Exception {
