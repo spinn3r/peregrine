@@ -96,29 +96,19 @@ public class HttpClient implements ChannelBufferWritable {
      */
     protected HttpRequest request;
 
-    /**
-     * True when the open method has been called.
-     */
+    // True when the open method has been called.
     private boolean opened = false;
 
-    /**
-     * Request that we close the connection.
-     */
+    // Request that we close the connection.
     private boolean closed = false;
 
-    /**
-     * True while we are closing.
-     */
+    // True while we are closing.
     private boolean closing = false;
     
-    /**
-     * The cause of a failure.
-     */
+    // The cause of a failure.
     protected Throwable cause = null;
 
-    /**
-     * Clear to directly send a packet. 
-     */
+    // Clear to directly send a packet. 
     protected SimpleBlockingQueue<Boolean> clearToSend = new SimpleBlockingQueue();
 
     /**
