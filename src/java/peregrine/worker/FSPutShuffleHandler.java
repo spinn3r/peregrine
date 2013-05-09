@@ -30,6 +30,7 @@ import peregrine.util.primitive.IntBytes;
 import peregrine.shuffle.receiver.*;
 
 /**
+ * Handles HTTP PUT shuffle messages.
  */
 public class FSPutShuffleHandler extends FSPutBaseHandler {
 
