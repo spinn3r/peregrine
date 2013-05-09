@@ -21,10 +21,12 @@ import java.util.regex.*;
 
 import org.jboss.netty.buffer.*;
 import org.jboss.netty.channel.*;
+import org.jboss.netty.handler.codec.http.*;
 
 import peregrine.*;
 import peregrine.config.*;
 import peregrine.http.*;
+import peregrine.io.chunk.*;
 
 import com.spinn3r.log5j.*;
 
@@ -42,6 +44,8 @@ public class Get {
     private Connection connection;
 
     private Config config;
+
+    private HttpClient client = null;
     
     public Get( Config config, Connection connection ) {
         this.config = config;
@@ -51,11 +55,16 @@ public class Get {
     /**
      * Execute the get request. 
      */
-    public void exec() {
+    public void exec() throws IOException {
 
         // TODO: - create an HTTP client and submit the request.
 
         //  HttpClient client = new HttpClient(
+
+        client = new HttpClient( config, connection.getEndpoint() );
+        client.setMethod( HttpMethod.GET );
+
+        client.open();
 
     }
 
@@ -66,12 +75,25 @@ public class Get {
         return records;
     }
     
-    public void waitFor() {
+    public void waitFor() throws IOException {
 
-        // - read the data
         // - stick it in a chunk reader
         // - parse it into key/value pairs.
         //
+
+        // read the data
+        client.close();
+        
+        ChannelBuffer buff = client.getResult();
+
+        DefaultChunkReader reader = new DefaultChunkReader( buff );
+
+        while( reader.hasNext() ) {
+            reader.next();
+            records.add( new Record( reader.key(), reader.value() ) );
+        }
+        
+        reader.close();
 
     }
 

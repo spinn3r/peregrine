@@ -18,6 +18,7 @@ import peregrine.rpc.*;
 import peregrine.sort.*;
 import peregrine.controller.*;
 import peregrine.io.sstable.*;
+import peregrine.http.*;
 
 import org.jboss.netty.buffer.*;
 
@@ -29,6 +30,8 @@ import java.nio.charset.Charset;
 
 import org.apache.velocity.app.*;
 import org.apache.velocity.*;
+
+import org.jboss.netty.handler.codec.http.*;
 
 public class Test {
 
@@ -193,12 +196,26 @@ public class Test {
     
     public static void main( String[] args ) throws Exception {
 
-        int max = Integer.parseInt( args[0] );
-        int iterations = Integer.parseInt( args[1] );
+        Config config = ConfigParser.parse();
 
-        System.out.printf( "Running with max=%,d and iterations=%,d\n", max, iterations );
+        HttpClient client = new HttpClient( config , "http://www.cnn.com:80/" );
+        client.setMethod( HttpMethod.GET );
+
+        client.open();
         
-        testMemtable( max, iterations ) ;
+        //client.write( "hello world".getBytes() );
+        client.close();
+        
+        ChannelBuffer buff = client.getResult();
+
+        System.err.printf( "FIXME: %s\n", buff );
+        
+        // int max = Integer.parseInt( args[0] );
+        // int iterations = Integer.parseInt( args[1] );
+
+        // System.out.printf( "Running with max=%,d and iterations=%,d\n", max, iterations );
+        
+        // testMemtable( max, iterations ) ;
 
         //for ( String arg : args ) {
         //}

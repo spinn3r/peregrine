@@ -190,7 +190,11 @@ public class HttpClient implements ChannelBufferWritable {
 
         request.setHeader( HttpHeaders.Names.USER_AGENT, HttpClient.class.getName() );
         request.setHeader( HttpHeaders.Names.HOST, host );
-        request.setHeader( HttpHeaders.Names.TRANSFER_ENCODING, "chunked" );
+
+        if ( HttpMethod.PUT.equals( method ) ) {
+            // only do HTTP chunked encoding for HTTP PUT.
+            request.setHeader( HttpHeaders.Names.TRANSFER_ENCODING, "chunked" );
+        }
 
         request.setHeader( X_TAG, "" + tag++ );
 
@@ -204,12 +208,15 @@ public class HttpClient implements ChannelBufferWritable {
         if ( ! initialized ) init();
     }
 
-    private void open() throws IOException {
+    public void open() throws IOException {
 
         requireInit();
         
         String host = uri.getHost();
         int port = uri.getPort();
+
+        if ( port == -1 )
+            port = 80;
         
         // Configure the client.
         ClientBootstrap bootstrap = new BootstrapFactory( config ).newClientBootstrap( socketChannelFactory );
@@ -251,10 +258,6 @@ public class HttpClient implements ChannelBufferWritable {
      */
     public HttpResponse getResponse() {
         return response;
-    }
-    
-    public void write( byte[] data ) throws IOException {
-        write( ChannelBuffers.wrappedBuffer( data ) );
     }
 
     public void failed( Throwable throwable ) throws Exception {
@@ -492,7 +495,11 @@ public class HttpClient implements ChannelBufferWritable {
         return result;
         
     }
-    
+
+    public void write( byte[] data ) throws IOException {
+        write( ChannelBuffers.wrappedBuffer( data ) );
+    }
+
     public void write( ChannelBuffer data ) throws IOException {
 
         if ( ! closing && data.writerIndex() == 0 )
@@ -617,7 +624,7 @@ public class HttpClient implements ChannelBufferWritable {
 
         public void operationComplete( ChannelFuture future ) 
             throws Exception {
-                    	
+
         	if ( ! future.isSuccess() ) {
         		client.failed( future.getCause() );           
         		return;
