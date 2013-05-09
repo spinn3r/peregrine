@@ -83,15 +83,6 @@ public class FSHandler extends DefaultChannelUpstreamHandler {
             // log EVERY request no matter the source.
             log.debug( "%s: %s", method, request.getUri() );
 
-            path = request.getUri();
-
-            path = sanitizeUri( path );
-            
-            if ( path == null || ! path.startsWith( "/" ) ) {
-                sendError(ctx, FORBIDDEN);
-                return;
-            }
-
             if ( method == PUT ) {
 
                 URI uri = new URI( request.getUri() );
@@ -117,7 +108,29 @@ public class FSHandler extends DefaultChannelUpstreamHandler {
             }
             
             if ( method == GET ) {
+
+                // TODO: see if this is a client request... 
+
+                FSClientEndpointHandler endpointHandler = new FSClientEndpointHandler( daemon, this );
+
+                if ( endpointHandler.handles( request.getUri() ) ) {
+                    
+                    endpointHandler.messageReceived( ctx, e );
+                    return;
+                    
+                }
+
+                // this is a direct request for a while , serve it directly ...
+                path = request.getUri();
+                path = sanitizeUri( path );
+                
+                if ( path == null || ! path.startsWith( "/" ) ) {
+                    sendError(ctx, FORBIDDEN);
+                    return;
+                }
+
                 upstream = new FSGetDirectHandler( daemon, this );
+                
             }
 
             // this method needs pipelining... 

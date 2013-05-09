@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
 */
-package peregrine.worker;
+package peregrine.client;
 
 import java.util.*;
 import java.io.*;
@@ -36,6 +36,8 @@ import com.spinn3r.log5j.*;
  * then waitFor() to get the results back.  
  */
 public class Get {
+    
+    private String source = null;
     
     private List<StructReader> keys = null;
 
@@ -61,7 +63,9 @@ public class Get {
 
         //  HttpClient client = new HttpClient(
 
-        client = new HttpClient( config, connection.getEndpoint() );
+        String resource = String.format( "%s/client-rpc/GET?source=%s", connection.getEndpoint(), source );
+        
+        client = new HttpClient( config, resource );
         client.setMethod( HttpMethod.GET );
 
         client.open();
@@ -101,11 +105,12 @@ public class Get {
         return this.keys;
     }
 
-    /**
-     * Set the keys you would like to fetch. 
-     */
-    public void setKeys( List<StructReader> keys ) { 
-        this.keys = keys;
+    public String getSource() { 
+        return this.source;
     }
-    
+
+    public void setSource( String source ) { 
+        this.source = source;
+    }
+
 }

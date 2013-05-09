@@ -19,6 +19,7 @@ import static org.jboss.netty.handler.codec.http.HttpResponseStatus.*;
 import static org.jboss.netty.handler.codec.http.HttpVersion.*;
 
 import java.io.*;
+import java.net.*;
 import java.util.regex.*;
 
 import org.jboss.netty.buffer.*;
@@ -55,8 +56,10 @@ import com.spinn3r.log5j.*;
  * <p>
  * The worker then sends requests to the partition servers as:
  * 
- * <p><code>/0/client-rpc/GET?path=/pr/out/test&key=KEY1&key=KEY2</code>
- * 
+ * <p><code>/0/client-rpc/GET?path=/pr/out/test&key=KEY1</code>
+ *
+ * <p>Where KEY1 is routed to partition 0.
+ *
  * <p> This request is prefixed with the partition involved in solving this
  * query.  The worker then writes the response as a set of key/value pairs with
  * minimal encoding.  The client endpoint then aggregates these packets and
@@ -67,21 +70,35 @@ import com.spinn3r.log5j.*;
  * where we involve ALL workers hosting these keys in parallel.
  * 
  */
-public class FSClientHandler extends ErrorLoggingChannelUpstreamHandler {
+public class FSClientEndpointHandler extends ErrorLoggingChannelUpstreamHandler {
 
     protected static final Logger log = Logger.getLogger();
 
     private static Pattern PATH_REGEX =
-        Pattern.compile( "/([0-9]+)/client-rpc/(GET|SCAN|MUTATE)" );
+        Pattern.compile( "/client-rpc/(GET|SCAN|MUTATE)" );
 
-    public FSClientHandler( FSDaemon daemon, FSHandler handler ) throws Exception {
+    public FSClientEndpointHandler( FSDaemon daemon, FSHandler handler ) throws Exception {
 
+    }
+
+    public boolean handles( String uri ) {
+        return PATH_REGEX.matcher( uri ).find();
     }
 
     @Override
     public void messageReceived( ChannelHandlerContext ctx, MessageEvent e ) throws Exception {
 
         try {
+
+            log.info( "Received client RPC: %s", "FIXME" );
+
+            // TODO: take all the client specified keys and pass HTTP requests
+            // on the chain so that we can execute the query for the client.
+            
+            Channel channel = e.getChannel();
+
+            HttpResponse response = new DefaultHttpResponse( HTTP_1_1, OK );
+            channel.write(response);
 
         } catch ( Exception exc ) {
             // catch all exceptions and then bubble them up.

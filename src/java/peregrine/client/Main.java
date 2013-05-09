@@ -15,33 +15,42 @@
 */
 package peregrine.client;
 
+import java.util.*;
 import java.io.*;
 import java.util.regex.*;
 
 import org.jboss.netty.buffer.*;
 import org.jboss.netty.channel.*;
+import org.jboss.netty.handler.codec.http.*;
 
 import peregrine.*;
+import peregrine.config.*;
+import peregrine.http.*;
+import peregrine.io.chunk.*;
+import peregrine.util.*;
 
 import com.spinn3r.log5j.*;
 
 /**
- * Run a get request for the given keys.
+ * Command line client interface.
  */
-public class Connection {
+public class Main {
     
-    private String endpoint = null;
+    public static void main( String[] args ) throws Exception {
 
-    public Connection( String endpoint ) {
-        this.endpoint = endpoint;
-    }
+        Getopt getopt = new Getopt( args );
 
-    public String getEndpoint() { 
-        return this.endpoint;
-    }
+        getopt.require( "endpoint", "source" );
+        
+        Config config = ConfigParser.parse( args );
 
-    public void setEndpoint( String endpoint ) { 
-        this.endpoint = endpoint;
+        Connection conn = new Connection( getopt.getString( "endpoint" ) );
+
+        Get get = new Get( config, conn );
+
+        get.exec();
+        get.waitFor();
+        
     }
 
 }
