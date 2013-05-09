@@ -208,7 +208,6 @@
                   <exclude name="peregrine/TestChunkWriterCloseOnReferenceCount.java"/>
                   <exclude name="peregrine/TestWorkerFailureDuringJob.java"/>
                   <exclude name="peregrine/TestWikirank.java"/>
-                  <exclude name="peregrine/io/chunk/TestChunkWriteAndRead.java"/>
                   
                 </fileset>
 
@@ -316,8 +315,6 @@
 
                   <exclude name="peregrine/TestWorkerFailureDuringJob.java"/>
                   <exclude name="peregrine/TestWikirank.java"/>
-
-
 
                 </fileset>
 
@@ -579,8 +576,6 @@
 
                 <fileset dir="src/test">
 
-                  <include name="peregrine/io/chunk/TestChunkWriteAndRead.java"/>
-
                   <!--
                   <include name="peregrine/TestMapReduce.java"/>
                   -->
@@ -698,5 +693,4 @@
     </target>
 
 </project>
-
 
