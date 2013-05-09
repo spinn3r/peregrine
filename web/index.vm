@@ -9,13 +9,15 @@ http://strongriley.github.io/d3/ex/chord.html
 
 <link rel="stylesheet" href="/default.css"></link>
 
+<script src="sorttable.js"></script>
+
 </head>
 
 #macro(show_batch $items $identifier)
 
     #if( $items.size() > 0 )
 
-    <table width="100%">
+    <table class="sortable" width="100%">
 
     <tr>
     <th></th>
@@ -133,7 +135,7 @@ $batches.addAll( $controller.getPending() )
 
             #end
 
-            <table width="100%">
+            <table class="sortable" width="100%">
 
             <tr>
             <th></th>
@@ -164,8 +166,17 @@ $batches.addAll( $controller.getPending() )
                 <td>$job.getStartedFormatted()</td>
                 <td>$job.getDurationFormatted()</td>
                 <td><a href='?batch=$batch.identifier&job=$job.identifier'>$job.delegate.name</a></td>
-                <td class="job-metric">$job.getReport().getConsumed().getFormatted()</td>
-                <td class="job-metric" title="$job.getReport().getEmitted().getFormattedBytes()">$job.getReport().getEmitted().getFormatted()</td>
+
+                <td class="job-metric" sorttable_customkey="$job.getReport().getConsumed().get()">$job.getReport().getConsumed().getFormatted()</td>
+
+                <td class="job-metric"
+                    sorttable_customkey="$job.getReport().getEmitted().get()"
+                    title="$job.getReport().getEmitted().getFormattedBytes()">
+
+                  $job.getReport().getEmitted().getFormatted()
+
+                </td>
+
                 <td>$job.description</td>
 
                 <!-- started: $job.getStarted() -->
