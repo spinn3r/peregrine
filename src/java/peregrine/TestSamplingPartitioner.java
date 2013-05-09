@@ -21,17 +21,7 @@ import com.sun.jna.Pointer;
 
 import com.spinn3r.log5j.Logger;
 
-import org.apache.cassandra.thrift.*;
-import org.apache.cassandra.hadoop.*;
-import org.apache.cassandra.thrift.*;
-import org.apache.cassandra.utils.*;
-import org.apache.cassandra.db.*;
-
 import java.nio.charset.Charset;
-
-// needed so that we can configure the InputFormat for Cassandra
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.mapreduce.*;
 
 public class TestSamplingPartitioner {
     
