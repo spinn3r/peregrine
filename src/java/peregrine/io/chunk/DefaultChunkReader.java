@@ -40,7 +40,7 @@ import org.jboss.netty.buffer.*;
  * like CRC32, etc.
  */
 public class DefaultChunkReader extends BaseSSTableChunk
-    implements SSTableReader, SequenceReader, ChunkReader, Closeable {
+    implements SequenceReader, ChunkReader, Closeable {
     
     // magic numbers for chunk reader files.
 
@@ -327,35 +327,10 @@ public class DefaultChunkReader extends BaseSSTableChunk
 
     }
 
-    /**
-     * Seek the to the block given so that we can find the given key.
-     */
-    public void seekTo( DataBlock block ) {
-        buffer.readerIndex( (int)block.offset );        
-    }
-
-    /**
-     * Find a given record with a specific key.
-     */
-    @Override
-    public Record seekTo( StructReader key ) throws IOException {
-
-        this.key = null;
-        this.value = null;
-        
-        DataBlock block = findDataBlock( key );
-
-        if ( block == null )
-            return null;
-
-        return seekTo( key, block );
-        
-    }
-        
     public Record seekTo( StructReader key, DataBlock block ) throws IOException {
 
         // position us at the beginning of the block.
-        seekTo( block );
+        buffer.readerIndex( (int)block.offset );        
 
         int seek_idx = 0;
         
@@ -372,80 +347,6 @@ public class DefaultChunkReader extends BaseSSTableChunk
 
         return null;
         
-    }
-
-    /**
-     * 
-     */
-    @Override
-    public void scan( Scan scan, ScanListener listener ) throws IOException {
-
-        // position us to the starting key if necessary.
-        if ( scan.getStart() != null ) {
-
-            // seek to the start and return if we dont' find it.
-            if ( seekTo( scan.getStart().key() ) == null ) {
-                return;
-            }
-
-            // if it isn't inclusive skip over it.
-            if ( scan.getStart().isInclusive() == false ) {
-
-                if ( hasNext() ) {
-                    next();
-                } else {
-                    return;
-                }
-
-            }
-
-        } else if ( hasNext() ) {
-
-            // there is no start key so start at the beginning of the chunk
-            // reader.
-            next();
-            
-        } else {
-            // no start key and this DefaultChunkReader is empty.
-            return;
-        }
-
-        int found = 0;
-        boolean finished = false;
-        
-        while( true ) {
-
-            // respect the limit on the number of items to return.
-            if ( found >= scan.getLimit() ) {
-                return;
-            }
-
-            if ( scan.getEnd() != null ) {
-
-                if ( key().equals( scan.getEnd().key() ) ) {
-
-                    if ( scan.getEnd().isInclusive() == false ) {
-                        return;
-                    } else {
-                        // emit the last key and then return.
-                        finished = true;
-                    }
-                    
-                }
-                
-            }
-
-            listener.onRecord( key(), value() );
-            ++found;
-
-            if ( hasNext() && finished == false ) {
-                next();
-            } else {
-                return;
-            } 
-
-        }
-
     }
 
     @Override
