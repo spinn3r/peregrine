@@ -27,7 +27,7 @@ public class TestSSTableSupport extends peregrine.BaseTestWithMultipleProcesses 
 
     public void doTest() throws Exception {
 
-        long max = 100;
+        long max = 1000;
 
         String path = "/tmp/test";
 
@@ -66,27 +66,28 @@ public class TestSSTableSupport extends peregrine.BaseTestWithMultipleProcesses 
         reader.close();
 
         assertEquals( max, found );
-        
-        // // STEP 2: make sure we have LOTS of chunks on disk.
-        
-        // List<DefaultChunkReader> readers = LocalPartition.getChunkReaders( configs.get( 0 ), part, path );
 
-        // System.out.printf( "We have %,d readers\n", readers.size() );
-        
-        // assertTrue( readers.size() >= 1 ) ;
+        // reopen it to test again.
+        reader = new LocalPartitionReader( configs.get( 0 ), part, path );
 
-        // // now create another PartitionWriter this time try to overwrite the
-        // // existing file and all chunks should be removed.
-        
-        // writer = new DefaultPartitionWriter( config, part, path );
-        // writer.close();
+        for( long i = 0; i < max; ++i ) {
 
-        // readers = LocalPartition.getChunkReaders( config, part, path );
+            Record record = reader.seekTo( StructReaders.wrap( i ) );
 
-        // System.out.printf( "We have %,d readers\n", readers.size() );
-        
-        // assertEquals( 0, readers.size() ) ;
-        
+            assertNotNull( record );
+
+        }
+
+        assertNull( reader.findDataBlockReference( StructReaders.wrap( Long.MAX_VALUE ) ) );
+        assertNull( reader.findDataBlockReference( StructReaders.wrap( (long)max * 2 ) ) );
+        assertNull( reader.findDataBlockReference( StructReaders.wrap( (long)max ) ) );
+
+        if ( max > 0 ) {
+            assertNotNull( reader.findDataBlockReference( StructReaders.wrap( (long)max-1 ) ) );
+        }
+
+        reader.close();
+
     }
 
     public static void main( String[] args ) throws Exception {

@@ -328,8 +328,7 @@ public class DefaultChunkReader extends BaseSSTableChunk
     }
 
     /**
-     * Restrict the chunk reader hasNext and next operations to just the given
-     * data block.
+     * Seek the to the block given so that we can find the given key.
      */
     public void seekTo( DataBlock block ) {
         buffer.readerIndex( (int)block.offset );        
@@ -349,6 +348,13 @@ public class DefaultChunkReader extends BaseSSTableChunk
         if ( block == null )
             return null;
 
+        return seekTo( key, block );
+        
+    }
+        
+    public Record seekTo( StructReader key, DataBlock block ) throws IOException {
+
+        // position us at the beginning of the block.
         seekTo( block );
 
         int seek_idx = 0;

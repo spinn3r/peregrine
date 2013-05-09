@@ -34,10 +34,13 @@ import peregrine.sort.*;
  * Read data from a partition from local storage from the given file with a set
  * of chunks.
  */
-public class LocalPartitionReader extends BaseJobInput implements SequenceReader, JobInput {
+public class LocalPartitionReader extends BaseJobInput
+    implements SSTableReader, SequenceReader, JobInput {
 
+    // the path this file was opened with.
     private String path = null;
 
+    // ALL chunks we have for this reader.
     private List<DefaultChunkReader> chunkReaders = new ArrayList();
 
     // iterator to handle 
@@ -51,14 +54,22 @@ public class LocalPartitionReader extends BaseJobInput implements SequenceReader
 
     // the partition we're reading from.
     private Partition partition;
-    
+
+    // the current chunk we are working with.
     private ChunkReference chunkRef;
 
     // the count of all records across all chunks for the given file.
     private int count = -1;
 
+    // the index of data blocks for seekTo and scan support.
     protected TreeMap<StructReader,DataBlockReference> dataBlockLookup = null;
 
+    // the current key we are working with.
+    private StructReader key = null;
+
+    // the current value we are working with
+    private StructReader value = null;
+    
     public LocalPartitionReader( Config config,
                                  Partition partition,
                                  String path ) throws IOException {
@@ -150,7 +161,51 @@ public class LocalPartitionReader extends BaseJobInput implements SequenceReader
         return result;
                     
     }
-    
+
+    /**
+     * Find the data block reference that could potentially hold the given key
+     * so that I can find it within the given DefaultChunkReader.
+     */
+    protected DataBlockReference findDataBlockReference( StructReader key ) {
+        
+        Map.Entry<StructReader,DataBlockReference> entry = dataBlockLookup.floorEntry(key);
+
+        if ( entry == null )
+            return null;
+
+        return entry.getValue();
+
+    }
+
+    /**
+     * Find a given record with a specific key.
+     */
+    @Override
+    public Record seekTo( StructReader key ) throws IOException {
+
+        this.key = null;
+        this.value = null;
+        
+        DataBlockReference ref = findDataBlockReference( key );
+        
+        if ( ref == null )
+            return null;
+
+        chunkReader = ref.reader;
+
+        // set the iterator to ALL chunkReader including the current one and
+        // continue forward.
+        iterator = chunkReaders.subList( ref.idx, chunkReaders.size() ).iterator();
+
+        return ref.reader.seekTo( key, ref.dataBlock );
+        
+    }
+
+    @Override
+    public void scan( Scan scan, ScanListener listener ) throws IOException {
+        throw new RuntimeException( "FIXME: not implemented yet" );
+    }
+
     public List<DefaultChunkReader> getDefaultChunkReaders() {
         return chunkReaders;
     }
@@ -188,16 +243,20 @@ public class LocalPartitionReader extends BaseJobInput implements SequenceReader
     @Override
     public void next() throws IOException {
        	chunkReader.next();    	
+
+        this.key = chunkReader.key();
+        this.value = chunkReader.value();
+        
     }
     
     @Override
     public StructReader key() throws IOException {
-        return chunkReader.key();
+        return key;
     }
 
     @Override
     public StructReader value() throws IOException {
-        return chunkReader.value();
+        return value;
     }
 
     @Override
