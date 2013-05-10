@@ -191,7 +191,7 @@ public class HttpClient implements ChannelBufferWritable {
         request.setHeader( HttpHeaders.Names.USER_AGENT, HttpClient.class.getName() );
         request.setHeader( HttpHeaders.Names.HOST, host );
 
-        if ( HttpMethod.PUT.equals( method ) ) {
+        if ( HttpMethod.PUT.equals( method ) || HttpMethod.POST.equals( method ) ) {
             // only do HTTP chunked encoding for HTTP PUT.
             request.setHeader( HttpHeaders.Names.TRANSFER_ENCODING, "chunked" );
         }
