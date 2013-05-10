@@ -17,6 +17,8 @@ package peregrine.io.partition;
 
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.atomic.*;
+
 import peregrine.*;
 import peregrine.config.*;
 import peregrine.io.chunk.*;
@@ -93,9 +95,18 @@ public class TestSSTableSupport extends peregrine.BaseTestWithMultipleProcesses 
             assertNotNull( reader.findDataBlockReference( StructReaders.wrap( (long)max-1 ) ) );
         }
 
-        List<Record> all_records = reader.seekTo( range( 0, max - 1 ) );
+        final AtomicInteger result = new AtomicInteger();
+        
+        reader.seekTo( range( 0, max - 1 ), new RecordListener() {
 
-        assertEquals( max, all_records.size() );
+                @Override
+                public void onRecord( StructReader key, StructReader value ) {
+                    result.getAndIncrement();
+                }
+
+            } );
+
+        assertEquals( max, result.get() );
         
         reader.close();
 
@@ -113,7 +124,7 @@ public class TestSSTableSupport extends peregrine.BaseTestWithMultipleProcesses 
 
         final List<StructReader> found = new ArrayList();
         
-        reader.scan( scan, new ScanListener() {
+        reader.scan( scan, new RecordListener() {
 
                 @Override
                 public void onRecord( StructReader key, StructReader value ) {

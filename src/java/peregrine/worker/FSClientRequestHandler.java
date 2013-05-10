@@ -93,22 +93,24 @@ public class FSClientRequestHandler extends ErrorLoggingChannelUpstreamHandler {
         String path = decoder.getParameters().get( "source" ).get( 0 );
         
         LocalPartitionReader reader = null;
-
+        DefaultChunkWriter writer = null;
+        
         try {
 
             reader = new LocalPartitionReader( config, part, path );
-
+            //writer = new DefaultChunkWriter( config , path, 
+            
             reader.seekTo( keys, new RecordListener() {
 
                     @Override
                     public void onRecord( StructReader key, StructReader value ) {
-
+                        // write this out over the wire now.
                     }
                     
                 } );
             
         } finally {
-            new Closer( reader ).close();
+            new Closer( writer, reader ).close();
         }
 
     }
