@@ -48,6 +48,8 @@ public class Main {
 
         Get get = new Get( config, conn );
 
+        get.setHashcode( getopt.getBoolean( "hashcode" ) );
+        
         get.exec();
         get.waitFor();
         

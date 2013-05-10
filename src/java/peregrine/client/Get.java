@@ -27,6 +27,7 @@ import peregrine.*;
 import peregrine.config.*;
 import peregrine.http.*;
 import peregrine.io.chunk.*;
+import peregrine.util.*;
 
 import com.spinn3r.log5j.*;
 
@@ -36,6 +37,8 @@ import com.spinn3r.log5j.*;
  * then waitFor() to get the results back.  
  */
 public class Get {
+    
+    private boolean hashcode = false;
     
     private String source = null;
     
@@ -59,11 +62,31 @@ public class Get {
      */
     public void exec() throws IOException {
 
-        // TODO: - create an HTTP client and submit the request.
+        // create an HTTP client and submit the request.
 
-        //  HttpClient client = new HttpClient(
+        StringBuilder buff = new StringBuilder( 200 );
+        buff.append( String.format( "%s/client-rpc/GET?source=%s", connection.getEndpoint(), source ) );
 
-        String resource = String.format( "%s/client-rpc/GET?source=%s", connection.getEndpoint(), source );
+        List<String> args = new ArrayList();
+
+        // add comma separated base64 encoded keys.
+        buff.append( "k=" );
+
+        for( int i = 0; i < keys.size(); ++i ) {
+
+            StructReader key = keys.get( i );
+            
+            if ( hashcode )
+                key = StructReaders.hashcode( key.toByteArray() );
+
+            if ( i > 0 )
+                buff.append( "," );
+            
+            buff.append( Base64.encode( key.toByteArray() ) );
+
+        }
+
+        String resource = buff.toString();
         
         client = new HttpClient( config, resource );
         client.setMethod( HttpMethod.GET );
@@ -111,6 +134,18 @@ public class Get {
 
     public void setSource( String source ) { 
         this.source = source;
+    }
+
+    /**
+     * When true, the input keys need to be hashed before we send them in the
+     * request.
+     */
+    public boolean getHashcode() { 
+        return this.hashcode;
+    }
+
+    public void setHashcode( boolean hashcode ) { 
+        this.hashcode = hashcode;
     }
 
 }

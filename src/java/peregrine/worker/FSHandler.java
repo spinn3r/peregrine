@@ -83,6 +83,20 @@ public class FSHandler extends DefaultChannelUpstreamHandler {
             // log EVERY request no matter the source.
             log.debug( "%s: %s", method, request.getUri() );
 
+            // FIXME: path should NOT be here ... it really isn't used by
+            // EVERYTHING and certain FAKE RPC requests are not actually files
+            // on disk.  I think instead we should have a getLocalPath() method
+            // finds the file on disk.
+            
+            // this is a direct request for a while , serve it directly ...
+            path = request.getUri();
+            path = sanitizeUri( path );
+            
+            if ( path == null || ! path.startsWith( "/" ) ) {
+                sendError(ctx, FORBIDDEN);
+                return;
+            }
+
             if ( method == PUT ) {
 
                 URI uri = new URI( request.getUri() );
@@ -118,15 +132,6 @@ public class FSHandler extends DefaultChannelUpstreamHandler {
                     endpointHandler.messageReceived( ctx, e );
                     return;
                     
-                }
-
-                // this is a direct request for a while , serve it directly ...
-                path = request.getUri();
-                path = sanitizeUri( path );
-                
-                if ( path == null || ! path.startsWith( "/" ) ) {
-                    sendError(ctx, FORBIDDEN);
-                    return;
                 }
 
                 upstream = new FSGetDirectHandler( daemon, this );

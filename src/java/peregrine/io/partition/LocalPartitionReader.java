@@ -182,33 +182,80 @@ public class LocalPartitionReader extends BaseJobInput
     }
 
     /**
+     * Convenience method for working with a single key.
+     */
+    protected Record seekTo( StructReader key ) throws IOException {
+
+        List<StructReader> keys = new ArrayList();
+        keys.add( key );
+        
+        List<Record> result = seekTo( keys );
+
+        if ( result.size() == 1 ) {
+            return result.get( result.size() - 1 );
+        }
+
+        return null;
+        
+    }
+
+    /**
      * Find a given record with a specific key.
      */
     @Override
-    public Record seekTo( StructReader key ) throws IOException {
+    public List<Record> seekTo( List<StructReader> keys ) throws IOException {
 
         this.key = null;
         this.value = null;
+
+        Map<DataBlockReference,List<StructReader>> lookup = new TreeMap(); 
         
-        DataBlockReference ref = findDataBlockReference( key );
+        for( StructReader key : keys ) {
+
+            DataBlockReference ref = findDataBlockReference( key );
+
+            // this key isn't indexed so no need to check.
+            if ( ref == null )
+                continue;
+
+            List<StructReader> keysForReference = lookup.get( ref );
+
+            if ( keysForReference == null ) {
+                keysForReference = new ArrayList();
+                lookup.put( ref, keysForReference );
+            }
+
+            keysForReference.add( key );
+            
+        }
+
+        List<Record> result = new ArrayList();
         
-        if ( ref == null )
-            return null;
+        for( DataBlockReference ref : lookup.keySet() ) {
 
-        chunkReader = ref.reader;
+            chunkReader = ref.reader;
 
-        // set the iterator to ALL chunkReader including the current one and
-        // continue forward.
-        iterator = chunkReaders.subList( ref.idx, chunkReaders.size() ).iterator();
+            // set the iterator to ALL chunkReader including the current one and
+            // continue forward.
+            iterator = chunkReaders.subList( ref.idx, chunkReaders.size() ).iterator();
 
-        // update the chunk ref that we're working with.
-        chunkRef = new ChunkReference( partition, ref.idx );
-        
-        Record result = ref.reader.seekTo( key, ref.dataBlock );
+            // update the chunk ref that we're working with.
+            chunkRef = new ChunkReference( partition, ref.idx );
 
-        if ( result != null ) {
-            this.key = result.getKey();
-            this.value = result.getValue();
+            List<StructReader> refKeys = lookup.get( ref );
+            
+            List<Record> records = ref.reader.seekTo( refKeys, ref.dataBlock );
+
+            result.addAll( records );
+            
+        }
+
+        if ( result.size() > 0 ) {
+
+            Record last = result.get( result.size() - 1 );
+            
+            this.key = last.getKey();
+            this.value = last.getValue();
         }
 
         return result;
@@ -218,6 +265,12 @@ public class LocalPartitionReader extends BaseJobInput
     @Override
     public void scan( Scan scan, ScanListener listener ) throws IOException {
 
+        // FIXME: we can't use JUST seekTo to jump to the DefaultChunkReader
+        // position because the block will be decompressed temporarily during
+        // seekTo and THEN we're going to read it again.  We should probably
+        // keep at least ONE block in memory at a time to improve performance of
+        // scan.
+        
         // position us to the starting key if necessary.
         if ( scan.getStart() != null ) {
 
@@ -379,7 +432,7 @@ public class LocalPartitionReader extends BaseJobInput
     // contains a data block and a chunk reference and all the metadata needed
     // to find a data block and seekTo the position of a key and optionally
     // scan.
-    class DataBlockReference {
+    class DataBlockReference implements Comparable<DataBlockReference> {
 
         // keeps a pointer to the chunk this data block is stored 
         protected DefaultChunkReader reader = null;
@@ -391,6 +444,11 @@ public class LocalPartitionReader extends BaseJobInput
         // the data block for this reference.  Used so that we can call seekTo
         // within the actual chunk.
         protected DataBlock dataBlock = null;
+
+        // the order doesn't really matter as long as it's deterministic.
+        public int compareTo( DataBlockReference db ) {
+            return hashCode() - db.hashCode();
+        }
         
     }
     

@@ -88,9 +88,6 @@ public class DefaultChunkReader extends BaseSSTableChunk
     // When true, parse the number of items we are holding.
     private boolean readTrailer = true;
 
-    protected TreeMap<StructReader,DataBlock> dataBlockLookup =
-        new TreeMap( new StrictStructReaderComparator() );
-
     // true when we are in minimal and non-indexed mode.
     protected boolean minimal = false;
 
@@ -145,7 +142,6 @@ public class DefaultChunkReader extends BaseSSTableChunk
         this.trailer = template.trailer;
         this.dataBlocks = template.dataBlocks;
         this.metaBlocks = template.metaBlocks;
-        this.dataBlockLookup = template.dataBlockLookup;
 
         // we must call duplicate on the underlying buffer so that the reader
         // and writer indexes aren't mutated globally across requests.
@@ -211,31 +207,6 @@ public class DefaultChunkReader extends BaseSSTableChunk
                         DataBlock db = new DataBlock();
                         db.read( buff );
                         dataBlocks.add( db );
-
-                        dataBlockLookup.put( StructReaders.wrap( db.firstKey ), db );
-                    }
-
-                    // TODO: add the last fake data block for the lastKey
-
-                    if ( trailer.count > 0 ) {
-
-                        BigInteger ptr = new BigInteger( fileInfo.lastKey );
-                        ptr = ptr.add( BigInteger.valueOf( 1 ) );
-                        
-                        byte[] pd = ptr.toByteArray();
-                        
-                        // NOTE: BigInteger is conservative with padding so we have
-                        // to add any byte padding back in.
-                        if ( pd.length < fileInfo.lastKey.length ) {
-                            
-                            byte[] tmp = new byte[fileInfo.lastKey.length];
-                            System.arraycopy( pd, 0, tmp, fileInfo.lastKey.length - pd.length, pd.length );
-                            pd = tmp;
-                            
-                        }
-
-                        dataBlockLookup.put( new StructReader( pd ), null );
-
                     }
 
                     for( int i = 0; i < trailer.indexCount; ++i ) {
@@ -314,38 +285,43 @@ public class DefaultChunkReader extends BaseSSTableChunk
     }
 
     /**
-     * Find the data block that could potentially hold the given key.
+     * Fetch all the keys in the given DataBlock.
      */
-    protected DataBlock findDataBlock( StructReader key ) {
+    public List<Record> seekTo( List<StructReader> keys, DataBlock block ) throws IOException {
+
+        List<Record> result = new ArrayList();
+
+        if ( keys.size() == 0 )
+            return result;
         
-        Map.Entry<StructReader,DataBlock> entry = dataBlockLookup.floorEntry(key);
-
-        if ( entry == null )
-            return null;
-
-        return entry.getValue();
-
-    }
-
-    public Record seekTo( StructReader key, DataBlock block ) throws IOException {
-
         // position us at the beginning of the block.
         buffer.readerIndex( (int)block.offset );        
 
         int seek_idx = 0;
+
+        // the key we should be looking for...
+        StructReader find = keys.remove( 0 );
         
         while( seek_idx < block.count ) {
 
             next();
             ++seek_idx;
             
-            if ( key.equals( key() ) ) {
-                return new Record( key(), value() );
+            if ( find.equals( key() ) ) {
+
+                result.add( new Record( key(), value() ) );
+
+                if ( keys.size() > 0 ) {
+                    find = keys.remove( 0 );
+                } else {
+                    break;
+                }
+
             }
             
         }
 
-        return null;
+        return result;
         
     }
 

@@ -75,21 +75,23 @@ public class Memtable implements SSTableReader, SSTableWriter {
     }
     
     @Override
-    public Record seekTo( StructReader key ) throws IOException {
+    public List<Record> seekTo( List<StructReader> key ) throws IOException {
 
-        byte[] value = map.get( key.toByteArray() );
+        // byte[] value = map.get( key.toByteArray() );
 
-        if ( value != null ) {
-            return new Record( key, new StructReader( value ) );
-        }
+        // if ( value != null ) {
+        //     return new Record( key, new StructReader( value ) );
+        // }
         
-        return null;
+        // return null;
+
+        throw new RuntimeException( "FIXME: not implemented" );
         
     }
 
     @Override
     public void scan( Scan scan, ScanListener listener ) throws IOException {
-        throw new RuntimeException( "not implemented" );
+        throw new RuntimeException( "FIXME: not implemented" );
     }
 
     @Override
@@ -199,46 +201,6 @@ public class Memtable implements SSTableReader, SSTableWriter {
             return v1.length - v2.length;
         }
 
-    }
-
-    public static void main( String[] args ) throws Exception {
-
-        Memtable memtable = new Memtable();
-
-        int max = 100;
-        
-        for( long i = 0; i < max; i = i + 2 ) {
-            memtable.write( StructReaders.wrap( i ), StructReaders.wrap( i ) );
-        }
-
-        int hits = 0;
-
-        for( long i = 0; i < max; i = i + 2 ) {
-
-            StructReader key = StructReaders.wrap( i );
-
-            if ( memtable.seekTo( key ) != null ) {
-                ++hits;
-            }
-            
-        }
-
-        System.out.printf( "hits: %,d for max %,d\n", hits, max );
-
-        int found = 0;
-        
-        memtable.first();
-        
-        while( memtable.hasNext() ) {
-
-            memtable.next();
-
-            ++found;
-            
-        }
-
-        System.err.printf( "found: %s\n", found );
-        
     }
 
 }

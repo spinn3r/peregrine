@@ -16,16 +16,15 @@ import peregrine.os.*;
 public interface SSTableReader extends SequenceReader {
 
     /**
-     * <p>
-     * Seek to a given key by using the SSTable index.  For disk based indexes
-     * we use the meta block information.  For Memtable we can just seek
-     * directly to the key in memory.
+     * <p> Seek to a given key (or keys) by using the SSTable index.  For disk
+     * based indexes we use the meta block information.  For Memtable we can
+     * just seek directly to the key in memory and read it from the internal
+     * memory index.
      *
-     * <p>
-     * The key() and value() method, when we match, must return the key we found
-     * via seekTo().
+     * <p> The key() and value() method, when we match, must return the
+     * <b>last</b> key we found via seekTo().
      */
-    public Record seekTo( StructReader key ) throws IOException;
+    public List<Record> seekTo( List<StructReader> keys ) throws IOException;
 
     public void scan( Scan scan, ScanListener listener ) throws IOException;
     

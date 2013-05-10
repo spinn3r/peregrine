@@ -20,13 +20,16 @@ import static org.jboss.netty.handler.codec.http.HttpVersion.*;
 
 import java.io.*;
 import java.net.*;
+import java.util.*;
 import java.util.regex.*;
 
 import org.jboss.netty.buffer.*;
 import org.jboss.netty.channel.*;
 import org.jboss.netty.handler.codec.http.*;
 
+import peregrine.*;
 import peregrine.io.chunk.*;
+import peregrine.util.*;
 import peregrine.util.primitive.IntBytes;
 import peregrine.shuffle.receiver.*;
 
@@ -52,12 +55,25 @@ public class FSClientRequestHandler extends ErrorLoggingChannelUpstreamHandler {
     public boolean handles( URI uri ) {
         return PATH_REGEX.matcher( uri.getPath() ).find();
     }
-    
+
     @Override
     public void messageReceived( ChannelHandlerContext ctx, MessageEvent e ) throws Exception {
 
         try {
 
+            HttpRequest request = (HttpRequest)e.getMessage();
+
+            // TODO use QueryStringDecoder to parse the URL for the keys we are
+            // searching for.
+
+            QueryStringDecoder decoder = new QueryStringDecoder( request.getUri() );
+
+            List<StructReader> keys = new ArrayList();
+            
+            for( String key : decoder.getParameters().get( "key" ).get( 0 ).split( "," ) ) {
+                keys.add( StructReaders.wrap( Base64.decode( key ) ) );
+            }
+            
         } catch ( Exception exc ) {
             // catch all exceptions and then bubble them up.
             log.error( "Caught exception: ", exc );
