@@ -75,7 +75,7 @@ public class Memtable implements SSTableReader, SSTableWriter {
     }
     
     @Override
-    public List<Record> seekTo( List<StructReader> key ) throws IOException {
+    public boolean seekTo( List<StructReader> key, RecordListener listener ) throws IOException {
 
         // byte[] value = map.get( key.toByteArray() );
 
@@ -90,7 +90,7 @@ public class Memtable implements SSTableReader, SSTableWriter {
     }
 
     @Override
-    public void scan( Scan scan, ScanListener listener ) throws IOException {
+    public void scan( Scan scan, RecordListener listener ) throws IOException {
         throw new RuntimeException( "FIXME: not implemented" );
     }
 

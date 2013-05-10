@@ -3,13 +3,13 @@ package peregrine.io.sstable;
 import peregrine.*;
 
 /**
- * Listen to scan requests.
+ * Listen to scan and seekTo requests.
  * 
  */
-public interface ScanListener {
+public interface RecordListener {
 
     /**
-     * Called when a scan finds a new record.
+     * Called when a scan or seekTo finds a new record.
      */
     public void onRecord( StructReader key, StructReader value );
     

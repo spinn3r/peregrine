@@ -287,12 +287,10 @@ public class DefaultChunkReader extends BaseSSTableChunk
     /**
      * Fetch all the keys in the given DataBlock.
      */
-    public List<Record> seekTo( List<StructReader> keys, DataBlock block ) throws IOException {
-
-        List<Record> result = new ArrayList();
+    public void seekTo( List<StructReader> keys, DataBlock block, RecordListener listener ) throws IOException {
 
         if ( keys.size() == 0 )
-            return result;
+            return;
         
         // position us at the beginning of the block.
         buffer.readerIndex( (int)block.offset );        
@@ -309,8 +307,8 @@ public class DefaultChunkReader extends BaseSSTableChunk
             
             if ( find.equals( key() ) ) {
 
-                result.add( new Record( key(), value() ) );
-
+                listener.onRecord( key(), value() );
+                
                 if ( keys.size() > 0 ) {
                     find = keys.remove( 0 );
                 } else {
@@ -320,8 +318,6 @@ public class DefaultChunkReader extends BaseSSTableChunk
             }
             
         }
-
-        return result;
         
     }
 

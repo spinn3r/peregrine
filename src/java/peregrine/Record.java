@@ -20,9 +20,11 @@ package peregrine;
  */
 public class Record implements KeyValuePair {
 
-    private StructReader key;
-    private StructReader value;
+    private StructReader key = null;
+    private StructReader value = null;
 
+    public Record() { }
+    
     public Record( StructReader key, StructReader value ) {
         this.key = key;
         this.value = value;
@@ -36,6 +38,14 @@ public class Record implements KeyValuePair {
     @Override
     public StructReader getValue() {
         return value;
+    }
+
+    public void setKey( StructReader key ) {
+        this.key = key;
+    }
+
+    public void setValue( StructReader value ) {
+        this.value = value;
     }
 
 }

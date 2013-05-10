@@ -64,6 +64,15 @@ public class Get {
 
         // create an HTTP client and submit the request.
 
+        client = new HttpClient( config, createRequestURI() );
+        client.setMethod( HttpMethod.GET );
+
+        client.open();
+
+    }
+
+    public String createRequestURI() {
+
         StringBuilder buff = new StringBuilder( 200 );
         buff.append( String.format( "%s/client-rpc/GET?source=%s", connection.getEndpoint(), source ) );
 
@@ -86,22 +95,13 @@ public class Get {
 
         }
 
-        String resource = buff.toString();
-        
-        client = new HttpClient( config, resource );
-        client.setMethod( HttpMethod.GET );
-
-        client.open();
+        return buff.toString();
 
     }
 
     /**
-     * Get all records for this request.
+     * Wait for the request to complete and for us to read all keys.
      */
-    public List<Record> getRecords() {
-        return records;
-    }
-    
     public void waitFor() throws IOException {
 
         // - stick it in a chunk reader
@@ -122,6 +122,13 @@ public class Get {
         
         reader.close();
 
+    }
+
+    /**
+     * Get all records for this request.
+     */
+    public List<Record> getRecords() {
+        return records;
     }
 
     public List<StructReader> getKeys() { 

@@ -188,11 +188,13 @@ public class LocalPartitionReader extends BaseJobInput
 
         List<StructReader> keys = new ArrayList();
         keys.add( key );
-        
-        List<Record> result = seekTo( keys );
 
-        if ( result.size() == 1 ) {
-            return result.get( result.size() - 1 );
+        LastRecordListener lastRecordListener = new LastRecordListener( null );
+
+        seekTo( keys, lastRecordListener );
+
+        if ( lastRecordListener.getLast() != null ) {
+            return lastRecordListener.getLast();
         }
 
         return null;
@@ -203,12 +205,14 @@ public class LocalPartitionReader extends BaseJobInput
      * Find a given record with a specific key.
      */
     @Override
-    public List<Record> seekTo( List<StructReader> keys ) throws IOException {
+    public boolean seekTo( List<StructReader> keys, RecordListener listener ) throws IOException {
 
         this.key = null;
         this.value = null;
 
         Map<DataBlockReference,List<StructReader>> lookup = new TreeMap(); 
+
+        LastRecordListener lastRecordListener = new LastRecordListener( listener );
         
         for( StructReader key : keys ) {
 
@@ -229,8 +233,6 @@ public class LocalPartitionReader extends BaseJobInput
             
         }
 
-        List<Record> result = new ArrayList();
-        
         for( DataBlockReference ref : lookup.keySet() ) {
 
             chunkReader = ref.reader;
@@ -244,26 +246,59 @@ public class LocalPartitionReader extends BaseJobInput
 
             List<StructReader> refKeys = lookup.get( ref );
             
-            List<Record> records = ref.reader.seekTo( refKeys, ref.dataBlock );
+            ref.reader.seekTo( refKeys, ref.dataBlock, lastRecordListener );
 
-            result.addAll( records );
-            
         }
 
-        if ( result.size() > 0 ) {
+        if ( lastRecordListener.getLast() != null ) {
 
-            Record last = result.get( result.size() - 1 );
+            Record last = lastRecordListener.getLast();
             
             this.key = last.getKey();
             this.value = last.getValue();
+
+            return true;
+            
+        } else {
+            return false;
         }
 
-        return result;
-        
     }
 
+    // regular record listener which forwards events to the target record
+    // listener but also keeps track of the last record we found.
+    class LastRecordListener implements RecordListener {
+
+        private Record last = null;
+        
+        private RecordListener delegate = null;
+
+        public LastRecordListener( RecordListener delegate ) {
+            this.delegate = delegate;
+        }
+
+        @Override
+        public void onRecord( StructReader key, StructReader value ) {
+
+            if ( last == null )
+                last = new Record();
+            
+            last.setKey( key );
+            last.setValue( value );
+
+            if ( delegate != null )
+                delegate.onRecord( key, value );
+
+        }
+
+        public Record getLast() {
+            return last;
+        }
+        
+    }
+    
     @Override
-    public void scan( Scan scan, ScanListener listener ) throws IOException {
+    public void scan( Scan scan, RecordListener listener ) throws IOException {
 
         // FIXME: we can't use JUST seekTo to jump to the DefaultChunkReader
         // position because the block will be decompressed temporarily during

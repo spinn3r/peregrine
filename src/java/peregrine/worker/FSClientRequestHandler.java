@@ -28,17 +28,21 @@ import org.jboss.netty.channel.*;
 import org.jboss.netty.handler.codec.http.*;
 
 import peregrine.*;
+import peregrine.config.*;
 import peregrine.io.chunk.*;
+import peregrine.io.partition.*;
+import peregrine.io.sstable.*;
+import peregrine.io.util.*;
+import peregrine.shuffle.receiver.*;
 import peregrine.util.*;
 import peregrine.util.primitive.IntBytes;
-import peregrine.shuffle.receiver.*;
 
 import com.spinn3r.log5j.*;
 
 /**
  *
  * Handles interfacing with the table code and directly handling client requests
- * using the SSTableReader interface. 
+ * using the SSTableReader interface.
  * 
  */
 public class FSClientRequestHandler extends ErrorLoggingChannelUpstreamHandler {
@@ -46,16 +50,69 @@ public class FSClientRequestHandler extends ErrorLoggingChannelUpstreamHandler {
     protected static final Logger log = Logger.getLogger();
 
     private static Pattern PATH_REGEX =
-        Pattern.compile( "/[0-9]+/client-rpc/(GET|SCAN|MUTATE)" );
+        Pattern.compile( "/([0-9]+)/client-rpc/(GET|SCAN|MUTATE)" );
 
-    public FSClientRequestHandler( FSDaemon daemon, FSHandler handler ) throws Exception {
-
+    private Config config;
+    
+    public FSClientRequestHandler( Config config ) throws Exception {
+        this.config = config;
     }
 
+    /**
+     * Return true if we can handle the given URI.
+     */
     public boolean handles( URI uri ) {
         return PATH_REGEX.matcher( uri.getPath() ).find();
     }
 
+    /**
+     * Execute the given request directly.
+     */
+    public void exec( String uri ) throws IOException {
+
+        QueryStringDecoder decoder = new QueryStringDecoder( uri );
+
+        Matcher matcher = PATH_REGEX.matcher( uri );
+
+        Partition part = null;
+        
+        if ( matcher.find() ) {
+
+            part = new Partition( Integer.parseInt( matcher.group( 1 ) ) );
+            
+        } else {
+            throw new IOException( "no match" );
+        }
+        
+        List<StructReader> keys = new ArrayList();
+        
+        for( String key : decoder.getParameters().get( "key" ).get( 0 ).split( "," ) ) {
+            keys.add( StructReaders.wrap( Base64.decode( key ) ) );
+        }
+
+        String path = decoder.getParameters().get( "source" ).get( 0 );
+        
+        LocalPartitionReader reader = null;
+
+        try {
+
+            reader = new LocalPartitionReader( config, part, path );
+
+            reader.seekTo( keys, new RecordListener() {
+
+                    @Override
+                    public void onRecord( StructReader key, StructReader value ) {
+
+                    }
+                    
+                } );
+            
+        } finally {
+            new Closer( reader ).close();
+        }
+
+    }
+    
     @Override
     public void messageReceived( ChannelHandlerContext ctx, MessageEvent e ) throws Exception {
 
@@ -66,13 +123,7 @@ public class FSClientRequestHandler extends ErrorLoggingChannelUpstreamHandler {
             // TODO use QueryStringDecoder to parse the URL for the keys we are
             // searching for.
 
-            QueryStringDecoder decoder = new QueryStringDecoder( request.getUri() );
-
-            List<StructReader> keys = new ArrayList();
-            
-            for( String key : decoder.getParameters().get( "key" ).get( 0 ).split( "," ) ) {
-                keys.add( StructReaders.wrap( Base64.decode( key ) ) );
-            }
+            exec( request.getUri() );
             
         } catch ( Exception exc ) {
             // catch all exceptions and then bubble them up.
