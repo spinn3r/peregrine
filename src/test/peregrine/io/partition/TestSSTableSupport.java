@@ -93,6 +93,10 @@ public class TestSSTableSupport extends peregrine.BaseTestWithMultipleProcesses 
             assertNotNull( reader.findDataBlockReference( StructReaders.wrap( (long)max-1 ) ) );
         }
 
+        List<Record> all_records = reader.seekTo( range( 0, max - 1 ) );
+
+        assertEquals( max, all_records.size() );
+        
         reader.close();
 
     }
