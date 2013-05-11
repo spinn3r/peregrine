@@ -143,19 +143,6 @@ public class TestSSTableSupport extends peregrine.BaseTestWithMultipleProcesses 
 
     }
 
-    // get a list of StructReader between the given range (inclusive)
-    private List<StructReader> range( long start, long end ) {
-    
-        List<StructReader> result = new ArrayList();
-
-        for( long i = start; i <= end; ++i ) {
-            result.add( StructReaders.wrap( i ) );
-        }
-
-        return result;
-        
-    }
-
     private void doTestScan() throws Exception {
 
         // we have to test the powerset of all possible options

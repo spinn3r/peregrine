@@ -32,36 +32,42 @@ import peregrine.util.*;
 import com.spinn3r.log5j.*;
 
 /**
- * Command line client interface.
+ * Represents a request to the server for GETing keys.
  */
-public class Main {
+public class GetRequest {
     
-    public static void main( String[] args ) throws Exception {
+    private boolean hashcode = false;
+    
+    private String source = null;
+    
+    private List<StructReader> keys = null;
 
-        Getopt getopt = new Getopt( args );
+    public void setKeys( List<StructReader> keys ) {
+        this.keys = keys;
+    }
+    
+    public List<StructReader> getKeys() { 
+        return this.keys;
+    }
 
-        getopt.require( "endpoint", "source" );
-        
-        Config config = ConfigParser.parse( args );
+    public String getSource() { 
+        return this.source;
+    }
 
-        Connection conn = new Connection( getopt.getString( "endpoint" ) );
+    public void setSource( String source ) { 
+        this.source = source;
+    }
 
-        Get client = new Get( config, conn );
-        GetRequest request = new GetRequest();
-        
-        request.setHashcode( getopt.getBoolean( "hashcode" ) );
+    /**
+     * When true, the input keys need to be hashed before we send them in the
+     * request.
+     */
+    public boolean getHashcode() { 
+        return this.hashcode;
+    }
 
-        client.exec( request );
-        client.waitFor();
-
-        // TODO: optionally apply schema.
-        
-        for( Record current : client.getRecords() ) {
-
-            System.out.printf( "%s=%s\n", Hex.encode( current.getKey() ), Hex.encode( current.getValue() ) );
-            
-        }
-        
+    public void setHashcode( boolean hashcode ) { 
+        this.hashcode = hashcode;
     }
 
 }

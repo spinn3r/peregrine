@@ -37,12 +37,6 @@ import com.spinn3r.log5j.*;
  * then waitFor() to get the results back.  
  */
 public class Get {
-    
-    private boolean hashcode = false;
-    
-    private String source = null;
-    
-    private List<StructReader> keys = null;
 
     private List<Record> records = new ArrayList();
 
@@ -60,42 +54,14 @@ public class Get {
     /**
      * Execute the get request. 
      */
-    public void exec() throws IOException {
+    public void exec( GetRequest request ) throws IOException {
 
         // create an HTTP client and submit the request.
 
-        client = new HttpClient( config, createRequestURI() );
+        client = new HttpClient( config, GetRequestURLParser.toURL( this, request ) );
         client.setMethod( HttpMethod.GET );
 
         client.open();
-
-    }
-
-    public String createRequestURI() {
-
-        StringBuilder buff = new StringBuilder( 200 );
-        buff.append( String.format( "%s/client-rpc/GET?source=%s", connection.getEndpoint(), source ) );
-
-        List<String> args = new ArrayList();
-
-        // add comma separated base64 encoded keys.
-        buff.append( "k=" );
-
-        for( int i = 0; i < keys.size(); ++i ) {
-
-            StructReader key = keys.get( i );
-            
-            if ( hashcode )
-                key = StructReaders.hashcode( key.toByteArray() );
-
-            if ( i > 0 )
-                buff.append( "," );
-            
-            buff.append( Base64.encode( key.toByteArray() ) );
-
-        }
-
-        return buff.toString();
 
     }
 
@@ -131,28 +97,8 @@ public class Get {
         return records;
     }
 
-    public List<StructReader> getKeys() { 
-        return this.keys;
+    public Connection getConnection() {
+        return connection;
     }
-
-    public String getSource() { 
-        return this.source;
-    }
-
-    public void setSource( String source ) { 
-        this.source = source;
-    }
-
-    /**
-     * When true, the input keys need to be hashed before we send them in the
-     * request.
-     */
-    public boolean getHashcode() { 
-        return this.hashcode;
-    }
-
-    public void setHashcode( boolean hashcode ) { 
-        this.hashcode = hashcode;
-    }
-
+    
 }
