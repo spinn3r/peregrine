@@ -94,7 +94,14 @@ public class FSClientRequestHandler extends ErrorLoggingChannelUpstreamHandler {
         
         LocalPartitionReader reader = null;
         DefaultChunkWriter writer = null;
-        
+
+        //FIXME: we should have group 'commit' of requests or intelligent/smart
+        //batching so that if we come BACK to the queue and it's full with
+        //seekTo or scan requess that we can elide them so that blocks only need
+        //to be decompressed for ALL inbound requests.
+
+        // http://mechanical-sympathy.blogspot.com/2011/10/smart-batching.html
+
         try {
 
             reader = new LocalPartitionReader( config, part, path );
@@ -104,7 +111,7 @@ public class FSClientRequestHandler extends ErrorLoggingChannelUpstreamHandler {
 
                     @Override
                     public void onRecord( StructReader key, StructReader value ) {
-                        // write this out over the wire now.
+                        // write this out over the wire for now.
                     }
                     
                 } );
@@ -121,9 +128,6 @@ public class FSClientRequestHandler extends ErrorLoggingChannelUpstreamHandler {
         try {
 
             HttpRequest request = (HttpRequest)e.getMessage();
-
-            // TODO use QueryStringDecoder to parse the URL for the keys we are
-            // searching for.
 
             exec( request.getUri() );
             

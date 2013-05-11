@@ -304,7 +304,9 @@ public class LocalPartitionReader extends BaseJobInput
         // position because the block will be decompressed temporarily during
         // seekTo and THEN we're going to read it again.  We should probably
         // keep at least ONE block in memory at a time to improve performance of
-        // scan.
+        // scan either that or figure out a way to partially push scan code into
+        // the DefaultChunkReader and then have it resume across blocks when
+        // changing to a new reader when we roll over.
         
         // position us to the starting key if necessary.
         if ( scan.getStart() != null ) {

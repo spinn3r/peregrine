@@ -572,6 +572,7 @@ def index(current=None):
             path = "%s/%s" % (TEST_LOGS, rev)
             report = None
             coverage = None
+            javadoc = None
             
             if os.path.isdir( path ):
 
@@ -596,6 +597,9 @@ def index(current=None):
 
                     if ( os.path.exists( "%s/coverage" % changedir ) ):
                         coverage="%s/%s" % ( rev, "coverage" )
+
+                    if ( os.path.exists( "%s/javadoc" % changedir ) ):
+                        javadoc="%s/%s" % ( rev, "javadoc" )
 
                     sidebar.link( bgcolor, rev, report, change, coverage )
 

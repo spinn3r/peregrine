@@ -49,9 +49,17 @@ public class Main {
         Get get = new Get( config, conn );
 
         get.setHashcode( getopt.getBoolean( "hashcode" ) );
-        
+
         get.exec();
         get.waitFor();
+
+        // TODO: optionally apply schema.
+        
+        for( Record current : get.getRecords() ) {
+
+            System.out.printf( "%s=%s\n", Hex.encode( current.getKey() ), Hex.encode( current.getValue() ) );
+            
+        }
         
     }
 

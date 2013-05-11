@@ -36,6 +36,8 @@ import java.util.*;
  */
 public class Cat {
 
+    // FIXME: this should completely go away in favor of scan.
+    
     public static void help() {
 
         System.out.printf( "Usage: fscat [OPTION] [FILE]\n" );
