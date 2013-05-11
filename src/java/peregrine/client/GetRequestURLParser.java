@@ -32,6 +32,7 @@ import peregrine.util.*;
 import com.spinn3r.log5j.*;
 
 /**
+ * Parse URLs into and from requests for use between the client and server.
  */
 public class GetRequestURLParser {
 
@@ -53,7 +54,7 @@ public class GetRequestURLParser {
     /**
      * Take a request and make it into a URL string to send to the server.
      */
-    public static String toURL( Get client, GetRequest request ) {
+    public static String toURL( GetClient client, GetRequest request ) {
 
         if ( request.getSource() == null )
             throw new NullPointerException( "source" );

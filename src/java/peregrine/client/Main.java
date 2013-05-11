@@ -46,7 +46,7 @@ public class Main {
 
         Connection conn = new Connection( getopt.getString( "endpoint" ) );
 
-        Get client = new Get( config, conn );
+        GetClient client = new GetClient( config, conn );
         GetRequest request = new GetRequest();
         
         request.setHashcode( getopt.getBoolean( "hashcode" ) );

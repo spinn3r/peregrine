@@ -34,7 +34,7 @@ public class TestClientURLHandling extends peregrine.BaseTest {
         request.setHashcode( hashcode );
 
         Connection conn = new Connection( "http://localhost:11111" );
-        Get client = new Get( config, conn );
+        GetClient client = new GetClient( config, conn );
         
         String url = GetRequestURLParser.toURL( client, request );
         

@@ -36,7 +36,7 @@ import com.spinn3r.log5j.*;
  * create a Get object, set the keys they wish to fetch, then call exec() and
  * then waitFor() to get the results back.  
  */
-public class Get {
+public class GetClient {
 
     private List<Record> records = new ArrayList();
 
@@ -46,7 +46,7 @@ public class Get {
 
     private HttpClient client = null;
     
-    public Get( Config config, Connection connection ) {
+    public GetClient( Config config, Connection connection ) {
         this.config = config;
         this.connection = connection;
     }
