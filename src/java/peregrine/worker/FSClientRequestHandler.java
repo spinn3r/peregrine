@@ -54,36 +54,36 @@ public class FSClientRequestHandler extends ErrorLoggingChannelUpstreamHandler {
         Pattern.compile( "/([0-9]+)/client-rpc/(GET|SCAN|MUTATE)" );
 
     private Config config;
+
+    private String resource;
+
+    private Partition partition = null;
     
-    public FSClientRequestHandler( Config config ) throws Exception {
+    public FSClientRequestHandler( Config config, String resource ) throws Exception {
         this.config = config;
+        this.resource = resource;
+
+        Matcher matcher = PATH_REGEX.matcher( resource );
+
+        Partition part = null;
+        
+        if ( matcher.find() ) {
+            partition = new Partition( Integer.parseInt( matcher.group( 1 ) ) );
+        } 
+
     }
 
     /**
-     * Return true if we can handle the given URI.
+     * Return true if we can handle the given resource URL we were given.
      */
-    public boolean handles( URI uri ) {
-        return PATH_REGEX.matcher( uri.getPath() ).find();
+    public boolean handles() {
+        return partition != null;
     }
 
     /**
      * Execute the given request directly.
      */
     public void exec( String uri ) throws IOException {
-
-        QueryStringDecoder decoder = new QueryStringDecoder( uri );
-
-        Matcher matcher = PATH_REGEX.matcher( uri );
-
-        Partition part = null;
-        
-        if ( matcher.find() ) {
-
-            part = new Partition( Integer.parseInt( matcher.group( 1 ) ) );
-            
-        } else {
-            throw new IOException( "no match" );
-        }
 
         GetRequest request = GetRequestURLParser.toRequest( uri );
         
@@ -101,7 +101,7 @@ public class FSClientRequestHandler extends ErrorLoggingChannelUpstreamHandler {
 
         try {
 
-            reader = new LocalPartitionReader( config, part, request.getSource() );
+            reader = new LocalPartitionReader( config, partition, request.getSource() );
             //writer = new DefaultChunkWriter( config , path, 
             
             reader.seekTo( request.getKeys(), new RecordListener() {
@@ -114,6 +114,9 @@ public class FSClientRequestHandler extends ErrorLoggingChannelUpstreamHandler {
                 } );
             
         } finally {
+            // NOTE: the writer should be closed BEFORE the reader so that we
+            // can read all the values.  If we do the revese we we will
+            // segfault.
             new Closer( writer, reader ).close();
         }
 

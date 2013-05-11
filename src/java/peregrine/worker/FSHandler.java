@@ -124,7 +124,6 @@ public class FSHandler extends DefaultChannelUpstreamHandler {
             if ( method == GET ) {
 
                 // TODO: see if this is a client request... 
-
                 FSClientEndpointHandler endpointHandler = new FSClientEndpointHandler( daemon, this );
 
                 if ( endpointHandler.handles( request.getUri() ) ) {
