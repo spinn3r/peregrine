@@ -26,11 +26,22 @@ public class TestClientURLHandling extends peregrine.BaseTest {
 
     public void test1() {
 
+        Config config = ConfigParser.parse();
+        
         List<StructReader> keys = range( 0 , 100 );
 
         GetRequest request = new GetRequest();
         request.setKeys( keys );
 
+        Connection conn = new Connection( "http://localhost:11111" );
+        Get client = new Get( config, conn );
+        
+        String url = GetRequestURLParser.toURL( client, request );
+
+        request = GetRequestURLParser.toRequest( url );
+
+        assertEquals( keys, request.getKeys() );
+        
     }
     
 }
