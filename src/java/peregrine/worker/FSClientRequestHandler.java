@@ -28,6 +28,7 @@ import org.jboss.netty.channel.*;
 import org.jboss.netty.handler.codec.http.*;
 
 import peregrine.*;
+import peregrine.client.*;
 import peregrine.config.*;
 import peregrine.io.chunk.*;
 import peregrine.io.partition.*;
@@ -83,14 +84,10 @@ public class FSClientRequestHandler extends ErrorLoggingChannelUpstreamHandler {
         } else {
             throw new IOException( "no match" );
         }
-        
-        List<StructReader> keys = new ArrayList();
-        
-        for( String key : decoder.getParameters().get( "key" ).get( 0 ).split( "," ) ) {
-            keys.add( StructReaders.wrap( Base64.decode( key ) ) );
-        }
 
-        String path = decoder.getParameters().get( "source" ).get( 0 );
+        GetRequest request = GetRequestURLParser.toRequest( uri );
+        
+        //FIXME: we should support a table cache here... 
         
         LocalPartitionReader reader = null;
         DefaultChunkWriter writer = null;
@@ -104,10 +101,10 @@ public class FSClientRequestHandler extends ErrorLoggingChannelUpstreamHandler {
 
         try {
 
-            reader = new LocalPartitionReader( config, part, path );
+            reader = new LocalPartitionReader( config, part, request.getSource() );
             //writer = new DefaultChunkWriter( config , path, 
             
-            reader.seekTo( keys, new RecordListener() {
+            reader.seekTo( request.getKeys(), new RecordListener() {
 
                     @Override
                     public void onRecord( StructReader key, StructReader value ) {
