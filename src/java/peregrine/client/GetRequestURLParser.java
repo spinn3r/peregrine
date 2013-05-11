@@ -36,24 +36,45 @@ import com.spinn3r.log5j.*;
 public class GetRequestURLParser {
 
     /**
+     * Return the list of keys as a list of hashcodes.
+     */
+    public static List<StructReader> hashcodes( List<StructReader> keys ) {
+
+        List<StructReader> result = new ArrayList( keys.size() );
+
+        for( StructReader key : keys ) {
+            result.add( StructReaders.hashcode( key.toByteArray() ) );
+        }
+
+        return result;
+        
+    }
+    
+    /**
      * Take a request and make it into a URL string to send to the server.
      */
     public static String toURL( Get client, GetRequest request ) {
 
+        if ( request.getSource() == null )
+            throw new NullPointerException( "source" );
+        
         StringBuilder buff = new StringBuilder( 200 );
         buff.append( String.format( "%s/client-rpc/GET?source=%s", client.getConnection().getEndpoint(), request.getSource() ) );
 
         List<String> args = new ArrayList();
 
         // add comma separated base64 encoded keys.
-        buff.append( "k=" );
+        buff.append( "&k=" );
 
-        for( int i = 0; i < request.getKeys().size(); ++i ) {
+        List<StructReader> keys = request.getKeys();
 
-            StructReader key = request.getKeys().get( i );
-            
-            if ( request.getHashcode() )
-                key = StructReaders.hashcode( key.toByteArray() );
+        if ( request.getHashcode() ) {
+            keys = hashcodes( keys );
+        }
+        
+        for( int i = 0; i < keys.size(); ++i ) {
+
+            StructReader key = keys.get( i );
 
             if ( i > 0 )
                 buff.append( "," );
@@ -74,6 +95,22 @@ public class GetRequestURLParser {
 
         GetRequest request = new GetRequest();
 
+        QueryStringDecoder decoder = new QueryStringDecoder( url );
+
+        List<StructReader> keys = new ArrayList();
+        
+        for( String key : decoder.getParameters().get( "k" ).get( 0 ).split( "," ) ) {
+
+            byte[] data = Base64.decode( key );
+            keys.add( StructReaders.wrap( data ) );
+
+        }
+
+        String source = decoder.getParameters().get( "source" ).get( 0 );
+
+        request.setKeys( keys );
+        request.setSource( source );
+        
         return request;
         
     }

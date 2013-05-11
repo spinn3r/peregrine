@@ -24,24 +24,41 @@ import peregrine.controller.*;
 
 public class TestClientURLHandling extends peregrine.BaseTest {
 
-    public void test1() {
-
-        Config config = ConfigParser.parse();
-        
-        List<StructReader> keys = range( 0 , 100 );
+    private Config config = null;
+    
+    private void doTest( List<StructReader> keys , boolean hashcode ) throws Exception {
 
         GetRequest request = new GetRequest();
         request.setKeys( keys );
+        request.setSource( "/tmp/foo.test" );
+        request.setHashcode( hashcode );
 
         Connection conn = new Connection( "http://localhost:11111" );
         Get client = new Get( config, conn );
         
         String url = GetRequestURLParser.toURL( client, request );
-
+        
         request = GetRequestURLParser.toRequest( url );
 
-        assertEquals( keys, request.getKeys() );
-        
+        if( hashcode ) {
+            assertEquals( GetRequestURLParser.hashcodes( keys ), request.getKeys() );
+        } else { 
+            assertEquals( keys, request.getKeys() );
+        }
+
     }
     
+    public void test1() throws Exception {
+
+        config = ConfigParser.parse();
+
+        doTest( range( 0 , 10 ), false );
+        doTest( range( 0 , 10 ), true );
+
+    }
+
+    public static void main( String[] args ) throws Exception {
+        runTests();
+    }
+
 }
