@@ -58,7 +58,7 @@ public class FSPutShuffleHandler extends FSPutBaseHandler {
         this.from_partition = Integer.parseInt( m.group( 3 ) );
         this.from_chunk     = Integer.parseInt( m.group( 4 ) );
 
-        this.shuffleReceiver = handler.daemon.shuffleReceiverFactory.getInstance( this.name );
+        this.shuffleReceiver = handler.daemon.getShuffleReceiverFactory().getInstance( this.name );
 
         this.path = shuffleReceiver.toString();
         

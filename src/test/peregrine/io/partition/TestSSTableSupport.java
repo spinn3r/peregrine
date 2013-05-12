@@ -15,14 +15,11 @@
 */
 package peregrine.io.partition;
 
-import java.io.*;
 import java.util.*;
 import java.util.concurrent.atomic.*;
 
 import peregrine.*;
 import peregrine.config.*;
-import peregrine.io.chunk.*;
-import peregrine.io.partition.*;
 import peregrine.io.sstable.*;
 import peregrine.util.*;
 
@@ -112,7 +109,7 @@ public class TestSSTableSupport extends peregrine.BaseTestWithMultipleProcesses 
 
     }
 
-    private void doTestScan( Scan scan, int max, List<StructReader> keys ) throws Exception {
+    private void doTestScan( ScanRequest scanRequest, int max, List<StructReader> keys ) throws Exception {
 
         String path = "/tmp/test.sstable";
 
@@ -124,12 +121,12 @@ public class TestSSTableSupport extends peregrine.BaseTestWithMultipleProcesses 
 
         final List<StructReader> found = new ArrayList();
         
-        reader.scan( scan, new RecordListener() {
+        reader.scan(scanRequest, new RecordListener() {
 
                 @Override
                 public void onRecord( StructReader key, StructReader value ) {
 
-                    System.out.printf( "  scan.onRecord: key=%s\n", Hex.encode( key ) );
+                    System.out.printf( "  scanRequest.onRecord: key=%s\n", Hex.encode( key ) );
 
                     found.add( key );
 
@@ -161,66 +158,66 @@ public class TestSSTableSupport extends peregrine.BaseTestWithMultipleProcesses 
 
         // FIXME: large LIMIT ... 
         
-        Scan scan;
+        ScanRequest scanRequest;
         
         // ********* no start / no end.
 
-        scan = new Scan();
-        scan.setLimit( 10 );
-        doTestScan( scan, 1000, range( 0, 9 ) );
+        scanRequest = new ScanRequest();
+        scanRequest.setLimit( 10 );
+        doTestScan(scanRequest, 1000, range( 0, 9 ) );
 
         // ********* no start / end inclusive
-        scan = new Scan();
-        scan.setEnd( StructReaders.wrap( 1L ), true );
-        scan.setLimit( 10 );
-        doTestScan( scan, 1000, range( 0, 1 ) );
+        scanRequest = new ScanRequest();
+        scanRequest.setEnd( StructReaders.wrap( 1L ), true );
+        scanRequest.setLimit( 10 );
+        doTestScan(scanRequest, 1000, range( 0, 1 ) );
 
         // ********* no start / end exclusive
 
-        scan = new Scan();
-        scan.setEnd( StructReaders.wrap( 1L ), false );
-        scan.setLimit( 10 );
-        doTestScan( scan, 1000, range( 0, 0 ) );
+        scanRequest = new ScanRequest();
+        scanRequest.setEnd( StructReaders.wrap( 1L ), false );
+        scanRequest.setLimit( 10 );
+        doTestScan(scanRequest, 1000, range( 0, 0 ) );
 
         // ********* start inclusive / no end
-        scan = new Scan();
-        scan.setStart( StructReaders.wrap( 0L ), true );
-        scan.setLimit( 10 );
-        doTestScan( scan, 1000, range( 0, 9 ) );
+        scanRequest = new ScanRequest();
+        scanRequest.setStart( StructReaders.wrap( 0L ), true );
+        scanRequest.setLimit( 10 );
+        doTestScan(scanRequest, 1000, range( 0, 9 ) );
 
         // ********* start inclusive / end inclusive.
-        scan = new Scan();
-        scan.setStart( StructReaders.wrap( 1L ), true );
-        scan.setEnd( StructReaders.wrap( 2L ), true );
-        scan.setLimit( 10 );
-        doTestScan( scan, 1000, range( 1, 2 ) );
+        scanRequest = new ScanRequest();
+        scanRequest.setStart( StructReaders.wrap( 1L ), true );
+        scanRequest.setEnd( StructReaders.wrap( 2L ), true );
+        scanRequest.setLimit( 10 );
+        doTestScan(scanRequest, 1000, range( 1, 2 ) );
 
         // ********* start inclusive / end exclusive
-        scan = new Scan();
-        scan.setStart( StructReaders.wrap( 1L ), true );
-        scan.setEnd( StructReaders.wrap( 2L ), false );
-        scan.setLimit( 10 );
-        doTestScan( scan, 1000, range( 1, 1 ) );
+        scanRequest = new ScanRequest();
+        scanRequest.setStart( StructReaders.wrap( 1L ), true );
+        scanRequest.setEnd( StructReaders.wrap( 2L ), false );
+        scanRequest.setLimit( 10 );
+        doTestScan(scanRequest, 1000, range( 1, 1 ) );
 
         // ********* start exclusive / no end
-        scan = new Scan();
-        scan.setStart( StructReaders.wrap( 0L ), false );
-        scan.setLimit( 10 );
-        doTestScan( scan, 1000, range( 1, 10 ) );
+        scanRequest = new ScanRequest();
+        scanRequest.setStart( StructReaders.wrap( 0L ), false );
+        scanRequest.setLimit( 10 );
+        doTestScan(scanRequest, 1000, range( 1, 10 ) );
 
         // ********* start exclusive / end exclusive.
-        scan = new Scan();
-        scan.setStart( StructReaders.wrap( 1L ), false );
-        scan.setEnd( StructReaders.wrap( 2L ), true );
-        scan.setLimit( 10 );
-        doTestScan( scan, 1000, range( 2, 2 ) );
+        scanRequest = new ScanRequest();
+        scanRequest.setStart( StructReaders.wrap( 1L ), false );
+        scanRequest.setEnd( StructReaders.wrap( 2L ), true );
+        scanRequest.setLimit( 10 );
+        doTestScan(scanRequest, 1000, range( 2, 2 ) );
 
         // ********* start exclusive / end exclusive
-        scan = new Scan();
-        scan.setStart( StructReaders.wrap( 1L ), false );
-        scan.setEnd( StructReaders.wrap( 3L ), false );
-        scan.setLimit( 10 );
-        doTestScan( scan, 1000, range( 2, 2 ) );
+        scanRequest = new ScanRequest();
+        scanRequest.setStart( StructReaders.wrap( 1L ), false );
+        scanRequest.setEnd( StructReaders.wrap( 3L ), false );
+        scanRequest.setLimit( 10 );
+        doTestScan(scanRequest, 1000, range( 2, 2 ) );
 
     }
 

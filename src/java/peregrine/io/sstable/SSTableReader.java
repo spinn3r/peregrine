@@ -5,8 +5,6 @@ import java.util.*;
 
 import peregrine.*;
 import peregrine.io.*;
-import peregrine.io.chunk.*;
-import peregrine.os.*;
 
 /**
  *
@@ -26,6 +24,6 @@ public interface SSTableReader extends SequenceReader {
      */
     public boolean seekTo( List<StructReader> keys, RecordListener listener ) throws IOException;
 
-    public void scan( Scan scan, RecordListener listener ) throws IOException;
+    public void scan( ScanRequest scanRequest, RecordListener listener ) throws IOException;
     
 }

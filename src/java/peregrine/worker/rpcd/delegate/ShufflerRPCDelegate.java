@@ -41,7 +41,7 @@ public class ShufflerRPCDelegate extends RPCDelegate<WorkerDaemon> {
     @RPC
     public ChannelBuffer flush( WorkerDaemon daemon, Channel channel, Message message ) throws IOException {
         // FIXME: this should be async should it not?
-        daemon.shuffleReceiverFactory.flush();
+        daemon.getShuffleReceiverFactory().flush();
         return null;
     }
 
@@ -50,7 +50,7 @@ public class ShufflerRPCDelegate extends RPCDelegate<WorkerDaemon> {
      */
     @RPC
     public ChannelBuffer delete( WorkerDaemon daemon, Channel channel, Message message ) throws IOException {
-        daemon.shuffleReceiverFactory.purge( message.get( "name" ) );
+        daemon.getShuffleReceiverFactory().purge( message.get( "name" ) );
         return null;
     }
 

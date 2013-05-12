@@ -2,12 +2,9 @@ package peregrine.io.sstable;
 
 import java.io.*;
 import java.util.*;
-import java.util.concurrent.*;
 
 import peregrine.*;
 import peregrine.io.*;
-import peregrine.io.chunk.*;
-import peregrine.os.*;
 
 /**
  * This is the same essential design used in LevelDB, Cassandra, and
@@ -90,7 +87,7 @@ public class Memtable implements SSTableReader, SSTableWriter {
     }
 
     @Override
-    public void scan( Scan scan, RecordListener listener ) throws IOException {
+    public void scan( ScanRequest scanRequest, RecordListener listener ) throws IOException {
         throw new RuntimeException( "FIXME: not implemented" );
     }
 

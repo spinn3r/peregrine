@@ -3,14 +3,13 @@ package peregrine.io.sstable;
 import java.io.*;
 
 import peregrine.*;
-import peregrine.os.*;
-import peregrine.util.*;
 
 /**
  * A scan basically represents an interval (in set theory) for requests.  It can
- * either be open on either end, inclusive, or finite.
+ * either be open on either end, inclusive, or finite.   One can specify a start
+ * key and end key and then read all keys in a given range.
  */
-public class Scan {
+public class ScanRequest {
 
     private Bound start = null;
 
@@ -44,7 +43,10 @@ public class Scan {
     public void setLimit( int limit ) { 
         this.limit = limit;
     }
-    
+
+    /**
+     * Represents the ends of an interval (either inclusive or exclusive).
+     */
     public class Bound {
 
         private StructReader key;

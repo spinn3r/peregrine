@@ -41,11 +41,8 @@ import com.spinn3r.log5j.Logger;
 public class WorkerDaemon extends BaseDaemon {
 
     private static final Logger log = Logger.getLogger();
-    
-    /**
-     * Each daemon can only have one shuffle instance.
-     */
-    public ShuffleReceiverFactory shuffleReceiverFactory;
+
+    private ShuffleReceiverFactory shuffleReceiverFactory;
 
     private HeartbeatTimer heartbeatTimer;
 
@@ -60,6 +57,14 @@ public class WorkerDaemon extends BaseDaemon {
         if ( config.getController() != null )
             heartbeatTimer = new HeartbeatTimer( config );
         
+    }
+
+
+    /**
+     * Each daemon can only have one shuffle instance.
+     */
+    public ShuffleReceiverFactory getShuffleReceiverFactory() {
+        return shuffleReceiverFactory;
     }
 
     @Override

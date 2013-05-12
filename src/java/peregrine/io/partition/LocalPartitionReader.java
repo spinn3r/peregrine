@@ -25,9 +25,7 @@ import peregrine.io.*;
 import peregrine.io.chunk.*;
 import peregrine.io.util.*;
 import peregrine.io.sstable.*;
-import peregrine.os.*;
 import peregrine.rpc.*;
-import peregrine.task.*;
 import peregrine.sort.*;
 
 /**
@@ -298,26 +296,26 @@ public class LocalPartitionReader extends BaseJobInput
     }
     
     @Override
-    public void scan( Scan scan, RecordListener listener ) throws IOException {
+    public void scan( ScanRequest scanRequest, RecordListener listener ) throws IOException {
 
         // FIXME: we can't use JUST seekTo to jump to the DefaultChunkReader
         // position because the block will be decompressed temporarily during
         // seekTo and THEN we're going to read it again.  We should probably
         // keep at least ONE block in memory at a time to improve performance of
-        // scan either that or figure out a way to partially push scan code into
+        // scanRequest either that or figure out a way to partially push scanRequest code into
         // the DefaultChunkReader and then have it resume across blocks when
         // changing to a new reader when we roll over.
         
         // position us to the starting key if necessary.
-        if ( scan.getStart() != null ) {
+        if ( scanRequest.getStart() != null ) {
 
             // seek to the start and return if we dont' find it.
-            if ( seekTo( scan.getStart().key() ) == null ) {
+            if ( seekTo( scanRequest.getStart().key() ) == null ) {
                 return;
             }
 
             // if it isn't inclusive skip over it.
-            if ( scan.getStart().isInclusive() == false ) {
+            if ( scanRequest.getStart().isInclusive() == false ) {
 
                 if ( hasNext() ) {
                     next();
@@ -344,15 +342,15 @@ public class LocalPartitionReader extends BaseJobInput
         while( true ) {
 
             // respect the limit on the number of items to return.
-            if ( found >= scan.getLimit() ) {
+            if ( found >= scanRequest.getLimit() ) {
                 return;
             }
 
-            if ( scan.getEnd() != null ) {
+            if ( scanRequest.getEnd() != null ) {
 
-                if ( key().equals( scan.getEnd().key() ) ) {
+                if ( key().equals( scanRequest.getEnd().key() ) ) {
 
-                    if ( scan.getEnd().isInclusive() == false ) {
+                    if ( scanRequest.getEnd().isInclusive() == false ) {
                         return;
                     } else {
                         // emit the last key and then return.
