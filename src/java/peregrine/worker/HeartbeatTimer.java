@@ -35,7 +35,8 @@ import com.spinn3r.log5j.Logger;
 import peregrine.util.netty.*;
 
 /**
- * The HeartbeatTimer sends heartbeat messages to the controller regularly.
+ * The HeartbeatTimer sends heartbeat messages to the controller regularly so
+ * that we know that this worker is still alive.
  */
 public class HeartbeatTimer extends Timer {
 
@@ -60,9 +61,6 @@ public class HeartbeatTimer extends Timer {
 
     private Config config = null;
     
-    /**
-     *
-     */
     public HeartbeatTimer( Config config ) {
         super( HeartbeatTimer.class.getName(), true );
 

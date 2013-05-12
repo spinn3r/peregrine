@@ -151,7 +151,7 @@ public class HttpClient implements ChannelBufferWritable {
             x_pipeline = x_pipeline.trim();
 
             if ( x_pipeline.length() != 0 )
-                request.setHeader( FSHandler.X_PIPELINE_HEADER, x_pipeline );
+                request.setHeader( WorkerHandler.X_PIPELINE_HEADER, x_pipeline );
 
         } catch ( URISyntaxException e ) {
             throw new IOException( e );

@@ -44,9 +44,9 @@ public class FSDaemonRPCHandler extends BaseRPCHandler<WorkerDaemon> {
 
     private WorkerDaemon daemon;
 
-    private FSHandler handler;
+    private WorkerHandler handler;
 
-    public FSDaemonRPCHandler( WorkerDaemon daemon, FSHandler handler, String uri ) {
+    public FSDaemonRPCHandler( WorkerDaemon daemon, WorkerHandler handler, String uri ) {
     	
         super( daemon.getExecutorService( ControllerRPCHandler.class ), uri );
     	

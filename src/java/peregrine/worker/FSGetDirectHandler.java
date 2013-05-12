@@ -32,13 +32,13 @@ public class FSGetDirectHandler extends ErrorLoggingChannelUpstreamHandler {
 
     protected static final Logger log = Logger.getLogger();
 
-    private FSHandler handler;
+    private WorkerHandler handler;
     private WorkerDaemon daemon;
     private Channel channel;
 
     private ChannelHandlerContext ctx = null;
     
-    public FSGetDirectHandler( WorkerDaemon daemon, FSHandler handler ) {
+    public FSGetDirectHandler( WorkerDaemon daemon, WorkerHandler handler ) {
         this.daemon = daemon;
         this.handler = handler;
     }

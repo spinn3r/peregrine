@@ -43,11 +43,11 @@ public class FSPutBaseHandler extends ErrorLoggingChannelUpstreamHandler {
      */
     protected long chunks = 0;
 
-    protected FSHandler handler;
+    protected WorkerHandler handler;
 
     protected String path = null;
     
-    public FSPutBaseHandler( FSHandler handler ) {
+    public FSPutBaseHandler( WorkerHandler handler ) {
 
         this.handler = handler;
         this.path = handler.path;

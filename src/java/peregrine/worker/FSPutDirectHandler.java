@@ -35,7 +35,7 @@ public class FSPutDirectHandler extends FSPutBaseHandler {
     
     private ChannelBufferWritable output = null;
 
-    public FSPutDirectHandler( WorkerDaemon daemon, FSHandler handler ) throws IOException {
+    public FSPutDirectHandler( WorkerDaemon daemon, WorkerHandler handler ) throws IOException {
 
         super( handler );
 

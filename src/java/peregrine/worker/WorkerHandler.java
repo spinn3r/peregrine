@@ -35,8 +35,9 @@ import peregrine.worker.rpcd.*;
 import com.spinn3r.log5j.*;
 
 /**
+ * Handles all HTTP requests sent to a worker.
  */
-public class FSHandler extends DefaultChannelUpstreamHandler {
+public class WorkerHandler extends DefaultChannelUpstreamHandler {
 
     private static final Logger log = Logger.getLogger();
 
@@ -57,8 +58,8 @@ public class FSHandler extends DefaultChannelUpstreamHandler {
 
     protected WorkerDaemon daemon;
     
-    public FSHandler( Config config,
-                      WorkerDaemon daemon ) {
+    public WorkerHandler(Config config,
+                         WorkerDaemon daemon) {
 
         this.daemon = daemon;
         this.config = config;

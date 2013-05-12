@@ -43,7 +43,7 @@ public class FSPutShuffleHandler extends FSPutBaseHandler {
     
     private ShuffleReceiver shuffleReceiver = null;
     
-    public FSPutShuffleHandler( WorkerDaemon daemon, FSHandler handler ) throws Exception {
+    public FSPutShuffleHandler( WorkerDaemon daemon, WorkerHandler handler ) throws Exception {
         super( handler );
         
         String path = handler.request.getUri();

@@ -36,11 +36,11 @@ public class FSDeleteDirectHandler extends ErrorLoggingChannelUpstreamHandler {
 
     protected static final Logger log = Logger.getLogger();
 
-    private FSHandler handler;
+    private WorkerHandler handler;
     private WorkerDaemon daemon;
     private Channel channel;
     
-    public FSDeleteDirectHandler( WorkerDaemon daemon, FSHandler handler ) {
+    public FSDeleteDirectHandler( WorkerDaemon daemon, WorkerHandler handler ) {
         this.daemon = daemon;
         this.handler = handler;
     }

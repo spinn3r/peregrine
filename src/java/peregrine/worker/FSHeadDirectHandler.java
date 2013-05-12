@@ -30,9 +30,9 @@ import peregrine.io.partition.*;
 public class FSHeadDirectHandler extends ErrorLoggingChannelUpstreamHandler {
 
     private WorkerDaemon daemon;
-    private FSHandler handler;
+    private WorkerHandler handler;
     
-    public FSHeadDirectHandler( WorkerDaemon daemon, FSHandler handler ) {
+    public FSHeadDirectHandler( WorkerDaemon daemon, WorkerHandler handler ) {
         this.daemon = daemon;
         this.handler = handler;
     }

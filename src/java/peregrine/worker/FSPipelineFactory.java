@@ -63,7 +63,7 @@ public class FSPipelineFactory implements ChannelPipelineFactory {
 
         pipeline.addLast("logger",         new HttpResponseLoggingChannelHandler() );
 
-        pipeline.addLast("handler",        new FSHandler( config, daemon ));
+        pipeline.addLast("handler",        new WorkerHandler( config, daemon ));
         
         return pipeline;
 

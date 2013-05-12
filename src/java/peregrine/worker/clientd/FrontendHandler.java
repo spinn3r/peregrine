@@ -25,7 +25,7 @@ import org.jboss.netty.handler.codec.http.*;
 
 import com.spinn3r.log5j.*;
 import peregrine.worker.ErrorLoggingChannelUpstreamHandler;
-import peregrine.worker.FSHandler;
+import peregrine.worker.WorkerHandler;
 import peregrine.worker.WorkerDaemon;
 
 /**
@@ -73,7 +73,7 @@ public class FrontendHandler extends ErrorLoggingChannelUpstreamHandler {
     private static Pattern PATH_REGEX =
         Pattern.compile( "^/client-rpc/(GET|SCAN|MUTATE)" );
 
-    public FrontendHandler(WorkerDaemon daemon, FSHandler handler) throws Exception {
+    public FrontendHandler(WorkerDaemon daemon, WorkerHandler handler) throws Exception {
 
     }
 
