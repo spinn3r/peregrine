@@ -15,29 +15,38 @@
 */
 package peregrine.util.netty;
 
+import java.io.*;
 import java.util.concurrent.*;
 
-import java.io.*;
 import org.jboss.netty.buffer.*;
+import org.jboss.netty.channel.*;
+
+import peregrine.*;
+import peregrine.util.*;
+
+import com.spinn3r.log5j.*;
 
 /**
- *
- * <p> A channel buffer writable that allows writing to a channel without
- * blocking until a queue is full.  This class works with two threads.  The main
- * netty network IO thread and a writer thread usually performing some type of
- * disk IO.
- *
- * <p> This class acts as an intermediary between the two and writes from either
- * when appropriate.
  * 
  */
 public class NonBlockingChannelBufferWritable implements ChannelBufferWritable {
 
-    // FIXME: integrate this with HttpClient since there's some duplicate code
-    // there.
+    protected static final Logger log = Logger.getLogger();
+
+    private Channel channel;
+
+    public NonBlockingChannelBufferWritable( Channel channel ) {
+        this.channel = channel;
+    }
     
     @Override
     public void write( ChannelBuffer buff ) throws IOException {
+
+        if ( channel.isWritable() ) {
+            channel.write( buff );
+        } else {
+            throw new IOException( "channel not writable" );
+        }
 
     }
 
@@ -48,20 +57,21 @@ public class NonBlockingChannelBufferWritable implements ChannelBufferWritable {
 
     @Override
     public void sync() throws IOException {
-
+        
     }
 
     @Override
     public void flush() throws IOException {
-
-        // we have to wait for the queue to drain itself since IO is done in the
-        // network thread.
         
     }
         
     @Override
     public void close() throws IOException {
 
-    }
+        if ( channel.isOpen() ) {
+            channel.close();
+        }
 
+    }
+    
 }

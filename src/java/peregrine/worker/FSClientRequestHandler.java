@@ -36,6 +36,7 @@ import peregrine.io.sstable.*;
 import peregrine.io.util.*;
 import peregrine.shuffle.receiver.*;
 import peregrine.util.*;
+import peregrine.util.netty.*;
 import peregrine.util.primitive.IntBytes;
 
 import com.spinn3r.log5j.*;
@@ -60,6 +61,7 @@ public class FSClientRequestHandler extends ErrorLoggingChannelUpstreamHandler {
     private Partition partition = null;
     
     public FSClientRequestHandler( Config config, String resource ) throws Exception {
+
         this.config = config;
         this.resource = resource;
 
@@ -83,9 +85,12 @@ public class FSClientRequestHandler extends ErrorLoggingChannelUpstreamHandler {
     /**
      * Execute the given request directly.
      */
-    public void exec( String uri ) throws IOException {
+    public void exec( final Channel channel ) throws IOException {
 
-        GetRequest request = GetRequestURLParser.toRequest( uri );
+        HttpResponse response = new DefaultHttpResponse( HTTP_1_1, OK );
+        channel.write(response);
+
+        GetRequest request = GetRequestURLParser.toRequest( resource );
         
         //FIXME: we should support a table cache here... 
         
@@ -100,19 +105,74 @@ public class FSClientRequestHandler extends ErrorLoggingChannelUpstreamHandler {
         // http://mechanical-sympathy.blogspot.com/2011/10/smart-batching.html
 
         try {
-
+            
+            NonBlockingChannelBufferWritable writable = new NonBlockingChannelBufferWritable( channel );
+            
             reader = new LocalPartitionReader( config, partition, request.getSource() );
-            //writer = new DefaultChunkWriter( config , path, 
+
+            // FIXME: we need to set a mode here for the DefaultChunkWriter to
+            // include a CRC32 in the minimal form so that the entire record is
+            // checked for checksum.  For starters we need it for the wire
+            // protocol but we ALSO need it to detect if we failed to service
+            // the request. 
+            writer = new DefaultChunkWriter( config , writable );
+
+            // this is a bit of a hack so that we have a final writer to use
+            // within the RecordListener
+            final DefaultChunkWriter _writer = writer;
+            final NonBlockingChannelBufferWritable _writable = writable;
+            
+            // FIXME: this must be in a dedicated thread!
+
+            // FIXME: call these primary and secondary handlers... this will
+            // make more sense moving forward.
+
+            // FIXME: another way to handle client overload would be to detect
+            // when the TCP send buffer would be filled if we added say this key
+            // and the next key THEN we can remove the keys and add then BACK on
+            // the queue so that other requests get served in the mean time.  Of
+            // course another isuse here is that if it's the ONLY client then
+            // re-enqueing it again is just going to result in the SAME problem
+            // happening all over again.
             
             reader.seekTo( request.getKeys(), new RecordListener() {
 
                     @Override
                     public void onRecord( StructReader key, StructReader value ) {
-                        // write this out over the wire for now.
+
+                        // FIXME: what happens if the key/value pair + length of
+                        // both , can't actually fit in the TCP send buffer?
+
+                        try {
+
+                            _writer.write( key, value );
+                            
+                        } catch ( IOException e ) {
+
+                            //FIXME: if we fail here we should abort ANY further
+                            //requests to this client... I guess the best way to
+                            //handle this is to mark this request as failed so
+                            //that all future requests are simply skipped for
+                            //this entry?  The problem is that techically we
+                            //should completely abort the seekTo and re-scan the
+                            //entries here OR support the ability to just have a
+                            //Get request skipped externally but passing in more
+                            //than StructReader but also a GetRequest of some
+                            //sort.... The problem though is that we would need
+                            //one per key not one per list of keys.
+                            
+                            log.error( "Could not write to client: " , e );
+
+                            channel.close();
+
+                        }
+
                     }
                     
                 } );
-            
+
+            _writer.flush();
+
         } finally {
             // NOTE: the writer should be closed BEFORE the reader so that we
             // can read all the values.  If we do the revese we we will
@@ -127,10 +187,8 @@ public class FSClientRequestHandler extends ErrorLoggingChannelUpstreamHandler {
 
         try {
 
-            HttpRequest request = (HttpRequest)e.getMessage();
+            exec( e.getChannel() );
 
-            exec( request.getUri() );
-            
         } catch ( Exception exc ) {
             // catch all exceptions and then bubble them up.
             log.error( "Caught exception: ", exc );

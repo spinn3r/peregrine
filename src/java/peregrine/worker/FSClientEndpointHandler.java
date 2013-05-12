@@ -75,7 +75,7 @@ public class FSClientEndpointHandler extends ErrorLoggingChannelUpstreamHandler 
     protected static final Logger log = Logger.getLogger();
 
     private static Pattern PATH_REGEX =
-        Pattern.compile( "/client-rpc/(GET|SCAN|MUTATE)" );
+        Pattern.compile( "^/client-rpc/(GET|SCAN|MUTATE)" );
 
     public FSClientEndpointHandler( FSDaemon daemon, FSHandler handler ) throws Exception {
 

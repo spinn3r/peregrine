@@ -58,7 +58,9 @@ public class GetClient {
 
         // create an HTTP client and submit the request.
 
-        client = new HttpClient( config, GetRequestURLParser.toURL( this, request ) );
+        String url = GetRequestURLParser.toURL( this, request );
+
+        client = new HttpClient( config, url );
         client.setMethod( HttpMethod.GET );
 
         client.open();

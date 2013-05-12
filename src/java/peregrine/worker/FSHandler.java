@@ -127,12 +127,17 @@ public class FSHandler extends DefaultChannelUpstreamHandler {
                 FSClientEndpointHandler endpointHandler = new FSClientEndpointHandler( daemon, this );
 
                 if ( endpointHandler.handles( request.getUri() ) ) {
-                    
                     endpointHandler.messageReceived( ctx, e );
                     return;
-                    
                 }
 
+                FSClientRequestHandler requestHandler = new FSClientRequestHandler( config, request.getUri() );
+
+                if ( requestHandler.handles() ) {
+                    requestHandler.messageReceived( ctx, e );
+                    return;
+                }
+                
                 upstream = new FSGetDirectHandler( daemon, this );
                 
             }
