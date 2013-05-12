@@ -70,14 +70,14 @@ import com.spinn3r.log5j.*;
  * where we involve ALL workers hosting these keys in parallel.
  * 
  */
-public class FSClientEndpointHandler extends ErrorLoggingChannelUpstreamHandler {
+public class FSClientFrontendHandler extends ErrorLoggingChannelUpstreamHandler {
 
     protected static final Logger log = Logger.getLogger();
 
     private static Pattern PATH_REGEX =
         Pattern.compile( "^/client-rpc/(GET|SCAN|MUTATE)" );
 
-    public FSClientEndpointHandler( FSDaemon daemon, FSHandler handler ) throws Exception {
+    public FSClientFrontendHandler(FSDaemon daemon, FSHandler handler) throws Exception {
 
     }
 
