@@ -24,7 +24,7 @@ import com.spinn3r.log5j.*;
 /**
  * Base handler for dealing with logging throughput and other issues with PUT.
  */
-public class FSPutBaseHandler extends ErrorLoggingChannelUpstreamHandler {
+public abstract class FSPutBaseHandler extends ErrorLoggingChannelUpstreamHandler {
 
     protected static final Logger log = Logger.getLogger();
 

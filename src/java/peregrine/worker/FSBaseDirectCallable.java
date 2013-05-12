@@ -32,10 +32,11 @@ public abstract class FSBaseDirectCallable implements Callable {
 
     /**
      * If the given file exists, return true.  If not, return a NOT_FOUND and
-     * return fals.e
+     * return false.
      */
     public boolean exists( Channel channel, String path ) {
 
+        //FIXME: we should NOT send an HTTP response as a side-effect of calling exists()
         File dir = new File( path );
 
         if ( ! dir.exists() ) {

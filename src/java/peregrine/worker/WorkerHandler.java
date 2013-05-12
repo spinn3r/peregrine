@@ -108,6 +108,7 @@ public class WorkerHandler extends DefaultChannelUpstreamHandler {
                 if ( uri.getPath().contains( "/shuffle/" ) ) {
                     upstream = new FSPutShuffleHandler( daemon, this );
                 } else {
+                    // TODO: are we actually using this for anything?  I don't think we are.
                     upstream = new FSPutDirectHandler( daemon, this );
                 }
 

@@ -26,6 +26,8 @@ import org.jboss.netty.handler.codec.http.*;
 import peregrine.io.partition.*;
 
 /**
+ * HTTP HEAD on files within Peregrine.  This is uses to that we can report the
+ * number of chunks and the sum of the file size of all chunks in the file.
  */
 public class FSHeadDirectHandler extends ErrorLoggingChannelUpstreamHandler {
 
@@ -75,9 +77,10 @@ class FSHeadDirectCallable extends FSBaseDirectCallable {
             int nr_chunks = files.size();
 
             HttpResponse response = new DefaultHttpResponse( HTTP_1_1, OK );
-            response.setHeader( "X-nr-chunks", "" + nr_chunks );
-            response.setHeader( "X-length",    "" + length );
-            
+            response.setHeader( "X-nr-chunks",     "" + nr_chunks );
+            response.setHeader( "X-length",        "" + length );
+            response.setHeader( "Content-Length",  "" + length );
+
             channel.write(response);
 
         }
