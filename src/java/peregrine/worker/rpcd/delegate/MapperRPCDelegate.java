@@ -15,19 +15,13 @@
 */
 package peregrine.worker.rpcd.delegate;
 
-import java.util.*;
-import java.util.concurrent.*;
-
 import org.jboss.netty.buffer.*;
 import org.jboss.netty.channel.*;
 
 import peregrine.*;
-import peregrine.config.*;
-import peregrine.util.*;
 import peregrine.worker.*;
 
 import peregrine.rpc.*;
-import peregrine.rpcd.delegate.*;
 
 import peregrine.io.*;
 import peregrine.task.*;
@@ -44,7 +38,7 @@ public class MapperRPCDelegate extends BaseTaskRPCDelegate {
      * Execute a job on a given partition.
      */
     @RPC
-    public ChannelBuffer exec( FSDaemon daemon, Channel channel, Message message )
+    public ChannelBuffer exec( WorkerDaemon daemon, Channel channel, Message message )
         throws Exception {
 
         log.info( "Going to exec with action: %s", message );
@@ -88,7 +82,7 @@ public class MapperRPCDelegate extends BaseTaskRPCDelegate {
         return new Output( message.getList( "output" ) );
     }
     
-    protected Work readWork( FSDaemon daemon, Input input, Message message ) {
+    protected Work readWork( WorkerDaemon daemon, Input input, Message message ) {
         return new Work( daemon.getConfig().getHost(), input, message.getList( "work" ) );
     }
     

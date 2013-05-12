@@ -24,7 +24,7 @@ public class BaseTestWithTwoPartitions extends peregrine.BaseTest {
 
     protected Config config;
 
-    protected List<FSDaemon> daemons = new ArrayList();
+    protected List<WorkerDaemon> daemons = new ArrayList();
     
     public void setUp() {
 
@@ -40,13 +40,13 @@ public class BaseTestWithTwoPartitions extends peregrine.BaseTest {
 
         config.init();
 
-        daemons.add( new FSDaemon( config ) );
+        daemons.add( new WorkerDaemon( config ) );
 
     }
 
     public void tearDown() {
 
-        for( FSDaemon daemon : daemons ) {
+        for( WorkerDaemon daemon : daemons ) {
             daemon.shutdown();
         }
         

@@ -35,8 +35,8 @@ public class TestPipelineWrites extends peregrine.BaseTest {
 
         config = newConfig( 11112 );
         
-        new FSDaemon( config );
-        new FSDaemon( newConfig( 11113 ) );
+        new WorkerDaemon( config );
+        new WorkerDaemon( newConfig( 11113 ) );
 
     }
 

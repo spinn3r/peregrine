@@ -30,7 +30,7 @@ public abstract class BaseTestWithMultipleDaemons extends peregrine.BaseTest {
 
     protected Config config;
 
-    protected List<FSDaemon> daemons = new ArrayList();
+    protected List<WorkerDaemon> daemons = new ArrayList();
 
     protected List<Config> configs = new ArrayList();
 
@@ -62,7 +62,7 @@ public abstract class BaseTestWithMultipleDaemons extends peregrine.BaseTest {
             Config config = newConfig( "localhost", Host.DEFAULT_PORT + i );
             configs.add( config );
             
-            daemons.add( new FSDaemon( config ) );
+            daemons.add( new WorkerDaemon( config ) );
 
         }
 
@@ -90,7 +90,7 @@ public abstract class BaseTestWithMultipleDaemons extends peregrine.BaseTest {
 
     public void tearDown() {
 
-        for( FSDaemon daemon : daemons ) {
+        for( WorkerDaemon daemon : daemons ) {
             daemon.shutdown();
         }
         

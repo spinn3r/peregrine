@@ -15,8 +15,6 @@
 */
 package peregrine.worker.rpcd.delegate;
 
-import java.io.*;
-
 import org.jboss.netty.channel.*;
 import org.jboss.netty.buffer.*;
 
@@ -29,7 +27,7 @@ import peregrine.os.*;
 /**
  * Handles all shuffle related RPC messages.
  */
-public class SystemRPCDelegate extends RPCDelegate<FSDaemon> {
+public class SystemRPCDelegate extends RPCDelegate<WorkerDaemon> {
 
     /**
      * Get status (stat) information on the current daemon.  This includes the
@@ -37,7 +35,7 @@ public class SystemRPCDelegate extends RPCDelegate<FSDaemon> {
      * kill it if necessary.
      */
     @RPC
-    public ChannelBuffer stat( FSDaemon daemon, Channel channel, Message message ) throws Exception {
+    public ChannelBuffer stat( WorkerDaemon daemon, Channel channel, Message message ) throws Exception {
 
         Message response = new Message();
         response.put( "pid", "" + unistd.getpid() );

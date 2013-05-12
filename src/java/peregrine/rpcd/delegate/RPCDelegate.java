@@ -29,7 +29,7 @@ public abstract class RPCDelegate<T> {
 
     /**
      * @param parent The parent object invoking this request. Usually an
-     * FSDaemon or a Controller.
+     * WorkerDaemon or a Controller.
      */
     public ChannelBuffer handleMessage( T parent,
                                         Channel channel,

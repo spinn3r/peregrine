@@ -35,10 +35,10 @@ public class FSPipelineFactory implements ChannelPipelineFactory {
     public static int MAX_HEADER_SIZE            = 1024;
 
     private Config config;
-    private FSDaemon daemon;
+    private WorkerDaemon daemon;
     
     public FSPipelineFactory( Config config,
-                              FSDaemon daemon ) {
+                              WorkerDaemon daemon ) {
 
         this.config = config;
         this.daemon = daemon;

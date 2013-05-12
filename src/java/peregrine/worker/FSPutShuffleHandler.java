@@ -26,7 +26,6 @@ import org.jboss.netty.channel.*;
 import org.jboss.netty.handler.codec.http.*;
 
 import peregrine.io.chunk.*;
-import peregrine.util.primitive.IntBytes;
 import peregrine.shuffle.receiver.*;
 
 /**
@@ -44,7 +43,7 @@ public class FSPutShuffleHandler extends FSPutBaseHandler {
     
     private ShuffleReceiver shuffleReceiver = null;
     
-    public FSPutShuffleHandler( FSDaemon daemon, FSHandler handler ) throws Exception {
+    public FSPutShuffleHandler( WorkerDaemon daemon, FSHandler handler ) throws Exception {
         super( handler );
         
         String path = handler.request.getUri();

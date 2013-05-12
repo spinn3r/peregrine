@@ -19,15 +19,9 @@ import static org.jboss.netty.handler.codec.http.HttpResponseStatus.*;
 import static org.jboss.netty.handler.codec.http.HttpVersion.*;
 
 import java.io.*;
-import java.util.*;
-import java.util.concurrent.*;
 
 import org.jboss.netty.channel.*;
 import org.jboss.netty.handler.codec.http.*;
-
-import peregrine.io.partition.*;
-import peregrine.io.util.*;
-import peregrine.util.*;
 
 import com.spinn3r.log5j.Logger;
 
@@ -39,12 +33,12 @@ public class FSGetDirectHandler extends ErrorLoggingChannelUpstreamHandler {
     protected static final Logger log = Logger.getLogger();
 
     private FSHandler handler;
-    private FSDaemon daemon;
+    private WorkerDaemon daemon;
     private Channel channel;
 
     private ChannelHandlerContext ctx = null;
     
-    public FSGetDirectHandler( FSDaemon daemon, FSHandler handler ) {
+    public FSGetDirectHandler( WorkerDaemon daemon, FSHandler handler ) {
         this.daemon = daemon;
         this.handler = handler;
     }

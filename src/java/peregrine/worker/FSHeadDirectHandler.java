@@ -20,21 +20,19 @@ import static org.jboss.netty.handler.codec.http.HttpVersion.*;
 
 import java.io.*;
 import java.util.*;
-import java.util.concurrent.*;
 
 import org.jboss.netty.channel.*;
 import org.jboss.netty.handler.codec.http.*;
 import peregrine.io.partition.*;
-import peregrine.util.*;
 
 /**
  */
 public class FSHeadDirectHandler extends ErrorLoggingChannelUpstreamHandler {
 
-    private FSDaemon daemon;
+    private WorkerDaemon daemon;
     private FSHandler handler;
     
-    public FSHeadDirectHandler( FSDaemon daemon, FSHandler handler ) {
+    public FSHeadDirectHandler( WorkerDaemon daemon, FSHandler handler ) {
         this.daemon = daemon;
         this.handler = handler;
     }

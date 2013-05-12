@@ -21,7 +21,7 @@ import peregrine.worker.*;
 
 public class PFSTest extends peregrine.BaseTest {
 
-    protected FSDaemon daemon = null;
+    protected WorkerDaemon daemon = null;
     
     public void setUp() {
 
@@ -33,7 +33,7 @@ public class PFSTest extends peregrine.BaseTest {
 
         config.init();
         
-        daemon = new FSDaemon( config );
+        daemon = new WorkerDaemon( config );
         
     }
 

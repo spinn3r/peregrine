@@ -15,14 +15,11 @@
 */
 package peregrine.worker.rpcd.delegate;
 
-import java.util.*;
 import java.util.concurrent.*;
 
 import org.jboss.netty.buffer.*;
 import org.jboss.netty.channel.*;
 
-import peregrine.config.*;
-import peregrine.util.*;
 import peregrine.worker.*;
 import peregrine.rpc.*;
 import peregrine.rpcd.delegate.*;
@@ -36,7 +33,7 @@ import com.spinn3r.log5j.*;
  * supports killing them as well.
  * 
  */
-public class BaseTaskRPCDelegate extends RPCDelegate<FSDaemon> {
+public class BaseTaskRPCDelegate extends RPCDelegate<WorkerDaemon> {
 
     private static final Logger log = Logger.getLogger();
 
@@ -46,7 +43,7 @@ public class BaseTaskRPCDelegate extends RPCDelegate<FSDaemon> {
      * Reset state between partition runs.
      */
     @RPC
-    public ChannelBuffer reset( FSDaemon daemon, Channel channel, Message message )
+    public ChannelBuffer reset( WorkerDaemon daemon, Channel channel, Message message )
         throws Exception {
 
         log.info( "Going to reset()" );
@@ -61,7 +58,7 @@ public class BaseTaskRPCDelegate extends RPCDelegate<FSDaemon> {
      * Kill a given task by partition.
      */
     @RPC
-    public ChannelBuffer kill( FSDaemon daemon, Channel channel, Message message )
+    public ChannelBuffer kill( WorkerDaemon daemon, Channel channel, Message message )
         throws Exception {
 
         Input input   = new Input( message.getList( "input" ) );

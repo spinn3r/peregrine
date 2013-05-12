@@ -18,17 +18,10 @@ package peregrine.worker;
 import static org.jboss.netty.handler.codec.http.HttpResponseStatus.*;
 import static org.jboss.netty.handler.codec.http.HttpVersion.*;
 
-import java.io.*;
-import java.net.*;
 import java.util.regex.*;
 
-import org.jboss.netty.buffer.*;
 import org.jboss.netty.channel.*;
 import org.jboss.netty.handler.codec.http.*;
-
-import peregrine.io.chunk.*;
-import peregrine.util.primitive.IntBytes;
-import peregrine.shuffle.receiver.*;
 
 import com.spinn3r.log5j.*;
 
@@ -77,7 +70,7 @@ public class FSClientFrontendHandler extends ErrorLoggingChannelUpstreamHandler 
     private static Pattern PATH_REGEX =
         Pattern.compile( "^/client-rpc/(GET|SCAN|MUTATE)" );
 
-    public FSClientFrontendHandler(FSDaemon daemon, FSHandler handler) throws Exception {
+    public FSClientFrontendHandler(WorkerDaemon daemon, FSHandler handler) throws Exception {
 
     }
 

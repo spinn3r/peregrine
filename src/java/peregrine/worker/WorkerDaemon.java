@@ -38,7 +38,7 @@ import com.spinn3r.log5j.Logger;
 /**
  * Main daemon for handling filesystem operations.
  */
-public class FSDaemon extends BaseDaemon {
+public class WorkerDaemon extends BaseDaemon {
 
     private static final Logger log = Logger.getLogger();
     
@@ -49,7 +49,7 @@ public class FSDaemon extends BaseDaemon {
 
     private HeartbeatTimer heartbeatTimer;
 
-    public FSDaemon( Config config ) {
+    public WorkerDaemon(Config config) {
 
         setConfig( config );
 

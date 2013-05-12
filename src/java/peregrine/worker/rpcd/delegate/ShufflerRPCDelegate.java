@@ -32,14 +32,14 @@ import peregrine.io.util.*;
  * <p>
  * <img src="https://bitbucket.org/burtonator/peregrine/raw/78abaa786a1b650601eed017bff573f968bf403f/misc/shuffle-flush.png" border="1"/>
  */
-public class ShufflerRPCDelegate extends RPCDelegate<FSDaemon> {
+public class ShufflerRPCDelegate extends RPCDelegate<WorkerDaemon> {
 
     /**
      * Flush pending shuffle data to disk.  This is called at the end of jobs to
      * verify that we don't have pending shuffle data in memory.
      */
     @RPC
-    public ChannelBuffer flush( FSDaemon daemon, Channel channel, Message message ) throws IOException {
+    public ChannelBuffer flush( WorkerDaemon daemon, Channel channel, Message message ) throws IOException {
         // FIXME: this should be async should it not?
         daemon.shuffleReceiverFactory.flush();
         return null;
@@ -49,7 +49,7 @@ public class ShufflerRPCDelegate extends RPCDelegate<FSDaemon> {
      * Delete all the shuffle data on disk for the shuffle with the given name.
      */
     @RPC
-    public ChannelBuffer delete( FSDaemon daemon, Channel channel, Message message ) throws IOException {
+    public ChannelBuffer delete( WorkerDaemon daemon, Channel channel, Message message ) throws IOException {
         daemon.shuffleReceiverFactory.purge( message.get( "name" ) );
         return null;
     }
@@ -61,7 +61,7 @@ public class ShufflerRPCDelegate extends RPCDelegate<FSDaemon> {
      * <b>within</b> a Batch but not between batches.  
      */
     @RPC
-    public ChannelBuffer purge( FSDaemon daemon, Channel channel, Message message ) throws IOException {
+    public ChannelBuffer purge( WorkerDaemon daemon, Channel channel, Message message ) throws IOException {
 
         Files.purge( daemon.getConfig().getShuffleDir() );
         return null;

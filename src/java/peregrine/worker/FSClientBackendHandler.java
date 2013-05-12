@@ -142,6 +142,27 @@ public class FSClientBackendHandler extends ErrorLoggingChannelUpstreamHandler {
             // course another isuse here is that if it's the ONLY client then
             // re-enqueing it again is just going to result in the SAME problem
             // happening all over again.
+
+            // FIXME:
+            //
+            // NOW that I know how to avoid channels that are not listening, Make it EASY to
+            // skip over items that are NOT going to need responding.  
+            //
+            // First we need to look at the queue of requests and then build the plan for
+            // fetching the keys.
+            //
+            // Then for EVERY block we are fetching from, we need to make sure it ACTUALLY has
+            // keeps that we need to index.  Then we decompress it, and for EACH key we keep
+            // making sure we actually need to fetch it. 
+            //
+            // Then at the END we need to look at the queue AGAIN to make sure we ahve fetched
+            // everything.  We can use the changing interest ops to add them to the queue
+            // again.
+            //
+            // ACTUALLY ... just iterate over ALL the keys on a per client basis.  THEN if a
+            // client comes alive later we can service the keys at the trailing end of the
+            // request and then come back and finish the request the next time around and give
+            // him additional keys.
             
             reader.seekTo( request.getKeys(), new RecordListener() {
 

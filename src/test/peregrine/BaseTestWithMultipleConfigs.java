@@ -21,7 +21,6 @@ import java.util.*;
 import peregrine.config.*;
 import peregrine.worker.*;
 import peregrine.util.*;
-import peregrine.io.chunk.*;
 import peregrine.io.partition.*;
 
 import com.spinn3r.log5j.Logger;
@@ -34,7 +33,7 @@ public abstract class BaseTestWithMultipleConfigs extends peregrine.BaseTest {
 
     protected Config config;
 
-    protected List<FSDaemon> daemons = new ArrayList();
+    protected List<WorkerDaemon> daemons = new ArrayList();
 
     protected List<Config> configs = new ArrayList();
 
@@ -84,7 +83,7 @@ public abstract class BaseTestWithMultipleConfigs extends peregrine.BaseTest {
 
             configsByHost.put( config.getHost() , config );
             
-            daemons.add( new FSDaemon( config ) );
+            daemons.add( new WorkerDaemon( config ) );
 
         }
 
@@ -135,7 +134,7 @@ public abstract class BaseTestWithMultipleConfigs extends peregrine.BaseTest {
 
         log.info( "Shutting down %,d daemons", daemons.size() );
         
-        for( FSDaemon daemon : daemons ) {
+        for( WorkerDaemon daemon : daemons ) {
 
             log.info( "Shutting down: %s", daemons );
             daemon.shutdown();

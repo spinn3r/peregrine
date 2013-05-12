@@ -15,35 +15,24 @@
 */
 package peregrine.worker.rpcd;
 
-import static org.jboss.netty.handler.codec.http.HttpResponseStatus.*;
-import static org.jboss.netty.handler.codec.http.HttpVersion.*;
-
-import java.net.*;
 import java.util.*;
-import java.util.concurrent.*;
 
 import org.jboss.netty.buffer.*;
 import org.jboss.netty.channel.*;
-import org.jboss.netty.handler.codec.http.*;
 
-import peregrine.util.*;
 import peregrine.worker.*;
 import peregrine.worker.rpcd.delegate.*;
 import peregrine.rpc.*;
 import peregrine.rpcd.*;
 import peregrine.rpcd.delegate.*;
-import peregrine.controller.*;
 import peregrine.controller.rpcd.*;
-import peregrine.controller.rpcd.delegate.*;
-
-import com.spinn3r.log5j.*;
 
 /**
  * RPC handler for worker filesystem operation.
  */
-public class FSDaemonRPCHandler extends BaseRPCHandler<FSDaemon> {
+public class FSDaemonRPCHandler extends BaseRPCHandler<WorkerDaemon> {
 
-	private static Map<String,RPCDelegate<FSDaemon>> handlers = new HashMap() {{
+	private static Map<String,RPCDelegate<WorkerDaemon>> handlers = new HashMap() {{
     	
     	put( "/shuffler/RPC",    new ShufflerRPCDelegate() );
         put( "/map/RPC",         new MapperRPCDelegate() );
@@ -53,11 +42,11 @@ public class FSDaemonRPCHandler extends BaseRPCHandler<FSDaemon> {
         
     }};
 
-    private FSDaemon daemon;
+    private WorkerDaemon daemon;
 
     private FSHandler handler;
 
-    public FSDaemonRPCHandler( FSDaemon daemon, FSHandler handler, String uri ) {
+    public FSDaemonRPCHandler( WorkerDaemon daemon, FSHandler handler, String uri ) {
     	
         super( daemon.getExecutorService( ControllerRPCHandler.class ), uri );
     	
@@ -67,7 +56,7 @@ public class FSDaemonRPCHandler extends BaseRPCHandler<FSDaemon> {
     }
     
     @Override
-    public RPCDelegate<FSDaemon> getRPCDelegate( String path ) {
+    public RPCDelegate<WorkerDaemon> getRPCDelegate( String path ) {
     	return handlers.get( path );	
     }
  

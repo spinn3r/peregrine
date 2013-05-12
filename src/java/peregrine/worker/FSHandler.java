@@ -53,10 +53,10 @@ public class FSHandler extends DefaultChannelUpstreamHandler {
 
     protected Config config;
 
-    protected FSDaemon daemon;
+    protected WorkerDaemon daemon;
     
     public FSHandler( Config config,
-                      FSDaemon daemon ) {
+                      WorkerDaemon daemon ) {
 
         this.daemon = daemon;
         this.config = config;

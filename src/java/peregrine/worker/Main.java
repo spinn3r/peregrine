@@ -15,9 +15,6 @@
 */
 package peregrine.worker;
 
-import java.io.*;
-import java.util.*;
-
 import peregrine.config.*;
 import peregrine.os.*;
 
@@ -86,7 +83,7 @@ public class Main {
 
         log.info( "Running with config: \n%s", config.toDesc() );
 
-        new FSDaemon( config );
+        new WorkerDaemon( config );
 
         System.out.printf( "Daemon up and running on %s\n", config.getHost() );
         

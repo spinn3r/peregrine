@@ -18,7 +18,6 @@ package peregrine.worker;
 import java.io.*;
 import java.util.*;
 import peregrine.config.*;
-import peregrine.worker.*;
 
 import com.spinn3r.log5j.Logger;
 
@@ -30,7 +29,7 @@ public class EmbeddedDaemon {
 
     private static final Logger log = Logger.getLogger();
 
-    protected List<FSDaemon> daemons = new ArrayList();
+    protected List<WorkerDaemon> daemons = new ArrayList();
 
     private String[] args = new String[0];
     
@@ -53,7 +52,7 @@ public class EmbeddedDaemon {
             config.setHost( host );
             config.init();
 
-            daemons.add( new FSDaemon( config ) );
+            daemons.add( new WorkerDaemon( config ) );
 
         }
 
@@ -65,7 +64,7 @@ public class EmbeddedDaemon {
 
         log.info( "Shutting down %,d daemons", daemons.size() );
         
-        for( FSDaemon daemon : daemons ) {
+        for( WorkerDaemon daemon : daemons ) {
 
             log.info( "Shutting down: %s", daemons );
             daemon.shutdown();
