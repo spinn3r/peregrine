@@ -28,6 +28,8 @@ import org.jboss.netty.handler.codec.http.*;
 import peregrine.config.Config;
 import peregrine.http.*;
 import peregrine.util.netty.*;
+import peregrine.worker.clientd.BackendHandler;
+import peregrine.worker.clientd.FrontendHandler;
 import peregrine.worker.rpcd.*;
 
 import com.spinn3r.log5j.*;
@@ -125,14 +127,14 @@ public class FSHandler extends DefaultChannelUpstreamHandler {
             if ( method == GET ) {
 
                 // TODO: see if this is a client request... 
-                FSClientFrontendHandler endpointHandler = new FSClientFrontendHandler( daemon, this );
+                FrontendHandler endpointHandler = new FrontendHandler( daemon, this );
 
                 if ( endpointHandler.handles( request.getUri() ) ) {
                     endpointHandler.messageReceived( ctx, e );
                     return;
                 }
 
-                FSClientBackendHandler requestHandler = new FSClientBackendHandler( config, request.getUri() );
+                BackendHandler requestHandler = new BackendHandler( config, request.getUri() );
 
                 if ( requestHandler.handles() ) {
                     requestHandler.messageReceived( ctx, e );

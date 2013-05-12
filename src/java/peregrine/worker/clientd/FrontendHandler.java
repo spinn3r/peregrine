@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
 */
-package peregrine.worker;
+package peregrine.worker.clientd;
 
 import static org.jboss.netty.handler.codec.http.HttpResponseStatus.*;
 import static org.jboss.netty.handler.codec.http.HttpVersion.*;
@@ -24,6 +24,9 @@ import org.jboss.netty.channel.*;
 import org.jboss.netty.handler.codec.http.*;
 
 import com.spinn3r.log5j.*;
+import peregrine.worker.ErrorLoggingChannelUpstreamHandler;
+import peregrine.worker.FSHandler;
+import peregrine.worker.WorkerDaemon;
 
 /**
  * <p>
@@ -63,14 +66,14 @@ import com.spinn3r.log5j.*;
  * where we involve ALL workers hosting these keys in parallel.
  * 
  */
-public class FSClientFrontendHandler extends ErrorLoggingChannelUpstreamHandler {
+public class FrontendHandler extends ErrorLoggingChannelUpstreamHandler {
 
     protected static final Logger log = Logger.getLogger();
 
     private static Pattern PATH_REGEX =
         Pattern.compile( "^/client-rpc/(GET|SCAN|MUTATE)" );
 
-    public FSClientFrontendHandler(WorkerDaemon daemon, FSHandler handler) throws Exception {
+    public FrontendHandler(WorkerDaemon daemon, FSHandler handler) throws Exception {
 
     }
 

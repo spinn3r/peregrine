@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
 */
-package peregrine.worker;
+package peregrine.worker.clientd;
 
 import static org.jboss.netty.handler.codec.http.HttpResponseStatus.*;
 import static org.jboss.netty.handler.codec.http.HttpVersion.*;
@@ -40,6 +40,7 @@ import peregrine.util.netty.*;
 import peregrine.util.primitive.IntBytes;
 
 import com.spinn3r.log5j.*;
+import peregrine.worker.ErrorLoggingChannelUpstreamHandler;
 
 /**
  *
@@ -47,7 +48,7 @@ import com.spinn3r.log5j.*;
  * using the SSTableReader interface.
  * 
  */
-public class FSClientBackendHandler extends ErrorLoggingChannelUpstreamHandler {
+public class BackendHandler extends ErrorLoggingChannelUpstreamHandler {
 
     protected static final Logger log = Logger.getLogger();
 
@@ -60,7 +61,7 @@ public class FSClientBackendHandler extends ErrorLoggingChannelUpstreamHandler {
 
     private Partition partition = null;
     
-    public FSClientBackendHandler(Config config, String resource) throws Exception {
+    public BackendHandler(Config config, String resource) throws Exception {
 
         this.config = config;
         this.resource = resource;
