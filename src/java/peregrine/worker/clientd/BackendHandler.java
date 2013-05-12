@@ -41,6 +41,7 @@ import peregrine.util.primitive.IntBytes;
 
 import com.spinn3r.log5j.*;
 import peregrine.worker.ErrorLoggingChannelUpstreamHandler;
+import peregrine.worker.WorkerDaemon;
 
 /**
  *
@@ -60,10 +61,13 @@ public class BackendHandler extends ErrorLoggingChannelUpstreamHandler {
     private String resource;
 
     private Partition partition = null;
-    
-    public BackendHandler(Config config, String resource) throws Exception {
+
+    private WorkerDaemon daemon;
+
+    public BackendHandler(Config config, WorkerDaemon daemon, String resource) throws Exception {
 
         this.config = config;
+        this.daemon = daemon;
         this.resource = resource;
 
         Matcher matcher = PATH_REGEX.matcher( resource );
@@ -92,7 +96,11 @@ public class BackendHandler extends ErrorLoggingChannelUpstreamHandler {
         channel.write(response);
 
         GetRequest request = GetRequestURLParser.toRequest( resource );
-        
+
+        //FIXME: move ALL this code into the BackendRequestExecutor
+
+        //daemon.getBackendRequestQueue().add();
+
         //FIXME: we should support a table cache here... 
         
         LocalPartitionReader reader = null;

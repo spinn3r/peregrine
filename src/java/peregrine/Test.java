@@ -19,6 +19,7 @@ import peregrine.sort.*;
 import peregrine.controller.*;
 import peregrine.io.sstable.*;
 import peregrine.http.*;
+import peregrine.worker.clientd.*;
 
 import org.jboss.netty.buffer.*;
 
@@ -196,19 +197,23 @@ public class Test {
     
     public static void main( String[] args ) throws Exception {
 
-        Config config = ConfigParser.parse();
+        BackendRequestQueue bq = new BackendRequestQueue( null );
 
-        HttpClient client = new HttpClient( config , "http://www.cnn.com:80/" );
-        client.setMethod( HttpMethod.GET );
-
-        client.open();
+        bq.drainTo( new ArrayList() );
         
-        //client.write( "hello world".getBytes() );
-        client.close();
-        
-        ChannelBuffer buff = client.getResult();
+        // Config config = ConfigParser.parse();
 
-        System.err.printf( "FIXME: %s\n", buff );
+        // HttpClient client = new HttpClient( config , "http://www.cnn.com:80/" );
+        // client.setMethod( HttpMethod.GET );
+
+        // client.open();
+        
+        // //client.write( "hello world".getBytes() );
+        // client.close();
+        
+        // ChannelBuffer buff = client.getResult();
+
+        // System.err.printf( "FIXME: %s\n", buff );
         
         // int max = Integer.parseInt( args[0] );
         // int iterations = Integer.parseInt( args[1] );

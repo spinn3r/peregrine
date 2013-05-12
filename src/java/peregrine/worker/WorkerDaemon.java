@@ -15,25 +15,15 @@
 */
 package peregrine.worker;
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
-import java.util.concurrent.*;
-
-import org.jboss.netty.logging.*;
-import org.jboss.netty.bootstrap.*;
 import org.jboss.netty.channel.*;
-import org.jboss.netty.channel.socket.nio.*;
 
 import peregrine.config.*;
-import peregrine.controller.*;
-import peregrine.rpc.*;
 import peregrine.shuffle.receiver.*;
-import peregrine.task.*;
-import peregrine.util.*;
 import peregrine.util.netty.*;
 
 import com.spinn3r.log5j.Logger;
+import peregrine.worker.clientd.BackendRequestExecutor;
+import peregrine.worker.clientd.BackendRequestQueue;
 
 /**
  * Main daemon for handling filesystem operations.
@@ -46,6 +36,9 @@ public class WorkerDaemon extends BaseDaemon {
 
     private HeartbeatTimer heartbeatTimer;
 
+    // general queue used for handling client requests.
+    private BackendRequestQueue backendRequestQueue;
+
     public WorkerDaemon(Config config) {
 
         setConfig( config );
@@ -56,9 +49,19 @@ public class WorkerDaemon extends BaseDaemon {
 
         if ( config.getController() != null )
             heartbeatTimer = new HeartbeatTimer( config );
-        
+
+        // create a queue that we are going to use for the executor.
+        backendRequestQueue = new BackendRequestQueue( config );
+
+        // kick off the request executor thread so that we can start processing results.
+        newDefaultThreadPool(BackendRequestExecutor.class)
+                .submit(new BackendRequestExecutor(config, backendRequestQueue));
+
     }
 
+    public BackendRequestQueue getBackendRequestQueue() {
+        return backendRequestQueue;
+    }
 
     /**
      * Each daemon can only have one shuffle instance.

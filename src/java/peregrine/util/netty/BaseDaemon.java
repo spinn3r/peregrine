@@ -36,6 +36,9 @@ import peregrine.worker.*;
 
 import com.spinn3r.log5j.Logger;
 
+/**
+ * Provides general services and infrastructure for peregrine daemons (worker and controller).
+ */
 public abstract class BaseDaemon {
 
     private static final Logger log = Logger.getLogger();
