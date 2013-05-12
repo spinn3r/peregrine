@@ -19,6 +19,7 @@ import java.util.*;
 import java.util.concurrent.atomic.*;
 
 import peregrine.*;
+import peregrine.client.ScanRequest;
 import peregrine.config.*;
 import peregrine.io.sstable.*;
 import peregrine.util.*;

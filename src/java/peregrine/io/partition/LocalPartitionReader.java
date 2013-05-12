@@ -20,6 +20,7 @@ import java.math.*;
 import java.util.*;
 
 import peregrine.*;
+import peregrine.client.ScanRequest;
 import peregrine.config.*;
 import peregrine.io.*;
 import peregrine.io.chunk.*;

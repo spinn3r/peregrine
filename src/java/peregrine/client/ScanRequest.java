@@ -1,4 +1,4 @@
-package peregrine.io.sstable;
+package peregrine.client;
 
 import java.io.*;
 
