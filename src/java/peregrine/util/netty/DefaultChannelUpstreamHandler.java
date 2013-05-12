@@ -36,6 +36,7 @@ import peregrine.http.*;
 import com.spinn3r.log5j.*;
 
 /**
+ * Some additional functionality for channel handlers required for Peregrine.
  */
 public class DefaultChannelUpstreamHandler extends SimpleChannelUpstreamHandler {
 

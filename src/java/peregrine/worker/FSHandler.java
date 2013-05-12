@@ -17,14 +17,12 @@ package peregrine.worker;
 
 import static org.jboss.netty.handler.codec.http.HttpMethod.*;
 import static org.jboss.netty.handler.codec.http.HttpResponseStatus.*;
-import static org.jboss.netty.handler.codec.http.HttpVersion.*;
 
 import java.io.*;
 import java.net.*;
 
 import org.jboss.netty.buffer.*;
 import org.jboss.netty.channel.*;
-import org.jboss.netty.handler.codec.frame.*;
 import org.jboss.netty.handler.codec.http.*;
 
 import peregrine.config.Config;
@@ -97,6 +95,9 @@ public class FSHandler extends DefaultChannelUpstreamHandler {
                 return;
             }
 
+            //TODO: I think I could put this logic in the pipeline? It's just
+            //not clear how to do split pipelines.
+            
             if ( method == PUT ) {
 
                 URI uri = new URI( request.getUri() );
@@ -131,7 +132,7 @@ public class FSHandler extends DefaultChannelUpstreamHandler {
                     return;
                 }
 
-                FSClientRequestHandler requestHandler = new FSClientRequestHandler( config, request.getUri() );
+                FSClientBackendHandler requestHandler = new FSClientBackendHandler( config, request.getUri() );
 
                 if ( requestHandler.handles() ) {
                     requestHandler.messageReceived( ctx, e );

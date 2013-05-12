@@ -32,20 +32,27 @@ import peregrine.util.*;
 import com.spinn3r.log5j.*;
 
 /**
- * Run a get request for the given keys.  Clients specify a connection. Then
+ * <p> Run a get request for the given keys.  Clients specify a connection. Then
  * create a Get object, set the keys they wish to fetch, then call exec() and
- * then waitFor() to get the results back.  
+ * then waitFor() to get the results back.
+ *
+ * <p> The connection should be the URL to a load balanced pool of worker
+ * daemons.
+ *
+ * <p> The results can be read by first calling <code>waitFor()</code> and then
+ * calling <code>getRecords()</code>.  Note that the results MAY NOT be in the
+ * order that you specified in the request.
  */
 public class GetClient {
-
-    private List<Record> records = new ArrayList();
 
     private Connection connection;
 
     private Config config;
 
     private HttpClient client = null;
-    
+
+    private List<Record> records = new ArrayList();
+
     public GetClient( Config config, Connection connection ) {
         this.config = config;
         this.connection = connection;

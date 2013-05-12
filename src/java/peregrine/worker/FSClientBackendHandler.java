@@ -47,7 +47,7 @@ import com.spinn3r.log5j.*;
  * using the SSTableReader interface.
  * 
  */
-public class FSClientRequestHandler extends ErrorLoggingChannelUpstreamHandler {
+public class FSClientBackendHandler extends ErrorLoggingChannelUpstreamHandler {
 
     protected static final Logger log = Logger.getLogger();
 
@@ -60,7 +60,7 @@ public class FSClientRequestHandler extends ErrorLoggingChannelUpstreamHandler {
 
     private Partition partition = null;
     
-    public FSClientRequestHandler( Config config, String resource ) throws Exception {
+    public FSClientBackendHandler(Config config, String resource) throws Exception {
 
         this.config = config;
         this.resource = resource;
@@ -97,13 +97,21 @@ public class FSClientRequestHandler extends ErrorLoggingChannelUpstreamHandler {
         LocalPartitionReader reader = null;
         DefaultChunkWriter writer = null;
 
-        //FIXME: we should have group 'commit' of requests or intelligent/smart
+        //FIXME: we should have group 'commit' of requests for intelligent/smart
         //batching so that if we come BACK to the queue and it's full with
         //seekTo or scan requess that we can elide them so that blocks only need
         //to be decompressed for ALL inbound requests.
 
         // http://mechanical-sympathy.blogspot.com/2011/10/smart-batching.html
 
+        // FIXME: what happens if we have two entries for the same key... we
+        // should de-dup them but we have to be careful because two clients
+        // could request the SAME key and we need to be careful and return it
+        // correctly.
+
+        // FIXME:if a key/value are BIGGER than the send buffer then we are
+        // fucked and I think we will block?  What happens there?
+        
         try {
             
             NonBlockingChannelBufferWritable writable = new NonBlockingChannelBufferWritable( channel );
