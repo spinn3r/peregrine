@@ -67,6 +67,8 @@ public class GetClient {
 
         String url = GetRequestURLParser.toURL( this, request );
 
+        System.out.printf( "FIXME: url: %s\n", url );
+
         client = new HttpClient( config, url );
         client.setMethod( HttpMethod.GET );
 
@@ -87,6 +89,17 @@ public class GetClient {
         client.close();
         
         ChannelBuffer buff = client.getResult();
+
+
+        System.out.printf( "FIXME: buff is %,d bytes length \n", buff.writerIndex() );
+
+        System.out.printf( "FIXME: \n%s\n", Hex.pretty( buff ) );
+
+        // make sure to get the HTTP status code and make sure that
+        // we have HTTP 200 OK.
+        if ( ! client.getResponse().getStatus().equals( HttpResponseStatus.OK ) ) {
+            throw new IOException( "Client request failed: " + client.getResponse().getStatus() );
+        }
 
         DefaultChunkReader reader = new DefaultChunkReader( buff );
 

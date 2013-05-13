@@ -72,7 +72,9 @@ public class Memtable implements SSTableReader, SSTableWriter {
     }
 
     @Override
-    public Record seekTo( StructReader key ) throws IOException {
+    public Record seekTo( GetBackendRequest request ) throws IOException {
+
+        StructReader key = request.getKey();
 
         NavigableMap<byte[],byte[]> nmap = map.tailMap( key.toByteArray(), true );
 
@@ -89,25 +91,27 @@ public class Memtable implements SSTableReader, SSTableWriter {
     }
 
     @Override
-    public boolean seekTo( List<StructReader> keys, RecordListener listener ) throws IOException {
+    public boolean seekTo( List<GetBackendRequest> requests, RecordListener listener ) throws IOException {
 
-        StructReader last = key;
+        LastRecordListener lastRecordListener = new LastRecordListener( listener );
 
-        for( StructReader key : keys ) {
+        for( GetBackendRequest request : requests ) {
+
+            StructReader key = request.getKey();
 
             byte[] value = map.get( key.toByteArray() );
 
             if ( value != null ) {
-                listener.onRecord( key, StructReaders.wrap( value ) );
-                last = key;
+                lastRecordListener.onRecord( request.getClient(), key, StructReaders.wrap( value ) );
             }
 
         }
 
         // now call seekTo on the last record so that next() works.
-        if ( last != null ) {
+        if ( lastRecordListener.getLastRecord() != null ) {
 
-            seekTo( last );
+            seekTo( new GetBackendRequest( lastRecordListener.getLastClientRequest(),
+                                           lastRecordListener.getLastRecord().getKey() ) );
 
             return true;
 
@@ -167,6 +171,9 @@ public class Memtable implements SSTableReader, SSTableWriter {
         rawByteUsage += _key.length + _value.length;
 
     }
+
+    @Override
+    public void flush() throws IOException { }
 
     @Override
     public void close() throws IOException {

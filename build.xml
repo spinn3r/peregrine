@@ -208,7 +208,8 @@
                   <exclude name="peregrine/TestChunkWriterCloseOnReferenceCount.java"/>
                   <exclude name="peregrine/TestWorkerFailureDuringJob.java"/>
                   <exclude name="peregrine/TestWikirank.java"/>
-                  
+                  <exclude name="peregrine/client/TestClientServerProtocol.java"/>
+
                 </fileset>
 
             </batchtest>
@@ -315,6 +316,7 @@
 
                   <exclude name="peregrine/TestWorkerFailureDuringJob.java"/>
                   <exclude name="peregrine/TestWikirank.java"/>
+                  <exclude name="peregrine/client/TestClientServerProtocol.java"/>
 
                 </fileset>
 

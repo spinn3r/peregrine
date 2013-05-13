@@ -41,13 +41,7 @@ public class NonBlockingChannelBufferWritable implements ChannelBufferWritable {
     
     @Override
     public void write( ChannelBuffer buff ) throws IOException {
-
-        if ( channel.isWritable() ) {
-            channel.write( buff );
-        } else {
-            throw new IOException( "channel not writable" );
-        }
-
+        channel.write( buff );
     }
 
     @Override

@@ -65,7 +65,7 @@ public class WorkerHandler extends DefaultChannelUpstreamHandler {
         this.config = config;
 
     }
-    
+
     @Override
     public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
 

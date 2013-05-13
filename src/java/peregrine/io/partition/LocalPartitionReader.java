@@ -181,17 +181,17 @@ public class LocalPartitionReader extends BaseJobInput
     }
 
     @Override
-    public Record seekTo( StructReader key ) throws IOException {
+    public Record seekTo( GetBackendRequest request ) throws IOException {
 
-        List<StructReader> keys = new ArrayList();
-        keys.add( key );
+        List<GetBackendRequest> requests = new ArrayList();
+        requests.add( request );
 
         LastRecordListener lastRecordListener = new LastRecordListener( null );
 
-        seekTo( keys, lastRecordListener );
+        seekTo( requests, lastRecordListener );
 
-        if ( lastRecordListener.getLast() != null ) {
-            return lastRecordListener.getLast();
+        if ( lastRecordListener.getLastRecord() != null ) {
+            return lastRecordListener.getLastRecord();
         }
 
         return null;
@@ -199,16 +199,18 @@ public class LocalPartitionReader extends BaseJobInput
     }
 
     @Override
-    public boolean seekTo( List<StructReader> keys, RecordListener listener ) throws IOException {
+    public boolean seekTo( List<GetBackendRequest> requests, RecordListener listener ) throws IOException {
 
         this.key = null;
         this.value = null;
 
-        Map<DataBlockReference,List<StructReader>> lookup = new TreeMap(); 
+        Map<DataBlockReference,List<GetBackendRequest>> lookup = new TreeMap();
 
         LastRecordListener lastRecordListener = new LastRecordListener( listener );
         
-        for( StructReader key : keys ) {
+        for( GetBackendRequest request : requests ) {
+
+            StructReader key = request.getKey();
 
             DataBlockReference ref = findDataBlockReference( key );
 
@@ -216,14 +218,14 @@ public class LocalPartitionReader extends BaseJobInput
             if ( ref == null )
                 continue;
 
-            List<StructReader> keysForReference = lookup.get( ref );
+            List<GetBackendRequest> requestsForReference = lookup.get( ref );
 
-            if ( keysForReference == null ) {
-                keysForReference = new ArrayList();
-                lookup.put( ref, keysForReference );
+            if ( requestsForReference == null ) {
+                requestsForReference = new ArrayList();
+                lookup.put( ref, requestsForReference );
             }
 
-            keysForReference.add( key );
+            requestsForReference.add( request );
             
         }
 
@@ -238,15 +240,15 @@ public class LocalPartitionReader extends BaseJobInput
             // update the chunk ref that we're working with.
             chunkRef = new ChunkReference( partition, ref.idx );
 
-            List<StructReader> refKeys = lookup.get( ref );
+            List<GetBackendRequest> refKeys = lookup.get( ref );
             
             ref.reader.seekTo( refKeys, ref.dataBlock, lastRecordListener );
 
         }
 
-        if ( lastRecordListener.getLast() != null ) {
+        if ( lastRecordListener.getLastRecord() != null ) {
 
-            Record last = lastRecordListener.getLast();
+            Record last = lastRecordListener.getLastRecord();
             
             this.key = last.getKey();
             this.value = last.getValue();

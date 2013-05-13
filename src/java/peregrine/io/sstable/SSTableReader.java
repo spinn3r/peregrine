@@ -23,11 +23,11 @@ public interface SSTableReader extends SequenceReader {
      * <p> The key() and value() method, when we match, must return the
      * <b>last</b> key we found via seekTo().
      */
-    public boolean seekTo( List<StructReader> keys, RecordListener listener ) throws IOException;
+    public boolean seekTo( List<GetBackendRequest> requests, RecordListener listener ) throws IOException;
 
     /**
      * Convenience method for working with a single key.
      */
-    public Record seekTo( StructReader key ) throws IOException;
+    public Record seekTo( GetBackendRequest request ) throws IOException;
 
 }

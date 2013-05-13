@@ -78,9 +78,12 @@ public class TestSSTableSupport extends peregrine.BaseTestWithMultipleProcesses 
         // reopen it to test again.
         reader = new LocalPartitionReader( configs.get( 0 ), part, path );
 
+        ClientRequest clientRequest = new ClientRequest( part, path );
+
         for( long i = 0; i < max; ++i ) {
 
-            Record record = reader.seekTo( StructReaders.wrap( i ) );
+            GetBackendRequest getBackendRequest = new GetBackendRequest( clientRequest, StructReaders.wrap( i ) );
+            Record record = reader.seekTo( getBackendRequest );
 
             assertNotNull( record );
 
@@ -95,11 +98,19 @@ public class TestSSTableSupport extends peregrine.BaseTestWithMultipleProcesses 
         }
 
         final AtomicInteger result = new AtomicInteger();
-        
-        reader.seekTo( range( 0, max - 1 ), new RecordListener() {
+
+        List<GetBackendRequest> getBackendRequests = new ArrayList<GetBackendRequest>();
+
+        for( StructReader key : range( 0, max - 1 ) ) {
+
+            getBackendRequests.add( new GetBackendRequest( clientRequest, key ) );
+
+        }
+
+        reader.seekTo( getBackendRequests, new RecordListener() {
 
                 @Override
-                public void onRecord( StructReader key, StructReader value ) {
+                public void onRecord( ClientRequest client, StructReader key, StructReader value ) {
                     result.getAndIncrement();
                 }
 
@@ -119,16 +130,20 @@ public class TestSSTableSupport extends peregrine.BaseTestWithMultipleProcesses 
 
         Partition part = new Partition( 0 );
 
+        ClientRequest clientRequest = new ClientRequest( part, path );
+
+        scanRequest.setClient(clientRequest);
+
         SSTableReader reader = new LocalPartitionReader( configs.get( 0 ), part, path );
 
         Scanner scanner = new Scanner( reader );
 
         final List<StructReader> found = new ArrayList();
-        
+
         scanner.scan(scanRequest, new RecordListener() {
 
                 @Override
-                public void onRecord( StructReader key, StructReader value ) {
+                public void onRecord( ClientRequest clientRequest, StructReader key, StructReader value ) {
 
                     System.out.printf( "  scanRequest.onRecord: key=%s\n", Hex.encode( key ) );
 

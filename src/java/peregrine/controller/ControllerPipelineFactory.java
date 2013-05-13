@@ -16,12 +16,11 @@
 package peregrine.controller;
 
 import static org.jboss.netty.channel.Channels.*;
-import static peregrine.worker.FSPipelineFactory.*;
+import static peregrine.worker.WorkerPipelineFactory.*;
 
 import org.jboss.netty.channel.*;
 import org.jboss.netty.handler.codec.http.*;
 
-import peregrine.*;
 import peregrine.config.*;
 import peregrine.worker.*;
 

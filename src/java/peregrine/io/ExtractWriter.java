@@ -99,6 +99,11 @@ public class ExtractWriter implements Closeable, SequenceWriter {
     }
 
     @Override
+    public void flush() throws IOException {
+
+    }
+
+    @Override
     public void close() throws IOException {
 
         //TODO: not sure why but this made it slower.

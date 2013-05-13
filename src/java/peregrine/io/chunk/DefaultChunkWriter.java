@@ -59,7 +59,7 @@ public class DefaultChunkWriter extends BaseSSTableChunk implements ChunkWriter 
     // WRONG.. .we will STLL have the bloom filter issue.  Instead write a list
     // of offsets and lengths that the meta blocks can be indexed.
 
-    public static int BUFFER_SIZE = 16384;
+    public static int BUFFER_SIZE = 0 /* FIXME */ ;
 
     // default block size for writing indexed chunks
     protected long blockSize = -1;

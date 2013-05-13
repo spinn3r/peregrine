@@ -287,9 +287,9 @@ public class DefaultChunkReader extends BaseSSTableChunk
     /**
      * Fetch all the keys in the given DataBlock.
      */
-    public void seekTo( List<StructReader> keys, DataBlock block, RecordListener listener ) throws IOException {
+    public void seekTo( List<GetBackendRequest> requests, DataBlock block, RecordListener listener ) throws IOException {
 
-        if ( keys.size() == 0 )
+        if ( requests.size() == 0 )
             return;
         
         // position us at the beginning of the block.
@@ -297,20 +297,23 @@ public class DefaultChunkReader extends BaseSSTableChunk
 
         int seek_idx = 0;
 
-        // the key we should be looking for...
-        StructReader find = keys.remove( 0 );
-        
+        // the request+key we should be looking for...
+        GetBackendRequest find = requests.remove( 0 );
+
         while( seek_idx < block.count ) {
 
             next();
             ++seek_idx;
-            
-            if ( find.equals( key() ) ) {
 
-                listener.onRecord( key(), value() );
+            //FIXME: keep looping through the requests because two clients might
+            //have requested the same keys.
+
+            if ( find.getKey().equals( key() ) ) {
+
+                listener.onRecord( find.getClient(), key(), value() );
                 
-                if ( keys.size() > 0 ) {
-                    find = keys.remove( 0 );
+                if ( requests.size() > 0 ) {
+                    find = requests.remove( 0 );
                 } else {
                     break;
                 }

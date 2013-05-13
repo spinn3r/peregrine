@@ -72,7 +72,7 @@ public class WorkerDaemon extends BaseDaemon {
 
     @Override
     public ChannelPipelineFactory getChannelPipelineFactory() {
-        return new FSPipelineFactory( getConfig(), this );
+        return new WorkerPipelineFactory( getConfig(), this );
     }
     
     public void shutdown() {

@@ -44,6 +44,9 @@ public class StructSequenceWriter implements SequenceWriter {
     }
 
     @Override
+    public void flush() throws IOException {}
+
+    @Override
     public void close() throws IOException {}
 
     public StructReader toStructReader() {

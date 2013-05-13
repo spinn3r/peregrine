@@ -9,7 +9,9 @@ import peregrine.StructReader;
  */
 public class LastRecordListener implements RecordListener {
 
-    private Record last = null;
+    private Record lastRecord = null;
+
+    private ClientRequest lastClientRequest = null;
 
     private RecordListener delegate = null;
 
@@ -18,21 +20,27 @@ public class LastRecordListener implements RecordListener {
     }
 
     @Override
-    public void onRecord( StructReader key, StructReader value ) {
+    public void onRecord( ClientRequest request, StructReader key, StructReader value ) {
 
-        if ( last == null )
-            last = new Record();
+        if ( lastRecord == null )
+            lastRecord = new Record();
 
-        last.setKey( key );
-        last.setValue( value );
+        lastRecord.setKey( key );
+        lastRecord.setValue( value );
+
+        lastClientRequest = request;
 
         if ( delegate != null )
-            delegate.onRecord( key, value );
+            delegate.onRecord( request, key, value );
 
     }
 
-    public Record getLast() {
-        return last;
+    public Record getLastRecord() {
+        return lastRecord;
+    }
+
+    public ClientRequest getLastClientRequest() {
+        return lastClientRequest;
     }
 
 }

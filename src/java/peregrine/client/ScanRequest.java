@@ -3,6 +3,7 @@ package peregrine.client;
 import java.io.*;
 
 import peregrine.*;
+import peregrine.io.sstable.ClientRequest;
 
 /**
  * A scan basically represents an interval (in set theory) for requests.  It can
@@ -16,6 +17,15 @@ public class ScanRequest {
     private Bound end = null;
 
     private int limit = 10;
+
+    private ClientRequest client;
+
+    // noarg constructor.  ClientRequest is needed but set it later.
+    public ScanRequest() { }
+
+    public ScanRequest(ClientRequest client) {
+        this.client = client;
+    }
 
     public void setStart( StructReader key, boolean inclusive ) {
         this.start = new Bound( key, inclusive );
@@ -42,6 +52,14 @@ public class ScanRequest {
 
     public void setLimit( int limit ) { 
         this.limit = limit;
+    }
+
+    public ClientRequest getClient() {
+        return client;
+    }
+
+    public void setClient(ClientRequest client) {
+        this.client = client;
     }
 
     /**

@@ -27,7 +27,7 @@ import com.spinn3r.log5j.Logger;
 
 /**
  */
-public class FSPipelineFactory implements ChannelPipelineFactory {
+public class WorkerPipelineFactory implements ChannelPipelineFactory {
 
     private static final Logger log = Logger.getLogger();
 
@@ -37,8 +37,8 @@ public class FSPipelineFactory implements ChannelPipelineFactory {
     private Config config;
     private WorkerDaemon daemon;
     
-    public FSPipelineFactory( Config config,
-                              WorkerDaemon daemon ) {
+    public WorkerPipelineFactory(Config config,
+                                 WorkerDaemon daemon) {
 
         this.config = config;
         this.daemon = daemon;

@@ -11,6 +11,6 @@ public interface RecordListener {
     /**
      * Called when a scan or seekTo finds a new record.
      */
-    public void onRecord( StructReader key, StructReader value );
+    public void onRecord( ClientRequest request, StructReader key, StructReader value );
     
 }

@@ -22,12 +22,15 @@ import peregrine.*;
 /**
  * Interface for writing data in key/value form.
  */
-public interface SequenceWriter extends Closeable {
+public interface SequenceWriter extends Closeable, Flushable {
 
     /**
      * Write a key value pair.  
      */
     public void write( StructReader key, StructReader value ) throws IOException;
+
+    @Override
+    public void flush() throws IOException;
 
     /**
      * Close the writer.

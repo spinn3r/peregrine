@@ -16,7 +16,7 @@
 package peregrine.http;
 
 import static org.jboss.netty.channel.Channels.*;
-import static peregrine.worker.FSPipelineFactory.*;
+import static peregrine.worker.WorkerPipelineFactory.*;
 
 import peregrine.config.*;
 import peregrine.worker.*;

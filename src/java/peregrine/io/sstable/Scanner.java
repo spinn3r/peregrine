@@ -30,8 +30,11 @@ public class Scanner {
         // position us to the starting key if necessary.
         if ( scanRequest.getStart() != null ) {
 
+            GetBackendRequest getBackendRequest
+                    = new GetBackendRequest( scanRequest.getClient(), scanRequest.getStart().key() );
+
             // seek to the start and return if we dont' find it.
-            if ( sstable.seekTo( scanRequest.getStart().key() ) == null ) {
+            if ( sstable.seekTo( getBackendRequest ) == null ) {
                 return;
             }
 
@@ -82,7 +85,7 @@ public class Scanner {
 
             }
 
-            listener.onRecord( sstable.key(), sstable.value() );
+            listener.onRecord( scanRequest.getClient(), sstable.key(), sstable.value() );
             ++found;
 
             if ( sstable.hasNext() && finished == false ) {

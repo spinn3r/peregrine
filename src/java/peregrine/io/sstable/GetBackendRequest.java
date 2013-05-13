@@ -7,13 +7,16 @@ import peregrine.StructReader;
  * individual request for an item and not ALL the items in a GET client
  * request which may be numerous.
  */
-public class GetBackendRequest {
-
-    private State state = State.STOP;
+public class GetBackendRequest implements Comparable<GetBackendRequest> {
 
     private StructReader key;
 
-    public GetBackendRequest(StructReader key) {
+    private boolean complete = false;
+
+    private ClientRequest client;
+
+    public GetBackendRequest(ClientRequest client, StructReader key) {
+        this.client = client;
         this.key = key;
     }
 
@@ -21,22 +24,25 @@ public class GetBackendRequest {
         return key;
     }
 
-    public State getState() {
-        return state;
-    }
-
-    public void setState(State state) {
-        this.state = state;
-    }
-
     /**
-     * The state of this request depending on the client.  The state will be
-     * GO when a client is ready to read over the network, and STOP if it is
-     * idle and not reading results over the network.  If the client dropped
-     * off (timeout, etc) then the request is in state CANCEL.
+     *
+     * @return true if this key has been successfully sent to the client.
      */
-    public enum State {
-       STOP, GO, CANCEL;
+    public boolean isComplete() {
+        return complete;
+    }
+
+    public void setComplete(boolean complete) {
+        this.complete = complete;
+    }
+
+    public ClientRequest getClient() {
+        return client;
+    }
+
+    @Override
+    public int compareTo(GetBackendRequest getBackendRequest) {
+        return key.compareTo( getBackendRequest.getKey() );
     }
 
 }

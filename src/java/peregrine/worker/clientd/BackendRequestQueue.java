@@ -16,12 +16,11 @@ import java.util.concurrent.ArrayBlockingQueue;
  */
 public class BackendRequestQueue {
 
-    private static final int LIMIT = 5000; /* FIXME */
+    public static final int LIMIT = 5000; /* FIXME */
 
     private ArrayBlockingQueue<List<GetBackendRequest>> delegate;
 
     public BackendRequestQueue( Config config ) {
-         // FIXME: create the queue with the config
         delegate = new ArrayBlockingQueue( LIMIT /*FIXME */ );
     }
 

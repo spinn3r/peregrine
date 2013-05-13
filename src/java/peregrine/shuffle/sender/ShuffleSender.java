@@ -17,7 +17,6 @@ package peregrine.shuffle.sender;
 
 import java.io.*;
 import java.util.*;
-import java.util.concurrent.*;
 
 import org.jboss.netty.buffer.*;
 
@@ -29,8 +28,6 @@ import peregrine.util.primitive.*;
 import peregrine.io.chunk.*;
 
 import com.spinn3r.log5j.Logger;
-
-import static peregrine.worker.FSPipelineFactory.*;
 
 public class ShuffleSender implements Flushable, Closeable {
 

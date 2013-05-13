@@ -31,10 +31,12 @@ public class TestClientServerProtocol extends peregrine.BaseTestWithMultipleProc
 
         ExtractWriter writer = new ExtractWriter( config, path );
 
-        List<StructReader> keys = range( 1, 10 );
+        int max = 1;
+
+        List<StructReader> keys = range( 1, max );
         
         for( StructReader key : keys ) {
-            writer.write( key, StructReaders.wrap( true ) );
+            writer.write( key, StructReaders.wrap( "xxxx" ) );
         }
 
         writer.close();
@@ -50,7 +52,7 @@ public class TestClientServerProtocol extends peregrine.BaseTestWithMultipleProc
         client.waitFor();
 
         for( Record current : client.getRecords() ) {
-            System.out.printf( "    %s=%s\n", Hex.encode( current.getKey() ), Hex.encode( current.getValue() ) );
+            System.out.printf( "    %s= %s\n", Hex.encode( current.getKey() ), Hex.encode( current.getValue() ) );
         }
 
         assertEquals( keys.size(), client.getRecords().size() );
