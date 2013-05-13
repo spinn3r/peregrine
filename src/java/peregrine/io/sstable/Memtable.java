@@ -42,8 +42,7 @@ public class Memtable implements SSTableReader, SSTableWriter {
     //private Map<byte[],byte[]> map
     //that     = new ConcurrentSkipListMap( new ByteArrayComparator() );
 
-    private Map<byte[],byte[]> map
-        = new TreeMap( new ByteArrayComparator() );
+    private TreeMap<byte[],byte[]> map = new TreeMap( new ByteArrayComparator() );
     
     // true if close() has been called.  We require that we are still open so
     // that writes don't completed after close()
@@ -74,23 +73,48 @@ public class Memtable implements SSTableReader, SSTableWriter {
 
     @Override
     public Record seekTo( StructReader key ) throws IOException {
-        throw new RuntimeException( "FIXME: not implemented" );
+
+        NavigableMap<byte[],byte[]> nmap = map.tailMap( key.toByteArray(), true );
+
+        if ( nmap.size() > 0 ) {
+
+            iterator = nmap.entrySet().iterator();
+            next();
+            return new Record( key(), value() );
+
+        } else {
+            return null;
+        }
 
     }
 
     @Override
-    public boolean seekTo( List<StructReader> key, RecordListener listener ) throws IOException {
+    public boolean seekTo( List<StructReader> keys, RecordListener listener ) throws IOException {
 
-        // byte[] value = map.get( key.toByteArray() );
+        StructReader last = key;
 
-        // if ( value != null ) {
-        //     return new Record( key, new StructReader( value ) );
-        // }
-        
-        // return null;
+        for( StructReader key : keys ) {
 
-        throw new RuntimeException( "FIXME: not implemented" );
-        
+            byte[] value = map.get( key.toByteArray() );
+
+            if ( value != null ) {
+                listener.onRecord( key, StructReaders.wrap( value ) );
+                last = key;
+            }
+
+        }
+
+        // now call seekTo on the last record so that next() works.
+        if ( last != null ) {
+
+            seekTo( last );
+
+            return true;
+
+        } else {
+            return false;
+        }
+
     }
 
     @Override
@@ -120,15 +144,18 @@ public class Memtable implements SSTableReader, SSTableWriter {
 
     @Override
     public void write( StructReader key, StructReader value ) throws IOException {
+
         requireOpen();
 
         byte[] _key = key.toByteArray();
         byte[] _value = value.toByteArray();
 
-        // TODO: it's not very efficient to do this with EVERY write (and will
+        // It's not very efficient to do this with EVERY write (and will
         // hurt performance).  Ideally we would update rawByteUsage within put()
         // directly because it will collide with another record.  It looked like
-        // this was about 15% faster in practice.
+        // this was about 15% faster in practice.  Not the end of the world but not super
+        // efficient.
+
         if ( map.containsKey( _key ) ) {
             rawByteUsage -= ( _key.length + map.get( _key ).length );
         } else {
