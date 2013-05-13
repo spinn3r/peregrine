@@ -180,10 +180,8 @@ public class LocalPartitionReader extends BaseJobInput
 
     }
 
-    /**
-     * Convenience method for working with a single key.
-     */
-    protected Record seekTo( StructReader key ) throws IOException {
+    @Override
+    public Record seekTo( StructReader key ) throws IOException {
 
         List<StructReader> keys = new ArrayList();
         keys.add( key );
@@ -200,9 +198,6 @@ public class LocalPartitionReader extends BaseJobInput
         
     }
 
-    /**
-     * Find a given record with a specific key.
-     */
     @Override
     public boolean seekTo( List<StructReader> keys, RecordListener listener ) throws IOException {
 
@@ -294,85 +289,6 @@ public class LocalPartitionReader extends BaseJobInput
             return last;
         }
         
-    }
-    
-    @Override
-    public void scan( ScanRequest scanRequest, RecordListener listener ) throws IOException {
-
-        // FIXME: we can't use JUST seekTo to jump to the DefaultChunkReader
-        // position because the block will be decompressed temporarily during
-        // seekTo and THEN we're going to read it again.  We should probably
-        // keep at least ONE block in memory at a time to improve performance of
-        // scanRequest either that or figure out a way to partially push scanRequest code into
-        // the DefaultChunkReader and then have it resume across blocks when
-        // changing to a new reader when we roll over.
-        
-        // position us to the starting key if necessary.
-        if ( scanRequest.getStart() != null ) {
-
-            // seek to the start and return if we dont' find it.
-            if ( seekTo( scanRequest.getStart().key() ) == null ) {
-                return;
-            }
-
-            // if it isn't inclusive skip over it.
-            if ( scanRequest.getStart().isInclusive() == false ) {
-
-                if ( hasNext() ) {
-                    next();
-                } else {
-                    return;
-                }
-
-            }
-
-        } else if ( hasNext() ) {
-
-            // there is no start key so start at the beginning of the chunk
-            // reader.
-            next();
-            
-        } else {
-            // no start key and this DefaultChunkReader is empty.
-            return;
-        }
-
-        int found = 0;
-        boolean finished = false;
-        
-        while( true ) {
-
-            // respect the limit on the number of items to return.
-            if ( found >= scanRequest.getLimit() ) {
-                return;
-            }
-
-            if ( scanRequest.getEnd() != null ) {
-
-                if ( key().equals( scanRequest.getEnd().key() ) ) {
-
-                    if ( scanRequest.getEnd().isInclusive() == false ) {
-                        return;
-                    } else {
-                        // emit the last key and then return.
-                        finished = true;
-                    }
-                    
-                }
-                
-            }
-
-            listener.onRecord( key(), value() );
-            ++found;
-
-            if ( hasNext() && finished == false ) {
-                next();
-            } else {
-                return;
-            } 
-
-        }
-
     }
 
     public List<DefaultChunkReader> getDefaultChunkReaders() {

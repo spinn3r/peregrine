@@ -45,7 +45,7 @@ import peregrine.worker.WorkerDaemon;
 
 /**
  *
- * Handles interfacing with the table code and directly handling client requests
+ * Handles interfacing with the tablet code and directly handling client requests
  * using the SSTableReader interface.
  * 
  */
@@ -72,8 +72,6 @@ public class BackendHandler extends ErrorLoggingChannelUpstreamHandler {
 
         Matcher matcher = PATH_REGEX.matcher( resource );
 
-        Partition part = null;
-        
         if ( matcher.find() ) {
             partition = new Partition( Integer.parseInt( matcher.group( 1 ) ) );
         } 

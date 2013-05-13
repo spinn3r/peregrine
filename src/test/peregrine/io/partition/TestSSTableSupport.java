@@ -22,6 +22,7 @@ import peregrine.*;
 import peregrine.client.ScanRequest;
 import peregrine.config.*;
 import peregrine.io.sstable.*;
+import peregrine.io.sstable.Scanner;
 import peregrine.util.*;
 
 public class TestSSTableSupport extends peregrine.BaseTestWithMultipleProcesses {
@@ -120,9 +121,11 @@ public class TestSSTableSupport extends peregrine.BaseTestWithMultipleProcesses 
 
         SSTableReader reader = new LocalPartitionReader( configs.get( 0 ), part, path );
 
+        Scanner scanner = new Scanner( reader );
+
         final List<StructReader> found = new ArrayList();
         
-        reader.scan(scanRequest, new RecordListener() {
+        scanner.scan(scanRequest, new RecordListener() {
 
                 @Override
                 public void onRecord( StructReader key, StructReader value ) {

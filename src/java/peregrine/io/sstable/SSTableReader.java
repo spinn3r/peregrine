@@ -25,6 +25,9 @@ public interface SSTableReader extends SequenceReader {
      */
     public boolean seekTo( List<StructReader> keys, RecordListener listener ) throws IOException;
 
-    public void scan( ScanRequest scanRequest, RecordListener listener ) throws IOException;
-    
+    /**
+     * Convenience method for working with a single key.
+     */
+    public Record seekTo( StructReader key ) throws IOException;
+
 }
