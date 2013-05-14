@@ -79,7 +79,14 @@ public class BackendHandler extends ErrorLoggingChannelUpstreamHandler {
      */
     public void exec( final Channel channel ) throws IOException {
 
-        if ( daemon.getBackendRequestQueue().isExhausted() ) {
+        // A client COULD in theory send us 50001 keys which itself would
+        // exhaust he queue.  We should first decode the request and see if
+        // it PLUS the current capacity would exhaust the queue.  This way we
+        // don't accept a request for too many keys from one client.
+
+        GetRequest request = GetRequestURLParser.toRequest( resource );
+
+        if ( daemon.getBackendRequestQueue().isExhausted( request.getKeys().size() ) ) {
             // our queue is exhausted which probably means we're at a high
             // system load.
             HttpResponse response = new DefaultHttpResponse( HTTP_1_1, SERVICE_UNAVAILABLE );
@@ -90,8 +97,6 @@ public class BackendHandler extends ErrorLoggingChannelUpstreamHandler {
         HttpResponse response = new DefaultHttpResponse( HTTP_1_1, OK );
         response.setHeader( HttpHeaders.Names.TRANSFER_ENCODING, "chunked" );
         channel.write(response);
-
-        GetRequest request = GetRequestURLParser.toRequest( resource );
 
         // make a list of GetBackendRequests so that we can add them to the queue
         // to be dispatched.

@@ -36,10 +36,11 @@ public class BackendRequestQueue {
 
     /**
      * Return true if we have exhausted our internal queue.  This can happen if
-     * we can't keep up with the load of requests.
+     * we can't keep up with the load of requests.  We require that you
+     * specify the list of additional keys that you would add to the queue.
      */
-    public boolean isExhausted() {
-       return size.get() >= LIMIT;
+    public boolean isExhausted( int keys ) {
+       return size.get() + keys >= LIMIT;
     }
 
     /**
