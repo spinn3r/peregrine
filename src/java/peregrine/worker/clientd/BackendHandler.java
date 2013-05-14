@@ -19,25 +19,17 @@ import static org.jboss.netty.handler.codec.http.HttpResponseStatus.*;
 import static org.jboss.netty.handler.codec.http.HttpVersion.*;
 
 import java.io.*;
-import java.net.*;
 import java.util.*;
 import java.util.regex.*;
 
-import org.jboss.netty.buffer.*;
 import org.jboss.netty.channel.*;
 import org.jboss.netty.handler.codec.http.*;
 
 import peregrine.*;
 import peregrine.client.*;
 import peregrine.config.*;
-import peregrine.io.chunk.*;
-import peregrine.io.partition.*;
+import peregrine.http.HttpChunkEncoder;
 import peregrine.io.sstable.*;
-import peregrine.io.util.*;
-import peregrine.shuffle.receiver.*;
-import peregrine.util.*;
-import peregrine.util.netty.*;
-import peregrine.util.primitive.IntBytes;
 
 import com.spinn3r.log5j.*;
 import peregrine.worker.ErrorLoggingChannelUpstreamHandler;
@@ -90,7 +82,7 @@ public class BackendHandler extends ErrorLoggingChannelUpstreamHandler {
         HttpResponse response = new DefaultHttpResponse( HTTP_1_1, OK );
         response.setHeader( HttpHeaders.Names.TRANSFER_ENCODING, "chunked" );
         //FIXME: transfer needs to be chunked doesn't it?
-        //channel.write(response);
+        channel.write(response);
 
         // FIXME: return an Internal Server Error (or some other error) when
         // the queue of requests is full... the database is overloaded and we
@@ -117,7 +109,7 @@ public class BackendHandler extends ErrorLoggingChannelUpstreamHandler {
 
         // we are done at this point.  the BackendRequestExecutor should now
         // handle serving all the keys.
-       //FIXME:  daemon.getBackendRequestQueue().add( getBackendRequests );
+        daemon.getBackendRequestQueue().add( getBackendRequests );
 
     }
     

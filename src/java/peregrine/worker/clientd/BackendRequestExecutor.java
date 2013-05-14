@@ -1,10 +1,13 @@
 package peregrine.worker.clientd;
 
 import com.spinn3r.log5j.Logger;
+import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.channel.Channel;
 import peregrine.StructReader;
 import peregrine.config.Config;
 import peregrine.config.Partition;
+import peregrine.http.HttpChunkEncoder;
+import peregrine.io.SequenceWriter;
 import peregrine.io.chunk.DefaultChunkWriter;
 import peregrine.io.partition.LocalPartitionReader;
 import peregrine.io.sstable.ClientRequest;
@@ -269,9 +272,16 @@ public class BackendRequestExecutor implements Runnable {
 
                         try {
 
-                            log.info( "FIXME: sending key to client" );
-                            clientRequest.getSequenceWriter().write(key, value);
-                            clientRequest.getSequenceWriter().flush(); /* FIXME */
+                            SequenceWriter writer = clientRequest.getSequenceWriter();
+
+                            writer.write( key, value );
+
+                            // flush after every key write.  This allows us to serve
+                            // requests with lower latency.  These go into the TCP
+                            // send buffer immediately and sent ASAP.  Keeping
+                            // them around in memory is just pointless
+                            writer.flush();
+
 
                             // FIXME: what happens if the key/value pair + length of
                             // both , can't actually fit in the TCP send buffer?
@@ -311,8 +321,12 @@ public class BackendRequestExecutor implements Runnable {
                 for( ClientRequest clientRequest : clientIndex ) {
 
                     try {
-                        clientRequest.getSequenceWriter().flush();
-                        clientRequest.getSequenceWriter().close();
+
+                        SequenceWriter writer = clientRequest.getSequenceWriter();
+
+                        writer.flush();
+                        writer.close();
+
                     } catch ( IOException e ) {
                         log.error( "Unable to handle client: ", e );
                     }

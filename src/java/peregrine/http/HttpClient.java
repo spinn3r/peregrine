@@ -57,9 +57,7 @@ public class HttpClient implements ChannelBufferWritable {
 
     public static final int CHUNK_LENGTH_OVERHEAD = 10;
     
-    public static final byte[] CRLF = new byte[] { (byte)'\r', (byte)'\n' };
-
-    public static final int CHUNK_OVERHEAD = CHUNK_LENGTH_OVERHEAD + (CRLF.length * 2);
+    public static final int CHUNK_OVERHEAD = CHUNK_LENGTH_OVERHEAD + (HttpChunkEncoder.CRLF.length * 2);
 
     public static final byte[] EOF = new byte[0];
 
@@ -300,21 +298,6 @@ public class HttpClient implements ChannelBufferWritable {
         return channelState == CLOSED;
     }
 
-    private ChannelBuffer newChannelBuffer( ChannelBuffer data ) {
-
-        // use Netty composite buffers to avoid copying excessive data.
-        String prefix = String.format( "%2x", data.writerIndex() );
-        
-        ChannelBuffer result =
-            ChannelBuffers.wrappedBuffer( ChannelBuffers.wrappedBuffer( prefix.getBytes() ),
-                                          ChannelBuffers.wrappedBuffer( CRLF ),
-                                          data,
-                                          ChannelBuffers.wrappedBuffer( CRLF ) );
-
-        return result;
-        
-    }
-
     @Override
     public String toString() {
         return String.format( "%s: %s %s", getClass().getSimpleName(), method, uri.toString() );
@@ -504,11 +487,15 @@ public class HttpClient implements ChannelBufferWritable {
 
         if ( ! closing && data.writerIndex() == 0 )
             return;
-        
+
         requireOpen();
         
-        data = newChannelBuffer( data );
-        
+        data = new HttpChunkEncoder( data ).toChannelBuffer();
+
+        if ( HttpMethod.GET.equals( method ) ) {
+            return;
+        }
+
         if ( closed || isChannelStateClosed() ) {
 
             if ( cause != null ) 

@@ -51,7 +51,7 @@ public class HttpClientHandler extends SimpleChannelUpstreamHandler {
 
             this.response = (HttpResponse)message;
 
-        } else if ( message instanceof HttpChunk ) {
+        } else if ( message instanceof HttpChunk) {
 
             HttpChunk chunk = (HttpChunk)message;
 

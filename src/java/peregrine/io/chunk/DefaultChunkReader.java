@@ -190,7 +190,7 @@ public class DefaultChunkReader extends BaseSSTableChunk
                 assertLength(Trailer.LENGTH);
 
                 trailer.read( buff );
-                count = (int)trailer.count;
+                count = trailer.getCount();
 
                 // read the file info
                 if ( trailer.fileInfoOffset > 0 ) {
@@ -372,7 +372,7 @@ public class DefaultChunkReader extends BaseSSTableChunk
 
     @Override
     public String toString() {
-        return String.format( "file: %s, length (in bytes): %,d, count: %,d", file, length, trailer.count );
+        return String.format( "file: %s, length (in bytes): %,d, count: %,d", file, length, trailer.getCount() );
     }
 
     @Override 

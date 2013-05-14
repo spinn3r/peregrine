@@ -129,17 +129,17 @@ public class WorkerHandler extends DefaultChannelUpstreamHandler {
             if ( method == GET ) {
 
                 // TODO: see if this is a client request... 
-                FrontendHandler endpointHandler = new FrontendHandler( daemon, this );
+                FrontendHandler frontendHandler = new FrontendHandler( daemon, this );
 
-                if ( endpointHandler.handles( request.getUri() ) ) {
-                    endpointHandler.messageReceived( ctx, e );
+                if ( frontendHandler.handles( request.getUri() ) ) {
+                    frontendHandler.messageReceived( ctx, e );
                     return;
                 }
 
-                BackendHandler requestHandler = new BackendHandler( daemon, request.getUri() );
+                BackendHandler backendHandler = new BackendHandler( daemon, request.getUri() );
 
-                if ( requestHandler.handles() ) {
-                    //FIXME: requestHandler.messageReceived( ctx, e );
+                if ( backendHandler.handles() ) {
+                    backendHandler.messageReceived( ctx, e );
                     return;
                 }
                 

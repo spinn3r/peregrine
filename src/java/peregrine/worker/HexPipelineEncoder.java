@@ -38,7 +38,7 @@ public class HexPipelineEncoder implements ChannelUpstreamHandler, ChannelDownst
 
         try {
 
-            handleEvent( evt );
+            handleEvent( "upstream", evt );
             
         } finally {
             ctx.sendUpstream( evt );
@@ -50,7 +50,7 @@ public class HexPipelineEncoder implements ChannelUpstreamHandler, ChannelDownst
 
         try {
 
-            handleEvent( evt );
+            handleEvent( "downstream", evt );
             
         } finally {
             ctx.sendDownstream( evt );
@@ -58,7 +58,7 @@ public class HexPipelineEncoder implements ChannelUpstreamHandler, ChannelDownst
         
     }
 
-    private void handleEvent( ChannelEvent evt ) throws Exception {
+    private void handleEvent( String direction, ChannelEvent evt ) throws Exception {
 
         if ( evt instanceof MessageEvent ) {
             
@@ -66,7 +66,7 @@ public class HexPipelineEncoder implements ChannelUpstreamHandler, ChannelDownst
 
             if ( e.getMessage() instanceof ChannelBuffer ) {
                 ChannelBuffer buff = (ChannelBuffer) e.getMessage();
-                log.info( "\n%s", Hex.pretty( buff ) );
+                log.info( "%s: \n%s", direction, Hex.pretty( buff ) );
             }
 
         } else {

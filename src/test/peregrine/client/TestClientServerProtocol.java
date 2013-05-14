@@ -31,7 +31,7 @@ public class TestClientServerProtocol extends peregrine.BaseTestWithMultipleProc
 
         ExtractWriter writer = new ExtractWriter( config, path );
 
-        int max = 1;
+        int max = 50;
 
         List<StructReader> keys = range( 1, max );
         
@@ -55,12 +55,14 @@ public class TestClientServerProtocol extends peregrine.BaseTestWithMultipleProc
             System.out.printf( "    %s= %s\n", Hex.encode( current.getKey() ), Hex.encode( current.getValue() ) );
         }
 
-//FIXME        assertEquals( keys.size(), client.getRecords().size() );
+        System.out.printf( "Found %,d records. ", client.getRecords().size() );
+
+        assertEquals( keys.size(), client.getRecords().size() );
         
     }
 
     public static void main( String[] args ) throws Exception {
-        runTests();
+        runTests(args);
     }
 
 }

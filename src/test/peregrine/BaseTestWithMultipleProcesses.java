@@ -22,11 +22,9 @@ import peregrine.config.*;
 import peregrine.worker.*;
 import peregrine.util.*;
 import peregrine.io.util.*;
-import peregrine.io.chunk.*;
 import peregrine.io.partition.*;
 import peregrine.os.*;
 import peregrine.os.proc.*;
-import peregrine.rpc.*;
 
 import com.spinn3r.log5j.Logger;
 
@@ -43,7 +41,6 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
 
     // memory for unit tests needs to be lower so that we don't run out of
     // memory running large numbers of daemons.
-
     public static String MAX_MEMORY = "96M";
     
     /**
@@ -131,51 +128,55 @@ public abstract class BaseTestWithMultipleProcesses extends peregrine.BaseTest {
             // get the config for the controller
             config = getConfig( 11111 );
 
-            for( int i = 0; i < hosts; ++i ) {
+            if ( NO_DAEMONS == false ) {
 
-                // startup new daemons no different port and in different
-                // directories.
+                for( int i = 0; i < hosts; ++i ) {
 
-                int port = Host.DEFAULT_PORT + i;
-                String basedir = getBasedir( port );
+                    // startup new daemons no different port and in different
+                    // directories.
 
-                Host host = new Host( "localhost", port );
+                    int port = Host.DEFAULT_PORT + i;
+                    String basedir = getBasedir( port );
 
-                Config config = getConfig( port );
-            
-                configsByHost.put( host, config );
-                configs.add( config );
+                    Host host = new Host( "localhost", port );
 
-                //clean up the previous basedir
+                    Config config = getConfig( port );
 
-                System.out.printf( "Removing files in %s\n", basedir );
+                    configsByHost.put( host, config );
+                    configs.add( config );
 
-                Files.purge( basedir );
+                    //clean up the previous basedir
 
-                List<String> workerd_args = getArguments( port );
+                    System.out.printf( "Removing files in %s\n", basedir );
 
-                // the args specific in spawn() must begin at 1 and have the name of
-                // the command first (by convention)
-                workerd_args.add( 0, "bin/workerd" );
+                    Files.purge( basedir );
 
-                // tell the daemon that we want to start.
-                workerd_args.add( "start" );
+                    List<String> workerd_args = getArguments( port );
 
-                List<String> env = new ArrayList();
+                    // the args specific in spawn() must begin at 1 and have the name of
+                    // the command first (by convention)
+                    workerd_args.add( 0, "bin/workerd" );
 
-                //env.add( String.format( "MAX_MEMORY=%s", MAX_MEMORY ) );
-                
-                System.out.printf( "Starting proc: %s\n", Strings.join( workerd_args, " " ) );
+                    // tell the daemon that we want to start.
+                    workerd_args.add( "start" );
 
-                int pid = unistd.posix_spawn( "bin/workerd",
-                                              Strings.toArray( workerd_args ),
-                                              Strings.toArray( env ) );
+                    List<String> env = new ArrayList();
 
-                // wait for startup so we know the port is open
-                WaitForDaemon.waitForDaemon( pid, port );
-                
-                processes.put( port, pid );
-                
+                    //env.add( String.format( "MAX_MEMORY=%s", MAX_MEMORY ) );
+
+                    System.out.printf( "Starting proc: %s\n", Strings.join( workerd_args, " " ) );
+
+                    int pid = unistd.posix_spawn( "bin/workerd",
+                                                  Strings.toArray( workerd_args ),
+                                                  Strings.toArray( env ) );
+
+                    // wait for startup so we know the port is open
+                    WaitForDaemon.waitForDaemon( pid, port );
+
+                    processes.put( port, pid );
+
+                }
+
             }
 
             System.out.printf( "setUp complete and all daemons running.\n" );

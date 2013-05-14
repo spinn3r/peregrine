@@ -43,7 +43,7 @@ import com.spinn3r.log5j.*;
  * calling <code>getRecords()</code>.  Note that the results MAY NOT be in the
  * order that you specified in the request.
  */
-public class GetClient {
+public class GetClient implements Client {
 
     private Connection connection;
 
@@ -76,18 +76,24 @@ public class GetClient {
 
     }
 
+    public void waitForResponse() throws IOException {
+
+        // read the data
+        client.close();
+    }
+
     /**
      * Wait for the request to complete and for us to read all keys.
      */
+    @Override
     public void waitFor() throws IOException {
 
         // - stick it in a chunk reader
         // - parse it into key/value pairs.
         //
 
-        // read the data
-        client.close();
-        
+        waitForResponse();
+
         ChannelBuffer buff = client.getResult();
 
 
@@ -115,10 +121,12 @@ public class GetClient {
     /**
      * Get all records for this request.
      */
+    @Override
     public List<Record> getRecords() {
         return records;
     }
 
+    @Override
     public Connection getConnection() {
         return connection;
     }

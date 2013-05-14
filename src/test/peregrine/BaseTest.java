@@ -28,6 +28,12 @@ import org.junit.runner.notification.*;
 
 public abstract class BaseTest extends junit.framework.TestCase {
 
+    // when true, do NOT startup daemons and assume the daemon is already up and
+    // running.  This allows us to use a daemon in a debug process.  This needs
+    // to be in BaseTest due to an issue with reflection and the location of
+    // runTests()
+    protected static boolean NO_DAEMONS = false;
+
     public static boolean REMOVE_BASEDIR = true;
     
     public void setUp() {
@@ -63,7 +69,7 @@ public abstract class BaseTest extends junit.framework.TestCase {
 
         //include length of content from the original site with contentLength
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
-      
+
         //now process the Reader...
         byte data[] = new byte[2048];
     
@@ -123,7 +129,16 @@ public abstract class BaseTest extends junit.framework.TestCase {
      * which allows for us having less main() methods cluttering up the test
      * suite.
      */
-    public static void runTests() throws Exception {
+    public static void runTests( String... args ) throws Exception {
+
+        for( String arg : args ) {
+
+            if ( arg.equals( "--no-daemons" ) ) {
+                NO_DAEMONS = true;
+                System.out.printf( "Running without automatic daemon startup. " );
+            }
+
+        }
 
         String classname = Thread.currentThread().getStackTrace()[2].getClassName();
 

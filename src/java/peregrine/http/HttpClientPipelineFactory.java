@@ -36,7 +36,8 @@ public class HttpClientPipelineFactory implements ChannelPipelineFactory {
 
     private HttpClient client;
     private Config config;
-    
+    private boolean logged = false;
+
     public HttpClientPipelineFactory( Config config, HttpClient client ) {
         this.config = config;
         this.client = client;
@@ -46,8 +47,9 @@ public class HttpClientPipelineFactory implements ChannelPipelineFactory {
 
         ChannelPipeline pipeline = pipeline();
 
-        if ( config.getTraceNetworkTraffic() ) {
+        if ( config.getTraceNetworkTraffic() && logged == false ) {
             log.info( "Adding hex pipeline encoder to Netty pipeline." );
+            logged = true;
             pipeline.addLast( "hex",       new HexPipelineEncoder( log ) );
         }
 

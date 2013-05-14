@@ -25,7 +25,7 @@ public class Trailer {
 
     public long compressionAlgorithm = 0;
     
-    public long count = 0;
+    private long count = 0;
 
     public long recordUsage = 0;
 
@@ -86,11 +86,15 @@ public class Trailer {
     /**
      * The number of records in this SSTable.
      */
-    public long getCount() { 
-        return this.count;
+    public int getCount() {
+        return (int)this.count;
     }
 
-    public void setCount( long count ) { 
+    public void incrCount() {
+        ++count;
+    }
+
+    public void setCount( int count ) {
 
         if ( count < 0 )
             throw new IllegalArgumentException( "count=" + count );
@@ -139,7 +143,7 @@ public class Trailer {
         StructReader sr = new StructReader( buff );
 
         setCompressionAlgorithm( sr.readLong() );
-        setCount( sr.readLong() );
+        setCount( (int)sr.readLong() );
         setRecordUsage( sr.readLong() );
         setIndexOffset( sr.readLong() );
         setIndexCount( sr.readLong() );

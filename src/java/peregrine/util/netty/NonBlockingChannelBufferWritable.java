@@ -21,13 +21,13 @@ import java.util.concurrent.*;
 import org.jboss.netty.buffer.*;
 import org.jboss.netty.channel.*;
 
-import peregrine.*;
-import peregrine.util.*;
+import org.jboss.netty.handler.codec.http.DefaultHttpChunk;
+import org.jboss.netty.handler.codec.http.HttpChunk;
 
 import com.spinn3r.log5j.*;
 
 /**
- * 
+ * ChannelBufferWritable which writes to a Netty channel and uses HTTP chunks.
  */
 public class NonBlockingChannelBufferWritable implements ChannelBufferWritable {
 
@@ -41,12 +41,11 @@ public class NonBlockingChannelBufferWritable implements ChannelBufferWritable {
     
     @Override
     public void write( ChannelBuffer buff ) throws IOException {
-        channel.write( buff );
+        channel.write( new DefaultHttpChunk( buff ) );
     }
 
     @Override
     public void shutdown() throws IOException {
-
     }
 
     @Override
@@ -56,16 +55,12 @@ public class NonBlockingChannelBufferWritable implements ChannelBufferWritable {
 
     @Override
     public void flush() throws IOException {
-        
+        // there's nothing to buffer so we are done.
     }
         
     @Override
     public void close() throws IOException {
-
-        if ( channel.isOpen() ) {
-            channel.close();
-        }
-
+        channel.write( HttpChunk.LAST_CHUNK );
     }
     
 }

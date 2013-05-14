@@ -19,6 +19,7 @@ import java.io.*;
 import java.util.*;
 import java.nio.channels.*;
 
+import com.spinn3r.log5j.Logger;
 import org.jboss.netty.buffer.*;
 
 import peregrine.*;
@@ -46,6 +47,8 @@ import peregrine.util.primitive.*;
  */
 public class DefaultChunkWriter extends BaseSSTableChunk implements ChunkWriter {
 
+    protected static final Logger log = Logger.getLogger();
+
     // FIXME: DITCH the data block and meta block metaphor.. we are storing the
     // data blocks inline so at the END of the file we really only just have META
     // blocks.  JUST make them blocks. 
@@ -64,10 +67,13 @@ public class DefaultChunkWriter extends BaseSSTableChunk implements ChunkWriter 
     // default block size for writing indexed chunks
     protected long blockSize = -1;
 
+    // the main writable for all output.
     protected BufferedChannelBufferWritable writer = null;
 
+    // the number of records written.
     private int count = 0;
 
+    // true when closed.
     private boolean closed = false;
 
     private boolean shutdown = false;
@@ -134,7 +140,7 @@ public class DefaultChunkWriter extends BaseSSTableChunk implements ChunkWriter 
         write( writer, key, value );
 
         trailer.recordUsage += key.length() + value.length();
-        ++trailer.count;
+        trailer.incrCount();
         ++dataBlock.count;
         
         lastKey = key;
@@ -245,11 +251,11 @@ public class DefaultChunkWriter extends BaseSSTableChunk implements ChunkWriter 
 
         if ( minimal ) {
 
-            writer.write( StructReaders.wrap( trailer.count )
+            writer.write( StructReaders.wrap( trailer.getCount() )
                               .getChannelBuffer() );
             
         } else {
-            
+
             // write out file info
             if ( lastKey != null ) {
                 fileInfo.lastKey = lastKey.toByteArray();
