@@ -19,6 +19,8 @@ public class Scanner {
 
     public void scan( ScanRequest scanRequest, RecordListener listener ) throws IOException {
 
+        ScanBackendRequest scanBackendRequest = new ScanBackendRequest( scanRequest.getClient(), scanRequest );
+
         // FIXME: we can't use JUST seekTo to jump to the DefaultChunkReader
         // position because the block will be decompressed temporarily during
         // seekTo and THEN we're going to read it again.  We should probably
@@ -85,7 +87,7 @@ public class Scanner {
 
             }
 
-            listener.onRecord( scanRequest.getClient(), sstable.key(), sstable.value() );
+            listener.onRecord( scanBackendRequest, sstable.key(), sstable.value() );
             ++found;
 
             if ( sstable.hasNext() && finished == false ) {

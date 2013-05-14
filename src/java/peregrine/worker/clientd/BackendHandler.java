@@ -79,14 +79,17 @@ public class BackendHandler extends ErrorLoggingChannelUpstreamHandler {
      */
     public void exec( final Channel channel ) throws IOException {
 
+        if ( daemon.getBackendRequestQueue().isExhausted() ) {
+            // our queue is exhausted which probably means we're at a high
+            // system load.
+            HttpResponse response = new DefaultHttpResponse( HTTP_1_1, SERVICE_UNAVAILABLE );
+            channel.write(response);
+            return;
+        }
+
         HttpResponse response = new DefaultHttpResponse( HTTP_1_1, OK );
         response.setHeader( HttpHeaders.Names.TRANSFER_ENCODING, "chunked" );
-        //FIXME: transfer needs to be chunked doesn't it?
         channel.write(response);
-
-        // FIXME: return an Internal Server Error (or some other error) when
-        // the queue of requests is full... the database is overloaded and we
-        // can't handle your request right now.
 
         GetRequest request = GetRequestURLParser.toRequest( resource );
 

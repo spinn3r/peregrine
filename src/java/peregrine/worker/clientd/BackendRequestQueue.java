@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Handle registration of request to the backend into a queue which is then
@@ -16,16 +18,20 @@ import java.util.concurrent.ArrayBlockingQueue;
  */
 public class BackendRequestQueue {
 
-    public static final int LIMIT = 5000; /* FIXME */
+    public static final int LIMIT = 50000; /* FIXME */
 
-    private ArrayBlockingQueue<List<GetBackendRequest>> delegate;
+    private LinkedBlockingQueue<List<GetBackendRequest>> delegate;
+
+    // keep track of the size of the queue.
+    private AtomicInteger size = new AtomicInteger();
 
     public BackendRequestQueue( Config config ) {
-        delegate = new ArrayBlockingQueue( LIMIT /*FIXME */ );
+        delegate = new LinkedBlockingQueue();
     }
 
     public void add( List<GetBackendRequest> list ) {
         delegate.add(list);
+        size.getAndAdd( list.size() );
     }
 
     /**
@@ -33,7 +39,7 @@ public class BackendRequestQueue {
      * we can't keep up with the load of requests.
      */
     public boolean isExhausted() {
-       return delegate.size() == LIMIT;
+       return size.get() >= LIMIT;
     }
 
     /**
@@ -64,6 +70,8 @@ public class BackendRequestQueue {
                 }
 
             }
+
+            size.getAndAdd( -target.size() );
 
         } catch ( InterruptedException e ) {
             throw new RuntimeException(e);

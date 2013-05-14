@@ -102,7 +102,7 @@ public class Memtable implements SSTableReader, SSTableWriter {
             byte[] value = map.get( key.toByteArray() );
 
             if ( value != null ) {
-                lastRecordListener.onRecord( request.getClient(), key, StructReaders.wrap( value ) );
+                lastRecordListener.onRecord( request, key, StructReaders.wrap( value ) );
             }
 
         }

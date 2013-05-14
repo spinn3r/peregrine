@@ -20,7 +20,7 @@ public class LastRecordListener implements RecordListener {
     }
 
     @Override
-    public void onRecord( ClientRequest request, StructReader key, StructReader value ) {
+    public void onRecord( BackendRequest request, StructReader key, StructReader value ) {
 
         if ( lastRecord == null )
             lastRecord = new Record();
@@ -28,7 +28,7 @@ public class LastRecordListener implements RecordListener {
         lastRecord.setKey( key );
         lastRecord.setValue( value );
 
-        lastClientRequest = request;
+        lastClientRequest = request.getClient();
 
         if ( delegate != null )
             delegate.onRecord( request, key, value );

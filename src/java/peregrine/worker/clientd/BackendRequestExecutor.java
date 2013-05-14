@@ -1,15 +1,14 @@
 package peregrine.worker.clientd;
 
 import com.spinn3r.log5j.Logger;
-import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.channel.Channel;
 import peregrine.StructReader;
 import peregrine.config.Config;
 import peregrine.config.Partition;
-import peregrine.http.HttpChunkEncoder;
 import peregrine.io.SequenceWriter;
 import peregrine.io.chunk.DefaultChunkWriter;
 import peregrine.io.partition.LocalPartitionReader;
+import peregrine.io.sstable.BackendRequest;
 import peregrine.io.sstable.ClientRequest;
 import peregrine.io.sstable.GetBackendRequest;
 import peregrine.io.sstable.RecordListener;
@@ -160,7 +159,8 @@ public class BackendRequestExecutor implements Runnable {
         // FIXME: what happens if we have two entries for the same key... we
         // should de-dup them but we have to be careful because two clients
         // could request the SAME key and we need to be careful and return it
-        // correctly.
+        // correctly.  I could write a unit test for this but they would need to
+        // come from different requests of course.
 
         // FIXME:if a key/value are BIGGER than the send buffer then we are
         // fucked and I think we will block?  What happens there? I need to
@@ -190,9 +190,27 @@ public class BackendRequestExecutor implements Runnable {
 
         }
 
-        // FIXME: now look at the requests and see which ones were NOT completed
+        // now look at the requests and see which ones were NOT completed
         // and re-enqueue them... these are lagged clients so I don't think
-        // we necessarily need to put them at the head of the queue.
+        // we necessarily need to put them at the head of the queue.  We need to
+        // look at all entries where the client is not CANCELLED and where the
+        // entry is not complete
+
+        List<GetBackendRequest> incomplete = new ArrayList<GetBackendRequest>();
+
+        for( GetBackendRequest current : requests ) {
+
+            if ( current.getClient().getState().equals( ClientRequest.State.CANCELLED ) ) {
+                continue;
+            }
+
+            if ( current.isComplete() == false )
+                incomplete.add( current );
+
+        }
+
+        // add them back into the queue.
+        queue.add( incomplete );
 
     }
 
@@ -268,7 +286,9 @@ public class BackendRequestExecutor implements Runnable {
                 reader.seekTo( requests, new RecordListener() {
 
                     @Override
-                    public void onRecord( ClientRequest clientRequest, StructReader key, StructReader value ) {
+                    public void onRecord( BackendRequest backendRequest, StructReader key, StructReader value ) {
+
+                        ClientRequest clientRequest = backendRequest.getClient();
 
                         try {
 
@@ -282,6 +302,13 @@ public class BackendRequestExecutor implements Runnable {
                             // them around in memory is just pointless
                             writer.flush();
 
+                            // mark this key as
+                            // served so that I can move on to other keys to
+                            // serve after we execute the batch.  Both a scan AND
+                            // a fetch may need to be suspended and when we
+                            // resume we have to look at which requests are
+                            // complete.
+                            backendRequest.setComplete(true);
 
                             // FIXME: what happens if the key/value pair + length of
                             // both , can't actually fit in the TCP send buffer?
@@ -290,23 +317,12 @@ public class BackendRequestExecutor implements Runnable {
 
                         } catch ( IOException e ) {
 
+                            // mark this request as failed (cancel it) so that all
+                            // future requests are simply skipped for this entry.
+
                             clientRequest.setState( ClientRequest.State.CANCELLED );
 
-                            //FIXME: if we fail here we should abort ANY further
-                            //requests to this client... I guess the best way to
-                            //handle this is to mark this request as failed so
-                            //that all future requests are simply skipped for
-                            //this entry?  The problem is that techically we
-                            //should completely abort the seekTo and re-scan the
-                            //entries here OR support the ability to just have a
-                            //Get request skipped externally but passing in more
-                            //than StructReader but also a GetRequest of some
-                            //sort.... The problem though is that we would need
-                            //one per key not one per list of keys.
-
-                            log.error( "Could not write to client: " , e );
-
-                            clientRequest.getChannel().close();
+                            log.error("Could not write to client: ", e);
 
                         }
 

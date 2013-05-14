@@ -310,7 +310,7 @@ public class DefaultChunkReader extends BaseSSTableChunk
 
             if ( find.getKey().equals( key() ) ) {
 
-                listener.onRecord( find.getClient(), key(), value() );
+                listener.onRecord( find, key(), value() );
                 
                 if ( requests.size() > 0 ) {
                     find = requests.remove( 0 );

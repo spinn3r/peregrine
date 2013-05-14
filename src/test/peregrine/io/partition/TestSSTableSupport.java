@@ -110,7 +110,7 @@ public class TestSSTableSupport extends peregrine.BaseTestWithMultipleProcesses 
         reader.seekTo( getBackendRequests, new RecordListener() {
 
                 @Override
-                public void onRecord( ClientRequest client, StructReader key, StructReader value ) {
+                public void onRecord( BackendRequest client, StructReader key, StructReader value ) {
                     result.getAndIncrement();
                 }
 
@@ -143,7 +143,7 @@ public class TestSSTableSupport extends peregrine.BaseTestWithMultipleProcesses 
         scanner.scan(scanRequest, new RecordListener() {
 
                 @Override
-                public void onRecord( ClientRequest clientRequest, StructReader key, StructReader value ) {
+                public void onRecord( BackendRequest clientRequest, StructReader key, StructReader value ) {
 
                     System.out.printf( "  scanRequest.onRecord: key=%s\n", Hex.encode( key ) );
 
