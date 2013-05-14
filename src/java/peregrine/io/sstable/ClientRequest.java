@@ -12,14 +12,17 @@ public class ClientRequest {
 
     private Channel channel;
 
-    private State state = State.READY;
-
     private Partition partition;
 
     private String source;
 
+    private boolean cancelled = false;
+
     // the output channel for this client so we can write key/value pairs
     private SequenceWriter sequenceWriter = null;
+
+    // the time we received the request
+    private long received = System.currentTimeMillis();
 
     /**
      * Create a client with no channel.  Results are only available within
@@ -34,14 +37,6 @@ public class ClientRequest {
         this.channel = channel;
         this.partition = partition;
         this.source = source;
-    }
-
-    public State getState() {
-        return state;
-    }
-
-    public void setState(State state) {
-        this.state = state;
     }
 
     public Channel getChannel() {
@@ -65,14 +60,24 @@ public class ClientRequest {
     }
 
     /**
-     * The state of this request depending on the client.  The state will be
-     * READY when a client is ready to read over the network, and SUSPENDED if
-     * it is
-     * idle and not reading results over the network.  If the client dropped
-     * off (timeout, etc) then the request is in state CANCELLED.
+     * Return true if the underlying Channel is suspended and can not handle writes
+     * without blocking.  This is an indication that the channel needs to suspend
+     * so that the client can catch up on reads.  This might be a client lagging
+     * or it might just have very little bandwidth.
      */
-    public enum State {
-        SUSPENDED, READY, CANCELLED;
+    public boolean isSuspended() {
+        return (channel.getInterestOps() & Channel.OP_WRITE) == Channel.OP_WRITE;
     }
 
+    public boolean isCancelled() {
+        return cancelled;
+    }
+
+    public void setCancelled(boolean cancelled) {
+        this.cancelled = cancelled;
+    }
+
+    public long getReceived() {
+        return received;
+    }
 }

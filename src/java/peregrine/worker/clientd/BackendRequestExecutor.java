@@ -40,18 +40,6 @@ public class BackendRequestExecutor implements Runnable {
         this.queue = queue;
     }
 
-    /**
-     * Return true if the given Channel is suspended and can not handle writes
-     * without blocking.  This is an indication that the channel needs to suspend
-     * so that the client can catch up on reads.  This might be a client lagging
-     * or it might just have very little bandwidth.
-     */
-    public boolean isSuspended( Channel channel ) {
-
-        return (channel.getInterestOps() & Channel.OP_WRITE) == Channel.OP_WRITE;
-
-    }
-
     @Override
     public void run() {
 
@@ -200,7 +188,15 @@ public class BackendRequestExecutor implements Runnable {
 
         for( GetBackendRequest current : requests ) {
 
-            if ( current.getClient().getState().equals( ClientRequest.State.CANCELLED ) ) {
+            if ( current.getClient().isCancelled() ) {
+                continue;
+            }
+
+            if ( System.currentTimeMillis() - current.getClient().getReceived() > config.getNetWriteTimeout() ) {
+                // don't re-enqueue this request because the client has lagged
+                // for far too long.  Technically there is no need to send the
+                // last HTTP chunk because they're lagged and they probably
+                // won't receive it anyway.
                 continue;
             }
 
@@ -231,17 +227,6 @@ public class BackendRequestExecutor implements Runnable {
 
                 reader = new LocalPartitionReader( config, partition, source );
 
-                // FIXME: another way to handle client overload would be to detect
-                // when the TCP send buffer would be filled if we added say this key
-                // and the next key THEN we can remove the keys and add then BACK on
-                // the queue so that other requests get served in the mean time.  Of
-                // course another isuse here is that if it's the ONLY client then
-                // re-enqueing it again is just going to result in the SAME problem
-                // happening all over again.
-
-                // FIXME: add suspension here...
-
-
                 // create a SequenceWriter for every client so that we have an
                 // output channel.
 
@@ -261,28 +246,6 @@ public class BackendRequestExecutor implements Runnable {
 
                 }
 
-                // FIXME:
-                //
-                // NOW that I know how to avoid channels that are not listening, Make it EASY to
-                // skip over items that are NOT going to need responding.
-                //
-                // First we need to look at the queue of requests and then build the plan for
-                // fetching the keys.
-                //
-                // Then for EVERY block we are fetching from, we need to make sure it ACTUALLY has
-                // keeps that we need to index.  Then we decompress it, and for EACH key we keep
-                // making sure we actually need to fetch it.
-                //
-                // Then at the END we need to look at the queue AGAIN to make sure we ahve fetched
-                // everything.  We can use the changing interest ops to add them to the queue
-                // again.
-                //
-                // ACTUALLY ... just iterate over ALL the keys on a per client basis.  THEN if a
-                // client comes alive later we can service the keys at the trailing end of the
-                // request and then come back and finish the request the next time around and give
-                // him additional keys.
-
-
                 reader.seekTo( requests, new RecordListener() {
 
                     @Override
@@ -291,6 +254,12 @@ public class BackendRequestExecutor implements Runnable {
                         ClientRequest clientRequest = backendRequest.getClient();
 
                         try {
+
+                            // the client will automatically come back from being
+                            // suspended once the buffer is drained.
+                            if ( clientRequest.isSuspended() ) {
+                                return;
+                            }
 
                             SequenceWriter writer = clientRequest.getSequenceWriter();
 
@@ -302,25 +271,19 @@ public class BackendRequestExecutor implements Runnable {
                             // them around in memory is just pointless
                             writer.flush();
 
-                            // mark this key as
-                            // served so that I can move on to other keys to
-                            // serve after we execute the batch.  Both a scan AND
-                            // a fetch may need to be suspended and when we
-                            // resume we have to look at which requests are
-                            // complete.
+                            // mark this key as complete so that I can move on
+                            // to other keys to serve after we execute the batch.
+                            // Both a scan AND a fetch may need to be suspended
+                            // and when we resume we have to look at which
+                            // requests are complete.
                             backendRequest.setComplete(true);
-
-                            // FIXME: what happens if the key/value pair + length of
-                            // both , can't actually fit in the TCP send buffer?
-                            //
-                            // FIXME: flag the client request as suspended if necessary.
 
                         } catch ( IOException e ) {
 
                             // mark this request as failed (cancel it) so that all
                             // future requests are simply skipped for this entry.
 
-                            clientRequest.setState( ClientRequest.State.CANCELLED );
+                            clientRequest.setCancelled(true);
 
                             log.error("Could not write to client: ", e);
 
