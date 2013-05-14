@@ -99,9 +99,7 @@ public class ExtractWriter implements Closeable, SequenceWriter {
     }
 
     @Override
-    public void flush() throws IOException {
-
-    }
+    public void flush() throws IOException { }
 
     @Override
     public void close() throws IOException {

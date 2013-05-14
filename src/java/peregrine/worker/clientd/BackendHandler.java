@@ -56,17 +56,14 @@ public class BackendHandler extends ErrorLoggingChannelUpstreamHandler {
     private static Pattern PATH_REGEX =
         Pattern.compile( "/([0-9]+)/client-rpc/(GET|SCAN|MUTATE)" );
 
-    private Config config;
-
     private String resource;
 
     private Partition partition = null;
 
     private WorkerDaemon daemon;
 
-    public BackendHandler(Config config, WorkerDaemon daemon, String resource) throws Exception {
+    public BackendHandler(WorkerDaemon daemon, String resource) throws Exception {
 
-        this.config = config;
         this.daemon = daemon;
         this.resource = resource;
 
@@ -91,7 +88,9 @@ public class BackendHandler extends ErrorLoggingChannelUpstreamHandler {
     public void exec( final Channel channel ) throws IOException {
 
         HttpResponse response = new DefaultHttpResponse( HTTP_1_1, OK );
-        channel.write(response);
+        response.setHeader( HttpHeaders.Names.TRANSFER_ENCODING, "chunked" );
+        //FIXME: transfer needs to be chunked doesn't it?
+        //channel.write(response);
 
         // FIXME: return an Internal Server Error (or some other error) when
         // the queue of requests is full... the database is overloaded and we
@@ -118,7 +117,7 @@ public class BackendHandler extends ErrorLoggingChannelUpstreamHandler {
 
         // we are done at this point.  the BackendRequestExecutor should now
         // handle serving all the keys.
-        daemon.getBackendRequestQueue().add( getBackendRequests );
+       //FIXME:  daemon.getBackendRequestQueue().add( getBackendRequests );
 
     }
     

@@ -136,10 +136,10 @@ public class WorkerHandler extends DefaultChannelUpstreamHandler {
                     return;
                 }
 
-                BackendHandler requestHandler = new BackendHandler( config, daemon, request.getUri() );
+                BackendHandler requestHandler = new BackendHandler( daemon, request.getUri() );
 
                 if ( requestHandler.handles() ) {
-                    requestHandler.messageReceived( ctx, e );
+                    //FIXME: requestHandler.messageReceived( ctx, e );
                     return;
                 }
                 
