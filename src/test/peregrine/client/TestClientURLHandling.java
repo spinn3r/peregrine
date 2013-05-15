@@ -39,6 +39,8 @@ public class TestClientURLHandling extends peregrine.BaseTest {
         
         request = new GetRequestURLDecoder().decode(url);
 
+        assertNotNull( request );
+
         if( hashcode ) {
             assertEquals( GetRequestURLEncoder.hashcodes(keys), request.getKeys() );
         } else { 

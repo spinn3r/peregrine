@@ -29,7 +29,7 @@ import java.util.regex.Pattern;
 public class ClientRequestMeta {
 
     private static Pattern PATH_REGEX =
-            Pattern.compile( "/([0-9_]+)/client-rpc/(GET|SCAN|MUTATE)" );
+        Pattern.compile( "(https?://[^/]+:[0-9]+)/?([0-9_]+)?/client-rpc/(GET|SCAN|MUTATE)" );
 
     private Partition partition = null;
 
@@ -54,8 +54,12 @@ public class ClientRequestMeta {
             return false;
         }
 
-        partition = new Partition( Integer.parseInt( matcher.group( 1 ) ) );
-        requestType = matcher.group(2);
+        // this may not have a partition because it might be a frontend request.
+        if ( matcher.group( 2 ) != null ) {
+            partition = new Partition( Integer.parseInt( matcher.group( 2 ) ) );
+        }
+
+        requestType = matcher.group(3);
 
         QueryStringDecoder decoder = new QueryStringDecoder( url );
 

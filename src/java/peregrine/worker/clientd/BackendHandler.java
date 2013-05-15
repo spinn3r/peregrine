@@ -99,8 +99,8 @@ public class BackendHandler extends ErrorLoggingChannelUpstreamHandler {
 
         } else if ( "SCAN".equals( clientRequestMeta.getRequestType() ) ) {
 
-            //FIXME: we need to handle SCAN here too
-
+            ScanRequest request = new ScanRequestURLDecoder().decode( resource );
+            backendRequestFactory = new ScanBackendRequestFactory( request );
 
         } else {
             throw new RuntimeException( "Unknown request type: " + clientRequestMeta.getRequestType() );
