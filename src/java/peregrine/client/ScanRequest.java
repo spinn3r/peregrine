@@ -34,9 +34,6 @@ public class ScanRequest {
 
     private ClientRequestMeta clientRequestMeta = new ClientRequestMeta();
 
-    // noarg constructor.  ClientBackendRequest is needed but set it later.
-    public ScanRequest() { }
-
     public void setStart( StructReader key, boolean inclusive ) {
         this.start = new Bound( key, inclusive );
     }

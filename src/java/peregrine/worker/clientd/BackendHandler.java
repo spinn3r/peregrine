@@ -122,7 +122,7 @@ public class BackendHandler extends ErrorLoggingChannelUpstreamHandler {
         List<BackendRequest> backendRequests = backendRequestFactory.getBackendRequests(clientBackendRequest);
 
         HttpResponse response = new DefaultHttpResponse( HTTP_1_1, OK );
-        response.setHeader( HttpHeaders.Names.TRANSFER_ENCODING, "chunked" );
+        response.setHeader( HttpHeaders.Names.TRANSFER_ENCODING, HttpHeaders.Values.CHUNKED );
         channel.write(response);
 
         // we are done at this point.  the BackendRequestExecutor should now

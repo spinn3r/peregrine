@@ -58,7 +58,7 @@ public class ScanRequestURLDecoder {
             request.setStart( getBound( "start" ));
 
         if ( params.containsKey( "end.key" ) )
-            request.setStart( getBound( "end" ));
+            request.setEnd( getBound( "end" ));
 
         request.setLimit( Integer.parseInt( params.get( "limit" ).get( 0 ) ) );
 
