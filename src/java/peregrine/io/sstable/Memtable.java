@@ -72,9 +72,9 @@ public class Memtable implements SSTableReader, SSTableWriter {
     }
 
     @Override
-    public Record seekTo( GetBackendRequest request ) throws IOException {
+    public Record seekTo( BackendRequest request ) throws IOException {
 
-        StructReader key = request.getKey();
+        StructReader key = request.getSeekKey();
 
         NavigableMap<byte[],byte[]> nmap = map.tailMap( key.toByteArray(), true );
 
@@ -91,13 +91,13 @@ public class Memtable implements SSTableReader, SSTableWriter {
     }
 
     @Override
-    public boolean seekTo( List<GetBackendRequest> requests, RecordListener listener ) throws IOException {
+    public boolean seekTo( List<BackendRequest> requests, RecordListener listener ) throws IOException {
 
         LastRecordListener lastRecordListener = new LastRecordListener( listener );
 
-        for( GetBackendRequest request : requests ) {
+        for( BackendRequest request : requests ) {
 
-            StructReader key = request.getKey();
+            StructReader key = request.getSeekKey();
 
             byte[] value = map.get( key.toByteArray() );
 

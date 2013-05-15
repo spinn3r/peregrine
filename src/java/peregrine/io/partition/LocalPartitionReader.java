@@ -181,9 +181,9 @@ public class LocalPartitionReader extends BaseJobInput
     }
 
     @Override
-    public Record seekTo( GetBackendRequest request ) throws IOException {
+    public Record seekTo( BackendRequest request ) throws IOException {
 
-        List<GetBackendRequest> requests = new ArrayList();
+        List<BackendRequest> requests = new ArrayList();
         requests.add( request );
 
         LastRecordListener lastRecordListener = new LastRecordListener( null );
@@ -199,18 +199,18 @@ public class LocalPartitionReader extends BaseJobInput
     }
 
     @Override
-    public boolean seekTo( List<GetBackendRequest> requests, RecordListener listener ) throws IOException {
+    public boolean seekTo( List<BackendRequest> requests, RecordListener listener ) throws IOException {
 
         this.key = null;
         this.value = null;
 
-        Map<DataBlockReference,List<GetBackendRequest>> lookup = new TreeMap();
+        Map<DataBlockReference,List<BackendRequest>> lookup = new TreeMap();
 
         LastRecordListener lastRecordListener = new LastRecordListener( listener );
         
-        for( GetBackendRequest request : requests ) {
+        for( BackendRequest request : requests ) {
 
-            StructReader key = request.getKey();
+            StructReader key = request.getSeekKey();
 
             DataBlockReference ref = findDataBlockReference( key );
 
@@ -218,7 +218,7 @@ public class LocalPartitionReader extends BaseJobInput
             if ( ref == null )
                 continue;
 
-            List<GetBackendRequest> requestsForReference = lookup.get( ref );
+            List<BackendRequest> requestsForReference = lookup.get( ref );
 
             if ( requestsForReference == null ) {
                 requestsForReference = new ArrayList();
@@ -240,7 +240,7 @@ public class LocalPartitionReader extends BaseJobInput
             // update the chunk ref that we're working with.
             chunkRef = new ChunkReference( partition, ref.idx );
 
-            List<GetBackendRequest> refKeys = lookup.get( ref );
+            List<BackendRequest> refKeys = lookup.get( ref );
             
             ref.reader.seekTo( refKeys, ref.dataBlock, lastRecordListener );
 

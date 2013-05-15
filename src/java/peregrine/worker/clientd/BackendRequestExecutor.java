@@ -1,7 +1,23 @@
+
+/*
+ * Copyright 2011-2013 Kevin A. Burton
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package peregrine.worker.clientd;
 
 import com.spinn3r.log5j.Logger;
-import org.jboss.netty.channel.Channel;
 import peregrine.StructReader;
 import peregrine.config.Config;
 import peregrine.config.Partition;
@@ -10,7 +26,6 @@ import peregrine.io.chunk.DefaultChunkWriter;
 import peregrine.io.partition.LocalPartitionReader;
 import peregrine.io.sstable.BackendRequest;
 import peregrine.io.sstable.ClientRequest;
-import peregrine.io.sstable.GetBackendRequest;
 import peregrine.io.sstable.RecordListener;
 import peregrine.io.util.Closer;
 import peregrine.util.netty.NonBlockingChannelBufferWritable;
@@ -52,7 +67,7 @@ public class BackendRequestExecutor implements Runnable {
             // GET or SCAN requests that we can elide them so that blocks only need
             // to be decompressed for ALL inbound requests.
 
-            List<GetBackendRequest> requests = new ArrayList( BackendRequestQueue.LIMIT );
+            List<BackendRequest> requests = new ArrayList( BackendRequestQueue.LIMIT );
 
             queue.drainTo(requests);
 
@@ -76,12 +91,12 @@ public class BackendRequestExecutor implements Runnable {
     /**
      * Create a multi-level index of partitions -> files -> keys
      */
-    private void createIndex( List<GetBackendRequest> requests ) {
+    private void createIndex( List<BackendRequest> requests ) {
 
         partitionIndex = new PartitionIndex();
         clientIndex = new HashSet<ClientRequest>();
 
-        for( GetBackendRequest current : requests ) {
+        for( BackendRequest current : requests ) {
 
             ClientRequest clientRequest = current.getClient();
 
@@ -89,7 +104,7 @@ public class BackendRequestExecutor implements Runnable {
             clientIndex.add( clientRequest );
 
             SourceIndex sourceIndex = partitionIndex.fetch(clientRequest.getPartition());
-            List<GetBackendRequest> list = sourceIndex.fetch( clientRequest.getSource());
+            List<BackendRequest> list = sourceIndex.fetch( clientRequest.getSource());
             list.add( current );
 
         }
@@ -104,11 +119,11 @@ public class BackendRequestExecutor implements Runnable {
         }
     }
 
-    class SourceIndex extends FetchIndex<String,List<GetBackendRequest>> {
+    class SourceIndex extends FetchIndex<String,List<BackendRequest>> {
 
         @Override
-        public List<GetBackendRequest> newEntry() {
-            return new ArrayList<GetBackendRequest>();
+        public List<BackendRequest> newEntry() {
+            return new ArrayList<BackendRequest>();
         }
 
     }
@@ -142,7 +157,10 @@ public class BackendRequestExecutor implements Runnable {
 
     }
 
-    public void handle( List<GetBackendRequest> requests ) {
+    public void handle( List<BackendRequest> requests ) {
+
+        //FIXME: don't let clients fetch teh same key multiple times.  this is
+        //silly but where should this go?  The client?  The server?
 
         // FIXME: what happens if we have two entries for the same key... we
         // should de-dup them but we have to be careful because two clients
@@ -167,12 +185,12 @@ public class BackendRequestExecutor implements Runnable {
             Partition partition = partitionEntry.getKey();
             SourceIndex sourceIndex = partitionEntry.getValue();
 
-            for( Map.Entry<String,List<GetBackendRequest>> pathEntry : sourceIndex.entries() ) {
+            for( Map.Entry<String,List<BackendRequest>> pathEntry : sourceIndex.entries() ) {
 
                 String source = pathEntry.getKey();
-                List<GetBackendRequest> getBackendRequests = pathEntry.getValue();
+                List<BackendRequest> backendRequests = pathEntry.getValue();
 
-                handle( partition, source, getBackendRequests );
+                handle( partition, source, backendRequests );
 
             }
 
@@ -184,9 +202,9 @@ public class BackendRequestExecutor implements Runnable {
         // look at all entries where the client is not CANCELLED and where the
         // entry is not complete
 
-        List<GetBackendRequest> incomplete = new ArrayList<GetBackendRequest>();
+        List<BackendRequest> incomplete = new ArrayList<BackendRequest>();
 
-        for( GetBackendRequest current : requests ) {
+        for( BackendRequest current : requests ) {
 
             if ( current.getClient().isCancelled() ) {
                 continue;
@@ -213,7 +231,7 @@ public class BackendRequestExecutor implements Runnable {
     /**
      * Handle an individual file no an specific partition.
      */
-    public void handle( Partition partition, String source, List<GetBackendRequest> requests ) {
+    public void handle( Partition partition, String source, List<BackendRequest> requests ) {
 
         try {
 
@@ -223,7 +241,9 @@ public class BackendRequestExecutor implements Runnable {
 
                 log.info( "Handling %s on %s ", source, partition );
 
-                //FIXME: we should support a table cache here...
+                //FIXME: should we support a table cache here... I don't think
+                // it's really necessary.  The main issue is reading and
+                // constructing block information.
 
                 reader = new LocalPartitionReader( config, partition, source );
 

@@ -99,15 +99,15 @@ public class TestSSTableSupport extends peregrine.BaseTestWithMultipleProcesses 
 
         final AtomicInteger result = new AtomicInteger();
 
-        List<GetBackendRequest> getBackendRequests = new ArrayList<GetBackendRequest>();
+        List<BackendRequest> backendRequests = new ArrayList<BackendRequest>();
 
         for( StructReader key : range( 0, max - 1 ) ) {
 
-            getBackendRequests.add( new GetBackendRequest( clientRequest, key ) );
+            backendRequests.add( new GetBackendRequest( clientRequest, key ) );
 
         }
 
-        reader.seekTo( getBackendRequests, new RecordListener() {
+        reader.seekTo( backendRequests, new RecordListener() {
 
                 @Override
                 public void onRecord( BackendRequest client, StructReader key, StructReader value ) {

@@ -287,7 +287,7 @@ public class DefaultChunkReader extends BaseSSTableChunk
     /**
      * Fetch all the keys in the given DataBlock.
      */
-    public void seekTo( List<GetBackendRequest> requests, DataBlock block, RecordListener listener ) throws IOException {
+    public void seekTo( List<BackendRequest> requests, DataBlock block, RecordListener listener ) throws IOException {
 
         if ( requests.size() == 0 )
             return;
@@ -298,7 +298,7 @@ public class DefaultChunkReader extends BaseSSTableChunk
         int seek_idx = 0;
 
         // the request+key we should be looking for...
-        GetBackendRequest find = requests.remove( 0 );
+        BackendRequest find = requests.remove( 0 );
 
         while( seek_idx < block.count ) {
 
@@ -308,7 +308,7 @@ public class DefaultChunkReader extends BaseSSTableChunk
             //FIXME: keep looping through the requests because two clients might
             //have requested the same keys.
 
-            if ( find.getKey().equals( key() ) ) {
+            if ( find.getSeekKey().equals( key() ) ) {
 
                 listener.onRecord( find, key(), value() );
                 
