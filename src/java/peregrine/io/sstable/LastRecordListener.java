@@ -18,7 +18,7 @@ package peregrine.io.sstable;
 
 import peregrine.Record;
 import peregrine.StructReader;
-import peregrine.worker.clientd.requests.ClientRequest;
+import peregrine.worker.clientd.requests.ClientBackendRequest;
 import peregrine.worker.clientd.requests.BackendRequest;
 
 /**
@@ -29,7 +29,7 @@ public class LastRecordListener implements RecordListener {
 
     private Record lastRecord = null;
 
-    private ClientRequest lastClientRequest = null;
+    private ClientBackendRequest lastClientBackendRequest = null;
 
     private RecordListener delegate = null;
 
@@ -46,7 +46,7 @@ public class LastRecordListener implements RecordListener {
         lastRecord.setKey( key );
         lastRecord.setValue( value );
 
-        lastClientRequest = request.getClient();
+        lastClientBackendRequest = request.getClient();
 
         if ( delegate != null )
             delegate.onRecord( request, key, value );
@@ -57,8 +57,8 @@ public class LastRecordListener implements RecordListener {
         return lastRecord;
     }
 
-    public ClientRequest getLastClientRequest() {
-        return lastClientRequest;
+    public ClientBackendRequest getLastClientBackendRequest() {
+        return lastClientBackendRequest;
     }
 
 }

@@ -25,7 +25,6 @@ import java.util.regex.*;
 import org.jboss.netty.channel.*;
 import org.jboss.netty.handler.codec.http.*;
 
-import peregrine.*;
 import peregrine.client.*;
 import peregrine.config.*;
 
@@ -33,8 +32,7 @@ import com.spinn3r.log5j.*;
 import peregrine.worker.ErrorLoggingChannelUpstreamHandler;
 import peregrine.worker.WorkerDaemon;
 import peregrine.worker.clientd.requests.*;
-import peregrine.worker.clientd.requests.GetBackendRequest;
-import peregrine.worker.clientd.requests.ClientRequest;
+import peregrine.worker.clientd.requests.ClientBackendRequest;
 
 /**
  *
@@ -46,28 +44,20 @@ public class BackendHandler extends ErrorLoggingChannelUpstreamHandler {
 
     protected static final Logger log = Logger.getLogger();
 
-    private static Pattern PATH_REGEX =
-        Pattern.compile( "/([0-9]+)/client-rpc/(GET|SCAN|MUTATE)" );
-
     private String resource;
-
-    private Partition partition;
 
     private WorkerDaemon daemon;
 
-    private String requestType;
+    private ClientRequestMeta clientRequestMeta = null;
 
     public BackendHandler(WorkerDaemon daemon, String resource) throws Exception {
 
         this.daemon = daemon;
         this.resource = resource;
 
-        Matcher matcher = PATH_REGEX.matcher( resource );
+        clientRequestMeta = new ClientRequestMeta();
 
-        if ( matcher.find() ) {
-            partition = new Partition( Integer.parseInt( matcher.group( 1 ) ) );
-            requestType = matcher.group(2);
-        } 
+        clientRequestMeta.parse( resource );
 
     }
 
@@ -75,43 +65,7 @@ public class BackendHandler extends ErrorLoggingChannelUpstreamHandler {
      * Return true if we can handle the given resource URL we were given.
      */
     public boolean handles() {
-        return partition != null;
-    }
-
-
-    private List<BackendRequest> getBackendRequests( Channel channel, GetRequest request ) {
-
-        List<BackendRequest> backendRequests
-                = new ArrayList<BackendRequest>( request.getKeys().size() );
-
-        ClientRequest clientRequest = new ClientRequest(channel, partition, request.getSource() );
-
-        for( StructReader key : request.getKeys() ) {
-
-            GetBackendRequest backendRequest
-                    = new GetBackendRequest( clientRequest, key );
-
-            backendRequests.add( backendRequest );
-
-        }
-
-        return backendRequests;
-
-    }
-
-    private List<BackendRequest> getBackendRequests( Channel channel, ScanRequest request ) {
-
-        ClientRequest clientRequest = new ClientRequest(channel, partition, request.getSource() );
-
-        ScanBackendRequest scanBackendRequest = new ScanBackendRequest( clientRequest, request );
-
-        List<BackendRequest> backendRequests
-                = new ArrayList<BackendRequest>( 1 );
-
-        backendRequests.add( scanBackendRequest );
-
-        return backendRequests;
-
+        return clientRequestMeta.getPartition() != null;
     }
 
     /**
@@ -126,26 +80,35 @@ public class BackendHandler extends ErrorLoggingChannelUpstreamHandler {
 
         BackendRequestQueue queue = daemon.getBackendRequestQueue();
 
-        boolean exhausted = false;
-        List<BackendRequest> backendRequests = null;
+        ClientBackendRequest clientBackendRequest =
+                new ClientBackendRequest( channel,
+                                          clientRequestMeta.getPartition(),
+                                          clientRequestMeta.getSource() );
+
+        BackendRequestFactory backendRequestFactory = null;
+
+        //FIXME: we should put the getBackendRequest method behind an interface
+        // and have an object returned which implements that interface. This
+        // would cleanup the following lines because we don't have to have this
+        // GET switch.  I could also use this to get the size I think and remove
+        // the ugly size() code that I hate.
 
         // TODO: migrate this to JDK 1.7 string switch.
-        if ( "GET".equals( requestType ) ) {
+        if ( "GET".equals( clientRequestMeta.getRequestType() ) ) {
 
             GetRequest request = GetRequestURLParser.toRequest(resource);
-            exhausted = queue.isExhausted( queue.size( request ) );
-            backendRequests = getBackendRequests( channel, request );
+            backendRequestFactory = new GetBackendRequestFactory( request );
 
-        } else if ( "SCAN".equals( requestType ) ) {
+        } else if ( "SCAN".equals( clientRequestMeta.getRequestType() ) ) {
 
             //FIXME: we need to handle SCAN here too
 
 
         } else {
-            throw new RuntimeException( "Unknown request type: " + requestType );
+            throw new RuntimeException( "Unknown request type: " + clientRequestMeta.getRequestType() );
         }
 
-        if ( exhausted ) {
+        if ( queue.isExhausted( backendRequestFactory.size() ) ) {
             // our queue is exhausted which probably means we're at a high
             // system load.
             HttpResponse response = new DefaultHttpResponse( HTTP_1_1, SERVICE_UNAVAILABLE );
@@ -153,13 +116,14 @@ public class BackendHandler extends ErrorLoggingChannelUpstreamHandler {
             return;
         }
 
-        HttpResponse response = new DefaultHttpResponse( HTTP_1_1, OK );
-        response.setHeader( HttpHeaders.Names.TRANSFER_ENCODING, "chunked" );
-        channel.write(response);
-
         // make a list of GetBackendRequests so that we can add them to the queue
         // to be dispatched.
 
+        List<BackendRequest> backendRequests = backendRequestFactory.getBackendRequests(clientBackendRequest);
+
+        HttpResponse response = new DefaultHttpResponse( HTTP_1_1, OK );
+        response.setHeader( HttpHeaders.Names.TRANSFER_ENCODING, "chunked" );
+        channel.write(response);
 
         // we are done at this point.  the BackendRequestExecutor should now
         // handle serving all the keys.

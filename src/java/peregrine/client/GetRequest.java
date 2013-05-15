@@ -35,13 +35,13 @@ import peregrine.worker.clientd.requests.RequestSizeable;
 /**
  * Represents a request to the server for GETing keys.
  */
-public class GetRequest implements RequestSizeable {
+public class GetRequest {
     
     private boolean hashcode = false;
     
-    private String source = null;
-    
     private List<StructReader> keys = null;
+
+    private ClientRequestMeta clientRequestMeta = new ClientRequestMeta();
 
     public void setKeys( List<StructReader> keys ) {
         this.keys = keys;
@@ -49,14 +49,6 @@ public class GetRequest implements RequestSizeable {
     
     public List<StructReader> getKeys() { 
         return this.keys;
-    }
-
-    public String getSource() { 
-        return this.source;
-    }
-
-    public void setSource( String source ) { 
-        this.source = source;
     }
 
     /**
@@ -71,9 +63,11 @@ public class GetRequest implements RequestSizeable {
         this.hashcode = hashcode;
     }
 
-    @Override
-    public int size() {
-        return getKeys().size();
+    public ClientRequestMeta getClientRequestMeta() {
+        return clientRequestMeta;
     }
 
+    public void setClientRequestMeta(ClientRequestMeta clientRequestMeta) {
+        this.clientRequestMeta = clientRequestMeta;
+    }
 }

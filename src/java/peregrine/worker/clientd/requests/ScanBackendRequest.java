@@ -30,7 +30,7 @@ public class ScanBackendRequest extends BackendRequest implements RequestSizeabl
     //beginning of the table but GET goes to a specific key.  If a SCAN does
     //not have a first key we could read the first key from the SSTable interface
     //I think.
-    public ScanBackendRequest(ClientRequest client, ScanRequest scanRequest) {
+    public ScanBackendRequest(ClientBackendRequest client, ScanRequest scanRequest) {
         super(client, scanRequest.getStart().key());
         this.scanRequest = scanRequest;
     }
@@ -46,7 +46,7 @@ public class ScanBackendRequest extends BackendRequest implements RequestSizeabl
 
     @Override
     public int size() {
-        return getScanRequest().size();
+        return getScanRequest().getLimit();
     }
 
 }

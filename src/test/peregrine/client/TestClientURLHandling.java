@@ -30,7 +30,8 @@ public class TestClientURLHandling extends peregrine.BaseTest {
 
         GetRequest request = new GetRequest();
         request.setKeys( keys );
-        request.setSource( "/tmp/foo.test" );
+        request.getClientRequestMeta().setSource( "/tmp/foo.test" );
+
         request.setHashcode( hashcode );
 
         Connection conn = new Connection( "http://localhost:11111" );

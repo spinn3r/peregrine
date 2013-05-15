@@ -56,11 +56,11 @@ public class GetRequestURLParser {
      */
     public static String toURL( GetClient client, GetRequest request ) {
 
-        if ( request.getSource() == null )
+        if ( request.getClientRequestMeta().getSource() == null )
             throw new NullPointerException( "source" );
         
         StringBuilder buff = new StringBuilder( 200 );
-        buff.append( String.format( "%s/client-rpc/GET?source=%s", client.getConnection().getEndpoint(), request.getSource() ) );
+        buff.append( String.format( "%s/client-rpc/GET?source=%s", client.getConnection().getEndpoint(), request.getClientRequestMeta().getSource() ) );
 
         List<String> args = new ArrayList();
 
@@ -90,11 +90,18 @@ public class GetRequestURLParser {
 
     /**
      * Take a request URL and return it as a Get request representing all fields
-     * necessary to execute the request.
+     * necessary to execute the request.  Return null if we are unable to parse
+     * the URL.
      */
     public static GetRequest toRequest( String url ) {
 
         GetRequest request = new GetRequest();
+
+        ClientRequestMeta clientRequestMeta = new ClientRequestMeta();
+
+        if ( ! clientRequestMeta.parse( url ) ) {
+            return null;
+        }
 
         QueryStringDecoder decoder = new QueryStringDecoder( url );
 
@@ -107,11 +114,9 @@ public class GetRequestURLParser {
 
         }
 
-        String source = decoder.getParameters().get( "source" ).get( 0 );
+        request.setKeys(keys);
+        request.setClientRequestMeta( clientRequestMeta );
 
-        request.setKeys( keys );
-        request.setSource( source );
-        
         return request;
         
     }

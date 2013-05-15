@@ -57,25 +57,17 @@ public class BackendRequestQueue {
 
     }
 
-    public int size( RequestSizeable sizeable ) {
+    public int size( BackendRequest sizeable ) {
         return sizeable.size();
     }
 
         // count the number of keys that this request would involve.
-    public int size( Collection list ) {
+    public int size( Collection<BackendRequest> list ) {
 
         int result = 0;
 
-        for ( Object current : list ) {
-
-            // TODO: there isn't a better way to do this with generics is there?
-            if ( current instanceof RequestSizeable ) {
-                RequestSizeable sizeable = (RequestSizeable)current;
-                result += sizeable.size();
-            } else {
-                throw new RuntimeException();
-            }
-
+        for ( BackendRequest request : list ) {
+            result += request.size();
         }
 
         return result;
@@ -87,8 +79,8 @@ public class BackendRequestQueue {
      * we can't keep up with the load of requests.  We require that you
      * specify the list of additional keys that you would add to the queue.
      */
-    public boolean isExhausted( int keys ) {
-       return size.get() + keys >= LIMIT;
+    public boolean isExhausted( int newRequestsSize ) {
+       return size.get() + newRequestsSize >= LIMIT;
     }
 
     /**

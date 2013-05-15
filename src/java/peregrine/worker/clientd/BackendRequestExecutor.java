@@ -25,7 +25,7 @@ import peregrine.io.SequenceWriter;
 import peregrine.io.chunk.DefaultChunkWriter;
 import peregrine.io.partition.LocalPartitionReader;
 import peregrine.worker.clientd.requests.BackendRequest;
-import peregrine.worker.clientd.requests.ClientRequest;
+import peregrine.worker.clientd.requests.ClientBackendRequest;
 import peregrine.io.sstable.RecordListener;
 import peregrine.io.util.Closer;
 import peregrine.util.netty.NonBlockingChannelBufferWritable;
@@ -48,7 +48,7 @@ public class BackendRequestExecutor implements Runnable {
 
     private PartitionIndex partitionIndex = null;
 
-    private Set<ClientRequest> clientIndex = null;
+    private Set<ClientBackendRequest> clientIndex = null;
 
     public BackendRequestExecutor(Config config, BackendRequestQueue queue) {
         this.config = config;
@@ -94,17 +94,17 @@ public class BackendRequestExecutor implements Runnable {
     private void createIndex( List<BackendRequest> requests ) {
 
         partitionIndex = new PartitionIndex();
-        clientIndex = new HashSet<ClientRequest>();
+        clientIndex = new HashSet<ClientBackendRequest>();
 
         for( BackendRequest current : requests ) {
 
-            ClientRequest clientRequest = current.getClient();
+            ClientBackendRequest clientBackendRequest = current.getClient();
 
             // keep track of every client...
-            clientIndex.add( clientRequest );
+            clientIndex.add(clientBackendRequest);
 
-            SourceIndex sourceIndex = partitionIndex.fetch(clientRequest.getPartition());
-            List<BackendRequest> list = sourceIndex.fetch( clientRequest.getSource());
+            SourceIndex sourceIndex = partitionIndex.fetch(clientBackendRequest.getPartition());
+            List<BackendRequest> list = sourceIndex.fetch( clientBackendRequest.getSource());
             list.add( current );
 
         }
@@ -258,10 +258,10 @@ public class BackendRequestExecutor implements Runnable {
                 // create a SequenceWriter for every client so that we have an
                 // output channel.
 
-                for( ClientRequest clientRequest : clientIndex ) {
+                for( ClientBackendRequest clientBackendRequest : clientIndex ) {
 
                     NonBlockingChannelBufferWritable writable =
-                            new NonBlockingChannelBufferWritable( clientRequest.getChannel() );
+                            new NonBlockingChannelBufferWritable( clientBackendRequest.getChannel() );
 
                     // FIXME: we need to set a mode here for the DefaultChunkWriter to
                     // include a CRC32 in the minimal form so that the entire record is
@@ -270,7 +270,7 @@ public class BackendRequestExecutor implements Runnable {
                     // the request.
                     DefaultChunkWriter writer = new DefaultChunkWriter( config , writable );
 
-                    clientRequest.setSequenceWriter( writer );
+                    clientBackendRequest.setSequenceWriter( writer );
 
                 }
 
@@ -279,17 +279,17 @@ public class BackendRequestExecutor implements Runnable {
                     @Override
                     public void onRecord( BackendRequest backendRequest, StructReader key, StructReader value ) {
 
-                        ClientRequest clientRequest = backendRequest.getClient();
+                        ClientBackendRequest clientBackendRequest = backendRequest.getClient();
 
                         try {
 
                             // the client will automatically come back from being
                             // suspended once the buffer is drained.
-                            if ( clientRequest.isSuspended() ) {
+                            if ( clientBackendRequest.isSuspended() ) {
                                 return;
                             }
 
-                            SequenceWriter writer = clientRequest.getSequenceWriter();
+                            SequenceWriter writer = clientBackendRequest.getSequenceWriter();
 
                             writer.write( key, value );
 
@@ -311,7 +311,7 @@ public class BackendRequestExecutor implements Runnable {
                             // mark this request as failed (cancel it) so that all
                             // future requests are simply skipped for this entry.
 
-                            clientRequest.setCancelled(true);
+                            clientBackendRequest.setCancelled(true);
 
                             log.error("Could not write to client: ", e);
 
@@ -325,11 +325,11 @@ public class BackendRequestExecutor implements Runnable {
                 // that we can read all the values.  If we do the reverse we we will
                 // segfault.
 
-                for( ClientRequest clientRequest : clientIndex ) {
+                for( ClientBackendRequest clientBackendRequest : clientIndex ) {
 
                     try {
 
-                        SequenceWriter writer = clientRequest.getSequenceWriter();
+                        SequenceWriter writer = clientBackendRequest.getSequenceWriter();
 
                         writer.flush();
                         writer.close();

@@ -126,7 +126,7 @@ public class Memtable implements SSTableReader, SSTableWriter {
         // now call seekTo on the last record so that next() works.
         if ( lastRecordListener.getLastRecord() != null ) {
 
-            seekTo( new peregrine.worker.clientd.requests.GetBackendRequest( lastRecordListener.getLastClientRequest(),
+            seekTo( new peregrine.worker.clientd.requests.GetBackendRequest( lastRecordListener.getLastClientBackendRequest(),
                                            lastRecordListener.getLastRecord().getKey() ) );
 
             return true;

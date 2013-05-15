@@ -17,7 +17,6 @@
 package peregrine.worker.clientd.requests;
 
 import peregrine.StructReader;
-import peregrine.worker.clientd.requests.*;
 
 /**
  * Represents a request to the backend to GET a key.  This represents an
@@ -28,7 +27,7 @@ public class GetBackendRequest extends BackendRequest implements RequestSizeable
 
     private StructReader key;
 
-    public GetBackendRequest(peregrine.worker.clientd.requests.ClientRequest client, StructReader key) {
+    public GetBackendRequest(ClientBackendRequest client, StructReader key) {
         super( client, key );
         this.key = key;
     }
@@ -53,4 +52,5 @@ public class GetBackendRequest extends BackendRequest implements RequestSizeable
     public int size() {
         return 1;
     }
+
 }

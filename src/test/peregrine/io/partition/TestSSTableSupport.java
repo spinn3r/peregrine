@@ -26,7 +26,7 @@ import peregrine.io.sstable.Scanner;
 import peregrine.util.*;
 import peregrine.worker.clientd.requests.*;
 import peregrine.worker.clientd.requests.GetBackendRequest;
-import peregrine.worker.clientd.requests.ClientRequest;
+import peregrine.worker.clientd.requests.ClientBackendRequest;
 
 public class TestSSTableSupport extends peregrine.BaseTestWithMultipleProcesses {
 
@@ -81,11 +81,11 @@ public class TestSSTableSupport extends peregrine.BaseTestWithMultipleProcesses 
         // reopen it to test again.
         reader = new LocalPartitionReader( configs.get( 0 ), part, path );
 
-        ClientRequest clientRequest = new ClientRequest( part, path );
+        ClientBackendRequest clientBackendRequest = new ClientBackendRequest( part, path );
 
         for( long i = 0; i < max; ++i ) {
 
-            GetBackendRequest getBackendRequest = new GetBackendRequest( clientRequest, StructReaders.wrap( i ) );
+            GetBackendRequest getBackendRequest = new GetBackendRequest(clientBackendRequest, StructReaders.wrap( i ) );
             Record record = reader.seekTo( getBackendRequest );
 
             assertNotNull( record );
@@ -106,7 +106,7 @@ public class TestSSTableSupport extends peregrine.BaseTestWithMultipleProcesses 
 
         for( StructReader key : range( 0, max - 1 ) ) {
 
-            backendRequests.add( new GetBackendRequest( clientRequest, key ) );
+            backendRequests.add( new GetBackendRequest(clientBackendRequest, key ) );
 
         }
 
@@ -133,9 +133,9 @@ public class TestSSTableSupport extends peregrine.BaseTestWithMultipleProcesses 
 
         Partition part = new Partition( 0 );
 
-        ClientRequest clientRequest = new ClientRequest( part, path );
+        ClientBackendRequest clientBackendRequest = new ClientBackendRequest( part, path );
 
-        scanRequest.setClient(clientRequest);
+        scanRequest.setClient(clientBackendRequest);
 
         SSTableReader reader = new LocalPartitionReader( configs.get( 0 ), part, path );
 

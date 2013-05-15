@@ -43,7 +43,7 @@ public class TestClientServerProtocol extends peregrine.BaseTestWithMultipleProc
 
         GetRequest request = new GetRequest();
         request.setKeys( keys );
-        request.setSource( path );
+        request.getClientRequestMeta().setSource( path );
 
         Connection conn = new Connection( "http://localhost:11112/0" );
         GetClient client = new GetClient( config, conn );

@@ -24,7 +24,7 @@ import peregrine.io.SequenceWriter;
  * Represents information about a client performing a request including the
  * netty Channel they are using, whether they are suspended, etc.
  */
-public class ClientRequest {
+public class ClientBackendRequest {
 
     private Channel channel;
 
@@ -44,12 +44,12 @@ public class ClientRequest {
      * Create a client with no channel.  Results are only available within
      * the API and not sent anywhere.
      */
-    public ClientRequest(Partition partition, String source) {
+    public ClientBackendRequest(Partition partition, String source) {
         this.partition = partition;
         this.source = source;
     }
 
-    public ClientRequest(Channel channel, Partition partition, String source) {
+    public ClientBackendRequest(Channel channel, Partition partition, String source) {
         this.channel = channel;
         this.partition = partition;
         this.source = source;

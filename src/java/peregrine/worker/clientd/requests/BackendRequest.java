@@ -26,18 +26,18 @@ import peregrine.StructReader;
  */
 public abstract class BackendRequest implements Comparable<BackendRequest>, RequestSizeable {
 
-    private ClientRequest client = null;
+    private ClientBackendRequest client = null;
 
     private boolean complete = false;
 
     private StructReader seekKey;
 
-    protected BackendRequest(ClientRequest client, StructReader seekKey ) {
+    protected BackendRequest(ClientBackendRequest client, StructReader seekKey ) {
         this.client = client;
         this.seekKey = seekKey;
     }
 
-    public ClientRequest getClient() {
+    public ClientBackendRequest getClient() {
         return client;
     }
 
