@@ -17,14 +17,13 @@
 package peregrine.worker.clientd;
 
 import peregrine.config.Config;
-import peregrine.io.sstable.BackendRequest;
-import peregrine.io.sstable.GetBackendRequest;
-import peregrine.io.sstable.ScanBackendRequest;
+import peregrine.worker.clientd.requests.BackendRequest;
+import peregrine.worker.clientd.requests.GetBackendRequest;
+import peregrine.worker.clientd.requests.ScanBackendRequest;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 

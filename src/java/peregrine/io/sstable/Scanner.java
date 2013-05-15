@@ -17,6 +17,7 @@
 package peregrine.io.sstable;
 
 import peregrine.client.ScanRequest;
+import peregrine.worker.clientd.requests.ScanBackendRequest;
 
 import java.io.IOException;
 
@@ -37,19 +38,13 @@ public class Scanner {
 
         ScanBackendRequest scanBackendRequest = new ScanBackendRequest( scanRequest.getClient(), scanRequest );
 
-        // FIXME: we can't use JUST seekTo to jump to the DefaultChunkReader
-        // position because the block will be decompressed temporarily during
-        // seekTo and THEN we're going to read it again.  We should probably
-        // keep at least ONE block in memory at a time to improve performance of
-        // scanRequest either that or figure out a way to partially push scanRequest code into
-        // the DefaultChunkReader and then have it resume across blocks when
-        // changing to a new reader when we roll over.
+        // FIXME: migrate to using the backend executor for this code.
 
         // position us to the starting key if necessary.
         if ( scanRequest.getStart() != null ) {
 
-            GetBackendRequest getBackendRequest
-                    = new GetBackendRequest( scanRequest.getClient(), scanRequest.getStart().key() );
+            peregrine.worker.clientd.requests.GetBackendRequest getBackendRequest
+                    = new peregrine.worker.clientd.requests.GetBackendRequest( scanRequest.getClient(), scanRequest.getStart().key() );
 
             // seek to the start and return if we dont' find it.
             if ( sstable.seekTo( getBackendRequest ) == null ) {

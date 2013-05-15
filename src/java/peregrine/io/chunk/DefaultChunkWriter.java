@@ -47,6 +47,11 @@ import peregrine.util.primitive.*;
  */
 public class DefaultChunkWriter extends BaseSSTableChunk implements ChunkWriter {
 
+    // FIXME: there should be three modes here.  MINIMAL ... which is the legacy
+    // format.  Then we should have STREAM which includes the count and a
+    // checksum.  Then we should have INDEXED which includes a block index as
+    // well as CRC32.
+
     protected static final Logger log = Logger.getLogger();
 
     // FIXME: DITCH the data block and meta block metaphor.. we are storing the
@@ -76,6 +81,7 @@ public class DefaultChunkWriter extends BaseSSTableChunk implements ChunkWriter 
     // true when closed.
     private boolean closed = false;
 
+    // true when shutdown.
     private boolean shutdown = false;
 
     // the current DataBlock

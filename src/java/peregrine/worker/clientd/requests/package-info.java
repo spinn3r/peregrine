@@ -1,3 +1,4 @@
+
 /*
  * Copyright 2011-2013 Kevin A. Burton
  *
@@ -14,20 +15,7 @@
  * limitations under the License.
  */
 
-package peregrine.io.sstable;
-
-import peregrine.*;
-import peregrine.worker.clientd.requests.BackendRequest;
-
 /**
- * Listen to scan and seekTo requests.
- * 
+ * Code related to request handling.
  */
-public interface RecordListener {
-
-    /**
-     * Called when a scan or seekTo finds a new record.
-     */
-    public void onRecord( BackendRequest request, StructReader key, StructReader value );
-    
-}
+package peregrine.worker.clientd.requests;

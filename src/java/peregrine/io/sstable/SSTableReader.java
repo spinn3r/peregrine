@@ -20,8 +20,8 @@ import java.io.*;
 import java.util.*;
 
 import peregrine.*;
-import peregrine.client.ScanRequest;
 import peregrine.io.*;
+import peregrine.worker.clientd.requests.BackendRequest;
 
 /**
  *

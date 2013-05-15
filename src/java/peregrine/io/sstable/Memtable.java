@@ -20,8 +20,8 @@ import java.io.*;
 import java.util.*;
 
 import peregrine.*;
-import peregrine.client.ScanRequest;
 import peregrine.io.*;
+import peregrine.worker.clientd.requests.*;
 
 /**
  * This is the same essential design used in LevelDB, Cassandra, and
@@ -126,7 +126,7 @@ public class Memtable implements SSTableReader, SSTableWriter {
         // now call seekTo on the last record so that next() works.
         if ( lastRecordListener.getLastRecord() != null ) {
 
-            seekTo( new GetBackendRequest( lastRecordListener.getLastClientRequest(),
+            seekTo( new peregrine.worker.clientd.requests.GetBackendRequest( lastRecordListener.getLastClientRequest(),
                                            lastRecordListener.getLastRecord().getKey() ) );
 
             return true;

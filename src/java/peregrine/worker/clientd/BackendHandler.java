@@ -28,12 +28,13 @@ import org.jboss.netty.handler.codec.http.*;
 import peregrine.*;
 import peregrine.client.*;
 import peregrine.config.*;
-import peregrine.http.HttpChunkEncoder;
-import peregrine.io.sstable.*;
 
 import com.spinn3r.log5j.*;
 import peregrine.worker.ErrorLoggingChannelUpstreamHandler;
 import peregrine.worker.WorkerDaemon;
+import peregrine.worker.clientd.requests.*;
+import peregrine.worker.clientd.requests.GetBackendRequest;
+import peregrine.worker.clientd.requests.ClientRequest;
 
 /**
  *

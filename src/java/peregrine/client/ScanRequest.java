@@ -16,10 +16,8 @@
 
 package peregrine.client;
 
-import java.io.*;
-
 import peregrine.*;
-import peregrine.io.sstable.ClientRequest;
+import peregrine.worker.clientd.requests.ClientRequest;
 
 /**
  * A scan basically represents an interval (in set theory) for requests.  It can

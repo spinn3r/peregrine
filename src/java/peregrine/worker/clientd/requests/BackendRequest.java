@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package peregrine.io.sstable;
+package peregrine.worker.clientd.requests;
 
 import peregrine.StructReader;
 

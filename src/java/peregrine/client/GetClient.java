@@ -64,10 +64,7 @@ public class GetClient implements Client {
     public void exec( GetRequest request ) throws IOException {
 
         // create an HTTP client and submit the request.
-
         String url = GetRequestURLParser.toURL( this, request );
-
-        System.out.printf( "FIXME: url: %s\n", url );
 
         client = new HttpClient( config, url );
         client.setMethod( HttpMethod.GET );
@@ -88,18 +85,9 @@ public class GetClient implements Client {
     @Override
     public void waitFor() throws IOException {
 
-        // - stick it in a chunk reader
-        // - parse it into key/value pairs.
-        //
-
         waitForResponse();
 
         ChannelBuffer buff = client.getResult();
-
-
-        System.out.printf( "FIXME: buff is %,d bytes length \n", buff.writerIndex() );
-
-        System.out.printf( "FIXME: \n%s\n", Hex.pretty( buff ) );
 
         // make sure to get the HTTP status code and make sure that
         // we have HTTP 200 OK.
@@ -107,8 +95,10 @@ public class GetClient implements Client {
             throw new IOException( "Client request failed: " + client.getResponse().getStatus() );
         }
 
+        // stick the results in a chunk reader to read the output.
         DefaultChunkReader reader = new DefaultChunkReader( buff );
 
+        // parse it into key/value pairs.
         while( reader.hasNext() ) {
             reader.next();
             records.add( new Record( reader.key(), reader.value() ) );

@@ -18,6 +18,8 @@ package peregrine.io.sstable;
 
 import peregrine.Record;
 import peregrine.StructReader;
+import peregrine.worker.clientd.requests.ClientRequest;
+import peregrine.worker.clientd.requests.BackendRequest;
 
 /**
  * Regular record listener which forwards events to the target record

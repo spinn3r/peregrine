@@ -14,24 +14,27 @@
  * limitations under the License.
  */
 
-package peregrine.io.sstable;
+package peregrine.worker.clientd.requests;
 
-import peregrine.client.ScanRequest;
+import peregrine.StructReader;
+import peregrine.worker.clientd.requests.*;
 
 /**
- *
+ * Represents a request to the backend to GET a key.  This represents an
+ * individual request for an item and not ALL the items in a GET client
+ * request which may be numerous.
  */
-public class ScanBackendRequest extends BackendRequest {
+public class GetBackendRequest extends BackendRequest {
 
-    private ScanRequest scanRequest = null;
+    private StructReader key;
 
-    public ScanBackendRequest(ClientRequest client, ScanRequest scanRequest) {
-        super(client, scanRequest.getStart().key());
-        this.scanRequest = scanRequest;
+    public GetBackendRequest(peregrine.worker.clientd.requests.ClientRequest client, StructReader key) {
+        super( client, key );
+        this.key = key;
     }
 
-    public ScanRequest getScanRequest() {
-        return scanRequest;
+    public StructReader getKey() {
+        return key;
     }
 
 }

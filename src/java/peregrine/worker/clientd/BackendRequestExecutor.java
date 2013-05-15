@@ -24,8 +24,8 @@ import peregrine.config.Partition;
 import peregrine.io.SequenceWriter;
 import peregrine.io.chunk.DefaultChunkWriter;
 import peregrine.io.partition.LocalPartitionReader;
-import peregrine.io.sstable.BackendRequest;
-import peregrine.io.sstable.ClientRequest;
+import peregrine.worker.clientd.requests.BackendRequest;
+import peregrine.worker.clientd.requests.ClientRequest;
 import peregrine.io.sstable.RecordListener;
 import peregrine.io.util.Closer;
 import peregrine.util.netty.NonBlockingChannelBufferWritable;
@@ -241,11 +241,19 @@ public class BackendRequestExecutor implements Runnable {
 
                 log.info( "Handling %s on %s ", source, partition );
 
-                //FIXME: should we support a table cache here... I don't think
+                // FIXME: should we support a table cache here... I don't think
                 // it's really necessary.  The main issue is reading and
-                // constructing block information.
+                // constructing block information and arguably reading from the
+                // filesystem dentries.
 
                 reader = new LocalPartitionReader( config, partition, source );
+
+                if ( reader.count() == 0 ) {
+                    // we're done here.  There's nothing in this table.  In
+                    // theory this is redundant however, it eliminates bugs
+                    // working with an empty SSTable which is an edge case.
+                    return;
+                }
 
                 // create a SequenceWriter for every client so that we have an
                 // output channel.

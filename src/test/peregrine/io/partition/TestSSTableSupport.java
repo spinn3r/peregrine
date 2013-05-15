@@ -24,6 +24,9 @@ import peregrine.config.*;
 import peregrine.io.sstable.*;
 import peregrine.io.sstable.Scanner;
 import peregrine.util.*;
+import peregrine.worker.clientd.requests.*;
+import peregrine.worker.clientd.requests.GetBackendRequest;
+import peregrine.worker.clientd.requests.ClientRequest;
 
 public class TestSSTableSupport extends peregrine.BaseTestWithMultipleProcesses {
 

@@ -20,7 +20,6 @@ import java.math.*;
 import java.util.*;
 
 import peregrine.*;
-import peregrine.client.ScanRequest;
 import peregrine.config.*;
 import peregrine.io.*;
 import peregrine.io.chunk.*;
@@ -28,6 +27,7 @@ import peregrine.io.util.*;
 import peregrine.io.sstable.*;
 import peregrine.rpc.*;
 import peregrine.sort.*;
+import peregrine.worker.clientd.requests.BackendRequest;
 
 /**
  * Read data from a partition from local storage from the given file with a set
@@ -68,7 +68,11 @@ public class LocalPartitionReader extends BaseJobInput
 
     // the current value we are working with
     private StructReader value = null;
-    
+
+    // the first key in the stream of keys.  Used for scan operation when a
+    // scan isn't given a start key.
+    private StructReader firstKey = null;
+
     public LocalPartitionReader( Config config,
                                  Partition partition,
                                  String path ) throws IOException {
@@ -126,6 +130,9 @@ public class LocalPartitionReader extends BaseJobInput
             
             for( DataBlock db : current.getDataBlocks() ) {
 
+                if ( firstKey == null )
+                    firstKey = StructReaders.wrap( db.getFirstKey() );
+
                 DataBlockReference ref = new DataBlockReference();
                 ref.reader = current;
                 ref.idx = idx;
@@ -178,6 +185,13 @@ public class LocalPartitionReader extends BaseJobInput
 
         return entry.getValue();
 
+    }
+
+    /**
+     * Get the first key in the stream of key/value pairs.
+     */
+    public StructReader getFirstKey() {
+        return firstKey;
     }
 
     @Override

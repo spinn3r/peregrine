@@ -17,10 +17,7 @@ package peregrine.io.chunk;
 
 import java.io.*;
 import java.util.*;
-import java.math.*;
 
-import java.nio.*;
-import java.nio.channels.*;
 import java.nio.charset.*;
 
 import peregrine.*;
@@ -28,12 +25,11 @@ import peregrine.config.*;
 import peregrine.io.*;
 import peregrine.io.sstable.*;
 import peregrine.os.*;
-import peregrine.sort.*;
 import peregrine.util.*;
 import peregrine.util.netty.*;
-import peregrine.util.primitive.*;
 
 import org.jboss.netty.buffer.*;
+import peregrine.worker.clientd.requests.BackendRequest;
 
 /**
  * Default ChunkReader implementation which uses mmap, and supports features
