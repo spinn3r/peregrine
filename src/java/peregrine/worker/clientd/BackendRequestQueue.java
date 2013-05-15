@@ -16,9 +16,11 @@
 
 package peregrine.worker.clientd;
 
+import peregrine.client.GetRequest;
 import peregrine.config.Config;
 import peregrine.worker.clientd.requests.BackendRequest;
 import peregrine.worker.clientd.requests.GetBackendRequest;
+import peregrine.worker.clientd.requests.RequestSizeable;
 import peregrine.worker.clientd.requests.ScanBackendRequest;
 
 import java.util.ArrayList;
@@ -46,30 +48,32 @@ public class BackendRequestQueue {
         delegate = new LinkedBlockingQueue();
     }
 
+    /**
+     * Add the given items to the queue.
+     */
     public void add( List<BackendRequest> list ) {
         size.getAndAdd( size( list ) );
         delegate.add(list);
 
     }
 
-    // count the number of keys that this request would involve.
-    private int size( Collection<BackendRequest> list ) {
+    public int size( RequestSizeable sizeable ) {
+        return sizeable.size();
+    }
+
+        // count the number of keys that this request would involve.
+    public int size( Collection list ) {
 
         int result = 0;
 
-        for ( BackendRequest current : list ) {
+        for ( Object current : list ) {
 
-            if ( current instanceof GetBackendRequest )
-                ++result;
-
-            if ( current instanceof ScanBackendRequest ) {
-
-                ScanBackendRequest scanBackendRequest = (ScanBackendRequest)current;
-
-                // we use the limit for the scan as an approximation on the number
-                // of keys we're going to retunr.
-                result += scanBackendRequest.getScanRequest().getLimit();
-
+            // TODO: there isn't a better way to do this with generics is there?
+            if ( current instanceof RequestSizeable ) {
+                RequestSizeable sizeable = (RequestSizeable)current;
+                result += sizeable.size();
+            } else {
+                throw new RuntimeException();
             }
 
         }

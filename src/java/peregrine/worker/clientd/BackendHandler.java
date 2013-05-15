@@ -51,9 +51,11 @@ public class BackendHandler extends ErrorLoggingChannelUpstreamHandler {
 
     private String resource;
 
-    private Partition partition = null;
+    private Partition partition;
 
     private WorkerDaemon daemon;
+
+    private String requestType;
 
     public BackendHandler(WorkerDaemon daemon, String resource) throws Exception {
 
@@ -64,6 +66,7 @@ public class BackendHandler extends ErrorLoggingChannelUpstreamHandler {
 
         if ( matcher.find() ) {
             partition = new Partition( Integer.parseInt( matcher.group( 1 ) ) );
+            requestType = matcher.group(2);
         } 
 
     }
@@ -73,6 +76,42 @@ public class BackendHandler extends ErrorLoggingChannelUpstreamHandler {
      */
     public boolean handles() {
         return partition != null;
+    }
+
+
+    private List<BackendRequest> getBackendRequests( Channel channel, GetRequest request ) {
+
+        List<BackendRequest> backendRequests
+                = new ArrayList<BackendRequest>( request.getKeys().size() );
+
+        ClientRequest clientRequest = new ClientRequest(channel, partition, request.getSource() );
+
+        for( StructReader key : request.getKeys() ) {
+
+            GetBackendRequest backendRequest
+                    = new GetBackendRequest( clientRequest, key );
+
+            backendRequests.add( backendRequest );
+
+        }
+
+        return backendRequests;
+
+    }
+
+    private List<BackendRequest> getBackendRequests( Channel channel, ScanRequest request ) {
+
+        ClientRequest clientRequest = new ClientRequest(channel, partition, request.getSource() );
+
+        ScanBackendRequest scanBackendRequest = new ScanBackendRequest( clientRequest, request );
+
+        List<BackendRequest> backendRequests
+                = new ArrayList<BackendRequest>( 1 );
+
+        backendRequests.add( scanBackendRequest );
+
+        return backendRequests;
+
     }
 
     /**
@@ -85,11 +124,28 @@ public class BackendHandler extends ErrorLoggingChannelUpstreamHandler {
         // it PLUS the current capacity would exhaust the queue.  This way we
         // don't accept a request for too many keys from one client.
 
-        //FIXME: we need to handle SCAN here too
+        BackendRequestQueue queue = daemon.getBackendRequestQueue();
 
-        GetRequest request = GetRequestURLParser.toRequest( resource );
+        boolean exhausted = false;
+        List<BackendRequest> backendRequests = null;
 
-        if ( daemon.getBackendRequestQueue().isExhausted( request.getKeys().size() ) ) {
+        // TODO: migrate this to JDK 1.7 string switch.
+        if ( "GET".equals( requestType ) ) {
+
+            GetRequest request = GetRequestURLParser.toRequest(resource);
+            exhausted = queue.isExhausted( queue.size( request ) );
+            backendRequests = getBackendRequests( channel, request );
+
+        } else if ( "SCAN".equals( requestType ) ) {
+
+            //FIXME: we need to handle SCAN here too
+
+
+        } else {
+            throw new RuntimeException( "Unknown request type: " + requestType );
+        }
+
+        if ( exhausted ) {
             // our queue is exhausted which probably means we're at a high
             // system load.
             HttpResponse response = new DefaultHttpResponse( HTTP_1_1, SERVICE_UNAVAILABLE );
@@ -104,23 +160,10 @@ public class BackendHandler extends ErrorLoggingChannelUpstreamHandler {
         // make a list of GetBackendRequests so that we can add them to the queue
         // to be dispatched.
 
-        List<BackendRequest> backendRequests
-                = new ArrayList<BackendRequest>( request.getKeys().size() );
-
-        ClientRequest clientRequest = new ClientRequest(channel, partition, request.getSource() );
-
-        for( StructReader key : request.getKeys() ) {
-
-            GetBackendRequest backendRequest
-                = new GetBackendRequest( clientRequest, key );
-
-            backendRequests.add( backendRequest );
-
-        }
 
         // we are done at this point.  the BackendRequestExecutor should now
         // handle serving all the keys.
-        daemon.getBackendRequestQueue().add( backendRequests );
+        queue.add( backendRequests );
 
     }
     

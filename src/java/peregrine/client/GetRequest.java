@@ -30,11 +30,12 @@ import peregrine.io.chunk.*;
 import peregrine.util.*;
 
 import com.spinn3r.log5j.*;
+import peregrine.worker.clientd.requests.RequestSizeable;
 
 /**
  * Represents a request to the server for GETing keys.
  */
-public class GetRequest {
+public class GetRequest implements RequestSizeable {
     
     private boolean hashcode = false;
     
@@ -68,6 +69,11 @@ public class GetRequest {
 
     public void setHashcode( boolean hashcode ) { 
         this.hashcode = hashcode;
+    }
+
+    @Override
+    public int size() {
+        return getKeys().size();
     }
 
 }

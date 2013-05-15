@@ -24,7 +24,7 @@ import peregrine.worker.clientd.requests.*;
  * individual request for an item and not ALL the items in a GET client
  * request which may be numerous.
  */
-public class GetBackendRequest extends BackendRequest {
+public class GetBackendRequest extends BackendRequest implements RequestSizeable {
 
     private StructReader key;
 
@@ -49,4 +49,8 @@ public class GetBackendRequest extends BackendRequest {
 
     }
 
+    @Override
+    public int size() {
+        return 1;
+    }
 }

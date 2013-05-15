@@ -24,7 +24,7 @@ import peregrine.StructReader;
  * the client.  This is provided as it allows us to keep track of whether request
  * was sent to the client (complete) and to get metadata about the client request.
  */
-public abstract class BackendRequest implements Comparable<BackendRequest> {
+public abstract class BackendRequest implements Comparable<BackendRequest>, RequestSizeable {
 
     private ClientRequest client = null;
 

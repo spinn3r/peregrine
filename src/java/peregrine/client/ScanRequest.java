@@ -18,13 +18,14 @@ package peregrine.client;
 
 import peregrine.*;
 import peregrine.worker.clientd.requests.ClientRequest;
+import peregrine.worker.clientd.requests.RequestSizeable;
 
 /**
  * A scan basically represents an interval (in set theory) for requests.  It can
  * either be open on either end, inclusive, or finite.   One can specify a start
  * key and end key and then read all keys in a given range.
  */
-public class ScanRequest {
+public class ScanRequest implements RequestSizeable {
 
     private Bound start = null;
 
@@ -33,6 +34,8 @@ public class ScanRequest {
     private int limit = 10;
 
     private ClientRequest client;
+
+    private String source = null;
 
     // noarg constructor.  ClientRequest is needed but set it later.
     public ScanRequest() { }
@@ -74,6 +77,19 @@ public class ScanRequest {
 
     public void setClient(ClientRequest client) {
         this.client = client;
+    }
+
+    public String getSource() {
+        return source;
+    }
+
+    public void setSource(String source) {
+        this.source = source;
+    }
+
+    @Override
+    public int size() {
+        return getLimit();
     }
 
     /**

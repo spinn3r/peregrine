@@ -22,7 +22,7 @@ import peregrine.client.ScanRequest;
 /**
  *
  */
-public class ScanBackendRequest extends BackendRequest {
+public class ScanBackendRequest extends BackendRequest implements RequestSizeable {
 
     private ScanRequest scanRequest = null;
 
@@ -43,4 +43,10 @@ public class ScanBackendRequest extends BackendRequest {
     public boolean visit(StructReader key, StructReader value) {
         throw new RuntimeException("FIXME: not implemented");
     }
+
+    @Override
+    public int size() {
+        return getScanRequest().size();
+    }
+
 }

@@ -306,6 +306,8 @@ public class DefaultChunkReader extends BaseSSTableChunk
             //FIXME: keep looping through the requests because two clients might
             //have requested the same keys.
 
+            //FIXME: we need a metric for the number of keys we have read and the number of keys we matched.
+
             if ( find.visit( key(), value() ) ) {
 
                 listener.onRecord( find, key(), value() );
