@@ -46,4 +46,15 @@ public interface SSTableReader extends SequenceReader {
      */
     public Record seekTo( BackendRequest request ) throws IOException;
 
+    /**
+     *
+     * @return The first key in this table.
+     */
+    public StructReader getFirstKey();
+
+    /**
+     * Return the count of records in this table.
+     */
+    public int count();
+
 }

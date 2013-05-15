@@ -190,6 +190,7 @@ public class LocalPartitionReader extends BaseJobInput
     /**
      * Get the first key in the stream of key/value pairs.
      */
+    @Override
     public StructReader getFirstKey() {
         return firstKey;
     }

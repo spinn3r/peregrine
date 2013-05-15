@@ -19,7 +19,7 @@ import java.util.*;
 import java.util.concurrent.atomic.*;
 
 import peregrine.*;
-import peregrine.client.ScanRequest;
+import peregrine.client.*;
 import peregrine.config.*;
 import peregrine.io.sstable.*;
 import peregrine.io.sstable.Scanner;
@@ -127,6 +127,8 @@ public class TestSSTableSupport extends peregrine.BaseTestWithMultipleProcesses 
 
     private void doTestScan( ScanRequest scanRequest, int max, List<StructReader> keys ) throws Exception {
 
+        // test the encoder and decoder...
+
         String path = "/tmp/test.sstable";
 
         writeSSTable( path, max );
@@ -134,6 +136,23 @@ public class TestSSTableSupport extends peregrine.BaseTestWithMultipleProcesses 
         Partition part = new Partition( 0 );
 
         ClientBackendRequest clientBackendRequest = new ClientBackendRequest( part, path );
+
+        ClientRequestMeta clientRequestMeta = new ClientRequestMeta( part, path );
+
+        scanRequest.setClientRequestMeta(clientRequestMeta);
+
+        Connection connection = new Connection( "http://localhost:11112/" );
+
+        String url = new ScanRequestURLEncoder().encode(connection, scanRequest);
+
+        System.out.printf( "FIXME: url: %s", url );
+
+        ScanRequest tmp =
+                new ScanRequestURLDecoder().decode( url );
+
+        assertNotNull( tmp );
+
+        assertEquals( tmp.toString(), scanRequest.toString() );
 
         SSTableReader reader = new LocalPartitionReader( configs.get( 0 ), part, path );
 

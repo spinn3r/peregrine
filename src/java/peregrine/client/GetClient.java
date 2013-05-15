@@ -59,7 +59,7 @@ public class GetClient implements Client {
     public void exec( GetRequest request ) throws IOException {
 
         // create an HTTP client and submit the request.
-        String url = new GetRequestURLEncoder().encode(this, request);
+        String url = new GetRequestURLEncoder().encode(connection, request);
 
         client = new HttpClient( config, url );
         client.setMethod( HttpMethod.GET );

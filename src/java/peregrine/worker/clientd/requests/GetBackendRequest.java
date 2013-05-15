@@ -27,8 +27,8 @@ public class GetBackendRequest extends BackendRequest implements RequestSizeable
 
     private StructReader key;
 
-    public GetBackendRequest(ClientBackendRequest client, StructReader key) {
-        super( client, key );
+    public GetBackendRequest(ClientBackendRequest clientBackendRequest, StructReader key) {
+        super( clientBackendRequest, key );
         this.key = key;
     }
 

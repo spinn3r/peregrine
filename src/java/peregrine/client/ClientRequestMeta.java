@@ -37,6 +37,13 @@ public class ClientRequestMeta {
 
     private String source = null;
 
+    public ClientRequestMeta() {  }
+
+    public ClientRequestMeta(Partition partition, String source) {
+        this.partition = partition;
+        this.source = source;
+    }
+
     //FIXME: migrate ALL this to Connection?
 
     public boolean parse( String url ) {

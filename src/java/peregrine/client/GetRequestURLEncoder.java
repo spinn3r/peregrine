@@ -16,7 +16,6 @@
 
 package peregrine.client;
 
-import org.jboss.netty.handler.codec.http.QueryStringDecoder;
 import peregrine.StructReader;
 import peregrine.StructReaders;
 import peregrine.util.Base64;
@@ -32,13 +31,13 @@ public class GetRequestURLEncoder {
     /**
      * Take a request and make it into a URL string to send to the server.
      */
-    public String encode( GetClient client, GetRequest request ) {
+    public String encode( Connection connection, GetRequest request ) {
 
         if ( request.getClientRequestMeta().getSource() == null )
             throw new NullPointerException( "source" );
 
         StringBuilder buff = new StringBuilder( 200 );
-        buff.append( String.format("%s/client-rpc/GET?source=%s", client.getConnection().getEndpoint(), request.getClientRequestMeta().getSource()) );
+        buff.append( String.format("%s/client-rpc/GET?source=%s", connection.getEndpoint(), request.getClientRequestMeta().getSource()) );
 
         List<String> args = new ArrayList();
 

@@ -35,7 +35,7 @@ public class TestClientURLHandling extends peregrine.BaseTest {
         Connection conn = new Connection( "http://localhost:11111" );
         GetClient client = new GetClient( config, conn );
         
-        String url = new GetRequestURLEncoder().encode(client, request);
+        String url = new GetRequestURLEncoder().encode(client.getConnection(), request);
         
         request = new GetRequestURLDecoder().decode(url);
 

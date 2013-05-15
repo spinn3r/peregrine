@@ -17,6 +17,7 @@
 package peregrine.client;
 
 import peregrine.*;
+import peregrine.util.Base64;
 import peregrine.worker.clientd.requests.ClientBackendRequest;
 
 /**
@@ -81,6 +82,11 @@ public class ScanRequest {
         return new Bound( key, inclusive );
     }
 
+    @Override
+    public String toString() {
+        return String.format( "start={%s} end={%s} limit=%s", start, end, limit );
+    }
+
     /**
      * Represents the ends of an interval (either inclusive or exclusive).
      */
@@ -101,7 +107,11 @@ public class ScanRequest {
         public boolean isInclusive() {
             return inclusive;
         }
-        
+
+        @Override
+        public String toString() {
+            return String.format( "key=%s inclusive=%s", Base64.encode( key.toByteArray() ), inclusive );
+        }
     }
     
 }

@@ -21,10 +21,7 @@ import peregrine.StructReader;
 import peregrine.StructReaders;
 import peregrine.util.Base64;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Parse out scan requests.
@@ -34,7 +31,7 @@ public class ScanRequestURLEncoder {
     /**
      * Take a request and make it into a URL string to send to the server.
      */
-    public String encode( GetClient client, ScanRequest scanRequest ) {
+    public String encode( Connection connection, ScanRequest scanRequest ) {
 
         //FIXME: this code is shared with GetRequestURLDecoder and we also need
         //to assert that we have a partition.
@@ -44,10 +41,10 @@ public class ScanRequestURLEncoder {
         //FIXME: support hashcoding the keys.
 
         StringBuilder buff = new StringBuilder( 200 );
-        buff.append( String.format( "%s/client-rpc/SCAN?",
-                                    scanRequest.getClientRequestMeta().getPartition().getId() ) );
+        buff.append( String.format( "%s/%s/client-rpc/SCAN?",
+                     connection.getEndpoint(), scanRequest.getClientRequestMeta().getPartition().getId() ) );
 
-        Map<String,Object> params = new HashMap();
+        Map<String,Object> params = new TreeMap();
 
         if ( scanRequest.getStart() != null ) {
             params.put( "start.key", Base64.encode( scanRequest.getStart().key().toByteArray() ) );
@@ -61,6 +58,17 @@ public class ScanRequestURLEncoder {
 
         params.put( "limit",  scanRequest.getLimit() );
         params.put( "source", scanRequest.getClientRequestMeta().getSource() );
+
+        int i = 0;
+        for( Map.Entry<String,Object> entry : params.entrySet() ) {
+
+            if ( i > 0 )
+                buff.append( "&" );
+
+            buff.append( String.format( "%s=%s", entry.getKey(), entry.getValue() ) );
+
+            ++i;
+        }
 
         return buff.toString();
 

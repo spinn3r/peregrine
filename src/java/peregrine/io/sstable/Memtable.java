@@ -138,6 +138,16 @@ public class Memtable implements SSTableReader, SSTableWriter {
     }
 
     @Override
+    public StructReader getFirstKey() {
+        return StructReaders.wrap( map.firstKey() );
+    }
+
+    @Override
+    public int count() {
+        return map.size();
+    }
+
+    @Override
     public boolean hasNext() {
         return iterator.hasNext();
     }

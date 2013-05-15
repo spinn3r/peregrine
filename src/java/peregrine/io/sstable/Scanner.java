@@ -19,6 +19,7 @@ package peregrine.io.sstable;
 import peregrine.client.ScanRequest;
 import peregrine.worker.clientd.requests.ClientBackendRequest;
 import peregrine.worker.clientd.requests.ScanBackendRequest;
+import peregrine.worker.clientd.requests.GetBackendRequest;
 
 import java.io.IOException;
 
@@ -37,41 +38,34 @@ public class Scanner {
 
     public void scan( ClientBackendRequest clientBackendRequest, ScanRequest scanRequest, RecordListener listener ) throws IOException {
 
-        ScanBackendRequest scanBackendRequest = new ScanBackendRequest( clientBackendRequest, scanRequest );
-
         // FIXME: migrate to using the backend executor for this code.
 
-        // position us to the starting key if necessary.
-        if ( scanRequest.getStart() != null ) {
+        if ( sstable.count() == 0 )
+            return;
 
-            peregrine.worker.clientd.requests.GetBackendRequest getBackendRequest
-                    = new peregrine.worker.clientd.requests.GetBackendRequest( clientBackendRequest, scanRequest.getStart().key() );
+        if ( scanRequest.getStart() == null ) {
+            scanRequest.setStart( sstable.getFirstKey(), true );
+        }
 
-            // seek to the start and return if we dont' find it.
-            if ( sstable.seekTo( getBackendRequest ) == null ) {
+        ScanBackendRequest scanBackendRequest = new ScanBackendRequest( clientBackendRequest, scanRequest );
+
+        GetBackendRequest getBackendRequest
+                = new GetBackendRequest( clientBackendRequest, scanRequest.getStart().key() );
+
+        // seek to the start and return if we dont' find it.
+        if ( sstable.seekTo( getBackendRequest ) == null ) {
+            return;
+        }
+
+        // if it isn't inclusive skip over it.
+        if ( scanRequest.getStart().isInclusive() == false ) {
+
+            if ( sstable.hasNext() ) {
+                sstable.next();
+            } else {
                 return;
             }
 
-            // if it isn't inclusive skip over it.
-            if ( scanRequest.getStart().isInclusive() == false ) {
-
-                if ( sstable.hasNext() ) {
-                    sstable.next();
-                } else {
-                    return;
-                }
-
-            }
-
-        } else if ( sstable.hasNext() ) {
-
-            // there is no start key so start at the beginning of the chunk
-            // reader.
-            sstable.next();
-
-        } else {
-            // no start key and this DefaultChunkReader is empty.
-            return;
         }
 
         int found = 0;
