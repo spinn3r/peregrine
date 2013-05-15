@@ -20,13 +20,11 @@ import static org.jboss.netty.handler.codec.http.HttpVersion.*;
 
 import java.io.*;
 import java.util.*;
-import java.util.regex.*;
 
 import org.jboss.netty.channel.*;
 import org.jboss.netty.handler.codec.http.*;
 
 import peregrine.client.*;
-import peregrine.config.*;
 
 import com.spinn3r.log5j.*;
 import peregrine.worker.ErrorLoggingChannelUpstreamHandler;
@@ -96,7 +94,7 @@ public class BackendHandler extends ErrorLoggingChannelUpstreamHandler {
         // TODO: migrate this to JDK 1.7 string switch.
         if ( "GET".equals( clientRequestMeta.getRequestType() ) ) {
 
-            GetRequest request = GetRequestURLParser.toRequest(resource);
+            GetRequest request = new GetRequestURLDecoder().decode(resource);
             backendRequestFactory = new GetBackendRequestFactory( request );
 
         } else if ( "SCAN".equals( clientRequestMeta.getRequestType() ) ) {
@@ -136,7 +134,7 @@ public class BackendHandler extends ErrorLoggingChannelUpstreamHandler {
 
         try {
 
-            exec( e.getChannel() );
+            exec(e.getChannel());
 
         } catch ( Exception exc ) {
             // catch all exceptions and then bubble them up.

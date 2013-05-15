@@ -18,9 +18,7 @@ package peregrine.client;
 import java.util.*;
 
 import peregrine.*;
-import peregrine.io.*;
 import peregrine.config.*;
-import peregrine.controller.*;
 
 public class TestClientURLHandling extends peregrine.BaseTest {
 
@@ -37,12 +35,12 @@ public class TestClientURLHandling extends peregrine.BaseTest {
         Connection conn = new Connection( "http://localhost:11111" );
         GetClient client = new GetClient( config, conn );
         
-        String url = GetRequestURLParser.toURL( client, request );
+        String url = new GetRequestURLEncoder().encode(client, request);
         
-        request = GetRequestURLParser.toRequest( url );
+        request = new GetRequestURLDecoder().decode(url);
 
         if( hashcode ) {
-            assertEquals( GetRequestURLParser.hashcodes( keys ), request.getKeys() );
+            assertEquals( GetRequestURLEncoder.hashcodes(keys), request.getKeys() );
         } else { 
             assertEquals( keys, request.getKeys() );
         }

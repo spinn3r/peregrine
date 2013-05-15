@@ -36,7 +36,7 @@ public class ScanRequestURLEncoder {
      */
     public String encode( GetClient client, ScanRequest scanRequest ) {
 
-        //FIXME: this code is shared with GetRequestURLParser and we also need
+        //FIXME: this code is shared with GetRequestURLDecoder and we also need
         //to assert that we have a partition.
         if ( scanRequest.getClientRequestMeta().getSource() == null )
             throw new NullPointerException( "source" );

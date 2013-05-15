@@ -34,66 +34,14 @@ import com.spinn3r.log5j.*;
 /**
  * Parse URLs into and from requests for use between the client and server.
  */
-public class GetRequestURLParser {
-
-    /**
-     * Return the list of keys as a list of hashcodes.
-     */
-    public static List<StructReader> hashcodes( List<StructReader> keys ) {
-
-        List<StructReader> result = new ArrayList( keys.size() );
-
-        for( StructReader key : keys ) {
-            result.add( StructReaders.hashcode( key.toByteArray() ) );
-        }
-
-        return result;
-        
-    }
-    
-    /**
-     * Take a request and make it into a URL string to send to the server.
-     */
-    public static String toURL( GetClient client, GetRequest request ) {
-
-        if ( request.getClientRequestMeta().getSource() == null )
-            throw new NullPointerException( "source" );
-        
-        StringBuilder buff = new StringBuilder( 200 );
-        buff.append( String.format( "%s/client-rpc/GET?source=%s", client.getConnection().getEndpoint(), request.getClientRequestMeta().getSource() ) );
-
-        List<String> args = new ArrayList();
-
-        // add comma separated base64 encoded keys.
-        buff.append( "&k=" );
-
-        List<StructReader> keys = request.getKeys();
-
-        if ( request.getHashcode() ) {
-            keys = hashcodes( keys );
-        }
-        
-        for( int i = 0; i < keys.size(); ++i ) {
-
-            StructReader key = keys.get( i );
-
-            if ( i > 0 )
-                buff.append( "," );
-            
-            buff.append( Base64.encode( key.toByteArray() ) );
-
-        }
-
-        return buff.toString();
-
-    }
+public class GetRequestURLDecoder {
 
     /**
      * Take a request URL and return it as a Get request representing all fields
      * necessary to execute the request.  Return null if we are unable to parse
      * the URL.
      */
-    public static GetRequest toRequest( String url ) {
+    public GetRequest decode( String url ) {
 
         GetRequest request = new GetRequest();
 
@@ -106,11 +54,11 @@ public class GetRequestURLParser {
         QueryStringDecoder decoder = new QueryStringDecoder( url );
 
         List<StructReader> keys = new ArrayList();
-        
+
         for( String key : decoder.getParameters().get( "k" ).get( 0 ).split( "," ) ) {
 
-            byte[] data = Base64.decode( key );
-            keys.add( StructReaders.wrap( data ) );
+            byte[] data = Base64.decode(key);
+            keys.add( StructReaders.wrap(data) );
 
         }
 
@@ -118,7 +66,7 @@ public class GetRequestURLParser {
         request.setClientRequestMeta( clientRequestMeta );
 
         return request;
-        
+
     }
-    
+
 }
