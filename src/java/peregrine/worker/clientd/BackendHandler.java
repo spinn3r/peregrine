@@ -136,8 +136,6 @@ public class BackendHandler extends ErrorLoggingChannelUpstreamHandler {
 
         try {
 
-            Object message = e.getMessage();
-
             exec( e.getChannel() );
 
         } catch ( Exception exc ) {

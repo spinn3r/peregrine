@@ -32,19 +32,17 @@ public class ScanRequest {
 
     private int limit = 10;
 
-    private ClientBackendRequest client;
-
-    private String source = null;
+    private ClientRequestMeta clientRequestMeta = new ClientRequestMeta();
 
     // noarg constructor.  ClientBackendRequest is needed but set it later.
     public ScanRequest() { }
 
-    public ScanRequest(ClientBackendRequest client) {
-        this.client = client;
-    }
-
     public void setStart( StructReader key, boolean inclusive ) {
         this.start = new Bound( key, inclusive );
+    }
+
+    public void setStart(Bound start) {
+        this.start = start;
     }
 
     public Bound getStart() {
@@ -53,6 +51,10 @@ public class ScanRequest {
 
     public void setEnd( StructReader key, boolean inclusive ) {
         this.end = new Bound( key, inclusive );
+    }
+
+    public void setEnd(Bound end) {
+        this.end = end;
     }
 
     public Bound getEnd() {
@@ -70,20 +72,16 @@ public class ScanRequest {
         this.limit = limit;
     }
 
-    public ClientBackendRequest getClient() {
-        return client;
+    public ClientRequestMeta getClientRequestMeta() {
+        return clientRequestMeta;
     }
 
-    public void setClient(ClientBackendRequest client) {
-        this.client = client;
+    public void setClientRequestMeta(ClientRequestMeta clientRequestMeta) {
+        this.clientRequestMeta = clientRequestMeta;
     }
 
-    public String getSource() {
-        return source;
-    }
-
-    public void setSource(String source) {
-        this.source = source;
+    protected Bound newBound( StructReader key, boolean inclusive ) {
+        return new Bound( key, inclusive );
     }
 
     /**

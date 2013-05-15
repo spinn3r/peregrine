@@ -135,15 +135,13 @@ public class TestSSTableSupport extends peregrine.BaseTestWithMultipleProcesses 
 
         ClientBackendRequest clientBackendRequest = new ClientBackendRequest( part, path );
 
-        scanRequest.setClient(clientBackendRequest);
-
         SSTableReader reader = new LocalPartitionReader( configs.get( 0 ), part, path );
 
         Scanner scanner = new Scanner( reader );
 
         final List<StructReader> found = new ArrayList();
 
-        scanner.scan(scanRequest, new RecordListener() {
+        scanner.scan(clientBackendRequest, scanRequest, new RecordListener() {
 
                 @Override
                 public void onRecord( BackendRequest clientRequest, StructReader key, StructReader value ) {

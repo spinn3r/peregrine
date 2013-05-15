@@ -17,6 +17,7 @@
 package peregrine.io.sstable;
 
 import peregrine.client.ScanRequest;
+import peregrine.worker.clientd.requests.ClientBackendRequest;
 import peregrine.worker.clientd.requests.ScanBackendRequest;
 
 import java.io.IOException;
@@ -34,9 +35,9 @@ public class Scanner {
         this.sstable = sstable;
     }
 
-    public void scan( ScanRequest scanRequest, RecordListener listener ) throws IOException {
+    public void scan( ClientBackendRequest clientBackendRequest, ScanRequest scanRequest, RecordListener listener ) throws IOException {
 
-        ScanBackendRequest scanBackendRequest = new ScanBackendRequest( scanRequest.getClient(), scanRequest );
+        ScanBackendRequest scanBackendRequest = new ScanBackendRequest( clientBackendRequest, scanRequest );
 
         // FIXME: migrate to using the backend executor for this code.
 
@@ -44,7 +45,7 @@ public class Scanner {
         if ( scanRequest.getStart() != null ) {
 
             peregrine.worker.clientd.requests.GetBackendRequest getBackendRequest
-                    = new peregrine.worker.clientd.requests.GetBackendRequest( scanRequest.getClient(), scanRequest.getStart().key() );
+                    = new peregrine.worker.clientd.requests.GetBackendRequest( clientBackendRequest, scanRequest.getStart().key() );
 
             // seek to the start and return if we dont' find it.
             if ( sstable.seekTo( getBackendRequest ) == null ) {
