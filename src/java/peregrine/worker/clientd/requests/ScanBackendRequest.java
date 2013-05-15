@@ -16,6 +16,7 @@
 
 package peregrine.worker.clientd.requests;
 
+import peregrine.StructReader;
 import peregrine.client.ScanRequest;
 
 /**
@@ -38,4 +39,8 @@ public class ScanBackendRequest extends BackendRequest {
         return scanRequest;
     }
 
+    @Override
+    public boolean visit(StructReader key, StructReader value) {
+        throw new RuntimeException("FIXME: not implemented");
+    }
 }

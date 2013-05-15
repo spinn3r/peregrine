@@ -37,4 +37,16 @@ public class GetBackendRequest extends BackendRequest {
         return key;
     }
 
+    @Override
+    public boolean visit(StructReader key, StructReader value) {
+
+        if ( getSeekKey().equals( key ) ) {
+            setComplete(true);
+            return true;
+        }
+
+        return false;
+
+    }
+
 }

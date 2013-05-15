@@ -301,10 +301,12 @@ public class DefaultChunkReader extends BaseSSTableChunk
             next();
             ++seek_idx;
 
+            //FIXME: seekKey can probably go away now that we have visit I think?
+
             //FIXME: keep looping through the requests because two clients might
             //have requested the same keys.
 
-            if ( find.getSeekKey().equals(key()) ) {
+            if ( find.visit( key(), value() ) ) {
 
                 listener.onRecord( find, key(), value() );
                 

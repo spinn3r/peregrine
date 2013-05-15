@@ -50,6 +50,17 @@ public abstract class BackendRequest implements Comparable<BackendRequest> {
     }
 
     /**
+     *  Visit the given key/value pair and emit it if we return true.  We also
+     *  may need to set this request to complete if this serves the request.
+     *  For reading and individual key this is complete if the key request
+     *  matches the key we are serving.  For scan requests we have to keep
+     *  scanning until we hit the limit.
+     *
+     *  @return true if the key serves our request and we should emit the value.
+     */
+    public abstract boolean visit( StructReader key, StructReader value );
+
+    /**
      * The seekKey represents the entry that we're looking for with this
      * backend request.  For GET requests it's just the key for that entry.
      * For SCAN it's a bit different because we need to find that entry and
