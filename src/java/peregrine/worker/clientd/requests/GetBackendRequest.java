@@ -39,23 +39,22 @@ public class GetBackendRequest extends BackendRequest implements RequestSizeable
         return key;
     }
 
-    //FIXME: ok... ALL this code is broken because I need to factor in keys
-    // GREATER than the current key.  I need to rework visit so that it's smarter.
-    // further ... -1 is that we should keep looking... 0 is that we found it... 1 is that it's greater than waht we are looking for.
-
     @Override
     public boolean visit(StructReader key, StructReader value) {
 
         int cmp = comparator.compare( this.key, key );
 
         if ( cmp == 0 ) {
+            // we are complete and e found the right key.
             setComplete(true);
             return true;
         } else if ( cmp > 0 ) {
+            // we are complete but this key wasn't found
             setComplete(true);
             return false;
         }
 
+        //we haven't found the right key yet.  Keep looking.
         return false;
 
     }

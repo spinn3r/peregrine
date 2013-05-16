@@ -298,7 +298,7 @@ public class DefaultChunkReader extends BaseSSTableChunk
 
         // keep a list of keys that haven't yet finished serving all records.
         // these are going to be SCAN requests in practice.
-        List<BackendRequest> incomplete = new ArrayList<BackendRequest>();
+        List<BackendRequest> incompleteScanRequests = new ArrayList<BackendRequest>();
 
         while( seek_idx < block.count ) {
 
@@ -319,7 +319,7 @@ public class DefaultChunkReader extends BaseSSTableChunk
             //them.  This is probably the right strategy moving forward since its
             //easy to implement and probably won't yield any bugs.
 
-            ListIterator<BackendRequest> scanIterator = incomplete.listIterator();
+            Iterator<BackendRequest> scanIterator = incompleteScanRequests.iterator();
 
             while( scanIterator.hasNext() ) {
                 BackendRequest current = scanIterator.next();
@@ -335,7 +335,7 @@ public class DefaultChunkReader extends BaseSSTableChunk
                 listener.onRecord( find, key(), value() );
 
                 if ( find.isComplete() == false ) {
-                    incomplete.add( find );
+                    incompleteScanRequests.add(find);
                 }
 
                 if ( requests.size() > 0 ) {
