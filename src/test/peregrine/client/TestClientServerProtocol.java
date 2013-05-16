@@ -15,6 +15,7 @@
 */
 package peregrine.client;
 
+import java.io.IOException;
 import java.util.*;
 
 import peregrine.*;
@@ -25,43 +26,44 @@ import peregrine.util.*;
 
 public class TestClientServerProtocol extends peregrine.BaseTestWithMultipleProcesses {
 
-    public void doTest() throws Exception {
+    // FIXME: update this code to write like 5-6 chunks (say 500MB) and then fetch all the
+    // keys including invalid keys and this way we test to make sure we can span
+    // chunks and other idiosyncratic issues.
+    //
+    // do the same thing with SCAN too and have a scan that reads the entire
+    // table.  Also do this with invalid keys for the start and end keys to find
+    // more bugs
 
-        String path = String.format( "/test/%s/test1.sstable", getClass().getName() );
+    int max = 50;
+    List<StructReader> keys = range( 1, max );
+    Partition partition = new Partition(0);
+    Connection conn = new Connection( "http://localhost:11112" );
+    String path = String.format( "/test/%s/test1.sstable", getClass().getName() );
+
+    private void doSetup(List<StructReader> keys) throws Exception {
 
         ExtractWriter writer = new ExtractWriter( config, path );
 
-        int max = 50;
-
-        List<StructReader> keys = range( 1, max );
-        
         for( StructReader key : keys ) {
             writer.write( key, StructReaders.wrap( "xxxx" ) );
         }
 
         writer.close();
 
-        Partition partition = new Partition(0);
+    }
 
-        GetRequest request = new GetRequest();
-        request.setKeys(keys);
-        request.getClientRequestMeta().setSource( path );
-        request.getClientRequestMeta().setPartition( partition );
+    public void doTest() throws Exception {
 
-        Connection conn = new Connection( "http://localhost:11112" );
-        GetClient client = new GetClient( config, conn );
+        doSetup( range( 1, max ) );
 
-        client.exec( request );
-        client.waitFor();
+        doTestGetRequests( range( 1, max ), max );
+        doTestGetRequests( range( 100, 150 ), 0 );
+        //doTestScanRequests();
 
-        for( Record current : client.getRecords() ) {
-            System.out.printf( "    %s= %s\n", Hex.encode( current.getKey() ), Hex.encode( current.getValue() ) );
-        }
 
-        System.out.printf( "Found %,d records. ", client.getRecords().size() );
+    }
 
-        assertEquals( keys.size(), client.getRecords().size() );
-
+    private void doTestScanRequests() throws IOException {
         //now try with a scan.  This should be fun!
 
         ScanRequest scanRequest = new ScanRequest();
@@ -72,8 +74,27 @@ public class TestClientServerProtocol extends peregrine.BaseTestWithMultipleProc
 
         scanClient.exec( scanRequest );
         scanClient.waitFor();
+    }
 
+    private void doTestGetRequests( List<StructReader> keys, int nrExpectedRecords ) throws IOException {
 
+        GetRequest request = new GetRequest();
+        request.setKeys(keys);
+        request.getClientRequestMeta().setSource( path );
+        request.getClientRequestMeta().setPartition( partition );
+
+        GetClient client = new GetClient( config, conn );
+
+        client.exec( request );
+        client.waitFor();
+
+        for( Record current : client.getRecords() ) {
+            System.out.printf( "    %s= %s\n", Hex.encode(current.getKey()), Hex.encode( current.getValue() ) );
+        }
+
+        System.out.printf( "Found %,d records. ", client.getRecords().size() );
+
+        assertEquals( nrExpectedRecords, client.getRecords().size() );
 
     }
 

@@ -53,6 +53,9 @@ public class ScanBackendRequest extends BackendRequest implements RequestSizeabl
 
         boolean result = false;
 
+        //FIXME: once we have found the FIRST key we no longer need to compare
+        //the start record any longer.
+
         // if we are on the start key
         if ( cmp == 0 ) {
 
@@ -68,7 +71,21 @@ public class ScanBackendRequest extends BackendRequest implements RequestSizeabl
             result = false;
         }
 
-        if ( true ) {
+        // FIXME: this needs to be tested.
+        //take into consideration the end key
+        if ( scanRequest.getEnd() != null ) {
+
+            cmp = comparator.compare( getSeekKey(), scanRequest.getEnd().key() );
+
+            if ( cmp == 0 ) {
+                result = scanRequest.getEnd().isInclusive();
+            } else if ( cmp > 0 ) {
+                result = false;
+            }
+
+        }
+
+        if ( result ) {
 
             ++found;
 

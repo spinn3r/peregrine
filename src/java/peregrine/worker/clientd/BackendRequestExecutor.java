@@ -85,7 +85,7 @@ public class BackendRequestExecutor implements Runnable {
 
             // FIXME: make SURE that when we are handling adjacent keys
             // correctly and that when two clients each fetch the same key that
-            // we handle that correctly.
+            // we handle that use case.
 
             handle(requests);
 
@@ -201,6 +201,12 @@ public class BackendRequestExecutor implements Runnable {
 
         }
 
+        //FIXME: we can only re-enqueue items that are not suspended.  We do
+        //NOT want to attempt to re-enqueue them, seek to the keys, decompress
+        //the block, ONLY to find that the channel is not ready for writing and
+        //that the client is suspended.  We need to re-enqueue based on whether
+        //the writer is ready for writes.
+
         // now look at the requests and see which ones were NOT completed
         // and re-enqueue them... these are lagged clients so I don't think
         // we necessarily need to put them at the head of the queue.  We need to
@@ -244,6 +250,10 @@ public class BackendRequestExecutor implements Runnable {
 
             try {
 
+                //FIXME: replace List<BackendRequests> with the
+                //ReadyBackendRequestIterator so that all future uses of this
+                //system just magically skip these requests.
+
                 log.info( "Handling %s on %s ", source, partition );
 
                 // FIXME: should we support a table cache here... I don't think
@@ -253,10 +263,20 @@ public class BackendRequestExecutor implements Runnable {
 
                 reader = new LocalPartitionReader( config, partition, source );
 
-                if ( reader.count() == 0 ) {
+                if ( reader.count() <= 0 ) {
                     // we're done here.  There's nothing in this table.  In
                     // theory this is redundant however, it eliminates bugs
                     // working with an empty SSTable which is an edge case.
+
+                    //FIXME we have to mark ALL the requests in this table as
+                    //complete EVEN if there are no requests presents so we
+                    //do not attempt to execute them again.
+                    //
+                    // FIXME: we don't close the channels here!!! which means
+                    // that the last chunk isn't written.  probably best to
+                    // push this code down and just act like we missed all the
+                    // keys.
+
                     return;
                 }
 
@@ -297,6 +317,18 @@ public class BackendRequestExecutor implements Runnable {
                             SequenceWriter writer = clientBackendRequest.getSequenceWriter();
 
                             writer.write( key, value );
+
+                            //FIXME: we DO need a write future here because if
+                            // this write suspends the client then we need to
+                            // resume it once it comes back and the buffer is
+                            // drained.  I think I could do this by setting
+                            // suspended=false from this completion and then
+                            // when I re-examine the resulting incomplete items
+                            // at the end of the executor then either I can add
+                            // them directly there or have the write listener do
+                            // it. This should probably be called ResumeListener
+                            // and a dedicated class.
+
 
                             // flush after every key write.  This allows us to serve
                             // requests with lower latency.  These go into the TCP

@@ -59,7 +59,7 @@ public class LocalPartitionReader extends BaseJobInput
     private ChunkReference chunkRef;
 
     // the count of all records across all chunks for the given file.
-    private int count = -1;
+    private int count = 0;
 
     // the index of data blocks for seekTo and scan support.
     protected TreeMap<StructReader,DataBlockReference> dataBlockLookup = null;
@@ -220,18 +220,28 @@ public class LocalPartitionReader extends BaseJobInput
         this.key = null;
         this.value = null;
 
+        //FIXME: if we weren't able to find this key in this block it is not
+        //going to be in the next block so mark them complete. (at least for GET
+        //requests).
+
         Map<DataBlockReference,List<BackendRequest>> lookup = new TreeMap();
 
         LastRecordListener lastRecordListener = new LastRecordListener( listener );
         
         for( BackendRequest request : requests ) {
 
+            //FIXME skip suspended clients...
+
             if ( request instanceof ScanBackendRequest ) {
 
                 ScanBackendRequest scanBackendRequest = (ScanBackendRequest)request;
 
+                // We have to set the seek key as the first entry in this SSTable
+                // so that we can seekTo it similar to the way GetBackendRequest
+                // works.
                 if ( scanBackendRequest.getSeekKey() == null ) {
-                    scanBackendRequest.setSeekKey( getFirstKey() );
+                    StructReader firstKey = getFirstKey();
+                    scanBackendRequest.setSeekKey( firstKey );
                 }
 
             }

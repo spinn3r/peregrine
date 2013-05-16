@@ -313,6 +313,12 @@ public class DefaultChunkReader extends BaseSSTableChunk
             //FIXME: we need a metric for the number of keys we have read and
             //the number of keys we matched.
 
+            //FIXME skip suspended clients...  Perhaps the way to do this is to
+            //make the ITERATOR automatically skip suspended clients.  This way
+            //ALL the code that uses BackendRequests can just transparently skip
+            //them.  This is probably the right strategy moving forward since its
+            //easy to implement and probably won't yield any bugs.
+
             ListIterator<BackendRequest> scanIterator = incomplete.listIterator();
 
             while( scanIterator.hasNext() ) {

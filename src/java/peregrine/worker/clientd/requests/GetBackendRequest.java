@@ -17,6 +17,7 @@
 package peregrine.worker.clientd.requests;
 
 import peregrine.StructReader;
+import peregrine.sort.StrictStructReaderComparator;
 
 /**
  * Represents a request to the backend to GET a key.  This represents an
@@ -27,6 +28,8 @@ public class GetBackendRequest extends BackendRequest implements RequestSizeable
 
     private StructReader key;
 
+    private StrictStructReaderComparator comparator = new StrictStructReaderComparator();
+
     public GetBackendRequest(ClientBackendRequest clientBackendRequest, StructReader key) {
         super( clientBackendRequest, key );
         this.key = key;
@@ -36,12 +39,21 @@ public class GetBackendRequest extends BackendRequest implements RequestSizeable
         return key;
     }
 
+    //FIXME: ok... ALL this code is broken because I need to factor in keys
+    // GREATER than the current key.  I need to rework visit so that it's smarter.
+    // further ... -1 is that we should keep looking... 0 is that we found it... 1 is that it's greater than waht we are looking for.
+
     @Override
     public boolean visit(StructReader key, StructReader value) {
 
-        if ( getSeekKey().equals( key ) ) {
+        int cmp = comparator.compare( this.key, key );
+
+        if ( cmp == 0 ) {
             setComplete(true);
             return true;
+        } else if ( cmp > 0 ) {
+            setComplete(true);
+            return false;
         }
 
         return false;
