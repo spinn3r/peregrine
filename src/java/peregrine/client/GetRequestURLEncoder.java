@@ -26,18 +26,20 @@ import java.util.List;
 /**
  * Encode GET request URLs.
  */
-public class GetRequestURLEncoder {
+public class GetRequestURLEncoder extends RequestURLEncoder {
 
     /**
      * Take a request and make it into a URL string to send to the server.
      */
     public String encode( Connection connection, GetRequest request ) {
 
-        if ( request.getClientRequestMeta().getSource() == null )
-            throw new NullPointerException( "source" );
+        assertClientRequestMeta( request.getClientRequestMeta() );
 
         StringBuilder buff = new StringBuilder( 200 );
-        buff.append( String.format("%s/client-rpc/GET?source=%s", connection.getEndpoint(), request.getClientRequestMeta().getSource()) );
+        buff.append( String.format("%s/%s/client-rpc/GET?source=%s",
+                connection.getEndpoint(),
+                request.getClientRequestMeta().getPartition().getId(),
+                request.getClientRequestMeta().getSource()) );
 
         List<String> args = new ArrayList();
 

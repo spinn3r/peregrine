@@ -81,10 +81,6 @@ public class ClientRequestMeta {
         return requestType;
     }
 
-    public void setRequestType(String requestType) {
-        this.requestType = requestType;
-    }
-
     public String getSource() {
         return source;
     }

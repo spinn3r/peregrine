@@ -29,6 +29,7 @@ import peregrine.worker.clientd.requests.ClientBackendRequest;
 import peregrine.io.sstable.RecordListener;
 import peregrine.io.util.Closer;
 import peregrine.util.netty.NonBlockingChannelBufferWritable;
+import peregrine.worker.clientd.requests.ScanBackendRequest;
 
 import java.io.IOException;
 import java.util.*;
@@ -48,7 +49,11 @@ public class BackendRequestExecutor implements Runnable {
 
     private PartitionIndex partitionIndex = null;
 
+    // all known clients.
     private Set<ClientBackendRequest> clientIndex = null;
+
+    // all executing scan requests.
+    private List<ScanBackendRequest> scanBackendRequests = null;
 
     public BackendRequestExecutor(Config config, BackendRequestQueue queue) {
         this.config = config;

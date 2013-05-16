@@ -28,6 +28,7 @@ import peregrine.io.sstable.*;
 import peregrine.rpc.*;
 import peregrine.sort.*;
 import peregrine.worker.clientd.requests.BackendRequest;
+import peregrine.worker.clientd.requests.ScanBackendRequest;
 
 /**
  * Read data from a partition from local storage from the given file with a set
@@ -131,7 +132,7 @@ public class LocalPartitionReader extends BaseJobInput
             for( DataBlock db : current.getDataBlocks() ) {
 
                 if ( firstKey == null )
-                    firstKey = StructReaders.wrap( db.getFirstKey() );
+                    firstKey = StructReaders.wrap(db.getFirstKey());
 
                 DataBlockReference ref = new DataBlockReference();
                 ref.reader = current;
@@ -224,6 +225,16 @@ public class LocalPartitionReader extends BaseJobInput
         LastRecordListener lastRecordListener = new LastRecordListener( listener );
         
         for( BackendRequest request : requests ) {
+
+            if ( request instanceof ScanBackendRequest ) {
+
+                ScanBackendRequest scanBackendRequest = (ScanBackendRequest)request;
+
+                if ( scanBackendRequest.getSeekKey() == null ) {
+                    scanBackendRequest.setSeekKey( getFirstKey() );
+                }
+
+            }
 
             StructReader key = request.getSeekKey();
 

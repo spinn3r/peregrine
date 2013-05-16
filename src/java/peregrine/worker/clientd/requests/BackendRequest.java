@@ -32,6 +32,10 @@ public abstract class BackendRequest implements Comparable<BackendRequest>, Requ
 
     private StructReader seekKey;
 
+    protected BackendRequest(ClientBackendRequest client) {
+        this.client = client;
+    }
+
     protected BackendRequest(ClientBackendRequest client, StructReader seekKey ) {
         this.client = client;
         this.seekKey = seekKey;

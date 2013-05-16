@@ -18,6 +18,7 @@ package peregrine.worker.clientd.requests;
 
 import peregrine.StructReader;
 import peregrine.client.ScanRequest;
+import peregrine.sort.StrictStructReaderComparator;
 
 /**
  *
@@ -26,12 +27,17 @@ public class ScanBackendRequest extends BackendRequest implements RequestSizeabl
 
     private ScanRequest scanRequest = null;
 
-    //FIXME: ok this is going to be problematic becuase SCAN goes to the
-    //beginning of the table but GET goes to a specific key.  If a SCAN does
-    //not have a first key we could read the first key from the SSTable interface
-    //I think.
+    private int found = 0;
+
+    private StrictStructReaderComparator comparator = new StrictStructReaderComparator();
+
     public ScanBackendRequest(ClientBackendRequest client, ScanRequest scanRequest) {
-        super(client, scanRequest.getStart().key());
+        super(client);
+
+        if ( scanRequest.getStart() != null ) {
+            setSeekKey( scanRequest.getStart().key() );
+        }
+
         this.scanRequest = scanRequest;
     }
 
@@ -41,7 +47,39 @@ public class ScanBackendRequest extends BackendRequest implements RequestSizeabl
 
     @Override
     public boolean visit(StructReader key, StructReader value) {
-        throw new RuntimeException("FIXME: not implemented");
+
+        // true if this key is >= the seekKey.
+        int cmp = comparator.compare( getSeekKey(), key );
+
+        boolean result = false;
+
+        // if we are on the start key
+        if ( cmp == 0 ) {
+
+            if ( scanRequest.getStart().isInclusive() ) {
+                result = true;
+            } else {
+                result = false;
+            }
+
+        } else if ( cmp > 0 ) {
+            result = true;
+        } else {
+            result = false;
+        }
+
+        if ( true ) {
+
+            ++found;
+
+            if ( found >= scanRequest.getLimit() ) {
+                setComplete( true );
+            }
+
+        }
+
+        return result;
+
     }
 
     @Override

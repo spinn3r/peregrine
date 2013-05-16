@@ -41,11 +41,14 @@ public class TestClientServerProtocol extends peregrine.BaseTestWithMultipleProc
 
         writer.close();
 
-        GetRequest request = new GetRequest();
-        request.setKeys( keys );
-        request.getClientRequestMeta().setSource( path );
+        Partition partition = new Partition(0);
 
-        Connection conn = new Connection( "http://localhost:11112/0" );
+        GetRequest request = new GetRequest();
+        request.setKeys(keys);
+        request.getClientRequestMeta().setSource( path );
+        request.getClientRequestMeta().setPartition( partition );
+
+        Connection conn = new Connection( "http://localhost:11112" );
         GetClient client = new GetClient( config, conn );
 
         client.exec( request );
@@ -58,7 +61,20 @@ public class TestClientServerProtocol extends peregrine.BaseTestWithMultipleProc
         System.out.printf( "Found %,d records. ", client.getRecords().size() );
 
         assertEquals( keys.size(), client.getRecords().size() );
-        
+
+        //now try with a scan.  This should be fun!
+
+        ScanRequest scanRequest = new ScanRequest();
+        scanRequest.getClientRequestMeta().setSource( path );
+        scanRequest.getClientRequestMeta().setPartition(partition);
+
+        ScanClient scanClient = new ScanClient( config, conn );
+
+        scanClient.exec( scanRequest );
+        scanClient.waitFor();
+
+
+
     }
 
     public static void main( String[] args ) throws Exception {

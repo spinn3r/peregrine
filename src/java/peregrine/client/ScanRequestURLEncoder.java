@@ -26,17 +26,14 @@ import java.util.*;
 /**
  * Parse out scan requests.
  */
-public class ScanRequestURLEncoder {
+public class ScanRequestURLEncoder extends RequestURLEncoder {
 
     /**
      * Take a request and make it into a URL string to send to the server.
      */
     public String encode( Connection connection, ScanRequest scanRequest ) {
 
-        //FIXME: this code is shared with GetRequestURLDecoder and we also need
-        //to assert that we have a partition.
-        if ( scanRequest.getClientRequestMeta().getSource() == null )
-            throw new NullPointerException( "source" );
+        assertClientRequestMeta( scanRequest.getClientRequestMeta() );
 
         //FIXME: support hashcoding the keys.
 

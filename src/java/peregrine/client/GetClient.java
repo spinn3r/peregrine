@@ -38,19 +38,10 @@ import peregrine.io.chunk.*;
  * calling <code>getRecords()</code>.  Note that the results MAY NOT be in the
  * order that you specified in the request.
  */
-public class GetClient implements Client {
-
-    private Connection connection;
-
-    private Config config;
-
-    private HttpClient client = null;
-
-    private List<Record> records = new ArrayList();
+public class GetClient extends Client {
 
     public GetClient( Config config, Connection connection ) {
-        this.config = config;
-        this.connection = connection;
+        super( config, connection );
     }
 
     /**
@@ -61,59 +52,8 @@ public class GetClient implements Client {
         // create an HTTP client and submit the request.
         String url = new GetRequestURLEncoder().encode(connection, request);
 
-        client = new HttpClient( config, url );
-        client.setMethod( HttpMethod.GET );
-
-        client.open();
+        exec( url );
 
     }
 
-    public void waitForResponse() throws IOException {
-
-        // read the data
-        client.close();
-    }
-
-    /**
-     * Wait for the request to complete and for us to read all keys.
-     */
-    @Override
-    public void waitFor() throws IOException {
-
-        waitForResponse();
-
-        ChannelBuffer buff = client.getResult();
-
-        // make sure to get the HTTP status code and make sure that
-        // we have HTTP 200 OK.
-        if ( ! client.getResponse().getStatus().equals( HttpResponseStatus.OK ) ) {
-            throw new IOException( "Client request failed: " + client.getResponse().getStatus() );
-        }
-
-        // stick the results in a chunk reader to read the output.
-        DefaultChunkReader reader = new DefaultChunkReader( buff );
-
-        // parse it into key/value pairs.
-        while( reader.hasNext() ) {
-            reader.next();
-            records.add( new Record( reader.key(), reader.value() ) );
-        }
-        
-        reader.close();
-
-    }
-
-    /**
-     * Get all records for this request.
-     */
-    @Override
-    public List<Record> getRecords() {
-        return records;
-    }
-
-    @Override
-    public Connection getConnection() {
-        return connection;
-    }
-    
 }

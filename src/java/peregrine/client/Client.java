@@ -16,36 +16,93 @@
 
 package peregrine.client;
 
+import org.jboss.netty.buffer.ChannelBuffer;
+import org.jboss.netty.handler.codec.http.HttpMethod;
+import org.jboss.netty.handler.codec.http.HttpResponseStatus;
 import peregrine.Record;
+import peregrine.config.Config;
+import peregrine.http.HttpClient;
+import peregrine.io.chunk.DefaultChunkReader;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Client interface which represents the functionality that each client must
  * implement.
  */
-public interface Client {
+public abstract class Client {
+
+    protected Connection connection;
+
+    protected Config config;
+
+    protected HttpClient client = null;
+
+    protected List<Record> records = new ArrayList();
+
+    protected Client(Config config, Connection connection) {
+        this.config = config;
+        this.connection = connection;
+    }
+
+    protected void exec( String url ) throws IOException {
+
+        client = new HttpClient( config, url );
+        client.setMethod( HttpMethod.GET );
+
+        client.open();
+
+    }
 
     /**
      * Wait for the server to respond.
      */
-    public void waitForResponse() throws IOException;
+    public void waitForResponse() throws IOException {
+
+        // read the data
+        client.close();
+    }
+
 
     /**
-     * Wait for all records to be parsed.
-     * @throws IOException
+     * Wait for the request to complete and for us to read all keys.
      */
-    public void waitFor() throws IOException;
+    public void waitFor() throws IOException {
+
+        waitForResponse();
+
+        ChannelBuffer buff = client.getResult();
+
+        // make sure to get the HTTP status code and make sure that
+        // we have HTTP 200 OK.
+        if ( ! client.getResponse().getStatus().equals( HttpResponseStatus.OK ) ) {
+            throw new IOException( "Client request failed: " + client.getResponse().getStatus() );
+        }
+
+        // stick the results in a chunk reader to read the output.
+        DefaultChunkReader reader = new DefaultChunkReader( buff );
+
+        // parse it into key/value pairs.
+        while( reader.hasNext() ) {
+            reader.next();
+            records.add( new Record( reader.key(), reader.value() ) );
+        }
+
+        reader.close();
+
+    }
 
     /**
-     * Get the resulting records.
+     * Get all records for this request.
      */
-    public List<Record> getRecords();
+    public List<Record> getRecords() {
+        return records;
+    }
 
-    /**
-     * The underlying connection for this client.
-     */
-    public Connection getConnection();
+    public Connection getConnection() {
+        return connection;
+    }
 
 }

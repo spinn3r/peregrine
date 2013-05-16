@@ -296,6 +296,10 @@ public class DefaultChunkReader extends BaseSSTableChunk
         // the request+key we should be looking for...
         BackendRequest find = requests.remove( 0 );
 
+        // keep a list of keys that haven't yet finished serving all records.
+        // these are going to be SCAN requests in practice.
+        List<BackendRequest> incomplete = new ArrayList<BackendRequest>();
+
         while( seek_idx < block.count ) {
 
             next();
@@ -306,12 +310,28 @@ public class DefaultChunkReader extends BaseSSTableChunk
             //FIXME: keep looping through the requests because two clients might
             //have requested the same keys.
 
-            //FIXME: we need a metric for the number of keys we have read and the number of keys we matched.
+            //FIXME: we need a metric for the number of keys we have read and
+            //the number of keys we matched.
+
+            ListIterator<BackendRequest> scanIterator = incomplete.listIterator();
+
+            while( scanIterator.hasNext() ) {
+                BackendRequest current = scanIterator.next();
+
+                if ( current.visit( key(), value() ) ) {
+                    scanIterator.remove();;
+                }
+
+            }
 
             if ( find.visit( key(), value() ) ) {
 
                 listener.onRecord( find, key(), value() );
-                
+
+                if ( find.isComplete() == false ) {
+                    incomplete.add( find );
+                }
+
                 if ( requests.size() > 0 ) {
                     find = requests.remove( 0 );
                 } else {
