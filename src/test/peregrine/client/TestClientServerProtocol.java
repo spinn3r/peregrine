@@ -50,15 +50,17 @@ public class TestClientServerProtocol extends peregrine.BaseTestWithMultipleProc
 
         writer.close();
 
+        System.out.printf( "Wrote %,d keys to %s", keys.size(), path );
+
     }
 
     public void doTest() throws Exception {
 
         doSetup( range( 1, max ) );
 
-        doTestGetRequests( range( 1, max ), max );
-        doTestGetRequests( range( 100, 150 ), 0 );
-        //doTestScanRequests();
+        //doTestGetRequests( range( 1, max ), max );
+        //doTestGetRequests( range( 100, 150 ), 0 );
+        doTestScanRequests();
 
 
     }
@@ -70,10 +72,17 @@ public class TestClientServerProtocol extends peregrine.BaseTestWithMultipleProc
         scanRequest.getClientRequestMeta().setSource( path );
         scanRequest.getClientRequestMeta().setPartition(partition);
 
+        String url = new ScanRequestURLEncoder().encode(conn, scanRequest);
+
+        System.out.printf( "Scan URL: %s" , url );
+
         ScanClient scanClient = new ScanClient( config, conn );
 
         scanClient.exec( scanRequest );
         scanClient.waitFor();
+
+        assertResults( scanClient.getRecords(), scanRequest.getLimit() );
+
     }
 
     private void doTestGetRequests( List<StructReader> keys, int nrExpectedRecords ) throws IOException {
@@ -88,13 +97,19 @@ public class TestClientServerProtocol extends peregrine.BaseTestWithMultipleProc
         client.exec( request );
         client.waitFor();
 
-        for( Record current : client.getRecords() ) {
+        assertResults( client.getRecords(), nrExpectedRecords );
+
+    }
+
+    private void assertResults( List<Record> records, int nrExpectedRecords ) {
+
+        for( Record current : records ) {
             System.out.printf( "    %s= %s\n", Hex.encode(current.getKey()), Hex.encode( current.getValue() ) );
         }
 
-        System.out.printf( "Found %,d records. ", client.getRecords().size() );
+        System.out.printf( "Found %,d records. ", records.size() );
 
-        assertEquals( nrExpectedRecords, client.getRecords().size() );
+        assertEquals( nrExpectedRecords, records.size() );
 
     }
 

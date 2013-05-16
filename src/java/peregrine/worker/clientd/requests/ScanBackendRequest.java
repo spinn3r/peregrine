@@ -48,38 +48,44 @@ public class ScanBackendRequest extends BackendRequest implements RequestSizeabl
     @Override
     public boolean visit(StructReader key, StructReader value) {
 
-        // true if this key is >= the seekKey.
-        int cmp = comparator.compare( getSeekKey(), key );
-
         boolean result = false;
 
-        //FIXME: once we have found the FIRST key we no longer need to compare
+        //once we have found the FIRST key we no longer need to compare
         //the start record any longer.
+        if ( found == 0 ) {
 
-        // if we are on the start key
-        if ( cmp == 0 ) {
+            int cmp = comparator.compare( getSeekKey(), key );
 
-            if ( scanRequest.getStart().isInclusive() ) {
+            // if we are on the start key
+            if ( cmp == 0 ) {
+
+                //FIXME: we call setSeekKey BUT we don't create an actual START ... so we will NPE.
+
+                if ( scanRequest.getStart().isInclusive() ) {
+                    result = true;
+                } else {
+                    result = false;
+                }
+
+            } else if ( cmp > 0 ) {
                 result = true;
             } else {
                 result = false;
             }
 
-        } else if ( cmp > 0 ) {
-            result = true;
-        } else {
-            result = false;
         }
 
-        // FIXME: this needs to be tested.
-        //take into consideration the end key
+        //take into consideration the end key.  If we have gone past the end key
+        //or are ON the end key we need to find out.
         if ( scanRequest.getEnd() != null ) {
 
-            cmp = comparator.compare( getSeekKey(), scanRequest.getEnd().key() );
+            int cmp = comparator.compare( getSeekKey(), scanRequest.getEnd().key() );
 
             if ( cmp == 0 ) {
+                setComplete(true);
                 result = scanRequest.getEnd().isInclusive();
             } else if ( cmp > 0 ) {
+                setComplete(true);
                 result = false;
             }
 
@@ -96,6 +102,21 @@ public class ScanBackendRequest extends BackendRequest implements RequestSizeabl
         }
 
         return result;
+
+    }
+
+    /**
+     * Technically the Scan doesn't need to use a start key because we look at
+     * a table as a sequence of keys but from an implementation perspective we DO
+     * need an actual seek key AND start key.
+     */
+    public void setImplicitStartKey( StructReader key ) {
+
+        setSeekKey( key );
+
+        if ( scanRequest.getStart() == null ) {
+            scanRequest.setStart( key, true );
+        }
 
     }
 

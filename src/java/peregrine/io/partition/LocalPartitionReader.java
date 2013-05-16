@@ -241,7 +241,7 @@ public class LocalPartitionReader extends BaseJobInput
                 // works.
                 if ( scanBackendRequest.getSeekKey() == null ) {
                     StructReader firstKey = getFirstKey();
-                    scanBackendRequest.setSeekKey( firstKey );
+                    scanBackendRequest.setImplicitStartKey( firstKey );
                 }
 
             }

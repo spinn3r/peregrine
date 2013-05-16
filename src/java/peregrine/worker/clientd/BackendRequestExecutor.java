@@ -263,23 +263,6 @@ public class BackendRequestExecutor implements Runnable {
 
                 reader = new LocalPartitionReader( config, partition, source );
 
-                if ( reader.count() <= 0 ) {
-                    // we're done here.  There's nothing in this table.  In
-                    // theory this is redundant however, it eliminates bugs
-                    // working with an empty SSTable which is an edge case.
-
-                    //FIXME we have to mark ALL the requests in this table as
-                    //complete EVEN if there are no requests presents so we
-                    //do not attempt to execute them again.
-                    //
-                    // FIXME: we don't close the channels here!!! which means
-                    // that the last chunk isn't written.  probably best to
-                    // push this code down and just act like we missed all the
-                    // keys.
-
-                    return;
-                }
-
                 // create a SequenceWriter for every client so that we have an
                 // output channel.
 
@@ -298,6 +281,12 @@ public class BackendRequestExecutor implements Runnable {
                     clientBackendRequest.setSequenceWriter( writer );
 
                 }
+
+                //FIXME: what happens if we hit the end of the table but there
+                //are less than 'limit' keys that match a scan.
+
+                //FIXME: how do we RESUME a scan... we would have to update
+                //the seekKey...
 
                 reader.seekTo( requests, new RecordListener() {
 
