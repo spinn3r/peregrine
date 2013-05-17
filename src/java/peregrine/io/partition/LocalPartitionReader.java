@@ -224,7 +224,7 @@ public class LocalPartitionReader extends BaseJobInput
         //going to be in the next block so mark them complete. (at least for GET
         //requests).
 
-        Map<DataBlockReference,List<BackendRequest>> lookup = new TreeMap();
+        Map<DataBlockReference,List<BackendRequest>> dataBlockLookup = new TreeMap();
 
         LastRecordListener lastRecordListener = new LastRecordListener( listener );
         
@@ -254,18 +254,18 @@ public class LocalPartitionReader extends BaseJobInput
             if ( ref == null )
                 continue;
 
-            List<BackendRequest> requestsForReference = lookup.get( ref );
+            List<BackendRequest> requestsForReference = dataBlockLookup.get( ref );
 
             if ( requestsForReference == null ) {
                 requestsForReference = new ArrayList();
-                lookup.put( ref, requestsForReference );
+                dataBlockLookup.put(ref, requestsForReference);
             }
 
             requestsForReference.add( request );
             
         }
 
-        for( DataBlockReference ref : lookup.keySet() ) {
+        for( DataBlockReference ref : dataBlockLookup.keySet() ) {
 
             chunkReader = ref.reader;
 
@@ -276,7 +276,7 @@ public class LocalPartitionReader extends BaseJobInput
             // update the chunk ref that we're working with.
             chunkRef = new ChunkReference( partition, ref.idx );
 
-            List<BackendRequest> refKeys = lookup.get( ref );
+            List<BackendRequest> refKeys = dataBlockLookup.get( ref );
             
             ref.reader.seekTo( refKeys, ref.dataBlock, lastRecordListener );
 

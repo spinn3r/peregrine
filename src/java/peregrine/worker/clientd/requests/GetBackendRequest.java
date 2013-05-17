@@ -40,22 +40,19 @@ public class GetBackendRequest extends BackendRequest implements RequestSizeable
     }
 
     @Override
-    public boolean visit(StructReader key, StructReader value) {
+    public void visit(StructReader key, StructReader value) {
 
         int cmp = comparator.compare( this.key, key );
 
         if ( cmp == 0 ) {
             // we are complete and e found the right key.
             setComplete(true);
-            return true;
+            setFound(true);
         } else if ( cmp > 0 ) {
             // we are complete but this key wasn't found
             setComplete(true);
-            return false;
+            setFound(false);
         }
-
-        //we haven't found the right key yet.  Keep looking.
-        return false;
 
     }
 

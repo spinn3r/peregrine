@@ -39,7 +39,6 @@ public class DefaultChunkReader extends BaseSSTableChunk
     implements SequenceReader, ChunkReader, Closeable {
     
     // magic numbers for chunk reader files.
-
     private static Charset ASCII = Charset.forName( "ASCII" );
 
     public static byte[] MAGIC_PREFIX   = "PC0".getBytes( ASCII );
@@ -322,30 +321,52 @@ public class DefaultChunkReader extends BaseSSTableChunk
             Iterator<BackendRequest> scanIterator = incompleteScanRequests.iterator();
 
             while( scanIterator.hasNext() ) {
+
                 BackendRequest current = scanIterator.next();
 
-                if ( current.visit( key(), value() ) ) {
-                    scanIterator.remove();;
+                current.visit( key(), value() );
+
+                if ( current.isFound() ) {
+                    listener.onRecord( current, key(), value() );
+                }
+
+                if ( current.isComplete() ) {
+                    scanIterator.remove();
                 }
 
             }
 
-            if ( find.visit( key(), value() ) ) {
+            if ( find != null ) {
 
-                listener.onRecord( find, key(), value() );
+                find.visit( key(), value() );
 
-                if ( find.isComplete() == false ) {
-                    incompleteScanRequests.add(find);
+                if ( find.isFound() ) {
+
+                    listener.onRecord( find, key(), value() );
+
+                    if ( find.isComplete() == false ) {
+                        // this is a scan request and we're not done yet.
+                        incompleteScanRequests.add(find);
+                    }
+
                 }
 
-                if ( requests.size() > 0 ) {
-                    find = requests.remove( 0 );
-                } else {
-                    break;
+                if ( find.isFound() || find.isComplete() ) {
+
+                    if ( requests.size() > 0 ) {
+                        find = requests.remove( 0 );
+                    } else {
+                        // we've handled all the keys in this block so we can quit now.
+                        find = null;
+                    }
+
                 }
 
             }
-            
+
+            if ( find == null && incompleteScanRequests.size() == 0 )
+                break;
+
         }
         
     }

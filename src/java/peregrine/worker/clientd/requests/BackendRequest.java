@@ -30,6 +30,8 @@ public abstract class BackendRequest implements Comparable<BackendRequest>, Requ
 
     private boolean complete = false;
 
+    private boolean found = false;
+
     private StructReader seekKey;
 
     protected BackendRequest(ClientBackendRequest client) {
@@ -45,6 +47,10 @@ public abstract class BackendRequest implements Comparable<BackendRequest>, Requ
         return client;
     }
 
+    /**
+     * True if we have completed looking for this request.  A request can be
+     * complete regardless of whether we have found it or not.
+     */
     public boolean isComplete() {
         return complete;
     }
@@ -54,15 +60,27 @@ public abstract class BackendRequest implements Comparable<BackendRequest>, Requ
     }
 
     /**
+     * True if we have found the key we are looking for.
+     */
+    public boolean isFound() {
+        return found;
+    }
+
+    public void setFound(boolean found) {
+        this.found = found;
+    }
+
+    /**
      *  Visit the given key/value pair and emit it if we return true.  We also
      *  may need to set this request to complete if this serves the request.
      *  For reading and individual key this is complete if the key request
      *  matches the key we are serving.  For scan requests we have to keep
      *  scanning until we hit the limit.
      *
-     *  @return true if the key serves our request and we should emit the value.
+     *  @return 0 if we're on the key we want (seek key), 1 if the key is
+     *  GREATER than our seek key, and -1 if it's less than our seek key.
      */
-    public abstract boolean visit( StructReader key, StructReader value );
+    public abstract void visit(StructReader key, StructReader value);
 
     /**
      * The seekKey represents the entry that we're looking for with this

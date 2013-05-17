@@ -40,6 +40,13 @@ public class TestClientServerProtocol extends peregrine.BaseTestWithMultipleProc
     Connection conn = new Connection( "http://localhost:11112" );
     String path = String.format( "/test/%s/test1.sstable", getClass().getName() );
 
+    //FIXME: ok... testing the client server protocol is one thing but starting
+    //up a daemon and connecting through a port and debugging the client protocol
+    //and the correctness of our algorithm is going to be a huge waste of time.
+    //instead just write data to disk and take the executor and work with the
+    //file directly. This is the next big thing we have to do.  This code isn't
+    //testable this way and it's just going to be impossible to work with.
+
     private void doSetup(List<StructReader> keys) throws Exception {
 
         ExtractWriter writer = new ExtractWriter( config, path );

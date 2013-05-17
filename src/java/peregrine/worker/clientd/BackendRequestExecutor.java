@@ -325,13 +325,6 @@ public class BackendRequestExecutor implements Runnable {
                             // them around in memory is just pointless
                             writer.flush();
 
-                            // mark this key as complete so that I can move on
-                            // to other keys to serve after we execute the batch.
-                            // Both a scan AND a fetch may need to be suspended
-                            // and when we resume we have to look at which
-                            // requests are complete.
-                            backendRequest.setComplete(true);
-
                         } catch ( IOException e ) {
 
                             // mark this request as failed (cancel it) so that all

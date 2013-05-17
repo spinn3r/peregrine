@@ -27,7 +27,7 @@ public class ScanBackendRequest extends BackendRequest implements RequestSizeabl
 
     private ScanRequest scanRequest = null;
 
-    private int found = 0;
+    private int hits = 0;
 
     private StrictStructReaderComparator comparator = new StrictStructReaderComparator();
 
@@ -46,31 +46,27 @@ public class ScanBackendRequest extends BackendRequest implements RequestSizeabl
     }
 
     @Override
-    public boolean visit(StructReader key, StructReader value) {
+    public void visit(StructReader key, StructReader value) {
 
-        boolean result = false;
-
-        //once we have found the FIRST key we no longer need to compare
+        //once we have hits the FIRST key we no longer need to compare
         //the start record any longer.
-        if ( found == 0 ) {
+        if ( hits == 0 ) {
 
             int cmp = comparator.compare( getSeekKey(), key );
 
             // if we are on the start key
             if ( cmp == 0 ) {
 
-                //FIXME: we call setSeekKey BUT we don't create an actual START ... so we will NPE.
-
                 if ( scanRequest.getStart().isInclusive() ) {
-                    result = true;
+                    setFound(true);
                 } else {
-                    result = false;
+                    setFound(false);
                 }
 
             } else if ( cmp > 0 ) {
-                result = true;
+                setFound(true);
             } else {
-                result = false;
+                setFound(false);
             }
 
         }
@@ -83,25 +79,23 @@ public class ScanBackendRequest extends BackendRequest implements RequestSizeabl
 
             if ( cmp == 0 ) {
                 setComplete(true);
-                result = scanRequest.getEnd().isInclusive();
+                setFound( scanRequest.getEnd().isInclusive() );
             } else if ( cmp > 0 ) {
                 setComplete(true);
-                result = false;
+                setFound( false );
             }
 
         }
 
-        if ( result ) {
+        if ( isFound() ) {
 
-            ++found;
+            ++hits;
 
-            if ( found >= scanRequest.getLimit() ) {
+            if ( hits >= scanRequest.getLimit() ) {
                 setComplete( true );
             }
 
         }
-
-        return result;
 
     }
 
