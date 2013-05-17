@@ -44,25 +44,21 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class TestBackendRequests extends BaseTest {
 
     int max = 50;
-    List<StructReader> keys = range( 1, max );
+    List<StructReader> keys = range( 0, max-1 );
     Partition partition = new Partition(0);
     Connection conn = new Connection( "http://localhost:11112" );
     String path = String.format( "/test/%s/test1.sstable", getClass().getName() );
 
     private Config config;
 
-    //FIXME: ok... testing the client server protocol is one thing but starting
-    //up a daemon and connecting through a port and debugging the client protocol
-    //and the correctness of our algorithm is going to be a huge waste of time.
-    //instead just write data to disk and take the executor and work with the
-    //file directly. This is the next big thing we have to do.  This code isn't
-    //testable this way and it's just going to be impossible to work with.
-
     private void doSetup(List<StructReader> keys) throws Exception {
 
         ExtractWriter writer = new ExtractWriter( config, path );
 
+        System.out.printf( "Writing keys: \n");
+
         for( StructReader key : keys ) {
+            System.out.printf( "    %s\n", Hex.encode(key) );
             writer.write( key, StructReaders.wrap("xxxx") );
         }
 
@@ -77,23 +73,23 @@ public class TestBackendRequests extends BaseTest {
 
         ClientBackendRequest clientBackendRequest = new ClientBackendRequest(partition,path);
 
-        System.out.printf( "Creating records: \n");
+        System.out.printf( "Creating get requests: \n");
 
         for( StructReader key : keys ) {
+
             System.out.printf( "    %s\n", Hex.encode(key) );
 
             GetBackendRequest getBackendRequest = new GetBackendRequest( clientBackendRequest, key );
             requests.add( getBackendRequest );
         }
 
-        doExec( requests, range( 1, 50 ) );
+        doExec( requests, range( 0, 49 ) );
 
     }
 
-    private void doTestScanRequests() throws IOException {
+    private void doTestScanRequests( ScanRequest scanRequest, int max, List<StructReader> expectedKeys ) throws IOException {
         //now try with a scan.  This should be fun!
 
-        ScanRequest scanRequest = new ScanRequest();
         scanRequest.getClientRequestMeta().setSource( path );
         scanRequest.getClientRequestMeta().setPartition(partition);
 
@@ -101,7 +97,74 @@ public class TestBackendRequests extends BaseTest {
 
         ScanBackendRequest scanBackendRequest = new ScanBackendRequest( clientBackendRequest, scanRequest );
 
-        doExec( scanBackendRequest, range( 1, 10 ) );
+        doExec( scanBackendRequest, expectedKeys );
+
+    }
+
+    private void doTestScanRequests() throws IOException {
+
+        ScanRequest scanRequest;
+
+        // ********* start exclusive / no end
+        scanRequest = new ScanRequest();
+        scanRequest.setStart( StructReaders.wrap( 0L ), false );
+        scanRequest.setLimit( 10 );
+        doTestScanRequests(scanRequest, 1000, range( 1, 10 ) );
+
+
+        // ********* start inclusive / end inclusive.
+        scanRequest = new ScanRequest();
+        scanRequest.setStart( StructReaders.wrap( 1L ), true );
+        scanRequest.setEnd( StructReaders.wrap( 2L ), true );
+        scanRequest.setLimit( 10 );
+        doTestScanRequests(scanRequest, 1000, range( 1, 2 ) );
+
+
+        // ********* no start / end inclusive
+        scanRequest = new ScanRequest();
+        scanRequest.setEnd( StructReaders.wrap( 1L ), true );
+        scanRequest.setLimit( 10 );
+        doTestScanRequests(scanRequest, 1000, range( 0, 1 ) );
+
+        // ********* no start / no end.
+        scanRequest = new ScanRequest();
+        scanRequest.setLimit( 10 );
+        doTestScanRequests(scanRequest, 1000, range( 0, 9 ) );
+
+        // ********* no start / end exclusive
+
+        scanRequest = new ScanRequest();
+        scanRequest.setEnd( StructReaders.wrap( 1L ), false );
+        scanRequest.setLimit( 10 );
+        doTestScanRequests(scanRequest, 1000, range( 0, 0 ) );
+
+        // ********* start inclusive / no end
+        scanRequest = new ScanRequest();
+        scanRequest.setStart( StructReaders.wrap( 0L ), true );
+        scanRequest.setLimit( 10 );
+        doTestScanRequests(scanRequest, 1000, range( 0, 9 ) );
+
+
+        // ********* start inclusive / end exclusive
+        scanRequest = new ScanRequest();
+        scanRequest.setStart( StructReaders.wrap( 1L ), true );
+        scanRequest.setEnd( StructReaders.wrap( 2L ), false );
+        scanRequest.setLimit( 10 );
+        doTestScanRequests(scanRequest, 1000, range( 1, 1 ) );
+
+        // ********* start exclusive / end exclusive.
+        scanRequest = new ScanRequest();
+        scanRequest.setStart( StructReaders.wrap( 1L ), false );
+        scanRequest.setEnd( StructReaders.wrap( 2L ), true );
+        scanRequest.setLimit( 10 );
+        doTestScanRequests(scanRequest, 1000, range( 2, 2 ) );
+
+        // ********* start exclusive / end exclusive
+        scanRequest = new ScanRequest();
+        scanRequest.setStart( StructReaders.wrap( 1L ), false );
+        scanRequest.setEnd( StructReaders.wrap( 3L ), false );
+        scanRequest.setLimit( 10 );
+        doTestScanRequests(scanRequest, 1000, range( 2, 2 ) );
 
     }
 
@@ -166,7 +229,7 @@ public class TestBackendRequests extends BaseTest {
 
         config = ConfigParser.parse();
 
-        doSetup( range( 1, max ) );
+        doSetup( keys );
         doTestGetRequests( keys, max );
         doTestScanRequests();
 

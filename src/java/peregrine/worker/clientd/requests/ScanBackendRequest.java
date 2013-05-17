@@ -45,6 +45,10 @@ public class ScanBackendRequest extends BackendRequest implements RequestSizeabl
         return scanRequest;
     }
 
+    // needed for exclusive start values.  In this situation we have to skip the
+    // current key when it matches but match the next key.
+    private boolean foundOnNextVisit = false;
+
     @Override
     public void visit(StructReader key, StructReader value) {
 
@@ -52,21 +56,23 @@ public class ScanBackendRequest extends BackendRequest implements RequestSizeabl
         //the start record any longer.
         if ( hits == 0 ) {
 
-            int cmp = comparator.compare( getSeekKey(), key );
+            if (foundOnNextVisit) {
+                setFound( true );
+            } else {
 
-            // if we are on the start key
-            if ( cmp == 0 ) {
+                int cmp = comparator.compare( getSeekKey(), key );
 
-                if ( scanRequest.getStart().isInclusive() ) {
-                    setFound(true);
-                } else {
-                    setFound(false);
+                // if we are on the start key
+                if ( cmp == 0 ) {
+
+                    if ( scanRequest.getStart().isInclusive() ) {
+                        setFound(true);
+                    } else {
+                        foundOnNextVisit = true;
+                    }
+
                 }
 
-            } else if ( cmp > 0 ) {
-                setFound(true);
-            } else {
-                setFound(false);
             }
 
         }
@@ -75,7 +81,7 @@ public class ScanBackendRequest extends BackendRequest implements RequestSizeabl
         //or are ON the end key we need to find out.
         if ( scanRequest.getEnd() != null ) {
 
-            int cmp = comparator.compare( getSeekKey(), scanRequest.getEnd().key() );
+            int cmp = comparator.compare( key, scanRequest.getEnd().key() );
 
             if ( cmp == 0 ) {
                 setComplete(true);
