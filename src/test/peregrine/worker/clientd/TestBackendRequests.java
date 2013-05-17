@@ -25,6 +25,8 @@ import peregrine.config.Config;
 import peregrine.config.ConfigParser;
 import peregrine.config.Partition;
 import peregrine.io.ExtractWriter;
+import peregrine.io.chunk.DefaultChunkWriter;
+import peregrine.io.partition.DefaultPartitionWriter;
 import peregrine.io.partition.LocalPartitionReader;
 import peregrine.io.sstable.RecordListener;
 import peregrine.util.Hex;
@@ -52,6 +54,8 @@ public class TestBackendRequests extends BaseTest {
     private Config config;
 
     private void doSetup(List<StructReader> keys) throws Exception {
+
+        DefaultPartitionWriter.ENABLE_LOCAL_DELEGATE = true;
 
         ExtractWriter writer = new ExtractWriter( config, path );
 
@@ -135,13 +139,13 @@ public class TestBackendRequests extends BaseTest {
         scanRequest = new ScanRequest();
         scanRequest.setEnd( StructReaders.wrap( 1L ), false );
         scanRequest.setLimit( 10 );
-        doTestScanRequests(scanRequest, 1000, range( 0, 0 ) );
+        doTestScanRequests(scanRequest, 1000, range(0, 0));
 
         // ********* start inclusive / no end
         scanRequest = new ScanRequest();
         scanRequest.setStart( StructReaders.wrap( 0L ), true );
         scanRequest.setLimit( 10 );
-        doTestScanRequests(scanRequest, 1000, range( 0, 9 ) );
+        doTestScanRequests(scanRequest, 1000, range(0, 9));
 
 
         // ********* start inclusive / end exclusive
@@ -149,21 +153,21 @@ public class TestBackendRequests extends BaseTest {
         scanRequest.setStart( StructReaders.wrap( 1L ), true );
         scanRequest.setEnd( StructReaders.wrap( 2L ), false );
         scanRequest.setLimit( 10 );
-        doTestScanRequests(scanRequest, 1000, range( 1, 1 ) );
+        doTestScanRequests(scanRequest, 1000, range(1, 1));
 
         // ********* start exclusive / end exclusive.
         scanRequest = new ScanRequest();
         scanRequest.setStart( StructReaders.wrap( 1L ), false );
         scanRequest.setEnd( StructReaders.wrap( 2L ), true );
         scanRequest.setLimit( 10 );
-        doTestScanRequests(scanRequest, 1000, range( 2, 2 ) );
+        doTestScanRequests(scanRequest, 1000, range(2, 2));
 
         // ********* start exclusive / end exclusive
         scanRequest = new ScanRequest();
         scanRequest.setStart( StructReaders.wrap( 1L ), false );
         scanRequest.setEnd( StructReaders.wrap( 3L ), false );
         scanRequest.setLimit( 10 );
-        doTestScanRequests(scanRequest, 1000, range( 2, 2 ) );
+        doTestScanRequests(scanRequest, 1000, range(2, 2));
 
     }
 

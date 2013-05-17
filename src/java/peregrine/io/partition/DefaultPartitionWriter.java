@@ -41,7 +41,7 @@ public class DefaultPartitionWriter implements PartitionWriter, ChunkWriter {
     // would benefit from not going over the local HTTP interface when writing
     // to disk.  Also, was the RemotePartitionWriterDelegate being used when
     // writing output files?
-    private static final boolean ENABLE_LOCAL_DELEGATE = true;
+    public static boolean ENABLE_LOCAL_DELEGATE = false;
 
     protected String path;
 
