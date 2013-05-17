@@ -277,8 +277,20 @@ public class LocalPartitionReader extends BaseJobInput
             chunkRef = new ChunkReference( partition, ref.idx );
 
             List<BackendRequest> refKeys = dataBlockLookup.get( ref );
-            
-            ref.reader.seekTo( refKeys, ref.dataBlock, lastRecordListener );
+
+            //FIXME: should this return any entries that are incomplete (and for
+            // further processing).  This is going to be needed for scan requests
+            // that use more than one block.
+            List<BackendRequest> incomplete =
+                    ref.reader.seekTo( refKeys, ref.dataBlock, lastRecordListener );
+
+            if ( ref.idx == dataBlockLookup.size() - 1 ) {
+
+                for( BackendRequest request : incomplete ) {
+                    request.setComplete(true);
+                }
+
+            }
 
         }
 

@@ -45,7 +45,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class TestBackendRequests extends BaseTest {
 
-    int max = 50;
+    long max = 50;
     List<StructReader> keys = range( 0, max-1 );
     Partition partition = new Partition(0);
     Connection conn = new Connection( "http://localhost:11112" );
@@ -71,7 +71,7 @@ public class TestBackendRequests extends BaseTest {
         System.out.printf( "Wrote %,d keys to %s", keys.size(), path );
 
     }
-    private void doTestGetRequests( List<StructReader> keys, int nrExpectedRecords ) throws IOException {
+    private void doTestGetRequests( List<StructReader> keys, long nrExpectedRecords ) throws IOException {
 
         List<BackendRequest> requests = new ArrayList<BackendRequest>();
 
@@ -91,7 +91,7 @@ public class TestBackendRequests extends BaseTest {
 
     }
 
-    private void doTestScanRequests( ScanRequest scanRequest, int max, List<StructReader> expectedKeys ) throws IOException {
+    private ScanBackendRequest doTestScanRequests( ScanRequest scanRequest, long max, List<StructReader> expectedKeys ) throws IOException {
         //now try with a scan.  This should be fun!
 
         scanRequest.getClientRequestMeta().setSource( path );
@@ -103,11 +103,22 @@ public class TestBackendRequests extends BaseTest {
 
         doExec( scanBackendRequest, expectedKeys );
 
+        return scanBackendRequest;
+
     }
 
     private void doTestScanRequests() throws IOException {
 
         ScanRequest scanRequest;
+
+        scanRequest = new ScanRequest();
+        scanRequest.setStart( StructReaders.wrap( max - 5 ), true );
+        scanRequest.setLimit( 10 );
+
+        ScanBackendRequest scanBackendRequest =
+                doTestScanRequests(scanRequest, 1000, range(max-5, max-1));
+
+        assertEquals( true, scanBackendRequest.isComplete() );
 
         // ********* start exclusive / no end
         scanRequest = new ScanRequest();
@@ -168,6 +179,10 @@ public class TestBackendRequests extends BaseTest {
         scanRequest.setEnd( StructReaders.wrap( 3L ), false );
         scanRequest.setLimit( 10 );
         doTestScanRequests(scanRequest, 1000, range(2, 2));
+
+        //test towards the end of the stream and make sure the ScanBackendRequest
+        //is marked complete
+
 
     }
 

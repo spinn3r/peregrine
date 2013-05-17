@@ -281,11 +281,12 @@ public class DefaultChunkReader extends BaseSSTableChunk
 
     /**
      * Fetch all the keys in the given DataBlock.
+     * @return A list of all BackendRequests that are not complete.
      */
-    public void seekTo( List<BackendRequest> requests, DataBlock block, RecordListener listener ) throws IOException {
+    public List<BackendRequest> seekTo( List<BackendRequest> requests, DataBlock block, RecordListener listener ) throws IOException {
 
         if ( requests.size() == 0 )
-            return;
+            return requests;
         
         // position us at the beginning of the block.
         buffer.readerIndex( (int)block.offset );        
@@ -368,7 +369,12 @@ public class DefaultChunkReader extends BaseSSTableChunk
                 break;
 
         }
-        
+
+        // return any incomplete scan requests.  It does not make sense to return
+        // any get/fetch requests because they won't be continued in the next
+        // block
+        return incompleteScanRequests;
+
     }
 
     @Override

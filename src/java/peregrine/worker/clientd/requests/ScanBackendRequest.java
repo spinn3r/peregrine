@@ -52,6 +52,10 @@ public class ScanBackendRequest extends BackendRequest implements RequestSizeabl
     @Override
     public void visit(StructReader key, StructReader value) {
 
+        //FIXME: if we scan to the LAST record in a table the scan should be
+        // marked complete (same with GETs too I guess).  Otherwise they're just
+        // going to be continually be re-added to the queue.
+
         //once we have hits the FIRST key we no longer need to compare
         //the start record any longer.
         if ( hits == 0 ) {
