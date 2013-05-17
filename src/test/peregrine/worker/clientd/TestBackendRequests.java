@@ -111,7 +111,6 @@ public class TestBackendRequests extends BaseTest {
         scanRequest.setLimit( 10 );
         doTestScanRequests(scanRequest, 1000, range( 1, 10 ) );
 
-
         // ********* start inclusive / end inclusive.
         scanRequest = new ScanRequest();
         scanRequest.setStart( StructReaders.wrap( 1L ), true );
@@ -219,13 +218,18 @@ public class TestBackendRequests extends BaseTest {
         //
         // - test requesting two of the same key and getting back the same key.
         //
-        // - test keys that don't exists
+        // - test GetBackendRequest keys that don't exists
         //
         // - test with an empty index.
         //
         // - test mixing scan and get requests.
         //
-        // - test the powerset of all scan operations.
+        // - create a bunch of List<BackendRequest> objects and compute the powerset
+        //   of all possible combinations.  All different types of scans, etc.  Then
+        //   execute them and make sure they are all correct.
+        //
+        // - Add support for metrics so that we can detect when we're comparing
+        //   too many keys.
 
         config = ConfigParser.parse();
 

@@ -89,7 +89,7 @@ public class DefaultPartitionWriter implements PartitionWriter, ChunkWriter {
                                    boolean append,
                                    List<Host> hosts ) throws IOException {
 
-        this( config, partition, path, append, hosts, MappedFileWriter.DEFAULT_AUTO_SYNC );
+        this( config, partition, path, append, hosts, MappedFileWriter.DEFAULT_AUTO_SYNC, ENABLE_LOCAL_DELEGATE );
 
     }
 
@@ -99,6 +99,19 @@ public class DefaultPartitionWriter implements PartitionWriter, ChunkWriter {
                                    boolean append,
                                    List<Host> hosts,
                                    boolean autoSync ) throws IOException {
+
+        this( config, partition, path, append, hosts, autoSync, ENABLE_LOCAL_DELEGATE );
+
+    }
+
+
+    public DefaultPartitionWriter( Config config,
+                                   Partition partition,
+                                   String path,
+                                   boolean append,
+                                   List<Host> hosts,
+                                   boolean autoSync,
+                                   boolean enableLocalDelegate ) throws IOException {
 
         this.config = config;
         this.partition = partition;
@@ -112,7 +125,7 @@ public class DefaultPartitionWriter implements PartitionWriter, ChunkWriter {
 
             PartitionWriterDelegate delegate;
             
-            if ( ENABLE_LOCAL_DELEGATE && host.equals( config.getHost() ) ) {
+            if ( enableLocalDelegate && host.equals( config.getHost() ) ) {
                 delegate = new LocalPartitionWriterDelegate( config,  autoSync );
             } else { 
                 delegate = new RemotePartitionWriterDelegate( config, autoSync );
