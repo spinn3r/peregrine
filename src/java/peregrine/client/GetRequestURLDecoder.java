@@ -45,9 +45,7 @@ public class GetRequestURLDecoder {
 
         GetRequest request = new GetRequest();
 
-        ClientRequestMeta clientRequestMeta = new ClientRequestMeta();
-
-        if ( ! clientRequestMeta.parse( url ) ) {
+        if ( ! request.parse( url ) ) {
             return null;
         }
 
@@ -63,7 +61,6 @@ public class GetRequestURLDecoder {
         }
 
         request.setKeys(keys);
-        request.setClientRequestMeta( clientRequestMeta );
 
         return request;
 

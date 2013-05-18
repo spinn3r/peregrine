@@ -28,7 +28,7 @@ public class TestClientURLHandling extends peregrine.BaseTest {
 
         GetRequest request = new GetRequest();
         request.setKeys( keys );
-        request.getClientRequestMeta().setSource( "/tmp/foo.test" );
+        request.setSource( "/tmp/foo.test" );
 
         request.setHashcode( hashcode );
 

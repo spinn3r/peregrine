@@ -27,6 +27,7 @@ import org.jboss.netty.handler.codec.http.*;
 import peregrine.client.*;
 
 import com.spinn3r.log5j.*;
+import peregrine.client.ClientRequest;
 import peregrine.worker.ErrorLoggingChannelUpstreamHandler;
 import peregrine.worker.WorkerDaemon;
 import peregrine.worker.clientd.requests.*;
@@ -46,16 +47,16 @@ public class BackendHandler extends ErrorLoggingChannelUpstreamHandler {
 
     private WorkerDaemon daemon;
 
-    private ClientRequestMeta clientRequestMeta = null;
+    private ClientRequest clientRequest = null;
 
     public BackendHandler(WorkerDaemon daemon, String resource) throws Exception {
 
         this.daemon = daemon;
         this.resource = resource;
 
-        clientRequestMeta = new ClientRequestMeta();
+        clientRequest = new ClientRequest();
 
-        clientRequestMeta.parse( resource );
+        clientRequest.parse( resource );
 
     }
 
@@ -63,7 +64,7 @@ public class BackendHandler extends ErrorLoggingChannelUpstreamHandler {
      * Return true if we can handle the given resource URL we were given.
      */
     public boolean handles() {
-        return clientRequestMeta.getPartition() != null;
+        return clientRequest.getPartition() != null;
     }
 
     /**
@@ -80,8 +81,8 @@ public class BackendHandler extends ErrorLoggingChannelUpstreamHandler {
 
         ClientBackendRequest clientBackendRequest =
                 new ClientBackendRequest( channel,
-                                          clientRequestMeta.getPartition(),
-                                          clientRequestMeta.getSource() );
+                                          clientRequest.getPartition(),
+                                          clientRequest.getSource() );
 
         BackendRequestFactory backendRequestFactory = null;
 
@@ -92,18 +93,18 @@ public class BackendHandler extends ErrorLoggingChannelUpstreamHandler {
         // the ugly size() code that I hate.
 
         // TODO: migrate this to JDK 1.7 string switch.
-        if ( "GET".equals( clientRequestMeta.getRequestType() ) ) {
+        if ( "GET".equals( clientRequest.getRequestType() ) ) {
 
             GetRequest request = new GetRequestURLDecoder().decode(resource);
             backendRequestFactory = new GetBackendRequestFactory( request );
 
-        } else if ( "SCAN".equals( clientRequestMeta.getRequestType() ) ) {
+        } else if ( "SCAN".equals( clientRequest.getRequestType() ) ) {
 
             ScanRequest request = new ScanRequestURLDecoder().decode( resource );
             backendRequestFactory = new ScanBackendRequestFactory( request );
 
         } else {
-            throw new RuntimeException( "Unknown request type: " + clientRequestMeta.getRequestType() );
+            throw new RuntimeException( "Unknown request type: " + clientRequest.getRequestType() );
         }
 
         if ( queue.isExhausted( backendRequestFactory.size() ) ) {

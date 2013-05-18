@@ -23,13 +23,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Parse out the partition and source for all client request URLs and keep the
- * information around for metadata usage.
+ * Framework required for clients.
  */
-public class ClientRequestMeta {
+public class ClientRequest {
 
     private static Pattern PATH_REGEX =
-        Pattern.compile( "(https?://[^/]+:[0-9]+)?(/([0-9_]+))?/client-rpc/(GET|SCAN|MUTATE)" );
+            Pattern.compile( "(https?://[^/]+:[0-9]+)?(/([0-9_]+))?/client-rpc/(GET|SCAN|MUTATE)" );
 
     private Partition partition = null;
 
@@ -37,15 +36,9 @@ public class ClientRequestMeta {
 
     private String source = null;
 
-    public ClientRequestMeta() {  }
-
-    public ClientRequestMeta(Partition partition, String source) {
-        this.partition = partition;
-        this.source = source;
-    }
-
-    //FIXME: migrate ALL this to Connection?
-
+    /**
+     * Parse out misc fields for this request.
+     */
     public boolean parse( String url ) {
 
         Matcher matcher = PATH_REGEX.matcher( url );

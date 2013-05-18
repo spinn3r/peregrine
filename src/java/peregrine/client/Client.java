@@ -19,20 +19,24 @@ package peregrine.client;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.handler.codec.http.HttpMethod;
 import org.jboss.netty.handler.codec.http.HttpResponseStatus;
+import org.jboss.netty.handler.codec.http.QueryStringDecoder;
 import peregrine.Record;
 import peregrine.config.Config;
+import peregrine.config.Partition;
 import peregrine.http.HttpClient;
 import peregrine.io.chunk.DefaultChunkReader;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Client interface which represents the functionality that each client must
  * implement.
  */
-public abstract class Client {
+public class Client {
 
     protected Connection connection;
 

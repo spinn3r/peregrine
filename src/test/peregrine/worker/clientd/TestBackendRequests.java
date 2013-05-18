@@ -94,8 +94,8 @@ public class TestBackendRequests extends BaseTest {
     private ScanBackendRequest doTestScanRequests( ScanRequest scanRequest, long max, List<StructReader> expectedKeys ) throws IOException {
         //now try with a scan.  This should be fun!
 
-        scanRequest.getClientRequestMeta().setSource( path );
-        scanRequest.getClientRequestMeta().setPartition(partition);
+        scanRequest.setSource( path );
+        scanRequest.setPartition(partition);
 
         ClientBackendRequest clientBackendRequest = new ClientBackendRequest(partition,path);
 

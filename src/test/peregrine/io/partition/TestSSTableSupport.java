@@ -137,9 +137,8 @@ public class TestSSTableSupport extends peregrine.BaseTestWithMultipleProcesses 
 
         ClientBackendRequest clientBackendRequest = new ClientBackendRequest( part, path );
 
-        ClientRequestMeta clientRequestMeta = new ClientRequestMeta( part, path );
-
-        scanRequest.setClientRequestMeta(clientRequestMeta);
+        scanRequest.setPartition(part);
+        scanRequest.setSource(path);
 
         Connection connection = new Connection( "http://localhost:11112/" );
 

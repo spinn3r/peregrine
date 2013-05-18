@@ -14,18 +14,20 @@
  * limitations under the License.
  */
 
-package peregrine.client;
+package peregrine.metrics.impl;
 
 /**
- *
+ * Provides a gauge metric.  This would be a value that keeps changing similar
+ * to free MB in a system or disk space.
  */
-public abstract class RequestURLEncoder {
+public class GaugeMetric extends Metric {
 
-    protected void assertClientRequestMeta( ClientRequest clientRequest) {
+    public GaugeMetric(String name) {
+        super(name);
+    }
 
-        if ( clientRequest.getSource() == null )
-            throw new NullPointerException( "source" );
-
+    private void set( long value ) {
+        this.value = value;
     }
 
 }

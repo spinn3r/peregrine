@@ -25,15 +25,13 @@ import peregrine.worker.clientd.requests.ClientBackendRequest;
  * either be open on either end, inclusive, or finite.   One can specify a start
  * key and end key and then read all keys in a given range.
  */
-public class ScanRequest {
+public class ScanRequest extends ClientRequest {
 
     private Bound start = null;
 
     private Bound end = null;
 
     private int limit = 10;
-
-    private ClientRequestMeta clientRequestMeta = new ClientRequestMeta();
 
     public void setStart( StructReader key, boolean inclusive ) {
         this.start = new Bound( key, inclusive );
@@ -68,14 +66,6 @@ public class ScanRequest {
 
     public void setLimit( int limit ) { 
         this.limit = limit;
-    }
-
-    public ClientRequestMeta getClientRequestMeta() {
-        return clientRequestMeta;
-    }
-
-    public void setClientRequestMeta(ClientRequestMeta clientRequestMeta) {
-        this.clientRequestMeta = clientRequestMeta;
     }
 
     protected Bound newBound( StructReader key, boolean inclusive ) {

@@ -14,18 +14,27 @@
  * limitations under the License.
  */
 
-package peregrine.client;
+package peregrine.metrics.impl;
 
 /**
- *
+ * Base metric support.
  */
-public abstract class RequestURLEncoder {
+public abstract class Metric {
 
-    protected void assertClientRequestMeta( ClientRequest clientRequest) {
+    private String name;
 
-        if ( clientRequest.getSource() == null )
-            throw new NullPointerException( "source" );
+    protected long value = 0;
 
+    protected Metric(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public long get() {
+        return value;
     }
 
 }

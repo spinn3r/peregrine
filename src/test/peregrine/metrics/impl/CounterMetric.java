@@ -14,18 +14,19 @@
  * limitations under the License.
  */
 
-package peregrine.client;
+package peregrine.metrics.impl;
 
 /**
- *
+ * A metric that increases indefinitely.  Like bytes served or blocks written.
  */
-public abstract class RequestURLEncoder {
+public class CounterMetric extends Metric {
 
-    protected void assertClientRequestMeta( ClientRequest clientRequest) {
+    public CounterMetric(String name) {
+        super(name);
+    }
 
-        if ( clientRequest.getSource() == null )
-            throw new NullPointerException( "source" );
-
+    private void incr( int delta ) {
+        value += delta;
     }
 
 }

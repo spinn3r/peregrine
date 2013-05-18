@@ -41,10 +41,7 @@ public class ScanRequestURLDecoder {
      */
     public ScanRequest decode( String url ) {
 
-        ClientRequestMeta clientRequestMeta = new ClientRequestMeta();
-        request.setClientRequestMeta( clientRequestMeta );
-
-        if ( ! clientRequestMeta.parse( url ) ) {
+        if ( ! request.parse( url ) ) {
             return null;
         }
 

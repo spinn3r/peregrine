@@ -68,8 +68,8 @@ public class TestClientServerProtocol extends peregrine.BaseTestWithMultipleProc
         //now try with a scan.  This should be fun!
 
         ScanRequest scanRequest = new ScanRequest();
-        scanRequest.getClientRequestMeta().setSource( path );
-        scanRequest.getClientRequestMeta().setPartition(partition);
+        scanRequest.setSource( path );
+        scanRequest.setPartition(partition);
 
         String url = new ScanRequestURLEncoder().encode(conn, scanRequest);
 
@@ -88,8 +88,8 @@ public class TestClientServerProtocol extends peregrine.BaseTestWithMultipleProc
 
         GetRequest request = new GetRequest();
         request.setKeys(keys);
-        request.getClientRequestMeta().setSource( path );
-        request.getClientRequestMeta().setPartition( partition );
+        request.setSource( path );
+        request.setPartition( partition );
 
         GetClient client = new GetClient( config, conn );
 

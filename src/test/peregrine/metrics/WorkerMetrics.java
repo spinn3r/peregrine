@@ -14,18 +14,16 @@
  * limitations under the License.
  */
 
-package peregrine.client;
+package peregrine.metrics;
+
+import peregrine.metrics.impl.GaugeMetric;
+import peregrine.metrics.impl.Metric;
 
 /**
- *
+ * Contains metrics for the worker daemon.
  */
-public abstract class RequestURLEncoder {
+public class WorkerMetrics {
 
-    protected void assertClientRequestMeta( ClientRequest clientRequest) {
-
-        if ( clientRequest.getSource() == null )
-            throw new NullPointerException( "source" );
-
-    }
+    private Metric nrRegions = new GaugeMetric( "worker.nrRegions" );
 
 }

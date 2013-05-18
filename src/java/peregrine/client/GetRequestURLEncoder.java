@@ -66,13 +66,13 @@ public class GetRequestURLEncoder extends RequestURLEncoder {
      */
     public String encode( Connection connection, GetRequest request ) {
 
-        assertClientRequestMeta( request.getClientRequestMeta() );
+        assertClientRequestMeta( request );
 
         StringBuilder buff = new StringBuilder( 200 );
         buff.append( String.format("%s/%s/client-rpc/GET?source=%s",
                 connection.getEndpoint(),
-                request.getClientRequestMeta().getPartition().getId(),
-                request.getClientRequestMeta().getSource()) );
+                request.getPartition().getId(),
+                request.getSource()) );
 
         List<String> args = new ArrayList();
 

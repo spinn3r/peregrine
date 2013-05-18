@@ -35,13 +35,11 @@ import peregrine.worker.clientd.requests.RequestSizeable;
 /**
  * Represents a request to the server for GETing keys.
  */
-public class GetRequest {
+public class GetRequest extends ClientRequest {
     
     private boolean hashcode = false;
     
     private List<StructReader> keys = null;
-
-    private ClientRequestMeta clientRequestMeta = new ClientRequestMeta();
 
     public void setKeys( List<StructReader> keys ) {
         this.keys = keys;
@@ -63,11 +61,4 @@ public class GetRequest {
         this.hashcode = hashcode;
     }
 
-    public ClientRequestMeta getClientRequestMeta() {
-        return clientRequestMeta;
-    }
-
-    public void setClientRequestMeta(ClientRequestMeta clientRequestMeta) {
-        this.clientRequestMeta = clientRequestMeta;
-    }
 }

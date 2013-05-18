@@ -33,13 +33,13 @@ public class ScanRequestURLEncoder extends RequestURLEncoder {
      */
     public String encode( Connection connection, ScanRequest scanRequest ) {
 
-        assertClientRequestMeta( scanRequest.getClientRequestMeta() );
+        assertClientRequestMeta( scanRequest );
 
         //FIXME: support hashcoding the keys.
 
         StringBuilder buff = new StringBuilder( 200 );
         buff.append( String.format( "%s/%s/client-rpc/SCAN?",
-                     connection.getEndpoint(), scanRequest.getClientRequestMeta().getPartition().getId() ) );
+                     connection.getEndpoint(), scanRequest.getPartition().getId() ) );
 
         Map<String,Object> params = new TreeMap();
 
@@ -54,7 +54,7 @@ public class ScanRequestURLEncoder extends RequestURLEncoder {
         }
 
         params.put( "limit",  scanRequest.getLimit() );
-        params.put( "source", scanRequest.getClientRequestMeta().getSource() );
+        params.put( "source", scanRequest.getSource() );
 
         int i = 0;
         for( Map.Entry<String,Object> entry : params.entrySet() ) {

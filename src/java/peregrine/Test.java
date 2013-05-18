@@ -24,7 +24,6 @@ import java.nio.channels.*;
 import java.lang.reflect.*;
 import java.math.*;
 
-import peregrine.client.ClientRequestMeta;
 import peregrine.os.*;
 import peregrine.util.*;
 import peregrine.util.primitive.*;
@@ -214,15 +213,6 @@ public class Test {
     
     public static void main( String[] args ) throws Exception {
 
-        String url = "/0/client-rpc/SCAN?limit=10&source=/test/peregrine.client.TestClientServerProtocol/test1.sstable";
-
-        ClientRequestMeta meta = new ClientRequestMeta();
-
-        if ( meta.parse( url ) ) {
-            System.out.printf( "WORKED");
-        } else {
-            System.out.printf( "FAILED");
-        }
 
 //        BackendRequestQueue bq = new BackendRequestQueue( null );
 //
