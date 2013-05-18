@@ -19,6 +19,7 @@ package peregrine.client;
 import peregrine.StructReader;
 import peregrine.StructReaders;
 import peregrine.util.Base64;
+import peregrine.util.Strings;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -66,13 +67,26 @@ public class GetRequestURLEncoder extends RequestURLEncoder {
      */
     public String encode( Connection connection, GetRequest request ) {
 
+        if ( connection == null )
+            throw new NullPointerException( "connection" );
+
+        if ( request == null )
+            throw new NullPointerException( "request" );
+
         assertClientRequestMeta( request );
 
         StringBuilder buff = new StringBuilder( 200 );
-        buff.append( String.format("%s/%s/client-rpc/GET?source=%s",
-                connection.getEndpoint(),
-                request.getPartition().getId(),
-                request.getSource()) );
+
+        String partition = null;
+
+        if ( request.getPartition() != null ) {
+            partition = Integer.toString( request.getPartition().getId() );
+        }
+
+         buff.append( String.format( "%s/client-rpc/GET?source=%s",
+                                     Strings.path( connection.getEndpoint(),
+                                                   partition ),
+                                     request.getSource()) );
 
         List<String> args = new ArrayList();
 

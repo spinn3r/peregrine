@@ -72,6 +72,35 @@ public class Strings {
     }
 
     /**
+     * Construct a path from the given strings, ignoring any null portions.  We
+     * also make sure to not include / components twice if two adjacent
+     * components have slashes.
+     *
+     */
+    public static String path( Object... args ) {
+
+        StringBuilder buff = new StringBuilder();
+
+        for ( Object obj : args ) {
+
+            if ( obj == null )
+                continue;
+
+            String arg = obj.toString();
+
+            if ( buff.length() > 0 && buff.charAt( buff.length() - 1 ) != '/' ) {
+                buff.append( '/' );
+            }
+
+            buff.append( arg );
+
+        }
+
+        return buff.toString();
+
+    }
+
+    /**
      * Split a string and return the result as a list.
      */
     public static List<String> split( String str , String sep ) {
