@@ -317,13 +317,31 @@ public class mman {
 
     }
 
-    public static void mincore( Pointer addr, long len, ByteBuffer vec ) throws IOException {
+    /**
+     * Return information about the VFS page cache.  Specifically if given pages
+     * are cached.  This method is fast, even or a large file.  About 1ms for a
+     * 500MB file on Linux.
+     *
+     * @param addr The pointer in memory of the mmap region as returned from mmap.
+     * @param len The length of the file for which we want page cache information.
+     * @return a ByteBuffer where the offset is true if the given page is cached.
+     * @throws IOException
+     */
+    public static ByteBuffer mincore( Pointer addr, long len ) throws IOException {
 
-        int result = Delegate.mincore( addr, len, vec ); 
+        int page_size = unistd.getpagesize();
+
+        int buff_size = (int)((len + page_size - 1) / page_size);
+
+        ByteBuffer vec = ByteBuffer.allocate( buff_size );
+
+        int result = Delegate.mincore( addr, len, vec );
         
         if ( result != 0 ) {
             throw new IOException( "Result was: " + result + ": " + errno.strerror() );
         }
+
+        return vec;
 
     }
     
@@ -335,8 +353,7 @@ public class mman {
         public static native int mlock( Pointer addr, long len );
         public static native int munlock( Pointer addr, long len );
         public static native int mincore( Pointer addr, long len, ByteBuffer vec );
-        //public static native int mincore( Pointer addr, long len, char[] vec );
-        
+
         static {
             Native.register( "c" );
         }
@@ -358,13 +375,12 @@ public class mman {
         mlock( addr, file.length() );
         munlock( addr, file.length() );
 
-        ByteBuffer vec = ByteBuffer.allocateDirect( 1 );
-        //char[] vec = new char[1];
+        ByteBuffer vec = null;
 
         long before = System.currentTimeMillis();
         long max = 1000000;
         for( long i = 0; i < max; ++i ) {
-            mincore( addr, 1, vec );
+            vec = mincore( addr, 1 );
         }
         long after = System.currentTimeMillis();
 
