@@ -16,6 +16,7 @@
 package peregrine.os;
 
 import java.io.*;
+import java.nio.ByteBuffer;
 
 import com.sun.jna.Library;
 import com.sun.jna.Native;
@@ -316,6 +317,16 @@ public class mman {
 
     }
 
+    public static void mincore( Pointer addr, long len, ByteBuffer vec ) throws IOException {
+
+        int result = Delegate.mincore( addr, len, vec ); 
+        
+        if ( result != 0 ) {
+            throw new IOException( "Result was: " + result + ": " + errno.strerror() );
+        }
+
+    }
+    
     static class Delegate {
     
         public static native Pointer mmap( Pointer addr, long len, int prot, int flags, int fildes, long off );
@@ -323,6 +334,8 @@ public class mman {
         
         public static native int mlock( Pointer addr, long len );
         public static native int munlock( Pointer addr, long len );
+        public static native int mincore( Pointer addr, long len, ByteBuffer vec );
+        //public static native int mincore( Pointer addr, long len, char[] vec );
         
         static {
             Native.register( "c" );
@@ -344,9 +357,25 @@ public class mman {
         // try to mlock it directly
         mlock( addr, file.length() );
         munlock( addr, file.length() );
+
+        ByteBuffer vec = ByteBuffer.allocateDirect( 1 );
+        //char[] vec = new char[1];
+
+        long before = System.currentTimeMillis();
+        long max = 1000000;
+        for( long i = 0; i < max; ++i ) {
+            mincore( addr, 1, vec );
+        }
+        long after = System.currentTimeMillis();
+
+        long duration = after - before;
+
+        System.out.printf( "mincore duration: %,d ms for %,d calls.\n", duration, max );
         
+        System.out.printf( "First(2) block cached: %s\n", vec.get(0) );
+
         munmap( addr, file.length() );
-        
+
     }
                             
 }
