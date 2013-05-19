@@ -15,7 +15,7 @@
  */
 package peregrine.util;
 
-import java.security.*;
+import java.security.MessageDigest;
 
 /**
  * MD5 cryptographic hash function:
