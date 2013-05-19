@@ -20,7 +20,7 @@ import java.util.*;
 
 import peregrine.*;
 import peregrine.util.*;
-import peregrine.util.primitive.*;
+
 import peregrine.io.*;
 
 import com.spinn3r.log5j.Logger;

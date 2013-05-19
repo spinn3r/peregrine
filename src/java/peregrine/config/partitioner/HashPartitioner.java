@@ -18,7 +18,6 @@ package peregrine.config.partitioner;
 import peregrine.*;
 import peregrine.config.*;
 import peregrine.util.*;
-import peregrine.util.primitive.*;
 
 /**
  * Partitions by hash code mod the number of partitions.

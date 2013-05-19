@@ -25,7 +25,6 @@ import peregrine.config.*;
 import peregrine.io.*;
 import peregrine.io.chunk.*;
 import peregrine.util.*;
-import peregrine.util.primitive.*;
 import peregrine.sort.*;
 
 /**

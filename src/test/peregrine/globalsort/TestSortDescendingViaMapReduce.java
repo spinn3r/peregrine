@@ -24,7 +24,7 @@ import peregrine.config.*;
 import peregrine.controller.*;
 import peregrine.io.*;
 import peregrine.io.partition.*;
-import peregrine.util.primitive.*;
+
 import peregrine.util.*;
 import peregrine.reduce.*;
 import peregrine.sort.*;

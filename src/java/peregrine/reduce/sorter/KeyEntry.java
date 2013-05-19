@@ -19,7 +19,6 @@ import org.jboss.netty.buffer.*;
 
 import peregrine.*;
 import peregrine.util.netty.*;
-import peregrine.util.primitive.*;
 import peregrine.io.chunk.*;
 
 public class KeyEntry implements KeyValuePair {

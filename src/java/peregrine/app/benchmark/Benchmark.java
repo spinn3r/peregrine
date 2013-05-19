@@ -25,7 +25,7 @@ import peregrine.controller.*;
 import peregrine.io.*;
 import peregrine.io.partition.*;
 import peregrine.util.*;
-import peregrine.util.primitive.*;
+
 import com.spinn3r.log5j.*;
 
 public class Benchmark {

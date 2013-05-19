@@ -27,7 +27,7 @@ import peregrine.reduce.sorter.*;
 import peregrine.shuffle.sender.*;
 import peregrine.util.*;
 import peregrine.task.*;
-import peregrine.util.primitive.*;
+
 
 /**
  * Test the FULL shuffle path, not just pats of it...including running with two
@@ -153,7 +153,7 @@ public class TestFullShufflePath extends peregrine.BaseTestWithMultipleDaemons {
             if ( last != null && comparator.compare( last.toByteArray(), value.toByteArray() ) > 0 )
                 throw new RuntimeException( "value is NOT less than last value" );
 
-            LongBytes.toByteArray( count );
+            Longs.toByteArray( count );
 
             /*
             if ( last != null && comparator.compare( last, new Tuple( correct, correct ) ) == 0 ) {

@@ -20,8 +20,6 @@ import java.util.*;
 import peregrine.config.*;
 import peregrine.controller.*;
 import peregrine.io.*;
-import peregrine.util.*;
-import peregrine.util.primitive.IntBytes;
 import peregrine.io.partition.*;
 
 public class TestBroadcastMapReduce extends peregrine.BaseTestWithMultipleProcesses {

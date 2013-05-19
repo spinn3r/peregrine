@@ -25,7 +25,7 @@ import java.lang.reflect.*;
 
 import peregrine.os.*;
 import peregrine.util.*;
-import peregrine.util.primitive.*;
+
 import peregrine.app.pagerank.*;
 import peregrine.config.*;
 import peregrine.worker.*;
@@ -130,7 +130,7 @@ public class TestSamplingPartitioner {
         byte[] hash = Hashcode.getHashcode( Long.toString( val ) );
         byte[] zeros = new byte[] { 0, 0, 0, 0, 0 };
         System.arraycopy( zeros, 0, hash, 0, zeros.length );
-        val = val + LongBytes.toLong( hash );
+        val = val + Longs.toLong( hash );
 
         return val;
         

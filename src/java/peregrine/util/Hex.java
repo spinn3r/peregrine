@@ -18,7 +18,6 @@ package peregrine.util;
 import org.jboss.netty.buffer.*;
 
 import peregrine.*;
-import peregrine.util.primitive.IntBytes;
 
 /**
  * More advanced Hex encoder vs the normal 'straight' Base16 encoder.  Breaks
@@ -98,7 +97,7 @@ public class Hex {
 
             int len = end - start;
 
-            ChannelBuffer index = ChannelBuffers.buffer( IntBytes.LENGTH );
+            ChannelBuffer index = ChannelBuffers.buffer( Integers.LENGTH );
             index.writeInt( start );
             
             // step 0 include the start

@@ -24,7 +24,7 @@ import peregrine.util.*;
 import peregrine.reduce.*;
 import peregrine.config.*;
 import peregrine.io.*;
-import peregrine.util.primitive.*;
+
 
 import com.spinn3r.log5j.*;
 

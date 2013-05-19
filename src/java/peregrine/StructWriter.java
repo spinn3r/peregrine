@@ -21,7 +21,7 @@ import java.nio.charset.Charset;
 import org.jboss.netty.buffer.*;
 
 import peregrine.util.*;
-import peregrine.util.primitive.*;
+
 
 /**
  * <p>
@@ -43,7 +43,7 @@ public class StructWriter {
      * StructWriter with max capacity for holding primitive types (8 bytes).
      */
     public StructWriter() {
-        this( LongBytes.LENGTH );
+        this( Longs.LENGTH );
     }
 
     /**
@@ -145,7 +145,7 @@ public class StructWriter {
     }
 
     public StructWriter writeHashcode( long value ) {
-        return writeHashcode( LongBytes.toByteArray( value ) );
+        return writeHashcode( Longs.toByteArray( value ) );
     }
 
     public StructWriter writeHashcode( byte[] value ) {

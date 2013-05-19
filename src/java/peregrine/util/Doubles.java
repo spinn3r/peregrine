@@ -13,17 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package peregrine.util.primitive;
+package peregrine.util;
 
 
-public class DoubleBytes {
+import peregrine.util.Longs;
+
+public class Doubles {
 
     public static final int LENGTH = 8;
 
     /**
      */
     public static byte[] toByteArray( double value ) {
-        return LongBytes.toByteArray( Double.doubleToLongBits( value ) );
+        return Longs.toByteArray(Double.doubleToLongBits(value));
     }
 
 }

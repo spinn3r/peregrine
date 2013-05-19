@@ -24,7 +24,7 @@ import peregrine.io.*;
 import peregrine.io.*;
 import peregrine.sort.*;
 import peregrine.util.*;
-import peregrine.util.primitive.*;
+
 
 /**
  * Build various graphs for testing.
@@ -125,7 +125,7 @@ public class GraphBuilder {
     }
 
     private long hash( String data ) {
-        return LongBytes.toLong( Base16.decode( data ) );
+        return Longs.toLong( Base16.decode( data ) );
     }
     
     public void addRecord( long source,

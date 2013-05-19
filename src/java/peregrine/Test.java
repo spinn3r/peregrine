@@ -26,7 +26,7 @@ import java.math.*;
 
 import peregrine.os.*;
 import peregrine.util.*;
-import peregrine.util.primitive.*;
+
 import peregrine.app.pagerank.*;
 import peregrine.config.*;
 import peregrine.worker.*;

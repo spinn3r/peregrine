@@ -22,7 +22,6 @@ import java.nio.*;
 import org.jboss.netty.buffer.*;
 
 import peregrine.util.*;
-import peregrine.util.primitive.*;
 
 /**
  * Create a StructReader around primitive types, varints, hashcodes, etc.
