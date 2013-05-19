@@ -16,11 +16,14 @@
 package peregrine.worker.clientd.requests;
 
 import java.io.*;
-import java.util.concurrent.*;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.jboss.netty.buffer.*;
 import org.jboss.netty.channel.*;
 
+import org.jboss.netty.channel.socket.SocketChannelConfig;
+import org.jboss.netty.channel.socket.nio.NioSocketChannelConfig;
 import org.jboss.netty.handler.codec.http.DefaultHttpChunk;
 import org.jboss.netty.handler.codec.http.HttpChunk;
 
@@ -33,58 +36,61 @@ import peregrine.util.netty.ChannelBufferWritable;
  * immediately, because they're exceeding the TCP send buffer, then we back off
  * and suspend the client.
  */
-public class BackendClientChannelBufferWritable implements ChannelBufferWritable {
+public class BackendClientWritable3 implements ChannelBufferWritable {
 
     protected static final Logger log = Logger.getLogger();
 
-    private Channel channel;
+    private static final int CHUNK_OVERHEAD = 12;
+
+    private ClientBackendRequest clientBackendRequest;
+
+    // the socket config for this channel so that we can reference sendBufferSize
+    private NioSocketChannelConfig config;
 
     private ChannelFuture future = null;
 
-    public BackendClientChannelBufferWritable(Channel channel) {
-        this.channel = channel;
+    private Channel channel;
+
+    private ArrayBlockingQueue<HttpChunk> queue = new ArrayBlockingQueue<HttpChunk>();
+
+    public BackendClientWritable3(ClientBackendRequest clientBackendRequest) {
+        this.clientBackendRequest = clientBackendRequest;
+        this.channel = clientBackendRequest.getChannel();
+
+        config = (NioSocketChannelConfig)clientBackendRequest.getChannel().getConfig();
+
     }
-    
+
     @Override
     public void write( ChannelBuffer buff ) throws IOException {
-
         write( new DefaultHttpChunk( buff ) );
-
     }
 
     private void write( final HttpChunk chunk ) throws IOException {
 
-        //FIXME: this code isn't working correctly I think because it suspends almost
-        //immediately...
-
-        if ( isSuspended() ) {
-
-            log.info( "FIXME: here0");
-
-            //write this via the channel future.  In practice we should only do this
-            //once and then suspend the channel from further writing.  The only
-            //exception here is if we call close() and THEN we we need to add that
-            //to the queue for future writes.
-            future.addListener( new ChannelFutureListener() {
+        if ( future == null || future.isSuccess() ) {
+            future = channel.write( chunk ).addListener( new ChannelFutureListener() {
                 @Override
                 public void operationComplete(ChannelFuture future) throws Exception {
-                    future.getChannel().write( chunk );
+
+                    HttpChunk
+
                 }
-            } );
-
-            return;
+            });
+        } else {
+            queue.add( chunk );
         }
-
-        future = channel.write( chunk );
 
     }
 
+    /**
+     * Return true when the client can't keep up with our writes.
+     */
     public boolean isSuspended() {
 
-        if ( future == null )
-            return false;
+        //return pendingWriteSize.get() > config.getSendBufferSize();
 
-        return future.isDone() == false;
+        return (channel.getInterestOps() & Channel.OP_WRITE) == Channel.OP_WRITE;
 
     }
 
@@ -94,18 +100,17 @@ public class BackendClientChannelBufferWritable implements ChannelBufferWritable
 
     @Override
     public void sync() throws IOException {
-        
+
     }
 
     @Override
     public void flush() throws IOException {
         // there's nothing to buffer so we are done.
     }
-        
+
     @Override
     public void close() throws IOException {
-        log.info( "FIXME: writing last chunk. " );
         write( HttpChunk.LAST_CHUNK );
     }
-    
+
 }

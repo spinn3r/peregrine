@@ -25,12 +25,9 @@ import peregrine.io.SequenceWriter;
 import peregrine.io.chunk.DefaultChunkWriter;
 import peregrine.io.partition.LocalPartitionReader;
 import peregrine.util.Hex;
-import peregrine.worker.clientd.requests.BackendClientChannelBufferWritable;
-import peregrine.worker.clientd.requests.BackendRequest;
-import peregrine.worker.clientd.requests.ClientBackendRequest;
+import peregrine.worker.clientd.requests.*;
 import peregrine.io.sstable.RecordListener;
 import peregrine.io.util.Closer;
-import peregrine.worker.clientd.requests.ScanBackendRequest;
 
 import java.io.IOException;
 import java.util.*;
@@ -271,8 +268,8 @@ public class BackendRequestExecutor implements Runnable {
 
                     log.info( "FIXME: channel impl: %s", clientBackendRequest.getChannel().getClass() );
 
-                    BackendClientChannelBufferWritable writable =
-                            new BackendClientChannelBufferWritable( clientBackendRequest.getChannel() );
+                    BackendClientWritable writable =
+                            new BackendClientWritable( clientBackendRequest );
 
                     // FIXME: we need to set a mode here for the DefaultChunkWriter to
                     // include a CRC32 in the minimal form so that the entire record is

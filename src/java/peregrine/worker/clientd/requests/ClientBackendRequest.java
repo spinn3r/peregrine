@@ -39,7 +39,7 @@ public class ClientBackendRequest {
     // the output channel for this client so we can write key/value pairs
     private SequenceWriter sequenceWriter = null;
 
-    private BackendClientChannelBufferWritable channelBufferWritable = null;
+    private BackendClientWritable channelBufferWritable = null;
 
     // the time we receivedTime the request
     private long receivedTime = System.currentTimeMillis();
@@ -103,7 +103,7 @@ public class ClientBackendRequest {
         return receivedTime;
     }
 
-    public void setChannelBufferWritable(BackendClientChannelBufferWritable channelBufferWritable) {
+    public void setChannelBufferWritable(BackendClientWritable channelBufferWritable) {
         this.channelBufferWritable = channelBufferWritable;
     }
 

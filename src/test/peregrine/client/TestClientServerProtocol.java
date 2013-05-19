@@ -62,11 +62,53 @@ public class TestClientServerProtocol extends peregrine.BaseTestWithMultipleProc
         //doTestGetRequests( range( 100, 150 ), 0 );
 
         doTestScanRequests();
-//        doTestScanRequests();
-//        doTestScanRequests();
-//        doTestScanRequests();
-//        doTestScanRequests();
-//        doTestScanRequests();
+        doTestScanRequests();
+        doTestScanRequests();
+        doTestScanRequests();
+        doTestScanRequests();
+        doTestScanRequests();
+        doTestScanRequests();
+        doTestScanRequests();
+        doTestScanRequests();
+        doTestScanRequests();
+        doTestScanRequests();
+        doTestScanRequests();
+        doTestScanRequests();
+        doTestScanRequests();
+        doTestScanRequests();
+        doTestScanRequests();
+        doTestScanRequests();
+        doTestScanRequests();
+        doTestScanRequests();
+        doTestScanRequests();
+        doTestScanRequests();
+        doTestScanRequests();
+        doTestScanRequests();
+        doTestScanRequests();
+        doTestScanRequests();
+        doTestScanRequests();
+        doTestScanRequests();
+        doTestScanRequests();
+        doTestScanRequests();
+        doTestScanRequests();
+        doTestScanRequests();
+        doTestScanRequests();
+        doTestScanRequests();
+        doTestScanRequests();
+        doTestScanRequests();
+        doTestScanRequests();
+        doTestScanRequests();
+        doTestScanRequests();
+        doTestScanRequests();
+        doTestScanRequests();
+        doTestScanRequests();
+        doTestScanRequests();
+        doTestScanRequests();
+        doTestScanRequests();
+        doTestScanRequests();
+        doTestScanRequests();
+        doTestScanRequests();
+        doTestScanRequests();
 
     }
 
