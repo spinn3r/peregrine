@@ -337,7 +337,7 @@ public class DefaultChunkReader extends BaseSSTableChunk
 
             }
 
-            if ( find != null ) {
+            while ( find != null ) {
 
                 find.visit( key(), value() );
 
@@ -357,8 +357,9 @@ public class DefaultChunkReader extends BaseSSTableChunk
                     if ( requests.size() > 0 ) {
                         find = requests.remove( 0 );
                     } else {
-                        // we've handled all the keys in this block so we can quit now.
+                        // we've handled all the keys in this request so we can quit now.
                         find = null;
+                        break;
                     }
 
                 }

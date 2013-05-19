@@ -100,7 +100,7 @@ public class SlabDynamicChannelBuffer extends AbstractChannelBuffer {
 
         extents.add( newExtent );
         
-        buffer = new CompositeChannelBuffer( endianness, extents );
+        buffer = new CompositeChannelBuffer( endianness, extents, true );
 
         capacity += extentLength;
         

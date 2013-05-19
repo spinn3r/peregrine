@@ -516,7 +516,7 @@ public class BaseConfig {
             DEFAULTS = new StructMap( is );
             
         } catch ( Throwable t ) {
-            throw new RuntimeException( t );
+            throw new RuntimeException( "Unable to load config: ", t );
         }
         
     }

@@ -282,5 +282,20 @@ public class StructReaders {
         return result;
         
     }
-    
+
+    /**
+     * @return Return a list of struct readers with the given values.
+     */
+    public static List<StructReader> list( long... values ) {
+
+        List<StructReader> result = new ArrayList<StructReader>();
+
+        for( long value : values ) {
+            result.add( wrap( value ) );
+        }
+
+        return result;
+
+    }
+
 }

@@ -91,6 +91,29 @@ public class TestBackendRequests extends BaseTest {
 
     }
 
+    private void doTestDuplicateGetRequests() throws IOException {
+
+        List<BackendRequest> requests = new ArrayList<BackendRequest>();
+
+        ClientBackendRequest clientBackendRequest = new ClientBackendRequest(partition,path);
+
+        System.out.printf( "Creating get requests: \n");
+
+        List<StructReader> keys = StructReaders.list( 1, 1, 1 );
+
+        for( StructReader key : keys ) {
+
+            System.out.printf( "    %s\n", Hex.encode(key) );
+
+            GetBackendRequest getBackendRequest = new GetBackendRequest( clientBackendRequest, key );
+            requests.add( getBackendRequest );
+        }
+
+        doExec( requests, keys );
+
+    }
+
+
     private ScanBackendRequest doTestScanRequests( ScanRequest scanRequest, long max, List<StructReader> expectedKeys ) throws IOException {
         //now try with a scan.  This should be fun!
 
@@ -253,8 +276,12 @@ public class TestBackendRequests extends BaseTest {
         config = ConfigParser.parse();
 
         doSetup( keys );
+
+        doTestDuplicateGetRequests();
+
         doTestGetRequests( keys, max );
         doTestScanRequests();
+
 
     }
 
