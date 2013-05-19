@@ -52,7 +52,10 @@ public class DefaultChunkWriter extends BaseSSTableChunk implements ChunkWriter 
     // checksum.  Then we should have INDEXED which includes a block index as
     // well as CRC32.
 
-    protected static final Logger log = Logger.getLogger();
+    //FIXME: it would also be nice if we supported explicit meta blocks for the
+    // stream protocol which are normally invisible to a client.  CRC32 would be
+    // store here.  We could also include dapper style tracing in the response
+    // and this way clients wouldn't see these optional response fields.
 
     // FIXME: DITCH the data block and meta block metaphor.. we are storing the
     // data blocks inline so at the END of the file we really only just have META
@@ -66,6 +69,8 @@ public class DefaultChunkWriter extends BaseSSTableChunk implements ChunkWriter 
     // ...
     // WRONG.. .we will STLL have the bloom filter issue.  Instead write a list
     // of offsets and lengths that the meta blocks can be indexed.
+
+    protected static final Logger log = Logger.getLogger();
 
     public static int BUFFER_SIZE = 16384 ;
 

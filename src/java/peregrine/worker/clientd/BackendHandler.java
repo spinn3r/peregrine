@@ -120,6 +120,8 @@ public class BackendHandler extends ErrorLoggingChannelUpstreamHandler {
 
         List<BackendRequest> backendRequests = backendRequestFactory.getBackendRequests(clientBackendRequest);
 
+        clientBackendRequest.setBackendRequests(backendRequests);
+
         HttpResponse response = new DefaultHttpResponse( HTTP_1_1, OK );
         response.setHeader( HttpHeaders.Names.TRANSFER_ENCODING, HttpHeaders.Values.CHUNKED );
         channel.write(response);

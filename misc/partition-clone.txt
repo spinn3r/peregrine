@@ -40,4 +40,4 @@ Controller->Worker0: Enable compactions
 Controller->Controller: Update membership with\nWorker1 as a replica\nfor reads on partition 0
 Controller->Worker1: Push latest replica config
 Controller->Worker0: Push latest replica config
-note right of Worker1: Any new read or\nwrite requests\nwith old membership\nneed to be aborted.
+note right of Worker1: Any new read or\nwrite backendRequests\nwith old membership\nneed to be aborted.

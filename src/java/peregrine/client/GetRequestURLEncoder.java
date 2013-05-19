@@ -52,7 +52,7 @@ public class GetRequestURLEncoder extends RequestURLEncoder {
     //without any additional overhead in the response.
 
     //FIXME: if we included authorization in the HTTP requests I could in theory
-    //allow my customers to use the peregrine code directly.  For example I could
+    //allow our customers to use the peregrine code directly.  For example I could
     //allow them to connect to the controller (with auth) and then download the
     //cluster configuration and then have the clients directly execute queries
     //in the cloud and fetch the results locally.  this would have the advantage

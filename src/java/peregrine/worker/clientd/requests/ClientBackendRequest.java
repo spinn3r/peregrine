@@ -20,6 +20,8 @@ import org.jboss.netty.channel.Channel;
 import peregrine.config.Partition;
 import peregrine.io.SequenceWriter;
 
+import java.util.List;
+
 /**
  * Represents information about a client performing a request including the
  * netty Channel they are using, whether they are suspended, etc.
@@ -37,8 +39,12 @@ public class ClientBackendRequest {
     // the output channel for this client so we can write key/value pairs
     private SequenceWriter sequenceWriter = null;
 
-    // the time we received the request
-    private long received = System.currentTimeMillis();
+    private BackendClientChannelBufferWritable channelBufferWritable = null;
+
+    // the time we receivedTime the request
+    private long receivedTime = System.currentTimeMillis();
+
+    private List<BackendRequest> backendRequests = null;
 
     /**
      * Create a client with no channel.  Results are only available within
@@ -82,7 +88,7 @@ public class ClientBackendRequest {
      * or it might just have very little bandwidth.
      */
     public boolean isSuspended() {
-        return (channel.getInterestOps() & Channel.OP_WRITE) == Channel.OP_WRITE;
+        return channelBufferWritable.isSuspended();
     }
 
     public boolean isCancelled() {
@@ -93,7 +99,40 @@ public class ClientBackendRequest {
         this.cancelled = cancelled;
     }
 
-    public long getReceived() {
-        return received;
+    public long getReceivedTime() {
+        return receivedTime;
     }
+
+    public void setChannelBufferWritable(BackendClientChannelBufferWritable channelBufferWritable) {
+        this.channelBufferWritable = channelBufferWritable;
+    }
+
+    /**
+     * Return all backend backendRequests this client submitted.  For SCAN this is just
+     * going to be one request but for a GetBackendRequest this could be many.
+     */
+    public List<BackendRequest> getBackendRequests() {
+        return backendRequests;
+    }
+
+    public void setBackendRequests(List<BackendRequest> backendRequests) {
+        this.backendRequests = backendRequests;
+    }
+
+    /**
+     * Return true if all submitted backend backendRequests have finished.
+     */
+    public boolean isComplete() {
+
+        for( BackendRequest request : backendRequests) {
+
+            if ( request.isComplete() == false )
+                return false;
+
+        }
+
+        return true;
+
+    }
+
 }

@@ -24,11 +24,12 @@ import peregrine.config.Partition;
 import peregrine.io.SequenceWriter;
 import peregrine.io.chunk.DefaultChunkWriter;
 import peregrine.io.partition.LocalPartitionReader;
+import peregrine.util.Hex;
+import peregrine.worker.clientd.requests.BackendClientChannelBufferWritable;
 import peregrine.worker.clientd.requests.BackendRequest;
 import peregrine.worker.clientd.requests.ClientBackendRequest;
 import peregrine.io.sstable.RecordListener;
 import peregrine.io.util.Closer;
-import peregrine.util.netty.NonBlockingChannelBufferWritable;
 import peregrine.worker.clientd.requests.ScanBackendRequest;
 
 import java.io.IOException;
@@ -221,7 +222,7 @@ public class BackendRequestExecutor implements Runnable {
                 continue;
             }
 
-            if ( System.currentTimeMillis() - current.getClient().getReceived() > config.getNetWriteTimeout() ) {
+            if ( System.currentTimeMillis() - current.getClient().getReceivedTime() > config.getNetWriteTimeout() ) {
                 // don't re-enqueue this request because the client has lagged
                 // for far too long.  Technically there is no need to send the
                 // last HTTP chunk because they're lagged and they probably
@@ -268,8 +269,10 @@ public class BackendRequestExecutor implements Runnable {
 
                 for( ClientBackendRequest clientBackendRequest : clientIndex ) {
 
-                    NonBlockingChannelBufferWritable writable =
-                            new NonBlockingChannelBufferWritable( clientBackendRequest.getChannel() );
+                    log.info( "FIXME: channel impl: %s", clientBackendRequest.getChannel().getClass() );
+
+                    BackendClientChannelBufferWritable writable =
+                            new BackendClientChannelBufferWritable( clientBackendRequest.getChannel() );
 
                     // FIXME: we need to set a mode here for the DefaultChunkWriter to
                     // include a CRC32 in the minimal form so that the entire record is
@@ -278,6 +281,7 @@ public class BackendRequestExecutor implements Runnable {
                     // the request.
                     DefaultChunkWriter writer = new DefaultChunkWriter( config , writable );
 
+                    clientBackendRequest.setChannelBufferWritable( writable );
                     clientBackendRequest.setSequenceWriter( writer );
 
                 }
@@ -300,12 +304,16 @@ public class BackendRequestExecutor implements Runnable {
                             // the client will automatically come back from being
                             // suspended once the buffer is drained.
                             if ( clientBackendRequest.isSuspended() ) {
+                                //FIXME: we need a metric on how often this happens.
+                                log.info( "FIXME: client is suspended");
                                 return;
                             }
 
                             SequenceWriter writer = clientBackendRequest.getSequenceWriter();
 
                             writer.write( key, value );
+
+                            log.info( "FIXME: wrote key: %s", Hex.encode(key));
 
                             //FIXME: we DO need a write future here because if
                             // this write suspends the client then we need to
@@ -348,10 +356,19 @@ public class BackendRequestExecutor implements Runnable {
 
                     try {
 
+                        // we can only close clients who have completed all their
+                        // requests.  If we close a client BEFORE it completes
+                        // it's requests then they will receive a corrupt channel.
+                        if ( clientBackendRequest.isComplete() == false ) {
+                            continue;
+                        }
+
                         SequenceWriter writer = clientBackendRequest.getSequenceWriter();
 
                         writer.flush();
                         writer.close();
+
+                        log.info("FIXME: closed client");
 
                     } catch ( IOException e ) {
                         log.error( "Unable to handle client: ", e );

@@ -58,9 +58,15 @@ public class TestClientServerProtocol extends peregrine.BaseTestWithMultipleProc
 
         doSetup( range( 1, max ) );
 
-        doTestGetRequests( range( 1, max ), max );
-        doTestGetRequests( range( 100, 150 ), 0 );
+        //doTestGetRequests( range( 1, max ), max );
+        //doTestGetRequests( range( 100, 150 ), 0 );
+
         doTestScanRequests();
+//        doTestScanRequests();
+//        doTestScanRequests();
+//        doTestScanRequests();
+//        doTestScanRequests();
+//        doTestScanRequests();
 
     }
 
