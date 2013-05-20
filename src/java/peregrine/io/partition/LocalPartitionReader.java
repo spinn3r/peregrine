@@ -220,6 +220,13 @@ public class LocalPartitionReader extends BaseJobInput
         this.key = null;
         this.value = null;
 
+        // the list must be sorted before we service it so that we can
+        // access keys on the same block without going backwards and
+        // accessing the same block again.  A seek is involved with fetching
+        // a block as is optionally decompression and that's expensive.  By
+        // first sorting the set we avoid both expensive operations.
+        Collections.sort( requests );
+
         //FIXME: if we weren't able to find this key in this block it is not
         //going to be in the next block so mark them complete. (at least for GET
         //requests).

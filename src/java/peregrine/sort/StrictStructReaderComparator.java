@@ -25,7 +25,8 @@ import peregrine.io.chunk.*;
 import com.spinn3r.log5j.*;
 
 /**
- * 
+ * Comparator for StructReaders that maintains exactly byte order comparison
+ * but is slightly slower.
  */
 public class StrictStructReaderComparator implements Comparator<StructReader> {
 
@@ -35,6 +36,8 @@ public class StrictStructReaderComparator implements Comparator<StructReader> {
     public int compare( StructReader sr0, StructReader sr1 ) {
 
         int diff = 0;
+
+        //FIXME: make this support variable length input.
 
         //TODO: right now we assume that the both StructReaders are of equal
         //length.  We can use the min() of both lengths and then compare those
@@ -47,7 +50,7 @@ public class StrictStructReaderComparator implements Comparator<StructReader> {
         //getByte() for each byte?
         for( int offset = 0; offset < len; ++offset ) {
 
-            //TODO: this will be SLOW for raw key comparison (so don't use it
+            //TODO: this will be SLOW for normal key comparison (so don't use it
             //when we are in that mode).
 
             diff = (sr0.getByte( offset ) & 0xFF) - (sr1.getByte( offset ) & 0xFF);

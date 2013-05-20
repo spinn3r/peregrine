@@ -111,19 +111,6 @@ public abstract class BaseTest extends junit.framework.TestCase {
         
     }
 
-    // get a list of StructReader between the given range (inclusive)
-    protected List<StructReader> range( long start, long end ) {
-    
-        List<StructReader> result = new ArrayList();
-
-        for( long i = start; i <= end; ++i ) {
-            result.add( StructReaders.wrap( i ) );
-        }
-
-        return result;
-        
-    }
-
     /**
      * Method to allow ALL junit classes to be called from the command line
      * which allows for us having less main() methods cluttering up the test

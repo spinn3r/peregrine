@@ -104,7 +104,7 @@ public class TestSSTableSupport extends peregrine.BaseTestWithMultipleProcesses 
 
         List<BackendRequest> backendRequests = new ArrayList<BackendRequest>();
 
-        for( StructReader key : range( 0, max - 1 ) ) {
+        for( StructReader key : StructReaders.range( 0, max - 1 ) ) {
 
             backendRequests.add( new GetBackendRequest(clientBackendRequest, key ) );
 
@@ -202,60 +202,60 @@ public class TestSSTableSupport extends peregrine.BaseTestWithMultipleProcesses 
 
         scanRequest = new ScanRequest();
         scanRequest.setLimit( 10 );
-        doTestScan(scanRequest, 1000, range( 0, 9 ) );
+        doTestScan(scanRequest, 1000, StructReaders.range( 0, 9 ) );
 
         // ********* no start / end inclusive
         scanRequest = new ScanRequest();
         scanRequest.setEnd( StructReaders.wrap( 1L ), true );
         scanRequest.setLimit( 10 );
-        doTestScan(scanRequest, 1000, range( 0, 1 ) );
+        doTestScan(scanRequest, 1000, StructReaders.range( 0, 1 ) );
 
         // ********* no start / end exclusive
 
         scanRequest = new ScanRequest();
         scanRequest.setEnd( StructReaders.wrap( 1L ), false );
         scanRequest.setLimit( 10 );
-        doTestScan(scanRequest, 1000, range( 0, 0 ) );
+        doTestScan(scanRequest, 1000, StructReaders.range( 0, 0 ) );
 
         // ********* start inclusive / no end
         scanRequest = new ScanRequest();
         scanRequest.setStart( StructReaders.wrap( 0L ), true );
         scanRequest.setLimit( 10 );
-        doTestScan(scanRequest, 1000, range( 0, 9 ) );
+        doTestScan(scanRequest, 1000, StructReaders.range( 0, 9 ) );
 
         // ********* start inclusive / end inclusive.
         scanRequest = new ScanRequest();
         scanRequest.setStart( StructReaders.wrap( 1L ), true );
         scanRequest.setEnd( StructReaders.wrap( 2L ), true );
         scanRequest.setLimit( 10 );
-        doTestScan(scanRequest, 1000, range( 1, 2 ) );
+        doTestScan(scanRequest, 1000, StructReaders.range( 1, 2 ) );
 
         // ********* start inclusive / end exclusive
         scanRequest = new ScanRequest();
         scanRequest.setStart( StructReaders.wrap( 1L ), true );
         scanRequest.setEnd( StructReaders.wrap( 2L ), false );
         scanRequest.setLimit( 10 );
-        doTestScan(scanRequest, 1000, range( 1, 1 ) );
+        doTestScan(scanRequest, 1000, StructReaders.range( 1, 1 ) );
 
         // ********* start exclusive / no end
         scanRequest = new ScanRequest();
         scanRequest.setStart( StructReaders.wrap( 0L ), false );
         scanRequest.setLimit( 10 );
-        doTestScan(scanRequest, 1000, range( 1, 10 ) );
+        doTestScan(scanRequest, 1000, StructReaders.range( 1, 10 ) );
 
         // ********* start exclusive / end exclusive.
         scanRequest = new ScanRequest();
         scanRequest.setStart( StructReaders.wrap( 1L ), false );
         scanRequest.setEnd( StructReaders.wrap( 2L ), true );
         scanRequest.setLimit( 10 );
-        doTestScan(scanRequest, 1000, range( 2, 2 ) );
+        doTestScan(scanRequest, 1000, StructReaders.range( 2, 2 ) );
 
         // ********* start exclusive / end exclusive
         scanRequest = new ScanRequest();
         scanRequest.setStart( StructReaders.wrap( 1L ), false );
         scanRequest.setEnd( StructReaders.wrap( 3L ), false );
         scanRequest.setLimit( 10 );
-        doTestScan(scanRequest, 1000, range( 2, 2 ) );
+        doTestScan(scanRequest, 1000, StructReaders.range( 2, 2 ) );
 
     }
 

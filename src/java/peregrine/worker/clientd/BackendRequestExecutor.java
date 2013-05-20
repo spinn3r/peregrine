@@ -76,13 +76,6 @@ public class BackendRequestExecutor implements Runnable {
 
             queue.drainTo(requests);
 
-            // the list must be sorted before we service it so that we can
-            // access keys on the same block without going backwards and
-            // accessing the same block again.  A seek is involved with fetching
-            // a block as is optionally decompression and that's expensive.  By
-            // first sorting the set we avoid both expensive operations.
-            Collections.sort( requests );
-
             // FIXME: make SURE that when we are handling adjacent keys
             // correctly and that when two clients each fetch the same key that
             // we handle that use case.
@@ -105,7 +98,7 @@ public class BackendRequestExecutor implements Runnable {
 
             ClientBackendRequest clientBackendRequest = current.getClient();
 
-            // keep track of every client...
+            // keep track of every client
             clientIndex.add(clientBackendRequest);
 
             SourceIndex sourceIndex = partitionIndex.fetch(clientBackendRequest.getPartition());

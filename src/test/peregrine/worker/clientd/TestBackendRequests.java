@@ -46,7 +46,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class TestBackendRequests extends BaseTest {
 
     long max = 50;
-    List<StructReader> keys = range( 0, max-1 );
+    List<StructReader> keys = StructReaders.range( 0, max-1 );
     Partition partition = new Partition(0);
     Connection conn = new Connection( "http://localhost:11112" );
     String path = String.format( "/test/%s/test1.sstable", getClass().getName() );
@@ -87,7 +87,7 @@ public class TestBackendRequests extends BaseTest {
             requests.add( getBackendRequest );
         }
 
-        doExec( requests, range( 0, 49 ) );
+        doExec( requests, StructReaders.range( 0, 49 ) );
 
     }
 
@@ -99,7 +99,7 @@ public class TestBackendRequests extends BaseTest {
 
         System.out.printf( "Creating get requests: \n");
 
-        List<StructReader> keys = StructReaders.list( 1, 1, 1 );
+        List<StructReader> keys = StructReaders.list( 0, 0, 0 );
 
         for( StructReader key : keys ) {
 
@@ -139,7 +139,7 @@ public class TestBackendRequests extends BaseTest {
         scanRequest.setLimit( 10 );
 
         ScanBackendRequest scanBackendRequest =
-                doTestScanRequests(scanRequest, 1000, range(max-5, max-1));
+                doTestScanRequests(scanRequest, 1000, StructReaders.range(max-5, max-1));
 
         assertEquals( true, scanBackendRequest.isComplete() );
 
@@ -147,39 +147,39 @@ public class TestBackendRequests extends BaseTest {
         scanRequest = new ScanRequest();
         scanRequest.setStart( StructReaders.wrap( 0L ), false );
         scanRequest.setLimit( 10 );
-        doTestScanRequests(scanRequest, 1000, range( 1, 10 ) );
+        doTestScanRequests(scanRequest, 1000, StructReaders.range( 1, 10 ) );
 
         // ********* start inclusive / end inclusive.
         scanRequest = new ScanRequest();
         scanRequest.setStart( StructReaders.wrap( 1L ), true );
         scanRequest.setEnd( StructReaders.wrap( 2L ), true );
         scanRequest.setLimit( 10 );
-        doTestScanRequests(scanRequest, 1000, range( 1, 2 ) );
+        doTestScanRequests(scanRequest, 1000, StructReaders.range( 1, 2 ) );
 
 
         // ********* no start / end inclusive
         scanRequest = new ScanRequest();
         scanRequest.setEnd( StructReaders.wrap( 1L ), true );
         scanRequest.setLimit( 10 );
-        doTestScanRequests(scanRequest, 1000, range( 0, 1 ) );
+        doTestScanRequests(scanRequest, 1000, StructReaders.range( 0, 1 ) );
 
         // ********* no start / no end.
         scanRequest = new ScanRequest();
         scanRequest.setLimit( 10 );
-        doTestScanRequests(scanRequest, 1000, range( 0, 9 ) );
+        doTestScanRequests(scanRequest, 1000, StructReaders.range( 0, 9 ) );
 
         // ********* no start / end exclusive
 
         scanRequest = new ScanRequest();
         scanRequest.setEnd( StructReaders.wrap( 1L ), false );
         scanRequest.setLimit( 10 );
-        doTestScanRequests(scanRequest, 1000, range(0, 0));
+        doTestScanRequests(scanRequest, 1000, StructReaders.range(0, 0));
 
         // ********* start inclusive / no end
         scanRequest = new ScanRequest();
         scanRequest.setStart( StructReaders.wrap( 0L ), true );
         scanRequest.setLimit( 10 );
-        doTestScanRequests(scanRequest, 1000, range(0, 9));
+        doTestScanRequests(scanRequest, 1000, StructReaders.range(0, 9));
 
 
         // ********* start inclusive / end exclusive
@@ -187,21 +187,21 @@ public class TestBackendRequests extends BaseTest {
         scanRequest.setStart( StructReaders.wrap( 1L ), true );
         scanRequest.setEnd( StructReaders.wrap( 2L ), false );
         scanRequest.setLimit( 10 );
-        doTestScanRequests(scanRequest, 1000, range(1, 1));
+        doTestScanRequests(scanRequest, 1000, StructReaders.range(1, 1));
 
         // ********* start exclusive / end exclusive.
         scanRequest = new ScanRequest();
         scanRequest.setStart( StructReaders.wrap( 1L ), false );
         scanRequest.setEnd( StructReaders.wrap( 2L ), true );
         scanRequest.setLimit( 10 );
-        doTestScanRequests(scanRequest, 1000, range(2, 2));
+        doTestScanRequests(scanRequest, 1000, StructReaders.range(2, 2));
 
         // ********* start exclusive / end exclusive
         scanRequest = new ScanRequest();
         scanRequest.setStart( StructReaders.wrap( 1L ), false );
         scanRequest.setEnd( StructReaders.wrap( 3L ), false );
         scanRequest.setLimit( 10 );
-        doTestScanRequests(scanRequest, 1000, range(2, 2));
+        doTestScanRequests(scanRequest, 1000, StructReaders.range(2, 2));
 
         //test towards the end of the stream and make sure the ScanBackendRequest
         //is marked complete

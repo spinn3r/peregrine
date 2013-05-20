@@ -41,7 +41,7 @@ public class DefaultChunkReader extends BaseSSTableChunk
     // magic numbers for chunk reader files.
     private static Charset ASCII = Charset.forName( "ASCII" );
 
-    public static byte[] MAGIC_PREFIX   = "PC0".getBytes( ASCII );
+    public static byte[] MAGIC_PREFIX   = "PC0".getBytes(ASCII);
     public static byte[] MAGIC_RAW      = "RAW".getBytes( ASCII );
     public static byte[] MAGIC_CRC32    = "C32".getBytes( ASCII );
 
@@ -115,7 +115,7 @@ public class DefaultChunkReader extends BaseSSTableChunk
         
         ChannelBuffer buff = mappedFile.map();
       
-        init( buff, mappedFile.getStreamReader() );
+        init(buff, mappedFile.getStreamReader());
 
     }
 
@@ -293,12 +293,10 @@ public class DefaultChunkReader extends BaseSSTableChunk
 
         int seek_idx = 0;
 
-        // the request+key we should be looking for...
-        BackendRequest find = requests.remove( 0 );
+        SeekToContext context = new SeekToContext( listener, requests );
 
-        // keep a list of keys that haven't yet finished serving all records.
-        // these are going to be SCAN requests in practice.
-        List<BackendRequest> incompleteScanRequests = new ArrayList<BackendRequest>();
+        // the request+key we should be looking for...
+        context.find = requests.remove( 0 );
 
         while( seek_idx < block.count ) {
 
@@ -319,16 +317,63 @@ public class DefaultChunkReader extends BaseSSTableChunk
             //them.  This is probably the right strategy moving forward since its
             //easy to implement and probably won't yield any bugs.
 
+            //FIXME: the solution for cleaner code is to GROUP BY when I do a
+            // sort and then return a List<List<BackendRequest>> where each
+            // represents the SAME key... the problem here though is that the
+            // accept method would compare the key twice which is a waste so I
+            // will need to work around that problem.
+
+            context.handleScanRequests( key(), value() );
+
+            context.handleCurrent( key(), value() );
+
+            // terminate early if possible.
+            if ( context.isFinished() )
+                break;
+
+        }
+
+        // return any incomplete scan requests.  It does not make sense to return
+        // any get/fetch requests because they won't be continued in the next
+        // block
+        return context.incompleteScanRequests;
+
+    }
+
+    // move some of the seek context information into a class to keep code and
+    // methods tight.
+    class SeekToContext {
+
+        private RecordListener listener;
+
+        private List<BackendRequest> requests;
+
+        SeekToContext(RecordListener listener, List<BackendRequest> requests) {
+            this.listener = listener;
+            this.requests = requests;
+        }
+
+        protected BackendRequest find = null;
+
+        // keep a list of keys that haven't yet finished serving all records.
+        // these are going to be SCAN requests in practice.
+        List<BackendRequest> incompleteScanRequests = new ArrayList<BackendRequest>();
+
+        // once we've found scan requests we have to listen to them until they
+        // are complete
+        protected void handleScanRequests( StructReader key,
+                                           StructReader value ) {
+
             Iterator<BackendRequest> scanIterator = incompleteScanRequests.iterator();
 
             while( scanIterator.hasNext() ) {
 
                 BackendRequest current = scanIterator.next();
 
-                current.visit( key(), value() );
+                current.visit( key, value );
 
                 if ( current.isFound() ) {
-                    listener.onRecord( current, key(), value() );
+                    listener.onRecord( current, key, value );
                 }
 
                 if ( current.isComplete() ) {
@@ -337,21 +382,39 @@ public class DefaultChunkReader extends BaseSSTableChunk
 
             }
 
-            while ( find != null ) {
+        }
 
-                find.visit( key(), value() );
+        protected void handleCurrent( StructReader key, StructReader value ) {
 
-                if ( find.isFound() ) {
+            // find can be null during remaining scan requests.
+            if ( find != null ) {
 
-                    listener.onRecord( find, key(), value() );
+                while( true ) {
 
-                    if ( find.isComplete() == false ) {
-                        // this is a scan request and we're not done yet.
-                        incompleteScanRequests.add(find);
+                    find.visit( key, value );
+
+                    if ( find.isFound() ) {
+
+                        listener.onRecord( find, key, value );
+
+                        if ( find.isComplete() == false ) {
+                            // this is a scan request and we're not done yet.
+                            incompleteScanRequests.add(find);
+                        }
+
                     }
+
+                    if ( find.hasSibling() && requests.size() > 0 ) {
+                        find = requests.remove( 0 );
+                        continue;
+                    }
+
+                    break;
 
                 }
 
+                // either the key matched or we've gone PAST the key we are
+                // searching for and we don't need to keep searching for this key.
                 if ( find.isFound() || find.isComplete() ) {
 
                     if ( requests.size() > 0 ) {
@@ -359,22 +422,22 @@ public class DefaultChunkReader extends BaseSSTableChunk
                     } else {
                         // we've handled all the keys in this request so we can quit now.
                         find = null;
-                        break;
+                        return;
                     }
 
                 }
 
             }
 
-            if ( find == null && incompleteScanRequests.size() == 0 )
-                break;
-
         }
 
-        // return any incomplete scan requests.  It does not make sense to return
-        // any get/fetch requests because they won't be continued in the next
-        // block
-        return incompleteScanRequests;
+        protected boolean isFinished() {
+
+            // we are complete if there aren't any pending scan requests AND
+            // there are no more requests to execute.
+            return find == null && incompleteScanRequests.size() == 0;
+
+        }
 
     }
 
