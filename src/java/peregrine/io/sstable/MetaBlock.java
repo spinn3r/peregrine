@@ -32,7 +32,7 @@ public class MetaBlock extends BaseBlock {
     // FIXME: we need a set of key/value pairs for metadata here and also we
     // need to write them out.
 
-    // used to keey track of key value pairs for this block
+    // used to keep track of key value pairs for this block
     private List<Record> records = new ArrayList();
     
      private void addRecord( StructReader key, StructReader value ) {

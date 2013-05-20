@@ -274,6 +274,8 @@ public class DefaultChunkReader extends BaseSSTableChunk
 
             context.handleCurrent( key(), value() );
 
+            //FIXME: it's terminating early... WHY?
+
             // terminate early if possible.
             if ( context.isFinished() )
                 break;

@@ -81,7 +81,7 @@ public class TestSSTableSupport extends peregrine.BaseTestWithMultipleProcesses 
 
         ClientBackendRequest clientBackendRequest = new ClientBackendRequest( part, path );
 
-        for( long i = 0; i < max; ++i ) {
+        for( long i = 1; i < max; ++i ) {
 
             GetBackendRequest getBackendRequest = new GetBackendRequest(clientBackendRequest, StructReaders.wrap( i ) );
             Record record = reader.seekTo( getBackendRequest );

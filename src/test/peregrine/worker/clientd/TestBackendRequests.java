@@ -90,7 +90,6 @@ public class TestBackendRequests extends BaseTest {
         doExec( requests, expected );
 
         for( BackendRequest request : requests ) {
-            System.out.printf( "FIXME: this oneis complete." );
             assertTrue( request.isComplete() );
         }
 
