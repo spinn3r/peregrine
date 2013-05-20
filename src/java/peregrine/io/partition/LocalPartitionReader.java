@@ -258,8 +258,10 @@ public class LocalPartitionReader extends BaseJobInput
             DataBlockReference ref = findDataBlockReference( key );
 
             // this key isn't indexed so no need to check.
-            if ( ref == null )
+            if ( ref == null ) {
+                request.setComplete(true);
                 continue;
+            }
 
             List<BackendRequest> requestsForReference = dataBlockLookup.get( ref );
 
@@ -288,9 +290,13 @@ public class LocalPartitionReader extends BaseJobInput
             //FIXME: should this return any entries that are incomplete (and for
             // further processing).  This is going to be needed for scan requests
             // that use more than one block.
+
+            //FIXME: this isn't incomplete... this is PARTIAL scan requests...
             List<BackendRequest> incomplete =
                     ref.reader.seekTo( refKeys, ref.dataBlock, lastRecordListener );
 
+            // this is the LAST block in the entire index and by definition there
+            // is nothing left to index.
             if ( ref.idx == dataBlockLookup.size() - 1 ) {
 
                 for( BackendRequest request : incomplete ) {

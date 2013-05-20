@@ -303,11 +303,6 @@ public class DefaultChunkReader extends BaseSSTableChunk
             next();
             ++seek_idx;
 
-            //FIXME: seekKey can probably go away now that we have visit I think?
-
-            //FIXME: keep looping through the requests because two clients might
-            //have requested the same keys.
-
             //FIXME: we need a metric for the number of keys we have read and
             //the number of keys we matched.
 
@@ -316,12 +311,6 @@ public class DefaultChunkReader extends BaseSSTableChunk
             //ALL the code that uses BackendRequests can just transparently skip
             //them.  This is probably the right strategy moving forward since its
             //easy to implement and probably won't yield any bugs.
-
-            //FIXME: the solution for cleaner code is to GROUP BY when I do a
-            // sort and then return a List<List<BackendRequest>> where each
-            // represents the SAME key... the problem here though is that the
-            // accept method would compare the key twice which is a waste so I
-            // will need to work around that problem.
 
             context.handleScanRequests( key(), value() );
 
@@ -333,10 +322,21 @@ public class DefaultChunkReader extends BaseSSTableChunk
 
         }
 
+        // at this point any remaining requests are NOT matched.  If it's a scan
+        // request it has an implicit start key (seek key) that wasn't matched
+        // and if it's a get request for a specific key then that key wasn't found
+        // in the routed data block.
+        for( BackendRequest request : requests ) {
+            request.setComplete(true);
+        }
+
+        if ( context.find != null )
+            context.find.setComplete( true );
+
         // return any incomplete scan requests.  It does not make sense to return
         // any get/fetch requests because they won't be continued in the next
         // block
-        return context.incompleteScanRequests;
+        return context.partialScanRequests;
 
     }
 
@@ -357,14 +357,14 @@ public class DefaultChunkReader extends BaseSSTableChunk
 
         // keep a list of keys that haven't yet finished serving all records.
         // these are going to be SCAN requests in practice.
-        List<BackendRequest> incompleteScanRequests = new ArrayList<BackendRequest>();
+        List<BackendRequest> partialScanRequests = new ArrayList<BackendRequest>();
 
         // once we've found scan requests we have to listen to them until they
         // are complete
         protected void handleScanRequests( StructReader key,
                                            StructReader value ) {
 
-            Iterator<BackendRequest> scanIterator = incompleteScanRequests.iterator();
+            Iterator<BackendRequest> scanIterator = partialScanRequests.iterator();
 
             while( scanIterator.hasNext() ) {
 
@@ -399,7 +399,7 @@ public class DefaultChunkReader extends BaseSSTableChunk
 
                         if ( find.isComplete() == false ) {
                             // this is a scan request and we're not done yet.
-                            incompleteScanRequests.add(find);
+                            partialScanRequests.add(find);
                         }
 
                     }
@@ -435,7 +435,7 @@ public class DefaultChunkReader extends BaseSSTableChunk
 
             // we are complete if there aren't any pending scan requests AND
             // there are no more requests to execute.
-            return find == null && incompleteScanRequests.size() == 0;
+            return find == null && partialScanRequests.size() == 0;
 
         }
 

@@ -40,7 +40,8 @@ public class DefaultPartitionWriter implements PartitionWriter, ChunkWriter {
     // FIXME: we should enable the local delegate again because bigtable writes
     // would benefit from not going over the local HTTP interface when writing
     // to disk.  Also, was the RemotePartitionWriterDelegate being used when
-    // writing output files?
+    // writing output files?  We need this from tests too.  I need to rework the
+    // constructor for this because I don't want to expose this as a global.
     public static boolean ENABLE_LOCAL_DELEGATE = false;
 
     protected String path;

@@ -194,9 +194,6 @@ public class DefaultChunkWriter extends BaseSSTableChunk implements ChunkWriter 
 
     }
 
-    // FIXME: I hate all these method names ... startDataBlock, etc... rewrite
-    // it all. 
-    
     // create a new data block and add it to the data block list and return the
     // newly created block.
     private void startDataBlock( StructReader key ) {

@@ -71,7 +71,7 @@ public class TestBackendRequests extends BaseTest {
         System.out.printf( "Wrote %,d keys to %s", keys.size(), path );
 
     }
-    private void doTestGetRequests( List<StructReader> keys, long nrExpectedRecords ) throws IOException {
+    private void doTestGetRequests( List<StructReader> keys, List<StructReader> expected ) throws IOException {
 
         List<BackendRequest> requests = new ArrayList<BackendRequest>();
 
@@ -87,7 +87,12 @@ public class TestBackendRequests extends BaseTest {
             requests.add( getBackendRequest );
         }
 
-        doExec( requests, StructReaders.range( 0, 49 ) );
+        doExec( requests, expected );
+
+        for( BackendRequest request : requests ) {
+            System.out.printf( "FIXME: this oneis complete." );
+            assertTrue( request.isComplete() );
+        }
 
     }
 
@@ -273,13 +278,19 @@ public class TestBackendRequests extends BaseTest {
         // - Add support for metrics so that we can detect when we're comparing
         //   too many keys.
 
+        //
+        // - test scans over lots of blocks.
+
         config = ConfigParser.parse();
 
         doSetup( keys );
 
         doTestDuplicateGetRequests();
 
-        doTestGetRequests( keys, max );
+        doTestGetRequests( keys, keys );
+
+        doTestGetRequests( StructReaders.range( 1000, 2000 ), StructReaders.list() );
+
         doTestScanRequests();
 
 
