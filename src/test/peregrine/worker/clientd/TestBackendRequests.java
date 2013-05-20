@@ -281,6 +281,10 @@ public class TestBackendRequests extends BaseTest {
         //
         // - test scans over lots of blocks.
 
+        //FIXME: what happens if we hit the end of the table but there
+        //are less than 'limit' keys that match a scan.
+
+
         config = ConfigParser.parse();
 
         doSetup( keys );

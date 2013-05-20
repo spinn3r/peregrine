@@ -227,10 +227,6 @@ public class LocalPartitionReader extends BaseJobInput
         // first sorting the set we avoid both expensive operations.
         Collections.sort( requests );
 
-        //FIXME: if we weren't able to find this key in this block it is not
-        //going to be in the next block so mark them complete. (at least for GET
-        //requests).
-
         Map<DataBlockReference,List<BackendRequest>> dataBlockLookup = new TreeMap();
 
         LastRecordListener lastRecordListener = new LastRecordListener( listener );

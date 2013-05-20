@@ -141,6 +141,8 @@ public class BaseConfig {
 
     protected long sstableBlockSize = -1;
 
+    protected int backendRequestQueueSize = -1;
+
     public void init( StructMap struct ) {
 
         this.struct = struct;
@@ -181,6 +183,7 @@ public class BaseConfig {
         setNetWriteTimeout( struct.getInt( "netWriteTimeout" ) );
         setNetConnectTimeout( struct.getInt( "netConnectTimeout" ) );
         setSSTableBlockSize( struct.getSize( "sstableBlockSize" ) );
+        setBackendRequestQueueSize( struct.getInt( "backendRequestQueueSize" ) );
 
         if ( struct.containsKey( "host" ) )
             setHost( Host.parse( struct.getString( "host" ) ) );
@@ -500,6 +503,14 @@ public class BaseConfig {
 
     public void setSSTableBlockSize( long sstableBlockSize ) { 
         this.sstableBlockSize = sstableBlockSize;
+    }
+
+    public int getBackendRequestQueueSize() {
+        return backendRequestQueueSize;
+    }
+
+    public void setBackendRequestQueueSize(int backendRequestQueueSize) {
+        this.backendRequestQueueSize = backendRequestQueueSize;
     }
 
     static {

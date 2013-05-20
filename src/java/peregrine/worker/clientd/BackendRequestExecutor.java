@@ -29,7 +29,6 @@ import peregrine.worker.clientd.requests.ClientBackendRequest;
 import peregrine.io.sstable.RecordListener;
 import peregrine.io.util.Closer;
 import peregrine.util.netty.NonBlockingChannelBufferWritable;
-import peregrine.worker.clientd.requests.ScanBackendRequest;
 
 import java.io.IOException;
 import java.util.*;
@@ -52,9 +51,6 @@ public class BackendRequestExecutor implements Runnable {
     // all known clients.
     private Set<ClientBackendRequest> clientIndex = null;
 
-    // all executing scan requests.
-    private List<ScanBackendRequest> scanBackendRequests = null;
-
     public BackendRequestExecutor(Config config, BackendRequestQueue queue) {
         this.config = config;
         this.queue = queue;
@@ -72,13 +68,10 @@ public class BackendRequestExecutor implements Runnable {
             // GET or SCAN requests that we can elide them so that blocks only need
             // to be decompressed for ALL inbound requests.
 
-            List<BackendRequest> requests = new ArrayList( BackendRequestQueue.LIMIT );
+            List<BackendRequest> requests =
+                    new ArrayList<BackendRequest>( config.getBackendRequestQueueSize() );
 
             queue.drainTo(requests);
-
-            // FIXME: make SURE that when we are handling adjacent keys
-            // correctly and that when two clients each fetch the same key that
-            // we handle that use case.
 
             handle(requests);
 
@@ -157,16 +150,7 @@ public class BackendRequestExecutor implements Runnable {
 
     public void handle( List<BackendRequest> requests ) {
 
-        //FIXME: don't let clients fetch teh same key multiple times.  this is
-        //silly but where should this go?  The client?  The server?
-
-        // FIXME: what happens if we have two entries for the same key... we
-        // should de-dup them but we have to be careful because two clients
-        // could request the SAME key and we need to be careful and return it
-        // correctly.  I could write a unit test for this but they would need to
-        // come from different requests of course.
-
-        // FIXME:if a key/value are BIGGER than the send buffer then we are
+        // FIXME: if a key/value are BIGGER than the send buffer then we are
         // fucked and I think we will block?  What happens there? I need to
         // review the NIO netty code to see what it would do but I think it
         // goes into a queue.
@@ -275,11 +259,8 @@ public class BackendRequestExecutor implements Runnable {
 
                 }
 
-                //FIXME: what happens if we hit the end of the table but there
-                //are less than 'limit' keys that match a scan.
-
-                //FIXME: how do we RESUME a scan... we would have to update
-                //the seekKey...
+                //FIXME: how do we RESUME a scan if it is suspended... we would have to update
+                //the seekKey I believe.
 
                 reader.seekTo( requests, new RecordListener() {
 
@@ -299,18 +280,6 @@ public class BackendRequestExecutor implements Runnable {
                             SequenceWriter writer = clientBackendRequest.getSequenceWriter();
 
                             writer.write( key, value );
-
-                            //FIXME: we DO need a write future here because if
-                            // this write suspends the client then we need to
-                            // resume it once it comes back and the buffer is
-                            // drained.  I think I could do this by setting
-                            // suspended=false from this completion and then
-                            // when I re-examine the resulting incomplete items
-                            // at the end of the executor then either I can add
-                            // them directly there or have the write listener do
-                            // it. This should probably be called ResumeListener
-                            // and a dedicated class.
-
 
                             // flush after every key write.  This allows us to serve
                             // requests with lower latency.  These go into the TCP

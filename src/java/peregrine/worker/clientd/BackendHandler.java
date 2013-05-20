@@ -86,12 +86,6 @@ public class BackendHandler extends ErrorLoggingChannelUpstreamHandler {
 
         BackendRequestFactory backendRequestFactory = null;
 
-        //FIXME: we should put the getBackendRequest method behind an interface
-        // and have an object returned which implements that interface. This
-        // would cleanup the following lines because we don't have to have this
-        // GET switch.  I could also use this to get the size I think and remove
-        // the ugly size() code that I hate.
-
         // TODO: migrate this to JDK 1.7 string switch.
         if ( "GET".equals( clientRequest.getRequestType() ) ) {
 
