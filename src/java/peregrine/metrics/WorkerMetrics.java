@@ -16,6 +16,7 @@
 
 package peregrine.metrics;
 
+import peregrine.metrics.impl.CounterMetric;
 import peregrine.metrics.impl.GaugeMetric;
 import peregrine.metrics.impl.Metric;
 
@@ -25,5 +26,6 @@ import peregrine.metrics.impl.Metric;
 public class WorkerMetrics {
 
     private Metric nrRegions = new GaugeMetric( "worker.nrRegions" );
+
 
 }
