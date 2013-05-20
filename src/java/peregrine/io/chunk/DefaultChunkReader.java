@@ -24,6 +24,7 @@ import peregrine.*;
 import peregrine.config.*;
 import peregrine.io.*;
 import peregrine.io.sstable.*;
+import peregrine.metrics.RegionMetrics;
 import peregrine.os.*;
 import peregrine.util.*;
 import peregrine.util.netty.*;
@@ -82,8 +83,10 @@ public class DefaultChunkReader extends BaseSSTableChunk
     // true when we are in minimal and non-indexed mode.
     protected boolean minimal = false;
 
+    private RegionMetrics regionMetrics = new RegionMetrics();
+
     public DefaultChunkReader( ChannelBuffer buff ) {
-        this( buff, true );
+        this(buff, true);
     }
 
     /**
@@ -249,6 +252,8 @@ public class DefaultChunkReader extends BaseSSTableChunk
         // position us at the beginning of the block.
         buffer.readerIndex( (int)block.offset );        
 
+        regionMetrics.blocksRead.incr();
+
         int seek_idx = 0;
 
         SeekToContext context = new SeekToContext( listener, requests );
@@ -273,8 +278,6 @@ public class DefaultChunkReader extends BaseSSTableChunk
             context.handleScanRequests( key(), value() );
 
             context.handleCurrent( key(), value() );
-
-            //FIXME: it's terminating early... WHY?
 
             // terminate early if possible.
             if ( context.isFinished() )
@@ -445,6 +448,14 @@ public class DefaultChunkReader extends BaseSSTableChunk
     @Override 
     public int count() throws IOException {
         return count;
+    }
+
+    public RegionMetrics getRegionMetrics() {
+        return regionMetrics;
+    }
+
+    public void setRegionMetrics(RegionMetrics regionMetrics) {
+        this.regionMetrics = regionMetrics;
     }
 
     @Override

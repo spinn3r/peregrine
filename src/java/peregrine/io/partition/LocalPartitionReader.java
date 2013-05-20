@@ -25,6 +25,7 @@ import peregrine.io.*;
 import peregrine.io.chunk.*;
 import peregrine.io.util.*;
 import peregrine.io.sstable.*;
+import peregrine.metrics.RegionMetrics;
 import peregrine.rpc.*;
 import peregrine.sort.*;
 import peregrine.worker.clientd.requests.BackendRequest;
@@ -41,7 +42,7 @@ public class LocalPartitionReader extends BaseJobInput
     private String path = null;
 
     // ALL chunks we have for this reader.
-    private List<DefaultChunkReader> chunkReaders = new ArrayList();
+    private List<DefaultChunkReader> chunkReaders = new ArrayList<DefaultChunkReader>();
 
     // iterator to handle 
     private Iterator<DefaultChunkReader> iterator = null;
@@ -73,6 +74,14 @@ public class LocalPartitionReader extends BaseJobInput
     // the first key in the stream of keys.  Used for scan operation when a
     // scan isn't given a start key.
     private StructReader firstKey = null;
+
+    // by default we just accumulate region metrics in one main metric system.
+    // in practice what we want to do is create this externally and pass it in.
+    // Providing a default allows us to use the null object pattern and simply
+    // call the methods against the metrics even though we don't care about the
+    // results since they don't mean much globally. The per-reader version
+    // does make it easy to work with in testing though.
+    private RegionMetrics regionMetrics = new RegionMetrics();
 
     public LocalPartitionReader( Config config,
                                  Partition partition,
@@ -109,8 +118,9 @@ public class LocalPartitionReader extends BaseJobInput
 
         // update the count by looking at all the chunks and returning the number
         // of key/value pairs they contain.
-        for( ChunkReader reader : chunkReaders ) {
+        for( DefaultChunkReader reader : chunkReaders ) {
             count += reader.count();
+            reader.setRegionMetrics(regionMetrics);
         }
 
         dataBlockLookup = buildDataBlockIndex();
@@ -382,6 +392,14 @@ public class LocalPartitionReader extends BaseJobInput
 
         new Closer( chunkReaders ).close();
         
+    }
+
+    public RegionMetrics getRegionMetrics() {
+        return regionMetrics;
+    }
+
+    public void setRegionMetrics(RegionMetrics regionMetrics) {
+        this.regionMetrics = regionMetrics;
     }
 
     @Override

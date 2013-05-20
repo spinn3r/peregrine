@@ -239,6 +239,8 @@ public class TestBackendRequests extends BaseTest {
 
         assertResults( records, expectedKeys );
 
+        System.out.printf( "Read %,d blocks.\n", reader.getRegionMetrics().blocksRead.get() );
+
     }
 
     private void assertResults( List<Record> records, List<StructReader> expectedKeys ) {
@@ -262,10 +264,6 @@ public class TestBackendRequests extends BaseTest {
 
         // TODO:
         //
-        // - test requesting two of the same key and getting back the same key.
-        //
-        // - test GetBackendRequest keys that don't exists
-        //
         // - test with an empty index.
         //
         // - test mixing scan and get requests.
@@ -279,10 +277,6 @@ public class TestBackendRequests extends BaseTest {
 
         //
         // - test scans over lots of blocks.
-
-        //FIXME: what happens if we hit the end of the table but there
-        //are less than 'limit' keys that match a scan.
-
 
         config = ConfigParser.parse();
 

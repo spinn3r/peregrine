@@ -25,12 +25,16 @@ import peregrine.metrics.impl.Metric;
 public class RegionMetrics {
 
     // clients that have been suspended and not keeping up with content.
-    private Metric suspendedClients = new CounterMetric( "worker.suspendedClients" );
+    public CounterMetric suspendedClients = new CounterMetric( "worker.suspendedClients" );
 
-    private Metric getRequests = new CounterMetric( "region.getRequests" );
+    public CounterMetric getRequests = new CounterMetric( "region.getRequests" );
 
-    private Metric scanRequests = new CounterMetric( "region.scanRequests" );
+    public CounterMetric scanRequests = new CounterMetric( "region.scanRequests" );
 
-    private Metric blocksRead = new CounterMetric( "region.blocksRead" );
+    // the number of blocks read from disk.  Technically we don't read the
+    // whole block off disk as we quit once we've read all keys.
+    public CounterMetric blocksRead = new CounterMetric( "region.blocksRead" );
+
+    public CounterMetric blocksWritten = new CounterMetric( "region.blocksWritten" );
 
 }

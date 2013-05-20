@@ -25,8 +25,12 @@ public class CounterMetric extends Metric {
         super(name);
     }
 
-    private void incr( int delta ) {
+    public void incr( int delta ) {
         value += delta;
+    }
+
+    public void incr() {
+        ++value;
     }
 
 }
