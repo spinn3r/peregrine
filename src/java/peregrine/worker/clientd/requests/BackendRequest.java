@@ -113,7 +113,9 @@ public abstract class BackendRequest implements Comparable<BackendRequest>, Requ
 
         int diff = comparator.compare(getSeekKey(), backendRequest.getSeekKey() );
 
-        // if there is no difference these guys are siblings.
+        // if there is no difference these guys are siblings.  Also, I don't like
+        // this technique purely from a code quality perspective because it relies
+        // on side-effect to mutate the object but the performance is better.
         if ( diff == 0 ) {
             hasSibling=true;
             backendRequest.hasSibling=true;

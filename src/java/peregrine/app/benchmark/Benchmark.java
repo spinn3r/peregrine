@@ -99,10 +99,5 @@ public class Benchmark {
 
     }
 
-    private Config config;
-    
-    public Benchmark( Config config ) {
-        this.config = config;
-    }
 
 }

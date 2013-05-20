@@ -49,14 +49,10 @@ public class DefaultChunkReader extends BaseSSTableChunk
 
     private StreamReader reader = null;
 
-    /**
-     * Length in bytes of the input.
-     */
+    // Length in bytes of the input.
     private long length = -1;
 
-    /**
-     * The current item we are reading from.
-     */
+    // The current item we are reading from.
     private int idx = 0;
 
     private MappedFileReader mappedFile;
@@ -87,7 +83,7 @@ public class DefaultChunkReader extends BaseSSTableChunk
     protected boolean minimal = false;
 
     public DefaultChunkReader( ChannelBuffer buff ) {
-        init( buff );
+        this( buff, true );
     }
 
     /**
@@ -96,7 +92,7 @@ public class DefaultChunkReader extends BaseSSTableChunk
      * not incredibly so...
      */
     public DefaultChunkReader( ChannelBuffer buff, boolean readTrailer ) {
-        this.readTrailer = false;
+        this.readTrailer = readTrailer;
         init( buff );
     }
 
@@ -117,44 +113,6 @@ public class DefaultChunkReader extends BaseSSTableChunk
       
         init(buff, mappedFile.getStreamReader());
 
-    }
-
-    // used internally for duplicate()
-    protected DefaultChunkReader() {}
-
-    // used internally for duplicate()
-    protected DefaultChunkReader( DefaultChunkReader template ) {
-
-        this.file = template.file;
-        this.length = template.length;
-        this.idx = template.idx;
-        this.mappedFile = template.mappedFile;
-        this.closed = template.closed;
-        this.keyOffset = template.keyOffset;
-        this.count = template.count;
-        this.readTrailer = template.readTrailer;
-        this.fileInfo = template.fileInfo;
-        this.trailer = template.trailer;
-        this.dataBlocks = template.dataBlocks;
-        this.metaBlocks = template.metaBlocks;
-
-        // we must call duplicate on the underlying buffer so that the reader
-        // and writer indexes aren't mutated globally across requests.
-
-        ChannelBuffer buff = template.buffer.duplicate();
-        
-        this.reader = new StreamReader( buff );
-        this.buffer = buff;
-        
-    }
-
-    /**
-     * Create a new instance with the same internal members.  This way we can
-     * keep a cached index of open readers but concurrently search over them for
-     * each new request without having them step on each other.
-     */
-    public DefaultChunkReader duplicate() {
-        return new DefaultChunkReader( this );
     }
 
     private void init( ChannelBuffer buff ) {
