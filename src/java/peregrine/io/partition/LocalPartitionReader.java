@@ -134,7 +134,10 @@ public class LocalPartitionReader extends BaseJobInput
         // build the index of the ChunkReaders.
 
         byte[] lastKey = null;
-        
+
+
+        DataBlockReference last = null;
+
         for ( int idx = 0; idx < chunkReaders.size(); ++idx ) {
 
             DefaultChunkReader current = chunkReaders.get( idx );
@@ -150,6 +153,14 @@ public class LocalPartitionReader extends BaseJobInput
                 ref.dataBlock = db;
 
                 result.put( StructReaders.wrap( db.firstKey ), ref );
+
+                // update the linked list structure
+                if ( last != null ) {
+                    last.next = ref;
+                }
+
+                last = ref;
+
             }
 
             if ( current.getTrailer().getCount() > 0 ) {
@@ -158,6 +169,8 @@ public class LocalPartitionReader extends BaseJobInput
             
         }
 
+        // this is a fake entry for the last key so that keys that are clearly
+        // past the index don't even show up in searches.
         if ( lastKey != null ) {
         
             BigInteger ptr = new BigInteger( lastKey );
@@ -178,7 +191,7 @@ public class LocalPartitionReader extends BaseJobInput
             result.put( new StructReader( pd ), null );
 
         }
-            
+
         return result;
                     
     }
@@ -237,7 +250,8 @@ public class LocalPartitionReader extends BaseJobInput
         // first sorting the set we avoid both expensive operations.
         Collections.sort( requests );
 
-        Map<DataBlockReference,List<BackendRequest>> dataBlockLookup = new TreeMap();
+        Map<DataBlockReference,List<BackendRequest>> dataBlockLookup =
+                new TreeMap<DataBlockReference, List<BackendRequest>>();
 
         LastRecordListener lastRecordListener = new LastRecordListener( listener );
         
@@ -280,7 +294,13 @@ public class LocalPartitionReader extends BaseJobInput
             
         }
 
-        for( DataBlockReference ref : dataBlockLookup.keySet() ) {
+        // keep the references we need to page through.
+        List<DataBlockReference> dataBlockReferences = new ArrayList<DataBlockReference>();
+        dataBlockReferences.addAll( dataBlockLookup.keySet() );
+
+        while( dataBlockReferences.size() > 0 ) {
+
+            DataBlockReference ref = dataBlockReferences.remove(0);
 
             chunkReader = ref.reader;
 
@@ -293,19 +313,33 @@ public class LocalPartitionReader extends BaseJobInput
 
             List<BackendRequest> refKeys = dataBlockLookup.get( ref );
 
-            //FIXME: should this return any entries that are incomplete (and for
-            // further processing).  This is going to be needed for scan requests
-            // that use more than one block.
-
-            //FIXME: this isn't incomplete... this is PARTIAL scan requests...
-            List<BackendRequest> incomplete =
+            List<BackendRequest> partialScanRequests =
                     ref.reader.seekTo( refKeys, ref.dataBlock, lastRecordListener );
 
-            // this is the LAST block in the entire index and by definition there
-            // is nothing left to index.
-            if ( ref.idx == dataBlockLookup.size() - 1 ) {
+            if ( ref.next != null ) {
 
-                for( BackendRequest request : incomplete ) {
+                if ( partialScanRequests.size() > 0 ) {
+
+                    // scan requests need to index multiple blocks
+
+                    refKeys = dataBlockLookup.get( ref.next );
+
+                    if ( refKeys != null ) {
+                        refKeys.addAll( partialScanRequests );
+                        Collections.sort( refKeys );
+                    } else {
+                        dataBlockLookup.put( ref.next, partialScanRequests );
+                        dataBlockReferences.add( 0, ref.next );
+                    }
+
+                }
+
+            } else  {
+
+                // this is the LAST block in the entire index and by definition there
+                // is nothing left to index.
+
+                for( BackendRequest request : partialScanRequests ) {
                     request.setComplete(true);
                 }
 
@@ -441,6 +475,10 @@ public class LocalPartitionReader extends BaseJobInput
         // the data block for this reference.  Used so that we can call seekTo
         // within the actual chunk.
         protected DataBlock dataBlock = null;
+
+        // the next data block reference. We keep a forward linked list so that
+        // we can jump to the next block if a scan request isn't finished.
+        protected DataBlockReference next = null;
 
         // the order doesn't really matter as long as it's deterministic.
         public int compareTo( DataBlockReference db ) {

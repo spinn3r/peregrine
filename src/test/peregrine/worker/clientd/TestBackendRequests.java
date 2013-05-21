@@ -25,7 +25,6 @@ import peregrine.config.Config;
 import peregrine.config.ConfigParser;
 import peregrine.config.Partition;
 import peregrine.io.ExtractWriter;
-import peregrine.io.chunk.DefaultChunkWriter;
 import peregrine.io.partition.DefaultPartitionWriter;
 import peregrine.io.partition.LocalPartitionReader;
 import peregrine.io.sstable.RecordListener;
@@ -38,31 +37,36 @@ import peregrine.worker.clientd.requests.ScanBackendRequest;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Test backend requests against
  */
 public class TestBackendRequests extends BaseTest {
 
+    // the max number of records we're working with.
     long max = 50;
-    List<StructReader> keys = StructReaders.range( 0, max-1 );
+    int ssTableBlockSize = 65536;
+    List<StructReader> keys = null;
     Partition partition = new Partition(0);
     Connection conn = new Connection( "http://localhost:11112" );
     String path = String.format( "/test/%s/test1.sstable", getClass().getName() );
 
     private Config config;
 
-    private void doSetup(List<StructReader> keys) throws Exception {
+    private void doSetup( List<StructReader> keys ) throws Exception {
 
         DefaultPartitionWriter.ENABLE_LOCAL_DELEGATE = true;
+
+        // set a small block size so we have lots of blocks because we want
+        // to test block spanning.
+        config.setSSTableBlockSize( ssTableBlockSize );
 
         ExtractWriter writer = new ExtractWriter( config, path );
 
         System.out.printf( "Writing keys: \n");
 
         for( StructReader key : keys ) {
-            System.out.printf( "    %s\n", Hex.encode(key) );
+            //System.out.printf( "    %s\n", Hex.encode(key) );
             writer.write( key, StructReaders.wrap("xxxx") );
         }
 
@@ -81,7 +85,7 @@ public class TestBackendRequests extends BaseTest {
 
         for( StructReader key : keys ) {
 
-            System.out.printf( "    %s\n", Hex.encode(key) );
+            //System.out.printf( "    %s\n", Hex.encode(key) );
 
             GetBackendRequest getBackendRequest = new GetBackendRequest( clientBackendRequest, key );
             requests.add( getBackendRequest );
@@ -118,7 +122,7 @@ public class TestBackendRequests extends BaseTest {
     }
 
 
-    private ScanBackendRequest doTestScanRequests( ScanRequest scanRequest, long max, List<StructReader> expectedKeys ) throws IOException {
+    private ScanBackendRequest doTestScanRequests(ScanRequest scanRequest, List<StructReader> expectedKeys) throws IOException {
         //now try with a scan.  This should be fun!
 
         scanRequest.setSource( path );
@@ -138,52 +142,61 @@ public class TestBackendRequests extends BaseTest {
 
         ScanRequest scanRequest;
 
-        scanRequest = new ScanRequest();
-        scanRequest.setStart( StructReaders.wrap( max - 5 ), true );
-        scanRequest.setLimit( 10 );
+//        // ********* read ALL keys across blocks.
+//        scanRequest = new ScanRequest();
+//        scanRequest.setLimit( (int)max );
+//        doTestScanRequests(scanRequest, max, keys );
 
-        ScanBackendRequest scanBackendRequest =
-                doTestScanRequests(scanRequest, 1000, StructReaders.range(max-5, max-1));
 
-        assertEquals( true, scanBackendRequest.isComplete() );
 
         // ********* start exclusive / no end
         scanRequest = new ScanRequest();
         scanRequest.setStart( StructReaders.wrap( 0L ), false );
         scanRequest.setLimit( 10 );
-        doTestScanRequests(scanRequest, 1000, StructReaders.range( 1, 10 ) );
+        doTestScanRequests(scanRequest, StructReaders.range( 1, 10 ) );
+
+        // ********* fetch a few keys.
+
+        scanRequest = new ScanRequest();
+        scanRequest.setStart( StructReaders.wrap( max - 5 ), true );
+        scanRequest.setLimit( 10 );
+
+        ScanBackendRequest scanBackendRequest =
+                doTestScanRequests(scanRequest, StructReaders.range(max-5, max-1));
+
+        assertEquals( true, scanBackendRequest.isComplete() );
 
         // ********* start inclusive / end inclusive.
         scanRequest = new ScanRequest();
         scanRequest.setStart( StructReaders.wrap( 1L ), true );
         scanRequest.setEnd( StructReaders.wrap( 2L ), true );
         scanRequest.setLimit( 10 );
-        doTestScanRequests(scanRequest, 1000, StructReaders.range( 1, 2 ) );
+        doTestScanRequests(scanRequest, StructReaders.range( 1, 2 ) );
 
 
         // ********* no start / end inclusive
         scanRequest = new ScanRequest();
         scanRequest.setEnd( StructReaders.wrap( 1L ), true );
         scanRequest.setLimit( 10 );
-        doTestScanRequests(scanRequest, 1000, StructReaders.range( 0, 1 ) );
+        doTestScanRequests(scanRequest, StructReaders.range( 0, 1 ) );
 
         // ********* no start / no end.
         scanRequest = new ScanRequest();
         scanRequest.setLimit( 10 );
-        doTestScanRequests(scanRequest, 1000, StructReaders.range( 0, 9 ) );
+        doTestScanRequests(scanRequest, StructReaders.range( 0, 9 ) );
 
         // ********* no start / end exclusive
 
         scanRequest = new ScanRequest();
         scanRequest.setEnd( StructReaders.wrap( 1L ), false );
         scanRequest.setLimit( 10 );
-        doTestScanRequests(scanRequest, 1000, StructReaders.range(0, 0));
+        doTestScanRequests(scanRequest, StructReaders.range(0, 0));
 
         // ********* start inclusive / no end
         scanRequest = new ScanRequest();
         scanRequest.setStart( StructReaders.wrap( 0L ), true );
         scanRequest.setLimit( 10 );
-        doTestScanRequests(scanRequest, 1000, StructReaders.range(0, 9));
+        doTestScanRequests(scanRequest, StructReaders.range(0, 9));
 
 
         // ********* start inclusive / end exclusive
@@ -191,21 +204,21 @@ public class TestBackendRequests extends BaseTest {
         scanRequest.setStart( StructReaders.wrap( 1L ), true );
         scanRequest.setEnd( StructReaders.wrap( 2L ), false );
         scanRequest.setLimit( 10 );
-        doTestScanRequests(scanRequest, 1000, StructReaders.range(1, 1));
+        doTestScanRequests(scanRequest, StructReaders.range(1, 1));
 
         // ********* start exclusive / end exclusive.
         scanRequest = new ScanRequest();
         scanRequest.setStart( StructReaders.wrap( 1L ), false );
         scanRequest.setEnd( StructReaders.wrap( 2L ), true );
         scanRequest.setLimit( 10 );
-        doTestScanRequests(scanRequest, 1000, StructReaders.range(2, 2));
+        doTestScanRequests(scanRequest, StructReaders.range(2, 2));
 
         // ********* start exclusive / end exclusive
         scanRequest = new ScanRequest();
         scanRequest.setStart( StructReaders.wrap( 1L ), false );
         scanRequest.setEnd( StructReaders.wrap( 3L ), false );
         scanRequest.setLimit( 10 );
-        doTestScanRequests(scanRequest, 1000, StructReaders.range(2, 2));
+        doTestScanRequests(scanRequest, StructReaders.range(2, 2));
 
         //test towards the end of the stream and make sure the ScanBackendRequest
         //is marked complete
@@ -226,6 +239,8 @@ public class TestBackendRequests extends BaseTest {
 
         LocalPartitionReader reader = new LocalPartitionReader( config, partition, path );
 
+        assertEquals( max, reader.count() );
+
         final List<Record> records = new ArrayList<Record>();
 
         reader.seekTo( requests, new RecordListener() {
@@ -237,9 +252,9 @@ public class TestBackendRequests extends BaseTest {
 
         } );
 
-        assertResults( records, expectedKeys );
-
         System.out.printf( "Read %,d blocks.\n", reader.getRegionMetrics().blocksRead.get() );
+
+        assertResults( records, expectedKeys );
 
     }
 
@@ -249,18 +264,60 @@ public class TestBackendRequests extends BaseTest {
 
         List<StructReader> keys = new ArrayList<StructReader>();
 
-        for( Record current : records ) {
-            keys.add( current.getKey() );
+        for( int i = 0; i < records.size(); ++i ) {
+
+            Record current = records.get(i);
+
+            StructReader key = current.getKey();
+            StructReader expectedKey = expectedKeys.get(i);
+
+            if ( ! key.equals(expectedKey) ) {
+
+                throw new RuntimeException( String.format( "Result %,d is not equivalent: %s vs %s",
+                                                           i, Hex.encode(key), Hex.encode(expectedKey) ) );
+
+            }
+
             System.out.printf( "    %s= %s\n", Hex.encode(current.getKey()), Hex.encode( current.getValue() ) );
+
         }
+
+        assertEquals( expectedKeys.size(), records.size() );
 
         System.out.printf( "Found %,d records. \n", records.size() );
 
-        assertEquals( keys, expectedKeys );
-        assertEquals(expectedKeys.size(), records.size());
+    }
+
+    private void doTest( int max, int ssTableBlockSize ) throws Exception {
+
+        this.max = max;
+        this.ssTableBlockSize = ssTableBlockSize;
+        this.keys = StructReaders.range( 0, max-1 );
+
+        System.out.printf( "=================================================\n" );
+        System.out.printf( "Testing with max=%s and ssTableBlockSize=%s\n", max, ssTableBlockSize );
+
+        config = ConfigParser.parse();
+
+        doSetup( keys );
+
+        doTestScanRequests();
+
+        doTestGetRequests( keys, keys );
+
+
+        doTestDuplicateGetRequests();
+
+        doTestGetRequests( StructReaders.range( max+1000, max+2000 ), StructReaders.list() );
+
+        doTestScanRequests();
 
     }
+
     public void test1() throws Exception {
+
+        doTest( 50, 65536 );
+        //doTest( 30000, 100 );
 
         // TODO:
         //
@@ -278,17 +335,6 @@ public class TestBackendRequests extends BaseTest {
         //
         // - test scans over lots of blocks.
 
-        config = ConfigParser.parse();
-
-        doSetup( keys );
-
-        doTestDuplicateGetRequests();
-
-        doTestGetRequests( keys, keys );
-
-        doTestGetRequests( StructReaders.range( 1000, 2000 ), StructReaders.list() );
-
-        doTestScanRequests();
 
 
     }

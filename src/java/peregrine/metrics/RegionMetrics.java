@@ -37,4 +37,10 @@ public class RegionMetrics {
 
     public CounterMetric blocksWritten = new CounterMetric( "region.blocksWritten" );
 
+    // the number of reads while searching for keys.
+    public CounterMetric seekToKeyReads = new CounterMetric( "region.seekToKeyReads");
+
+    // the number of hits while searching for keys
+    public CounterMetric seekToKeyHits = new CounterMetric( "region.seekToKeyHits");
+
 }

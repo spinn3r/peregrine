@@ -266,6 +266,9 @@ public class DefaultChunkReader extends BaseSSTableChunk
             next();
             ++seek_idx;
 
+            regionMetrics.seekToKeyReads.incr();
+
+
             //FIXME: we need a metric for the number of keys we have read and
             //the number of keys we matched.
 
@@ -359,6 +362,8 @@ public class DefaultChunkReader extends BaseSSTableChunk
                     if ( find.isFound() ) {
 
                         listener.onRecord( find, key, value );
+
+                        regionMetrics.seekToKeyHits.incr();
 
                         if ( find.isComplete() == false ) {
                             // this is a scan request and we're not done yet.

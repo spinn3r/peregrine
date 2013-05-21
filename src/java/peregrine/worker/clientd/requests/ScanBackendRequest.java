@@ -99,6 +99,10 @@ public class ScanBackendRequest extends BackendRequest implements RequestSizeabl
 
             if ( hits >= scanRequest.getLimit() ) {
                 setComplete( true );
+            } else {
+                // this is needed so that when we jump to the next block that we
+                // are ready to resume.
+                setSeekKey( key );
             }
 
         }
