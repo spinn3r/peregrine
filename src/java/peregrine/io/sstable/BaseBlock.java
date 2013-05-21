@@ -29,25 +29,11 @@ public abstract class BaseBlock {
 
 
     //FIXME: does not apply to MetaBlock
-    // the length of this block uncompressed.  This allows us to compare the
-    // number of compressed bytes to the length to determine the compression
-    // ratio.
-    private long lengthUncompressed = -1;
-
-    //FIXME: does not apply to MetaBlock
     // the offset within the parent file of this block
     private long offset = -1;
 
     // the number of records in this block
     private int count = 0;
-
-    public long getLengthUncompressed() { 
-        return this.lengthUncompressed;
-    }
-
-    public void setLengthUncompressed( long lengthUncompressed ) { 
-        this.lengthUncompressed = lengthUncompressed;
-    }
 
     public int getOffset() {
         return (int)this.offset;
@@ -73,7 +59,6 @@ public abstract class BaseBlock {
 
         StructReader sr = new StructReader( buff );
 
-        lengthUncompressed = sr.readLong();
         offset = sr.readLong();
         count = (int)sr.readLong();
         
@@ -82,7 +67,6 @@ public abstract class BaseBlock {
     public void write( ChannelBufferWritable writer ) throws IOException {
 
         StructWriter sw = new StructWriter( 100 );
-        sw.writeLong(lengthUncompressed);
         sw.writeLong(offset);
         sw.writeLong(count);
 

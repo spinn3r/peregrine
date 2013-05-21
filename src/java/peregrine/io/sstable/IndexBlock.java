@@ -31,6 +31,11 @@ public class IndexBlock extends BaseBlock {
     // the length in bytes of this block.
     private long length = -1;
 
+    // the length of this block uncompressed.  This allows us to compare the
+    // number of compressed bytes to the length to determine the compression
+    // ratio.
+    private long lengthUncompressed = -1;
+
     private byte[] firstKey = null;
 
     private int metaBlockOffset = 0;
@@ -49,6 +54,14 @@ public class IndexBlock extends BaseBlock {
 
     public void setLength( long length ) {
         this.length = length;
+    }
+
+    public long getLengthUncompressed() {
+        return this.lengthUncompressed;
+    }
+
+    public void setLengthUncompressed( long lengthUncompressed ) {
+        this.lengthUncompressed = lengthUncompressed;
     }
 
     public void setFirstKey( byte[] firstKey ) { 
@@ -83,6 +96,7 @@ public class IndexBlock extends BaseBlock {
         StructReader sr = new StructReader( buff );
 
         length = sr.readLong();
+        lengthUncompressed = sr.readLong();
         firstKey = sr.readBytes();
         metaBlockOffset = sr.readInt();
         metaBlockLength = sr.readInt();
@@ -96,8 +110,9 @@ public class IndexBlock extends BaseBlock {
 
         StructWriter sw = new StructWriter( firstKey.length +
                                            (Integers.LENGTH * 3) +
-                                           Longs.LENGTH );
+                                           (Longs.LENGTH * 2 ) );
         sw.writeLong(length);
+        sw.writeLong(lengthUncompressed);
         sw.writeBytes( firstKey );
         sw.writeInt(metaBlockOffset);
         sw.writeInt(metaBlockLength);
