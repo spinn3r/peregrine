@@ -276,12 +276,6 @@ public class BackendRequestExecutor implements Runnable {
 
                         writer.write( key, value );
 
-                        // flush after every key write.  This allows us to serve
-                        // requests with lower latency.  These go into the TCP
-                        // send buffer immediately and sent ASAP.  Keeping
-                        // them around in memory is just pointless
-                        writer.flush();
-
                     } catch ( IOException e ) {
 
                         // mark this request as failed (cancel it) so that all
