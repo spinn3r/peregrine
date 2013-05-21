@@ -26,7 +26,7 @@ import peregrine.util.netty.ChannelBufferWritable;
 import java.io.IOException;
 
 /**
- * Trailer on a file denoteing metadata about that file.
+ * Trailer on a file representing metadata about that file.
  */
 public class Trailer {
 
