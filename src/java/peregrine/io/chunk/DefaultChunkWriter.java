@@ -137,7 +137,7 @@ public class DefaultChunkWriter extends BaseSSTableChunk implements ChunkWriter 
 
         trailer.incrRecordUsage( key.length() + value.length() );
         trailer.incrCount();
-        dataBlock.setCount(dataBlock.getCount() + 1);
+        dataBlock.incrCount();
         
         lastKey = key;
         

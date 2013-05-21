@@ -203,7 +203,7 @@ public class Trailer {
         sw.writeLong( recordUsage );
         sw.writeLong( indexOffset );
         sw.writeLong( indexCount );
-        sw.writeLong(getFileInfoOffset());
+        sw.writeLong( fileInfoOffset );
         sw.writeLong( dataSectionLength );
         sw.writeLong( version );
         sw.writeLong( dataBlockFormat );
@@ -223,7 +223,7 @@ public class Trailer {
                               recordUsage,
                               indexOffset,
                               indexCount,
-                getFileInfoOffset());
+                              fileInfoOffset );
         
     }
     

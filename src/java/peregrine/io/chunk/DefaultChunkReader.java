@@ -250,7 +250,7 @@ public class DefaultChunkReader extends BaseSSTableChunk
             return requests;
         
         // position us at the beginning of the block.
-        buffer.readerIndex( (int) block.getOffset());
+        buffer.readerIndex( block.getOffset() );
 
         regionMetrics.blocksRead.incr();
 

@@ -57,8 +57,8 @@ public abstract class BaseBlock {
         this.lengthUncompressed = lengthUncompressed;
     }
 
-    public long getOffset() { 
-        return this.offset;
+    public int getOffset() {
+        return (int)this.offset;
     }
 
     public void setOffset( long offset ) { 
@@ -73,24 +73,28 @@ public abstract class BaseBlock {
         this.count = count;
     }
 
+    public void incrCount() {
+        ++count;
+    }
+
     public void read( ChannelBuffer buff ) {
 
         StructReader sr = new StructReader( buff );
 
-        setLength(sr.readLong());
-        setLengthUncompressed(sr.readLong());
-        setOffset(sr.readLong());
-        setCount((int)sr.readLong());
+        length = sr.readLong();
+        lengthUncompressed = sr.readLong();
+        offset = sr.readLong();
+        count = (int)sr.readLong();
         
     }
 
     public void write( ChannelBufferWritable writer ) throws IOException {
 
         StructWriter sw = new StructWriter( 100 );
-        sw.writeLong(getLength());
-        sw.writeLong(getLengthUncompressed());
-        sw.writeLong(getOffset());
-        sw.writeLong( (long) getCount());
+        sw.writeLong(length);
+        sw.writeLong(lengthUncompressed);
+        sw.writeLong(offset);
+        sw.writeLong(count);
 
         writer.write( sw.getChannelBuffer() );
 
