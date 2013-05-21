@@ -17,6 +17,7 @@
 package peregrine.worker.clientd.requests;
 
 import peregrine.StructReader;
+import peregrine.sort.StrictStructReaderComparator;
 
 /**
  *
@@ -26,8 +27,15 @@ import peregrine.StructReader;
  */
 public abstract class BackendRequest implements Comparable<BackendRequest>, RequestSizeable {
 
+    // a strict comparator must be used or we are going to miss keys on disk.
+    private static final StrictStructReaderComparator comparator = new StrictStructReaderComparator();
+
     private ClientBackendRequest client = null;
 
+    // a sibling request with the same key.  Used by the BackendRequestIndex.
+    private boolean hasSibling = false;
+
+    // true if this request has completed and was either found or not found.
     private boolean complete = false;
 
     private boolean found = false;
@@ -96,9 +104,25 @@ public abstract class BackendRequest implements Comparable<BackendRequest>, Requ
         this.seekKey = seekKey;
     }
 
+    public boolean hasSibling() {
+        return hasSibling;
+    }
+
     @Override
     public int compareTo(BackendRequest backendRequest) {
-        return getSeekKey().compareTo( backendRequest.getSeekKey() );
+
+        int diff = comparator.compare(getSeekKey(), backendRequest.getSeekKey() );
+
+        // if there is no difference these guys are siblings.  Also, I don't like
+        // this technique purely from a code quality perspective because it relies
+        // on side-effect to mutate the object but the performance is better.
+        if ( diff == 0 ) {
+            hasSibling=true;
+            backendRequest.hasSibling=true;
+        }
+
+        return diff;
+
     }
 
 }

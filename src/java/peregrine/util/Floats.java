@@ -13,17 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package peregrine.util;
 
-package peregrine.metrics;
 
-import peregrine.metrics.impl.GaugeMetric;
-import peregrine.metrics.impl.Metric;
+import peregrine.util.Integers;
 
-/**
- * Contains metrics for the worker daemon.
- */
-public class WorkerMetrics {
+public class Floats {
 
-    private Metric nrRegions = new GaugeMetric( "worker.nrRegions" );
+    public static final int LENGTH = 4;
+
+    public static byte[] toByteArray( float value ) {
+        return Integers.toByteArray(Float.floatToIntBits(value));
+    }
 
 }

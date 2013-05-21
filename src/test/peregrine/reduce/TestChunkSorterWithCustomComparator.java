@@ -27,7 +27,7 @@ import peregrine.io.chunk.*;
 import peregrine.os.*;
 import peregrine.task.*;
 import peregrine.util.*;
-import peregrine.util.primitive.*;
+
 import peregrine.reduce.sorter.*;
 
 /**

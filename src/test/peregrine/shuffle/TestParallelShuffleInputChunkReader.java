@@ -17,7 +17,6 @@ package peregrine.shuffle;
 
 import peregrine.*;
 import peregrine.util.*;
-import peregrine.util.primitive.LongBytes;
 import peregrine.config.Partition;
 import peregrine.controller.*;
 import peregrine.io.*;

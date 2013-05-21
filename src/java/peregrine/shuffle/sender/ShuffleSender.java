@@ -23,8 +23,8 @@ import org.jboss.netty.buffer.*;
 import peregrine.*;
 import peregrine.config.*;
 import peregrine.http.*;
+import peregrine.util.Integers;
 import peregrine.util.netty.*;
-import peregrine.util.primitive.*;
 import peregrine.io.chunk.*;
 
 import com.spinn3r.log5j.Logger;
@@ -153,7 +153,7 @@ public class ShuffleSender implements Flushable, Closeable {
                 HttpClient client = new HttpClient( config, hosts, path );
 
                 ShuffleOutputTarget target
-                    = new ShuffleOutputTarget( hosts.get( 0 ), client, (int)config.getHttpMaxChunkSize() - IntBytes.LENGTH );
+                    = new ShuffleOutputTarget( hosts.get( 0 ), client, (int)config.getHttpMaxChunkSize() - Integers.LENGTH );
 
                 result.put( part.getId(), target );
                 
@@ -193,7 +193,7 @@ public class ShuffleSender implements Flushable, Closeable {
 
             // add the number of entries written to this buffer (AKA the count)
 
-            ChannelBuffer buff = ChannelBuffers.buffer( IntBytes.LENGTH ) ;
+            ChannelBuffer buff = ChannelBuffers.buffer( Integers.LENGTH ) ;
             buff.writeInt( count );
             
             this.buffers.add( buff );

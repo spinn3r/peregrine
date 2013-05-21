@@ -16,7 +16,7 @@
 package peregrine.config;
 
 import peregrine.util.*;
-import peregrine.util.primitive.LongBytes;
+import peregrine.util.Longs;
 
 /**
  * Represents a host running a controller or PFS daemon.
@@ -41,7 +41,7 @@ public class Host implements Comparable<Host> {
     public Host( String name, int port ) {
         this.name = name;
         this.port = port;
-        this.id   = LongBytes.toLong( Hashcode.getHashcode( String.format( "%s:%s", name, port ) ) );
+        this.id   = Longs.toLong( Hashcode.getHashcode( String.format( "%s:%s", name, port ) ) );
         this.ref  = String.format( "%s:%s", name, port );
     }
 

@@ -53,8 +53,8 @@ public class TestClientURLHandling extends peregrine.BaseTest {
 
         config = ConfigParser.parse();
 
-        doTest( range( 0 , 10 ), false );
-        doTest( range( 0 , 10 ), true );
+        doTest( StructReaders.range( 0 , 10 ), false );
+        doTest( StructReaders.range( 0 , 10 ), true );
 
     }
 

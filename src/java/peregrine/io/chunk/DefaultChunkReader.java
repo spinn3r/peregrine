@@ -24,6 +24,7 @@ import peregrine.*;
 import peregrine.config.*;
 import peregrine.io.*;
 import peregrine.io.sstable.*;
+import peregrine.metrics.RegionMetrics;
 import peregrine.os.*;
 import peregrine.util.*;
 import peregrine.util.netty.*;
@@ -41,7 +42,7 @@ public class DefaultChunkReader extends BaseSSTableChunk
     // magic numbers for chunk reader files.
     private static Charset ASCII = Charset.forName( "ASCII" );
 
-    public static byte[] MAGIC_PREFIX   = "PC0".getBytes( ASCII );
+    public static byte[] MAGIC_PREFIX   = "PC0".getBytes(ASCII);
     public static byte[] MAGIC_RAW      = "RAW".getBytes( ASCII );
     public static byte[] MAGIC_CRC32    = "C32".getBytes( ASCII );
 
@@ -49,14 +50,10 @@ public class DefaultChunkReader extends BaseSSTableChunk
 
     private StreamReader reader = null;
 
-    /**
-     * Length in bytes of the input.
-     */
+    // Length in bytes of the input.
     private long length = -1;
 
-    /**
-     * The current item we are reading from.
-     */
+    // The current item we are reading from.
     private int idx = 0;
 
     private MappedFileReader mappedFile;
@@ -76,7 +73,7 @@ public class DefaultChunkReader extends BaseSSTableChunk
 
     // the count of entries either in this block or in the entire file.  By
     // default it's the entire file but if we call seekTo() with a given
-    // DataBlock we update that value so hasNext() doesn't try to read past the
+    // IndexBlock we update that value so hasNext() doesn't try to read past the
     // restricted block.
     private int count = 0;
     
@@ -86,8 +83,10 @@ public class DefaultChunkReader extends BaseSSTableChunk
     // true when we are in minimal and non-indexed mode.
     protected boolean minimal = false;
 
+    private RegionMetrics regionMetrics = new RegionMetrics();
+
     public DefaultChunkReader( ChannelBuffer buff ) {
-        init( buff );
+        this(buff, true);
     }
 
     /**
@@ -96,7 +95,7 @@ public class DefaultChunkReader extends BaseSSTableChunk
      * not incredibly so...
      */
     public DefaultChunkReader( ChannelBuffer buff, boolean readTrailer ) {
-        this.readTrailer = false;
+        this.readTrailer = readTrailer;
         init( buff );
     }
 
@@ -115,46 +114,8 @@ public class DefaultChunkReader extends BaseSSTableChunk
         
         ChannelBuffer buff = mappedFile.map();
       
-        init( buff, mappedFile.getStreamReader() );
+        init(buff, mappedFile.getStreamReader());
 
-    }
-
-    // used internally for duplicate()
-    protected DefaultChunkReader() {}
-
-    // used internally for duplicate()
-    protected DefaultChunkReader( DefaultChunkReader template ) {
-
-        this.file = template.file;
-        this.length = template.length;
-        this.idx = template.idx;
-        this.mappedFile = template.mappedFile;
-        this.closed = template.closed;
-        this.keyOffset = template.keyOffset;
-        this.count = template.count;
-        this.readTrailer = template.readTrailer;
-        this.fileInfo = template.fileInfo;
-        this.trailer = template.trailer;
-        this.dataBlocks = template.dataBlocks;
-        this.metaBlocks = template.metaBlocks;
-
-        // we must call duplicate on the underlying buffer so that the reader
-        // and writer indexes aren't mutated globally across requests.
-
-        ChannelBuffer buff = template.buffer.duplicate();
-        
-        this.reader = new StreamReader( buff );
-        this.buffer = buff;
-        
-    }
-
-    /**
-     * Create a new instance with the same internal members.  This way we can
-     * keep a cached index of open readers but concurrently search over them for
-     * each new request without having them step on each other.
-     */
-    public DefaultChunkReader duplicate() {
-        return new DefaultChunkReader( this );
     }
 
     private void init( ChannelBuffer buff ) {
@@ -188,26 +149,20 @@ public class DefaultChunkReader extends BaseSSTableChunk
                 count = trailer.getCount();
 
                 // read the file info
-                if ( trailer.fileInfoOffset > 0 ) {
+                if ( trailer.getFileInfoOffset() > 0 ) {
                     fileInfo.read( buff, trailer );
                 }
                 
                 // read data and meta index
 
-                if ( trailer.indexOffset > 0 ) {
+                if ( trailer.getIndexOffset() > 0 ) {
                     
-                    buff.readerIndex( (int)trailer.indexOffset );
+                    buff.readerIndex( (int)trailer.getIndexOffset() );
 
-                    for( int i = 0; i < trailer.indexCount; ++i ) {
-                        DataBlock db = new DataBlock();
+                    for( int i = 0; i < trailer.getIndexCount(); ++i ) {
+                        IndexBlock db = new IndexBlock();
                         db.read( buff );
-                        dataBlocks.add( db );
-                    }
-
-                    for( int i = 0; i < trailer.indexCount; ++i ) {
-                        MetaBlock mb = new MetaBlock();
-                        mb.read( buff );
-                        metaBlocks.add( mb );
+                        indexBlocks.add( db );
                     }
 
                 }
@@ -280,55 +235,99 @@ public class DefaultChunkReader extends BaseSSTableChunk
     }
 
     /**
-     * Fetch all the keys in the given DataBlock.
+     * Fetch all the keys in the given IndexBlock.
      * @return A list of all BackendRequests that are not complete.
      */
-    public List<BackendRequest> seekTo( List<BackendRequest> requests, DataBlock block, RecordListener listener ) throws IOException {
+    public List<BackendRequest> seekTo( List<BackendRequest> requests, IndexBlock block, RecordListener listener ) throws IOException {
 
         if ( requests.size() == 0 )
             return requests;
         
         // position us at the beginning of the block.
-        buffer.readerIndex( (int)block.offset );        
+        buffer.readerIndex( block.getOffset() );
+
+        regionMetrics.blocksRead.incr();
 
         int seek_idx = 0;
 
+        SeekToContext context = new SeekToContext( listener, requests );
+
         // the request+key we should be looking for...
-        BackendRequest find = requests.remove( 0 );
+        context.find = requests.remove( 0 );
 
-        // keep a list of keys that haven't yet finished serving all records.
-        // these are going to be SCAN requests in practice.
-        List<BackendRequest> incompleteScanRequests = new ArrayList<BackendRequest>();
-
-        while( seek_idx < block.count ) {
+        while( seek_idx < block.getCount()) {
 
             next();
             ++seek_idx;
 
-            //FIXME: seekKey can probably go away now that we have visit I think?
+            regionMetrics.seekToKeyReads.incr();
 
-            //FIXME: keep looping through the requests because two clients might
-            //have requested the same keys.
+            // TODO: skip suspended clients
+            //
+            // https://bitbucket.org/burtonator/peregrine/issue/210/sstable-make-sure-suspended-clients-arent
 
-            //FIXME: we need a metric for the number of keys we have read and
-            //the number of keys we matched.
+            context.handleScanRequests( key(), value() );
 
-            //FIXME skip suspended clients...  Perhaps the way to do this is to
-            //make the ITERATOR automatically skip suspended clients.  This way
-            //ALL the code that uses BackendRequests can just transparently skip
-            //them.  This is probably the right strategy moving forward since its
-            //easy to implement and probably won't yield any bugs.
+            context.handleCurrent( key(), value() );
 
-            Iterator<BackendRequest> scanIterator = incompleteScanRequests.iterator();
+            // terminate early if possible.
+            if ( context.isFinished() )
+                break;
+
+        }
+
+        // at this point any remaining requests are NOT matched.  If it's a scan
+        // request it has an implicit start key (seek key) that wasn't matched
+        // and if it's a get request for a specific key then that key wasn't found
+        // in the routed data block.
+        for( BackendRequest request : requests ) {
+            request.setComplete(true);
+        }
+
+        if ( context.find != null )
+            context.find.setComplete( true );
+
+        // return any incomplete scan requests.  It does not make sense to return
+        // any get/fetch requests because they won't be continued in the next
+        // block
+        return context.partialScanRequests;
+
+    }
+
+    // move some of the seek context information into a class to keep code and
+    // methods tight.
+    class SeekToContext {
+
+        private RecordListener listener;
+
+        private List<BackendRequest> requests;
+
+        SeekToContext(RecordListener listener, List<BackendRequest> requests) {
+            this.listener = listener;
+            this.requests = requests;
+        }
+
+        protected BackendRequest find = null;
+
+        // keep a list of keys that haven't yet finished serving all records.
+        // these are going to be SCAN requests in practice.
+        List<BackendRequest> partialScanRequests = new ArrayList<BackendRequest>();
+
+        // once we've found scan requests we have to listen to them until they
+        // are complete
+        protected void handleScanRequests( StructReader key,
+                                           StructReader value ) {
+
+            Iterator<BackendRequest> scanIterator = partialScanRequests.iterator();
 
             while( scanIterator.hasNext() ) {
 
                 BackendRequest current = scanIterator.next();
 
-                current.visit( key(), value() );
+                current.visit( key, value );
 
                 if ( current.isFound() ) {
-                    listener.onRecord( current, key(), value() );
+                    listener.onRecord( current, key, value );
                 }
 
                 if ( current.isComplete() ) {
@@ -337,43 +336,64 @@ public class DefaultChunkReader extends BaseSSTableChunk
 
             }
 
+        }
+
+        protected void handleCurrent( StructReader key, StructReader value ) {
+
+            // find can be null during remaining scan requests.
             if ( find != null ) {
 
-                find.visit( key(), value() );
+                while( true ) {
 
-                if ( find.isFound() ) {
+                    find.visit( key, value );
 
-                    listener.onRecord( find, key(), value() );
+                    if ( find.isFound() ) {
 
-                    if ( find.isComplete() == false ) {
-                        // this is a scan request and we're not done yet.
-                        incompleteScanRequests.add(find);
+                        listener.onRecord( find, key, value );
+
+                        regionMetrics.seekToKeyHits.incr();
+
+                        if ( find.isComplete() == false ) {
+                            // this is a scan request and we're not done yet.
+                            partialScanRequests.add(find);
+                        }
+
                     }
+
+                    if ( find.hasSibling() && requests.size() > 0 ) {
+                        find = requests.remove( 0 );
+                        continue;
+                    }
+
+                    break;
 
                 }
 
+                // either the key matched or we've gone PAST the key we are
+                // searching for and we don't need to keep searching for this key.
                 if ( find.isFound() || find.isComplete() ) {
 
                     if ( requests.size() > 0 ) {
                         find = requests.remove( 0 );
                     } else {
-                        // we've handled all the keys in this block so we can quit now.
+                        // we've handled all the keys in this request so we can quit now.
                         find = null;
+                        return;
                     }
 
                 }
 
             }
 
-            if ( find == null && incompleteScanRequests.size() == 0 )
-                break;
-
         }
 
-        // return any incomplete scan requests.  It does not make sense to return
-        // any get/fetch requests because they won't be continued in the next
-        // block
-        return incompleteScanRequests;
+        protected boolean isFinished() {
+
+            // we are complete if there aren't any pending scan requests AND
+            // there are no more requests to execute.
+            return find == null && partialScanRequests.size() == 0;
+
+        }
 
     }
 
@@ -395,7 +415,7 @@ public class DefaultChunkReader extends BaseSSTableChunk
         if ( minimal ) {
             return buffer.slice( 0, buffer.writerIndex() - Integers.LENGTH );
         } else { 
-            return buffer.slice( 0, (int)trailer.dataSectionLength );
+            return buffer.slice( 0, trailer.getDataSectionLength() );
         }
 
     }
@@ -421,6 +441,14 @@ public class DefaultChunkReader extends BaseSSTableChunk
     @Override 
     public int count() throws IOException {
         return count;
+    }
+
+    public RegionMetrics getRegionMetrics() {
+        return regionMetrics;
+    }
+
+    public void setRegionMetrics(RegionMetrics regionMetrics) {
+        this.regionMetrics = regionMetrics;
     }
 
     @Override

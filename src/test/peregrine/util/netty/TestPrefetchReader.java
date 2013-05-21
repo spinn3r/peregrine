@@ -19,7 +19,6 @@ import java.io.*;
 import java.util.*;
 
 import peregrine.util.*;
-import peregrine.util.primitive.LongBytes;
 import peregrine.reduce.*;
 import peregrine.reduce.merger.*;
 import peregrine.io.chunk.*;

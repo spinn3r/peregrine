@@ -16,12 +16,13 @@
 
 package peregrine.io.sstable;
 
-import java.io.*;
-import java.util.*;
-
-import peregrine.*;
-import peregrine.io.*;
+import peregrine.Record;
+import peregrine.StructReader;
+import peregrine.io.SequenceReader;
 import peregrine.worker.clientd.requests.BackendRequest;
+
+import java.io.IOException;
+import java.util.List;
 
 /**
  *

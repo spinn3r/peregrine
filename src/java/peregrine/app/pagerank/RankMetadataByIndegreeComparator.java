@@ -21,7 +21,7 @@ import java.io.*;
 
 import peregrine.*;
 import peregrine.util.*;
-import peregrine.util.primitive.*;
+
 import peregrine.reduce.*;
 import peregrine.config.*;
 import peregrine.io.*;
@@ -36,7 +36,7 @@ public class RankMetadataByIndegreeComparator extends StrictSortDescendingCompar
 
     @Override
     public StructReader getSortKey( StructReader key, StructReader value ) {
-        return StructReaders.join( value.slice( 0, LongBytes.LENGTH ), key.slice() );
+        return StructReaders.join( value.slice( 0, Longs.LENGTH ), key.slice() );
     }
 
 }

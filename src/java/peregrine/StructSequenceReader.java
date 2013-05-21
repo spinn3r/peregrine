@@ -22,7 +22,7 @@ import org.jboss.netty.buffer.*;
 
 import peregrine.io.*;
 import peregrine.util.*;
-import peregrine.util.primitive.*;
+
 
 /**
  * A reader for working with struct sequences.  Supports the standard hasNext()

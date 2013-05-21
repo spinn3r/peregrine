@@ -20,7 +20,6 @@ import java.lang.reflect.*;
 import java.util.*;
 
 import peregrine.config.partitioner.*;
-import peregrine.util.primitive.*;
 import peregrine.util.*;
 import peregrine.os.*;
 
@@ -142,6 +141,8 @@ public class BaseConfig {
 
     protected long sstableBlockSize = -1;
 
+    protected int backendRequestQueueSize = -1;
+
     public void init( StructMap struct ) {
 
         this.struct = struct;
@@ -182,6 +183,7 @@ public class BaseConfig {
         setNetWriteTimeout( struct.getInt( "netWriteTimeout" ) );
         setNetConnectTimeout( struct.getInt( "netConnectTimeout" ) );
         setSSTableBlockSize( struct.getSize( "sstableBlockSize" ) );
+        setBackendRequestQueueSize( struct.getInt( "backendRequestQueueSize" ) );
 
         if ( struct.containsKey( "host" ) )
             setHost( Host.parse( struct.getString( "host" ) ) );
@@ -503,6 +505,14 @@ public class BaseConfig {
         this.sstableBlockSize = sstableBlockSize;
     }
 
+    public int getBackendRequestQueueSize() {
+        return backendRequestQueueSize;
+    }
+
+    public void setBackendRequestQueueSize(int backendRequestQueueSize) {
+        this.backendRequestQueueSize = backendRequestQueueSize;
+    }
+
     static {
 
         try {
@@ -516,7 +526,7 @@ public class BaseConfig {
             DEFAULTS = new StructMap( is );
             
         } catch ( Throwable t ) {
-            throw new RuntimeException( t );
+            throw new RuntimeException( "Unable to load config: ", t );
         }
         
     }

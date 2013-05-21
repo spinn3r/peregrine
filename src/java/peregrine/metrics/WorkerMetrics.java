@@ -13,17 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package peregrine.util.primitive;
 
+package peregrine.metrics;
 
-public class DoubleBytes {
+import peregrine.metrics.impl.CounterMetric;
+import peregrine.metrics.impl.GaugeMetric;
+import peregrine.metrics.impl.Metric;
 
-    public static final int LENGTH = 8;
+/**
+ * Contains metrics for the worker daemon.
+ */
+public class WorkerMetrics {
 
-    /**
-     */
-    public static byte[] toByteArray( double value ) {
-        return LongBytes.toByteArray( Double.doubleToLongBits( value ) );
-    }
+    public GaugeMetric nrRegions = new GaugeMetric( "worker.nrRegions" );
+
+    public CounterMetric batchExecutions = new CounterMetric( "worker.batchExecutions" );
 
 }

@@ -48,7 +48,7 @@ public class GetBackendRequest extends BackendRequest implements RequestSizeable
             // we are complete and e found the right key.
             setComplete(true);
             setFound(true);
-        } else if ( cmp > 0 ) {
+        } else if ( cmp < 0 ) {
             // we are complete but this key wasn't found
             setComplete(true);
             setFound(false);

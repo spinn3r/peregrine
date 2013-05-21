@@ -19,7 +19,6 @@ import java.io.*;
 import java.util.*;
 
 import peregrine.sort.*;
-import peregrine.util.primitive.LongBytes;
 
 import org.jboss.netty.buffer.*;
 

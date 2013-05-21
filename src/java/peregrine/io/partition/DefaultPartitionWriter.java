@@ -37,10 +37,7 @@ public class DefaultPartitionWriter implements PartitionWriter, ChunkWriter {
 
     private static final Logger log = Logger.getLogger();
 
-    // FIXME: we should enable the local delegate again because bigtable writes
-    // would benefit from not going over the local HTTP interface when writing
-    // to disk.  Also, was the RemotePartitionWriterDelegate being used when
-    // writing output files?
+    // TODO: https://bitbucket.org/burtonator/peregrine/issue/211/sstable-enable-the-local-delegate-again-so
     public static boolean ENABLE_LOCAL_DELEGATE = false;
 
     protected String path;

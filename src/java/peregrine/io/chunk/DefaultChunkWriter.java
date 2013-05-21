@@ -16,59 +16,43 @@
 package peregrine.io.chunk;
 
 import java.io.*;
-import java.util.*;
-import java.nio.channels.*;
 
 import com.spinn3r.log5j.Logger;
 import org.jboss.netty.buffer.*;
 
 import peregrine.*;
 import peregrine.config.*;
-import peregrine.http.*;
-import peregrine.io.*;
 import peregrine.io.sstable.*;
 import peregrine.os.*;
-import peregrine.util.*;
 import peregrine.util.netty.*;
-import peregrine.util.primitive.*;
+
 
 /**
  * <p>
  * Write key/value pairs to a given file on disk and include any additional
  * metadata (size, etc).
+ * </p>
  *
  * <p> The output format is very simple.  The file is a collection of key value
  * pairs.  First read a varint.  This will denote how many bytes to read next.
  * That will become your key.  Then read another varint, then read that many
  * bytes and that will become your value.
- * 
+ * </p>
+ *
+ * <p>
+ * The on disk block format is similar to hbase and bigtable.  Records are written
+ * at the beginning of the table in series of implicit data blocks.  At the end
+ * of the table we then write index blocks which store the start key and offset
+ * of each data block.  After that we write a series of meta blocks which can
+ * contain key/value pairs.  The meta blocks stores information like the bloom
+ * filter index.
+ * </p>
+ *
+ * <p>
  * https://bitbucket.org/burtonator/peregrine/issue/195/design-sstable-file-layout
- * 
+ * </p>
  */
 public class DefaultChunkWriter extends BaseSSTableChunk implements ChunkWriter {
-
-    // FIXME: there should be three modes here.  MINIMAL ... which is the legacy
-    // format.  Then we should have STREAM which includes the count and a
-    // checksum.  Then we should have INDEXED which includes a block index as
-    // well as CRC32.
-
-    //FIXME: it would also be nice if we supported explicit meta blocks for the
-    // stream protocol which are normally invisible to a client.  CRC32 would be
-    // store here.  We could also include dapper style tracing in the response
-    // and this way clients wouldn't see these optional response fields.
-
-    // FIXME: DITCH the data block and meta block metaphor.. we are storing the
-    // data blocks inline so at the END of the file we really only just have META
-    // blocks.  JUST make them blocks. 
-
-    // FIXME: this is WRONG .. the meta blocks need to go AFTER the data block
-    // because otherwise to read the Nth meta block we have to read meta N-1 meta
-    // blocks since they are variable width.  If we place them AFTER the data
-    // blocks then we can easily read the Nth block by just seeking to the end of
-    // the data block and reading the meta block off disk at that location.
-    // ...
-    // WRONG.. .we will STLL have the bloom filter issue.  Instead write a list
-    // of offsets and lengths that the meta blocks can be indexed.
 
     protected static final Logger log = Logger.getLogger();
 
@@ -80,17 +64,14 @@ public class DefaultChunkWriter extends BaseSSTableChunk implements ChunkWriter 
     // the main writable for all output.
     protected BufferedChannelBufferWritable writer = null;
 
-    // the number of records written.
-    private int count = 0;
-
     // true when closed.
     private boolean closed = false;
 
     // true when shutdown.
     private boolean shutdown = false;
 
-    // the current DataBlock
-    protected DataBlock dataBlock = null;
+    // the current IndexBlock
+    protected IndexBlock indexBlock = null;
 
     // the current MetaBlock
     protected MetaBlock metaBlock = null;
@@ -144,15 +125,15 @@ public class DefaultChunkWriter extends BaseSSTableChunk implements ChunkWriter 
         if ( closed )
             throw new IOException( "closed" );
 
-        if ( dataBlock == null || writer.length() - dataBlock.offset > blockSize ) {
+        if ( indexBlock == null || writer.length() - indexBlock.getOffset() > blockSize ) {
             rollover( key );
         }
 
         write( writer, key, value );
 
-        trailer.recordUsage += key.length() + value.length();
+        trailer.incrRecordUsage( key.length() + value.length() );
         trailer.incrCount();
-        ++dataBlock.count;
+        indexBlock.incrCount();
         
         lastKey = key;
         
@@ -187,51 +168,46 @@ public class DefaultChunkWriter extends BaseSSTableChunk implements ChunkWriter 
 
     private void rollover( StructReader key) {
         endBlock();
-        startDataBlock( key );
+        startIndexBlock(key);
     }
 
     private void endBlock() {
 
-        if ( dataBlock != null && dataBlock.count != 0 ) {
-            endDataBlock();
+        if ( indexBlock != null && indexBlock.getCount() != 0 ) {
+            endIndexBlock();
             addMetaBlockToIndex();
         }
 
     }
 
-    // FIXME: I hate all these method names ... startDataBlock, etc... rewrite
-    // it all. 
-    
     // create a new data block and add it to the data block list and return the
     // newly created block.
-    private void startDataBlock( StructReader key ) {
+    private void startIndexBlock(StructReader key) {
 
-        // create a new datablock with teh correct first key specified.
-        dataBlock = new DataBlock( key.toByteArray() );
-        dataBlock.offset = writer.length();
+        // create a new index block with teh correct first key specified.
+        indexBlock = new IndexBlock( key.toByteArray() );
+        indexBlock.setOffset(writer.length());
 
-        dataBlocks.add( dataBlock );
+        indexBlocks.add(indexBlock);
 
     }
 
-    private void endDataBlock() {
+    private void endIndexBlock() {
 
         //TODO: compression would go here.
-        dataBlock.length = writer.length() - dataBlock.offset;
-        dataBlock.lengthUncompressed = dataBlock.length;
+        indexBlock.setLength(writer.length() - indexBlock.getOffset());
+        indexBlock.setLengthUncompressed(indexBlock.getLength());
     }
 
     private void startMetaBlock() {
 
         metaBlock = new MetaBlock();
-        metaBlock.offset = writer.length();
 
         metaBlocks.add( metaBlock );
         
     }
 
     private void endMetaBlock() {
-        metaBlock.length = writer.length() - metaBlock.offset;
     }
 
     // write out a new meta block file which would include bloom filter data as
@@ -256,7 +232,7 @@ public class DefaultChunkWriter extends BaseSSTableChunk implements ChunkWriter 
         
         // write trailer to store the number of items.
 
-        trailer.dataSectionLength = writer.length();
+        trailer.setDataSectionLength(writer.length());
         
         endBlock();
 
@@ -269,21 +245,28 @@ public class DefaultChunkWriter extends BaseSSTableChunk implements ChunkWriter 
 
             // write out file info
             if ( lastKey != null ) {
-                fileInfo.lastKey = lastKey.toByteArray();
+                fileInfo.setLastKey( lastKey.toByteArray() );
             }
 
-            trailer.fileInfoOffset = writer.length();
+            trailer.setFileInfoOffset(writer.length());
             fileInfo.write( writer );
 
-            trailer.indexOffset = writer.length();
-            trailer.indexCount = dataBlocks.size();
+            for( int i = 0; i < metaBlocks.size(); ++i ) {
 
-            for( DataBlock db : dataBlocks ) {
-                db.write( writer );
+                IndexBlock ib = indexBlocks.get(i);
+                MetaBlock mb = metaBlocks.get(i);
+
+                ib.setMetaBlockOffset( (int)writer.length() );
+                mb.write( writer );
+                ib.setMetaBlockLength( (int) ( writer.length() - ib.getMetaBlockOffset() ) );
+
             }
 
-            for( MetaBlock mb : metaBlocks ) {
-                mb.write( writer );
+            trailer.setIndexOffset(writer.length());
+            trailer.setIndexCount(indexBlocks.size());
+
+            for( IndexBlock ib : indexBlocks) {
+                ib.write( writer );
             }
 
             // write the trailer

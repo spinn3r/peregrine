@@ -16,13 +16,8 @@
 
 package peregrine.io.sstable;
 
-import java.io.*;
-import java.util.*;
-
-import peregrine.*;
-import peregrine.io.*;
-import peregrine.io.chunk.*;
-import peregrine.os.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Methods common to all SSTable chunk readers and writers.
@@ -36,10 +31,10 @@ public abstract class BaseSSTableChunk {
     protected Trailer trailer = new Trailer();
 
     // list of data blocks in the index.
-    protected List<DataBlock> dataBlocks = new ArrayList();
+    protected List<IndexBlock> indexBlocks = new ArrayList<IndexBlock>();
 
     // list of meta blocks in the index
-    protected List<MetaBlock> metaBlocks = new ArrayList();
+    protected List<MetaBlock> metaBlocks = new ArrayList<MetaBlock>();
 
     public Trailer getTrailer() {
         return trailer;
@@ -49,8 +44,8 @@ public abstract class BaseSSTableChunk {
         return fileInfo;
     }
 
-    public List<DataBlock> getDataBlocks() {
-        return dataBlocks;
+    public List<IndexBlock> getIndexBlocks() {
+        return indexBlocks;
     }
 
     public List<MetaBlock> getMetaBlocks() {

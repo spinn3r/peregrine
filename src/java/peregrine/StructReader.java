@@ -22,7 +22,6 @@ import org.jboss.netty.buffer.*;
 
 import peregrine.util.*;
 import peregrine.util.netty.*;
-import peregrine.util.primitive.*;
 import peregrine.os.*;
 import peregrine.sort.*;
 

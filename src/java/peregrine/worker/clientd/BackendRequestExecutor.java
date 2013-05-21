@@ -24,10 +24,12 @@ import peregrine.config.Partition;
 import peregrine.io.SequenceWriter;
 import peregrine.io.chunk.DefaultChunkWriter;
 import peregrine.io.partition.LocalPartitionReader;
-import peregrine.util.Hex;
-import peregrine.worker.clientd.requests.*;
 import peregrine.io.sstable.RecordListener;
 import peregrine.io.util.Closer;
+import peregrine.metrics.WorkerMetrics;
+import peregrine.worker.clientd.requests.BackendClientWritable;
+import peregrine.worker.clientd.requests.BackendRequest;
+import peregrine.worker.clientd.requests.ClientBackendRequest;
 
 import java.io.IOException;
 import java.util.*;
@@ -50,12 +52,12 @@ public class BackendRequestExecutor implements Runnable {
     // all known clients.
     private Set<ClientBackendRequest> clientIndex = null;
 
-    // all executing scan requests.
-    private List<ScanBackendRequest> scanBackendRequests = null;
+    private WorkerMetrics workerMetrics;
 
-    public BackendRequestExecutor(Config config, BackendRequestQueue queue) {
+    public BackendRequestExecutor(Config config, BackendRequestQueue queue, WorkerMetrics workerMetrics) {
         this.config = config;
         this.queue = queue;
+        this.workerMetrics = workerMetrics;
     }
 
     @Override
@@ -70,22 +72,14 @@ public class BackendRequestExecutor implements Runnable {
             // GET or SCAN requests that we can elide them so that blocks only need
             // to be decompressed for ALL inbound requests.
 
-            List<BackendRequest> requests = new ArrayList( BackendRequestQueue.LIMIT );
+            List<BackendRequest> requests =
+                    new ArrayList<BackendRequest>( config.getBackendRequestQueueSize() );
 
             queue.drainTo(requests);
 
-            // the list must be sorted before we service it so that we can
-            // access keys on the same block without going backwards and
-            // accessing the same block again.  A seek is involved with fetching
-            // a block as is optionally decompression and that's expensive.  By
-            // first sorting the set we avoid both expensive operations.
-            Collections.sort( requests );
-
-            // FIXME: make SURE that when we are handling adjacent keys
-            // correctly and that when two clients each fetch the same key that
-            // we handle that use case.
-
             handle(requests);
+
+            workerMetrics.batchExecutions.incr();
 
         }
 
@@ -103,7 +97,7 @@ public class BackendRequestExecutor implements Runnable {
 
             ClientBackendRequest clientBackendRequest = current.getClient();
 
-            // keep track of every client...
+            // keep track of every client
             clientIndex.add(clientBackendRequest);
 
             SourceIndex sourceIndex = partitionIndex.fetch(clientBackendRequest.getPartition());
@@ -162,16 +156,7 @@ public class BackendRequestExecutor implements Runnable {
 
     public void handle( List<BackendRequest> requests ) {
 
-        //FIXME: don't let clients fetch teh same key multiple times.  this is
-        //silly but where should this go?  The client?  The server?
-
-        // FIXME: what happens if we have two entries for the same key... we
-        // should de-dup them but we have to be careful because two clients
-        // could request the SAME key and we need to be careful and return it
-        // correctly.  I could write a unit test for this but they would need to
-        // come from different requests of course.
-
-        // FIXME:if a key/value are BIGGER than the send buffer then we are
+        // FIXME: if a key/value are BIGGER than the send buffer then we are
         // fucked and I think we will block?  What happens there? I need to
         // review the NIO netty code to see what it would do but I think it
         // goes into a queue.
@@ -260,34 +245,22 @@ public class BackendRequestExecutor implements Runnable {
                 // filesystem dentries.
 
                 reader = new LocalPartitionReader( config, partition, source );
+                //reader.setRegionMetrics(
 
                 // create a SequenceWriter for every client so that we have an
                 // output channel.
 
                 for( ClientBackendRequest clientBackendRequest : clientIndex ) {
 
-                    log.info( "FIXME: channel impl: %s", clientBackendRequest.getChannel().getClass() );
-
                     BackendClientWritable writable =
                             new BackendClientWritable( clientBackendRequest );
 
-                    // FIXME: we need to set a mode here for the DefaultChunkWriter to
-                    // include a CRC32 in the minimal form so that the entire record is
-                    // checked for checksum.  For starters we need it for the wire
-                    // protocol but we ALSO need it to detect if we failed to service
-                    // the request.
                     DefaultChunkWriter writer = new DefaultChunkWriter( config , writable );
 
                     clientBackendRequest.setChannelBufferWritable( writable );
                     clientBackendRequest.setSequenceWriter( writer );
 
                 }
-
-                //FIXME: what happens if we hit the end of the table but there
-                //are less than 'limit' keys that match a scan.
-
-                //FIXME: how do we RESUME a scan... we would have to update
-                //the seekKey...
 
                 reader.seekTo( requests, new RecordListener() {
 
@@ -309,20 +282,6 @@ public class BackendRequestExecutor implements Runnable {
                             SequenceWriter writer = clientBackendRequest.getSequenceWriter();
 
                             writer.write( key, value );
-
-                            log.info( "FIXME: wrote key: %s", Hex.encode(key));
-
-                            //FIXME: we DO need a write future here because if
-                            // this write suspends the client then we need to
-                            // resume it once it comes back and the buffer is
-                            // drained.  I think I could do this by setting
-                            // suspended=false from this completion and then
-                            // when I re-examine the resulting incomplete items
-                            // at the end of the executor then either I can add
-                            // them directly there or have the write listener do
-                            // it. This should probably be called ResumeListener
-                            // and a dedicated class.
-
 
                             // flush after every key write.  This allows us to serve
                             // requests with lower latency.  These go into the TCP

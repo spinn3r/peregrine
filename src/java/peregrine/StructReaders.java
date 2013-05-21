@@ -22,7 +22,6 @@ import java.nio.*;
 import org.jboss.netty.buffer.*;
 
 import peregrine.util.*;
-import peregrine.util.primitive.*;
 
 /**
  * Create a StructReader around primitive types, varints, hashcodes, etc.
@@ -282,5 +281,33 @@ public class StructReaders {
         return result;
         
     }
-    
+
+    /**
+     * @return Return a list of struct readers with the given values.
+     */
+    public static List<StructReader> list( long... values ) {
+
+        List<StructReader> result = new ArrayList<StructReader>();
+
+        for( long value : values ) {
+            result.add( wrap( value ) );
+        }
+
+        return result;
+
+    }
+
+    // get a list of StructReader between the given range (inclusive)
+    public static List<StructReader> range( long start, long end ) {
+
+        List<StructReader> result = new ArrayList();
+
+        for( long i = start; i <= end; ++i ) {
+            result.add( StructReaders.wrap( i ) );
+        }
+
+        return result;
+
+    }
+
 }

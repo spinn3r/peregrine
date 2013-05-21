@@ -22,7 +22,6 @@ import peregrine.io.chunk.*;
 import peregrine.shuffle.*;
 import peregrine.util.*;
 import peregrine.os.*;
-import peregrine.util.primitive.LongBytes;
 
 import org.jboss.netty.buffer.*;
 

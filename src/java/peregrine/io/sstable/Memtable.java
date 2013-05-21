@@ -16,12 +16,14 @@
 
 package peregrine.io.sstable;
 
-import java.io.*;
-import java.util.*;
+import peregrine.Record;
+import peregrine.StructReader;
+import peregrine.StructReaders;
+import peregrine.io.SequenceWriter;
+import peregrine.worker.clientd.requests.BackendRequest;
 
-import peregrine.*;
-import peregrine.io.*;
-import peregrine.worker.clientd.requests.*;
+import java.io.IOException;
+import java.util.*;
 
 /**
  * This is the same essential design used in LevelDB, Cassandra, and
@@ -29,21 +31,11 @@ import peregrine.worker.clientd.requests.*;
  */
 public class Memtable implements SSTableReader, SSTableWriter {
 
-    //FIXME: this structure won't work because we CAN NOT just overwrite the
-    //prevous value because we may wish to keep the last N value.  It would work
-    //for some tables but not others.  However, the overhead of creating a LIST
-    //of objects isn't easy either.
-    //
-    //FIXME: ok, a solution to this could be to have a LinkedList of internal
-    //maps so that we can take the current value and stick it into the 'next'
-    //map.  This way we only have a max of N maps do deal with AND the their
-    //capacity is deterministic.  I do NOT like the issue where where we have
-    //byte[] and List<byte[]> at the same time.
-    
     //FIXME: use a MultiRecordReader to store entries.  It requries 1 byte
     //overhead PER entry.  We just store a varint which is the length of the
     //next record.  This way we can store N records per entry without much
-    //overhead.
+    //overhead.  We need this MultiRecordReader for ALL entries even in regular
+    //SSTables since we're talking about a multi-dimensional space.
 
     // There is an 80 byte overhead for objects in the memtable.
     private static final long OVERHEAD_PER_RECORD = 80;

@@ -35,7 +35,7 @@ public class TestClientServerProtocol extends peregrine.BaseTestWithMultipleProc
     // more bugs
 
     int max = 50;
-    List<StructReader> keys = range( 1, max );
+    List<StructReader> keys = StructReaders.range( 1, max );
     Partition partition = new Partition(0);
     Connection conn = new Connection( "http://localhost:11112" );
     String path = String.format( "/test/%s/test1.sstable", getClass().getName() );
@@ -56,7 +56,7 @@ public class TestClientServerProtocol extends peregrine.BaseTestWithMultipleProc
 
     public void doTest() throws Exception {
 
-        doSetup( range( 1, max ) );
+        doSetup( StructReaders.range( 1, max ) );
 
         //doTestGetRequests( range( 1, max ), max );
         //doTestGetRequests( range( 100, 150 ), 0 );
@@ -108,7 +108,9 @@ public class TestClientServerProtocol extends peregrine.BaseTestWithMultipleProc
         doTestScanRequests();
         doTestScanRequests();
         doTestScanRequests();
-        doTestScanRequests();
+
+        doTestGetRequests( StructReaders.range( 1, max ), max );
+        doTestGetRequests( StructReaders.range( 100, 150 ), 0 );
 
     }
 

@@ -25,6 +25,7 @@ import peregrine.io.*;
 import peregrine.io.chunk.*;
 import peregrine.io.util.*;
 import peregrine.io.sstable.*;
+import peregrine.metrics.RegionMetrics;
 import peregrine.rpc.*;
 import peregrine.sort.*;
 import peregrine.worker.clientd.requests.BackendRequest;
@@ -41,7 +42,7 @@ public class LocalPartitionReader extends BaseJobInput
     private String path = null;
 
     // ALL chunks we have for this reader.
-    private List<DefaultChunkReader> chunkReaders = new ArrayList();
+    private List<DefaultChunkReader> chunkReaders = new ArrayList<DefaultChunkReader>();
 
     // iterator to handle 
     private Iterator<DefaultChunkReader> iterator = null;
@@ -62,7 +63,7 @@ public class LocalPartitionReader extends BaseJobInput
     private int count = 0;
 
     // the index of data blocks for seekTo and scan support.
-    protected TreeMap<StructReader,DataBlockReference> dataBlockLookup = null;
+    protected TreeMap<StructReader,IndexBlockReference> indexBlockLookup = null;
 
     // the current key we are working with.
     private StructReader key = null;
@@ -73,6 +74,14 @@ public class LocalPartitionReader extends BaseJobInput
     // the first key in the stream of keys.  Used for scan operation when a
     // scan isn't given a start key.
     private StructReader firstKey = null;
+
+    // by default we just accumulate region metrics in one main metric system.
+    // in practice what we want to do is create this externally and pass it in.
+    // Providing a default allows us to use the null object pattern and simply
+    // call the methods against the metrics even though we don't care about the
+    // results since they don't mean much globally. The per-reader version
+    // does make it easy to work with in testing though.
+    private RegionMetrics regionMetrics = new RegionMetrics();
 
     public LocalPartitionReader( Config config,
                                  Partition partition,
@@ -109,37 +118,47 @@ public class LocalPartitionReader extends BaseJobInput
 
         // update the count by looking at all the chunks and returning the number
         // of key/value pairs they contain.
-        for( ChunkReader reader : chunkReaders ) {
+        for( DefaultChunkReader reader : chunkReaders ) {
             count += reader.count();
         }
 
-        dataBlockLookup = buildDataBlockIndex();
+        indexBlockLookup = buildIndexBlockLookup();
         
     }
 
-    private TreeMap<StructReader,DataBlockReference> buildDataBlockIndex() {
+    private TreeMap<StructReader,IndexBlockReference> buildIndexBlockLookup() {
 
-        TreeMap<StructReader,DataBlockReference> result = new TreeMap( new StrictStructReaderComparator() );
+        TreeMap<StructReader,IndexBlockReference> result = new TreeMap( new StrictStructReaderComparator() );
 
         // build the index of the ChunkReaders.
 
         byte[] lastKey = null;
-        
+
+        IndexBlockReference last = null;
+
         for ( int idx = 0; idx < chunkReaders.size(); ++idx ) {
 
             DefaultChunkReader current = chunkReaders.get( idx );
             
-            for( DataBlock db : current.getDataBlocks() ) {
+            for( IndexBlock db : current.getIndexBlocks() ) {
 
                 if ( firstKey == null )
                     firstKey = StructReaders.wrap(db.getFirstKey());
 
-                DataBlockReference ref = new DataBlockReference();
+                IndexBlockReference ref = new IndexBlockReference();
                 ref.reader = current;
                 ref.idx = idx;
-                ref.dataBlock = db;
+                ref.indexBlock = db;
 
-                result.put( StructReaders.wrap( db.firstKey ), ref );
+                result.put( StructReaders.wrap( db.getFirstKey() ), ref );
+
+                // update the linked list structure
+                if ( last != null ) {
+                    last.next = ref;
+                }
+
+                last = ref;
+
             }
 
             if ( current.getTrailer().getCount() > 0 ) {
@@ -148,6 +167,8 @@ public class LocalPartitionReader extends BaseJobInput
             
         }
 
+        // this is a fake entry for the last key so that keys that are clearly
+        // past the index don't even show up in searches.
         if ( lastKey != null ) {
         
             BigInteger ptr = new BigInteger( lastKey );
@@ -168,7 +189,7 @@ public class LocalPartitionReader extends BaseJobInput
             result.put( new StructReader( pd ), null );
 
         }
-            
+
         return result;
                     
     }
@@ -177,9 +198,9 @@ public class LocalPartitionReader extends BaseJobInput
      * Find the data block reference that could potentially hold the given key
      * so that I can find it within the given DefaultChunkReader.
      */
-    protected DataBlockReference findDataBlockReference( StructReader key ) {
+    protected IndexBlockReference findIndexBlockReference(StructReader key) {
         
-        Map.Entry<StructReader,DataBlockReference> entry = dataBlockLookup.floorEntry(key);
+        Map.Entry<StructReader,IndexBlockReference> entry = indexBlockLookup.floorEntry(key);
 
         if ( entry == null )
             return null;
@@ -220,17 +241,23 @@ public class LocalPartitionReader extends BaseJobInput
         this.key = null;
         this.value = null;
 
-        //FIXME: if we weren't able to find this key in this block it is not
-        //going to be in the next block so mark them complete. (at least for GET
-        //requests).
+        // the list must be sorted before we service it so that we can
+        // access keys on the same block without going backwards and
+        // accessing the same block again.  A seek is involved with fetching
+        // a block as is optionally decompression and that's expensive.  By
+        // first sorting the set we avoid both expensive operations.
+        Collections.sort( requests );
 
-        Map<DataBlockReference,List<BackendRequest>> dataBlockLookup = new TreeMap();
+        Map<IndexBlockReference,List<BackendRequest>> requestIndexBlockTable =
+                new TreeMap<IndexBlockReference, List<BackendRequest>>();
 
         LastRecordListener lastRecordListener = new LastRecordListener( listener );
         
         for( BackendRequest request : requests ) {
 
-            //FIXME skip suspended clients...
+            // TODO: skip suspended clients
+            //
+            // https://bitbucket.org/burtonator/peregrine/issue/210/sstable-make-sure-suspended-clients-arent
 
             if ( request instanceof ScanBackendRequest ) {
 
@@ -248,24 +275,32 @@ public class LocalPartitionReader extends BaseJobInput
 
             StructReader key = request.getSeekKey();
 
-            DataBlockReference ref = findDataBlockReference( key );
+            IndexBlockReference ref = findIndexBlockReference(key);
 
             // this key isn't indexed so no need to check.
-            if ( ref == null )
+            if ( ref == null ) {
+                request.setComplete(true);
                 continue;
+            }
 
-            List<BackendRequest> requestsForReference = dataBlockLookup.get( ref );
+            List<BackendRequest> requestsForReference = requestIndexBlockTable.get( ref );
 
             if ( requestsForReference == null ) {
                 requestsForReference = new ArrayList();
-                dataBlockLookup.put(ref, requestsForReference);
+                requestIndexBlockTable.put(ref, requestsForReference);
             }
 
             requestsForReference.add( request );
             
         }
 
-        for( DataBlockReference ref : dataBlockLookup.keySet() ) {
+        // keep the references we need to page through.
+        List<IndexBlockReference> indexBlockReferences = new ArrayList<IndexBlockReference>();
+        indexBlockReferences.addAll(requestIndexBlockTable.keySet());
+
+        while( indexBlockReferences.size() > 0 ) {
+
+            IndexBlockReference ref = indexBlockReferences.remove(0);
 
             chunkReader = ref.reader;
 
@@ -276,17 +311,35 @@ public class LocalPartitionReader extends BaseJobInput
             // update the chunk ref that we're working with.
             chunkRef = new ChunkReference( partition, ref.idx );
 
-            List<BackendRequest> refKeys = dataBlockLookup.get( ref );
+            List<BackendRequest> refKeys = requestIndexBlockTable.get( ref );
 
-            //FIXME: should this return any entries that are incomplete (and for
-            // further processing).  This is going to be needed for scan requests
-            // that use more than one block.
-            List<BackendRequest> incomplete =
-                    ref.reader.seekTo( refKeys, ref.dataBlock, lastRecordListener );
+            List<BackendRequest> partialScanRequests =
+                    ref.reader.seekTo( refKeys, ref.indexBlock, lastRecordListener );
 
-            if ( ref.idx == dataBlockLookup.size() - 1 ) {
+            if ( ref.next != null ) {
 
-                for( BackendRequest request : incomplete ) {
+                if ( partialScanRequests.size() > 0 ) {
+
+                    // scan requests need to index multiple blocks
+
+                    refKeys = requestIndexBlockTable.get( ref.next );
+
+                    if ( refKeys != null ) {
+                        refKeys.addAll( partialScanRequests );
+                        Collections.sort( refKeys );
+                    } else {
+                        requestIndexBlockTable.put(ref.next, partialScanRequests);
+                        indexBlockReferences.add( 0, ref.next );
+                    }
+
+                }
+
+            } else  {
+
+                // this is the LAST block in the entire index and by definition there
+                // is nothing left to index.
+
+                for( BackendRequest request : partialScanRequests ) {
                     request.setComplete(true);
                 }
 
@@ -375,6 +428,23 @@ public class LocalPartitionReader extends BaseJobInput
         
     }
 
+    public RegionMetrics getRegionMetrics() {
+        return regionMetrics;
+    }
+
+    /**
+     * Set the region metrics and on all chunk readers.
+     */
+    public void setRegionMetrics(RegionMetrics regionMetrics) {
+
+        this.regionMetrics = regionMetrics;
+
+        for( DefaultChunkReader reader : chunkReaders ) {
+            reader.setRegionMetrics(regionMetrics);
+        }
+
+    }
+
     @Override
     public String toString() {
 
@@ -402,7 +472,9 @@ public class LocalPartitionReader extends BaseJobInput
     // contains a data block and a chunk reference and all the metadata needed
     // to find a data block and seekTo the position of a key and optionally
     // scan.
-    class DataBlockReference implements Comparable<DataBlockReference> {
+    class IndexBlockReference implements Comparable<IndexBlockReference> {
+
+        StrictStructReaderComparator comparator = new StrictStructReaderComparator();
 
         // keeps a pointer to the chunk this data block is stored 
         protected DefaultChunkReader reader = null;
@@ -413,11 +485,19 @@ public class LocalPartitionReader extends BaseJobInput
 
         // the data block for this reference.  Used so that we can call seekTo
         // within the actual chunk.
-        protected DataBlock dataBlock = null;
+        protected IndexBlock indexBlock = null;
 
-        // the order doesn't really matter as long as it's deterministic.
-        public int compareTo( DataBlockReference db ) {
-            return hashCode() - db.hashCode();
+        // the next data block reference. We keep a forward linked list so that
+        // we can jump to the next block if a scan request isn't finished.
+        protected IndexBlockReference next = null;
+
+        public int compareTo( IndexBlockReference db ) {
+
+            StructReader key0 = StructReaders.wrap( indexBlock.getFirstKey() );
+            StructReader key1 = StructReaders.wrap( db.indexBlock.getFirstKey() );
+
+            return comparator.compare( key0, key1 );
+
         }
         
     }

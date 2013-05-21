@@ -26,7 +26,7 @@ import java.math.*;
 
 import peregrine.os.*;
 import peregrine.util.*;
-import peregrine.util.primitive.*;
+
 import peregrine.app.pagerank.*;
 import peregrine.config.*;
 import peregrine.worker.*;
@@ -210,8 +210,323 @@ public class Test {
         }
 
     }
-    
+
+    public static void test1() throws Exception {
+
+        System.gc();
+
+        int max = 100000;
+
+        long before = System.currentTimeMillis();
+
+        for( int i = 0; i < max; ++i ) {
+
+            List<StructReader> list = StructReaders.range( 1, 1000 );
+
+            Collections.sort( list, new StrictStructReaderComparator() );
+
+        }
+
+        long after = System.currentTimeMillis();
+
+        long duration = after-before;
+
+        System.out.printf("test1 duration: %,d ms\n", duration );
+
+    }
+
+    public static void test2() throws Exception {
+
+        int max = 10000;
+
+        long before = System.currentTimeMillis();
+
+        for( int i = 0; i < max; ++i ) {
+
+            List<StructReader> list = StructReaders.range( 1, 1000 );
+
+            RequestIndex index = new RequestIndex();
+
+            for( StructReader key : list ) {
+                index.put( key );
+            }
+
+
+        }
+
+        long after = System.currentTimeMillis();
+
+        long duration = after-before;
+
+        System.out.printf("test2 duration: %,d ms", duration );
+
+    }
+
+    public static void test3() throws Exception {
+
+        // this is WAY fucking slower than sort...
+
+        int max = 100000;
+
+        long before = System.currentTimeMillis();
+
+        for( int i = 0; i < max; ++i ) {
+
+            List<StructReader> list = StructReaders.range( 1, 1000 );
+
+            PriorityQueue<StructReader> queue = new PriorityQueue<StructReader>(list.size(), new StrictStructReaderComparator() );
+
+            for( StructReader key : list ) {
+                queue.add( key );
+            }
+
+            while( queue.poll() != null ) {
+                // noop... just drain it.
+            }
+
+        }
+
+        long after = System.currentTimeMillis();
+
+        long duration = after-before;
+
+        System.out.printf("test2 duration: %,d ms", duration );
+
+    }
+
+    public static void test4() throws Exception {
+
+        int max = 100000;
+
+        long before = System.currentTimeMillis();
+
+        for( int i = 0; i < max; ++i ) {
+
+            List<StructReader> list = StructReaders.range( 1, 1000 );
+
+            Collections.sort( list, new StrictStructReaderComparator() );
+
+        }
+
+        long after = System.currentTimeMillis();
+
+        long duration = after-before;
+
+        System.out.printf("test1 duration: %,d ms", duration );
+
+    }
+
+
+    static class RequestIndex {
+
+        private Map<StructReader,List<StructReader>> map
+                = new TreeMap<StructReader, List<StructReader>>( new StrictStructReaderComparator() );
+
+        public void put( StructReader key ) {
+
+            List<StructReader> value = map.get( key );
+
+            if ( value == null ) {
+                value = new ArrayList<StructReader>();
+                map.put( key, value );
+            }
+
+            value.add( key );
+
+        }
+
+    }
+
+    public static void test5() throws Exception {
+
+        System.gc();
+
+        int max = 1;
+
+        List<StructReader> l0 = StructReaders.range( 1, 500 );
+        List<StructReader> l1 = StructReaders.range( 1, 500 );
+
+        List<StructReader> list = new ArrayList<StructReader>();
+        list.addAll(l0);
+        list.addAll(l1);
+
+        long before = System.currentTimeMillis();
+
+        //
+        for( int i = 0; i < max; ++i ) {
+
+            List<GroupByEntry> sort = new ArrayList<GroupByEntry>( list.size() );
+
+            for( StructReader key : list ) {
+                sort.add( new GroupByEntry(key));
+            }
+
+            Collections.sort( sort );
+
+            List<List<GroupByEntry>> result = new ArrayList<List<GroupByEntry>>( list.size() );
+
+            Iterator<GroupByEntry> it = sort.iterator();
+
+            List<GroupByEntry> current = new ArrayList<GroupByEntry>();
+
+            //TODO: ok.. we can improve the performance of this significantly
+            //by just having a custom iterator instead of using a regular
+            //iterator.
+
+            while( it.hasNext() ) {
+
+                GroupByEntry entry = it.next();
+
+                //System.out.printf( "%s: diff: %s\n", Hex.encode(entry.key), entry.diff );
+
+                current.add( entry );
+
+                while( entry.sibling != null ) {
+                    entry = entry.sibling;
+                    current.add( entry );
+                    it.next();
+                }
+
+                System.out.printf( "%s:= %s\n", Hex.encode(entry.key), current );
+
+                result.add( current );
+                current = new ArrayList<GroupByEntry>();
+
+            }
+
+
+        }
+
+        long after = System.currentTimeMillis();
+
+        long duration = after-before;
+
+        System.out.printf("test5 duration: %,d ms\n", duration );
+
+    }
+
+
+    static class GroupByEntry implements Comparable<GroupByEntry> {
+
+        private static final StrictStructReaderComparator comparator
+                = new StrictStructReaderComparator();
+
+        protected StructReader key;
+
+        protected GroupByEntry sibling = null;
+
+        protected int diff = 0;
+
+        GroupByEntry(StructReader key) {
+            this.key = key;
+        }
+
+        @Override
+        public int compareTo(GroupByEntry groupByEntry) {
+
+             diff = comparator.compare( key, groupByEntry.key );
+
+            if ( diff == 0 )
+                sibling = groupByEntry;
+
+            return diff;
+
+        }
+    }
+
+    public static void test6() throws Exception {
+
+        System.gc();
+
+        int max = 100000;
+
+        List<StructReader> l0 = StructReaders.range( 1, 500 );
+        List<StructReader> l1 = StructReaders.range( 1, 500 );
+
+        List<StructReader> list = new ArrayList<StructReader>();
+        list.addAll(l0);
+        list.addAll(l1);
+
+        long before = System.currentTimeMillis();
+
+        //
+        for( int i = 0; i < max; ++i ) {
+
+            List<GroupByEntry> sort = new ArrayList<GroupByEntry>( list.size() );
+
+            for( StructReader key : list ) {
+                sort.add( new GroupByEntry(key));
+            }
+
+            Collections.sort( sort );
+
+            List<List<GroupByEntry>> result = new ArrayList<List<GroupByEntry>>( list.size() );
+
+            Iterator<GroupByEntry> it = sort.iterator();
+
+            List<GroupByEntry> current = new ArrayList<GroupByEntry>();
+
+            while( it.hasNext() ) {
+
+                GroupByEntry entry = it.next();
+                current.add( entry );
+
+                while( entry.sibling != null ) {
+                    entry = entry.sibling;
+                    current.add( entry );
+                    it.next();
+                }
+
+                result.add( current );
+                current = new ArrayList<GroupByEntry>();
+
+            }
+
+
+        }
+
+        long after = System.currentTimeMillis();
+
+        long duration = after-before;
+
+        System.out.printf("test6 duration: %,d ms\n", duration );
+
+    }
+
+    static class GroupByEntry2 implements Comparable<GroupByEntry> {
+
+        private static final StrictStructReaderComparator comparator
+                = new StrictStructReaderComparator();
+
+        protected StructReader key;
+
+        protected GroupByEntry sibling = null;
+
+        GroupByEntry2(StructReader key) {
+            this.key = key;
+        }
+
+        @Override
+        public int compareTo(GroupByEntry groupByEntry) {
+
+            int diff = comparator.compare( key, groupByEntry.key );
+
+            if ( diff == 0 )
+                sibling = groupByEntry;
+
+            return diff;
+
+        }
+    }
+
     public static void main( String[] args ) throws Exception {
+
+        test5();
+
+
+//            test1();
+//        test5();
+
 
 
 //        BackendRequestQueue bq = new BackendRequestQueue( null );

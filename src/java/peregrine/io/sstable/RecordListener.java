@@ -16,7 +16,7 @@
 
 package peregrine.io.sstable;
 
-import peregrine.*;
+import peregrine.StructReader;
 import peregrine.worker.clientd.requests.BackendRequest;
 
 /**

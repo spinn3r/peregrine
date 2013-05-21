@@ -22,7 +22,7 @@ import org.jboss.netty.buffer.*;
 
 import peregrine.io.*;
 import peregrine.util.*;
-import peregrine.util.primitive.*;
+
 
 /**
  * Used so that we can write key/value pairs to a StructReader.  This is

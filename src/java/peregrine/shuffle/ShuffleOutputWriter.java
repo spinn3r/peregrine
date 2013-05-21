@@ -16,9 +16,7 @@
 package peregrine.shuffle;
 
 import java.io.*;
-import java.nio.channels.*;
 import java.util.*;
-import java.util.concurrent.*;
 import java.util.concurrent.atomic.*;
 
 import peregrine.*;
@@ -27,7 +25,6 @@ import peregrine.io.util.*;
 import peregrine.os.*;
 import peregrine.util.*;
 import peregrine.util.netty.*;
-import peregrine.util.primitive.*;
 import org.jboss.netty.buffer.*;
 
 import com.spinn3r.log5j.Logger;
@@ -38,8 +35,8 @@ import com.spinn3r.log5j.Logger;
  */
 public class ShuffleOutputWriter implements Closeable {
 
-    public static final int LOOKUP_HEADER_SIZE = IntBytes.LENGTH * 5;
-    public static final int PACKET_HEADER_SIZE = IntBytes.LENGTH * 4;
+    public static final int LOOKUP_HEADER_SIZE = Integers.LENGTH * 5;
+    public static final int PACKET_HEADER_SIZE = Integers.LENGTH * 4;
 
     private static final Logger log = Logger.getLogger();
 
@@ -177,7 +174,7 @@ public class ShuffleOutputWriter implements Closeable {
             
             output.write( ChannelBuffers.wrappedBuffer( MAGIC ) );
             
-            output.write( new StructWriter( IntBytes.LENGTH )
+            output.write( new StructWriter( Integers.LENGTH )
                           .writeInt( lookup.size() )
                           .getChannelBuffer() );
             
@@ -185,7 +182,7 @@ public class ShuffleOutputWriter implements Closeable {
             // partition and chunk.
             
             int offset =
-                MAGIC.length + IntBytes.LENGTH + (lookup.size() * LOOKUP_HEADER_SIZE);
+                MAGIC.length + Integers.LENGTH + (lookup.size() * LOOKUP_HEADER_SIZE);
 
             // TODO: these should be stored in the primary order that they will be
             // reduce by priority on this box.

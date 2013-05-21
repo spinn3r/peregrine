@@ -21,12 +21,12 @@ import java.util.*;
 import peregrine.*;
 import peregrine.util.*;
 import peregrine.io.chunk.*;
-import peregrine.util.primitive.*;
 
 import com.spinn3r.log5j.*;
 
 /**
- * 
+ * Comparator for StructReaders that maintains exactly byte order comparison
+ * but is slightly slower.
  */
 public class StrictStructReaderComparator implements Comparator<StructReader> {
 
@@ -37,18 +37,11 @@ public class StrictStructReaderComparator implements Comparator<StructReader> {
 
         int diff = 0;
 
-        //TODO: right now we assume that the both StructReaders are of equal
-        //length.  We can use the min() of both lengths and then compare those
-        //bytes and then if we pass through subtract the lengths of both so that
-        //shorter strings appear first.  I think think this is an easy change
-        //but it needs to be tested.
-        int len = sr0.length();
+        int len = Math.min(sr0.length(), sr1.length());
 
-        //TODO is it faster to make these byte arrays in one method call or call
-        //getByte() for each byte?
         for( int offset = 0; offset < len; ++offset ) {
 
-            //TODO: this will be SLOW for raw key comparison (so don't use it
+            //this will be SLOW for normal key comparison (so don't use it
             //when we are in that mode).
 
             diff = (sr0.getByte( offset ) & 0xFF) - (sr1.getByte( offset ) & 0xFF);
@@ -58,7 +51,7 @@ public class StrictStructReaderComparator implements Comparator<StructReader> {
             
         }
 
-        return 0; // no difference
+        return sr0.length() - sr1.length();
         
     }
     

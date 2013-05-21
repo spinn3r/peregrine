@@ -20,7 +20,6 @@ import java.util.*;
 
 import peregrine.*;
 import peregrine.util.*;
-import peregrine.util.primitive.LongBytes;
 import peregrine.reduce.*;
 import peregrine.config.*;
 import peregrine.io.*;

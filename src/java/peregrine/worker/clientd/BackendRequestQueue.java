@@ -16,12 +16,9 @@
 
 package peregrine.worker.clientd;
 
-import peregrine.client.GetRequest;
 import peregrine.config.Config;
+import peregrine.metrics.WorkerMetrics;
 import peregrine.worker.clientd.requests.BackendRequest;
-import peregrine.worker.clientd.requests.GetBackendRequest;
-import peregrine.worker.clientd.requests.RequestSizeable;
-import peregrine.worker.clientd.requests.ScanBackendRequest;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -37,15 +34,19 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class BackendRequestQueue {
 
-    public static final int LIMIT = 50000; /* FIXME */
-
     private LinkedBlockingQueue<List<BackendRequest>> delegate;
 
     // keep track of the size of the queue.
     private AtomicInteger size = new AtomicInteger();
 
-    public BackendRequestQueue( Config config ) {
-        delegate = new LinkedBlockingQueue();
+    private Config config;
+
+    private WorkerMetrics workerMetrics;
+
+    public BackendRequestQueue( Config config, WorkerMetrics workerMetrics ) {
+        this.config = config;
+        this.workerMetrics = workerMetrics;
+        delegate = new LinkedBlockingQueue( config.getBackendRequestQueueSize() );
     }
 
     /**
@@ -80,7 +81,7 @@ public class BackendRequestQueue {
      * specify the list of additional keys that you would add to the queue.
      */
     public boolean isExhausted( int newRequestsSize ) {
-       return size.get() + newRequestsSize >= LIMIT;
+       return size.get() + newRequestsSize >= config.getBackendRequestQueueSize();
     }
 
     /**
