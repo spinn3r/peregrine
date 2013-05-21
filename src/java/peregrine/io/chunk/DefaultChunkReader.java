@@ -185,13 +185,7 @@ public class DefaultChunkReader extends BaseSSTableChunk
 
     @Override
     public boolean hasNext() throws IOException {
-
-        if( idx < count ) {
-            return true;
-        } else {
-            return false;
-        }
-
+        return idx < count;
     }
 
     @Override
