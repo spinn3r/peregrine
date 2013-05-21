@@ -28,7 +28,6 @@ import peregrine.io.sstable.*;
 import peregrine.metrics.RegionMetrics;
 import peregrine.rpc.*;
 import peregrine.sort.*;
-import peregrine.util.Hex;
 import peregrine.worker.clientd.requests.BackendRequest;
 import peregrine.worker.clientd.requests.ScanBackendRequest;
 
@@ -64,7 +63,7 @@ public class LocalPartitionReader extends BaseJobInput
     private int count = 0;
 
     // the index of data blocks for seekTo and scan support.
-    protected TreeMap<StructReader,DataBlockReference> dataBlockLookup = null;
+    protected TreeMap<StructReader,IndexBlockReference> indexBlockLookup = null;
 
     // the current key we are working with.
     private StructReader key = null;
@@ -123,34 +122,33 @@ public class LocalPartitionReader extends BaseJobInput
             count += reader.count();
         }
 
-        dataBlockLookup = buildDataBlockIndex();
+        indexBlockLookup = buildIndexBlockLookup();
         
     }
 
-    private TreeMap<StructReader,DataBlockReference> buildDataBlockIndex() {
+    private TreeMap<StructReader,IndexBlockReference> buildIndexBlockLookup() {
 
-        TreeMap<StructReader,DataBlockReference> result = new TreeMap( new StrictStructReaderComparator() );
+        TreeMap<StructReader,IndexBlockReference> result = new TreeMap( new StrictStructReaderComparator() );
 
         // build the index of the ChunkReaders.
 
         byte[] lastKey = null;
 
-
-        DataBlockReference last = null;
+        IndexBlockReference last = null;
 
         for ( int idx = 0; idx < chunkReaders.size(); ++idx ) {
 
             DefaultChunkReader current = chunkReaders.get( idx );
             
-            for( DataBlock db : current.getDataBlocks() ) {
+            for( IndexBlock db : current.getIndexBlocks() ) {
 
                 if ( firstKey == null )
                     firstKey = StructReaders.wrap(db.getFirstKey());
 
-                DataBlockReference ref = new DataBlockReference();
+                IndexBlockReference ref = new IndexBlockReference();
                 ref.reader = current;
                 ref.idx = idx;
-                ref.dataBlock = db;
+                ref.indexBlock = db;
 
                 result.put( StructReaders.wrap( db.getFirstKey() ), ref );
 
@@ -200,9 +198,9 @@ public class LocalPartitionReader extends BaseJobInput
      * Find the data block reference that could potentially hold the given key
      * so that I can find it within the given DefaultChunkReader.
      */
-    protected DataBlockReference findDataBlockReference( StructReader key ) {
+    protected IndexBlockReference findIndexBlockReference(StructReader key) {
         
-        Map.Entry<StructReader,DataBlockReference> entry = dataBlockLookup.floorEntry(key);
+        Map.Entry<StructReader,IndexBlockReference> entry = indexBlockLookup.floorEntry(key);
 
         if ( entry == null )
             return null;
@@ -250,8 +248,9 @@ public class LocalPartitionReader extends BaseJobInput
         // first sorting the set we avoid both expensive operations.
         Collections.sort( requests );
 
-        Map<DataBlockReference,List<BackendRequest>> dataBlockLookup =
-                new TreeMap<DataBlockReference, List<BackendRequest>>();
+        //FIXME: doens't this conflict with the global indexBlockLookup???
+        Map<IndexBlockReference,List<BackendRequest>> indexBlockLookup =
+                new TreeMap<IndexBlockReference, List<BackendRequest>>();
 
         LastRecordListener lastRecordListener = new LastRecordListener( listener );
         
@@ -275,7 +274,7 @@ public class LocalPartitionReader extends BaseJobInput
 
             StructReader key = request.getSeekKey();
 
-            DataBlockReference ref = findDataBlockReference( key );
+            IndexBlockReference ref = findIndexBlockReference(key);
 
             // this key isn't indexed so no need to check.
             if ( ref == null ) {
@@ -283,11 +282,11 @@ public class LocalPartitionReader extends BaseJobInput
                 continue;
             }
 
-            List<BackendRequest> requestsForReference = dataBlockLookup.get( ref );
+            List<BackendRequest> requestsForReference = indexBlockLookup.get( ref );
 
             if ( requestsForReference == null ) {
                 requestsForReference = new ArrayList();
-                dataBlockLookup.put(ref, requestsForReference);
+                indexBlockLookup.put(ref, requestsForReference);
             }
 
             requestsForReference.add( request );
@@ -295,12 +294,12 @@ public class LocalPartitionReader extends BaseJobInput
         }
 
         // keep the references we need to page through.
-        List<DataBlockReference> dataBlockReferences = new ArrayList<DataBlockReference>();
-        dataBlockReferences.addAll( dataBlockLookup.keySet() );
+        List<IndexBlockReference> indexBlockReferences = new ArrayList<IndexBlockReference>();
+        indexBlockReferences.addAll(indexBlockLookup.keySet());
 
-        while( dataBlockReferences.size() > 0 ) {
+        while( indexBlockReferences.size() > 0 ) {
 
-            DataBlockReference ref = dataBlockReferences.remove(0);
+            IndexBlockReference ref = indexBlockReferences.remove(0);
 
             chunkReader = ref.reader;
 
@@ -311,10 +310,10 @@ public class LocalPartitionReader extends BaseJobInput
             // update the chunk ref that we're working with.
             chunkRef = new ChunkReference( partition, ref.idx );
 
-            List<BackendRequest> refKeys = dataBlockLookup.get( ref );
+            List<BackendRequest> refKeys = indexBlockLookup.get( ref );
 
             List<BackendRequest> partialScanRequests =
-                    ref.reader.seekTo( refKeys, ref.dataBlock, lastRecordListener );
+                    ref.reader.seekTo( refKeys, ref.indexBlock, lastRecordListener );
 
             if ( ref.next != null ) {
 
@@ -322,14 +321,14 @@ public class LocalPartitionReader extends BaseJobInput
 
                     // scan requests need to index multiple blocks
 
-                    refKeys = dataBlockLookup.get( ref.next );
+                    refKeys = indexBlockLookup.get( ref.next );
 
                     if ( refKeys != null ) {
                         refKeys.addAll( partialScanRequests );
                         Collections.sort( refKeys );
                     } else {
-                        dataBlockLookup.put( ref.next, partialScanRequests );
-                        dataBlockReferences.add( 0, ref.next );
+                        indexBlockLookup.put(ref.next, partialScanRequests);
+                        indexBlockReferences.add( 0, ref.next );
                     }
 
                 }
@@ -472,7 +471,7 @@ public class LocalPartitionReader extends BaseJobInput
     // contains a data block and a chunk reference and all the metadata needed
     // to find a data block and seekTo the position of a key and optionally
     // scan.
-    class DataBlockReference implements Comparable<DataBlockReference> {
+    class IndexBlockReference implements Comparable<IndexBlockReference> {
 
         StrictStructReaderComparator comparator = new StrictStructReaderComparator();
 
@@ -485,16 +484,16 @@ public class LocalPartitionReader extends BaseJobInput
 
         // the data block for this reference.  Used so that we can call seekTo
         // within the actual chunk.
-        protected DataBlock dataBlock = null;
+        protected IndexBlock indexBlock = null;
 
         // the next data block reference. We keep a forward linked list so that
         // we can jump to the next block if a scan request isn't finished.
-        protected DataBlockReference next = null;
+        protected IndexBlockReference next = null;
 
-        public int compareTo( DataBlockReference db ) {
+        public int compareTo( IndexBlockReference db ) {
 
-            StructReader key0 = StructReaders.wrap( dataBlock.getFirstKey() );
-            StructReader key1 = StructReaders.wrap( db.dataBlock.getFirstKey() );
+            StructReader key0 = StructReaders.wrap( indexBlock.getFirstKey() );
+            StructReader key1 = StructReaders.wrap( db.indexBlock.getFirstKey() );
 
             return comparator.compare( key0, key1 );
 

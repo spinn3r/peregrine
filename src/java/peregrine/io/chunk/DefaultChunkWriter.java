@@ -74,8 +74,8 @@ public class DefaultChunkWriter extends BaseSSTableChunk implements ChunkWriter 
     // true when shutdown.
     private boolean shutdown = false;
 
-    // the current DataBlock
-    protected DataBlock dataBlock = null;
+    // the current IndexBlock
+    protected IndexBlock indexBlock = null;
 
     // the current MetaBlock
     protected MetaBlock metaBlock = null;
@@ -129,7 +129,7 @@ public class DefaultChunkWriter extends BaseSSTableChunk implements ChunkWriter 
         if ( closed )
             throw new IOException( "closed" );
 
-        if ( dataBlock == null || writer.length() - dataBlock.getOffset() > blockSize ) {
+        if ( indexBlock == null || writer.length() - indexBlock.getOffset() > blockSize ) {
             rollover( key );
         }
 
@@ -137,7 +137,7 @@ public class DefaultChunkWriter extends BaseSSTableChunk implements ChunkWriter 
 
         trailer.incrRecordUsage( key.length() + value.length() );
         trailer.incrCount();
-        dataBlock.incrCount();
+        indexBlock.incrCount();
         
         lastKey = key;
         
@@ -172,13 +172,13 @@ public class DefaultChunkWriter extends BaseSSTableChunk implements ChunkWriter 
 
     private void rollover( StructReader key) {
         endBlock();
-        startDataBlock( key );
+        startIndexBlock(key);
     }
 
     private void endBlock() {
 
-        if ( dataBlock != null && dataBlock.getCount() != 0 ) {
-            endDataBlock();
+        if ( indexBlock != null && indexBlock.getCount() != 0 ) {
+            endIndexBlock();
             addMetaBlockToIndex();
         }
 
@@ -186,21 +186,21 @@ public class DefaultChunkWriter extends BaseSSTableChunk implements ChunkWriter 
 
     // create a new data block and add it to the data block list and return the
     // newly created block.
-    private void startDataBlock( StructReader key ) {
+    private void startIndexBlock(StructReader key) {
 
-        // create a new datablock with teh correct first key specified.
-        dataBlock = new DataBlock( key.toByteArray() );
-        dataBlock.setOffset(writer.length());
+        // create a new index block with teh correct first key specified.
+        indexBlock = new IndexBlock( key.toByteArray() );
+        indexBlock.setOffset(writer.length());
 
-        dataBlocks.add( dataBlock );
+        indexBlocks.add(indexBlock);
 
     }
 
-    private void endDataBlock() {
+    private void endIndexBlock() {
 
         //TODO: compression would go here.
-        dataBlock.setLength(writer.length() - dataBlock.getOffset());
-        dataBlock.setLengthUncompressed(dataBlock.getLength());
+        indexBlock.setLength(writer.length() - indexBlock.getOffset());
+        indexBlock.setLengthUncompressed(indexBlock.getLength());
     }
 
     private void startMetaBlock() {
@@ -258,14 +258,27 @@ public class DefaultChunkWriter extends BaseSSTableChunk implements ChunkWriter 
             fileInfo.write( writer );
 
             trailer.setIndexOffset(writer.length());
-            trailer.setIndexCount(dataBlocks.size());
+            trailer.setIndexCount(indexBlocks.size());
 
             //FIXME: the MetaBlocks here are never used.  In fact they just flat
             //out aren't referenced.  Dump both of them.. ONLY have the concept
             //of an IndexBlock and an Index the IndexBlock can have key/value
             //pairs in the future.
+            //
+            // We basically need an Index and IndexBlock setup.  The Index is a
+            // region of the file that has a count which is an integer followed
+            // by offset:length fields (which are both ints and represent 4 bytes
+            // each for 8 bytes total.  This way we can keep the IndexBlocks on
+            // disk and optionally in VFS page cache (for large disk-only storage).
+            // On large disk arrays (say 16TB and only 12GB) it will be tight to
+            // keep the bloom filter data in memory and this way the VFS page
+            // cache can optionally keep it around.
+            //
+            // This isn't right.  DataBlocks should probably be renamed to index
+            // blocks ANYWAY because we need to keep the start key in them but
+            // we STILL need metablocks which just store bloom filter data.
 
-            for( DataBlock db : dataBlocks ) {
+            for( IndexBlock db : indexBlocks) {
                 db.write( writer );
             }
 

@@ -15,15 +15,11 @@
  */
 package peregrine.console.fs;
 
-import peregrine.*;
 import peregrine.util.*;
-import peregrine.io.*;
 import peregrine.io.chunk.*;
-import peregrine.io.util.*;
 import peregrine.io.sstable.*;
 
 import java.io.*;
-import java.util.*;
 
 /**
  * Cat a file on the filesytem.  This reads from a local PFS directory file
@@ -66,7 +62,7 @@ public class Stat {
         System.out.printf( "    %s\n", reader.getFileInfo() );
         System.out.printf( "data blocks: \n" );
 
-        for( DataBlock db : reader.getDataBlocks() ) {
+        for( IndexBlock db : reader.getIndexBlocks() ) {
 
             System.out.printf( "    %s\n", db );
             

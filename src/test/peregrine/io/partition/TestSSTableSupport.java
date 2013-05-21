@@ -90,12 +90,12 @@ public class TestSSTableSupport extends peregrine.BaseTestWithMultipleProcesses 
 
         }
 
-        assertNull( reader.findDataBlockReference( StructReaders.wrap( Long.MAX_VALUE ) ) );
-        assertNull( reader.findDataBlockReference( StructReaders.wrap( (long)max * 2 ) ) );
-        assertNull( reader.findDataBlockReference( StructReaders.wrap( (long)max ) ) );
+        assertNull( reader.findIndexBlockReference(StructReaders.wrap(Long.MAX_VALUE)) );
+        assertNull( reader.findIndexBlockReference(StructReaders.wrap((long) max * 2)) );
+        assertNull( reader.findIndexBlockReference(StructReaders.wrap((long) max)) );
 
         if ( max > 0 ) {
-            assertNotNull( reader.findDataBlockReference( StructReaders.wrap( (long)max-1 ) ) );
+            assertNotNull( reader.findIndexBlockReference(StructReaders.wrap((long) max - 1)) );
         }
 
         final AtomicInteger result = new AtomicInteger();

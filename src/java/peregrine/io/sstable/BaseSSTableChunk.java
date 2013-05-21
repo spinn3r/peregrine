@@ -31,7 +31,7 @@ public abstract class BaseSSTableChunk {
     protected Trailer trailer = new Trailer();
 
     // list of data blocks in the index.
-    protected List<DataBlock> dataBlocks = new ArrayList<DataBlock>();
+    protected List<IndexBlock> indexBlocks = new ArrayList<IndexBlock>();
 
     // list of meta blocks in the index
     protected List<MetaBlock> metaBlocks = new ArrayList<MetaBlock>();
@@ -44,8 +44,8 @@ public abstract class BaseSSTableChunk {
         return fileInfo;
     }
 
-    public List<DataBlock> getDataBlocks() {
-        return dataBlocks;
+    public List<IndexBlock> getIndexBlocks() {
+        return indexBlocks;
     }
 
     public List<MetaBlock> getMetaBlocks() {

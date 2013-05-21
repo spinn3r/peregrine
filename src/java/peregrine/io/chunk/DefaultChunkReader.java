@@ -73,7 +73,7 @@ public class DefaultChunkReader extends BaseSSTableChunk
 
     // the count of entries either in this block or in the entire file.  By
     // default it's the entire file but if we call seekTo() with a given
-    // DataBlock we update that value so hasNext() doesn't try to read past the
+    // IndexBlock we update that value so hasNext() doesn't try to read past the
     // restricted block.
     private int count = 0;
     
@@ -160,9 +160,9 @@ public class DefaultChunkReader extends BaseSSTableChunk
                     buff.readerIndex( (int)trailer.getIndexOffset() );
 
                     for( int i = 0; i < trailer.getIndexCount(); ++i ) {
-                        DataBlock db = new DataBlock();
+                        IndexBlock db = new IndexBlock();
                         db.read( buff );
-                        dataBlocks.add( db );
+                        indexBlocks.add( db );
                     }
 
                     for( int i = 0; i < trailer.getIndexCount(); ++i ) {
@@ -241,10 +241,10 @@ public class DefaultChunkReader extends BaseSSTableChunk
     }
 
     /**
-     * Fetch all the keys in the given DataBlock.
+     * Fetch all the keys in the given IndexBlock.
      * @return A list of all BackendRequests that are not complete.
      */
-    public List<BackendRequest> seekTo( List<BackendRequest> requests, DataBlock block, RecordListener listener ) throws IOException {
+    public List<BackendRequest> seekTo( List<BackendRequest> requests, IndexBlock block, RecordListener listener ) throws IOException {
 
         if ( requests.size() == 0 )
             return requests;

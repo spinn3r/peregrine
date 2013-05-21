@@ -24,13 +24,13 @@ import peregrine.util.netty.ChannelBufferWritable;
 
 import java.io.IOException;
 
-public class DataBlock extends BaseBlock {
+public class IndexBlock extends BaseBlock {
     
     private byte[] firstKey = null;
 
-    public DataBlock() { }
+    public IndexBlock() { }
 
-    public DataBlock( byte[] firstKey ) {
+    public IndexBlock(byte[] firstKey) {
         this.firstKey = firstKey;
     }
 
