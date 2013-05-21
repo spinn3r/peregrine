@@ -252,22 +252,15 @@ public class BackendRequestExecutor implements Runnable {
 
                 for( ClientBackendRequest clientBackendRequest : clientIndex ) {
 
+                    //FIXME: we need to send response messages with CRC32 checksums.
                     NonBlockingChannelBufferWritable writable =
                             new NonBlockingChannelBufferWritable( clientBackendRequest.getChannel() );
 
-                    // FIXME: we need to set a mode here for the DefaultChunkWriter to
-                    // include a CRC32 in the minimal form so that the entire record is
-                    // checked for checksum.  For starters we need it for the wire
-                    // protocol but we ALSO need it to detect if we failed to service
-                    // the request.
                     DefaultChunkWriter writer = new DefaultChunkWriter( config , writable );
 
                     clientBackendRequest.setSequenceWriter( writer );
 
                 }
-
-                //FIXME: how do we RESUME a scan if it is suspended... we would have to update
-                //the seekKey I believe.
 
                 reader.seekTo( requests, new RecordListener() {
 

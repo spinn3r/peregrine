@@ -88,8 +88,6 @@ public class FrontendHandler extends ErrorLoggingChannelUpstreamHandler {
 
         try {
 
-            log.info( "Received client RPC: %s", "FIXME" );
-
             // TODO: take all the client specified keys and pass HTTP requests
             // on the chain so that we can execute the query for the client.
             
