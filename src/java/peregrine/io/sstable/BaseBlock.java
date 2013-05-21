@@ -29,12 +29,23 @@ public abstract class BaseBlock {
     // they have records and meta blocks since they have records too.
     private int count = 0;
 
+    // the checksum for this block.
+    private long checksum = 0;
+
     public int getCount() {
         return this.count;
     }
 
     public void setCount( int count ) { 
         this.count = count;
+    }
+
+    public long getChecksum() {
+        return checksum;
+    }
+
+    public void setChecksum(long checksum) {
+        this.checksum = checksum;
     }
 
     public void incrCount() {
@@ -46,6 +57,7 @@ public abstract class BaseBlock {
         StructReader sr = new StructReader( buff );
 
         count = (int)sr.readLong();
+        checksum = sr.readLong();
         
     }
 
@@ -53,6 +65,7 @@ public abstract class BaseBlock {
 
         StructWriter sw = new StructWriter( 100 );
         sw.writeLong(count);
+        sw.writeLong(checksum);
 
         writer.write( sw.getChannelBuffer() );
 

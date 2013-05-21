@@ -26,12 +26,14 @@ import peregrine.util.netty.ChannelBufferWritable;
 import java.io.IOException;
 
 /**
- * Trailer on a file denoteing metadata about that file.
+ * Trailer on a file representing metadata about that file.
  */
 public class Trailer {
 
-    //length in bytes of the trailer.  This is a fixed width data structure.
-    public static final int LENGTH = (9 * Longs.LENGTH) + Integers.LENGTH;
+    // Length in bytes of the trailer.  This is a fixed width data structure.
+    // Since the trailer is fixed width and short we just store everything as
+    // a set of longs.
+    public static final int LENGTH = (11 * Longs.LENGTH) + Integers.LENGTH;
 
     //magic number for the tail of the chunk stream.  All future magic should
     //be negative since the first version did not include magic and its writing
@@ -49,7 +51,9 @@ public class Trailer {
     private long indexCount = 0;
     
     private long indexOffset = -1;
-    
+
+    private long indexChecksum = 0;
+
     private long fileInfoOffset = -1;
 
     private long version = VERSION_OFFSET + 0;
@@ -57,6 +61,8 @@ public class Trailer {
     private long dataSectionLength = 0;
 
     private long dataBlockFormat = 1;
+
+    private long checksumsEnabled = 0;
 
     public void setFileInfoOffset( long fileInfoOffset ) { 
         this.fileInfoOffset = fileInfoOffset;
@@ -83,6 +89,14 @@ public class Trailer {
 
     public void setIndexCount( long indexCount ) { 
         this.indexCount = indexCount;
+    }
+
+    public long getIndexChecksum() {
+        return indexChecksum;
+    }
+
+    public void setIndexChecksum(long indexChecksum) {
+        this.indexChecksum = indexChecksum;
     }
 
     /**
@@ -165,6 +179,20 @@ public class Trailer {
         this.dataBlockFormat = dataBlockFormat;
     }
 
+    public boolean getChecksumsEnabled() {
+        return checksumsEnabled == 1;
+    }
+
+    public void setChecksumsEnabled(boolean checksumsEnabled) {
+
+        if( checksumsEnabled ) {
+            this.checksumsEnabled = 1;
+        } else {
+            this.checksumsEnabled = 0;
+        }
+
+    }
+
     public void read( ChannelBuffer buff ) {
 
         // duplicate the buffer so the global readerIndex isn't updated.
@@ -177,15 +205,17 @@ public class Trailer {
         
         StructReader sr = new StructReader( buff );
 
-        setCompressionAlgorithm( sr.readLong() );
-        setCount( (int)sr.readLong() );
-        setRecordUsage( sr.readLong() );
-        setIndexOffset( sr.readLong() );
-        setIndexCount( sr.readLong() );
-        setFileInfoOffset( sr.readLong() );
-        setDataSectionLength( sr.readLong() );
-        setDataBlockFormat( sr.readLong() );
-        setVersion( sr.readLong() );
+        compressionAlgorithm = sr.readLong();
+        count = sr.readLong();
+        recordUsage = sr.readLong();
+        indexOffset = sr.readLong();
+        indexCount = sr.readLong();
+        indexChecksum = sr.readLong();
+        fileInfoOffset = sr.readLong();
+        dataSectionLength = sr.readLong();
+        dataBlockFormat = sr.readLong();
+        checksumsEnabled = sr.readLong();
+        version = sr.readLong();
 
         int magic = sr.readInt();
 
@@ -203,10 +233,12 @@ public class Trailer {
         sw.writeLong( recordUsage );
         sw.writeLong( indexOffset );
         sw.writeLong( indexCount );
+        sw.writeLong( indexChecksum );
         sw.writeLong( fileInfoOffset );
         sw.writeLong( dataSectionLength );
         sw.writeLong( version );
         sw.writeLong( dataBlockFormat );
+        sw.writeLong( checksumsEnabled );
         sw.writeInt( MAGIC );
         
         writer.write( sw.getChannelBuffer() );
