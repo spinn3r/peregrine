@@ -24,6 +24,8 @@ import peregrine.config.Partition;
 import peregrine.io.SequenceWriter;
 import peregrine.io.chunk.DefaultChunkWriter;
 import peregrine.io.partition.LocalPartitionReader;
+import peregrine.metrics.WorkerMetrics;
+import peregrine.task.Work;
 import peregrine.worker.clientd.requests.BackendRequest;
 import peregrine.worker.clientd.requests.ClientBackendRequest;
 import peregrine.io.sstable.RecordListener;
@@ -51,9 +53,12 @@ public class BackendRequestExecutor implements Runnable {
     // all known clients.
     private Set<ClientBackendRequest> clientIndex = null;
 
-    public BackendRequestExecutor(Config config, BackendRequestQueue queue) {
+    private WorkerMetrics workerMetrics;
+
+    public BackendRequestExecutor(Config config, BackendRequestQueue queue, WorkerMetrics workerMetrics) {
         this.config = config;
         this.queue = queue;
+        this.workerMetrics = workerMetrics;
     }
 
     @Override
@@ -74,6 +79,8 @@ public class BackendRequestExecutor implements Runnable {
             queue.drainTo(requests);
 
             handle(requests);
+
+            workerMetrics.batchExecutions.incr();
 
         }
 
@@ -239,6 +246,7 @@ public class BackendRequestExecutor implements Runnable {
                 // filesystem dentries.
 
                 reader = new LocalPartitionReader( config, partition, source );
+                //reader.setRegionMetrics(
 
                 // create a SequenceWriter for every client so that we have an
                 // output channel.

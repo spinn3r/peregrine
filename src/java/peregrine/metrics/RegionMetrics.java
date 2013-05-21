@@ -27,6 +27,8 @@ public class RegionMetrics {
     // clients that have been suspended and not keeping up with content.
     public CounterMetric suspendedClients = new CounterMetric( "worker.suspendedClients" );
 
+    public CounterMetric cancelledClients = new CounterMetric( "worker.suspendedClients" );
+
     public CounterMetric getRequests = new CounterMetric( "region.getRequests" );
 
     public CounterMetric scanRequests = new CounterMetric( "region.scanRequests" );

@@ -16,19 +16,14 @@
 package peregrine.io.chunk;
 
 import java.io.*;
-import java.util.*;
-import java.nio.channels.*;
 
 import com.spinn3r.log5j.Logger;
 import org.jboss.netty.buffer.*;
 
 import peregrine.*;
 import peregrine.config.*;
-import peregrine.http.*;
-import peregrine.io.*;
 import peregrine.io.sstable.*;
 import peregrine.os.*;
-import peregrine.util.*;
 import peregrine.util.netty.*;
 
 
@@ -46,11 +41,6 @@ import peregrine.util.netty.*;
  * 
  */
 public class DefaultChunkWriter extends BaseSSTableChunk implements ChunkWriter {
-
-    // FIXME: there should be three modes here.  MINIMAL ... which is the legacy
-    // format.  Then we should have STREAM which includes the count and a
-    // checksum.  Then we should have INDEXED which includes a block index as
-    // well as CRC32.
 
     protected static final Logger log = Logger.getLogger();
 
@@ -139,15 +129,15 @@ public class DefaultChunkWriter extends BaseSSTableChunk implements ChunkWriter 
         if ( closed )
             throw new IOException( "closed" );
 
-        if ( dataBlock == null || writer.length() - dataBlock.offset > blockSize ) {
+        if ( dataBlock == null || writer.length() - dataBlock.getOffset() > blockSize ) {
             rollover( key );
         }
 
         write( writer, key, value );
 
-        trailer.recordUsage += key.length() + value.length();
+        trailer.incrRecordUsage( key.length() + value.length() );
         trailer.incrCount();
-        ++dataBlock.count;
+        dataBlock.setCount(dataBlock.getCount() + 1);
         
         lastKey = key;
         
@@ -187,7 +177,7 @@ public class DefaultChunkWriter extends BaseSSTableChunk implements ChunkWriter 
 
     private void endBlock() {
 
-        if ( dataBlock != null && dataBlock.count != 0 ) {
+        if ( dataBlock != null && dataBlock.getCount() != 0 ) {
             endDataBlock();
             addMetaBlockToIndex();
         }
@@ -200,7 +190,7 @@ public class DefaultChunkWriter extends BaseSSTableChunk implements ChunkWriter 
 
         // create a new datablock with teh correct first key specified.
         dataBlock = new DataBlock( key.toByteArray() );
-        dataBlock.offset = writer.length();
+        dataBlock.setOffset(writer.length());
 
         dataBlocks.add( dataBlock );
 
@@ -209,21 +199,21 @@ public class DefaultChunkWriter extends BaseSSTableChunk implements ChunkWriter 
     private void endDataBlock() {
 
         //TODO: compression would go here.
-        dataBlock.length = writer.length() - dataBlock.offset;
-        dataBlock.lengthUncompressed = dataBlock.length;
+        dataBlock.setLength(writer.length() - dataBlock.getOffset());
+        dataBlock.setLengthUncompressed(dataBlock.getLength());
     }
 
     private void startMetaBlock() {
 
         metaBlock = new MetaBlock();
-        metaBlock.offset = writer.length();
+        metaBlock.setOffset(writer.length());
 
         metaBlocks.add( metaBlock );
         
     }
 
     private void endMetaBlock() {
-        metaBlock.length = writer.length() - metaBlock.offset;
+        metaBlock.setLength(writer.length() - metaBlock.getOffset());
     }
 
     // write out a new meta block file which would include bloom filter data as
@@ -248,7 +238,7 @@ public class DefaultChunkWriter extends BaseSSTableChunk implements ChunkWriter 
         
         // write trailer to store the number of items.
 
-        trailer.dataSectionLength = writer.length();
+        trailer.setDataSectionLength(writer.length());
         
         endBlock();
 
@@ -261,14 +251,14 @@ public class DefaultChunkWriter extends BaseSSTableChunk implements ChunkWriter 
 
             // write out file info
             if ( lastKey != null ) {
-                fileInfo.lastKey = lastKey.toByteArray();
+                fileInfo.setLastKey( lastKey.toByteArray() );
             }
 
-            trailer.fileInfoOffset = writer.length();
+            trailer.setFileInfoOffset(writer.length());
             fileInfo.write( writer );
 
-            trailer.indexOffset = writer.length();
-            trailer.indexCount = dataBlocks.size();
+            trailer.setIndexOffset(writer.length());
+            trailer.setIndexCount(dataBlocks.size());
 
             for( DataBlock db : dataBlocks ) {
                 db.write( writer );

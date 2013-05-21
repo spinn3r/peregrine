@@ -29,11 +29,6 @@ import peregrine.worker.clientd.requests.*;
  */
 public class Memtable implements SSTableReader, SSTableWriter {
 
-    //FIXME: this structure won't work because we CAN NOT just overwrite the
-    //prevous value because we may wish to keep the last N value.  It would work
-    //for some tables but not others.  However, the overhead of creating a LIST
-    //of objects isn't easy either.
-
     //FIXME: use a MultiRecordReader to store entries.  It requries 1 byte
     //overhead PER entry.  We just store a varint which is the length of the
     //next record.  This way we can store N records per entry without much

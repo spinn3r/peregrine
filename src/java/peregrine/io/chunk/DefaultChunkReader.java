@@ -149,23 +149,23 @@ public class DefaultChunkReader extends BaseSSTableChunk
                 count = trailer.getCount();
 
                 // read the file info
-                if ( trailer.fileInfoOffset > 0 ) {
+                if ( trailer.getFileInfoOffset() > 0 ) {
                     fileInfo.read( buff, trailer );
                 }
                 
                 // read data and meta index
 
-                if ( trailer.indexOffset > 0 ) {
+                if ( trailer.getIndexOffset() > 0 ) {
                     
-                    buff.readerIndex( (int)trailer.indexOffset );
+                    buff.readerIndex( (int)trailer.getIndexOffset() );
 
-                    for( int i = 0; i < trailer.indexCount; ++i ) {
+                    for( int i = 0; i < trailer.getIndexCount(); ++i ) {
                         DataBlock db = new DataBlock();
                         db.read( buff );
                         dataBlocks.add( db );
                     }
 
-                    for( int i = 0; i < trailer.indexCount; ++i ) {
+                    for( int i = 0; i < trailer.getIndexCount(); ++i ) {
                         MetaBlock mb = new MetaBlock();
                         mb.read( buff );
                         metaBlocks.add( mb );
@@ -250,7 +250,7 @@ public class DefaultChunkReader extends BaseSSTableChunk
             return requests;
         
         // position us at the beginning of the block.
-        buffer.readerIndex( (int)block.offset );        
+        buffer.readerIndex( (int) block.getOffset());
 
         regionMetrics.blocksRead.incr();
 
@@ -261,16 +261,12 @@ public class DefaultChunkReader extends BaseSSTableChunk
         // the request+key we should be looking for...
         context.find = requests.remove( 0 );
 
-        while( seek_idx < block.count ) {
+        while( seek_idx < block.getCount()) {
 
             next();
             ++seek_idx;
 
             regionMetrics.seekToKeyReads.incr();
-
-
-            //FIXME: we need a metric for the number of keys we have read and
-            //the number of keys we matched.
 
             //FIXME skip suspended clients...  Perhaps the way to do this is to
             //make the ITERATOR automatically skip suspended clients.  This way
@@ -427,7 +423,7 @@ public class DefaultChunkReader extends BaseSSTableChunk
         if ( minimal ) {
             return buffer.slice( 0, buffer.writerIndex() - Integers.LENGTH );
         } else { 
-            return buffer.slice( 0, (int)trailer.dataSectionLength );
+            return buffer.slice( 0, trailer.getDataSectionLength() );
         }
 
     }

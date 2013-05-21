@@ -19,7 +19,6 @@ package peregrine.io.sstable;
 import java.io.*;
 
 import peregrine.*;
-import peregrine.os.*;
 import peregrine.util.*;
 
 import org.jboss.netty.buffer.*;
@@ -32,41 +31,39 @@ import peregrine.util.netty.*;
 public class Trailer {
 
     //length in bytes of the trailer.  This is a fixed width data structure.
-    public static final int LENGTH = (8 * Longs.LENGTH) + Integers.LENGTH;
+    public static final int LENGTH = (9 * Longs.LENGTH) + Integers.LENGTH;
 
-    //magic number for the tail of the chunk stream.
-    public static final int MAGIC = -1;
+    //magic number for the tail of the chunk stream.  All future magic should
+    //be negative since the first version did not include magic and its writing
+    //the number of keys in the stream.
+    private static final int MAGIC = -1;
     
-    public static final long VERSION_OFFSET = 200000;
+    private static final long VERSION_OFFSET = 200000;
 
-    public long compressionAlgorithm = 0;
+    private long compressionAlgorithm = 0;
     
     private long count = 0;
 
-    public long recordUsage = 0;
+    private long recordUsage = 0;
 
-    public long indexCount = 0;
+    private long indexCount = 0;
     
-    public long indexOffset = -1;
+    private long indexOffset = -1;
     
-    public long fileInfoOffset = -1;
+    private long fileInfoOffset = -1;
 
-    // the version number (and magic number) for the file.  All versions should
-    // start off with a specific offset so that we can use this portion as the
-    // magic number.  This still gives us plenty of versions to play with since
-    // we have 2^64 and doesn't require another magic field.
-    public long version = VERSION_OFFSET + 0;
+    private long version = VERSION_OFFSET + 0;
 
-    // number of bytes in the data section.  We can read ALL the data just by
-    // reading from 0 to dataSectionLength bytes.
-    public long dataSectionLength = 0;
-    
+    private long dataSectionLength = 0;
+
+    private long dataBlockFormat = 1;
+
     public void setFileInfoOffset( long fileInfoOffset ) { 
         this.fileInfoOffset = fileInfoOffset;
     }
 
-    public long getFileInfoOffset() { 
-        return this.fileInfoOffset;
+    public int getFileInfoOffset() {
+        return (int)this.fileInfoOffset;
     }
 
     public void setIndexOffset( long indexOffset ) { 
@@ -97,6 +94,10 @@ public class Trailer {
 
     public void setRecordUsage( long recordUsage ) { 
         this.recordUsage = recordUsage;
+    }
+
+    public void incrRecordUsage( long incr ) {
+        recordUsage += incr;
     }
 
     /**
@@ -130,7 +131,13 @@ public class Trailer {
         this.compressionAlgorithm = compressionAlgorithm;
     }
 
-    public long getVersion() { 
+    /**
+     * The version number (and magic number) for the file.  All versions should
+     * start off with a specific offset so that we can use this portion as the
+     * magic number.  This still gives us plenty of versions to play with since
+     * we have 2^64 and doesn't require another magic field.
+     */
+    public long getVersion() {
         return this.version;
     }
 
@@ -141,9 +148,21 @@ public class Trailer {
     public void setDataSectionLength( long dataSectionLength ) {
         this.dataSectionLength = dataSectionLength;
     }
-    
-    public long getDataSectionLength() {
-        return dataSectionLength;
+
+    /**
+     * Number of bytes in the data section.  We can read ALL the raw data just by
+     * reading from 0 to dataSectionLength bytes.
+     */
+    public int getDataSectionLength() {
+        return (int)dataSectionLength;
+    }
+
+    public long getDataBlockFormat() {
+        return dataBlockFormat;
+    }
+
+    public void setDataBlockFormat(long dataBlockFormat) {
+        this.dataBlockFormat = dataBlockFormat;
     }
 
     public void read( ChannelBuffer buff ) {
@@ -165,6 +184,7 @@ public class Trailer {
         setIndexCount( sr.readLong() );
         setFileInfoOffset( sr.readLong() );
         setDataSectionLength( sr.readLong() );
+        setDataBlockFormat( sr.readLong() );
         setVersion( sr.readLong() );
 
         int magic = sr.readInt();
@@ -183,9 +203,10 @@ public class Trailer {
         sw.writeLong( recordUsage );
         sw.writeLong( indexOffset );
         sw.writeLong( indexCount );
-        sw.writeLong( fileInfoOffset );
+        sw.writeLong(getFileInfoOffset());
         sw.writeLong( dataSectionLength );
         sw.writeLong( version );
+        sw.writeLong( dataBlockFormat );
         sw.writeInt( MAGIC );
         
         writer.write( sw.getChannelBuffer() );
@@ -202,7 +223,7 @@ public class Trailer {
                               recordUsage,
                               indexOffset,
                               indexCount,
-                              fileInfoOffset );
+                getFileInfoOffset());
         
     }
     

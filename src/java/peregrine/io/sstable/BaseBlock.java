@@ -19,26 +19,27 @@ package peregrine.io.sstable;
 import java.io.*;
 
 import peregrine.*;
-import peregrine.os.*;
 import peregrine.util.netty.*;
 
 import org.jboss.netty.buffer.*;
 
 public abstract class BaseBlock {
 
+    // keys written..
+
     // the length in bytes of this block.
-    public long length = -1;
+    private long length = -1;
 
     // the length of this block uncompressed.  This allows us to compare the
     // number of compressed bytes to the length to determine the compression
     // ratio.
-    public long lengthUncompressed = -1;
+    private long lengthUncompressed = -1;
     
     // the offset within the parent file of this block
-    public long offset = -1;
+    private long offset = -1;
 
     // the number of records in this block
-    public int count = 0;
+    private int count = 0;
 
     public long getLength() { 
         return this.length;
@@ -76,20 +77,20 @@ public abstract class BaseBlock {
 
         StructReader sr = new StructReader( buff );
 
-        length = sr.readLong();
-        lengthUncompressed = sr.readLong();
-        offset = sr.readLong();
-        count = (int)sr.readLong();
+        setLength(sr.readLong());
+        setLengthUncompressed(sr.readLong());
+        setOffset(sr.readLong());
+        setCount((int)sr.readLong());
         
     }
 
     public void write( ChannelBufferWritable writer ) throws IOException {
 
         StructWriter sw = new StructWriter( 100 );
-        sw.writeLong( length );
-        sw.writeLong( lengthUncompressed );
-        sw.writeLong( offset );
-        sw.writeLong( (long)count );
+        sw.writeLong(getLength());
+        sw.writeLong(getLengthUncompressed());
+        sw.writeLong(getOffset());
+        sw.writeLong( (long) getCount());
 
         writer.write( sw.getChannelBuffer() );
 
@@ -98,7 +99,7 @@ public abstract class BaseBlock {
     @Override
     public String toString() {
         return String.format( "length=%,d, lengthUncompressed=%,d, offset=%,d, count=%,d",
-                              length, lengthUncompressed, offset, count );
+                getLength(), getLengthUncompressed(), getOffset(), getCount());
     }
 
 }

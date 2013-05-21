@@ -18,6 +18,7 @@ package peregrine.worker.clientd;
 
 import peregrine.client.GetRequest;
 import peregrine.config.Config;
+import peregrine.metrics.WorkerMetrics;
 import peregrine.worker.clientd.requests.BackendRequest;
 import peregrine.worker.clientd.requests.GetBackendRequest;
 import peregrine.worker.clientd.requests.RequestSizeable;
@@ -44,8 +45,11 @@ public class BackendRequestQueue {
 
     private Config config;
 
-    public BackendRequestQueue( Config config ) {
+    private WorkerMetrics workerMetrics;
+
+    public BackendRequestQueue( Config config, WorkerMetrics workerMetrics ) {
         this.config = config;
+        this.workerMetrics = workerMetrics;
         delegate = new LinkedBlockingQueue( config.getBackendRequestQueueSize() );
     }
 

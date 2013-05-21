@@ -121,7 +121,6 @@ public class LocalPartitionReader extends BaseJobInput
         // of key/value pairs they contain.
         for( DefaultChunkReader reader : chunkReaders ) {
             count += reader.count();
-            reader.setRegionMetrics(regionMetrics);
         }
 
         dataBlockLookup = buildDataBlockIndex();
@@ -153,7 +152,7 @@ public class LocalPartitionReader extends BaseJobInput
                 ref.idx = idx;
                 ref.dataBlock = db;
 
-                result.put( StructReaders.wrap( db.firstKey ), ref );
+                result.put( StructReaders.wrap( db.getFirstKey() ), ref );
 
                 // update the linked list structure
                 if ( last != null ) {
@@ -433,8 +432,17 @@ public class LocalPartitionReader extends BaseJobInput
         return regionMetrics;
     }
 
+    /**
+     * Set the region metrics and on all chunk readers.
+     */
     public void setRegionMetrics(RegionMetrics regionMetrics) {
+
         this.regionMetrics = regionMetrics;
+
+        for( DefaultChunkReader reader : chunkReaders ) {
+            reader.setRegionMetrics(regionMetrics);
+        }
+
     }
 
     @Override

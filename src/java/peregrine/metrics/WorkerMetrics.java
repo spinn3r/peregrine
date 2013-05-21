@@ -25,7 +25,8 @@ import peregrine.metrics.impl.Metric;
  */
 public class WorkerMetrics {
 
-    private Metric nrRegions = new GaugeMetric( "worker.nrRegions" );
+    public GaugeMetric nrRegions = new GaugeMetric( "worker.nrRegions" );
 
+    public CounterMetric batchExecutions = new CounterMetric( "worker.batchExecutions" );
 
 }

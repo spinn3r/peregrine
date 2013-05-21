@@ -18,6 +18,7 @@ package peregrine.worker;
 import org.jboss.netty.channel.*;
 
 import peregrine.config.*;
+import peregrine.metrics.WorkerMetrics;
 import peregrine.shuffle.receiver.*;
 import peregrine.util.netty.*;
 
@@ -39,6 +40,8 @@ public class WorkerDaemon extends BaseDaemon {
     // general queue used for handling client requests.
     private BackendRequestQueue backendRequestQueue;
 
+    private WorkerMetrics workerMetrics = new WorkerMetrics();
+
     public WorkerDaemon(Config config) {
 
         setConfig( config );
@@ -51,11 +54,11 @@ public class WorkerDaemon extends BaseDaemon {
             heartbeatTimer = new HeartbeatTimer( config );
 
         // create a queue that we are going to use for the executor.
-        backendRequestQueue = new BackendRequestQueue( config );
+        backendRequestQueue = new BackendRequestQueue( config, workerMetrics );
 
         // kick off the request executor thread so that we can start processing results.
         newDefaultThreadPool(BackendRequestExecutor.class)
-                .submit(new BackendRequestExecutor(config, backendRequestQueue));
+                .submit(new BackendRequestExecutor(config, backendRequestQueue, workerMetrics ));
 
     }
 

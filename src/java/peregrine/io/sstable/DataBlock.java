@@ -27,7 +27,7 @@ import org.jboss.netty.buffer.*;
 
 public class DataBlock extends BaseBlock {
     
-    public byte[] firstKey = null;
+    private byte[] firstKey = null;
 
     public DataBlock() { }
 
