@@ -15,25 +15,83 @@
  */
 package peregrine.worker.clientd.requests;
 
-import java.io.*;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import org.jboss.netty.buffer.*;
-import org.jboss.netty.channel.*;
-
-import org.jboss.netty.channel.socket.SocketChannelConfig;
+import com.spinn3r.log5j.Logger;
+import org.jboss.netty.buffer.ChannelBuffer;
+import org.jboss.netty.channel.Channel;
+import org.jboss.netty.channel.ChannelFuture;
+import org.jboss.netty.channel.ChannelFutureListener;
 import org.jboss.netty.channel.socket.nio.NioSocketChannelConfig;
 import org.jboss.netty.handler.codec.http.DefaultHttpChunk;
 import org.jboss.netty.handler.codec.http.HttpChunk;
-
-import com.spinn3r.log5j.*;
 import peregrine.util.netty.ChannelBufferWritable;
 
+import java.io.IOException;
+import java.util.concurrent.ArrayBlockingQueue;
+
 /**
+ * ChannelBufferWritable which writes to a Netty channel and uses HTTP chunks.
+ * We pay attention to the state of the channel and if writes aren't completing
+ * immediately, because they're exceeding the TCP send buffer, then we back off
+ * and suspend the client.
  */
-public class BackendClientWritable extends BackendClientWritable4 {
+public class BackendClientWritable implements ChannelBufferWritable {
+
+    protected static final Logger log = Logger.getLogger();
+
+    private static final int CHUNK_OVERHEAD = 12;
+
+    private ClientBackendRequest clientBackendRequest;
+
+    // the socket config for this channel so that we can reference sendBufferSize
+    private NioSocketChannelConfig config;
+
+    private ChannelFuture future = null;
+
+    private Channel channel;
+
+    private ArrayBlockingQueue<HttpChunk> queue = new ArrayBlockingQueue<HttpChunk>(100);
 
     public BackendClientWritable(ClientBackendRequest clientBackendRequest) {
-        super(clientBackendRequest);
+        this.clientBackendRequest = clientBackendRequest;
+        this.channel = clientBackendRequest.getChannel();
+
+        config = (NioSocketChannelConfig)clientBackendRequest.getChannel().getConfig();
+
     }
+
+    @Override
+    public void write( ChannelBuffer buff ) throws IOException {
+        write( new DefaultHttpChunk( buff ) );
+    }
+
+    private ChannelFuture write( final HttpChunk chunk ) throws IOException {
+        return channel.write(chunk);
+    }
+
+    /**
+     * Return true when the client can't keep up with our writes.
+     */
+    public boolean isSuspended() {
+        return channel.isWritable() == false;
+    }
+
+    @Override
+    public void shutdown() throws IOException {
+    }
+
+    @Override
+    public void sync() throws IOException {
+
+    }
+
+    @Override
+    public void flush() throws IOException {
+        // there's nothing to buffer so we are done.
+    }
+
+    @Override
+    public void close() throws IOException {
+        write( HttpChunk.LAST_CHUNK ).addListener(ChannelFutureListener.CLOSE);
+    }
+
 }
