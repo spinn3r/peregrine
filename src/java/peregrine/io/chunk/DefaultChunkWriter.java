@@ -56,19 +56,6 @@ public class DefaultChunkWriter extends BaseSSTableChunk implements ChunkWriter 
 
     protected static final Logger log = Logger.getLogger();
 
-    // FIXME: DITCH the data block and meta block metaphor.. we are storing the
-    // data blocks inline so at the END of the file we really only just have META
-    // blocks.  JUST make them blocks. 
-
-    // FIXME: this is WRONG .. the meta blocks need to go AFTER the data block
-    // because otherwise to read the Nth meta block we have to read meta N-1 meta
-    // blocks since they are variable width.  If we place them AFTER the data
-    // blocks then we can easily read the Nth block by just seeking to the end of
-    // the data block and reading the meta block off disk at that location.
-    // ...
-    // WRONG.. .we will STLL have the bloom filter issue.  Instead write a list
-    // of offsets and lengths that the meta blocks can be indexed.
-
     public static int BUFFER_SIZE = 16384 ;
 
     // default block size for writing indexed chunks
@@ -263,28 +250,6 @@ public class DefaultChunkWriter extends BaseSSTableChunk implements ChunkWriter 
 
             trailer.setFileInfoOffset(writer.length());
             fileInfo.write( writer );
-
-            //FIXME: the MetaBlocks here are never used.  In fact they just flat
-            //out aren't referenced.  Dump both of them.. ONLY have the concept
-            //of an IndexBlock and an Index the IndexBlock can have key/value
-            //pairs in the future.
-            //
-            // We basically need an Index and IndexBlock setup.  The Index is a
-            // region of the file that has a count which is an integer followed
-            // by offset:length fields (which are both ints and represent 4 bytes
-            // each for 8 bytes total.  This way we can keep the IndexBlocks on
-            // disk and optionally in VFS page cache (for large disk-only storage).
-            // On large disk arrays (say 16TB and only 12GB) it will be tight to
-            // keep the bloom filter data in memory and this way the VFS page
-            // cache can optionally keep it around.
-            //
-            // This isn't right.  DataBlocks should probably be renamed to index
-            // blocks ANYWAY because we need to keep the start key in them but
-            // we STILL need metablocks which just store bloom filter data.
-
-            // FIXME: write the meta blocks FIRST and THEN write the Index Blocks.
-            // This way the index blocks can point directly to the meta blocks and
-            // include their offset and length.
 
             for( int i = 0; i < metaBlocks.size(); ++i ) {
 
