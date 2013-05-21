@@ -88,7 +88,7 @@ public class ClientBackendRequest {
      * or it might just have very little bandwidth.
      */
     public boolean isSuspended() {
-        return channelBufferWritable.isSuspended();
+        return channel.isWritable() == false;
     }
 
     public boolean isCancelled() {

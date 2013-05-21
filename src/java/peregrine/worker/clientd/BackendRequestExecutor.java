@@ -246,7 +246,7 @@ public class BackendRequestExecutor implements Runnable {
             for( ClientBackendRequest clientBackendRequest : clientIndex ) {
 
                 BackendClientWritable writable =
-                        new BackendClientWritable( clientBackendRequest );
+                        new BackendClientWritable( clientBackendRequest.getChannel() );
 
                 DefaultChunkWriter writer = new DefaultChunkWriter( config , writable );
 
@@ -267,8 +267,6 @@ public class BackendRequestExecutor implements Runnable {
                         // the client will automatically come back from being
                         // suspended once the buffer is drained.
                         if ( clientBackendRequest.isSuspended() ) {
-                            //FIXME: we need a metric on how often this happens.
-                            log.info( "FIXME: client is suspended");
                             return;
                         }
 

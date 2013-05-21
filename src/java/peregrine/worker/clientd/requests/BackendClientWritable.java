@@ -40,23 +40,12 @@ public class BackendClientWritable implements ChannelBufferWritable {
 
     private static final int CHUNK_OVERHEAD = 12;
 
-    private ClientBackendRequest clientBackendRequest;
-
-    // the socket config for this channel so that we can reference sendBufferSize
-    private NioSocketChannelConfig config;
-
-    private ChannelFuture future = null;
-
     private Channel channel;
 
     private ArrayBlockingQueue<HttpChunk> queue = new ArrayBlockingQueue<HttpChunk>(100);
 
-    public BackendClientWritable(ClientBackendRequest clientBackendRequest) {
-        this.clientBackendRequest = clientBackendRequest;
-        this.channel = clientBackendRequest.getChannel();
-
-        config = (NioSocketChannelConfig)clientBackendRequest.getChannel().getConfig();
-
+    public BackendClientWritable(Channel channel) {
+        this.channel = channel;
     }
 
     @Override
