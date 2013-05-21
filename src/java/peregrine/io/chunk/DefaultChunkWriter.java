@@ -215,14 +215,12 @@ public class DefaultChunkWriter extends BaseSSTableChunk implements ChunkWriter 
     private void startMetaBlock() {
 
         metaBlock = new MetaBlock();
-        metaBlock.setOffset(writer.length());
 
         metaBlocks.add( metaBlock );
         
     }
 
     private void endMetaBlock() {
-        metaBlock.setLength(writer.length() - metaBlock.getOffset());
     }
 
     // write out a new meta block file which would include bloom filter data as
@@ -266,9 +264,6 @@ public class DefaultChunkWriter extends BaseSSTableChunk implements ChunkWriter 
             trailer.setFileInfoOffset(writer.length());
             fileInfo.write( writer );
 
-            trailer.setIndexOffset(writer.length());
-            trailer.setIndexCount(indexBlocks.size());
-
             //FIXME: the MetaBlocks here are never used.  In fact they just flat
             //out aren't referenced.  Dump both of them.. ONLY have the concept
             //of an IndexBlock and an Index the IndexBlock can have key/value
@@ -287,12 +282,26 @@ public class DefaultChunkWriter extends BaseSSTableChunk implements ChunkWriter 
             // blocks ANYWAY because we need to keep the start key in them but
             // we STILL need metablocks which just store bloom filter data.
 
-            for( IndexBlock db : indexBlocks) {
-                db.write( writer );
+            // FIXME: write the meta blocks FIRST and THEN write the Index Blocks.
+            // This way the index blocks can point directly to the meta blocks and
+            // include their offset and length.
+
+            for( int i = 0; i < metaBlocks.size(); ++i ) {
+
+                IndexBlock ib = indexBlocks.get(i);
+                MetaBlock mb = metaBlocks.get(i);
+
+                ib.setMetaBlockOffset( (int)writer.length() );
+                mb.write( writer );
+                ib.setMetaBlockLength( (int) ( writer.length() - ib.getMetaBlockOffset() ) );
+
             }
 
-            for( MetaBlock mb : metaBlocks ) {
-                mb.write( writer );
+            trailer.setIndexOffset(writer.length());
+            trailer.setIndexCount(indexBlocks.size());
+
+            for( IndexBlock ib : indexBlocks) {
+                ib.write( writer );
             }
 
             // write the trailer

@@ -20,18 +20,35 @@ import org.jboss.netty.buffer.ChannelBuffer;
 import peregrine.StructReader;
 import peregrine.StructWriter;
 import peregrine.util.Hex;
+import peregrine.util.Integers;
+import peregrine.util.Longs;
 import peregrine.util.netty.ChannelBufferWritable;
 
 import java.io.IOException;
 
 public class IndexBlock extends BaseBlock {
-    
+
+    // the length in bytes of this block.
+    private long length = -1;
+
     private byte[] firstKey = null;
+
+    private int metaBlockOffset = 0;
+
+    private int metaBlockLength = 0;
 
     public IndexBlock() { }
 
     public IndexBlock(byte[] firstKey) {
         this.firstKey = firstKey;
+    }
+
+    public long getLength() {
+        return this.length;
+    }
+
+    public void setLength( long length ) {
+        this.length = length;
     }
 
     public void setFirstKey( byte[] firstKey ) { 
@@ -42,6 +59,22 @@ public class IndexBlock extends BaseBlock {
         return this.firstKey;
     }
 
+    public int getMetaBlockOffset() {
+        return metaBlockOffset;
+    }
+
+    public void setMetaBlockOffset(int metaBlockOffset) {
+        this.metaBlockOffset = metaBlockOffset;
+    }
+
+    public int getMetaBlockLength() {
+        return metaBlockLength;
+    }
+
+    public void setMetaBlockLength(int metaBlockLength) {
+        this.metaBlockLength = metaBlockLength;
+    }
+
     @Override
     public void read( ChannelBuffer buff ) {
 
@@ -49,7 +82,10 @@ public class IndexBlock extends BaseBlock {
 
         StructReader sr = new StructReader( buff );
 
+        length = sr.readLong();
         firstKey = sr.readBytes();
+        metaBlockOffset = sr.readInt();
+        metaBlockLength = sr.readInt();
         
     }
 
@@ -58,8 +94,13 @@ public class IndexBlock extends BaseBlock {
 
         super.write( writer );
 
-        StructWriter sw = new StructWriter( firstKey.length + 4 );
+        StructWriter sw = new StructWriter( firstKey.length +
+                                           (Integers.LENGTH * 3) +
+                                           Longs.LENGTH );
+        sw.writeLong(length);
         sw.writeBytes( firstKey );
+        sw.writeInt(metaBlockOffset);
+        sw.writeInt(metaBlockLength);
         
         //write the first key
         writer.write( sw.getChannelBuffer() );
@@ -68,7 +109,8 @@ public class IndexBlock extends BaseBlock {
 
     @Override
     public String toString() {
-        return String.format( "%s, firstKey=%s", super.toString(), Hex.encode( firstKey ) );
+        return String.format( "firstKey=%s, length=%,d, lengthUncompressed=%,d, offset=%,d, count=%,d",
+                Hex.encode(firstKey), getLength(), getLengthUncompressed(), getOffset(), getCount());
     }
 
 }

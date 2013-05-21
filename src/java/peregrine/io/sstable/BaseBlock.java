@@ -25,29 +25,21 @@ import java.io.IOException;
 
 public abstract class BaseBlock {
 
-    // keys written..
+    //FIXME: ok ALL of these fields apply to IndexBlocks
 
-    // the length in bytes of this block.
-    private long length = -1;
 
+    //FIXME: does not apply to MetaBlock
     // the length of this block uncompressed.  This allows us to compare the
     // number of compressed bytes to the length to determine the compression
     // ratio.
     private long lengthUncompressed = -1;
-    
+
+    //FIXME: does not apply to MetaBlock
     // the offset within the parent file of this block
     private long offset = -1;
 
     // the number of records in this block
     private int count = 0;
-
-    public long getLength() { 
-        return this.length;
-    }
-
-    public void setLength( long length ) { 
-        this.length = length;
-    }
 
     public long getLengthUncompressed() { 
         return this.lengthUncompressed;
@@ -81,7 +73,6 @@ public abstract class BaseBlock {
 
         StructReader sr = new StructReader( buff );
 
-        length = sr.readLong();
         lengthUncompressed = sr.readLong();
         offset = sr.readLong();
         count = (int)sr.readLong();
@@ -91,19 +82,12 @@ public abstract class BaseBlock {
     public void write( ChannelBufferWritable writer ) throws IOException {
 
         StructWriter sw = new StructWriter( 100 );
-        sw.writeLong(length);
         sw.writeLong(lengthUncompressed);
         sw.writeLong(offset);
         sw.writeLong(count);
 
         writer.write( sw.getChannelBuffer() );
 
-    }
-
-    @Override
-    public String toString() {
-        return String.format( "length=%,d, lengthUncompressed=%,d, offset=%,d, count=%,d",
-                getLength(), getLengthUncompressed(), getOffset(), getCount());
     }
 
 }

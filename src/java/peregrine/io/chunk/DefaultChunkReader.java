@@ -165,11 +165,14 @@ public class DefaultChunkReader extends BaseSSTableChunk
                         indexBlocks.add( db );
                     }
 
+                    /*
+                    FIXME clean this up.
                     for( int i = 0; i < trailer.getIndexCount(); ++i ) {
                         MetaBlock mb = new MetaBlock();
                         mb.read( buff );
                         metaBlocks.add( mb );
                     }
+                    */
 
                 }
 
