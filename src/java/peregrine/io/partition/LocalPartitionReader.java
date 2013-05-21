@@ -28,6 +28,7 @@ import peregrine.io.sstable.*;
 import peregrine.metrics.RegionMetrics;
 import peregrine.rpc.*;
 import peregrine.sort.*;
+import peregrine.util.Hex;
 import peregrine.worker.clientd.requests.BackendRequest;
 import peregrine.worker.clientd.requests.ScanBackendRequest;
 
@@ -465,6 +466,8 @@ public class LocalPartitionReader extends BaseJobInput
     // scan.
     class DataBlockReference implements Comparable<DataBlockReference> {
 
+        StrictStructReaderComparator comparator = new StrictStructReaderComparator();
+
         // keeps a pointer to the chunk this data block is stored 
         protected DefaultChunkReader reader = null;
 
@@ -480,9 +483,13 @@ public class LocalPartitionReader extends BaseJobInput
         // we can jump to the next block if a scan request isn't finished.
         protected DataBlockReference next = null;
 
-        // the order doesn't really matter as long as it's deterministic.
         public int compareTo( DataBlockReference db ) {
-            return hashCode() - db.hashCode();
+
+            StructReader key0 = StructReaders.wrap( dataBlock.getFirstKey() );
+            StructReader key1 = StructReaders.wrap( db.dataBlock.getFirstKey() );
+
+            return comparator.compare( key0, key1 );
+
         }
         
     }

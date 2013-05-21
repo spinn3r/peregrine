@@ -28,6 +28,7 @@ import peregrine.io.ExtractWriter;
 import peregrine.io.partition.DefaultPartitionWriter;
 import peregrine.io.partition.LocalPartitionReader;
 import peregrine.io.sstable.RecordListener;
+import peregrine.sort.StrictStructReaderComparator;
 import peregrine.util.Hex;
 import peregrine.worker.clientd.requests.BackendRequest;
 import peregrine.worker.clientd.requests.ClientBackendRequest;
@@ -36,6 +37,7 @@ import peregrine.worker.clientd.requests.ScanBackendRequest;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -260,15 +262,19 @@ public class TestBackendRequests extends BaseTest {
 
     private void assertResults( List<Record> records, List<StructReader> expectedKeys ) {
 
-        System.out.printf( "Found records: \n");
+        System.out.printf( "Found %,d records of %,d expected. \n", records.size(), expectedKeys.size() );
 
         List<StructReader> keys = new ArrayList<StructReader>();
 
-        for( int i = 0; i < records.size(); ++i ) {
+        for( Record record : records ) {
+            keys.add( record.getKey() );
+        }
 
-            Record current = records.get(i);
+        //Collections.sort( keys, new StrictStructReaderComparator() );
 
-            StructReader key = current.getKey();
+        for( int i = 0; i < keys.size(); ++i ) {
+
+            StructReader key = keys.get(i);
             StructReader expectedKey = expectedKeys.get(i);
 
             if ( ! key.equals(expectedKey) ) {
@@ -278,7 +284,7 @@ public class TestBackendRequests extends BaseTest {
 
             }
 
-            System.out.printf( "    %s= %s\n", Hex.encode(current.getKey()), Hex.encode( current.getValue() ) );
+            System.out.printf( "    %s\n", Hex.encode( key ) );
 
         }
 
@@ -317,7 +323,7 @@ public class TestBackendRequests extends BaseTest {
     public void test1() throws Exception {
 
         doTest( 50, 65536 );
-        //doTest( 30000, 100 );
+        doTest( 30000, 100 );
 
         // TODO:
         //
