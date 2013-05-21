@@ -64,8 +64,8 @@ public class BackendClientWritable4 implements ChannelBufferWritable {
         write( new DefaultHttpChunk( buff ) );
     }
 
-    private void write( final HttpChunk chunk ) throws IOException {
-        channel.write(chunk);
+    private ChannelFuture write( final HttpChunk chunk ) throws IOException {
+        return channel.write(chunk);
     }
 
     /**
@@ -91,7 +91,7 @@ public class BackendClientWritable4 implements ChannelBufferWritable {
 
     @Override
     public void close() throws IOException {
-        write( HttpChunk.LAST_CHUNK );
+        write( HttpChunk.LAST_CHUNK ).addListener(ChannelFutureListener.CLOSE);
     }
 
 }

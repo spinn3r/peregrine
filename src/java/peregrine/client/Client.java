@@ -25,6 +25,7 @@ import peregrine.config.Config;
 import peregrine.config.Partition;
 import peregrine.http.HttpClient;
 import peregrine.io.chunk.DefaultChunkReader;
+import peregrine.io.util.Closer;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -67,8 +68,8 @@ public class Client {
 
         // read the data
         client.close();
-    }
 
+    }
 
     /**
      * Wait for the request to complete and for us to read all keys.
@@ -86,15 +87,21 @@ public class Client {
         }
 
         // stick the results in a chunk reader to read the output.
-        DefaultChunkReader reader = new DefaultChunkReader( buff );
+        DefaultChunkReader reader = null;
 
-        // parse it into key/value pairs.
-        while( reader.hasNext() ) {
-            reader.next();
-            records.add( new Record( reader.key(), reader.value() ) );
+        try {
+
+            reader = new DefaultChunkReader( buff );
+
+            // parse it into key/value pairs.
+            while( reader.hasNext() ) {
+                reader.next();
+                records.add( new Record( reader.key(), reader.value() ) );
+            }
+
+        } finally {
+            new Closer( reader ).close();
         }
-
-        reader.close();
 
     }
 

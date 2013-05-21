@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.util.*;
 
 import peregrine.*;
+import peregrine.http.HttpClient;
 import peregrine.io.*;
 import peregrine.config.*;
 import peregrine.controller.*;
@@ -111,6 +112,11 @@ public class TestClientServerProtocol extends peregrine.BaseTestWithMultipleProc
 
         doTestGetRequests( StructReaders.range( 1, max ), max );
         doTestGetRequests( StructReaders.range( 100, 150 ), 0 );
+
+        // FIXME: this is going to need to be fixed.  We shouldn't have this as
+        // a global static member.  It needs to be passed in and then shutdown
+        // externally.
+        HttpClient.socketChannelFactory.releaseExternalResources();
 
     }
 

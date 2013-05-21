@@ -45,7 +45,7 @@ public class HttpClient implements ChannelBufferWritable {
         new DefaultThreadFactory( HttpClient.class );
     
     // FIXME: change to a fixed size thread pool based on concurrency... 
-    protected static NioClientSocketChannelFactory socketChannelFactory =
+    public static NioClientSocketChannelFactory socketChannelFactory =
         new NioClientSocketChannelFactory( Executors.newCachedThreadPool( threadFactory ), 
                                            Executors.newCachedThreadPool( threadFactory ) );
 
@@ -129,7 +129,7 @@ public class HttpClient implements ChannelBufferWritable {
     protected ChannelBuffer content = null;
 
     protected Config config = null;
-    
+
     public HttpClient( Config config, List<Host> hosts, String path ) throws IOException {
 
         try {
