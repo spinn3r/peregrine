@@ -165,15 +165,6 @@ public class DefaultChunkReader extends BaseSSTableChunk
                         indexBlocks.add( db );
                     }
 
-                    /*
-                    FIXME clean this up.
-                    for( int i = 0; i < trailer.getIndexCount(); ++i ) {
-                        MetaBlock mb = new MetaBlock();
-                        mb.read( buff );
-                        metaBlocks.add( mb );
-                    }
-                    */
-
                 }
 
             }
@@ -271,11 +262,9 @@ public class DefaultChunkReader extends BaseSSTableChunk
 
             regionMetrics.seekToKeyReads.incr();
 
-            //FIXME skip suspended clients...  Perhaps the way to do this is to
-            //make the ITERATOR automatically skip suspended clients.  This way
-            //ALL the code that uses BackendRequests can just transparently skip
-            //them.  This is probably the right strategy moving forward since its
-            //easy to implement and probably won't yield any bugs.
+            // TODO: skip suspended clients
+            //
+            // https://bitbucket.org/burtonator/peregrine/issue/210/sstable-make-sure-suspended-clients-arent
 
             context.handleScanRequests( key(), value() );
 

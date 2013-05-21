@@ -255,7 +255,9 @@ public class LocalPartitionReader extends BaseJobInput
         
         for( BackendRequest request : requests ) {
 
-            //FIXME skip suspended clients...
+            // TODO: skip suspended clients
+            //
+            // https://bitbucket.org/burtonator/peregrine/issue/210/sstable-make-sure-suspended-clients-arent
 
             if ( request instanceof ScanBackendRequest ) {
 
