@@ -15,20 +15,18 @@
  */
 package peregrine.worker.clientd.requests;
 
-import java.io.*;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import org.jboss.netty.buffer.*;
-import org.jboss.netty.channel.*;
-
-import org.jboss.netty.channel.socket.SocketChannelConfig;
+import com.spinn3r.log5j.Logger;
+import org.jboss.netty.buffer.ChannelBuffer;
+import org.jboss.netty.channel.Channel;
+import org.jboss.netty.channel.ChannelFuture;
+import org.jboss.netty.channel.ChannelFutureListener;
 import org.jboss.netty.channel.socket.nio.NioSocketChannelConfig;
 import org.jboss.netty.handler.codec.http.DefaultHttpChunk;
 import org.jboss.netty.handler.codec.http.HttpChunk;
-
-import com.spinn3r.log5j.*;
 import peregrine.util.netty.ChannelBufferWritable;
+
+import java.io.IOException;
+import java.util.concurrent.ArrayBlockingQueue;
 
 /**
  * ChannelBufferWritable which writes to a Netty channel and uses HTTP chunks.
@@ -51,7 +49,7 @@ public class BackendClientWritable3 implements ChannelBufferWritable {
 
     private Channel channel;
 
-    private ArrayBlockingQueue<HttpChunk> queue = new ArrayBlockingQueue<HttpChunk>();
+    private ArrayBlockingQueue<HttpChunk> queue = new ArrayBlockingQueue<HttpChunk>(100);
 
     public BackendClientWritable3(ClientBackendRequest clientBackendRequest) {
         this.clientBackendRequest = clientBackendRequest;
@@ -69,14 +67,18 @@ public class BackendClientWritable3 implements ChannelBufferWritable {
     private void write( final HttpChunk chunk ) throws IOException {
 
         if ( future == null || future.isSuccess() ) {
-            future = channel.write( chunk ).addListener( new ChannelFutureListener() {
+
+            future = channel.write( chunk );
+
+            future.addListener(new ChannelFutureListener() {
                 @Override
                 public void operationComplete(ChannelFuture future) throws Exception {
 
-                    HttpChunk
+                    future.getChannel().write(chunk);
 
                 }
             });
+
         } else {
             queue.add( chunk );
         }
