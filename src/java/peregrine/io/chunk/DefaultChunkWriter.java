@@ -31,14 +31,26 @@ import peregrine.util.netty.*;
  * <p>
  * Write key/value pairs to a given file on disk and include any additional
  * metadata (size, etc).
+ * </p>
  *
  * <p> The output format is very simple.  The file is a collection of key value
  * pairs.  First read a varint.  This will denote how many bytes to read next.
  * That will become your key.  Then read another varint, then read that many
  * bytes and that will become your value.
- * 
+ * </p>
+ *
+ * <p>
+ * The on disk block format is similar to hbase and bigtable.  Records are written
+ * at the beginning of the table in series of implicit data blocks.  At the end
+ * of the table we then write index blocks which store the start key and offset
+ * of each data block.  After that we write a series of meta blocks which can
+ * contain key/value pairs.  The meta blocks stores information like the bloom
+ * filter index.
+ * </p>
+ *
+ * <p>
  * https://bitbucket.org/burtonator/peregrine/issue/195/design-sstable-file-layout
- * 
+ * </p>
  */
 public class DefaultChunkWriter extends BaseSSTableChunk implements ChunkWriter {
 
@@ -64,9 +76,6 @@ public class DefaultChunkWriter extends BaseSSTableChunk implements ChunkWriter 
 
     // the main writable for all output.
     protected BufferedChannelBufferWritable writer = null;
-
-    // the number of records written.
-    private int count = 0;
 
     // true when closed.
     private boolean closed = false;
