@@ -248,8 +248,7 @@ public class LocalPartitionReader extends BaseJobInput
         // first sorting the set we avoid both expensive operations.
         Collections.sort( requests );
 
-        //FIXME: doens't this conflict with the global indexBlockLookup???
-        Map<IndexBlockReference,List<BackendRequest>> indexBlockLookup =
+        Map<IndexBlockReference,List<BackendRequest>> requestIndexBlockTable =
                 new TreeMap<IndexBlockReference, List<BackendRequest>>();
 
         LastRecordListener lastRecordListener = new LastRecordListener( listener );
@@ -282,11 +281,11 @@ public class LocalPartitionReader extends BaseJobInput
                 continue;
             }
 
-            List<BackendRequest> requestsForReference = indexBlockLookup.get( ref );
+            List<BackendRequest> requestsForReference = requestIndexBlockTable.get( ref );
 
             if ( requestsForReference == null ) {
                 requestsForReference = new ArrayList();
-                indexBlockLookup.put(ref, requestsForReference);
+                requestIndexBlockTable.put(ref, requestsForReference);
             }
 
             requestsForReference.add( request );
@@ -295,7 +294,7 @@ public class LocalPartitionReader extends BaseJobInput
 
         // keep the references we need to page through.
         List<IndexBlockReference> indexBlockReferences = new ArrayList<IndexBlockReference>();
-        indexBlockReferences.addAll(indexBlockLookup.keySet());
+        indexBlockReferences.addAll(requestIndexBlockTable.keySet());
 
         while( indexBlockReferences.size() > 0 ) {
 
@@ -310,7 +309,7 @@ public class LocalPartitionReader extends BaseJobInput
             // update the chunk ref that we're working with.
             chunkRef = new ChunkReference( partition, ref.idx );
 
-            List<BackendRequest> refKeys = indexBlockLookup.get( ref );
+            List<BackendRequest> refKeys = requestIndexBlockTable.get( ref );
 
             List<BackendRequest> partialScanRequests =
                     ref.reader.seekTo( refKeys, ref.indexBlock, lastRecordListener );
@@ -321,13 +320,13 @@ public class LocalPartitionReader extends BaseJobInput
 
                     // scan requests need to index multiple blocks
 
-                    refKeys = indexBlockLookup.get( ref.next );
+                    refKeys = requestIndexBlockTable.get( ref.next );
 
                     if ( refKeys != null ) {
                         refKeys.addAll( partialScanRequests );
                         Collections.sort( refKeys );
                     } else {
-                        indexBlockLookup.put(ref.next, partialScanRequests);
+                        requestIndexBlockTable.put(ref.next, partialScanRequests);
                         indexBlockReferences.add( 0, ref.next );
                     }
 
