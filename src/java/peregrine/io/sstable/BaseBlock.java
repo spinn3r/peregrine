@@ -16,12 +16,12 @@
 
 package peregrine.io.sstable;
 
-import java.io.*;
+import org.jboss.netty.buffer.ChannelBuffer;
+import peregrine.StructReader;
+import peregrine.StructWriter;
+import peregrine.util.netty.ChannelBufferWritable;
 
-import peregrine.*;
-import peregrine.util.netty.*;
-
-import org.jboss.netty.buffer.*;
+import java.io.IOException;
 
 public abstract class BaseBlock {
 

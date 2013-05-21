@@ -16,14 +16,14 @@
 
 package peregrine.io.sstable;
 
-import java.io.*;
+import org.jboss.netty.buffer.ChannelBuffer;
+import peregrine.StructReader;
+import peregrine.StructWriter;
+import peregrine.util.Integers;
+import peregrine.util.Longs;
+import peregrine.util.netty.ChannelBufferWritable;
 
-import peregrine.*;
-import peregrine.util.*;
-
-import org.jboss.netty.buffer.*;
-
-import peregrine.util.netty.*;
+import java.io.IOException;
 
 /**
  * Trailer on a file denoteing metadata about that file.

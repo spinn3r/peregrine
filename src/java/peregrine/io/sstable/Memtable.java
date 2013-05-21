@@ -16,12 +16,14 @@
 
 package peregrine.io.sstable;
 
-import java.io.*;
-import java.util.*;
+import peregrine.Record;
+import peregrine.StructReader;
+import peregrine.StructReaders;
+import peregrine.io.SequenceWriter;
+import peregrine.worker.clientd.requests.BackendRequest;
 
-import peregrine.*;
-import peregrine.io.*;
-import peregrine.worker.clientd.requests.*;
+import java.io.IOException;
+import java.util.*;
 
 /**
  * This is the same essential design used in LevelDB, Cassandra, and

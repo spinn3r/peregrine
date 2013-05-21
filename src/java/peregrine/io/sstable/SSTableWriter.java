@@ -16,13 +16,7 @@
 
 package peregrine.io.sstable;
 
-import java.io.*;
-import java.util.*;
-
-import peregrine.*;
-import peregrine.io.*;
-import peregrine.io.chunk.*;
-import peregrine.os.*;
+import peregrine.io.SequenceWriter;
 
 /**
  * Major interface for all SSTable writers.  

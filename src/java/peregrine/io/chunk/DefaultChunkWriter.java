@@ -260,6 +260,11 @@ public class DefaultChunkWriter extends BaseSSTableChunk implements ChunkWriter 
             trailer.setIndexOffset(writer.length());
             trailer.setIndexCount(dataBlocks.size());
 
+            //FIXME: the MetaBlocks here are never used.  In fact they just flat
+            //out aren't referenced.  Dump both of them.. ONLY have the concept
+            //of an IndexBlock and an Index the IndexBlock can have key/value
+            //pairs in the future.
+
             for( DataBlock db : dataBlocks ) {
                 db.write( writer );
             }

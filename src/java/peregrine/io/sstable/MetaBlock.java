@@ -16,16 +16,11 @@
 
 package peregrine.io.sstable;
 
-import java.io.*;
-import java.util.*;
+import org.jboss.netty.buffer.ChannelBuffer;
+import peregrine.util.netty.ChannelBufferWritable;
+import peregrine.util.netty.StreamReader;
 
-import peregrine.*;
-import peregrine.os.*;
-import peregrine.util.*;
-import peregrine.util.netty.*;
-import peregrine.io.chunk.*;
-
-import org.jboss.netty.buffer.*;
+import java.io.IOException;
 
 public class MetaBlock extends BaseBlock {
 

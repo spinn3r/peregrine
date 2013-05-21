@@ -16,14 +16,13 @@
 
 package peregrine.io.sstable;
 
-import java.io.*;
+import org.jboss.netty.buffer.ChannelBuffer;
+import peregrine.StructReader;
+import peregrine.StructWriter;
+import peregrine.util.Hex;
+import peregrine.util.netty.ChannelBufferWritable;
 
-import peregrine.*;
-import peregrine.os.*;
-import peregrine.util.*;
-import peregrine.util.netty.*;
-
-import org.jboss.netty.buffer.*;
+import java.io.IOException;
 
 public class DataBlock extends BaseBlock {
     

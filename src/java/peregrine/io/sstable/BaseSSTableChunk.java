@@ -16,13 +16,8 @@
 
 package peregrine.io.sstable;
 
-import java.io.*;
-import java.util.*;
-
-import peregrine.*;
-import peregrine.io.*;
-import peregrine.io.chunk.*;
-import peregrine.os.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Methods common to all SSTable chunk readers and writers.
