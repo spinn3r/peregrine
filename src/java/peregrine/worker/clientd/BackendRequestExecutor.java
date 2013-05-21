@@ -317,8 +317,6 @@ public class BackendRequestExecutor implements Runnable {
                     writer.flush();
                     writer.close();
 
-                    log.info("FIXME: closed client");
-
                 } catch ( IOException e ) {
                     log.error( "Unable to handle client: ", e );
                 }
