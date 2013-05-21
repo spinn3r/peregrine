@@ -24,13 +24,12 @@ import peregrine.config.Partition;
 import peregrine.io.SequenceWriter;
 import peregrine.io.chunk.DefaultChunkWriter;
 import peregrine.io.partition.LocalPartitionReader;
-import peregrine.metrics.WorkerMetrics;
-import peregrine.task.Work;
-import peregrine.worker.clientd.requests.BackendRequest;
-import peregrine.worker.clientd.requests.ClientBackendRequest;
 import peregrine.io.sstable.RecordListener;
 import peregrine.io.util.Closer;
+import peregrine.metrics.WorkerMetrics;
 import peregrine.util.netty.NonBlockingChannelBufferWritable;
+import peregrine.worker.clientd.requests.BackendRequest;
+import peregrine.worker.clientd.requests.ClientBackendRequest;
 
 import java.io.IOException;
 import java.util.*;

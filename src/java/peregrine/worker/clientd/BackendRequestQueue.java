@@ -16,13 +16,9 @@
 
 package peregrine.worker.clientd;
 
-import peregrine.client.GetRequest;
 import peregrine.config.Config;
 import peregrine.metrics.WorkerMetrics;
 import peregrine.worker.clientd.requests.BackendRequest;
-import peregrine.worker.clientd.requests.GetBackendRequest;
-import peregrine.worker.clientd.requests.RequestSizeable;
-import peregrine.worker.clientd.requests.ScanBackendRequest;
 
 import java.util.ArrayList;
 import java.util.Collection;

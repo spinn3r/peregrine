@@ -15,18 +15,20 @@
  */
 package peregrine.worker.clientd;
 
-import static org.jboss.netty.handler.codec.http.HttpResponseStatus.*;
-import static org.jboss.netty.handler.codec.http.HttpVersion.*;
-
-import java.util.regex.*;
-
-import org.jboss.netty.channel.*;
-import org.jboss.netty.handler.codec.http.*;
-
-import com.spinn3r.log5j.*;
+import com.spinn3r.log5j.Logger;
+import org.jboss.netty.channel.Channel;
+import org.jboss.netty.channel.ChannelHandlerContext;
+import org.jboss.netty.channel.MessageEvent;
+import org.jboss.netty.handler.codec.http.DefaultHttpResponse;
+import org.jboss.netty.handler.codec.http.HttpResponse;
 import peregrine.worker.ErrorLoggingChannelUpstreamHandler;
-import peregrine.worker.WorkerHandler;
 import peregrine.worker.WorkerDaemon;
+import peregrine.worker.WorkerHandler;
+
+import java.util.regex.Pattern;
+
+import static org.jboss.netty.handler.codec.http.HttpResponseStatus.OK;
+import static org.jboss.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
 /**
  * <p>

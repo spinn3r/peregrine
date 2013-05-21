@@ -15,23 +15,24 @@
  */
 package peregrine.worker.clientd;
 
-import static org.jboss.netty.handler.codec.http.HttpResponseStatus.*;
-import static org.jboss.netty.handler.codec.http.HttpVersion.*;
-
-import java.io.*;
-import java.util.*;
-
-import org.jboss.netty.channel.*;
-import org.jboss.netty.handler.codec.http.*;
-
+import com.spinn3r.log5j.Logger;
+import org.jboss.netty.channel.Channel;
+import org.jboss.netty.channel.ChannelHandlerContext;
+import org.jboss.netty.channel.MessageEvent;
+import org.jboss.netty.handler.codec.http.DefaultHttpResponse;
+import org.jboss.netty.handler.codec.http.HttpHeaders;
+import org.jboss.netty.handler.codec.http.HttpResponse;
 import peregrine.client.*;
-
-import com.spinn3r.log5j.*;
-import peregrine.client.ClientRequest;
 import peregrine.worker.ErrorLoggingChannelUpstreamHandler;
 import peregrine.worker.WorkerDaemon;
 import peregrine.worker.clientd.requests.*;
-import peregrine.worker.clientd.requests.ClientBackendRequest;
+
+import java.io.IOException;
+import java.util.List;
+
+import static org.jboss.netty.handler.codec.http.HttpResponseStatus.OK;
+import static org.jboss.netty.handler.codec.http.HttpResponseStatus.SERVICE_UNAVAILABLE;
+import static org.jboss.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
 /**
  *
