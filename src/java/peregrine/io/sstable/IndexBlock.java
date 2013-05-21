@@ -36,6 +36,9 @@ public class IndexBlock extends BaseBlock {
     // ratio.
     private long lengthUncompressed = -1;
 
+    // the offset within the parent file of this block
+    private long offset = -1;
+
     private byte[] firstKey = null;
 
     private int metaBlockOffset = 0;
@@ -64,7 +67,15 @@ public class IndexBlock extends BaseBlock {
         this.lengthUncompressed = lengthUncompressed;
     }
 
-    public void setFirstKey( byte[] firstKey ) { 
+    public int getOffset() {
+        return (int)this.offset;
+    }
+
+    public void setOffset( long offset ) {
+        this.offset = offset;
+    }
+
+    public void setFirstKey( byte[] firstKey ) {
         this.firstKey = firstKey;
     }
 
@@ -97,6 +108,7 @@ public class IndexBlock extends BaseBlock {
 
         length = sr.readLong();
         lengthUncompressed = sr.readLong();
+        offset = sr.readLong();
         firstKey = sr.readBytes();
         metaBlockOffset = sr.readInt();
         metaBlockLength = sr.readInt();
@@ -110,9 +122,10 @@ public class IndexBlock extends BaseBlock {
 
         StructWriter sw = new StructWriter( firstKey.length +
                                            (Integers.LENGTH * 3) +
-                                           (Longs.LENGTH * 2 ) );
+                                           (Longs.LENGTH * 3 ) );
         sw.writeLong(length);
         sw.writeLong(lengthUncompressed);
+        sw.writeLong(offset);
         sw.writeBytes( firstKey );
         sw.writeInt(metaBlockOffset);
         sw.writeInt(metaBlockLength);

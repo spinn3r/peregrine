@@ -25,25 +25,11 @@ import java.io.IOException;
 
 public abstract class BaseBlock {
 
-    //FIXME: ok ALL of these fields apply to IndexBlocks
-
-
-    //FIXME: does not apply to MetaBlock
-    // the offset within the parent file of this block
-    private long offset = -1;
-
-    // the number of records in this block
+    // the number of records in this block.  This applies to data blocks since
+    // they have records and meta blocks since they have records too.
     private int count = 0;
 
-    public int getOffset() {
-        return (int)this.offset;
-    }
-
-    public void setOffset( long offset ) { 
-        this.offset = offset;
-    }
-
-    public int getCount() { 
+    public int getCount() {
         return this.count;
     }
 
@@ -59,7 +45,6 @@ public abstract class BaseBlock {
 
         StructReader sr = new StructReader( buff );
 
-        offset = sr.readLong();
         count = (int)sr.readLong();
         
     }
@@ -67,7 +52,6 @@ public abstract class BaseBlock {
     public void write( ChannelBufferWritable writer ) throws IOException {
 
         StructWriter sw = new StructWriter( 100 );
-        sw.writeLong(offset);
         sw.writeLong(count);
 
         writer.write( sw.getChannelBuffer() );
