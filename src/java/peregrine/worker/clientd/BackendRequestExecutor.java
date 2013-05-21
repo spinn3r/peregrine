@@ -25,6 +25,8 @@ import peregrine.io.SequenceWriter;
 import peregrine.io.chunk.DefaultChunkWriter;
 import peregrine.io.partition.LocalPartitionReader;
 import peregrine.io.sstable.RecordListener;
+import peregrine.io.sstable.SSTableReader;
+import peregrine.io.table.TableCache;
 import peregrine.io.util.Closer;
 import peregrine.metrics.WorkerMetrics;
 import peregrine.worker.clientd.requests.BackendClientWritable;
@@ -54,10 +56,13 @@ public class BackendRequestExecutor implements Runnable {
 
     private WorkerMetrics workerMetrics;
 
+    private TableCache tableCache;
+
     public BackendRequestExecutor(Config config, BackendRequestQueue queue, WorkerMetrics workerMetrics) {
         this.config = config;
         this.queue = queue;
         this.workerMetrics = workerMetrics;
+        this.tableCache = new TableCache( config );
     }
 
     @Override
@@ -229,112 +234,99 @@ public class BackendRequestExecutor implements Runnable {
 
         try {
 
-            LocalPartitionReader reader = null;
+            //FIXME: replace List<BackendRequests> with the
+            //ReadyBackendRequestIterator so that all future uses of this
+            //system just magically skip these requests.
 
-            try {
+            log.info( "Handling %s on %s ", source, partition );
 
-                //FIXME: replace List<BackendRequests> with the
-                //ReadyBackendRequestIterator so that all future uses of this
-                //system just magically skip these requests.
+            SSTableReader reader = tableCache.getTable( partition, source );
 
-                log.info( "Handling %s on %s ", source, partition );
+            // create a SequenceWriter for every client so that we have an
+            // output channel.
 
-                // FIXME: should we support a table cache here... I don't think
-                // it's really necessary.  The main issue is reading and
-                // constructing block information and arguably reading from the
-                // filesystem dentries.
+            for( ClientBackendRequest clientBackendRequest : clientIndex ) {
 
-                reader = new LocalPartitionReader( config, partition, source );
-                //reader.setRegionMetrics(
+                BackendClientWritable writable =
+                        new BackendClientWritable( clientBackendRequest );
 
-                // create a SequenceWriter for every client so that we have an
-                // output channel.
+                DefaultChunkWriter writer = new DefaultChunkWriter( config , writable );
 
-                for( ClientBackendRequest clientBackendRequest : clientIndex ) {
+                clientBackendRequest.setChannelBufferWritable( writable );
+                clientBackendRequest.setSequenceWriter( writer );
 
-                    BackendClientWritable writable =
-                            new BackendClientWritable( clientBackendRequest );
+            }
 
-                    DefaultChunkWriter writer = new DefaultChunkWriter( config , writable );
+            reader.seekTo( requests, new RecordListener() {
 
-                    clientBackendRequest.setChannelBufferWritable( writable );
-                    clientBackendRequest.setSequenceWriter( writer );
+                @Override
+                public void onRecord( BackendRequest backendRequest, StructReader key, StructReader value ) {
 
-                }
-
-                reader.seekTo( requests, new RecordListener() {
-
-                    @Override
-                    public void onRecord( BackendRequest backendRequest, StructReader key, StructReader value ) {
-
-                        ClientBackendRequest clientBackendRequest = backendRequest.getClient();
-
-                        try {
-
-                            // the client will automatically come back from being
-                            // suspended once the buffer is drained.
-                            if ( clientBackendRequest.isSuspended() ) {
-                                //FIXME: we need a metric on how often this happens.
-                                log.info( "FIXME: client is suspended");
-                                return;
-                            }
-
-                            SequenceWriter writer = clientBackendRequest.getSequenceWriter();
-
-                            writer.write( key, value );
-
-                            // flush after every key write.  This allows us to serve
-                            // requests with lower latency.  These go into the TCP
-                            // send buffer immediately and sent ASAP.  Keeping
-                            // them around in memory is just pointless
-                            writer.flush();
-
-                        } catch ( IOException e ) {
-
-                            // mark this request as failed (cancel it) so that all
-                            // future requests are simply skipped for this entry.
-
-                            clientBackendRequest.setCancelled(true);
-
-                            log.error("Could not write to client: ", e);
-
-                        }
-
-                    }
-
-                } );
-
-                // NOTE: the client writer should be closed BEFORE the reader so
-                // that we can read all the values.  If we do the reverse we we will
-                // segfault.
-
-                for( ClientBackendRequest clientBackendRequest : clientIndex ) {
+                    ClientBackendRequest clientBackendRequest = backendRequest.getClient();
 
                     try {
 
-                        // we can only close clients who have completed all their
-                        // requests.  If we close a client BEFORE it completes
-                        // it's requests then they will receive a corrupt channel.
-                        if ( clientBackendRequest.isComplete() == false ) {
-                            continue;
+                        // the client will automatically come back from being
+                        // suspended once the buffer is drained.
+                        if ( clientBackendRequest.isSuspended() ) {
+                            //FIXME: we need a metric on how often this happens.
+                            log.info( "FIXME: client is suspended");
+                            return;
                         }
 
                         SequenceWriter writer = clientBackendRequest.getSequenceWriter();
 
-                        writer.flush();
-                        writer.close();
+                        writer.write( key, value );
 
-                        log.info("FIXME: closed client");
+                        // flush after every key write.  This allows us to serve
+                        // requests with lower latency.  These go into the TCP
+                        // send buffer immediately and sent ASAP.  Keeping
+                        // them around in memory is just pointless
+                        writer.flush();
 
                     } catch ( IOException e ) {
-                        log.error( "Unable to handle client: ", e );
+
+                        // mark this request as failed (cancel it) so that all
+                        // future requests are simply skipped for this entry.
+
+                        clientBackendRequest.setCancelled(true);
+
+                        log.error("Could not write to client: ", e);
+
                     }
 
                 }
 
-            } finally {
-                new Closer( reader ).close();
+            } );
+
+            // NOTE: the client writer should be closed BEFORE the reader so
+            // that we can read all the values.  If we do the reverse we we will
+            // segfault.
+
+            for( ClientBackendRequest clientBackendRequest : clientIndex ) {
+
+                try {
+
+                    // we can only close clients who have completed all their
+                    // requests.  If we close a client BEFORE it completes
+                    // it's requests then they will receive a corrupt channel.
+                    if ( clientBackendRequest.isComplete() == false ) {
+                        continue;
+                    }
+
+                    SequenceWriter writer = clientBackendRequest.getSequenceWriter();
+
+                    writer.flush();
+                    writer.close();
+
+                    log.info("FIXME: closed client");
+
+                } catch ( IOException e ) {
+                    log.error( "Unable to handle client: ", e );
+                }
+
             }
+
 
         } catch ( IOException e ) {
 

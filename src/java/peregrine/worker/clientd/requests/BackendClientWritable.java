@@ -31,7 +31,7 @@ import peregrine.util.netty.ChannelBufferWritable;
 
 /**
  */
-public class BackendClientWritable extends BackendClientWritable2 {
+public class BackendClientWritable extends BackendClientWritable4 {
 
     public BackendClientWritable(ClientBackendRequest clientBackendRequest) {
         super(clientBackendRequest);

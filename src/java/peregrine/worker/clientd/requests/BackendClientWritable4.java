@@ -34,7 +34,7 @@ import java.util.concurrent.ArrayBlockingQueue;
  * immediately, because they're exceeding the TCP send buffer, then we back off
  * and suspend the client.
  */
-public class BackendClientWritable3 implements ChannelBufferWritable {
+public class BackendClientWritable4 implements ChannelBufferWritable {
 
     protected static final Logger log = Logger.getLogger();
 
@@ -51,7 +51,7 @@ public class BackendClientWritable3 implements ChannelBufferWritable {
 
     private ArrayBlockingQueue<HttpChunk> queue = new ArrayBlockingQueue<HttpChunk>(100);
 
-    public BackendClientWritable3(ClientBackendRequest clientBackendRequest) {
+    public BackendClientWritable4(ClientBackendRequest clientBackendRequest) {
         this.clientBackendRequest = clientBackendRequest;
         this.channel = clientBackendRequest.getChannel();
 
@@ -65,24 +65,7 @@ public class BackendClientWritable3 implements ChannelBufferWritable {
     }
 
     private void write( final HttpChunk chunk ) throws IOException {
-
-        if ( future == null || future.isSuccess() ) {
-
-            future = channel.write( chunk );
-
-            future.addListener(new ChannelFutureListener() {
-                @Override
-                public void operationComplete(ChannelFuture future) throws Exception {
-
-                    future.getChannel().write(chunk);
-
-                }
-            });
-
-        } else {
-            queue.add( chunk );
-        }
-
+        channel.write(chunk);
     }
 
     /**
