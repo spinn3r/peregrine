@@ -16,6 +16,7 @@
 package peregrine.os;
 
 import java.io.*;
+import java.nio.ByteBuffer;
 
 import com.sun.jna.Library;
 import com.sun.jna.Native;
@@ -316,6 +317,34 @@ public class mman {
 
     }
 
+    /**
+     * Return information about the VFS page cache.  Specifically if given pages
+     * are cached.  This method is fast, even or a large file.  About 1ms for a
+     * 500MB file on Linux.
+     *
+     * @param addr The pointer in memory of the mmap region as returned from mmap.
+     * @param len The length of the file for which we want page cache information.
+     * @return a ByteBuffer where the offset is true if the given page is cached.
+     * @throws IOException
+     */
+    public static ByteBuffer mincore( Pointer addr, long len ) throws IOException {
+
+        int page_size = unistd.getpagesize();
+
+        int buff_size = (int)((len + page_size - 1) / page_size);
+
+        ByteBuffer vec = ByteBuffer.allocate( buff_size );
+
+        int result = Delegate.mincore( addr, len, vec );
+        
+        if ( result != 0 ) {
+            throw new IOException( "Result was: " + result + ": " + errno.strerror() );
+        }
+
+        return vec;
+
+    }
+    
     static class Delegate {
     
         public static native Pointer mmap( Pointer addr, long len, int prot, int flags, int fildes, long off );
@@ -323,7 +352,8 @@ public class mman {
         
         public static native int mlock( Pointer addr, long len );
         public static native int munlock( Pointer addr, long len );
-        
+        public static native int mincore( Pointer addr, long len, ByteBuffer vec );
+
         static {
             Native.register( "c" );
         }
@@ -344,9 +374,24 @@ public class mman {
         // try to mlock it directly
         mlock( addr, file.length() );
         munlock( addr, file.length() );
+
+        ByteBuffer vec = null;
+
+        long before = System.currentTimeMillis();
+        long max = 1000000;
+        for( long i = 0; i < max; ++i ) {
+            vec = mincore( addr, 1 );
+        }
+        long after = System.currentTimeMillis();
+
+        long duration = after - before;
+
+        System.out.printf( "mincore duration: %,d ms for %,d calls.\n", duration, max );
         
+        System.out.printf( "First(2) block cached: %s\n", vec.get(0) );
+
         munmap( addr, file.length() );
-        
+
     }
                             
 }
