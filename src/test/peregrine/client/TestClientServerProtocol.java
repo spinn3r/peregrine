@@ -27,13 +27,9 @@ import peregrine.util.*;
 
 public class TestClientServerProtocol extends peregrine.BaseTestWithMultipleProcesses {
 
-    // FIXME: update this code to write like 5-6 chunks (say 500MB) and then fetch all the
-    // keys including invalid keys and this way we test to make sure we can span
-    // chunks and other idiosyncratic issues.
-    //
-    // do the same thing with SCAN too and have a scan that reads the entire
-    // table.  Also do this with invalid keys for the start and end keys to find
-    // more bugs
+    // FIXME: a scan request needs to first route to the right region server and
+    // then if that request isn't complete (because it hit the end of the region)
+    // then we need to execute it over the next region.
 
     int max = 50;
     List<StructReader> keys = StructReaders.range( 1, max );
