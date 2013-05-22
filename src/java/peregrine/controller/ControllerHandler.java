@@ -29,6 +29,7 @@ import org.jboss.netty.handler.codec.http.*;
 
 import peregrine.*;
 import peregrine.config.*;
+import peregrine.worker.*;
 import peregrine.controller.rpcd.*;
 import peregrine.controller.web.*;
 import peregrine.http.*;
@@ -51,6 +52,7 @@ public class ControllerHandler extends DefaultChannelUpstreamHandler {
     public ControllerHandler( Config config,
                               ControllerDaemon controllerDaemon ) {
 
+        super( config );
         this.config = config;
         this.controllerDaemon = controllerDaemon;
 
@@ -61,26 +63,46 @@ public class ControllerHandler extends DefaultChannelUpstreamHandler {
 
         super.messageReceived( ctx, e );
         
-        // introspect requests and route them to the correct handler.  For
-        // example, PUT request need to be handled separately than GET requests
-        // as well as DELETE and HEAD.
+        // introspect requests and route them to the correct handler.
         
         Object message = e.getMessage();
 
         if ( message instanceof HttpRequest ) {
 
             HttpMethod method = request.getMethod();
-        	
+
             if ( method == POST ) {
                 handler = new ControllerRPCHandler( config, controllerDaemon, request.getUri() );
-            } else {
-                handler = new ControllerWebHandler( config, controllerDaemon, request.getUri() );
+            } else if ( method == GET ) {
+
+                String path = sanitizeUri( "web/" , request.getUri() );
+                
+                if ( path == null ) {
+                    sendError(ctx, FORBIDDEN);
+                    return;
+                }
+
+                // this is kind of a hack so that we can serve local files
+                // easily and everything else is passed to velocity.
+                if ( path.endsWith( ".png" ) ||
+                     path.endsWith( ".jpg" ) ||
+                     path.endsWith( ".css" ) ||
+                     path.endsWith( ".js" ) ) {
+
+                    handler = new FSGetDirectHandler( controllerDaemon, this, path );
+                    
+                } else {
+                    handler = new ControllerWebHandler( config, controllerDaemon, request.getUri() );
+                }
+
             }
 
         }
 
         if ( handler != null ) {
             handler.messageReceived( ctx, e );
+        } else {
+            sendError(ctx, NOT_FOUND);
         }
 
     }

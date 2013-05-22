@@ -61,6 +61,7 @@ public class WorkerHandler extends DefaultChannelUpstreamHandler {
     public WorkerHandler(Config config,
                          WorkerDaemon daemon) {
 
+        super( config );
         this.daemon = daemon;
         this.config = config;
 
@@ -91,9 +92,9 @@ public class WorkerHandler extends DefaultChannelUpstreamHandler {
             
             // this is a direct request for a while , serve it directly ...
             path = request.getUri();
-            path = sanitizeUri( path );
-            
-            if ( path == null || ! path.startsWith( "/" ) ) {
+            path = sanitizeUri( config.getRoot(), path );
+
+            if ( path == null ) {
                 sendError(ctx, FORBIDDEN);
                 return;
             }
@@ -143,7 +144,7 @@ public class WorkerHandler extends DefaultChannelUpstreamHandler {
                     return;
                 }
                 
-                upstream = new FSGetDirectHandler( daemon, this );
+                upstream = new FSGetDirectHandler( daemon, this, path );
                 
             }
 
@@ -274,34 +275,6 @@ public class WorkerHandler extends DefaultChannelUpstreamHandler {
         }
 
     }
-    
-    private String sanitizeUri(String uri) throws java.net.URISyntaxException {
 
-        // TODO: I believe this is actually wrong and that we have to try
-        // ISO-8601 first according to the HTTP spec but I need to research this
-        // problem.
-
-        try {
-
-            uri = URLDecoder.decode(uri, "UTF-8");
-
-        } catch (UnsupportedEncodingException e) {
-
-            try {
-                uri = URLDecoder.decode(uri, "ISO-8859-1");
-            } catch (UnsupportedEncodingException e1) {
-                throw new Error();
-            }
-
-        }
-
-        if ( uri.contains( "../" ) || uri.contains( "/.." ) )
-            return null;
-
-        // Convert to absolute path.
-        return config.getRoot() + new URI( uri ).getPath();
-        
-    }
-    
 }
 

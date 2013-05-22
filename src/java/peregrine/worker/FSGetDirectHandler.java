@@ -23,24 +23,30 @@ import java.io.*;
 import org.jboss.netty.channel.*;
 import org.jboss.netty.handler.codec.http.*;
 
+import peregrine.util.netty.*;
+
 import com.spinn3r.log5j.Logger;
 
 /**
- * Handles HTTP DELETE of files in PFS.
+ * Handles HTTP GET of files in the filesystem.
  */
 public class FSGetDirectHandler extends ErrorLoggingChannelUpstreamHandler {
 
     protected static final Logger log = Logger.getLogger();
 
-    private WorkerHandler handler;
-    private WorkerDaemon daemon;
+    private DefaultChannelUpstreamHandler handler;
+    private BaseDaemon daemon;
     private Channel channel;
 
     private ChannelHandlerContext ctx = null;
+
+    // the request URI / path we are handling
+    private String path;
     
-    public FSGetDirectHandler( WorkerDaemon daemon, WorkerHandler handler ) {
+    public FSGetDirectHandler( BaseDaemon daemon, DefaultChannelUpstreamHandler handler, String path ) {
         this.daemon = daemon;
         this.handler = handler;
+        this.path = path;
     }
 
     @Override
@@ -57,8 +63,6 @@ public class FSGetDirectHandler extends ErrorLoggingChannelUpstreamHandler {
         
         public Object call() throws Exception {
 
-            String path = handler.path;
-            
             if ( path == null ) {
                 handler.sendError(ctx, FORBIDDEN);
                 return null;
@@ -70,6 +74,7 @@ public class FSGetDirectHandler extends ErrorLoggingChannelUpstreamHandler {
             try {
                 raf = new RandomAccessFile(file, "r");
             } catch (FileNotFoundException fnfe) {
+                log.warn( "File not found: %s", file );
                 handler.sendError(ctx, NOT_FOUND);
                 return null;
             }

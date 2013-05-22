@@ -7,97 +7,10 @@ http://1.bp.blogspot.com/-WW9buc_R518/T7P_EQ4GK3I/AAAAAAAAAVY/VcusxtWplu4/s1600/
 http://strongriley.github.io/d3/ex/chord.html
 -->
 
+<link rel="stylesheet" href="/default.css"></link>
 <title>Peregrine Controller on $config.Host</title>
 
-<style>
-
-body {
-  font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif; 
-  font-weight: 200;
-}
-
-body, td, th {
-  font-size: 14px;
-}
-
-p { 
-  font-family: Helvetica, Arial, "Lucida Grande", sans-serif; 
-  line-height: 1.4em;
-}
-
-th {
-  text-align: left;
-}
-
-td, th {
-  white-space:nowrap;
-  padding: 3px;
-}
-
-blockquote { 
-
-  border-left-style:solid;
-  border-left-width:2px;
-  border-left-color: #c6c6c6;
-
-  padding-left: 5px;
-
-}
-
-.state-submitted {
-    background-color: white;
-}
-
-.state-failed,
-.state-completed,
-.state-executing,
-.state-submitted {
-   width: 1em;
-}
-
-.state-submitted {
-    background-color: purple;
-}
-
-.state-executing {
-    background-color: grey;
-}
-
-.state-failed {
-    background-color: red;
-}
-
-.state-completed {
-    background-color: green;
-}
-
-.job-metric {
-    text-align: right;
-    width: 70px;
-}
-
-.job-path {
-    margin-left: 10px;
-}
-
-table { 
-  border-spacing:0;
-  border-collapse:collapse;
-}
-
-tr:hover {
-  background: #c6c6c6;
-}
-
-tr th {
-  background: white;
-}
-
-.batch-progress {
-  width: 300px;
-}
-
-</style>
+<script src="sorttable.js"></script>
 
 </head>
 
@@ -105,7 +18,7 @@ tr th {
 
     #if( $items.size() > 0 )
 
-    <table width="100%">
+    <table class="sortable" width="100%">
 
     <tr>
     <th></th>
@@ -178,7 +91,7 @@ $batches.addAll( $controller.getHistory() )
 $batches.addAll( $controller.getPending() )
 -->
     
-<img src="http://peregrine_mapreduce.bitbucket.org/images/peregrine-logo-header3.png"
+<img src="/logo.png"
      align="right"
      width="407"
      height="99">
@@ -223,9 +136,10 @@ $batches.addAll( $controller.getPending() )
 
             #end
 
-            <table width="100%">
+            <table class="sortable" width="100%">
 
             <tr>
+            <th></th>
             <th></th>
             <th>state</th>
             <th>operation</th>
@@ -238,18 +152,32 @@ $batches.addAll( $controller.getPending() )
             </tr>
 
             <hr/>
+
+            #set ( $i = 0 )
             
             #foreach( $job in $batch.Jobs )
 
+                #set ( $i = $i + 1 )
+
                 <tr>
+                <td>$i.</td>
                 <td class='state-$job.state'>&nbsp</td>
                 <td>$job.state</td>
                 <td>$job.operation</td>
                 <td>$job.getStartedFormatted()</td>
                 <td>$job.getDurationFormatted()</td>
                 <td><a href='?batch=$batch.identifier&job=$job.identifier'>$job.delegate.name</a></td>
-                <td class="job-metric">$job.getReport().getConsumed().getFormatted()</td>
-                <td class="job-metric" title="$job.getReport().getEmitted().getFormattedBytes()">$job.getReport().getEmitted().getFormatted()</td>
+
+                <td class="job-metric" sorttable_customkey="$job.getReport().getConsumed().get()">$job.getReport().getConsumed().getFormatted()</td>
+
+                <td class="job-metric"
+                    sorttable_customkey="$job.getReport().getEmitted().get()"
+                    title="$job.getReport().getEmitted().getFormattedBytes()">
+
+                  $job.getReport().getEmitted().getFormatted()
+
+                </td>
+
                 <td>$job.description</td>
 
                 <!-- started: $job.getStarted() -->
