@@ -35,7 +35,7 @@ BRANCH="default"
 SCRATCH="/tmp/integration/peregrine"
 TEST_LOGS="/var/lib/integration/peregrine"
 
-TEST_COMMAND="pkill -9 -u nobody java 2> /dev/null ; hg cat -r default build.xml > build.xml && export HOSTNAME=localhost && export ANT_OPTS=-Xmx512M && ant clean jar compile.test jar && time ant javadoc jxr && time ant test"
+TEST_COMMAND="pkill -9 -u nobody java 2> /dev/null ; && export HOSTNAME=localhost && export ANT_OPTS=-Xmx512M && ant clean jar compile.test jar && time ant javadoc jxr && time ant test"
 #TEST_COMMAND="false"
 
 ###
