@@ -131,10 +131,10 @@ class ReportIndex:
 
         for output_name, output_dir in OUTPUT.items():
 
-            output_full_path="%s/%s" % (changedir, output_dir)
+            output_full_path="%s/%s" % (changedir, output_name)
 
             if ( os.path.exists( output_full_path ) ):
-                file.write( "<td nowrap><a href='%s/%s'>%s</a></td>\n" % (rev,output_dir,output_name) )
+                file.write( "<td nowrap><a href='%s/%s'>%s</a></td>\n" % (rev,output_name,output_name) )
             else:
                 print "Output path does not exist: %s" % output_full_path
                 file.write( "<td></td>\n" )
@@ -403,7 +403,7 @@ def test(branch,rev):
     for output_name, output_dir in OUTPUT.items():
 
         if os.path.exists( output_dir ):
-            dest = "%s/%s" % (changedir, output_dir)
+            dest = "%s/%s" % (changedir, output_name)
 
             print "Copying %s to %s" % (output_dir,dest)
             

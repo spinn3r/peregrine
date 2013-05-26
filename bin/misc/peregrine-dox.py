@@ -2,10 +2,9 @@
 #
 # build simple/quick peregrine web sources like javadoc/jxr, etc.
 
+SCRATCH="/tmp/integration/dox"
 
-SCRATCH="/tmp/integration/peregrine-web"
-
-TEST_LOGS="/tmp/peregrine-web"
+TEST_LOGS="/var/lib/integration/peregrine/dox"
 
 TEST_COMMAND="export ANT_OPTS=-Xmx512M && time ant javadoc jxr"
 
