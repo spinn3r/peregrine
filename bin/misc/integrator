@@ -1,0 +1,678 @@
+#!/usr/bin/python
+
+###
+# 
+
+###
+#
+# TODO
+#
+#
+# - make the right page have some basic stats.
+#
+# - parse command line arguments
+#    - timeout
+#    - ignore-branches
+#    - ignore-changesets
+#
+# - if we timeout we should STILL run tast-report , etc.
+
+import datetime
+import os
+import re
+import shutil
+import subprocess
+import sys
+import time
+import traceback
+
+VERSION="1.0.9"
+
+LIMIT=50
+
+BRANCH="default"
+
+SCRATCH="/tmp/integration/peregrine"
+
+TEST_LOGS="/var/lib/integration/peregrine"
+
+TEST_COMMAND="pkill -9 -u nobody java 2> /dev/null ; export HOSTNAME=localhost && export ANT_OPTS=-Xmx512M && ant clean jar compile.test jar && time ant javadoc jxr && time ant test"
+#TEST_COMMAND="false"
+
+###
+# specify a post command to use AFTER we run our test.
+POST_COMMAND="export ANT_OPTS=-Xmx512M && ant test-report"
+
+REPO="https://burtonator:redapplekittycat@bitbucket.org/burtonator/peregrine"
+
+DAEMON_SLEEP_INTERVAL=240
+
+IGNORE_BRANCHES={}
+
+IGNORE_BRANCHES['burton-bench']=1
+IGNORE_BRANCHES['burton-cassandra-support']=1
+
+IGNORE_CHANGESETS={}
+IGNORE_CHANGESETS['1852']=1
+
+##
+# Timeout for build commands (in seconds)
+TIMEOUT=1*60*60
+
+OLD_AGE=3 * 7 * 24 * 60 * 60
+
+class ReportIndex:
+
+    def __init__(self):
+
+        path="%s/index.html" % TEST_LOGS
+
+        print "Going to write index: %s" % path
+
+        file=open( path , "w" );
+
+        file.write( "<html>\n" )
+
+        file.write( "<head>\n" )
+        file.write( "<style>\n" )
+        file.write( "* { font-family: sans-serif; font-size: 12px; }\n" )
+        file.write( "td,th { padding-left: 5px; padding-right: 5px; }\n" )
+        file.write( "tr:hover { background-color: lightgrey; }\n" )
+        file.write( "th { text-align: left; }\n" )
+        file.write( ".duration { text-align: right; }\n" )
+        file.write( "</style>\n" )
+
+        file.write( "<meta http-equiv='cache-control' content='no-cache'>\n" )
+        file.write( "<title>Integration report</title>\n" )
+        file.write( "</head>\n" )
+        file.write( "<body>\n" )
+
+        file.write( "<table width='100%' cellspacing='0'>\n" )
+
+        file.write( "<tr>\n" )
+        file.write( "<th></th>\n" );
+        file.write( "<th>rev</th>\n" );
+        file.write( "<th>branch</th>\n" );
+        file.write( "<th>author</th>\n" );
+        file.write( "<th>duration</th>\n" );
+        file.write( "<th>commit time</th>\n" );
+        file.write( "<th>diff</th>\n" );
+        file.write( "<th>output</th>\n" );
+        file.write( "</tr>\n" )
+
+        file.flush()
+        file.close()
+
+    def link( self, bgcolor, rev, log ):
+        """Write a link to the given URL."""
+
+        changedir=get_changedir(rev)
+
+        time = datetime.datetime.fromtimestamp( float( log['date'] ) )
+
+        duration=readpath("%s/duration" % (changedir))
+
+        if ( duration ):
+            duration = int(float(duration))
+        else:
+            duration=""
+
+        file=open( "%s/index.html" % TEST_LOGS , "a" );
+
+        file.write( "<tr>\n" )
+        file.write( "<td bgcolor='%s'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>\n" % bgcolor )
+        file.write( "<td nowrap><a href='%s/test.log' target='right'>%s</a></td>\n" % (rev,rev) )
+        file.write( "<td nowrap>%s</td>\n" % log['branch'] )
+        file.write( "<td nowrap>%s</td>\n" % log['author'] )
+        file.write( "<td class='duration' nowrap>%s</td>\n" % duration )
+        file.write( "<td nowrap>%s</td>\n" % strftime(time) )
+
+        file.write( "<td align='right'><a href='https://bitbucket.org/burtonator/peregrine/changeset/%s' target='right'>CS</a></td>\n" % rev )
+
+        for output_name, output_dir in OUTPUT.items():
+
+            output_full_path="%s/%s" % (changedir, output_dir)
+
+            if ( os.path.exists( output_full_path ) ):
+                file.write( "<td nowrap><a href='%s/%s'>%s</a></td>\n" % (rev,output_dir,output_name) )
+            else:
+                file.write( "<td></td>\n" )
+
+        file.write( "<td nowrap>%s</td>\n" % log['desc'] )
+
+        file.write( "</tr>\n" )
+        file.close()
+
+    def close(self):
+
+        file=open( "%s/index.html" % TEST_LOGS , "a" );
+
+        now = datetime.datetime.now()
+
+        file.write( "</table>\n" )
+        file.write( "<br/><center><small>%s</small></center>\n" % (strftime(now)) )
+        file.write( "</body>\n" )
+        file.write( "</html>\n" )
+
+        file.flush()
+
+        file.close()
+
+def strftime( ts ):
+
+    return ts.strftime("%Y-%m-%d %H:%M")
+
+def read_cmd(cmd, input=None, cwd=None):
+    """Run the given command and read its output"""
+
+    pipe = subprocess.Popen( cmd,
+                             shell=True,
+                             stdout=subprocess.PIPE,
+                             stderr=subprocess.PIPE,
+                             stdin=subprocess.PIPE,
+                             cwd=cwd)
+
+    out=''
+    err=''
+
+    while True:
+
+        (_out,_err) = pipe.communicate( input )
+
+        out += _out
+        err += _err
+
+        result = pipe.poll()
+        
+        if result == 0:
+            return out
+        elif result >= 0:
+            raise Exception( "%s exited with %s" % (cmd, result) )
+
+def run_cmd(cmd, input=None, stdout=None, stderr=None, cwd=None, fail=True):
+    """Run the given command and read its output"""
+
+    print " # %s" % cmd
+
+    pipe = subprocess.Popen(cmd, shell=True, cwd=cwd, stdout=stdout, stderr=stderr)
+
+    (_out,_err) = pipe.communicate( input )
+    result = pipe.poll()
+        
+    if result == 0:
+        return 0
+    elif result >= 0 and fail:
+        raise Exception( "%s exited with %s" % (cmd, result) )
+
+    return result
+
+class Timeout(Exception):
+    pass
+
+def run_cmd2(command, input=None, stdout=None, stderr=None, cwd=None, fail=True, timeout=TIMEOUT):
+
+    print " # %s" % command
+
+    proc = subprocess.Popen( command,
+                             bufsize=0,
+                             stdout=stdout,
+                             stderr=stderr,
+                             cwd=cwd ,
+                             shell=True )
+    
+    poll_seconds = .250
+    deadline = time.time()+timeout
+    while time.time() < deadline and proc.poll() == None:
+        time.sleep(poll_seconds)
+
+    if proc.poll() == None:
+        proc.terminate()
+
+        if fail:
+            raise Timeout()
+        else:
+            return -1
+
+    stdout, stderr = proc.communicate()
+
+    result = proc.poll()
+
+    if result > 0 and fail:
+        raise Exception( "%s exited with %s" % (cmd, result) )
+
+    return result
+
+def get_active_branches():
+    """Get the currently active branches we are working with and integrate here first."""
+
+    branches = read_cmd( "hg branches -a" )
+
+    result={}
+
+    for line in branches.split("\n"):
+        
+        branch = line.split( " " )[0]
+
+        if branch == "":
+            continue
+        
+        result[branch]=1
+
+    # default would need to be added.
+    result[ r"default" ]=1
+        
+    return result.keys()
+
+def get_change_index():
+    """Return a map from branch name to revision ID by reverse chronology"""
+
+    return parse_hg_log(get_hg_log())
+
+def get_change_index_flat():
+    """Get the full HG log output."""
+
+    return parse_hg_log_flat(get_hg_log()) 
+
+def get_hg_log():
+    """Get the output of 'hg log'""" 
+
+    os.chdir( SCRATCH )
+
+    output=read_cmd( "hg log --template '{rev} {branches} {date} {author} DESC:{desc}\n'" )
+    #output=read_cmd( "hg log --template '{rev} {branches} {date}\n'" )
+    #output=read_cmd( "hg log --template '{rev} {branches} {date} {author}\n'" )
+
+    return output
+
+def parse_hg_log(output):
+    """Parse the HG log by branch."""
+
+    index={}
+
+    for line in output.split( "\n" ):
+
+        changectx={}
+
+        split=line.split( " " )
+
+        if len( split ) < 3:
+            continue
+
+        branch=split[1]
+
+        if branch == "":
+            branch = "default"
+
+        changectx['rev']     = split[0]
+        changectx['branch']  = branch
+        changectx['date']    = split[2]
+        changectx['author']  = split[3]
+        changectx['desc']    = parse_hg_log_desc(line)
+            
+        changes=index.get( branch )
+
+        if changes == None:
+            changes=[]
+            index[branch]=changes
+
+        changes.append( changectx )
+
+    return index
+
+def parse_hg_log_desc(line):
+
+    return line[line.find( "DESC:" ) + len("DESC:"):]
+
+def parse_hg_log_flat(output):
+    """Parse the HG log by changeset ID"""
+    
+    index=[]
+
+    for line in output.split( "\n" ):
+
+        changectx={}
+
+        split=line.split( " " )
+
+        if len( split ) < 3:
+            continue
+
+        branch=split[1]
+
+        if branch == "":
+            branch = "default"
+
+        changectx['rev']     = split[0]
+        changectx['branch']  = branch
+        changectx['date']    = split[2]
+        changectx['author']  = split[3]
+        changectx['desc']    = parse_hg_log_desc(line)
+
+        index.append( changectx )
+
+    return index
+
+def get_changedir(rev):
+    """Get the directory used to contain logs."""
+
+    changedir="%s/%s/" % (TEST_LOGS, rev)
+
+    return changedir
+
+def test(branch,rev):
+    """Run the tests on the current branch."""
+
+    print "Testing %s on branch %s" % ( rev, branch )
+
+    os.chdir( SCRATCH )
+
+    run_cmd( "hg update -C -r %s" % rev )
+
+    # to: $changedir/test.log
+
+    changedir=get_changedir(rev)
+
+    if not os.path.exists( changedir ):
+        os.makedirs( changedir )
+
+    _stdout=open( "%s/test.log" % (changedir), "w" )
+    _stderr=open( "%s/test.err" % (changedir), "w" )
+
+    result = run_cmd2( TEST_COMMAND, stdout=_stdout, stderr=_stderr, fail=False )
+
+    if ( result == 0 ):
+        print "SUCCESS"
+    elif ( result > 0 ):
+        print "FAILED"
+    else:
+        print "TIMEOUT"
+
+    before=time.time()
+
+    # run the post command so we can get coverage report , test reports, etc.
+    run_cmd2( POST_COMMAND, stdout=_stdout, stderr=_stderr, fail=False )
+
+    after=time.time();
+
+    duration=after-before
+
+    writepath( "%s/exit.result" % (changedir), str( result ) )
+    writepath( "%s/duration" % (changedir), str( duration ) )
+
+    for output_name, output_dir in OUTPUT.items():
+
+        if os.path.exists( output_dir ):
+            dest = "%s/%s" % (changedir, output_dir)
+
+            print "Copying %s to %s" % (output_dir,dest)
+            
+            shutil.copytree( output_dir, dest )
+        else:
+            print "Path does not exist: %s" % output_dir
+
+    stderr=open( "%s/test.err" % (changedir), "w" )
+
+def isTested(rev):
+    """Return true if the given rev is already tested."""
+
+    changedir=get_changedir(rev)
+
+    if os.path.exists( changedir ):
+        
+        if os.path.exists( "%s/exit.result" % (changedir) ):
+            return True
+        
+    return False
+
+def isIgnored(rev):
+
+    return IGNORE_CHANGESETS.get( rev ) != None
+
+def isOld(date):
+
+    return (time.time() - OLD_AGE) > float(date)
+
+def prioritize(list,depth=0):
+    """
+
+    For a given list, reprioritize it so that we index basically by a binary
+    search so that we don't keep indexing the most recent changesets but spread
+    out tests across ALL the revisions.
+
+    for example with an input of:
+    
+    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+
+    the output would look like:
+    
+    [0, 10, 5, 15, 3, 13, 8, 18, 2, 12, 7, 17, 4, 14, 9, 19, 1, 11, 6, 16]
+
+    """
+    if len(list) <= 1:
+        return list
+
+    mid = len(list) / 2
+
+    head=list[0:mid]
+    tail=list[mid:len(list)]
+
+    result=[]
+
+    if depth == 0:
+        result.append( head.pop(0) )
+
+    result.append( tail.pop(0) )
+
+    head = prioritize( head, depth+1 )
+    tail = prioritize( tail, depth+1 )
+
+    end=max(len(head), len(tail))
+
+    for i in xrange(end):
+
+        if i < len(head):
+            result.append( head[i] )
+
+        if i < len(tail):
+            result.append( tail[i] )
+
+    return result
+
+def run(limit=LIMIT):
+
+    if not os.path.exists( "%s/.hg" % SCRATCH ):
+
+        os.chdir( SCRATCH )
+        run_cmd( "hg clone %s %s" % (REPO,SCRATCH) )
+
+    # change to the sratch dir and hg pull -u
+    os.chdir( SCRATCH )
+
+    # FIXME: if bitbucket is down this will fail and the script will abort when
+    # in reality it's ok if this fails.
+
+    try:
+        run_cmd( "hg pull -u" )
+    except:
+        print "FAILED to hg pull"
+
+    active_branches=get_active_branches()
+
+    change_index=get_change_index()
+
+    # reprioritize the revisions we should be testing.
+    for branch in active_branches:
+        change_index[branch] = prioritize(change_index[branch][0:LIMIT]);
+
+    for i in xrange(limit):
+
+        for branch in active_branches:
+
+            if IGNORE_BRANCHES.get( branch ) != None:
+                continue
+
+            changes=change_index[branch]
+
+            if len( changes ) <= i:
+                continue
+            
+            changectx=changes[i]
+
+            rev=changectx['rev']
+            date=changectx['date']
+
+            if ( isTested( rev ) ):
+                continue
+
+            if ( isIgnored( rev ) ):
+                continue
+
+            if ( isOld( date ) ):
+                print "Skipping rev %s (old)." % rev
+                continue
+
+            # regen the HTML index... do this BEFORE we run a test so that we
+            # know that it has pulled the most recent version and is running.
+
+            # TODO: we should ALSO have a flag/color indicating that something
+            # is being integrated.
+            
+            simulate=False
+
+            if not simulate: 
+            
+                write_index(int(rev))
+
+                test(branch,rev)
+
+                # regen the HTML index.
+                write_index()
+            else:
+                print "%s:%s:%s" % (branch, rev, date)
+
+def get_log(rev):
+    """Run hg log and get the output""" 
+    
+    os.chdir( SCRATCH )
+
+    output=read_cmd( "hg log -r %s --template '{rev} {branches} {date}\n'" % rev )
+
+    parsed=parse_hg_log(output)
+
+    key = parsed.keys()[0];
+
+    return parsed[key][0]
+
+def writepath( path, data ):
+
+    file=open( path, "w" )
+    file.write( data )
+    file.close()
+
+def readpath( path ):
+    """Read data from the file at the given path."""
+
+    result=None
+
+    if ( os.path.exists( path ) ):
+
+        file=open( path, "r" )
+        result=file.read()
+        file.close()
+
+    return result
+
+def write_index(current=None):
+    """Write the full index of the index"""
+
+    index   = ReportIndex()
+
+    try:
+
+        changelog = get_change_index_flat()
+
+        for change in changelog:
+            
+            rev = change['rev']
+
+            path = "%s/%s" % (TEST_LOGS, rev)
+            
+            if os.path.isdir( path ):
+
+                changedir=get_changedir(rev)
+
+                #FIXME: move reading the exit status into the link method.
+                exit_file="%s/exit.result" % (changedir)
+
+                if ( os.path.exists( exit_file ) ):
+
+                    exit_result=open( exit_file, "r" )
+                    result=exit_result.read()
+                    exit_result.close()
+
+                    bgcolor="green"
+                    
+                    if result != "0": 
+                        bgcolor="red"
+
+                    index.link( bgcolor, rev, change )
+
+            else:
+
+                bgcolor="gray"
+                
+                if int(rev) == current:
+                    bgcolor="lightblue"
+                
+                index.link( bgcolor, rev, change )
+
+    finally:
+        
+        index.close()
+
+def makedirWhenNotExists( dir ):
+
+    if not os.path.exists( dir ):
+        os.makedirs( dir )
+
+print "integrate version %s" % VERSION
+
+index=False
+daemon=False
+
+for arg in sys.argv[1:]:
+
+    if arg == "--index":
+        index=True
+        
+    if arg == "--daemon":
+        daemon=True
+
+    if not arg.startswith( "--" ):
+        conf=arg
+
+if conf:
+    print "Reading config file: %s" % conf 
+    execfile( conf )
+
+makedirWhenNotExists( SCRATCH )
+makedirWhenNotExists( TEST_LOGS )
+
+if index:
+    write_index()
+    sys.exit(1)
+
+while True:
+    
+    # test the first changeset from each branch
+    run(1)
+    
+    # test the remaining changesets.
+    run()
+
+    if not daemon:
+        break
+
+    print "Sleeping for %s" % DAEMON_SLEEP_INTERVAL
+    time.sleep( DAEMON_SLEEP_INTERVAL )
+
