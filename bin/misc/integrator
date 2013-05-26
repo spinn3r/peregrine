@@ -136,7 +136,7 @@ class ReportIndex:
             if ( os.path.exists( output_full_path ) ):
                 file.write( "<td nowrap><a href='%s/%s'>%s</a></td>\n" % (rev,output_dir,output_name) )
             else:
-                print "Output path does not exist: %s\n" % output_full_path
+                print "Output path does not exist: %s" % output_full_path
                 file.write( "<td></td>\n" )
 
         file.write( "<td nowrap>%s</td>\n" % log['desc'] )

@@ -12,4 +12,4 @@ TEST_COMMAND="export ANT_OPTS=-Xmx512M && time ant javadoc jxr"
 REPO="https://burtonator:redapplekittycat@bitbucket.org/burtonator/peregrine"
 
 OUTPUT = { 'javadoc' : 'target/javadoc',
-           'xref' : 'target/xref' }
+           'xref'    : 'target/xref' }
