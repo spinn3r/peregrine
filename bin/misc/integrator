@@ -379,6 +379,8 @@ def test(branch,rev):
     _stdout=open( "%s/test.log" % (changedir), "w" )
     _stderr=open( "%s/test.err" % (changedir), "w" )
 
+    before=time.time()
+
     result = run_cmd2( TEST_COMMAND, stdout=_stdout, stderr=_stderr, fail=False )
 
     if ( result == 0 ):
@@ -387,8 +389,6 @@ def test(branch,rev):
         print "FAILED"
     else:
         print "TIMEOUT"
-
-    before=time.time()
 
     # run the post command so we can get coverage report , test reports, etc.
     run_cmd2( POST_COMMAND, stdout=_stdout, stderr=_stderr, fail=False )
