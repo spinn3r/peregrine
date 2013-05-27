@@ -7,7 +7,7 @@ SCRATCH="/tmp/integration/peregrine"
 
 TEST_LOGS="/var/lib/integration/peregrine"
 
-TEST_COMMAND="pkill -9 -u nobody java 2> /dev/null ; export HOSTNAME=localhost && export ANT_OPTS=-Xmx512M && ant clean jar compile.test jar && time ant -Dperegrine.test.backend=processes test"
+TEST_COMMAND="pkill -9 -u nobody java 2> /dev/null ; export HOSTNAME=localhost && export ANT_OPTS=-Xmx512M && ant clean jar compile.test jar && time ant integrate"
 
 ###
 # specify a post command to use AFTER we run our test.
