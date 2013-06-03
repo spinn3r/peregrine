@@ -1,0 +1,140 @@
+<html>
+  <head>
+    <meta content='text/html; charset=UTF-8' http-equiv='Content-Type' />
+    <title>
+      Peregrine: Home
+    </title>
+    <link href='/images/favicon.ico' rel='shortcut icon' />
+    <link href='/stylesheets/screen.css' media='screen, projection' rel='stylesheet' type='text/css' />
+    <link href='/stylesheets/print.css' media='print' rel='stylesheet' type='text/css' />
+    <!--[if IE]>
+      <link href='/stylesheets/ie.css' media='screen, projection' rel='stylesheet' type='text/css' />
+    <![endif]-->
+    <link href='http://alexgorbatchev.com/pub/sh/current/styles/shCore.css' rel='stylesheet' type='text/css' />
+    <link href='http://alexgorbatchev.com/pub/sh/current/styles/shThemeDefault.css' rel='stylesheet' type='text/css' />
+    <script src='http://alexgorbatchev.com/pub/sh/current/scripts/shCore.js' type='text/javascript'></script>
+    <script src='http://alexgorbatchev.com/pub/sh/current/scripts/shBrushPlain.js' type='text/javascript'></script>
+    <script src='http://alexgorbatchev.com/pub/sh/current/scripts/shBrushXml.js' type='text/javascript'></script>
+    <script src='http://alexgorbatchev.com/pub/sh/current/scripts/shBrushBash.js' type='text/javascript'></script>
+    <script src='http://alexgorbatchev.com/pub/sh/current/scripts/shBrushJava.js' type='text/javascript'></script>
+  </head>
+  <body class='bp'>
+    <div id='container'>
+      <div id='header'>
+        <div id='logo'>
+          <a href="/"><img src="/images/peregrine-logo-header3.png" align="right" /></a>
+        </div>
+        <div id='navbar'>
+          <ul>
+            <li class='current'>
+              <a href='/'>Home</a>
+            </li>
+            <li class=''>
+              <a href='/docs/'>Docs</a>
+            </li>
+            <li class=''>
+              <a href='/design/'>Design</a>
+            </li>
+            <li class=''>
+              <a href='/roadmap/'>Roadmap</a>
+            </li>
+            <li class=''>
+              <a href='/contact/'>Contact</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div id='content' lang='en'>
+        <h2>Overview</h2>
+          <p>Peregrine is a map reduce framework designed for running iterative jobs across partitions of data.  Peregrine is designed to be <b>FAST</b> for executing map reduce jobs by supporting a number of optimizations and features not present in other map reduce frameworks. <br clear="all" /></p>
+          <h2>Status</h2>
+          <p>The latest Peregrine beta release is 0.5.3.  It is ready for production jobs but may not be as fast as the final version as we are still landing important performance optimizations.  We plan on releasing 0.6.0 in January 2012 and 1.0 around March 2012.  0.5.x is not designed for extensive crash recovery but for production jobs on small clusters should be very fast.  Crashes can be resolved by simply restarting the job.  On smaller clusters this should be acceptable but cleary not on larger clusters (more than 100 machines).</p>
+          <p>Our goal is to be feature complete with the ability to execute across 10-40 nodes in the 0.5.0 timeframe and then work on handling failure in the 1.0 timeframe.</p>
+          <p>This will allow people to run Peregrine in production as soon as possible and see a return on their investment.</p>
+          <p><iframe width="560" height="315" src="http://www.youtube.com/embed/-_iCo1fFSeQ#t=21s" frameborder="0" allowfullscreen></iframe></p>
+          <h2>Features</h2>
+          <p>Peregrine supports a number of optimizations and features not present in other map reduce frameworks including:</p>
+          <h3>Performance</h3>
+          <ul>
+            <li>Native partitioned support enabling data from the previous iteration in a map reduce framework can be easily merged with the current (and/or next) iteration.</li>
+            <li>Parallel recovery on machine failure.  When even a large 1TB instance fails, that machine's data will be re-replicated from N source nodes to M target nodes.  The 1TB instance can go back up to the correct number of replicas in around 5 minutes.</li>
+            <li>Direct shuffling between hosts which provides for a 2x performance boost over indirect shuffling.</li>
+            <li>Native understanding of extract and load operations enabling the extract phase can write directly to mappers and the load phase can write directly to the target system without having to write intermediate data to the filesystem.</li>
+            <li>Execution plan optimizer for building jobs at a high level and then allowing the runtime to compute the most efficient plan which allows developers to think in higher level constructs other than being force to "think" in MapReduce.</li>
+            <li>Implementation of 'systat' in Java which provides the same functionality as the <a href="http://sebastien.godard.pagesperso-orange.fr/">Linux systat package</a> which enables us to look at mean CPU, network, and disk utilization during the duration of a job for easy post-mortem performance analysis.</li>
+          </ul>
+          <h3>Modern design</h3>
+          <ul>
+            <li>Pipeline support enabling intermediate data between jobs can skip being written to the filesystem and can instead be written directly to the next job's map task.</li>
+            <li><a href="http://www.systems.ethz.ch/education/past-courses/hs08/map-reduce/reading/mapreducemerge-sigmod07.pdf">MapReduceMerge</a> style computations including a new merge() operation</li>
+          </ul>
+          <h3>Tight code base.</h3>
+          <ul>
+            <li>A simple distributed filesystem implementation (PFS) optimized around partitioned operation and iterative computation.</li>
+            <li>Broadcast variables which enable 'globals' across your map reduce jobs which can be referenced in your tasks computing the job.</li>
+          </ul>
+          <h3>Design</h3>
+          <p>Peregrine is designed primarily for iterative map reduce applications which need to join against the the previous iteration.</p>
+          <p>For example, algorithms like Pagerank and k-means are iterative and join against data from the previous iteration.</p>
+          <p>Peregrine has an implementation of Pagerank already which we're using as a test bed to prove out the rest of our framework.</p>
+          <h3>Philosophy</h3>
+          <ul>
+            <li>Keep the code base tight and small and focused on one specific task (1.0 should be less than 20k lines of code)</li>
+            <li>Target OS specific optimizations including mmap, fallocate, fadvise, sendfile, etc.</li>
+            <li>All IO should use buffered async IO.</li>
+            <li>All code should have 100% coverage and no excess code in the repository.</li>
+            <li>Native integrated type system (putInt, getInt, etc) for manipulating keys and values.</li>
+          </ul>
+      </div>
+      <div id='sidebar'>
+        <div id='quicklinks'>
+          <ul>
+            <li class='highlight'>
+              <a href='http://bitbucket.org/burtonator/peregrine/downloads' id='download_now'>Download now</a>
+            </li>
+            <li>
+              <a href='https://bitbucket.org/burtonator/peregrine/src' id='xref'>Source</a>
+            </li>
+            <li>
+              <a href=' https://groups.google.com/forum/#!forum/peregrine-mapreduce ' id='mailinglist'>Mailing List</a>
+            </li>
+            <li>
+              <a href='https://bitbucket.org/burtonator/peregrine/issues?status=new&amp;status=open' id='issuetracker'>Issue Tracker</a>
+            </li>
+            <li>
+              <a href='http://peregrine_mapreduce.bitbucket.org/javadoc/' id='javadoc'>Javadoc</a>
+            </li>
+            <li>
+              <a href='http://peregrine_mapreduce.bitbucket.org/xref/' id='xref'>Cross Reference</a>
+            </li>
+            <li>
+              <a href='http://peregrine_mapreduce.bitbucket.org/coverage/' id='coverage'>Coverage</a>
+            </li>
+            <li>
+              <a href='http://peregrine_mapreduce.bitbucket.org/test-reports/' id='coverage'>Test Reports</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div id='footer'>
+        <div class='legal'>
+          Copyright 2011-2012 <a href="http://burtonator.wordpress.com">Kevin Burton</a> and <a href="http://spinn3r.com">Spinn3r</a>.
+        </div>
+      </div>
+      <script type='text/javascript'>
+        //<![CDATA[
+          SyntaxHighlighter.all()
+        //]]>
+      </script>
+      <script type="text/javascript">
+        var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+        document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+        </script>
+        <script type="text/javascript">
+        try {
+        var pageTracker = _gat._getTracker("UA-95307-5");
+        pageTracker._trackPageview();
+        } catch(err) {}</script>
+    </div>
+  </body>
+</html>

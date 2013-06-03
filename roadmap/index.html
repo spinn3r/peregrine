@@ -1,0 +1,111 @@
+<html>
+  <head>
+    <meta content='text/html; charset=UTF-8' http-equiv='Content-Type' />
+    <title>
+      Peregrine: Roadmap
+    </title>
+    <link href='/images/favicon.ico' rel='shortcut icon' />
+    <link href='/stylesheets/screen.css' media='screen, projection' rel='stylesheet' type='text/css' />
+    <link href='/stylesheets/print.css' media='print' rel='stylesheet' type='text/css' />
+    <!--[if IE]>
+      <link href='/stylesheets/ie.css' media='screen, projection' rel='stylesheet' type='text/css' />
+    <![endif]-->
+    <link href='http://alexgorbatchev.com/pub/sh/current/styles/shCore.css' rel='stylesheet' type='text/css' />
+    <link href='http://alexgorbatchev.com/pub/sh/current/styles/shThemeDefault.css' rel='stylesheet' type='text/css' />
+    <script src='http://alexgorbatchev.com/pub/sh/current/scripts/shCore.js' type='text/javascript'></script>
+    <script src='http://alexgorbatchev.com/pub/sh/current/scripts/shBrushPlain.js' type='text/javascript'></script>
+    <script src='http://alexgorbatchev.com/pub/sh/current/scripts/shBrushXml.js' type='text/javascript'></script>
+    <script src='http://alexgorbatchev.com/pub/sh/current/scripts/shBrushBash.js' type='text/javascript'></script>
+    <script src='http://alexgorbatchev.com/pub/sh/current/scripts/shBrushJava.js' type='text/javascript'></script>
+  </head>
+  <body class='bp'>
+    <div id='container'>
+      <div id='header'>
+        <div id='logo'>
+          <a href="/"><img src="/images/peregrine-logo-header3.png" align="right" /></a>
+        </div>
+        <div id='navbar'>
+          <ul>
+            <li class=''>
+              <a href='/'>Home</a>
+            </li>
+            <li class=''>
+              <a href='/docs/'>Docs</a>
+            </li>
+            <li class=''>
+              <a href='/design/'>Design</a>
+            </li>
+            <li class='current'>
+              <a href='/roadmap/'>Roadmap</a>
+            </li>
+            <li class=''>
+              <a href='/contact/'>Contact</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div id='content' lang='en'>
+        <h2>Roadmap</h2>
+          <p>Peregrine was created to optimally handle iterative and graph computation for which other map reduce frameworks such as Hadoop were non-optimal.</p>
+          <p>Specifically, the design of Peregrine is setup to fasciliate evential implementation of a <a href="http://googleresearch.blogspot.com/2009/06/large-scale-graph-computing-at-google.html">Pregel</a> style graph computation framework as well as <a href="http://dl.acm.org/citation.cfm?id=1806638">FlumeJava</a> style pipeline and optimizer framework.  (Interestingly enough the author was already working on similar frameworks but via convergent evolution these ideas are better documented via these papers).</p>
+          <p>Further, a domain specific language similar to <a href="http://pig.apache.org/">Pig</a> and <a href="http://research.google.com/archive/sawzall.html">Sawzall</a> is also being considered to democratize access to these types of resources.  Making the runtime Java-only limits the potential audience and this framework can also be <b>very</b> useful for other types of developers including operations.</p>
+          <h2>Contributors</h2>
+          <p><a href="http://spinn3r.com"><img src="http://spinn3r.com/images/spinn3r.v01.jpg" style="float: right; position: relative; top: -20px; margin-left: 10px; "/></a>Peregrine is developed at <a href="http://spinn3r.com">Spinn3r</a> for use with our blog and social media crawler.  We use it for machine learning and other IR tasks where performance is paramount.</p>
+          <h2>The Peregrine Falcon</h2>
+          <p>Peregrine was named after the <a href="http://en.wikipedia.org/wiki/Peregrine_Falcon">Peregrine Falcon</a> due to the author's love of the bird as well as his interest in science and nature.</p>
+          <p>The Peregrine is the fastest animal in the world: "The Peregrine is renowned for its speed, reaching over 325 km/h (202 mph) during its characteristic hunting stoop (high speed dive), making it the fastest member of the animal kingdom.</p>
+          <p>The Peregrine Falcon represents exactly what we're trying to accomplish with Peregrine.  We want to be the fastest MR implementation but at the same time remain small, agile, elegant, and beautiful.</p>
+          <p><iframe width="100%" height="500" src="http://www.youtube.com/embed/j3mTPEuFcWk" frameborder="0" allowfullscreen></iframe></p>
+      </div>
+      <div id='sidebar'>
+        <div id='quicklinks'>
+          <ul>
+            <li class='highlight'>
+              <a href='http://bitbucket.org/burtonator/peregrine/downloads' id='download_now'>Download now</a>
+            </li>
+            <li>
+              <a href='https://bitbucket.org/burtonator/peregrine/src' id='xref'>Source</a>
+            </li>
+            <li>
+              <a href=' https://groups.google.com/forum/#!forum/peregrine-mapreduce ' id='mailinglist'>Mailing List</a>
+            </li>
+            <li>
+              <a href='https://bitbucket.org/burtonator/peregrine/issues?status=new&amp;status=open' id='issuetracker'>Issue Tracker</a>
+            </li>
+            <li>
+              <a href='http://peregrine_mapreduce.bitbucket.org/javadoc/' id='javadoc'>Javadoc</a>
+            </li>
+            <li>
+              <a href='http://peregrine_mapreduce.bitbucket.org/xref/' id='xref'>Cross Reference</a>
+            </li>
+            <li>
+              <a href='http://peregrine_mapreduce.bitbucket.org/coverage/' id='coverage'>Coverage</a>
+            </li>
+            <li>
+              <a href='http://peregrine_mapreduce.bitbucket.org/test-reports/' id='coverage'>Test Reports</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div id='footer'>
+        <div class='legal'>
+          Copyright 2011-2012 <a href="http://burtonator.wordpress.com">Kevin Burton</a> and <a href="http://spinn3r.com">Spinn3r</a>.
+        </div>
+      </div>
+      <script type='text/javascript'>
+        //<![CDATA[
+          SyntaxHighlighter.all()
+        //]]>
+      </script>
+      <script type="text/javascript">
+        var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+        document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+        </script>
+        <script type="text/javascript">
+        try {
+        var pageTracker = _gat._getTracker("UA-95307-5");
+        pageTracker._trackPageview();
+        } catch(err) {}</script>
+    </div>
+  </body>
+</html>
