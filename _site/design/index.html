@@ -1,0 +1,194 @@
+<html>
+  <head>
+    <meta content='text/html; charset=UTF-8' http-equiv='Content-Type' />
+    <title>
+      Peregrine: Design
+    </title>
+    <link href='/images/favicon.ico' rel='shortcut icon' />
+    <link href='/stylesheets/screen.css' media='screen, projection' rel='stylesheet' type='text/css' />
+    <link href='/stylesheets/print.css' media='print' rel='stylesheet' type='text/css' />
+    <!--[if IE]>
+      <link href='/stylesheets/ie.css' media='screen, projection' rel='stylesheet' type='text/css' />
+    <![endif]-->
+    <link href='http://alexgorbatchev.com/pub/sh/current/styles/shCore.css' rel='stylesheet' type='text/css' />
+    <link href='http://alexgorbatchev.com/pub/sh/current/styles/shThemeDefault.css' rel='stylesheet' type='text/css' />
+    <script src='http://alexgorbatchev.com/pub/sh/current/scripts/shCore.js' type='text/javascript'></script>
+    <script src='http://alexgorbatchev.com/pub/sh/current/scripts/shBrushPlain.js' type='text/javascript'></script>
+    <script src='http://alexgorbatchev.com/pub/sh/current/scripts/shBrushXml.js' type='text/javascript'></script>
+    <script src='http://alexgorbatchev.com/pub/sh/current/scripts/shBrushBash.js' type='text/javascript'></script>
+    <script src='http://alexgorbatchev.com/pub/sh/current/scripts/shBrushJava.js' type='text/javascript'></script>
+  </head>
+  <body class='bp'>
+    <div id='container'>
+      <div id='header'>
+        <div id='logo'>
+          <a href="/"><img src="/images/peregrine-logo-header3.png" align="right" /></a>
+        </div>
+        <div id='navbar'>
+          <ul>
+            <li class=''>
+              <a href='/'>Home</a>
+            </li>
+            <li class=''>
+              <a href='/docs/'>Docs</a>
+            </li>
+            <li class='current'>
+              <a href='/design/'>Design</a>
+            </li>
+            <li class=''>
+              <a href='/roadmap/'>Roadmap</a>
+            </li>
+            <li class=''>
+              <a href='/contact/'>Contact</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div id='content' lang='en'>
+        <h2>Design</h2>
+          <p>Peregrine is designed to use modern hardware and takes into consideration recent developments in Map Reduce design including ideas from Cassandra, FlumeJava, BigTable, MapReduceMerge, and other recent innovations.</p>
+          <h3>Partitioning and Iterative Jobs</h3>
+          <p>Peregrine was designed primary for iterative jobs where job S is apriori setup to join against job S+1.</p>
+          <p>We accomplish this by partitining the data into determinstic locations so that a range of keys (the partition) always exist on the same machine.</p>
+          <p>This enables efficient merging of data from the previous iteration.</p>
+          <h3>Partition Layout</h3>
+          <p>GFS and HDFS both store data in blocks of about 64-256MB. These blocks are evenly distributed across the cluster which enables parallel recovery if an individual machine fails.</p>
+          <p>Many MapReduce clusters often host a large amount of data per box. I naive partition layout may try to keep all of the data on the same groups of physical machines (replicas).</p>
+          <p>However, 1TB of data will not replicate quickly with only a few copies of the data would mean that it could take hours to get back up to the minimum number of replicas.</p>
+          <p>Peregrine can bypass this problem by using a clever partitioning layout.</p>
+          <p>Partitions are first given out in terms of priority groups.  A host will have nr_replica priority groups. Maps and reduce jobs only execute with the concurrency of <i>nr_partitions_per_host</i> / <i>nr_replica</i> .</p>
+          <p>The layout strategy is designed to maximize recovery so that when a host fails it can recover from <i>nr_partitions_per_host</i> hosts (one for each partition).</p>
+          <p><img src="http://i.imgur.com/FEQlS.png"/></p>
+          <p><b>Figure 1</b> Proper initial partition layout.</p>
+          <p>The highlighted regions show how each priority group is offset and cycled between horizontal and diagonal placement. This setup allows us to shift the partitions to maximize recovery throughput.</p>
+          <p><img src="http://i.imgur.com/O9d4N.png"/></p>
+          <p><b>Figure 2</b> Layout after <i>machine0:11111</i> has been marked failed.</p>
+          <p>In this configuration machines the highlighted partitions would serve as replicas during recovery.. In normal production environments the number of partitions per host would be in the 10-25 range which would mean that each host would handle 4-10% additional load after taking additional partitions.</p>
+          <p>It's also possible to have dedicated hosts setup just for failure operation which have fewer partitions than the rest of the machines in the cluster.</p>
+          <p><img src="http://i.imgur.com/2KpjB.png"/></p>
+          <h3>Multicore and Concurrency</h3>
+          <p>Peregrine is designed to function on cheap commodity hardware. A typical configuration will use inexpensive 1TB SATA and 8-16 cores per box with 8-12GB of RAM.</p>
+          <p>One difficult issue is that a machine with 4 SATA drives and 16 cores is almost equivalent to 4 1x SATA and 4 core machines.</p>
+          <p>Getting Peregrine to correctly partition the data across the 4 SATA drives and maintain decent performance is accomplished by running 4 daemons per box.</p>
+          <p>Each daemon has a unique port and PFS mount point. The first daemon could run on port 11111 and have a mount point of /d2/peregrine-fs. The second would run on port 11112 and have a mount point of /d3/peregrine-fs, and so on.</p>
+          <p>This enables us to efficiently use the hardware and specifically the SATA disk but also maximize the CPU concurrency of the machine by utilizing all cores.</p>
+          <h3>Distributed Filesystem</h3>
+          <p>All data is stored in a filesystem named PFS (Partitioned File System).</p>
+          <p>PFS is a simple distributed filesystem meant to meet the needs of just our specific use case.</p>
+          <p>All files are 'sequence files' or 'key/value' files with the data routed by the key.</p>
+          <p>Files are spread across chunks, by default the maximum chunk size is 128MB.</p>
+          <p>A file is a collection of these individual chunks.</p>
+          <p>Chunks are written on key/value boundaries so a given map() can just work directly with an individual chunk without having to do any split on the given file.</p>
+          <p>These files are split up across the underlying partitions by key with a key routing function.</p>
+          <p>On disk the files are stored in a path hierarchy given by the user.</p>
+          <p>For example, if a user writes to /tmp/extract-output.dat we will write this file into the PFS root directory on all nodes first routed by key and then stored into individual chunks.</p>
+          <h3>Write Pipeline</h3>
+          <p>All writes are done via HTTP PUTs to the master for a specific partition. Writes are then pipelined to each replica one by one until all replicas have a copy of the data.</p>
+          <p>The write pipeline is specified by the X-pipeline HTTP header.</p>
+          <p>We use HTTP chunked encoding to write data in atomic units. When a PFS node receives the first chunk, it opens an HTTP connection to the first machine specified in X-pipeline and includes a new X-pipeline header specifying the remaining machines (if any) in the write pipeline.</p>
+          <p>The data then flows through all nodes one by one. This enables us to get the full gigabit ethernet performance out of a given host when doing a write to N hosts intead of just 1/N.</p>
+          <h3>Job Pipelines</h3>
+          <p>Many iterative jobs are built from mutli-stage job pipelines (not to be confused with PFS replication write pipelines).</p>
+          <p>A system not aware of these job pipelines may simply write the data to a filesystem, then map over the filesystem.</p>
+          <p>Traditionally this is done for reasons of simplicity but this intermediate IO can have a negative performance impact if we can perform the same recovery but without the unnecessary intermediate data.</p>
+          <p>Peregrine was designed to factor in job pipeline into the core architecture to prevent this from being a performance bottleneck.</p>
+          <p>For Extract Transform and Load (ETL) jobs, often the intermediate data is always discarded.</p>
+          <p>The only intermediate IO that we persist are "shuffle groups" which are logs storing shuffle output from map tasks.</p>
+          <p>These files perform the core of our checkpointing functionality.</p>
+          <p>We use a large buffer (128MB-1GB) so that reducer nodes responsible for their data keep similar map output in a contiguous region on disk.</p>
+          <p><img src="http://i.imgur.com/jBbx2.png" /></p>
+          <h3>Partition and Shuffle Group Performance</h3>
+          <p>Peregrine is a partioned system we store a number of partitions per node. Usually in the 10-25 range. While this allows for better throughput during node failure it means there is a performance impact.</p>
+          <p>Traditional SATA HDDs can not perform fast random IO. The best peak performance can be achieved by having 1 sequential reader or writer using the drive at a time.</p>
+          <p>However, the impact isn't major if you can keep the number of parallel tasks to a minum.</p>
+          <p>This is a benchmark of shuffle group performance on a number of partitions and buffer sizes.</p>
+          <p>Shuffle groups operate by keeping an in-memory buffer of currently streaming IO and then flushing it to disk when it is complete.</p>
+          <p>This leaves large regions of the disk available for contiguous reads.</p>
+          <p>When we do a reduce on a given node it is on one given partition at a time. This allow us to take a small hit in terms of performance during reduces which enables us to have massive recovery parallelism during node failures.</p>
+          <p><img src="http://i.imgur.com/TPjmP.png"/></p>
+          <h3>Shuffle IO throughput optimization</h3>
+          <p>The original MapReduce paper and hadoop implement shuffling by first writing map() output to the local disk and then when this is complete, transferring the data to the target node.</p>
+          <p>Google's implementation wrote the data into N files on disk on the machine running the map() and then transferred the smaller chunks to the machines responsible for performing the reduction.</p>
+          <p>The problem with this approach is that it will require local disk IO to perform the local write.</p>
+          <p>"Periodically, the buffered pairs are written to local disk, partitioned into R regions by the partitioning function. The locations of these buffered pairs on the local disk are passed back to the master, who is responsible for forwarding these locations to the reduce workers."</p>
+          <p>"When a reduce worker is notified by the master about these locations, it uses remote procedure calls to read the buffered data from the local disks of the map workers. When a reduce worker has read all in- termediate data, it sorts it by the intermediate keys so that all occurrences of the same key are grouped together. "</p>
+          <p>It's unclear whether Google was buffering this data in memory or they were saying it was 'buffered' because it wan't yet sent to the reducer node.</p>
+          <p>Peregrine does a full bypass of the local disk and instead writes the data directly to the remote node.</p>
+          <p>This provides following benefits:</p>
+          <ul>
+            <li>The data is sent immediately and does not require buffering in memory.</li>
+            <li>The data is not written to the local disk so would not slow down the map job throughput.</li>
+            <li>The data must make it to the target node regardless of the design of the shuffle system even if a map job must slow down to perform the network transfer.</li>
+            <li>We're able to use available network bandwidth throughput during the entire map operation, not just when we are done the full job.  Even if we're not as efficient in total size of the shuffle data, we still have more potential bandwidth to utilize so the total job time should be lower.</li>
+          </ul>
+          <p>This allows us to do only one read of the data and one write. Versus two reads and two writes with the local intermediate file approach.</p>
+          <h3>Failure during Map</h3>
+          <p>Failure of a node during a map makes it difficult for us to write shuffle data because a remote node would then have partial map output and then a secondary node would come online and finish the map.</p>
+          <p>The controller tracks this by keeping a log of completed maps and transfers this to reducers. When a reduce starts the reducer simply skips map output which is failed.</p>
+          <p>In a long running map job in a reasonable network configuration we expect to have say 10 machines fail in a cluster of 1000. In this situation the maximum excess shuffle data we should have would be 10 x chunk_size or approximately 1.2GB.</p>
+          <h3>Failure detection</h3>
+          <p>All machines in Peregrine are able to send gossip back to the controller. This allows the controller to decide about which machines have failed during a computation so that we can take them out of production.</p>
+          <p>When a machine is marked as failed we perform the following steps:</p>
+          <ul>
+            <li>pending jobs that were runninng on the failed machine are scheduled to execute on its replicas.</li>
+            <li>the partitions which this machine hosted are evenly given out to other machines in the cluster.</li>
+            <li>pending writes while the replicas are syncing are also completed on the new replicas.</li>
+          </ul>
+          <p>No new jobs or partitions are assigned to a machine once it has been marked failed.</p>
+          <h3>Memory Allocation</h3>
+          <p>Peregrine is designed to take advantage of as many operating system facilities as possible instead of relying on potential inefficient Java alternatives.</p>
+          <p>Only core data structures are allocated within the JDK's heap. All other memory (shuffle output buffer, shuffle sorting buffers, and merging buffers) are allocated by direct buffers via mmap(). Where possible we will mlock() these pages into memory to avoid them being swapped to disk during a critical operation.</p>
+          <p>We also use fadvise to purge pages from the VFS page cache if the files will no longer be used (reducing VFS cache).</p>
+      </div>
+      <div id='sidebar'>
+        <div id='quicklinks'>
+          <ul>
+            <li class='highlight'>
+              <a href='http://bitbucket.org/burtonator/peregrine/downloads' id='download_now'>Download now</a>
+            </li>
+            <li>
+              <a href='https://bitbucket.org/burtonator/peregrine/src' id='xref'>Source</a>
+            </li>
+            <li>
+              <a href=' https://groups.google.com/forum/#!forum/peregrine-mapreduce ' id='mailinglist'>Mailing List</a>
+            </li>
+            <li>
+              <a href='https://bitbucket.org/burtonator/peregrine/issues?status=new&amp;status=open' id='issuetracker'>Issue Tracker</a>
+            </li>
+            <li>
+              <a href='http://peregrine_mapreduce.bitbucket.org/javadoc/' id='javadoc'>Javadoc</a>
+            </li>
+            <li>
+              <a href='http://peregrine_mapreduce.bitbucket.org/xref/' id='xref'>Cross Reference</a>
+            </li>
+            <li>
+              <a href='http://peregrine_mapreduce.bitbucket.org/coverage/' id='coverage'>Coverage</a>
+            </li>
+            <li>
+              <a href='http://peregrine_mapreduce.bitbucket.org/test-reports/' id='coverage'>Test Reports</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div id='footer'>
+        <div class='legal'>
+          Copyright 2011-2012 <a href="http://burtonator.wordpress.com">Kevin Burton</a> and <a href="http://spinn3r.com">Spinn3r</a>.
+        </div>
+      </div>
+      <script type='text/javascript'>
+        //<![CDATA[
+          SyntaxHighlighter.all()
+        //]]>
+      </script>
+      <script type="text/javascript">
+        var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+        document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+        </script>
+        <script type="text/javascript">
+        try {
+        var pageTracker = _gat._getTracker("UA-95307-5");
+        pageTracker._trackPageview();
+        } catch(err) {}</script>
+    </div>
+  </body>
+</html>

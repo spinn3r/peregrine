@@ -1,0 +1,75 @@
+---
+title: Home
+layout: base
+---
+
+%h2 Overview
+
+%p Peregrine is a map reduce framework designed for running iterative jobs across partitions of data.  Peregrine is designed to be <b>FAST</b> for executing map reduce jobs by supporting a number of optimizations and features not present in other map reduce frameworks. <br clear="all" />
+
+%h2 Status
+
+%p The latest Peregrine beta release is 0.5.3.  It is ready for production jobs but may not be as fast as the final version as we are still landing important performance optimizations.  We plan on releasing 0.6.0 in January 2012 and 1.0 around March 2012.  0.5.x is not designed for extensive crash recovery but for production jobs on small clusters should be very fast.  Crashes can be resolved by simply restarting the job.  On smaller clusters this should be acceptable but cleary not on larger clusters (more than 100 machines).
+
+%p Our goal is to be feature complete with the ability to execute across 10-40 nodes in the 0.5.0 timeframe and then work on handling failure in the 1.0 timeframe.
+
+%p This will allow people to run Peregrine in production as soon as possible and see a return on their investment.
+
+%p <iframe width="560" height="315" src="http://www.youtube.com/embed/-_iCo1fFSeQ#t=21s" frameborder="0" allowfullscreen></iframe>
+
+%h2 Features
+
+%p Peregrine supports a number of optimizations and features not present in other map reduce frameworks including:
+
+%h3 Performance
+
+%ul
+  %li Native partitioned support enabling data from the previous iteration in a map reduce framework can be easily merged with the current (and/or next) iteration. 
+
+  %li Parallel recovery on machine failure.  When even a large 1TB instance fails, that machine's data will be re-replicated from N source nodes to M target nodes.  The 1TB instance can go back up to the correct number of replicas in around 5 minutes.
+
+  %li Direct shuffling between hosts which provides for a 2x performance boost over indirect shuffling.  
+
+  %li Native understanding of extract and load operations enabling the extract phase can write directly to mappers and the load phase can write directly to the target system without having to write intermediate data to the filesystem. 
+
+  %li Execution plan optimizer for building jobs at a high level and then allowing the runtime to compute the most efficient plan which allows developers to think in higher level constructs other than being force to "think" in MapReduce.
+
+  %li Implementation of 'systat' in Java which provides the same functionality as the <a href="http://sebastien.godard.pagesperso-orange.fr/">Linux systat package</a> which enables us to look at mean CPU, network, and disk utilization during the duration of a job for easy post-mortem performance analysis.
+
+%h3 Modern design
+
+%ul
+
+  %li Pipeline support enabling intermediate data between jobs can skip being written to the filesystem and can instead be written directly to the next job's map task.
+
+  %li <a href="http://www.systems.ethz.ch/education/past-courses/hs08/map-reduce/reading/mapreducemerge-sigmod07.pdf">MapReduceMerge</a> style computations including a new merge() operation
+
+%h3 Tight code base.
+
+%ul
+  %li A simple distributed filesystem implementation (PFS) optimized around partitioned operation and iterative computation.
+
+  %li Broadcast variables which enable 'globals' across your map reduce jobs which can be referenced in your tasks computing the job.  
+
+%h3 Design
+
+%p Peregrine is designed primarily for iterative map reduce applications which need to join against the the previous iteration.
+
+%p For example, algorithms like Pagerank and k-means are iterative and join against data from the previous iteration.
+
+%p Peregrine has an implementation of Pagerank already which we're using as a test bed to prove out the rest of our framework.
+
+%h3 Philosophy
+
+%ul
+
+  %li Keep the code base tight and small and focused on one specific task (1.0 should be less than 20k lines of code)
+
+  %li Target OS specific optimizations including mmap, fallocate, fadvise, sendfile, etc.
+
+  %li All IO should use buffered async IO.
+
+  %li All code should have 100% coverage and no excess code in the repository.
+
+  %li Native integrated type system (putInt, getInt, etc) for manipulating keys and values.
+

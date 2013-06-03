@@ -1,0 +1,524 @@
+@import "blueprint/reset";
+@import "partials/base";
+
+@import "blueprint";
+
+@import "compass/css3/images";
+@import "compass/css3/opacity";
+@import "compass/css3/text-shadow";
+@import "compass/css3/border-radius";
+@import "compass/css3/background-size";
+@import "compass/css3/transition";
+
+@import "compass/reset/utilities";
+
+@import "compass/typography/links/hover-link";
+@import "compass/typography/links/unstyled-link";
+@import "compass/typography/links/link-colors";
+
+$color0: darken(saturate(#000000, 10%), 10%);
+$color1: lighten($color0, 20%);
+$color2: lighten($color0, 50%);
+$color3: lighten($color0, 65%);
+//$color4: lighten(#ffb300, 15%);
+$color4: lighten(#ff0000, 15%);
+
+$header-color: $color0;
+
+body.bp {
+  @include blueprint-typography(true);
+  @include blueprint-utilities;
+  @include blueprint-debug;
+  @include blueprint-interaction;
+
+  #container {
+    @include container;
+    //background: url(../images/header.png) no-repeat right top;
+  }
+
+  #header {
+    margin: 8px 0 8px 0;
+    padding-bottom: 0;
+    height: 103px;
+    border-bottom: {
+      width: 1px;
+      color: $color2;
+      style: solid;
+    }
+
+    #logo {
+      @include column($blueprint-grid-columns / 4);
+      height: 64px;
+      text-align: left;
+      
+      a {
+      	text-decoration: none;
+        @include link-colors($color0);
+      }
+
+      img {
+        float: left;
+        padding-left: 8px;
+      }
+
+      #project_name {
+        @include text-shadow;
+        width: 100px;
+        height: 64px;
+        padding-top: 5px;
+        margin: 0 0 0 10px;
+        color: $color0;
+
+        .large {
+          line-height: 18px;
+          font-size: 36px;
+          margin: 12px 0 0 0;
+          display: block;
+        
+        }
+        .small {
+          font-size: 28px;
+          line-height: 1em;
+          display: block;
+          margin: 0 0 0 41px;
+          color: $color1;
+        }
+      }
+    }
+
+    #navbar {
+      @include column(2 * $blueprint-grid-columns / 4);
+      padding: 75px 0 0 0;
+      text-align: center;
+
+      ul {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+
+        li {
+          display: inline-block;
+          *display:inline; /* IE hack */
+          text-align: center;
+
+          padding: 1px 16px 1px 16px;
+          margin: 0;
+          overflow: hidden;
+          border-color: transparent;
+          border-style: solid;
+          border-width: 1px;
+          @include border-top-radius;
+
+          &.current {
+            border-color: $color2;
+            background-color: $color3;
+	  }
+
+          &:hover {
+            @include transition;
+            background-color: $color4;
+            border-color: $color2;
+          }
+
+          a {
+            @include link-colors($color0);
+            @include single-text-shadow(white, 1px, 1px, 1px);
+            font: {
+              size: 16px;
+              weight: bold;
+            }
+            text-decoration: none;
+          }
+        }
+      }
+    }
+
+    #searchbar {
+      @include column($blueprint-grid-columns / 4, true);
+      margin: 0 0 0 6px;
+      width: 100px;
+      padding: 76px 0 0 0;
+      text-align: right;
+
+      #cse-search-form div {
+          margin-right: 0;
+          padding-right: 0;
+
+      }
+
+      #cse-search-form * {
+        form, table {
+          margin:0;
+          padding:0;
+        }
+        form {
+          display: inline;
+          margin: 0;
+          padding: 0;
+        }
+        table {
+          idth: 224px;
+        }
+        td {
+          margin: 0;
+          padding: 0;
+        }
+      }
+
+      .gsc-branding {
+        display: none;
+      }
+
+      .gsc-input {
+        width: 224px;
+        margin: 0;
+        padding: 6px 4px;
+        height: 27px;
+        font-size: 13px;
+        border-color: $color2;
+        @include border-top-radius;
+        background-position: center !important;
+      }
+      .gsc-search-button, .gsc-clear-button {
+        display: none;
+      }
+    }
+  }
+
+  #content {
+    $content-columns: ceil(3 * $blueprint-grid-columns / 4);
+    @include column($content-columns);
+    text-align: left;
+    padding: 4px 0px 0px 0px;
+  }
+
+  #sidebar {
+    $sidebar-columns: floor($blueprint-grid-columns / 4);
+    @include column($sidebar-columns, true);
+    text-align: left;
+
+    #quicklinks {
+      padding-top: 4px;
+      margin-bottom: 20px;
+      ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        li {
+          border: {
+            style: solid;
+            color: $color1;
+            width: 1px;
+          }
+          @include background-image(linear-gradient(lighten($color2, 40%), lighten($color2, 10%), $color2));
+          &.highlight {
+            @include background-image(linear-gradient(lighten($color4, 40%), lighten($color4, 10%), $color4));
+          }
+          @include border-radius;
+          margin: 0 0 10px 6px;
+          padding: 8px 12px;
+          text-transform: uppercase;
+          a {
+            @include link-colors(black);
+            @include single-text-shadow(white, 1px, 1px, 1px);
+            font-size: 14px;
+            font-weight: bold;
+            text-decoration: none;
+            padding: {
+              left: 22px;
+              bottom: 22px;
+            }
+
+            &#download_now {
+              background: url(../images/downloads.png) no-repeat 0 0;
+              @include background-size(16px);
+            }
+            &#view_on_github {
+              background: url(../images/github.png) no-repeat 0 0;
+              @include background-size(16px);
+            }
+            &#stackoverflow {
+              background: url(../images/stackoverflow.png) no-repeat 0 0;
+              @include background-size(16px);
+            }
+            &#chat_with_us {
+              background: url(../images/chat.png) no-repeat 0 0;
+              @include background-size(16px);
+            }
+            &#follow_us_at_twitter {
+              background: url(../images/twitter.png) no-repeat 0 0;
+              @include background-size(16px);
+            }
+          }
+        }
+      }
+    }
+
+    #testimonial {
+      h2 {
+        font-size: 17px;
+        margin: 0 0 0 11px;
+        &:after {
+          content: ':';
+        }
+      }
+      blockquote {
+        font-size: 10px;
+        @include border-radius;
+        text-indent: 0;
+        background: url(../images/quote-open.gif) no-repeat 8px 8px;
+        background-color: $color3;
+        margin: 0 0 0 6px;
+        padding: 8px 12px 8px 24px;
+        -webkit-hyphens: auto;
+        -moz-hyphens: auto;
+        hyphens: auto;
+        text-align: justify;
+      }
+      .author {
+        margin-top: 4px;
+        margin-right: 0;
+        text-align: right;
+        font-size: 11px;
+        &:before {
+          content: "\2014";
+        }
+      }
+      .readmore {
+        text-align: right;
+        margin-right: 0;
+        font-size: 10px;
+      }
+    }
+  }
+
+  #footer {
+    @include column($blueprint-grid-columns);
+    margin: 8px 0 24px 0;
+    border-top: {
+      width: 1px;
+      color: $color2;
+      style: solid;
+    }
+    text-align: right;
+    color: $color0;
+    font: {
+      style: italic;
+      size: 10px;
+    }
+    a {
+      @include link-colors($color0);
+    }
+  }
+}
+
+form.bp {
+  @include blueprint-form;
+}
+
+body.bp #content {
+  h1, h2 {
+    margin: 0 0 4px 10px;
+  }
+
+  h3, h4, h5, h6 {
+    margin: 0 0 10px 12px;
+  }
+
+  p, blockquote {
+    text-align: justify;
+    -webkit-hyphens: auto;
+    -moz-hyphens: auto;
+    hyphens: auto;
+  }
+
+  p, ul, ol {
+    margin: 0 14px 14px 24px;
+  }
+
+  ul, ol {
+    ul, ol {
+      margin-left: 0;
+    }
+  }
+
+  div {
+    margin: {
+      left: 24px;
+      right: 14px;
+    }
+  }
+
+  pre {
+    margin: 0 14px 14px 24px;
+    white-space: pre-wrap;
+    padding: 8px;
+  }
+
+  .deck {
+    color: $color0;
+    font-size: 18px;
+    text-align: center;
+    margin: 6px 0 4px 0;
+
+    em {
+      background-color: $color4;
+      @include border-radius;
+      padding: 0.05em 0.25em 0.1em 0.25em;
+    }
+  }
+
+  blockquote {
+    @include border-radius;
+    text-indent: 0;
+    color: black;
+    background: url(../images/quote-open.gif) no-repeat 8px 8px;
+    background-color: $color3;
+    margin: 0 14 0 24px;
+    padding: 10px 20px 1px 24px;
+    font-style: normal;
+
+    p {
+      margin: 0 0 0.8em 0;
+    }
+    ul {
+      margin-top: 0.8em;
+      margin-left: 0.8em;
+    }
+  }
+
+  .author {
+    text-align: right;
+    &:before {
+      content: "\2014"; 
+    }
+    margin: {
+      top: 0.3em;
+      bottom: 1.3em;
+    }
+  }
+
+  .post {
+    margin: 0 0 12px 0;
+    h2 {
+      margin-bottom: 0;
+      a {
+      	text-decoration: none;
+      	@include link-colors($color0);
+      }
+    }
+    .body {
+      @include border-radius;
+      background-color: $color3;
+      padding: 14px 10px 6px 0px;
+      margin-left: 10px;
+      #share-links {
+      	float: right;
+      	width: 110px;
+      	margin: 0 0 0 8px;
+      	padding: 0 !important;
+      	div {
+      	  margin: 0 !important;
+	}
+      }
+    }
+
+    .footer {
+      margin: 0 0 0 12px;
+      padding: 4px 0 0 0;
+      .author {
+        display: inline;
+        font-size: 12px;
+        margin: 0;
+        &:before {
+          content: 'Posted by ';
+        }
+      }
+      .comments-link {
+      	float: right;
+      	font-size: 12px;
+      }
+      .comments {
+      	clear: both;
+        margin: 6px 12px 0 0;
+        padding-top: 8px;
+        border-top: $color2 solid 1px;
+
+	#dsq-global-toolbar {
+	  margin: 0 !important;
+	  padding: 0 !important;
+
+	  .dsq-global-toolbar-left, .dsq-global-toolbar-right {
+	    margin: 0 !important;
+	    padding: 0 !important;
+	    li {
+	    margin-bottom: 0;
+	    padding-bottom: 0;
+	    }
+	  }
+	}
+
+	.dsq-comment {
+	  margin-bottom: 0;
+	}
+
+	#dsq-footer {
+	  display: none;
+	}
+
+        div, p, blockquote, pre, span, form {
+          margin: {
+            left: 0;
+            right: 0;
+          }
+        }
+        h1, h2, h3, h4, h5, h6, ul {
+          margin: 0 0 12px 0;
+        }
+      }
+    }
+  }
+
+  .pagination-links, .post-navigation {
+    font-size: 12px;
+    margin: 8px 12px 0 0;
+    padding: 6px 0 0 0;
+    border-top: $color3 solid 1px;
+    .current-page {
+      font-weight: bold;
+    }
+    .previous, .next {
+      margin: 0;
+    }
+  }
+  .archive-links {
+    font-size: 12px;
+    margin: 0;
+  }
+  .pagination-links:before {
+    content: 'Pages: ';
+  }
+
+  .notice {
+    margin-left: 12px;
+  }
+
+  #goog-fixurl {
+    text-align: left;
+    margin: 0;
+  }
+  #goog-wm {
+    text-align: left;
+    margin: 0;
+
+    .content {
+      margin: 0;
+      padding: 0;
+      
+      h3 b {
+      	font-weight: normal;
+      }
+    }
+  }
+}
+
