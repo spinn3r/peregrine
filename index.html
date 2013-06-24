@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Peregrine - FAST Map Reduce and Bigtable.</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <script src="https://google-code-prettify.googlecode.com/svn/loader/run_prettify.js"></script>
+    <!-- Le styles -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/bootstrap-lightbox.min.css" rel="stylesheet">
+    <link href="css/bootstrap-responsive.css" rel="stylesheet">
+    <link href="css/custom.css" rel="stylesheet">
+
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="js/html5shiv.js"></script>
+    <![endif]-->
+
+    <!-- Fav and touch icons -->
+    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="ico/apple-touch-icon-144-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="ico/apple-touch-icon-114-precomposed.png">
+      <link rel="apple-touch-icon-precomposed" sizes="72x72" href="ico/apple-touch-icon-72-precomposed.png">
+                    <link rel="apple-touch-icon-precomposed" href="ico/apple-touch-icon-57-precomposed.png">
+                                   <link rel="shortcut icon" href="ico/favicon.png">
+  </head>
+
+  <body>
+
+  <div id="wrap">
+
+      <div class="navbar navbar-inverse navbar-fixed-top">
+          <div class="navbar-inner">
+              <div class="container">
+                  <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                      <span class="icon-bar"></span>
+                      <span class="icon-bar"></span>
+                      <span class="icon-bar"></span>
+                  </button>
+                  <a class="brand" href="http://peregrine.io" target="_new">Peregrine</a>
+                  <div class="nav-collapse collapse">
+                      <ul class="nav">
+                          <!--<li class="active"><a href="http://peregrine.io">Home</a></li>-->
+                          <li><a href="https://bitbucket.org/burtonator/peregrine/src">Source</a></li>
+                          <li><a href="http://peregrine_mapreduce.bitbucket.org/javadoc/">Javadoc</a></li>
+                          <li><a href="https://groups.google.com/forum/#!forum/peregrine-mapreduce">Community</a></li>
+                      </ul>
+                  </div><!--/.nav-collapse -->
+              </div>
+          </div>
+      </div>
+
+    <div class="container">
+
+        <div class="row-fluid">
+
+            <!-- Jumbotron -->
+            <div class="jumbotron">
+
+                <div class="peregrine-logo">
+                <img src="http://174.36.241.147-static.reverse.softlayer.com:11111/logo.png"
+                     width="407"
+                     height="99">
+                </div>
+
+                <h1>Map Reduce and Bigtable Done Right.</h1>
+                <p class="lead">Peregrine is a map reduce framework designed for running iterative jobs across partitions of data. Peregrine is designed to be FAST for executing map reduce jobs by supporting a number of optimizations and features not present in other map reduce frameworks.
+
+                </p>
+                <a class="btn btn-large btn-success" href="https://github.com/spinn3r/peregrine/wiki/Getting-Started">Get started today</a>
+            </div>
+
+            <div class="row-fluid marketing">
+                <div class="span6">
+                    <h4>Fast shuffling</h4>
+                    <p>Direct shuffling between hosts which provides for a 2x performance boost over indirect shuffling.</p>
+
+                    <h4>Interative computation.</h4>
+                    <p>Many algorithms need to join and merge against data from
+                        a previous step.  Hadoop implements almost the worst possible
+                        strategy for handling joins.  With Peregrine, records are
+                        stored deterministically so joins are easy and can be
+                        done locally.  This can provide up to a 50x performance
+                        improvement for algorithms like Pagerank and Kmeans.
+                    </p>
+
+                    <h4>Lightweight</h4>
+                    <p>Peregrine is a lightweight codebase with less than 100k lines of
+                       code.  This allows it to easily integrate into 3rd party
+                       databases and frameworks.</p>
+
+                    <h4>Map/reduce/merge</h4>
+                    <p><a href="http://www.systems.ethz.ch/education/past-courses/hs08/map-reduce/reading/mapreducemerge-sigmod07.pdf">MapReduceMerge</a> style computations including a new merge() operation allows for clever performance optimizations.</p>
+
+
+                </div>
+
+                <div class="span6">
+                    <h4>Full async IO</h4>
+                    <p>Peregrine is based on <a href="http://netty.io">Netty</a>, an async IO framework for Java which can scale to a large number of concurrent TCP connections.</p>
+
+                    <h4>Think in map reduce... </h4>
+                    <p> Peregrine includes an execution plan optimizer for building jobs at a high level
+                        then allowing the runtime to compute the most efficient
+                        plan which allows developers to think in higher level
+                        constructs rather than being forced to "think" in MapReduce.</p>
+
+                    <h4>Native operating system integration.</h4>
+                    <p>Usage of fadvise, mincore, and other operating system
+                        interfaces means Peregrine can take advantage of some
+                        serious performance optimizations.</p>
+
+                    <h4>Integrated sorting</h4>
+                    <p>Peregrine has integrated secondary sorting.  The result
+                        of a job can be re-sorted by any arbitrary criteria with
+                        one line of code.</p>
+
+                </div>
+            </div>
+
+            <h2>Status</h2>
+
+            <div class="row-fluid">
+
+                <div class="span6">
+                    <p>
+                        Peregrine is under active development but ready for production.  The
+                        core map reduce functionality is complete and bigtable functionality
+                        is being implemented.
+                    </p>
+
+                    <table class="status-table">
+                        <tr><td>Core map reduce:</td><td><span class="label label-success">Completed</span></td></tr>
+                        <tr><td>Globally sorted data</td><td><span class="label label-success">Completed</span></td></tr>
+                        <tr><td>Pagerank implementation</td><td><span class="label label-success">Completed</span></td></tr>
+                        <tr><td>On-disk SSTables:</td><td><span class="label label-success">Completed</span></td></tr>
+                        <tr><td>In-memory arena-based memtables:</td><td><span class="label label-success">Completed</span></td></tr>
+                        <tr><td>GET and SCAN for SSTables:</td><td><span class="label label-success">Completed</span></td></tr>
+                        <tr><td>Compactions:</td><td><span class="label label-warning">In development</span></td></tr>
+                        <tr><td>PUT support:</td><td><span class="label label-warning">In development</span></td></tr>
+                        <tr><td>Cluster resharding and region migration:</td><td><span class="label label-warning">In development</span></td></tr>
+                    </table>
+                </div>
+
+
+                <div class="span6">
+                    <p><iframe width="560" height="315" src="http://www.youtube.com/embed/-_iCo1fFSeQ#t=21s" frameborder="0" allowfullscreen></iframe></p>
+                </div>
+
+
+                <!--&lt;!&ndash; Button to trigger modal &ndash;&gt;-->
+                <!--<a href="#myModal" role="button" class="btn" data-toggle="modal">Launch demo modal</a>-->
+
+                <!--&lt;!&ndash; Modal &ndash;&gt;-->
+                <!--<div id="myModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">-->
+                    <!--<div class="modal-header">-->
+                        <!--<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>-->
+                        <!--<h3 id="myModalLabel">Modal header</h3>-->
+                    <!--</div>-->
+                    <!--<div class="modal-body">-->
+                        <!--<p><iframe width="560" height="315" src="http://www.youtube.com/embed/-_iCo1fFSeQ#t=21s" frameborder="0" allowfullscreen></iframe></p>-->
+                    <!--</div>-->
+                    <!--<div class="modal-footer">-->
+                        <!--<button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>-->
+                        <!--<button class="btn btn-primary">Save changes</button>-->
+                    <!--</div>-->
+                <!--</div>-->
+
+            </div>
+            <!--
+            <div class="sourcecode">
+                <script src="https://gist.github.com/burtonator/5846854.js"></script>
+            </div>
+            -->
+
+            <!--<h2>Overview</h2>-->
+
+            <!--<p>Peregrine is a map reduce framework designed for running iterative-->
+                <!--jobs across partitions of data.  Peregrine is designed to be <b>FAST</b>-->
+                <!--for executing map reduce jobs by supporting a number of-->
+                <!--optimizations and features not present in other map reduce-->
+                <!--frameworks.</p>-->
+
+            <!--<p>Peregrine has been in development for a little over a year and is currently-->
+            <!--in production at <a href="http://spinn3r.com">Spinn3r</a> for executing-->
+            <!--Pagerank and other complicated background jobs.</p>-->
+
+            <!--<h2>Status</h2>-->
+
+            <!--<p>Peregrine is under active development but ready for production jobs. </p>-->
+
+            <!--<p style="text-align: center;"><iframe width="560" height="315" src="http://www.youtube.com/embed/-_iCo1fFSeQ#t=21s" frameborder="0" allowfullscreen></iframe></p>-->
+            <!--<h2>Features</h2>-->
+            <!--<p>Peregrine supports a number of optimizations and features not present in other map reduce frameworks including:</p>-->
+
+            <!--<h3>Performance</h3>-->
+            <!--<ul>-->
+                <!--<li>Execution plan optimizer for building jobs at a high level and then allowing the runtime to compute the most efficient plan which allows developers to think in higher level constructs other than being force to "think" in MapReduce.</li>-->
+                <!--<li>Implementation of 'systat' in Java which provides the same functionality as the <a href="http://sebastien.godard.pagesperso-orange.fr/">Linux systat package</a> which enables us to look at mean CPU, network, and disk utilization during the duration of a job for easy post-mortem performance analysis.</li>-->
+            <!--</ul>-->
+
+            <!--<h3>Tight code base.</h3>-->
+            <!--<ul>-->
+                <!--<li>A simple distributed filesystem implementation (PFS) optimized around partitioned operation and iterative computation.</li>-->
+                <!--<li>Broadcast variables which enable 'globals' acros your map reduce jobs which can be referenced in your tasks computing the job.</li>-->
+            <!--</ul>-->
+            <!--<h3>Design</h3>-->
+
+            <!--<p>Peregrine is designed primarily for iterative map reduce-->
+                <!--applications which need to join against the the previous-->
+                <!--iteration.  You can also deploy it for processing text but-->
+                <!--it isn't designed to handle huge blobs (>500k).</p>-->
+
+
+            <!--<p>For example, algorithms like Pagerank and k-means are iterative and join against data from the previous iteration.</p>-->
+            <!--<p>Peregrine has an implementation of Pagerank already which we're using as a test bed to prove out the rest of our framework.</p>-->
+            <!--<h3>Philosophy</h3>-->
+            <!--<ul>-->
+                <!--<li>Keep the code base tight and small and focused on one specific task (1.0 should be less than 100k lines of code)</li>-->
+                <!--<li>Target OS specific optimizations including mmap, fallocate, fadvise, sendfile, etc.</li>-->
+                <!--<li>All IO should use buffered async IO.</li>-->
+                <!--<li>All code should have 100% coverage and no excess code in the repository.</li>-->
+                <!--<li>Native integrated type system (structs) for manipulating keys and values.</li>-->
+            <!--</ul>-->
+
+        </div>
+
+        </div>
+
+    </div>
+  </div>
+
+
+  <!---->
+
+  <!--<div id="footer">-->
+      <!--<div class="container">-->
+          <!--<p class="muted credit">Example courtesy <a href="http://martinbean.co.uk">Martin Bean</a> and <a href="http://ryanfait.com/sticky-footer/">Ryan Fait</a>.</p>-->
+      <!--</div>-->
+  <!--</div>-->
+
+
+  <!-- Le javascript
+  ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <!-- <script src="js/jquery.js"></script> -->
+    <!-- <script src="js/bootstrap-transition.js"></script> -->
+    <!-- <script src="js/bootstrap-alert.js"></script> -->
+    <!-- <script src="js/bootstrap-modal.js"></script> -->
+    <!-- <script src="js/bootstrap-dropdown.js"></script> -->
+    <!-- <script src="js/bootstrap-scrollspy.js"></script> -->
+    <!-- <script src="js/bootstrap-tab.js"></script> -->
+    <!-- <script src="js/bootstrap-tooltip.js"></script> -->
+    <!-- <script src="js/bootstrap-popover.js"></script> -->
+    <!-- <script src="js/bootstrap-button.js"></script> -->
+    <!-- <script src="js/bootstrap-collapse.js"></script> -->
+    <!-- <script src="js/bootstrap-carousel.js"></script> -->
+    <!-- <script src="js/bootstrap-typeahead.js"></script> -->
+
+
+      <script src="js/jquery-1.10.1.min.js"></script>
+      <script src="js/bootstrap.min.js"></script>
+      <script src="js/bootstrap-lightbox.min.js"></script>
+
+  </body>
+</html>

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Peregrine - FAST Map Reduce and Bigtable.</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <script src="https://google-code-prettify.googlecode.com/svn/loader/run_prettify.js"></script>
+    <!-- Le styles -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/bootstrap-lightbox.min.css" rel="stylesheet">
+    <link href="css/bootstrap-responsive.css" rel="stylesheet">
+    <link href="css/custom.css" rel="stylesheet">
+
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+    <script src="js/html5shiv.js"></script>
+    <![endif]-->
+
+    <!-- Fav and touch icons -->
+    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="ico/apple-touch-icon-144-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="ico/apple-touch-icon-114-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="ico/apple-touch-icon-72-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" href="ico/apple-touch-icon-57-precomposed.png">
+    <link rel="shortcut icon" href="ico/favicon.png">
+</head>
+
+<body>
+
+<div id="wrap">
+
+<div class="navbar navbar-inverse navbar-fixed-top">
+    <div class="navbar-inner">
+        <div class="container">
+            <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="brand" href="http://peregrine.io" target="_new">Peregrine</a>
+            <div class="nav-collapse collapse">
+                <ul class="nav">
+                    <li><a href="https://bitbucket.org/burtonator/peregrine/src">Source</a></li>
+                    <li><a href="http://peregrine_mapreduce.bitbucket.org/javadoc/">Javadoc</a></li>
+                    <li><a href="https://groups.google.com/forum/#!forum/peregrine-mapreduce">Community</a></li>
+                </ul>
+            </div><!--/.nav-collapse -->
+        </div>
+    </div>
+</div>
+
+<div class="container">
+
+    <div class="row-fluid">
+
+        <img src="http://174.36.241.147-static.reverse.softlayer.com:11111/logo.png"
+             width="407"
+             height="99">
+
+
+        <h2>Roadmap</h2>
+
+        <p>Peregrine was created to optimally handle iterative and graph computation
+            for which other map reduce frameworks such as Hadoop were non-optimal.</p>
+
+        <p>Specifically, the design of Peregrine is setup to facilitate eventual
+            implementation of a
+            <a href="http://googleresearch.blogspot.com/2009/06/large-scale-graph-computing-at-google.html">Pregel</a>
+            style graph computation framework as well as <a href="http://dl.acm.org/citation.cfm?id=1806638">FlumeJava</a>
+            style pipeline and optimizer framework.  (Interestingly enough the
+            author was already working on similar frameworks but via convergent
+            evolution these ideas are better documented via these papers).</p>
+
+        <p>Further, a domain specific language similar to <a href="http://pig.apache.org/">Pig</a>
+            and <a href="http://research.google.com/archive/sawzall.html">Sawzall</a>
+            is also being considered to democratize access to these types of
+            resources.  Making the runtime Java-only limits the potential
+            audience and this framework can also be <b>very</b> useful for other
+            types of developers including operations.</p>
+
+
+        <h2>Contributors</h2>
+
+        <p><a href="http://spinn3r.com"><img src="http://spinn3r.com/images/spinn3r.v01.jpg" style="float: right; position: relative; top: -20px; margin-left: 10px; "/></a>Peregrine is developed at <a href="http://spinn3r.com">Spinn3r</a> for use with our blog and social media crawler.  We use it for machine learning and other IR tasks where performance is paramount.</p>
+        <h2>The Peregrine Falcon</h2>
+        <p>Peregrine was named after the <a href="http://en.wikipedia.org/wiki/Peregrine_Falcon">Peregrine Falcon</a> due to the author's love of the bird as well as his interest in science and nature.</p>
+        <p>The Peregrine is the fastest animal in the world: "The Peregrine is renowned for its speed, reaching over 325 km/h (202 mph) during its characteristic hunting stoop (high speed dive), making it the fastest member of the animal kingdom.</p>
+        <p>The Peregrine Falcon represents exactly what we're trying to accomplish with Peregrine.  We want to be the fastest MR implementation but at the same time remain small, agile, elegant, and beautiful.</p>
+
+        <p style="text-align: center;"><iframe width="630" height="472" src="http://www.youtube.com/embed/j3mTPEuFcWk" frameborder="0" allowfullscreen></iframe></p>
+
+    </div>
+
+</div>
+
+</div>
+</div>
+
+
+<!---->
+
+<!--<div id="footer">-->
+<!--<div class="container">-->
+<!--<p class="muted credit">Example courtesy <a href="http://martinbean.co.uk">Martin Bean</a> and <a href="http://ryanfait.com/sticky-footer/">Ryan Fait</a>.</p>-->
+<!--</div>-->
+<!--</div>-->
+
+
+<!-- Le javascript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+<!-- <script src="js/jquery.js"></script> -->
+<!-- <script src="js/bootstrap-transition.js"></script> -->
+<!-- <script src="js/bootstrap-alert.js"></script> -->
+<!-- <script src="js/bootstrap-modal.js"></script> -->
+<!-- <script src="js/bootstrap-dropdown.js"></script> -->
+<!-- <script src="js/bootstrap-scrollspy.js"></script> -->
+<!-- <script src="js/bootstrap-tab.js"></script> -->
+<!-- <script src="js/bootstrap-tooltip.js"></script> -->
+<!-- <script src="js/bootstrap-popover.js"></script> -->
+<!-- <script src="js/bootstrap-button.js"></script> -->
+<!-- <script src="js/bootstrap-collapse.js"></script> -->
+<!-- <script src="js/bootstrap-carousel.js"></script> -->
+<!-- <script src="js/bootstrap-typeahead.js"></script> -->
+
+
+<script src="js/jquery-1.10.1.min.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<script src="js/bootstrap-lightbox.min.js"></script>
+
+</body>
+</html>
