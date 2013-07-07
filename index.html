@@ -108,9 +108,9 @@
                         constructs rather than being forced to "think" in MapReduce.</p>
 
                     <h4>Native operating system integration.</h4>
-                    <p>Usage of fadvise, mincore, and other operating system
-                        interfaces means Peregrine can take advantage of some
-                        serious performance optimizations.</p>
+                    <p>Usage of fadvise, mincore, stat, and other operating system
+                        interfaces (via <a href="https://github.com/twall/jna">JNA</a>) means Peregrine can take advantage of 
+                        performance optimizations not possible with Java-only databases.</p>
 
                     <h4>Integrated sorting</h4>
                     <p>Peregrine has integrated secondary sorting.  The result
