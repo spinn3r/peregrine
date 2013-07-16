@@ -1,7 +1,0 @@
-
-
- - Extract should work magically, if the input is only read once, do a
-   ExtractMap, otherwise, write it to disk and do a normal map but start it just
-   as SOON as each chunk is written.
-
- -    
