@@ -92,7 +92,7 @@
 <a class="jxr_linenumber" name="82" href="#82">82</a>  
 <a class="jxr_linenumber" name="83" href="#83">83</a>                      <a href="../../../peregrine/shuffle/ShuffleOutputWriter.html">ShuffleOutputWriter</a> last = writer;
 <a class="jxr_linenumber" name="84" href="#84">84</a>  
-<a class="jxr_linenumber" name="85" href="#85">85</a>                      String path = String.format( <span class="jxr_string">"%s/%010d.tmp"</span>, config.getShuffleDir( name ), idx++ );
+<a class="jxr_linenumber" name="85" href="#85">85</a>                      String path = String.format( <span class="jxr_string">"%s/shuf%010d.tmp"</span>, config.getShuffleDir( name ), idx++ );
 <a class="jxr_linenumber" name="86" href="#86">86</a>                      
 <a class="jxr_linenumber" name="87" href="#87">87</a>                      writer = <strong class="jxr_keyword">new</strong> <a href="../../../peregrine/shuffle/ShuffleOutputWriter.html">ShuffleOutputWriter</a>( config, path );
 <a class="jxr_linenumber" name="88" href="#88">88</a>  

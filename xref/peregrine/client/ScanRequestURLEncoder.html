@@ -68,8 +68,8 @@
 <a class="jxr_linenumber" name="58" href="#58">58</a>  
 <a class="jxr_linenumber" name="59" href="#59">59</a>          StringBuilder buff = <strong class="jxr_keyword">new</strong> StringBuilder( 200 );
 <a class="jxr_linenumber" name="60" href="#60">60</a>  
-<a class="jxr_linenumber" name="61" href="#61">61</a>          buff.append( String.format( <span class="jxr_string">"%s:%s/%s/client-rpc/SCAN?"</span>,
-<a class="jxr_linenumber" name="62" href="#62">62</a>                       connection.getEndpoint(), endpointHost.getPort(), scanRequest.getPartition().getId() ) );
+<a class="jxr_linenumber" name="61" href="#61">61</a>          buff.append( String.format( <span class="jxr_string">"http://%s:%s/%s/client-rpc/SCAN?"</span>,
+<a class="jxr_linenumber" name="62" href="#62">62</a>                       endpointHost.getName(), endpointHost.getPort(), scanRequest.getPartition().getId() ) );
 <a class="jxr_linenumber" name="63" href="#63">63</a>  
 <a class="jxr_linenumber" name="64" href="#64">64</a>          addKeyParams( scanRequest.getStart(), <span class="jxr_string">"start"</span> );
 <a class="jxr_linenumber" name="65" href="#65">65</a>          addKeyParams( scanRequest.getEnd(), <span class="jxr_string">"start"</span> );

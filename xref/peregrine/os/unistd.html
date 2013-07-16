@@ -231,156 +231,177 @@
 <a class="jxr_linenumber" name="221" href="#221">221</a> 
 <a class="jxr_linenumber" name="222" href="#222">222</a>     }
 <a class="jxr_linenumber" name="223" href="#223">223</a> 
-<a class="jxr_linenumber" name="224" href="#224">224</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="225" href="#225">225</a> <em class="jxr_javadoccomment">     * rename() renames a file, moving it between directories if required. Any</em>
-<a class="jxr_linenumber" name="226" href="#226">226</a> <em class="jxr_javadoccomment">     * other hard links to the file (as created using link(2)) are</em>
-<a class="jxr_linenumber" name="227" href="#227">227</a> <em class="jxr_javadoccomment">     * unaffected. Open file descriptors for oldpath are also unaffected.</em>
-<a class="jxr_linenumber" name="228" href="#228">228</a> <em class="jxr_javadoccomment">     * </em>
-<a class="jxr_linenumber" name="229" href="#229">229</a> <em class="jxr_javadoccomment">     * If newpath already exists it will be atomically replaced (subject to a</em>
-<a class="jxr_linenumber" name="230" href="#230">230</a> <em class="jxr_javadoccomment">     * few conditions; see ERRORS below), so that there is no point at which</em>
-<a class="jxr_linenumber" name="231" href="#231">231</a> <em class="jxr_javadoccomment">     * another process attempting to access newpath will find it missing.</em>
-<a class="jxr_linenumber" name="232" href="#232">232</a> <em class="jxr_javadoccomment">     * </em>
-<a class="jxr_linenumber" name="233" href="#233">233</a> <em class="jxr_javadoccomment">     * If oldpath and newpath are existing hard links referring to the same</em>
-<a class="jxr_linenumber" name="234" href="#234">234</a> <em class="jxr_javadoccomment">     * file, then rename() does nothing, and returns a success status.</em>
-<a class="jxr_linenumber" name="235" href="#235">235</a> <em class="jxr_javadoccomment">     * </em>
-<a class="jxr_linenumber" name="236" href="#236">236</a> <em class="jxr_javadoccomment">     * If newpath exists but the operation fails for some reason rename()</em>
-<a class="jxr_linenumber" name="237" href="#237">237</a> <em class="jxr_javadoccomment">     * guarantees to leave an instance of newpath in place.</em>
-<a class="jxr_linenumber" name="238" href="#238">238</a> <em class="jxr_javadoccomment">     * </em>
-<a class="jxr_linenumber" name="239" href="#239">239</a> <em class="jxr_javadoccomment">     * oldpath can specify a directory. In this case, newpath must either not</em>
-<a class="jxr_linenumber" name="240" href="#240">240</a> <em class="jxr_javadoccomment">     * exist, or it must specify an empty directory.</em>
-<a class="jxr_linenumber" name="241" href="#241">241</a> <em class="jxr_javadoccomment">     * </em>
-<a class="jxr_linenumber" name="242" href="#242">242</a> <em class="jxr_javadoccomment">     * However, when overwriting there will probably be a window in which both</em>
-<a class="jxr_linenumber" name="243" href="#243">243</a> <em class="jxr_javadoccomment">     * oldpath and newpath refer to the file being renamed.</em>
-<a class="jxr_linenumber" name="244" href="#244">244</a> <em class="jxr_javadoccomment">     * </em>
-<a class="jxr_linenumber" name="245" href="#245">245</a> <em class="jxr_javadoccomment">     * If oldpath refers to a symbolic link the link is renamed; if newpath</em>
-<a class="jxr_linenumber" name="246" href="#246">246</a> <em class="jxr_javadoccomment">     * refers to a symbolic link the link will be overwritten.</em>
-<a class="jxr_linenumber" name="247" href="#247">247</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="248" href="#248">248</a> 
-<a class="jxr_linenumber" name="249" href="#249">249</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> rename( String oldPath, String newPath ) <strong class="jxr_keyword">throws</strong> IOException {
-<a class="jxr_linenumber" name="250" href="#250">250</a> 
-<a class="jxr_linenumber" name="251" href="#251">251</a>         <strong class="jxr_keyword">int</strong> result = delegate.rename( oldPath, newPath );
-<a class="jxr_linenumber" name="252" href="#252">252</a> 
-<a class="jxr_linenumber" name="253" href="#253">253</a>         <strong class="jxr_keyword">if</strong> ( result == -1 )
-<a class="jxr_linenumber" name="254" href="#254">254</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> IOException( String.format( <span class="jxr_string">"Unable to rename %s to %s"</span> , oldPath , newPath ) ,
-<a class="jxr_linenumber" name="255" href="#255">255</a>                                    <strong class="jxr_keyword">new</strong> <a href="../../peregrine/os/PlatformException.html">PlatformException</a>() );
-<a class="jxr_linenumber" name="256" href="#256">256</a> 
-<a class="jxr_linenumber" name="257" href="#257">257</a>         <strong class="jxr_keyword">return</strong> result;
-<a class="jxr_linenumber" name="258" href="#258">258</a> 
-<a class="jxr_linenumber" name="259" href="#259">259</a>     }
-<a class="jxr_linenumber" name="260" href="#260">260</a>     
-<a class="jxr_linenumber" name="261" href="#261">261</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">class</strong> <a href="../../peregrine/os/unistd.html">StatStruct</a> <strong class="jxr_keyword">extends</strong> Structure {
-<a class="jxr_linenumber" name="262" href="#262">262</a> 
-<a class="jxr_linenumber" name="263" href="#263">263</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong>     st_dev;     <em class="jxr_comment">/*<em class="jxr_comment"> ID of device containing file */</em></em>
-<a class="jxr_linenumber" name="264" href="#264">264</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong>     st_ino;     <em class="jxr_comment">/*<em class="jxr_comment"> inode number */</em></em>
-<a class="jxr_linenumber" name="265" href="#265">265</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong>     st_nlink;   <em class="jxr_comment">/*<em class="jxr_comment"> number of hard links */</em></em>
-<a class="jxr_linenumber" name="266" href="#266">266</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong>      st_mode;    <em class="jxr_comment">/*<em class="jxr_comment"> protection */</em></em>
-<a class="jxr_linenumber" name="267" href="#267">267</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong>      st_uid;     <em class="jxr_comment">/*<em class="jxr_comment"> user ID of owner */</em></em>
-<a class="jxr_linenumber" name="268" href="#268">268</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong>      st_gid;     <em class="jxr_comment">/*<em class="jxr_comment"> group ID of owner */</em></em>
-<a class="jxr_linenumber" name="269" href="#269">269</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong>     st_rdev;    <em class="jxr_comment">/*<em class="jxr_comment"> device ID (if special file) */</em></em>
-<a class="jxr_linenumber" name="270" href="#270">270</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong>     st_size;    <em class="jxr_comment">/*<em class="jxr_comment"> total size, in bytes */</em></em>
-<a class="jxr_linenumber" name="271" href="#271">271</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong>     st_blksize; <em class="jxr_comment">/*<em class="jxr_comment"> blocksize for filesystem I/O */</em></em>
-<a class="jxr_linenumber" name="272" href="#272">272</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong>     st_blocks;  <em class="jxr_comment">/*<em class="jxr_comment"> number of blocks allocated */</em></em>
-<a class="jxr_linenumber" name="273" href="#273">273</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong>     st_atime;     <em class="jxr_comment">// Time of last access (time_t)  </em>
-<a class="jxr_linenumber" name="274" href="#274">274</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong>     st_atimensec; <em class="jxr_comment">// Time of last access (nanoseconds)  </em>
-<a class="jxr_linenumber" name="275" href="#275">275</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong>     st_mtime;     <em class="jxr_comment">// Last data modification time (time_t)  </em>
-<a class="jxr_linenumber" name="276" href="#276">276</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong>     st_mtimensec; <em class="jxr_comment">// Last data modification time (nanoseconds)  </em>
-<a class="jxr_linenumber" name="277" href="#277">277</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong>     st_ctime;     <em class="jxr_comment">// Time of last status change (time_t)  </em>
-<a class="jxr_linenumber" name="278" href="#278">278</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong>     st_ctimensec; <em class="jxr_comment">// Time of last status change (nanoseconds)  </em>
-<a class="jxr_linenumber" name="279" href="#279">279</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong>     __unused4;  
-<a class="jxr_linenumber" name="280" href="#280">280</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong>     __unused5;  
-<a class="jxr_linenumber" name="281" href="#281">281</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong>     __unused6;  
-<a class="jxr_linenumber" name="282" href="#282">282</a>     }
-<a class="jxr_linenumber" name="283" href="#283">283</a> 
-<a class="jxr_linenumber" name="284" href="#284">284</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="../../peregrine/os/unistd.html">StatStruct</a> stat( String path ) <strong class="jxr_keyword">throws</strong> IOException {
-<a class="jxr_linenumber" name="285" href="#285">285</a> 
-<a class="jxr_linenumber" name="286" href="#286">286</a>         <a href="../../peregrine/os/unistd.html">StatStruct</a> stat = <strong class="jxr_keyword">new</strong> <a href="../../peregrine/os/unistd.html">StatStruct</a>();
-<a class="jxr_linenumber" name="287" href="#287">287</a> 
-<a class="jxr_linenumber" name="288" href="#288">288</a>         <strong class="jxr_keyword">int</strong> result = delegate.stat( path, stat );
-<a class="jxr_linenumber" name="289" href="#289">289</a> 
-<a class="jxr_linenumber" name="290" href="#290">290</a>         <strong class="jxr_keyword">if</strong> ( result == -1 )
-<a class="jxr_linenumber" name="291" href="#291">291</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> IOException( <strong class="jxr_keyword">new</strong> PlatformException() );
-<a class="jxr_linenumber" name="292" href="#292">292</a> 
-<a class="jxr_linenumber" name="293" href="#293">293</a>         <strong class="jxr_keyword">return</strong> stat;
-<a class="jxr_linenumber" name="294" href="#294">294</a> 
-<a class="jxr_linenumber" name="295" href="#295">295</a>     }
-<a class="jxr_linenumber" name="296" href="#296">296</a> 
-<a class="jxr_linenumber" name="297" href="#297">297</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> fork() <strong class="jxr_keyword">throws</strong> Exception {
-<a class="jxr_linenumber" name="298" href="#298">298</a> 
-<a class="jxr_linenumber" name="299" href="#299">299</a>         <strong class="jxr_keyword">int</strong> result = delegate.fork();
-<a class="jxr_linenumber" name="300" href="#300">300</a> 
-<a class="jxr_linenumber" name="301" href="#301">301</a>         <strong class="jxr_keyword">if</strong> ( result == -1 )
-<a class="jxr_linenumber" name="302" href="#302">302</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../peregrine/os/PlatformException.html">PlatformException</a>();
+<a class="jxr_linenumber" name="224" href="#224">224</a> 
+<a class="jxr_linenumber" name="225" href="#225">225</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="226" href="#226">226</a> <em class="jxr_javadoccomment">     * <a href="http://linux.die.net/man/3/rmdir" target="alexandria_uri">http://linux.die.net/man/3/rmdir</a></em>
+<a class="jxr_linenumber" name="227" href="#227">227</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="228" href="#228">228</a> <em class="jxr_javadoccomment">     * @param path The file to delete.</em>
+<a class="jxr_linenumber" name="229" href="#229">229</a> <em class="jxr_javadoccomment">     * @return</em>
+<a class="jxr_linenumber" name="230" href="#230">230</a> <em class="jxr_javadoccomment">     * @throws IOException</em>
+<a class="jxr_linenumber" name="231" href="#231">231</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="232" href="#232">232</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> rmdir( String path ) <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="233" href="#233">233</a> 
+<a class="jxr_linenumber" name="234" href="#234">234</a>         <strong class="jxr_keyword">int</strong> result = delegate.rmdir( path );
+<a class="jxr_linenumber" name="235" href="#235">235</a> 
+<a class="jxr_linenumber" name="236" href="#236">236</a>         <strong class="jxr_keyword">if</strong> ( result == -1 )
+<a class="jxr_linenumber" name="237" href="#237">237</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> IOException( <span class="jxr_string">"Unable to rmdir: "</span> + path , <strong class="jxr_keyword">new</strong> <a href="../../peregrine/os/PlatformException.html">PlatformException</a>() );
+<a class="jxr_linenumber" name="238" href="#238">238</a> 
+<a class="jxr_linenumber" name="239" href="#239">239</a>         <strong class="jxr_keyword">return</strong> result;
+<a class="jxr_linenumber" name="240" href="#240">240</a> 
+<a class="jxr_linenumber" name="241" href="#241">241</a>     }
+<a class="jxr_linenumber" name="242" href="#242">242</a> 
+<a class="jxr_linenumber" name="243" href="#243">243</a> 
+<a class="jxr_linenumber" name="244" href="#244">244</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="245" href="#245">245</a> <em class="jxr_javadoccomment">     * rename() renames a file, moving it between directories if required. Any</em>
+<a class="jxr_linenumber" name="246" href="#246">246</a> <em class="jxr_javadoccomment">     * other hard links to the file (as created using link(2)) are</em>
+<a class="jxr_linenumber" name="247" href="#247">247</a> <em class="jxr_javadoccomment">     * unaffected. Open file descriptors for oldpath are also unaffected.</em>
+<a class="jxr_linenumber" name="248" href="#248">248</a> <em class="jxr_javadoccomment">     * </em>
+<a class="jxr_linenumber" name="249" href="#249">249</a> <em class="jxr_javadoccomment">     * If newpath already exists it will be atomically replaced (subject to a</em>
+<a class="jxr_linenumber" name="250" href="#250">250</a> <em class="jxr_javadoccomment">     * few conditions; see ERRORS below), so that there is no point at which</em>
+<a class="jxr_linenumber" name="251" href="#251">251</a> <em class="jxr_javadoccomment">     * another process attempting to access newpath will find it missing.</em>
+<a class="jxr_linenumber" name="252" href="#252">252</a> <em class="jxr_javadoccomment">     * </em>
+<a class="jxr_linenumber" name="253" href="#253">253</a> <em class="jxr_javadoccomment">     * If oldpath and newpath are existing hard links referring to the same</em>
+<a class="jxr_linenumber" name="254" href="#254">254</a> <em class="jxr_javadoccomment">     * file, then rename() does nothing, and returns a success status.</em>
+<a class="jxr_linenumber" name="255" href="#255">255</a> <em class="jxr_javadoccomment">     * </em>
+<a class="jxr_linenumber" name="256" href="#256">256</a> <em class="jxr_javadoccomment">     * If newpath exists but the operation fails for some reason rename()</em>
+<a class="jxr_linenumber" name="257" href="#257">257</a> <em class="jxr_javadoccomment">     * guarantees to leave an instance of newpath in place.</em>
+<a class="jxr_linenumber" name="258" href="#258">258</a> <em class="jxr_javadoccomment">     * </em>
+<a class="jxr_linenumber" name="259" href="#259">259</a> <em class="jxr_javadoccomment">     * oldpath can specify a directory. In this case, newpath must either not</em>
+<a class="jxr_linenumber" name="260" href="#260">260</a> <em class="jxr_javadoccomment">     * exist, or it must specify an empty directory.</em>
+<a class="jxr_linenumber" name="261" href="#261">261</a> <em class="jxr_javadoccomment">     * </em>
+<a class="jxr_linenumber" name="262" href="#262">262</a> <em class="jxr_javadoccomment">     * However, when overwriting there will probably be a window in which both</em>
+<a class="jxr_linenumber" name="263" href="#263">263</a> <em class="jxr_javadoccomment">     * oldpath and newpath refer to the file being renamed.</em>
+<a class="jxr_linenumber" name="264" href="#264">264</a> <em class="jxr_javadoccomment">     * </em>
+<a class="jxr_linenumber" name="265" href="#265">265</a> <em class="jxr_javadoccomment">     * If oldpath refers to a symbolic link the link is renamed; if newpath</em>
+<a class="jxr_linenumber" name="266" href="#266">266</a> <em class="jxr_javadoccomment">     * refers to a symbolic link the link will be overwritten.</em>
+<a class="jxr_linenumber" name="267" href="#267">267</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="268" href="#268">268</a> 
+<a class="jxr_linenumber" name="269" href="#269">269</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> rename( String oldPath, String newPath ) <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="270" href="#270">270</a> 
+<a class="jxr_linenumber" name="271" href="#271">271</a>         <strong class="jxr_keyword">int</strong> result = delegate.rename( oldPath, newPath );
+<a class="jxr_linenumber" name="272" href="#272">272</a> 
+<a class="jxr_linenumber" name="273" href="#273">273</a>         <strong class="jxr_keyword">if</strong> ( result == -1 )
+<a class="jxr_linenumber" name="274" href="#274">274</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> IOException( String.format( <span class="jxr_string">"Unable to rename %s to %s"</span> , oldPath , newPath ) ,
+<a class="jxr_linenumber" name="275" href="#275">275</a>                                    <strong class="jxr_keyword">new</strong> <a href="../../peregrine/os/PlatformException.html">PlatformException</a>() );
+<a class="jxr_linenumber" name="276" href="#276">276</a> 
+<a class="jxr_linenumber" name="277" href="#277">277</a>         <strong class="jxr_keyword">return</strong> result;
+<a class="jxr_linenumber" name="278" href="#278">278</a> 
+<a class="jxr_linenumber" name="279" href="#279">279</a>     }
+<a class="jxr_linenumber" name="280" href="#280">280</a>     
+<a class="jxr_linenumber" name="281" href="#281">281</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">class</strong> <a href="../../peregrine/os/unistd.html">StatStruct</a> <strong class="jxr_keyword">extends</strong> Structure {
+<a class="jxr_linenumber" name="282" href="#282">282</a> 
+<a class="jxr_linenumber" name="283" href="#283">283</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong>     st_dev;     <em class="jxr_comment">/*<em class="jxr_comment"> ID of device containing file */</em></em>
+<a class="jxr_linenumber" name="284" href="#284">284</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong>     st_ino;     <em class="jxr_comment">/*<em class="jxr_comment"> inode number */</em></em>
+<a class="jxr_linenumber" name="285" href="#285">285</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong>     st_nlink;   <em class="jxr_comment">/*<em class="jxr_comment"> number of hard links */</em></em>
+<a class="jxr_linenumber" name="286" href="#286">286</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong>      st_mode;    <em class="jxr_comment">/*<em class="jxr_comment"> protection */</em></em>
+<a class="jxr_linenumber" name="287" href="#287">287</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong>      st_uid;     <em class="jxr_comment">/*<em class="jxr_comment"> user ID of owner */</em></em>
+<a class="jxr_linenumber" name="288" href="#288">288</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong>      st_gid;     <em class="jxr_comment">/*<em class="jxr_comment"> group ID of owner */</em></em>
+<a class="jxr_linenumber" name="289" href="#289">289</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong>     st_rdev;    <em class="jxr_comment">/*<em class="jxr_comment"> device ID (if special file) */</em></em>
+<a class="jxr_linenumber" name="290" href="#290">290</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong>     st_size;    <em class="jxr_comment">/*<em class="jxr_comment"> total size, in bytes */</em></em>
+<a class="jxr_linenumber" name="291" href="#291">291</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong>     st_blksize; <em class="jxr_comment">/*<em class="jxr_comment"> blocksize for filesystem I/O */</em></em>
+<a class="jxr_linenumber" name="292" href="#292">292</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong>     st_blocks;  <em class="jxr_comment">/*<em class="jxr_comment"> number of blocks allocated */</em></em>
+<a class="jxr_linenumber" name="293" href="#293">293</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong>     st_atime;     <em class="jxr_comment">// Time of last access (time_t)  </em>
+<a class="jxr_linenumber" name="294" href="#294">294</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong>     st_atimensec; <em class="jxr_comment">// Time of last access (nanoseconds)  </em>
+<a class="jxr_linenumber" name="295" href="#295">295</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong>     st_mtime;     <em class="jxr_comment">// Last data modification time (time_t)  </em>
+<a class="jxr_linenumber" name="296" href="#296">296</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong>     st_mtimensec; <em class="jxr_comment">// Last data modification time (nanoseconds)  </em>
+<a class="jxr_linenumber" name="297" href="#297">297</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong>     st_ctime;     <em class="jxr_comment">// Time of last status change (time_t)  </em>
+<a class="jxr_linenumber" name="298" href="#298">298</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong>     st_ctimensec; <em class="jxr_comment">// Time of last status change (nanoseconds)  </em>
+<a class="jxr_linenumber" name="299" href="#299">299</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong>     __unused4;  
+<a class="jxr_linenumber" name="300" href="#300">300</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong>     __unused5;  
+<a class="jxr_linenumber" name="301" href="#301">301</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong>     __unused6;  
+<a class="jxr_linenumber" name="302" href="#302">302</a>     }
 <a class="jxr_linenumber" name="303" href="#303">303</a> 
-<a class="jxr_linenumber" name="304" href="#304">304</a>         <strong class="jxr_keyword">return</strong> result;
+<a class="jxr_linenumber" name="304" href="#304">304</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <a href="../../peregrine/os/unistd.html">StatStruct</a> stat( String path ) <strong class="jxr_keyword">throws</strong> IOException {
 <a class="jxr_linenumber" name="305" href="#305">305</a> 
-<a class="jxr_linenumber" name="306" href="#306">306</a>     }
+<a class="jxr_linenumber" name="306" href="#306">306</a>         <a href="../../peregrine/os/unistd.html">StatStruct</a> stat = <strong class="jxr_keyword">new</strong> <a href="../../peregrine/os/unistd.html">StatStruct</a>();
 <a class="jxr_linenumber" name="307" href="#307">307</a> 
-<a class="jxr_linenumber" name="308" href="#308">308</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> execve( String path, String[] argv, String [] envp ) <strong class="jxr_keyword">throws</strong> Exception {
+<a class="jxr_linenumber" name="308" href="#308">308</a>         <strong class="jxr_keyword">int</strong> result = delegate.stat( path, stat );
 <a class="jxr_linenumber" name="309" href="#309">309</a> 
-<a class="jxr_linenumber" name="310" href="#310">310</a>         <strong class="jxr_keyword">int</strong> result = delegate.execve( path, argv, envp );
-<a class="jxr_linenumber" name="311" href="#311">311</a> 
-<a class="jxr_linenumber" name="312" href="#312">312</a>         <strong class="jxr_keyword">if</strong> ( result == -1 )
-<a class="jxr_linenumber" name="313" href="#313">313</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../peregrine/os/PlatformException.html">PlatformException</a>();
+<a class="jxr_linenumber" name="310" href="#310">310</a>         <strong class="jxr_keyword">if</strong> ( result == -1 )
+<a class="jxr_linenumber" name="311" href="#311">311</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> IOException( <strong class="jxr_keyword">new</strong> PlatformException() );
+<a class="jxr_linenumber" name="312" href="#312">312</a> 
+<a class="jxr_linenumber" name="313" href="#313">313</a>         <strong class="jxr_keyword">return</strong> stat;
 <a class="jxr_linenumber" name="314" href="#314">314</a> 
-<a class="jxr_linenumber" name="315" href="#315">315</a>         <strong class="jxr_keyword">return</strong> result;
-<a class="jxr_linenumber" name="316" href="#316">316</a>         
-<a class="jxr_linenumber" name="317" href="#317">317</a>     }
+<a class="jxr_linenumber" name="315" href="#315">315</a>     }
+<a class="jxr_linenumber" name="316" href="#316">316</a> 
+<a class="jxr_linenumber" name="317" href="#317">317</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> fork() <strong class="jxr_keyword">throws</strong> Exception {
 <a class="jxr_linenumber" name="318" href="#318">318</a> 
-<a class="jxr_linenumber" name="319" href="#319">319</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="320" href="#320">320</a> <em class="jxr_javadoccomment">     * Simple implementation of spawn which combines fork/exec into the same</em>
-<a class="jxr_linenumber" name="321" href="#321">321</a> <em class="jxr_javadoccomment">     * call under the covers in glibc land.</em>
-<a class="jxr_linenumber" name="322" href="#322">322</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="323" href="#323">323</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> posix_spawn( String path,
-<a class="jxr_linenumber" name="324" href="#324">324</a>                                    String[] argv, 
-<a class="jxr_linenumber" name="325" href="#325">325</a>                                    String[] envp ) {
-<a class="jxr_linenumber" name="326" href="#326">326</a> 
-<a class="jxr_linenumber" name="327" href="#327">327</a>         Pointer NULL = <strong class="jxr_keyword">new</strong> Pointer( 0 );
-<a class="jxr_linenumber" name="328" href="#328">328</a> 
-<a class="jxr_linenumber" name="329" href="#329">329</a>         IntByReference pid = <strong class="jxr_keyword">new</strong> IntByReference();
-<a class="jxr_linenumber" name="330" href="#330">330</a>         
-<a class="jxr_linenumber" name="331" href="#331">331</a>         delegate.posix_spawn( pid, path, NULL, NULL, argv, envp );
-<a class="jxr_linenumber" name="332" href="#332">332</a> 
-<a class="jxr_linenumber" name="333" href="#333">333</a>         <strong class="jxr_keyword">return</strong> pid.getValue();
-<a class="jxr_linenumber" name="334" href="#334">334</a>         
-<a class="jxr_linenumber" name="335" href="#335">335</a>     }
-<a class="jxr_linenumber" name="336" href="#336">336</a> 
-<a class="jxr_linenumber" name="337" href="#337">337</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> posix_spawn( IntByReference pid,
-<a class="jxr_linenumber" name="338" href="#338">338</a>                                    String path,
-<a class="jxr_linenumber" name="339" href="#339">339</a>                                    Pointer fileActions, 
-<a class="jxr_linenumber" name="340" href="#340">340</a>                                    Pointer attr,
-<a class="jxr_linenumber" name="341" href="#341">341</a>                                    String[] argv, 
-<a class="jxr_linenumber" name="342" href="#342">342</a>                                    String[] envp ) {
-<a class="jxr_linenumber" name="343" href="#343">343</a> 
-<a class="jxr_linenumber" name="344" href="#344">344</a>         <strong class="jxr_keyword">return</strong> delegate.posix_spawn( pid, path, fileActions, attr, argv, envp );
-<a class="jxr_linenumber" name="345" href="#345">345</a>         
-<a class="jxr_linenumber" name="346" href="#346">346</a>     }
-<a class="jxr_linenumber" name="347" href="#347">347</a>     
-<a class="jxr_linenumber" name="348" href="#348">348</a>     <strong class="jxr_keyword">interface</strong> <a href="../../peregrine/os/unistd.html">InterfaceDelegate</a> <strong class="jxr_keyword">extends</strong> Library {
-<a class="jxr_linenumber" name="349" href="#349">349</a> 
-<a class="jxr_linenumber" name="350" href="#350">350</a>         <strong class="jxr_keyword">void</strong> sync();
-<a class="jxr_linenumber" name="351" href="#351">351</a>         <strong class="jxr_keyword">int</strong> getpid();
-<a class="jxr_linenumber" name="352" href="#352">352</a>         <strong class="jxr_keyword">int</strong> setuid( <strong class="jxr_keyword">int</strong> uid );
-<a class="jxr_linenumber" name="353" href="#353">353</a>         <strong class="jxr_keyword">int</strong> getuid();
-<a class="jxr_linenumber" name="354" href="#354">354</a>         <strong class="jxr_keyword">int</strong> getpagesize();
-<a class="jxr_linenumber" name="355" href="#355">355</a>         <strong class="jxr_keyword">int</strong> chown( String path, <strong class="jxr_keyword">int</strong> uid, <strong class="jxr_keyword">int</strong> gid );
-<a class="jxr_linenumber" name="356" href="#356">356</a>         <strong class="jxr_keyword">int</strong> chmod( String path, <strong class="jxr_keyword">int</strong> perms );
-<a class="jxr_linenumber" name="357" href="#357">357</a>         <strong class="jxr_keyword">int</strong> stat( String path, StatStruct stat );
-<a class="jxr_linenumber" name="358" href="#358">358</a>         <strong class="jxr_keyword">int</strong> mkdir( String path, <strong class="jxr_keyword">int</strong> mode );
-<a class="jxr_linenumber" name="359" href="#359">359</a>         <strong class="jxr_keyword">int</strong> unlink( String path );
-<a class="jxr_linenumber" name="360" href="#360">360</a>         <strong class="jxr_keyword">int</strong> rename( String oldPath, String newPath );
-<a class="jxr_linenumber" name="361" href="#361">361</a>         <strong class="jxr_keyword">int</strong> fork();
-<a class="jxr_linenumber" name="362" href="#362">362</a>         <strong class="jxr_keyword">int</strong> execve( String path, String[] argv, String [] envp );
+<a class="jxr_linenumber" name="319" href="#319">319</a>         <strong class="jxr_keyword">int</strong> result = delegate.fork();
+<a class="jxr_linenumber" name="320" href="#320">320</a> 
+<a class="jxr_linenumber" name="321" href="#321">321</a>         <strong class="jxr_keyword">if</strong> ( result == -1 )
+<a class="jxr_linenumber" name="322" href="#322">322</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../peregrine/os/PlatformException.html">PlatformException</a>();
+<a class="jxr_linenumber" name="323" href="#323">323</a> 
+<a class="jxr_linenumber" name="324" href="#324">324</a>         <strong class="jxr_keyword">return</strong> result;
+<a class="jxr_linenumber" name="325" href="#325">325</a> 
+<a class="jxr_linenumber" name="326" href="#326">326</a>     }
+<a class="jxr_linenumber" name="327" href="#327">327</a> 
+<a class="jxr_linenumber" name="328" href="#328">328</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> execve( String path, String[] argv, String [] envp ) <strong class="jxr_keyword">throws</strong> Exception {
+<a class="jxr_linenumber" name="329" href="#329">329</a> 
+<a class="jxr_linenumber" name="330" href="#330">330</a>         <strong class="jxr_keyword">int</strong> result = delegate.execve( path, argv, envp );
+<a class="jxr_linenumber" name="331" href="#331">331</a> 
+<a class="jxr_linenumber" name="332" href="#332">332</a>         <strong class="jxr_keyword">if</strong> ( result == -1 )
+<a class="jxr_linenumber" name="333" href="#333">333</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a href="../../peregrine/os/PlatformException.html">PlatformException</a>();
+<a class="jxr_linenumber" name="334" href="#334">334</a> 
+<a class="jxr_linenumber" name="335" href="#335">335</a>         <strong class="jxr_keyword">return</strong> result;
+<a class="jxr_linenumber" name="336" href="#336">336</a>         
+<a class="jxr_linenumber" name="337" href="#337">337</a>     }
+<a class="jxr_linenumber" name="338" href="#338">338</a> 
+<a class="jxr_linenumber" name="339" href="#339">339</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="340" href="#340">340</a> <em class="jxr_javadoccomment">     * Simple implementation of spawn which combines fork/exec into the same</em>
+<a class="jxr_linenumber" name="341" href="#341">341</a> <em class="jxr_javadoccomment">     * call under the covers in glibc land.</em>
+<a class="jxr_linenumber" name="342" href="#342">342</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="343" href="#343">343</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> posix_spawn( String path,
+<a class="jxr_linenumber" name="344" href="#344">344</a>                                    String[] argv, 
+<a class="jxr_linenumber" name="345" href="#345">345</a>                                    String[] envp ) {
+<a class="jxr_linenumber" name="346" href="#346">346</a> 
+<a class="jxr_linenumber" name="347" href="#347">347</a>         Pointer NULL = <strong class="jxr_keyword">new</strong> Pointer( 0 );
+<a class="jxr_linenumber" name="348" href="#348">348</a> 
+<a class="jxr_linenumber" name="349" href="#349">349</a>         IntByReference pid = <strong class="jxr_keyword">new</strong> IntByReference();
+<a class="jxr_linenumber" name="350" href="#350">350</a>         
+<a class="jxr_linenumber" name="351" href="#351">351</a>         delegate.posix_spawn( pid, path, NULL, NULL, argv, envp );
+<a class="jxr_linenumber" name="352" href="#352">352</a> 
+<a class="jxr_linenumber" name="353" href="#353">353</a>         <strong class="jxr_keyword">return</strong> pid.getValue();
+<a class="jxr_linenumber" name="354" href="#354">354</a>         
+<a class="jxr_linenumber" name="355" href="#355">355</a>     }
+<a class="jxr_linenumber" name="356" href="#356">356</a> 
+<a class="jxr_linenumber" name="357" href="#357">357</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> posix_spawn( IntByReference pid,
+<a class="jxr_linenumber" name="358" href="#358">358</a>                                    String path,
+<a class="jxr_linenumber" name="359" href="#359">359</a>                                    Pointer fileActions, 
+<a class="jxr_linenumber" name="360" href="#360">360</a>                                    Pointer attr,
+<a class="jxr_linenumber" name="361" href="#361">361</a>                                    String[] argv, 
+<a class="jxr_linenumber" name="362" href="#362">362</a>                                    String[] envp ) {
 <a class="jxr_linenumber" name="363" href="#363">363</a> 
-<a class="jxr_linenumber" name="364" href="#364">364</a>         <strong class="jxr_keyword">int</strong> posix_spawn( IntByReference pid,
-<a class="jxr_linenumber" name="365" href="#365">365</a>                          String path,
-<a class="jxr_linenumber" name="366" href="#366">366</a>                          Pointer fileActions, 
-<a class="jxr_linenumber" name="367" href="#367">367</a>                          Pointer attr,
-<a class="jxr_linenumber" name="368" href="#368">368</a>                          String[] argv, 
-<a class="jxr_linenumber" name="369" href="#369">369</a>                          String[] envp );
-<a class="jxr_linenumber" name="370" href="#370">370</a>         
-<a class="jxr_linenumber" name="371" href="#371">371</a>     }
-<a class="jxr_linenumber" name="372" href="#372">372</a> 
-<a class="jxr_linenumber" name="373" href="#373">373</a> }
+<a class="jxr_linenumber" name="364" href="#364">364</a>         <strong class="jxr_keyword">return</strong> delegate.posix_spawn( pid, path, fileActions, attr, argv, envp );
+<a class="jxr_linenumber" name="365" href="#365">365</a>         
+<a class="jxr_linenumber" name="366" href="#366">366</a>     }
+<a class="jxr_linenumber" name="367" href="#367">367</a>     
+<a class="jxr_linenumber" name="368" href="#368">368</a>     <strong class="jxr_keyword">interface</strong> <a href="../../peregrine/os/unistd.html">InterfaceDelegate</a> <strong class="jxr_keyword">extends</strong> Library {
+<a class="jxr_linenumber" name="369" href="#369">369</a> 
+<a class="jxr_linenumber" name="370" href="#370">370</a>         <strong class="jxr_keyword">void</strong> sync();
+<a class="jxr_linenumber" name="371" href="#371">371</a>         <strong class="jxr_keyword">int</strong> getpid();
+<a class="jxr_linenumber" name="372" href="#372">372</a>         <strong class="jxr_keyword">int</strong> setuid( <strong class="jxr_keyword">int</strong> uid );
+<a class="jxr_linenumber" name="373" href="#373">373</a>         <strong class="jxr_keyword">int</strong> getuid();
+<a class="jxr_linenumber" name="374" href="#374">374</a>         <strong class="jxr_keyword">int</strong> getpagesize();
+<a class="jxr_linenumber" name="375" href="#375">375</a>         <strong class="jxr_keyword">int</strong> chown( String path, <strong class="jxr_keyword">int</strong> uid, <strong class="jxr_keyword">int</strong> gid );
+<a class="jxr_linenumber" name="376" href="#376">376</a>         <strong class="jxr_keyword">int</strong> chmod( String path, <strong class="jxr_keyword">int</strong> perms );
+<a class="jxr_linenumber" name="377" href="#377">377</a>         <strong class="jxr_keyword">int</strong> stat( String path, StatStruct stat );
+<a class="jxr_linenumber" name="378" href="#378">378</a>         <strong class="jxr_keyword">int</strong> mkdir( String path, <strong class="jxr_keyword">int</strong> mode );
+<a class="jxr_linenumber" name="379" href="#379">379</a>         <strong class="jxr_keyword">int</strong> unlink( String path );
+<a class="jxr_linenumber" name="380" href="#380">380</a>         <strong class="jxr_keyword">int</strong> rmdir( String path );
+<a class="jxr_linenumber" name="381" href="#381">381</a>         <strong class="jxr_keyword">int</strong> rename( String oldPath, String newPath );
+<a class="jxr_linenumber" name="382" href="#382">382</a>         <strong class="jxr_keyword">int</strong> fork();
+<a class="jxr_linenumber" name="383" href="#383">383</a>         <strong class="jxr_keyword">int</strong> execve( String path, String[] argv, String [] envp );
+<a class="jxr_linenumber" name="384" href="#384">384</a> 
+<a class="jxr_linenumber" name="385" href="#385">385</a>         <strong class="jxr_keyword">int</strong> posix_spawn( IntByReference pid,
+<a class="jxr_linenumber" name="386" href="#386">386</a>                          String path,
+<a class="jxr_linenumber" name="387" href="#387">387</a>                          Pointer fileActions, 
+<a class="jxr_linenumber" name="388" href="#388">388</a>                          Pointer attr,
+<a class="jxr_linenumber" name="389" href="#389">389</a>                          String[] argv, 
+<a class="jxr_linenumber" name="390" href="#390">390</a>                          String[] envp );
+<a class="jxr_linenumber" name="391" href="#391">391</a>         
+<a class="jxr_linenumber" name="392" href="#392">392</a>     }
+<a class="jxr_linenumber" name="393" href="#393">393</a> 
+<a class="jxr_linenumber" name="394" href="#394">394</a> }
 </pre>
 <hr/><div id="footer">This page was automatically generated by <a href="http://maven.apache.org/">Maven</a></div></body>
 </html>

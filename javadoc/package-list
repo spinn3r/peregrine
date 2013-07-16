@@ -1,4 +1,5 @@
 peregrine
+peregrine.annotations
 peregrine.app.benchmark
 peregrine.app.flow
 peregrine.app.pagerank
@@ -6,13 +7,13 @@ peregrine.app.pagerank.compact
 peregrine.app.pagerank.extract
 peregrine.client
 peregrine.client.benchmark
+peregrine.client.console
 peregrine.client.proto
 peregrine.combine
 peregrine.config
 peregrine.config.partitioner
 peregrine.console
 peregrine.console.fs
-peregrine.console.swoop
 peregrine.console.util
 peregrine.controller
 peregrine.controller.client
@@ -21,6 +22,7 @@ peregrine.controller.rpcd.delegate
 peregrine.controller.web
 peregrine.http
 peregrine.io
+peregrine.io.buffer
 peregrine.io.chunk
 peregrine.io.driver
 peregrine.io.driver.blackhole
@@ -31,6 +33,7 @@ peregrine.io.driver.shuffle
 peregrine.io.memtable
 peregrine.io.partition
 peregrine.io.sstable
+peregrine.io.storage
 peregrine.io.table
 peregrine.io.util
 peregrine.map
